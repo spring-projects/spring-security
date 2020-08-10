@@ -33,6 +33,7 @@ import javax.crypto.spec.PBEParameterSpec;
 
 /**
  * Static helper for working with the Cipher API.
+ *
  * @author Keith Donald
  */
 class CipherUtils {
@@ -78,8 +79,7 @@ class CipherUtils {
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	public static <T extends AlgorithmParameterSpec> T getParameterSpec(Cipher cipher,
-			Class<T> parameterSpecClass) {
+	public static <T extends AlgorithmParameterSpec> T getParameterSpec(Cipher cipher, Class<T> parameterSpecClass) {
 		try {
 			return cipher.getParameters().getParameterSpec(parameterSpecClass);
 		}
@@ -98,16 +98,14 @@ class CipherUtils {
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	public static void initCipher(Cipher cipher, int mode, SecretKey secretKey,
-			byte[] salt, int iterationCount) {
+	public static void initCipher(Cipher cipher, int mode, SecretKey secretKey, byte[] salt, int iterationCount) {
 		initCipher(cipher, mode, secretKey, new PBEParameterSpec(salt, iterationCount));
 	}
 
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	public static void initCipher(Cipher cipher, int mode, SecretKey secretKey,
-			AlgorithmParameterSpec parameterSpec) {
+	public static void initCipher(Cipher cipher, int mode, SecretKey secretKey, AlgorithmParameterSpec parameterSpec) {
 		try {
 			if (parameterSpec != null) {
 				cipher.init(mode, secretKey, parameterSpec);
@@ -117,12 +115,10 @@ class CipherUtils {
 			}
 		}
 		catch (InvalidKeyException e) {
-			throw new IllegalArgumentException(
-					"Unable to initialize due to invalid secret key", e);
+			throw new IllegalArgumentException("Unable to initialize due to invalid secret key", e);
 		}
 		catch (InvalidAlgorithmParameterException e) {
-			throw new IllegalStateException(
-					"Unable to initialize due to invalid decryption parameter spec", e);
+			throw new IllegalStateException("Unable to initialize due to invalid decryption parameter spec", e);
 		}
 	}
 
@@ -135,12 +131,10 @@ class CipherUtils {
 			return cipher.doFinal(input);
 		}
 		catch (IllegalBlockSizeException e) {
-			throw new IllegalStateException(
-					"Unable to invoke Cipher due to illegal block size", e);
+			throw new IllegalStateException("Unable to invoke Cipher due to illegal block size", e);
 		}
 		catch (BadPaddingException e) {
-			throw new IllegalStateException("Unable to invoke Cipher due to bad padding",
-					e);
+			throw new IllegalStateException("Unable to invoke Cipher due to bad padding", e);
 		}
 	}
 

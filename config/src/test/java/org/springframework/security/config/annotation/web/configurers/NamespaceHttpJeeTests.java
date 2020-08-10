@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-
 import java.security.Principal;
 import java.util.stream.Collectors;
 
@@ -66,16 +65,12 @@ public class NamespaceHttpJeeTests {
 		Principal user = mock(Principal.class);
 		when(user.getName()).thenReturn("joe");
 
-		this.mvc.perform(get("/roles")
-				.principal(user)
-				.with(request -> {
-					request.addUserRole("ROLE_admin");
-					request.addUserRole("ROLE_user");
-					request.addUserRole("ROLE_unmapped");
-					return request;
-				}))
-				.andExpect(status().isOk())
-				.andExpect(content().string("ROLE_admin,ROLE_user"));
+		this.mvc.perform(get("/roles").principal(user).with(request -> {
+			request.addUserRole("ROLE_admin");
+			request.addUserRole("ROLE_user");
+			request.addUserRole("ROLE_unmapped");
+			return request;
+		})).andExpect(status().isOk()).andExpect(content().string("ROLE_admin,ROLE_user"));
 	}
 
 	@EnableWebSecurity
@@ -92,6 +87,7 @@ public class NamespaceHttpJeeTests {
 					.mappableRoles("user", "admin");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -104,12 +100,9 @@ public class NamespaceHttpJeeTests {
 		User result = new User(user.getName(), "N/A", true, true, true, true,
 				AuthorityUtils.createAuthorityList("ROLE_user"));
 
-		when(bean(AuthenticationUserDetailsService.class).loadUserDetails(any()))
-				.thenReturn(result);
+		when(bean(AuthenticationUserDetailsService.class).loadUserDetails(any())).thenReturn(result);
 
-		this.mvc.perform(get("/roles")
-				.principal(user))
-				.andExpect(status().isOk())
+		this.mvc.perform(get("/roles").principal(user)).andExpect(status().isOk())
 				.andExpect(content().string("ROLE_user"));
 
 		verifyBean(AuthenticationUserDetailsService.class).loadUserDetails(any());
@@ -117,8 +110,9 @@ public class NamespaceHttpJeeTests {
 
 	@EnableWebSecurity
 	public static class JeeUserServiceRefConfig extends WebSecurityConfigurerAdapter {
-		private final AuthenticationUserDetailsService authenticationUserDetailsService =
-				mock(AuthenticationUserDetailsService.class);
+
+		private final AuthenticationUserDetailsService authenticationUserDetailsService = mock(
+				AuthenticationUserDetailsService.class);
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -137,10 +131,12 @@ public class NamespaceHttpJeeTests {
 		public AuthenticationUserDetailsService authenticationUserDetailsService() {
 			return this.authenticationUserDetailsService;
 		}
+
 	}
 
 	@RestController
 	static class BaseController {
+
 		@GetMapping("/authenticated")
 		public String authenticated(Authentication authentication) {
 			return authentication.getName();
@@ -148,9 +144,9 @@ public class NamespaceHttpJeeTests {
 
 		@GetMapping("/roles")
 		public String roles(Authentication authentication) {
-			return authentication.getAuthorities().stream()
-					.map(Object::toString).collect(Collectors.joining(","));
+			return authentication.getAuthorities().stream().map(Object::toString).collect(Collectors.joining(","));
 		}
+
 	}
 
 	private <T> T bean(Class<T> beanClass) {
@@ -160,4 +156,5 @@ public class NamespaceHttpJeeTests {
 	private <T> T verifyBean(Class<T> beanClass) {
 		return verify(this.spring.getContext().getBean(beanClass));
 	}
+
 }

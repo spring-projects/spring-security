@@ -50,36 +50,37 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- *
  * @author Luke Taylor
  * @since 3.0.3
  */
 public class AnnotationSecurityAspectTests {
+
 	private AffirmativeBased adm;
+
 	private @Mock AuthenticationManager authman;
-	private TestingAuthenticationToken anne = new TestingAuthenticationToken("anne", "",
-			"ROLE_A");
+
+	private TestingAuthenticationToken anne = new TestingAuthenticationToken("anne", "", "ROLE_A");
+
 	// private TestingAuthenticationToken bob = new TestingAuthenticationToken("bob", "",
 	// "ROLE_B");
 	private AspectJMethodSecurityInterceptor interceptor;
+
 	private SecuredImpl secured = new SecuredImpl();
+
 	private SecuredImplSubclass securedSub = new SecuredImplSubclass();
+
 	private PrePostSecured prePostSecured = new PrePostSecured();
 
 	@Before
 	public final void setUp() {
 		MockitoAnnotations.initMocks(this);
 		interceptor = new AspectJMethodSecurityInterceptor();
-		AccessDecisionVoter[] voters = new AccessDecisionVoter[] {
-				new RoleVoter(),
-				new PreInvocationAuthorizationAdviceVoter(
-						new ExpressionBasedPreInvocationAdvice()) };
-		adm = new AffirmativeBased(
-				Arrays.<AccessDecisionVoter<? extends Object>> asList(voters));
+		AccessDecisionVoter[] voters = new AccessDecisionVoter[] { new RoleVoter(),
+				new PreInvocationAuthorizationAdviceVoter(new ExpressionBasedPreInvocationAdvice()) };
+		adm = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(voters));
 		interceptor.setAccessDecisionManager(adm);
 		interceptor.setAuthenticationManager(authman);
-		interceptor
-				.setSecurityMetadataSource(new SecuredAnnotationSecurityMetadataSource());
+		interceptor.setSecurityMetadataSource(new SecuredAnnotationSecurityMetadataSource());
 		AnnotationSecurityAspect secAspect = AnnotationSecurityAspect.aspectOf();
 		secAspect.setSecurityInterceptor(interceptor);
 	}
@@ -151,23 +152,25 @@ public class AnnotationSecurityAspectTests {
 
 	private void configureForElAnnotations() {
 		DefaultMethodSecurityExpressionHandler eh = new DefaultMethodSecurityExpressionHandler();
-		interceptor
-				.setSecurityMetadataSource(new PrePostAnnotationSecurityMetadataSource(
-						new ExpressionBasedAnnotationAttributeFactory(eh)));
+		interceptor.setSecurityMetadataSource(
+				new PrePostAnnotationSecurityMetadataSource(new ExpressionBasedAnnotationAttributeFactory(eh)));
 		interceptor.setAccessDecisionManager(adm);
 		AfterInvocationProviderManager aim = new AfterInvocationProviderManager();
-		aim.setProviders(Arrays.asList(new PostInvocationAdviceProvider(
-				new ExpressionBasedPostInvocationAdvice(eh))));
+		aim.setProviders(Arrays.asList(new PostInvocationAdviceProvider(new ExpressionBasedPostInvocationAdvice(eh))));
 		interceptor.setAfterInvocationManager(aim);
 	}
+
 }
 
 interface SecuredInterface {
+
 	@Secured("ROLE_X")
 	void securedMethod();
+
 }
 
 class SecuredImpl implements SecuredInterface {
+
 	// Not really secured because AspectJ doesn't inherit annotations from interfaces
 	public void securedMethod() {
 	}
@@ -188,18 +191,22 @@ class SecuredImpl implements SecuredInterface {
 	public void publicCallsPrivate() {
 		privateMethod();
 	}
+
 }
 
 class SecuredImplSubclass extends SecuredImpl {
+
 	protected void protectedMethod() {
 	}
 
 	public void publicCallsPrivate() {
 		super.publicCallsPrivate();
 	}
+
 }
 
 class PrePostSecured {
+
 	@PreAuthorize("denyAll")
 	public void denyAllMethod() {
 	}
@@ -207,8 +214,8 @@ class PrePostSecured {
 	@PostFilter("filterObject.startsWith('a')")
 	public List<String> postFilterMethod() {
 		ArrayList<String> objects = new ArrayList<>();
-		objects.addAll(Arrays.asList(new String[] { "apple", "banana", "aubergine",
-				"orange" }));
+		objects.addAll(Arrays.asList(new String[] { "apple", "banana", "aubergine", "orange" }));
 		return objects;
 	}
+
 }

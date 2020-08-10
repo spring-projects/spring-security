@@ -29,8 +29,8 @@ import java.util.Map;
  * The default implementation of an {@link OidcUser}.
  *
  * <p>
- * The default claim used for accessing the &quot;name&quot; of the
- * user {@code Principal} from {@link #getClaims()} is {@link IdTokenClaimNames#SUB}.
+ * The default claim used for accessing the &quot;name&quot; of the user {@code Principal}
+ * from {@link #getClaims()} is {@link IdTokenClaimNames#SUB}.
  *
  * @author Joe Grandja
  * @author Vedran Pavic
@@ -41,12 +41,13 @@ import java.util.Map;
  * @see OidcUserInfo
  */
 public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
+
 	private final OidcIdToken idToken;
+
 	private final OidcUserInfo userInfo;
 
 	/**
 	 * Constructs a {@code DefaultOidcUser} using the provided parameters.
-	 *
 	 * @param authorities the authorities granted to the user
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
 	 */
@@ -56,36 +57,39 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 
 	/**
 	 * Constructs a {@code DefaultOidcUser} using the provided parameters.
-	 *
 	 * @param authorities the authorities granted to the user
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
-	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from {@link #getAttributes()}
+	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from
+	 * {@link #getAttributes()}
 	 */
-	public DefaultOidcUser(Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken, String nameAttributeKey) {
+	public DefaultOidcUser(Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken,
+			String nameAttributeKey) {
 		this(authorities, idToken, null, nameAttributeKey);
 	}
 
 	/**
 	 * Constructs a {@code DefaultOidcUser} using the provided parameters.
-	 *
 	 * @param authorities the authorities granted to the user
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
-	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user, may be {@code null}
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
+	 * may be {@code null}
 	 */
-	public DefaultOidcUser(Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo) {
+	public DefaultOidcUser(Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken,
+			OidcUserInfo userInfo) {
 		this(authorities, idToken, userInfo, IdTokenClaimNames.SUB);
 	}
 
 	/**
 	 * Constructs a {@code DefaultOidcUser} using the provided parameters.
-	 *
 	 * @param authorities the authorities granted to the user
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
-	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user, may be {@code null}
-	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from {@link #getAttributes()}
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
+	 * may be {@code null}
+	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from
+	 * {@link #getAttributes()}
 	 */
 	public DefaultOidcUser(Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken,
-							OidcUserInfo userInfo, String nameAttributeKey) {
+			OidcUserInfo userInfo, String nameAttributeKey) {
 		super(authorities, OidcUserAuthority.collectClaims(idToken, userInfo), nameAttributeKey);
 		this.idToken = idToken;
 		this.userInfo = userInfo;
@@ -105,4 +109,5 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 	public OidcUserInfo getUserInfo() {
 		return this.userInfo;
 	}
+
 }

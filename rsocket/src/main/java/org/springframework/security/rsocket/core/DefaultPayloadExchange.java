@@ -69,4 +69,5 @@ public class DefaultPayloadExchange implements PayloadExchange {
 	public MimeType getDataMimeType() {
 		return this.dataMimeType;
 	}
+
 }

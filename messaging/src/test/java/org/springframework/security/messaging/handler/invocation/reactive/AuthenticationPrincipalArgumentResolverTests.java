@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author Rob Winch
  */
 public class AuthenticationPrincipalArgumentResolverTests {
+
 	private AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver();
 
 	@Test
@@ -52,9 +53,9 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenAuthenticationPrincipalThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
-		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver.resolveArgument(arg0("authenticationPrincipalOnMonoUserDetails"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
-				.block();
+		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver
+				.resolveArgument(arg0("authenticationPrincipalOnMonoUserDetails"), null)
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
 		assertThat(result.block()).isEqualTo(authentication.getPrincipal());
 	}
 
@@ -70,9 +71,9 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenMonoAndAuthenticationPrincipalThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
-		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver.resolveArgument(arg0("currentUserOnMonoUserDetails"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
-				.block();
+		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver
+				.resolveArgument(arg0("currentUserOnMonoUserDetails"), null)
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
 		assertThat(result.block()).isEqualTo(authentication.getPrincipal());
 	}
 
@@ -83,14 +84,15 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenExpressionThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
-		Mono<String> result = (Mono<String>) this.resolver.resolveArgument(arg0("authenticationPrincipalExpression"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
-				.block();
+		Mono<String> result = (Mono<String>) this.resolver
+				.resolveArgument(arg0("authenticationPrincipalExpression"), null)
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
 		assertThat(result.block()).isEqualTo(authentication.getName());
 	}
 
 	@SuppressWarnings("unused")
-	private void authenticationPrincipalExpression(@AuthenticationPrincipal(expression = "username") Mono<String> username) {
+	private void authenticationPrincipalExpression(
+			@AuthenticationPrincipal(expression = "username") Mono<String> username) {
 	}
 
 	@Test
@@ -109,5 +111,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	@AuthenticationPrincipal
 	@Retention(RetentionPolicy.RUNTIME)
-	@interface CurrentUser {}
+	@interface CurrentUser {
+
+	}
+
 }

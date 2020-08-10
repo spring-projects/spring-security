@@ -38,12 +38,10 @@ public class AnonymousAuthenticationProviderTests {
 
 	@Test
 	public void testDetectsAnInvalidKey() {
-		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
-				"qwerty");
+		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
 
-		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(
-				"WRONG_KEY", "Test", AuthorityUtils.createAuthorityList("ROLE_ONE",
-						"ROLE_TWO"));
+		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("WRONG_KEY", "Test",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
 		try {
 			aap.authenticate(token);
@@ -66,18 +64,15 @@ public class AnonymousAuthenticationProviderTests {
 
 	@Test
 	public void testGettersSetters() {
-		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
-				"qwerty");
+		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
 		assertThat(aap.getKey()).isEqualTo("qwerty");
 	}
 
 	@Test
 	public void testIgnoresClassesItDoesNotSupport() {
-		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
-				"qwerty");
+		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
 
-		TestingAuthenticationToken token = new TestingAuthenticationToken("user",
-				"password", "ROLE_A");
+		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password", "ROLE_A");
 		assertThat(aap.supports(TestingAuthenticationToken.class)).isFalse();
 
 		// Try it anyway
@@ -86,11 +81,10 @@ public class AnonymousAuthenticationProviderTests {
 
 	@Test
 	public void testNormalOperation() {
-		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
-				"qwerty");
+		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
 
-		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("qwerty",
-				"Test", AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("qwerty", "Test",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
 		Authentication result = aap.authenticate(token);
 
@@ -99,9 +93,9 @@ public class AnonymousAuthenticationProviderTests {
 
 	@Test
 	public void testSupports() {
-		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
-				"qwerty");
+		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
 		assertThat(aap.supports(AnonymousAuthenticationToken.class)).isTrue();
 		assertThat(aap.supports(TestingAuthenticationToken.class)).isFalse();
 	}
+
 }

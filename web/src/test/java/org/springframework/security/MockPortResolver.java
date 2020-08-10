@@ -26,10 +26,12 @@ import javax.servlet.ServletRequest;
  * @author Ben Alex
  */
 public class MockPortResolver implements PortResolver {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private int http = 80;
+
 	private int https = 443;
 
 	// ~ Constructors
@@ -51,4 +53,5 @@ public class MockPortResolver implements PortResolver {
 			return http;
 		}
 	}
+
 }

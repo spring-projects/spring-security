@@ -39,16 +39,14 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 
 	@Test
 	public void constructorWhenMissingDirectivesThenThrowsException() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(ClearSiteDataServerHttpHeadersWriter::new);
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(ClearSiteDataServerHttpHeadersWriter::new);
 	}
 
 	@Test
 	public void writeHttpHeadersWhenSecureConnectionThenHeaderWritten() {
 		ClearSiteDataServerHttpHeadersWriter writer = new ClearSiteDataServerHttpHeadersWriter(Directive.ALL);
-		ServerWebExchange secureExchange = MockServerWebExchange.from(
-				MockServerHttpRequest.get("https://localhost")
-						.build());
+		ServerWebExchange secureExchange = MockServerWebExchange
+				.from(MockServerHttpRequest.get("https://localhost").build());
 
 		writer.writeHttpHeaders(secureExchange);
 
@@ -58,9 +56,7 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 	@Test
 	public void writeHttpHeadersWhenInsecureConnectionThenHeaderNotWritten() {
 		ClearSiteDataServerHttpHeadersWriter writer = new ClearSiteDataServerHttpHeadersWriter(Directive.ALL);
-		ServerWebExchange insecureExchange = MockServerWebExchange.from(
-				MockServerHttpRequest.get("/")
-						.build());
+		ServerWebExchange insecureExchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 		writer.writeHttpHeaders(insecureExchange);
 
@@ -69,11 +65,10 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 
 	@Test
 	public void writeHttpHeadersWhenMultipleDirectivesSpecifiedThenHeaderContainsAll() {
-		ClearSiteDataServerHttpHeadersWriter writer = new ClearSiteDataServerHttpHeadersWriter(
-				Directive.CACHE, Directive.COOKIES);
-		ServerWebExchange secureExchange = MockServerWebExchange.from(
-				MockServerHttpRequest.get("https://localhost")
-						.build());
+		ClearSiteDataServerHttpHeadersWriter writer = new ClearSiteDataServerHttpHeadersWriter(Directive.CACHE,
+				Directive.COOKIES);
+		ServerWebExchange secureExchange = MockServerWebExchange
+				.from(MockServerHttpRequest.get("https://localhost").build());
 
 		writer.writeHttpHeaders(secureExchange);
 
@@ -94,12 +89,11 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 			isNotNull();
 			List<String> header = getHeader();
 			String actualHeaderValue = String.join("", header);
-			String expectedHeaderVale = Stream.of(directives)
-					.map(Directive::getHeaderValue)
+			String expectedHeaderVale = Stream.of(directives).map(Directive::getHeaderValue)
 					.collect(Collectors.joining(", "));
 			if (!actualHeaderValue.equals(expectedHeaderVale)) {
-				failWithMessage("Expected to have %s as Clear-Site-Data header value but found %s",
-						expectedHeaderVale, actualHeaderValue);
+				failWithMessage("Expected to have %s as Clear-Site-Data header value but found %s", expectedHeaderVale,
+						actualHeaderValue);
 			}
 		}
 
@@ -113,8 +107,9 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 		}
 
 		List<String> getHeader() {
-			return actual.getHeaders()
-					.get(ClearSiteDataServerHttpHeadersWriter.CLEAR_SITE_DATA_HEADER);
+			return actual.getHeaders().get(ClearSiteDataServerHttpHeadersWriter.CLEAR_SITE_DATA_HEADER);
 		}
+
 	}
+
 }

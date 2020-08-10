@@ -32,17 +32,15 @@ public interface HttpFirewall {
 
 	/**
 	 * Provides the request object which will be passed through the filter chain.
-	 *
 	 * @throws RequestRejectedException if the request should be rejected immediately
 	 */
-	FirewalledRequest getFirewalledRequest(HttpServletRequest request)
-			throws RequestRejectedException;
+	FirewalledRequest getFirewalledRequest(HttpServletRequest request) throws RequestRejectedException;
 
 	/**
 	 * Provides the response which will be passed through the filter chain.
-	 *
 	 * @param response the original response
 	 * @return either the original response or a replacement/wrapper.
 	 */
 	HttpServletResponse getFirewalledResponse(HttpServletResponse response);
+
 }

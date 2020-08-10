@@ -59,45 +59,32 @@ public class NamespaceHttpInterceptUrlTests {
 	public void unauthenticatedRequestWhenUrlRequiresAuthenticationThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class).autowire();
 
-		this.mvc.perform(get("/users"))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/users")).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void authenticatedRequestWhenUrlRequiresElevatedPrivilegesThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class).autowire();
 
-
-		this.mvc.perform(get("/users")
-				.with(authentication(user("ROLE_USER"))))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/users").with(authentication(user("ROLE_USER")))).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void authenticatedRequestWhenAuthorizedThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class, BaseController.class).autowire();
 
-		this.mvc.perform(get("/users")
-				.with(authentication(user("ROLE_ADMIN"))))
-				.andExpect(status().isOk())
-				.andReturn();
+		this.mvc.perform(get("/users").with(authentication(user("ROLE_ADMIN")))).andExpect(status().isOk()).andReturn();
 	}
 
 	@Test
 	public void requestWhenMappedByPostInterceptUrlThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class, BaseController.class).autowire();
 
-		this.mvc.perform(get("/admin/post")
-				.with(authentication(user("ROLE_USER"))))
-				.andExpect(status().isOk());
+		this.mvc.perform(get("/admin/post").with(authentication(user("ROLE_USER")))).andExpect(status().isOk());
 
-		this.mvc.perform(post("/admin/post")
-				.with(authentication(user("ROLE_USER"))))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(post("/admin/post").with(authentication(user("ROLE_USER")))).andExpect(status().isForbidden());
 
-		this.mvc.perform(post("/admin/post")
-				.with(csrf())
-				.with(authentication(user("ROLE_ADMIN"))))
+		this.mvc.perform(post("/admin/post").with(csrf()).with(authentication(user("ROLE_ADMIN"))))
 				.andExpect(status().isOk());
 	}
 
@@ -105,14 +92,11 @@ public class NamespaceHttpInterceptUrlTests {
 	public void requestWhenRequiresChannelThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class).autowire();
 
-		this.mvc.perform(get("/login"))
-				.andExpect(redirectedUrl("https://localhost/login"));
+		this.mvc.perform(get("/login")).andExpect(redirectedUrl("https://localhost/login"));
 
-		this.mvc.perform(get("/secured/a"))
-				.andExpect(redirectedUrl("https://localhost/secured/a"));
+		this.mvc.perform(get("/secured/a")).andExpect(redirectedUrl("https://localhost/secured/a"));
 
-		this.mvc.perform(get("https://localhost/user"))
-				.andExpect(redirectedUrl("http://localhost/user"));
+		this.mvc.perform(get("https://localhost/user")).andExpect(redirectedUrl("http://localhost/user"));
 	}
 
 	@EnableWebSecurity
@@ -154,10 +138,12 @@ public class NamespaceHttpInterceptUrlTests {
 					.withUser("admin").password("password").roles("USER", "ADMIN");
 			// @formatter:on
 		}
+
 	}
 
 	@RestController
 	static class BaseController {
+
 		@GetMapping("/users")
 		public String users() {
 			return "ok";
@@ -182,6 +168,7 @@ public class NamespaceHttpInterceptUrlTests {
 		public String signup() {
 			return "signup";
 		}
+
 	}
 
 	private static Authentication user(String role) {

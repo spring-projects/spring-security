@@ -30,7 +30,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- *
  * @author Milan Sevcik
  */
 public class RequestAttributeAuthenticationFilterTests {
@@ -62,11 +61,8 @@ public class RequestAttributeAuthenticationFilterTests {
 
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
-				.isEqualTo("cat");
-		assertThat(
-				SecurityContextHolder.getContext().getAuthentication().getCredentials())
-						.isEqualTo("N/A");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("cat");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("N/A");
 	}
 
 	@Test
@@ -81,8 +77,7 @@ public class RequestAttributeAuthenticationFilterTests {
 
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
-				.isEqualTo("wolfman");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("wolfman");
 	}
 
 	@Test
@@ -98,14 +93,11 @@ public class RequestAttributeAuthenticationFilterTests {
 
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(
-				SecurityContextHolder.getContext().getAuthentication().getCredentials())
-						.isEqualTo("catspassword");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("catspassword");
 	}
 
 	@Test
-	public void userIsReauthenticatedIfPrincipalChangesAndCheckForPrincipalChangesIsSet()
-			throws Exception {
+	public void userIsReauthenticatedIfPrincipalChangesAndCheckForPrincipalChangesIsSet() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
@@ -139,8 +131,7 @@ public class RequestAttributeAuthenticationFilterTests {
 	}
 
 	@Test
-	public void missingHeaderIsIgnoredIfExceptionIfHeaderMissingIsFalse()
-			throws Exception {
+	public void missingHeaderIsIgnoredIfExceptionIfHeaderMissingIsFalse() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
@@ -160,4 +151,5 @@ public class RequestAttributeAuthenticationFilterTests {
 
 		return am;
 	}
+
 }

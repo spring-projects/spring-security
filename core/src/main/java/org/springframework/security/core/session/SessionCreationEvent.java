@@ -27,4 +27,5 @@ public abstract class SessionCreationEvent extends AbstractSessionEvent {
 	public SessionCreationEvent(Object source) {
 		super(source);
 	}
+
 }

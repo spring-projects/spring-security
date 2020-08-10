@@ -33,8 +33,7 @@ public class RunAsImplAuthenticationProviderTests {
 	@Test(expected = BadCredentialsException.class)
 	public void testAuthenticationFailDueToWrongKey() {
 		RunAsUserToken token = new RunAsUserToken("wrong_key", "Test", "Password",
-				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
-				UsernamePasswordAuthenticationToken.class);
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
 		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
 		provider.setKey("hello_world");
 
@@ -44,15 +43,13 @@ public class RunAsImplAuthenticationProviderTests {
 	@Test
 	public void testAuthenticationSuccess() {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
-				UsernamePasswordAuthenticationToken.class);
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
 		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
 		provider.setKey("my_password");
 
 		Authentication result = provider.authenticate(token);
 
-		Assert.assertTrue("Should have returned RunAsUserToken",
-				result instanceof RunAsUserToken);
+		Assert.assertTrue("Should have returned RunAsUserToken", result instanceof RunAsUserToken);
 
 		RunAsUserToken resultCast = (RunAsUserToken) result;
 		assertThat(resultCast.getKeyHash()).isEqualTo("my_password".hashCode());
@@ -79,4 +76,5 @@ public class RunAsImplAuthenticationProviderTests {
 		assertThat(provider.supports(RunAsUserToken.class)).isTrue();
 		assertThat(!provider.supports(TestingAuthenticationToken.class)).isTrue();
 	}
+
 }

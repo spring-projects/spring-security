@@ -30,14 +30,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- *
  * @author Rafiullah Hamedy
  * @author Josh Cummings
- *
  * @see {@link HeaderWriterLogoutHandler}
  */
 public class HeaderWriterLogoutHandlerTests {
+
 	private MockHttpServletResponse response;
+
 	private MockHttpServletRequest request;
 
 	@Rule
@@ -65,4 +65,5 @@ public class HeaderWriterLogoutHandlerTests {
 
 		verify(headerWriter).writeHeaders(this.request, this.response);
 	}
+
 }

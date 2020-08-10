@@ -28,17 +28,17 @@ public class BasicAuthenticationTests extends AbstractWebServerIntegrationTests 
 
 	@Test
 	public void httpBasicWhenAuthenticationRequiredAndNotAuthenticatedThen401() throws Exception {
-		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml", "classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
-		mockMvc.perform(get("/secure/index"))
-			.andExpect(status().isUnauthorized());
+		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml",
+				"classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
+		mockMvc.perform(get("/secure/index")).andExpect(status().isUnauthorized());
 	}
 
 	@Test
 	public void httpBasicWhenProvidedThen200() throws Exception {
-		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml", "classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
-		MockHttpServletRequestBuilder request = get("/secure/index")
-				.with(httpBasic("johnc", "johncspassword"));
-		mockMvc.perform(request)
-			.andExpect(status().isOk());
+		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml",
+				"classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
+		MockHttpServletRequestBuilder request = get("/secure/index").with(httpBasic("johnc", "johncspassword"));
+		mockMvc.perform(request).andExpect(status().isOk());
 	}
+
 }

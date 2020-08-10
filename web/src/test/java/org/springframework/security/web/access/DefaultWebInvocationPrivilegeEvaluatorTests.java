@@ -39,9 +39,13 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  * @author Ben Alex
  */
 public class DefaultWebInvocationPrivilegeEvaluatorTests {
+
 	private AccessDecisionManager adm;
+
 	private FilterInvocationSecurityMetadataSource ods;
+
 	private RunAsManager ram;
+
 	private FilterSecurityInterceptor interceptor;
 
 	// ~ Methods
@@ -63,50 +67,41 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 
 	@Test
 	public void permitsAccessIfNoMatchingAttributesAndPublicInvocationsAllowed() {
-		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
-				interceptor);
+		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
 		when(ods.getAttributes(anyObject())).thenReturn(null);
-		assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET",
-				mock(Authentication.class))).isTrue();
+		assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class))).isTrue();
 	}
 
 	@Test
 	public void deniesAccessIfNoMatchingAttributesAndPublicInvocationsNotAllowed() {
-		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
-				interceptor);
+		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
 		when(ods.getAttributes(anyObject())).thenReturn(null);
 		interceptor.setRejectPublicInvocations(true);
-		assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET",
-				mock(Authentication.class))).isFalse();
+		assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class))).isFalse();
 	}
 
 	@Test
 	public void deniesAccessIfAuthenticationIsNull() {
-		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
-				interceptor);
+		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
 		assertThat(wipe.isAllowed("/foo/index.jsp", null)).isFalse();
 	}
 
 	@Test
 	public void allowsAccessIfAccessDecisionManagerDoes() {
-		Authentication token = new TestingAuthenticationToken("test", "Password",
-				"MOCK_INDEX");
-		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
-				interceptor);
+		Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
+		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
 		assertThat(wipe.isAllowed("/foo/index.jsp", token)).isTrue();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void deniesAccessIfAccessDecisionManagerDoes() {
-		Authentication token = new TestingAuthenticationToken("test", "Password",
-				"MOCK_INDEX");
-		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
-				interceptor);
+		Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
+		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
 
-		doThrow(new AccessDeniedException("")).when(adm).decide(
-				any(Authentication.class), anyObject(), anyList());
+		doThrow(new AccessDeniedException("")).when(adm).decide(any(Authentication.class), anyObject(), anyList());
 
 		assertThat(wipe.isAllowed("/foo/index.jsp", token)).isFalse();
 	}
+
 }

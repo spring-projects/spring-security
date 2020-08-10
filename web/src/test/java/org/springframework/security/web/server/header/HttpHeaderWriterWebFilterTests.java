@@ -34,13 +34,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 /**
- *
  * @author Rob Winch
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class HttpHeaderWriterWebFilterTests {
-	@Mock ServerHttpHeadersWriter writer;
+
+	@Mock
+	ServerHttpHeadersWriter writer;
 
 	HttpHeaderWriterWebFilter filter;
 
@@ -71,4 +72,5 @@ public class HttpHeaderWriterWebFilterTests {
 
 		verify(writer).writeHttpHeaders(any());
 	}
+
 }

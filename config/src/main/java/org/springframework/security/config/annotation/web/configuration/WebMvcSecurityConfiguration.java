@@ -35,8 +35,10 @@ import java.util.List;
 /**
  * Used to add a {@link RequestDataValueProcessor} for Spring MVC and Spring Security CSRF
  * integration. This configuration is added whenever {@link EnableWebMvc} is added by
- * <a href="{@docRoot}/org/springframework/security/config/annotation/web/configuration/SpringWebMvcImportSelector.html">SpringWebMvcImportSelector</a> and the DispatcherServlet is present on the
- * classpath. It also adds the {@link AuthenticationPrincipalArgumentResolver} as a
+ * <a href="
+ * {@docRoot}/org/springframework/security/config/annotation/web/configuration/SpringWebMvcImportSelector.html">SpringWebMvcImportSelector</a>
+ * and the DispatcherServlet is present on the classpath. It also adds the
+ * {@link AuthenticationPrincipalArgumentResolver} as a
  * {@link HandlerMethodArgumentResolver}.
  *
  * @author Rob Winch
@@ -44,6 +46,7 @@ import java.util.List;
  * @since 3.2
  */
 class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContextAware {
+
 	private BeanResolver beanResolver;
 
 	@Override
@@ -70,4 +73,5 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.beanResolver = new BeanFactoryResolver(applicationContext.getAutowireCapableBeanFactory());
 	}
+
 }

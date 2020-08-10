@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Eleftheria Stein
  */
 public class CookieServerRequestCacheTests {
+
 	private CookieServerRequestCache cache = new CookieServerRequestCache();
 
 	@Test
@@ -49,7 +50,8 @@ public class CookieServerRequestCacheTests {
 		ResponseCookie cookie = cookies.getFirst("REDIRECT_URI");
 		assertThat(cookie).isNotNull();
 		String encodedRedirectUrl = Base64.getEncoder().encodeToString("/secured/".getBytes());
-		assertThat(cookie.toString()).isEqualTo("REDIRECT_URI=" + encodedRedirectUrl + "; Path=/; HttpOnly; SameSite=Lax");
+		assertThat(cookie.toString())
+				.isEqualTo("REDIRECT_URI=" + encodedRedirectUrl + "; Path=/; HttpOnly; SameSite=Lax");
 	}
 
 	@Test
@@ -63,7 +65,8 @@ public class CookieServerRequestCacheTests {
 		ResponseCookie cookie = cookies.getFirst("REDIRECT_URI");
 		assertThat(cookie).isNotNull();
 		String encodedRedirectUrl = Base64.getEncoder().encodeToString("/secured/?key=value".getBytes());
-		assertThat(cookie.toString()).isEqualTo("REDIRECT_URI=" + encodedRedirectUrl + "; Path=/; HttpOnly; SameSite=Lax");
+		assertThat(cookie.toString())
+				.isEqualTo("REDIRECT_URI=" + encodedRedirectUrl + "; Path=/; HttpOnly; SameSite=Lax");
 	}
 
 	@Test
@@ -96,14 +99,15 @@ public class CookieServerRequestCacheTests {
 		assertThat(cookie).isNotNull();
 
 		String encodedRedirectUrl = Base64.getEncoder().encodeToString("/secured/".getBytes());
-		assertThat(cookie.toString()).isEqualTo("REDIRECT_URI=" + encodedRedirectUrl + "; Path=/; HttpOnly; SameSite=Lax");
+		assertThat(cookie.toString())
+				.isEqualTo("REDIRECT_URI=" + encodedRedirectUrl + "; Path=/; HttpOnly; SameSite=Lax");
 	}
 
 	@Test
 	public void getRedirectUriWhenCookieThenReturnsRedirectUriFromCookie() {
 		String encodedRedirectUrl = Base64.getEncoder().encodeToString("/secured/".getBytes());
-		MockServerWebExchange exchange = MockServerWebExchange
-				.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML).cookie(new HttpCookie("REDIRECT_URI", encodedRedirectUrl)));
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/")
+				.accept(MediaType.TEXT_HTML).cookie(new HttpCookie("REDIRECT_URI", encodedRedirectUrl)));
 
 		URI redirectUri = this.cache.getRedirectUri(exchange).block();
 
@@ -112,8 +116,8 @@ public class CookieServerRequestCacheTests {
 
 	@Test
 	public void getRedirectUriWhenCookieValueNotEncodedThenRedirectUriIsNull() {
-		MockServerWebExchange exchange = MockServerWebExchange
-				.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML).cookie(new HttpCookie("REDIRECT_URI", "/secured/")));
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/")
+				.accept(MediaType.TEXT_HTML).cookie(new HttpCookie("REDIRECT_URI", "/secured/")));
 
 		URI redirectUri = this.cache.getRedirectUri(exchange).block();
 
@@ -132,14 +136,16 @@ public class CookieServerRequestCacheTests {
 
 	@Test
 	public void removeMatchingRequestThenRedirectUriCookieExpired() {
-		MockServerWebExchange exchange = MockServerWebExchange
-				.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML).cookie(new HttpCookie("REDIRECT_URI", "/secured/")));
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/")
+				.accept(MediaType.TEXT_HTML).cookie(new HttpCookie("REDIRECT_URI", "/secured/")));
 
 		this.cache.removeMatchingRequest(exchange).block();
 
 		MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
 		ResponseCookie cookie = cookies.getFirst("REDIRECT_URI");
 		assertThat(cookie).isNotNull();
-		assertThat(cookie.toString()).isEqualTo("REDIRECT_URI=; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax");
+		assertThat(cookie.toString()).isEqualTo(
+				"REDIRECT_URI=; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax");
 	}
+
 }

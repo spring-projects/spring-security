@@ -42,7 +42,6 @@ public @interface AuthenticationPrincipal {
 	/**
 	 * True if a {@link ClassCastException} should be thrown when the current
 	 * {@link Authentication#getPrincipal()} is the incorrect type. Default is false.
-	 *
 	 * @return
 	 */
 	boolean errorOnInvalidType() default false;
@@ -71,8 +70,8 @@ public @interface AuthenticationPrincipal {
 	 * <pre>
 	 * &#64;AuthenticationPrincipal(expression = "customUser")
 	 * </pre>
-	 *
 	 * @return the expression to use.
 	 */
 	String expression() default "";
+
 }

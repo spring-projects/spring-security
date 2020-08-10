@@ -40,10 +40,10 @@ public class InetOrgPersonContextMapper implements UserDetailsContextMapper {
 	}
 
 	public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
-		Assert.isInstanceOf(InetOrgPerson.class, user,
-				"UserDetails must be an InetOrgPerson instance");
+		Assert.isInstanceOf(InetOrgPerson.class, user, "UserDetails must be an InetOrgPerson instance");
 
 		InetOrgPerson p = (InetOrgPerson) user;
 		p.populateContext(ctx);
 	}
+
 }

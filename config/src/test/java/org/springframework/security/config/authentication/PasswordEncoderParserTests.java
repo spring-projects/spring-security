@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @since 5.0
  */
 public class PasswordEncoderParserTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -39,22 +40,20 @@ public class PasswordEncoderParserTests {
 
 	@Test
 	public void passwordEncoderDefaultsToDelegatingPasswordEncoder() throws Exception {
-		this.spring.configLocations("classpath:org/springframework/security/config/authentication/PasswordEncoderParserTests-default.xml")
-			.mockMvcAfterSpringSecurityOk()
-			.autowire();
+		this.spring.configLocations(
+				"classpath:org/springframework/security/config/authentication/PasswordEncoderParserTests-default.xml")
+				.mockMvcAfterSpringSecurityOk().autowire();
 
-		this.mockMvc.perform(get("/").with(httpBasic("user", "password")))
-			.andExpect(status().isOk());
+		this.mockMvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isOk());
 	}
 
 	@Test
 	public void passwordEncoderDefaultsToPasswordEncoderBean() throws Exception {
-		this.spring.configLocations("classpath:org/springframework/security/config/authentication/PasswordEncoderParserTests-bean.xml")
-			.mockMvcAfterSpringSecurityOk()
-			.autowire();
+		this.spring.configLocations(
+				"classpath:org/springframework/security/config/authentication/PasswordEncoderParserTests-bean.xml")
+				.mockMvcAfterSpringSecurityOk().autowire();
 
-		this.mockMvc.perform(get("/").with(httpBasic("user", "password")))
-			.andExpect(status().isOk());
+		this.mockMvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isOk());
 	}
 
 }

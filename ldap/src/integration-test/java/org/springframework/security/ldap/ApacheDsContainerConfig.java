@@ -32,16 +32,15 @@ public class ApacheDsContainerConfig {
 
 	@Bean
 	ApacheDSContainer ldapContainer() throws Exception {
-		this.container = new ApacheDSContainer("dc=springframework,dc=org",
-				"classpath:test-server.ldif");
+		this.container = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
 		this.container.setPort(0);
 		return this.container;
 	}
 
 	@Bean
 	ContextSource contextSource(ApacheDSContainer ldapContainer) throws Exception {
-		return new DefaultSpringSecurityContextSource("ldap://127.0.0.1:"
-				+ ldapContainer.getLocalPort() + "/dc=springframework,dc=org");
+		return new DefaultSpringSecurityContextSource(
+				"ldap://127.0.0.1:" + ldapContainer.getLocalPort() + "/dc=springframework,dc=org");
 	}
 
 	@PreDestroy

@@ -48,17 +48,18 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @PrepareForTest({ ReflectionUtils.class, Method.class })
 @PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class SessionManagementConfigServlet31Tests {
-	private static final String XML_AUTHENTICATION_MANAGER = "<authentication-manager>"
-			+ "  <authentication-provider>" + "    <user-service>"
-			+ "      <user name='user' password='{noop}password' authorities='ROLE_USER' />"
-			+ "    </user-service>" + "  </authentication-provider>"
-			+ "</authentication-manager>";
+
+	private static final String XML_AUTHENTICATION_MANAGER = "<authentication-manager>" + "  <authentication-provider>"
+			+ "    <user-service>" + "      <user name='user' password='{noop}password' authorities='ROLE_USER' />"
+			+ "    </user-service>" + "  </authentication-provider>" + "</authentication-manager>";
 
 	@Mock
 	Method method;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	ConfigurableApplicationContext context;
@@ -92,12 +93,10 @@ public class SessionManagementConfigServlet31Tests {
 
 		String id = request.getSession().getId();
 
-		loadContext("<http>\n" + "        <form-login/>\n"
-				+ "        <session-management/>\n" + "        <csrf disabled='true'/>\n"
-				+ "    </http>" + XML_AUTHENTICATION_MANAGER);
+		loadContext("<http>\n" + "        <form-login/>\n" + "        <session-management/>\n"
+				+ "        <csrf disabled='true'/>\n" + "    </http>" + XML_AUTHENTICATION_MANAGER);
 
 		springSecurityFilterChain.doFilter(request, response, chain);
-
 
 		assertThat(request.getSession().getId()).isNotEqualTo(id);
 		assertThat(request.getSession().getAttribute("attribute1")).isEqualTo("value1");
@@ -115,11 +114,9 @@ public class SessionManagementConfigServlet31Tests {
 
 		String id = request.getSession().getId();
 
-		loadContext("<http>\n"
-				+ "        <form-login/>\n"
+		loadContext("<http>\n" + "        <form-login/>\n"
 				+ "        <session-management session-fixation-protection='changeSessionId'/>\n"
-				+ "        <csrf disabled='true'/>\n" + "    </http>"
-				+ XML_AUTHENTICATION_MANAGER);
+				+ "        <csrf disabled='true'/>\n" + "    </http>" + XML_AUTHENTICATION_MANAGER);
 
 		springSecurityFilterChain.doFilter(request, response, chain);
 
@@ -129,19 +126,17 @@ public class SessionManagementConfigServlet31Tests {
 
 	private void loadContext(String context) {
 		this.context = new InMemoryXmlApplicationContext(context);
-		this.springSecurityFilterChain = this.context.getBean(
-				"springSecurityFilterChain", Filter.class);
+		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain", Filter.class);
 	}
 
 	private void login(Authentication auth) {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(
-				request, response);
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response);
 		repo.loadContext(requestResponseHolder);
 
 		SecurityContextImpl securityContextImpl = new SecurityContextImpl();
 		securityContextImpl.setAuthentication(auth);
-		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(),
-				requestResponseHolder.getResponse());
+		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(), requestResponseHolder.getResponse());
 	}
+
 }

@@ -25,8 +25,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class OAuth2ErrorTests {
+
 	private static final String ERROR_CODE = "error-code";
+
 	private static final String ERROR_DESCRIPTION = "error-description";
+
 	private static final String ERROR_URI = "error-uri";
 
 	@Test(expected = IllegalArgumentException.class)
@@ -42,4 +45,5 @@ public class OAuth2ErrorTests {
 		assertThat(error.getDescription()).isEqualTo(ERROR_DESCRIPTION);
 		assertThat(error.getUri()).isEqualTo(ERROR_URI);
 	}
+
 }

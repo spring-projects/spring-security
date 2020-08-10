@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.provisioning;
 
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +32,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
  */
 @RunWith(SpringRunner.class)
 public class UserDetailsManagerResourceFactoryBeanPropertiesResourceLocationITests {
+
 	@Autowired
 	UserDetailsManager users;
 
@@ -43,9 +43,12 @@ public class UserDetailsManagerResourceFactoryBeanPropertiesResourceLocationITes
 
 	@Configuration
 	static class Config {
+
 		@Bean
 		public UserDetailsManagerResourceFactoryBean userDetailsService() {
 			return UserDetailsManagerResourceFactoryBean.fromResourceLocation("classpath:users.properties");
 		}
+
 	}
+
 }

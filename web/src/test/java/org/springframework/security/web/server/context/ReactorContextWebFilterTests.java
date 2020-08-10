@@ -39,13 +39,13 @@ import reactor.util.context.Context;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-
 /**
  * @author Rob Winch
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ReactorContextWebFilterTests {
+
 	@Mock
 	private Authentication principal;
 
@@ -59,7 +59,6 @@ public class ReactorContextWebFilterTests {
 	private ReactorContextWebFilter filter;
 
 	private WebTestHandler handler;
-
 
 	@Before
 	public void setup() {
@@ -97,12 +96,9 @@ public class ReactorContextWebFilterTests {
 	public void filterWhenPrincipalAndGetPrincipalThenInteractAndUseOriginalPrincipal() {
 		SecurityContextImpl context = new SecurityContextImpl(this.principal);
 		when(this.repository.load(any())).thenReturn(Mono.just(context));
-		this.handler = WebTestHandler.bindToWebFilters(this.filter, (e, c) ->
-			ReactiveSecurityContextHolder.getContext()
-				.map(SecurityContext::getAuthentication)
-				.doOnSuccess( p -> assertThat(p).isSameAs(this.principal))
-				.flatMap(p -> c.filter(e))
-		);
+		this.handler = WebTestHandler.bindToWebFilters(this.filter,
+				(e, c) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
+						.doOnSuccess(p -> assertThat(p).isSameAs(this.principal)).flatMap(p -> c.filter(e)));
 
 		WebTestHandler.WebHandlerResult result = this.handler.exchange(this.exchange);
 
@@ -113,16 +109,11 @@ public class ReactorContextWebFilterTests {
 	// gh-4962
 	public void filterWhenMainContextThenDoesNotOverride() {
 		String contextKey = "main";
-		WebFilter mainContextWebFilter = (e, c) -> c
-			.filter(e)
-			.subscriberContext(Context.of(contextKey, true));
+		WebFilter mainContextWebFilter = (e, c) -> c.filter(e).subscriberContext(Context.of(contextKey, true));
 
 		WebFilterChain chain = new DefaultWebFilterChain(e -> Mono.empty(), mainContextWebFilter, this.filter);
 		Mono<Void> filter = chain.filter(MockServerWebExchange.from(this.exchange.build()));
-		StepVerifier.create(filter)
-			.expectAccessibleContext()
-			.hasKey(contextKey)
-			.then()
-			.verifyComplete();
+		StepVerifier.create(filter).expectAccessibleContext().hasKey(contextKey).then().verifyComplete();
 	}
+
 }

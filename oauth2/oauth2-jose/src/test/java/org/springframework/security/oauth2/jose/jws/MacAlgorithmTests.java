@@ -38,4 +38,5 @@ public class MacAlgorithmTests {
 	public void fromWhenAlgorithmInvalidThenDoesNotResolve() {
 		assertThat(MacAlgorithm.from("invalid")).isNull();
 	}
+
 }

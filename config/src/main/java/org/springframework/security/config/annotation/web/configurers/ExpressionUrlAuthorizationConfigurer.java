@@ -46,7 +46,8 @@ import org.springframework.util.StringUtils;
  * Adds URL based authorization based upon SpEL expressions to an application. At least
  * one {@link org.springframework.web.bind.annotation.RequestMapping} needs to be mapped
  * to {@link ConfigAttribute}'s for this {@link SecurityContextConfigurer} to have
- * meaning. <h2>Security Filters</h2>
+ * meaning.
+ * <h2>Security Filters</h2>
  *
  * The following Filters are populated
  *
@@ -73,19 +74,23 @@ import org.springframework.util.StringUtils;
  * </ul>
  *
  * @param <H> the type of {@link HttpSecurityBuilder} that is being configured
- *
  * @author Rob Winch
  * @since 3.2
  * @see org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests()
  */
 public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
-		extends
-		AbstractInterceptUrlConfigurer<ExpressionUrlAuthorizationConfigurer<H>, H> {
+		extends AbstractInterceptUrlConfigurer<ExpressionUrlAuthorizationConfigurer<H>, H> {
+
 	static final String permitAll = "permitAll";
+
 	private static final String denyAll = "denyAll";
+
 	private static final String anonymous = "anonymous";
+
 	private static final String authenticated = "authenticated";
+
 	private static final String fullyAuthenticated = "fullyAuthenticated";
+
 	private static final String rememberMe = "rememberMe";
 
 	private final ExpressionInterceptUrlRegistry REGISTRY;
@@ -104,8 +109,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		return REGISTRY;
 	}
 
-	public class ExpressionInterceptUrlRegistry
-			extends
+	public class ExpressionInterceptUrlRegistry extends
 			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<ExpressionInterceptUrlRegistry, AuthorizedUrl> {
 
 		/**
@@ -126,15 +130,13 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		}
 
 		@Override
-		protected final AuthorizedUrl chainRequestMatchersInternal(
-				List<RequestMatcher> requestMatchers) {
+		protected final AuthorizedUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
 			return new AuthorizedUrl(requestMatchers);
 		}
 
 		/**
 		 * Allows customization of the {@link SecurityExpressionHandler} to be used. The
 		 * default is {@link DefaultWebSecurityExpressionHandler}
-		 *
 		 * @param expressionHandler the {@link SecurityExpressionHandler} to be used
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization.
@@ -147,13 +149,11 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 		/**
 		 * Adds an {@link ObjectPostProcessor} for this class.
-		 *
 		 * @param objectPostProcessor
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customizations
 		 */
-		public ExpressionInterceptUrlRegistry withObjectPostProcessor(
-				ObjectPostProcessor<?> objectPostProcessor) {
+		public ExpressionInterceptUrlRegistry withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
 			addObjectPostProcessor(objectPostProcessor);
 			return this;
 		}
@@ -167,7 +167,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	/**
 	 * Allows registering multiple {@link RequestMatcher} instances to a collection of
 	 * {@link ConfigAttribute} instances
-	 *
 	 * @param requestMatchers the {@link RequestMatcher} instances to register to the
 	 * {@link ConfigAttribute} instances
 	 * @param configAttributes the {@link ConfigAttribute} to be mapped by the
@@ -176,8 +175,8 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	private void interceptUrl(Iterable<? extends RequestMatcher> requestMatchers,
 			Collection<ConfigAttribute> configAttributes) {
 		for (RequestMatcher requestMatcher : requestMatchers) {
-			REGISTRY.addMapping(new AbstractConfigAttributeRequestMatcherRegistry.UrlMapping(
-					requestMatcher, configAttributes));
+			REGISTRY.addMapping(
+					new AbstractConfigAttributeRequestMatcherRegistry.UrlMapping(requestMatcher, configAttributes));
 		}
 	}
 
@@ -192,23 +191,19 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	}
 
 	@Override
-	ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource(
-			H http) {
-		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = REGISTRY
-				.createRequestMap();
+	ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource(H http) {
+		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = REGISTRY.createRequestMap();
 		if (requestMap.isEmpty()) {
 			throw new IllegalStateException(
 					"At least one mapping is required (i.e. authorizeRequests().anyRequest().authenticated())");
 		}
-		return new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap,
-				getExpressionHandler(http));
+		return new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap, getExpressionHandler(http));
 	}
 
 	private SecurityExpressionHandler<FilterInvocation> getExpressionHandler(H http) {
 		if (expressionHandler == null) {
 			DefaultWebSecurityExpressionHandler defaultHandler = new DefaultWebSecurityExpressionHandler();
-			AuthenticationTrustResolver trustResolver = http
-					.getSharedObject(AuthenticationTrustResolver.class);
+			AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
 			if (trustResolver != null) {
 				defaultHandler.setTrustResolver(trustResolver);
 			}
@@ -218,14 +213,17 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 				if (roleHiearchyBeanNames.length == 1) {
 					defaultHandler.setRoleHierarchy(context.getBean(roleHiearchyBeanNames[0], RoleHierarchy.class));
 				}
-				String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
+				String[] grantedAuthorityDefaultsBeanNames = context
+						.getBeanNamesForType(GrantedAuthorityDefaults.class);
 				if (grantedAuthorityDefaultsBeanNames.length == 1) {
-					GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
+					GrantedAuthorityDefaults grantedAuthorityDefaults = context
+							.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
 					defaultHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 				}
 				String[] permissionEvaluatorBeanNames = context.getBeanNamesForType(PermissionEvaluator.class);
 				if (permissionEvaluatorBeanNames.length == 1) {
-					PermissionEvaluator permissionEvaluator = context.getBean(permissionEvaluatorBeanNames[0], PermissionEvaluator.class);
+					PermissionEvaluator permissionEvaluator = context.getBean(permissionEvaluatorBeanNames[0],
+							PermissionEvaluator.class);
 					defaultHandler.setPermissionEvaluator(permissionEvaluator);
 				}
 			}
@@ -237,8 +235,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	}
 
 	private static String hasAnyRole(String... authorities) {
-		String anyAuthorities = StringUtils.arrayToDelimitedString(authorities,
-				"','ROLE_");
+		String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','ROLE_");
 		return "hasAnyRole('ROLE_" + anyAuthorities + "')";
 	}
 
@@ -246,8 +243,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		Assert.notNull(role, "role cannot be null");
 		if (role.startsWith("ROLE_")) {
 			throw new IllegalArgumentException(
-					"role should not start with 'ROLE_' since it is automatically inserted. Got '"
-							+ role + "'");
+					"role should not start with 'ROLE_' since it is automatically inserted. Got '" + role + "'");
 		}
 		return "hasRole('ROLE_" + role + "')";
 	}
@@ -272,9 +268,9 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	 * @author Rob Winch
 	 */
 	public class MvcMatchersAuthorizedUrl extends AuthorizedUrl {
+
 		/**
 		 * Creates a new instance
-		 *
 		 * @param requestMatchers the {@link RequestMatcher} instances to map
 		 */
 		private MvcMatchersAuthorizedUrl(List<MvcRequestMatcher> requestMatchers) {
@@ -287,15 +283,17 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 			}
 			return this;
 		}
+
 	}
 
 	public class AuthorizedUrl {
+
 		private List<? extends RequestMatcher> requestMatchers;
+
 		private boolean not;
 
 		/**
 		 * Creates a new instance
-		 *
 		 * @param requestMatchers the {@link RequestMatcher} instances to map
 		 */
 		private AuthorizedUrl(List<? extends RequestMatcher> requestMatchers) {
@@ -308,7 +306,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 		/**
 		 * Negates the following expression.
-		 *
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
 		 */
@@ -320,7 +317,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		/**
 		 * Shortcut for specifying URLs require a particular role. If you do not want to
 		 * have "ROLE_" automatically inserted see {@link #hasAuthority(String)}.
-		 *
 		 * @param role the role to require (i.e. USER, ADMIN, etc). Note, it should not
 		 * start with "ROLE_" as this is automatically inserted.
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
@@ -334,7 +330,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		 * Shortcut for specifying URLs require any of a number of roles. If you do not
 		 * want to have "ROLE_" automatically inserted see
 		 * {@link #hasAnyAuthority(String...)}
-		 *
 		 * @param roles the roles to require (i.e. USER, ADMIN, etc). Note, it should not
 		 * start with "ROLE_" as this is automatically inserted.
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
@@ -346,7 +341,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 		/**
 		 * Specify that URLs require a particular authority.
-		 *
 		 * @param authority the authority to require (i.e. ROLE_USER, ROLE_ADMIN, etc).
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
@@ -357,7 +351,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 		/**
 		 * Specify that URLs requires any of a number authorities.
-		 *
 		 * @param authorities the requests require at least one of the authorities (i.e.
 		 * "ROLE_USER","ROLE_ADMIN" would mean either "ROLE_USER" or "ROLE_ADMIN" is
 		 * required).
@@ -365,28 +358,24 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		 * customization
 		 */
 		public ExpressionInterceptUrlRegistry hasAnyAuthority(String... authorities) {
-			return access(ExpressionUrlAuthorizationConfigurer
-					.hasAnyAuthority(authorities));
+			return access(ExpressionUrlAuthorizationConfigurer.hasAnyAuthority(authorities));
 		}
 
 		/**
 		 * Specify that URLs requires a specific IP Address or <a href=
 		 * "https://forum.spring.io/showthread.php?102783-How-to-use-hasIpAddress&p=343971#post343971"
 		 * >subnet</a>.
-		 *
 		 * @param ipaddressExpression the ipaddress (i.e. 192.168.1.79) or local subnet
 		 * (i.e. 192.168.0/24)
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
 		 */
 		public ExpressionInterceptUrlRegistry hasIpAddress(String ipaddressExpression) {
-			return access(ExpressionUrlAuthorizationConfigurer
-					.hasIpAddress(ipaddressExpression));
+			return access(ExpressionUrlAuthorizationConfigurer.hasIpAddress(ipaddressExpression));
 		}
 
 		/**
 		 * Specify that URLs are allowed by anyone.
-		 *
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
 		 */
@@ -396,7 +385,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 		/**
 		 * Specify that URLs are allowed by anonymous users.
-		 *
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
 		 */
@@ -406,7 +394,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 		/**
 		 * Specify that URLs are allowed by users that have been remembered.
-		 *
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
 		 * @see RememberMeConfigurer
@@ -417,7 +404,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 		/**
 		 * Specify that URLs are not allowed by anyone.
-		 *
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
 		 */
@@ -427,7 +413,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 		/**
 		 * Specify that URLs are allowed by any authenticated user.
-		 *
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
 		 */
@@ -438,7 +423,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		/**
 		 * Specify that URLs are allowed by users who have authenticated and were not
 		 * "remembered".
-		 *
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
 		 * @see RememberMeConfigurer
@@ -449,9 +433,8 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 		/**
 		 * Allows specifying that URLs are secured by an arbitrary expression
-		 *
-		 * @param attribute the expression to secure the URLs (i.e.
-		 * "hasRole('ROLE_USER') and hasRole('ROLE_SUPER')")
+		 * @param attribute the expression to secure the URLs (i.e. "hasRole('ROLE_USER')
+		 * and hasRole('ROLE_SUPER')")
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
 		 */
@@ -462,5 +445,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 			interceptUrl(requestMatchers, SecurityConfig.createList(attribute));
 			return ExpressionUrlAuthorizationConfigurer.this.REGISTRY;
 		}
+
 	}
+
 }

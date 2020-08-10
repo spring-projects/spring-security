@@ -24,7 +24,6 @@ import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import java.util.function.Function;
 
 /**
- *
  * @author Joe Grandja
  * @since 5.2
  */
@@ -32,7 +31,8 @@ class DefaultOidcIdTokenValidatorFactory implements Function<ClientRegistration,
 
 	@Override
 	public OAuth2TokenValidator<Jwt> apply(ClientRegistration clientRegistration) {
-		return new DelegatingOAuth2TokenValidator<>(
-				new JwtTimestampValidator(), new OidcIdTokenValidator(clientRegistration));
+		return new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(),
+				new OidcIdTokenValidator(clientRegistration));
 	}
+
 }

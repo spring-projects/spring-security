@@ -31,8 +31,11 @@ import static org.springframework.security.web.header.writers.ReferrerPolicyHead
 public class ReferrerPolicyHeaderWriterTests {
 
 	private final String DEFAULT_REFERRER_POLICY = "no-referrer";
+
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
+
 	private ReferrerPolicyHeaderWriter writer;
 
 	private static final String REFERRER_POLICY_HEADER = "Referrer-Policy";
@@ -75,4 +78,5 @@ public class ReferrerPolicyHeaderWriterTests {
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(REFERRER_POLICY_HEADER)).isSameAs(value);
 	}
+
 }

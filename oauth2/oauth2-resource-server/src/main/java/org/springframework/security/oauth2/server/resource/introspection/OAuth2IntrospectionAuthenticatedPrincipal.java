@@ -29,16 +29,18 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
  *
  * @author David Kovac
  * @since 5.4
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7662#section-2.2">Introspection Response</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc7662#section-2.2">Introspection Response</a>
  */
-public final class OAuth2IntrospectionAuthenticatedPrincipal implements OAuth2IntrospectionClaimAccessor,
-		OAuth2AuthenticatedPrincipal, Serializable {
+public final class OAuth2IntrospectionAuthenticatedPrincipal
+		implements OAuth2IntrospectionClaimAccessor, OAuth2AuthenticatedPrincipal, Serializable {
+
 	private final OAuth2AuthenticatedPrincipal delegate;
 
 	/**
-	 * Constructs an {@code OAuth2IntrospectionAuthenticatedPrincipal} using the provided parameters.
-	 *
-	 * @param attributes  the attributes of the OAuth 2.0 Token Introspection
+	 * Constructs an {@code OAuth2IntrospectionAuthenticatedPrincipal} using the provided
+	 * parameters.
+	 * @param attributes the attributes of the OAuth 2.0 Token Introspection
 	 * @param authorities the authorities of the OAuth 2.0 Token Introspection
 	 */
 	public OAuth2IntrospectionAuthenticatedPrincipal(Map<String, Object> attributes,
@@ -48,10 +50,10 @@ public final class OAuth2IntrospectionAuthenticatedPrincipal implements OAuth2In
 	}
 
 	/**
-	 * Constructs an {@code OAuth2IntrospectionAuthenticatedPrincipal} using the provided parameters.
-	 *
-	 * @param name        the name attached to the OAuth 2.0 Token Introspection
-	 * @param attributes  the attributes of the OAuth 2.0 Token Introspection
+	 * Constructs an {@code OAuth2IntrospectionAuthenticatedPrincipal} using the provided
+	 * parameters.
+	 * @param name the name attached to the OAuth 2.0 Token Introspection
+	 * @param attributes the attributes of the OAuth 2.0 Token Introspection
 	 * @param authorities the authorities of the OAuth 2.0 Token Introspection
 	 */
 	public OAuth2IntrospectionAuthenticatedPrincipal(String name, Map<String, Object> attributes,
@@ -62,7 +64,6 @@ public final class OAuth2IntrospectionAuthenticatedPrincipal implements OAuth2In
 
 	/**
 	 * Gets the attributes of the OAuth 2.0 Token Introspection in map form.
-	 *
 	 * @return a {@link Map} of the attribute's objects keyed by the attribute's names
 	 */
 	@Override
@@ -71,9 +72,8 @@ public final class OAuth2IntrospectionAuthenticatedPrincipal implements OAuth2In
 	}
 
 	/**
-	 * Get the {@link Collection} of {@link GrantedAuthority}s associated
-	 * with this OAuth 2.0 Token Introspection
-	 *
+	 * Get the {@link Collection} of {@link GrantedAuthority}s associated with this OAuth
+	 * 2.0 Token Introspection
 	 * @return the OAuth 2.0 Token Introspection authorities
 	 */
 	@Override
@@ -96,4 +96,5 @@ public final class OAuth2IntrospectionAuthenticatedPrincipal implements OAuth2In
 	public Map<String, Object> getClaims() {
 		return getAttributes();
 	}
+
 }

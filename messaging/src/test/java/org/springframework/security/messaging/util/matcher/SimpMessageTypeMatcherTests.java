@@ -25,6 +25,7 @@ import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.MessageBuilder;
 
 public class SimpMessageTypeMatcherTests {
+
 	private SimpMessageTypeMatcher matcher;
 
 	@Before
@@ -39,20 +40,16 @@ public class SimpMessageTypeMatcherTests {
 
 	@Test
 	public void matchesMessageMessageTrue() {
-		Message<String> message = MessageBuilder
-				.withPayload("Hi")
-				.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER,
-						SimpMessageType.MESSAGE).build();
+		Message<String> message = MessageBuilder.withPayload("Hi")
+				.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE).build();
 
 		assertThat(matcher.matches(message)).isTrue();
 	}
 
 	@Test
 	public void matchesMessageConnectFalse() {
-		Message<String> message = MessageBuilder
-				.withPayload("Hi")
-				.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER,
-						SimpMessageType.CONNECT).build();
+		Message<String> message = MessageBuilder.withPayload("Hi")
+				.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.CONNECT).build();
 
 		assertThat(matcher.matches(message)).isFalse();
 	}
@@ -63,4 +60,5 @@ public class SimpMessageTypeMatcherTests {
 
 		assertThat(matcher.matches(message)).isFalse();
 	}
+
 }

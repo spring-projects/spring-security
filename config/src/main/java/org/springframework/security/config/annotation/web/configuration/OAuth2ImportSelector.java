@@ -26,10 +26,11 @@ import org.springframework.util.ClassUtils;
  * Used by {@link EnableWebSecurity} to conditionally import:
  *
  * <ul>
- * 	<li>{@link OAuth2ClientConfiguration} when the {@code spring-security-oauth2-client} module is present on the classpath</li>
- * 	<li>{@link SecurityReactorContextConfiguration} when either the {@code spring-security-oauth2-client} or
- * 		{@code spring-security-oauth2-resource-server} module as well as the {@code spring-webflux} module
- * 		are present on the classpath</li>
+ * <li>{@link OAuth2ClientConfiguration} when the {@code spring-security-oauth2-client}
+ * module is present on the classpath</li>
+ * <li>{@link SecurityReactorContextConfiguration} when either the
+ * {@code spring-security-oauth2-client} or {@code spring-security-oauth2-resource-server}
+ * module as well as the {@code spring-webflux} module are present on the classpath</li>
  * </ul>
  *
  * @author Joe Grandja
@@ -45,7 +46,8 @@ final class OAuth2ImportSelector implements ImportSelector {
 		Set<String> imports = new LinkedHashSet<>();
 
 		boolean oauth2ClientPresent = ClassUtils.isPresent(
-				"org.springframework.security.oauth2.client.registration.ClientRegistration", getClass().getClassLoader());
+				"org.springframework.security.oauth2.client.registration.ClientRegistration",
+				getClass().getClassLoader());
 		if (oauth2ClientPresent) {
 			imports.add("org.springframework.security.config.annotation.web.configuration.OAuth2ClientConfiguration");
 		}
@@ -53,15 +55,18 @@ final class OAuth2ImportSelector implements ImportSelector {
 		boolean webfluxPresent = ClassUtils.isPresent(
 				"org.springframework.web.reactive.function.client.ExchangeFilterFunction", getClass().getClassLoader());
 		if (webfluxPresent && oauth2ClientPresent) {
-			imports.add("org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration");
+			imports.add(
+					"org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration");
 		}
 
 		boolean oauth2ResourceServerPresent = ClassUtils.isPresent(
 				"org.springframework.security.oauth2.server.resource.BearerTokenError", getClass().getClassLoader());
 		if (webfluxPresent && oauth2ResourceServerPresent) {
-			imports.add("org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration");
+			imports.add(
+					"org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration");
 		}
 
 		return imports.toArray(new String[0]);
 	}
+
 }

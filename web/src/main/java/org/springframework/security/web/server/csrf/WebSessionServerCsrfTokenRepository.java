@@ -32,14 +32,14 @@ import java.util.UUID;
  * @author Rob Winch
  * @since 5.0
  */
-public class WebSessionServerCsrfTokenRepository
-	implements ServerCsrfTokenRepository {
+public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepository {
+
 	private static final String DEFAULT_CSRF_PARAMETER_NAME = "_csrf";
 
 	private static final String DEFAULT_CSRF_HEADER_NAME = "X-CSRF-TOKEN";
 
-	private static final String DEFAULT_CSRF_TOKEN_ATTR_NAME = WebSessionServerCsrfTokenRepository.class
-			.getName().concat(".CSRF_TOKEN");
+	private static final String DEFAULT_CSRF_TOKEN_ATTR_NAME = WebSessionServerCsrfTokenRepository.class.getName()
+			.concat(".CSRF_TOKEN");
 
 	private String parameterName = DEFAULT_CSRF_PARAMETER_NAME;
 
@@ -49,31 +49,28 @@ public class WebSessionServerCsrfTokenRepository
 
 	@Override
 	public Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
-		return Mono.just(exchange)
-			.publishOn(Schedulers.boundedElastic())
-			.fromCallable(() -> createCsrfToken());
+		return Mono.just(exchange).publishOn(Schedulers.boundedElastic()).fromCallable(() -> createCsrfToken());
 	}
 
 	@Override
 	public Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token) {
-		return exchange.getSession()
-			.doOnNext(session -> putToken(session.getAttributes(), token))
-			.flatMap(session -> session.changeSessionId());
+		return exchange.getSession().doOnNext(session -> putToken(session.getAttributes(), token))
+				.flatMap(session -> session.changeSessionId());
 	}
 
 	private void putToken(Map<String, Object> attributes, CsrfToken token) {
 		if (token == null) {
 			attributes.remove(this.sessionAttributeName);
-		} else {
+		}
+		else {
 			attributes.put(this.sessionAttributeName, token);
 		}
 	}
 
 	@Override
 	public Mono<CsrfToken> loadToken(ServerWebExchange exchange) {
-		return exchange.getSession()
-			.filter( s -> s.getAttributes().containsKey(this.sessionAttributeName))
-			.map(s -> s.getAttribute(this.sessionAttributeName));
+		return exchange.getSession().filter(s -> s.getAttributes().containsKey(this.sessionAttributeName))
+				.map(s -> s.getAttribute(this.sessionAttributeName));
 	}
 
 	/**
@@ -89,7 +86,6 @@ public class WebSessionServerCsrfTokenRepository
 	/**
 	 * Sets the header name that the {@link CsrfToken} is expected to appear on and the
 	 * header that the response will contain the {@link CsrfToken}.
-	 *
 	 * @param headerName the new header name to use
 	 */
 	public void setHeaderName(String headerName) {
@@ -102,8 +98,7 @@ public class WebSessionServerCsrfTokenRepository
 	 * @param sessionAttributeName the new attribute name to use
 	 */
 	public void setSessionAttributeName(String sessionAttributeName) {
-		Assert.hasLength(sessionAttributeName,
-				"sessionAttributename cannot be null or empty");
+		Assert.hasLength(sessionAttributeName, "sessionAttributename cannot be null or empty");
 		this.sessionAttributeName = sessionAttributeName;
 	}
 

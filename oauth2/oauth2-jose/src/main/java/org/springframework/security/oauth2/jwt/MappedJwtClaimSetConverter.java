@@ -31,27 +31,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Converts a JWT claim set, claim by claim. Can be configured with custom converters
- * by claim name.
+ * Converts a JWT claim set, claim by claim. Can be configured with custom converters by
+ * claim name.
  *
  * @author Josh Cummings
  * @since 5.1
  * @see ClaimTypeConverter
  */
 public final class MappedJwtClaimSetConverter implements Converter<Map<String, Object>, Map<String, Object>> {
+
 	private final static ConversionService CONVERSION_SERVICE = ClaimConversionService.getSharedInstance();
+
 	private final static TypeDescriptor OBJECT_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(Object.class);
+
 	private final static TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
+
 	private final static TypeDescriptor INSTANT_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(Instant.class);
+
 	private final static TypeDescriptor URL_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(URL.class);
+
 	private final Map<String, Converter<Object, ?>> claimTypeConverters;
+
 	private final Converter<Map<String, Object>, Map<String, Object>> delegate;
 
 	/**
 	 * Constructs a {@link MappedJwtClaimSetConverter} with the provided arguments
 	 *
 	 * This will completely replace any set of default converters.
-	 *
 	 * @param claimTypeConverters The {@link Map} of converters to use
 	 */
 	public MappedJwtClaimSetConverter(Map<String, Converter<Object, ?>> claimTypeConverters) {
@@ -64,26 +70,26 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 	 * Construct a {@link MappedJwtClaimSetConverter}, overriding individual claim
 	 * converters with the provided {@link Map} of {@link Converter}s.
 	 *
-	 * For example, the following would give an instance that is configured with only the default
-	 * claim converters:
+	 * For example, the following would give an instance that is configured with only the
+	 * default claim converters:
 	 *
 	 * <pre>
 	 * 	MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
 	 * </pre>
 	 *
-	 * Or, the following would supply a custom converter for the subject, leaving the other defaults
-	 * in place:
+	 * Or, the following would supply a custom converter for the subject, leaving the
+	 * other defaults in place:
 	 *
 	 * <pre>
 	 * 	MappedJwtClaimsSetConverter.withDefaults(
 	 * 		Collections.singletonMap(JwtClaimNames.SUB, new UserDetailsServiceJwtSubjectConverter()));
 	 * </pre>
 	 *
-	 * To completely replace the underlying {@link Map} of converters, see {@link MappedJwtClaimSetConverter#MappedJwtClaimSetConverter(Map)}.
-	 *
+	 * To completely replace the underlying {@link Map} of converters, see
+	 * {@link MappedJwtClaimSetConverter#MappedJwtClaimSetConverter(Map)}.
 	 * @param claimTypeConverters
-	 * @return An instance of {@link MappedJwtClaimSetConverter} that contains the converters provided,
-	 *   plus any defaults that were not overridden.
+	 * @return An instance of {@link MappedJwtClaimSetConverter} that contains the
+	 * converters provided, plus any defaults that were not overridden.
 	 */
 	public static MappedJwtClaimSetConverter withDefaults(Map<String, Converter<Object, ?>> claimTypeConverters) {
 		Assert.notNull(claimTypeConverters, "claimTypeConverters cannot be null");
@@ -131,7 +137,8 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 		if (source instanceof String && ((String) source).contains(":")) {
 			try {
 				return new URI((String) source).toString();
-			} catch (Exception ex) {
+			}
+			catch (Exception ex) {
 				throw new IllegalStateException("Could not coerce " + source + " into a URI String", ex);
 			}
 		}
@@ -178,4 +185,5 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 		}
 		return result;
 	}
+
 }

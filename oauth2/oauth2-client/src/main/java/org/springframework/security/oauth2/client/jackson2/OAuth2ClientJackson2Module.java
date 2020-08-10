@@ -36,36 +36,37 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import java.util.Collections;
 
 /**
- * Jackson {@code Module} for {@code spring-security-oauth2-client},
- * that registers the following mix-in annotations:
+ * Jackson {@code Module} for {@code spring-security-oauth2-client}, that registers the
+ * following mix-in annotations:
  *
  * <ul>
- *     <li>{@link OAuth2AuthorizationRequestMixin}</li>
- *     <li>{@link ClientRegistrationMixin}</li>
- *     <li>{@link OAuth2AccessTokenMixin}</li>
- *     <li>{@link OAuth2RefreshTokenMixin}</li>
- *     <li>{@link OAuth2AuthorizedClientMixin}</li>
- *     <li>{@link OAuth2UserAuthorityMixin}</li>
- *     <li>{@link DefaultOAuth2UserMixin}</li>
- *     <li>{@link OidcIdTokenMixin}</li>
- *     <li>{@link OidcUserInfoMixin}</li>
- *     <li>{@link OidcUserAuthorityMixin}</li>
- *     <li>{@link DefaultOidcUserMixin}</li>
- *     <li>{@link OAuth2AuthenticationTokenMixin}</li>
- *     <li>{@link OAuth2AuthenticationExceptionMixin}</li>
- *     <li>{@link OAuth2ErrorMixin}</li>
+ * <li>{@link OAuth2AuthorizationRequestMixin}</li>
+ * <li>{@link ClientRegistrationMixin}</li>
+ * <li>{@link OAuth2AccessTokenMixin}</li>
+ * <li>{@link OAuth2RefreshTokenMixin}</li>
+ * <li>{@link OAuth2AuthorizedClientMixin}</li>
+ * <li>{@link OAuth2UserAuthorityMixin}</li>
+ * <li>{@link DefaultOAuth2UserMixin}</li>
+ * <li>{@link OidcIdTokenMixin}</li>
+ * <li>{@link OidcUserInfoMixin}</li>
+ * <li>{@link OidcUserAuthorityMixin}</li>
+ * <li>{@link DefaultOidcUserMixin}</li>
+ * <li>{@link OAuth2AuthenticationTokenMixin}</li>
+ * <li>{@link OAuth2AuthenticationExceptionMixin}</li>
+ * <li>{@link OAuth2ErrorMixin}</li>
  * </ul>
  *
- * If not already enabled, default typing will be automatically enabled
- * as type info is required to properly serialize/deserialize objects.
- * In order to use this module just add it to your {@code ObjectMapper} configuration.
+ * If not already enabled, default typing will be automatically enabled as type info is
+ * required to properly serialize/deserialize objects. In order to use this module just
+ * add it to your {@code ObjectMapper} configuration.
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new OAuth2ClientJackson2Module());
  * </pre>
  *
- * <b>NOTE:</b> Use {@link SecurityJackson2Modules#getModules(ClassLoader)} to get a list of all security modules.
+ * <b>NOTE:</b> Use {@link SecurityJackson2Modules#getModules(ClassLoader)} to get a list
+ * of all security modules.
  *
  * @author Joe Grandja
  * @since 5.3
@@ -94,7 +95,8 @@ public class OAuth2ClientJackson2Module extends SimpleModule {
 	@Override
 	public void setupModule(SetupContext context) {
 		SecurityJackson2Modules.enableDefaultTyping(context.getOwner());
-		context.setMixInAnnotations(Collections.unmodifiableMap(Collections.emptyMap()).getClass(), UnmodifiableMapMixin.class);
+		context.setMixInAnnotations(Collections.unmodifiableMap(Collections.emptyMap()).getClass(),
+				UnmodifiableMapMixin.class);
 		context.setMixInAnnotations(OAuth2AuthorizationRequest.class, OAuth2AuthorizationRequestMixin.class);
 		context.setMixInAnnotations(ClientRegistration.class, ClientRegistrationMixin.class);
 		context.setMixInAnnotations(OAuth2AccessToken.class, OAuth2AccessTokenMixin.class);
@@ -110,4 +112,5 @@ public class OAuth2ClientJackson2Module extends SimpleModule {
 		context.setMixInAnnotations(OAuth2AuthenticationException.class, OAuth2AuthenticationExceptionMixin.class);
 		context.setMixInAnnotations(OAuth2Error.class, OAuth2ErrorMixin.class);
 	}
+
 }

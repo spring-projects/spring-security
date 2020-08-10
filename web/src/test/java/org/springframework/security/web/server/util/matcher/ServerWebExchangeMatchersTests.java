@@ -33,8 +33,8 @@ import static org.springframework.security.web.server.util.matcher.ServerWebExch
  * @since 5.0
  */
 public class ServerWebExchangeMatchersTests {
-	ServerWebExchange exchange = MockServerWebExchange
-		.from(MockServerHttpRequest.get("/").build());
+
+	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 	@Test
 	public void pathMatchersWhenSingleAndSamePatternThenMatches() {
@@ -43,12 +43,14 @@ public class ServerWebExchangeMatchersTests {
 
 	@Test
 	public void pathMatchersWhenSingleAndSamePatternAndMethodThenMatches() {
-		assertThat(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/").matches(exchange).block().isMatch()).isTrue();
+		assertThat(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/").matches(exchange).block().isMatch())
+				.isTrue();
 	}
 
 	@Test
 	public void pathMatchersWhenSingleAndSamePatternAndDiffMethodThenDoesNotMatch() {
-		assertThat(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/").matches(exchange).block().isMatch()).isFalse();
+		assertThat(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/").matches(exchange).block().isMatch())
+				.isFalse();
 	}
 
 	@Test
@@ -71,10 +73,9 @@ public class ServerWebExchangeMatchersTests {
 	}
 
 	/**
-	 * If a LinkedMap is used and anyRequest equals anyRequest then the following is added:
-	 * anyRequest() -> authenticated()
-	 * pathMatchers("/admin/**") -> hasRole("ADMIN")
-	 * anyRequest() -> permitAll
+	 * If a LinkedMap is used and anyRequest equals anyRequest then the following is
+	 * added: anyRequest() -> authenticated() pathMatchers("/admin/**") ->
+	 * hasRole("ADMIN") anyRequest() -> permitAll
 	 *
 	 * will result in the first entry being overridden
 	 */
@@ -82,4 +83,5 @@ public class ServerWebExchangeMatchersTests {
 	public void anyExchangeWhenTwoCreatedThenDifferentToPreventIssuesInMap() {
 		assertThat(anyExchange()).isNotEqualTo(anyExchange());
 	}
+
 }

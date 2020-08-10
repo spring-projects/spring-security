@@ -58,13 +58,12 @@ import org.springframework.security.core.SpringSecurityMessageSource;
  * <p>
  * All comparisons and prefixes are case sensitive.
  */
-public class AclEntryAfterInvocationProvider extends AbstractAclProvider implements
-		MessageSourceAware {
+public class AclEntryAfterInvocationProvider extends AbstractAclProvider implements MessageSourceAware {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	protected static final Log logger = LogFactory
-			.getLog(AclEntryAfterInvocationProvider.class);
+	protected static final Log logger = LogFactory.getLog(AclEntryAfterInvocationProvider.class);
 
 	// ~ Instance fields
 	// ================================================================================================
@@ -74,22 +73,20 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 	// ~ Constructors
 	// ===================================================================================================
 
-	public AclEntryAfterInvocationProvider(AclService aclService,
-			List<Permission> requirePermission) {
+	public AclEntryAfterInvocationProvider(AclService aclService, List<Permission> requirePermission) {
 		this(aclService, "AFTER_ACL_READ", requirePermission);
 	}
 
-	public AclEntryAfterInvocationProvider(AclService aclService,
-			String processConfigAttribute, List<Permission> requirePermission) {
+	public AclEntryAfterInvocationProvider(AclService aclService, String processConfigAttribute,
+			List<Permission> requirePermission) {
 		super(aclService, processConfigAttribute, requirePermission);
 	}
 
 	// ~ Methods
 	// ========================================================================================================
 
-	public Object decide(Authentication authentication, Object object,
-			Collection<ConfigAttribute> config, Object returnedObject)
-			throws AccessDeniedException {
+	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
+			Object returnedObject) throws AccessDeniedException {
 
 		if (returnedObject == null) {
 			// AclManager interface contract prohibits nulls
@@ -117,9 +114,8 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 
 			logger.debug("Denying access");
 
-			throw new AccessDeniedException(messages.getMessage(
-					"AclEntryAfterInvocationProvider.noPermission", new Object[] {
-							authentication.getName(), returnedObject },
+			throw new AccessDeniedException(messages.getMessage("AclEntryAfterInvocationProvider.noPermission",
+					new Object[] { authentication.getName(), returnedObject },
 					"Authentication {0} has NO permissions to the domain object {1}"));
 		}
 
@@ -129,4 +125,5 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
+
 }

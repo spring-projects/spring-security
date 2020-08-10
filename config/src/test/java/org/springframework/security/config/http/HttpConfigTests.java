@@ -34,14 +34,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- *
  * @author Rob Winch
  * @author Josh Cummings
  */
 public class HttpConfigTests {
 
-	private static final String CONFIG_LOCATION_PREFIX =
-			"classpath:org/springframework/security/config/http/HttpConfigTests";
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/HttpConfigTests";
 
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -50,19 +48,15 @@ public class HttpConfigTests {
 	MockMvc mvc;
 
 	@Test
-	public void getWhenUsingMinimalConfigurationThenRedirectsToLogin()
-		throws Exception {
+	public void getWhenUsingMinimalConfigurationThenRedirectsToLogin() throws Exception {
 
 		this.spring.configLocations(this.xml("Minimal")).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"));
+		this.mvc.perform(get("/")).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/login"));
 	}
 
 	@Test
-	public void getWhenUsingMinimalConfigurationThenPreventsSessionAsUrlParameter()
-		throws Exception {
+	public void getWhenUsingMinimalConfigurationThenPreventsSessionAsUrlParameter() throws Exception {
 
 		this.spring.configLocations(this.xml("Minimal")).autowire();
 
@@ -71,17 +65,14 @@ public class HttpConfigTests {
 
 		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
 
-		proxy.doFilter(
-				request,
-				new EncodeUrlDenyingHttpServletResponseWrapper(response),
-				(req, resp) -> {});
+		proxy.doFilter(request, new EncodeUrlDenyingHttpServletResponseWrapper(response), (req, resp) -> {
+		});
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/login");
 	}
 
-	private static class EncodeUrlDenyingHttpServletResponseWrapper
-			extends HttpServletResponseWrapper {
+	private static class EncodeUrlDenyingHttpServletResponseWrapper extends HttpServletResponseWrapper {
 
 		EncodeUrlDenyingHttpServletResponseWrapper(HttpServletResponse response) {
 			super(response);
@@ -106,9 +97,11 @@ public class HttpConfigTests {
 		public String encodeRedirectUrl(String url) {
 			throw new RuntimeException("Unexpected invocation of encodeURL");
 		}
+
 	}
 
 	private String xml(String configName) {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
+
 }

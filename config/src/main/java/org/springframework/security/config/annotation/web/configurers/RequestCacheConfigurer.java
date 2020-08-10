@@ -69,8 +69,8 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * @since 3.2
  * @see RequestCache
  */
-public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractHttpConfigurer<RequestCacheConfigurer<H>, H> {
+public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractHttpConfigurer<RequestCacheConfigurer<H>, H> {
 
 	public RequestCacheConfigurer() {
 	}
@@ -79,7 +79,6 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 	 * Allows explicit configuration of the {@link RequestCache} to be used. Defaults to
 	 * try finding a {@link RequestCache} as a shared object. Then falls back to a
 	 * {@link HttpSessionRequestCache}.
-	 *
 	 * @param requestCache the explicit {@link RequestCache} to use
 	 * @return the {@link RequestCacheConfigurer} for further customization
 	 */
@@ -102,8 +101,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 	@Override
 	public void configure(H http) {
 		RequestCache requestCache = getRequestCache(http);
-		RequestCacheAwareFilter requestCacheFilter = new RequestCacheAwareFilter(
-				requestCache);
+		RequestCacheAwareFilter requestCacheFilter = new RequestCacheAwareFilter(requestCache);
 		requestCacheFilter = postProcess(requestCacheFilter);
 		http.addFilter(requestCacheFilter);
 	}
@@ -113,7 +111,6 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 	 * {@link #requestCache(org.springframework.security.web.savedrequest.RequestCache)},
 	 * then it is used. Otherwise, an attempt to find a {@link RequestCache} shared object
 	 * is made. If that fails, an {@link HttpSessionRequestCache} is used
-	 *
 	 * @param http the {@link HttpSecurity} to attempt to fined the shared object
 	 * @return the {@link RequestCache} to use
 	 */
@@ -138,15 +135,15 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 		}
 		try {
 			return context.getBean(type);
-		} catch (NoSuchBeanDefinitionException e) {
+		}
+		catch (NoSuchBeanDefinitionException e) {
 			return null;
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private RequestMatcher createDefaultSavedRequestMatcher(H http) {
-		RequestMatcher notFavIcon = new NegatedRequestMatcher(new AntPathRequestMatcher(
-				"/**/favicon.*"));
+		RequestMatcher notFavIcon = new NegatedRequestMatcher(new AntPathRequestMatcher("/**/favicon.*"));
 
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
@@ -177,4 +174,5 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 		mediaRequest.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 		return new NegatedRequestMatcher(mediaRequest);
 	}
+
 }

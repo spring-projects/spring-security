@@ -29,14 +29,15 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public abstract class SecurityWebApplicationContextUtils extends WebApplicationContextUtils {
 
 	/**
-	 * Find a unique {@code WebApplicationContext} for this web app: either the
-	 * root web app context (preferred) or a unique {@code WebApplicationContext}
-	 * among the registered {@code ServletContext} attributes (typically coming
-	 * from a single {@code DispatcherServlet} in the current web application).
-	 * <p>Note that {@code DispatcherServlet}'s exposure of its context can be
-	 * controlled through its {@code publishContext} property, which is {@code true}
-	 * by default but can be selectively switched to only publish a single context
-	 * despite multiple {@code DispatcherServlet} registrations in the web app.
+	 * Find a unique {@code WebApplicationContext} for this web app: either the root web
+	 * app context (preferred) or a unique {@code WebApplicationContext} among the
+	 * registered {@code ServletContext} attributes (typically coming from a single
+	 * {@code DispatcherServlet} in the current web application).
+	 * <p>
+	 * Note that {@code DispatcherServlet}'s exposure of its context can be controlled
+	 * through its {@code publishContext} property, which is {@code true} by default but
+	 * can be selectively switched to only publish a single context despite multiple
+	 * {@code DispatcherServlet} registrations in the web app.
 	 * @param servletContext ServletContext to find the web application context for
 	 * @return the desired WebApplicationContext for this web app
 	 * @see #getWebApplicationContext(ServletContext)
@@ -52,7 +53,8 @@ public abstract class SecurityWebApplicationContextUtils extends WebApplicationC
 	}
 
 	/**
-	 * Copy of {@link #findWebApplicationContext(ServletContext)} for compatibility with spring framework 4.1.x.
+	 * Copy of {@link #findWebApplicationContext(ServletContext)} for compatibility with
+	 * spring framework 4.1.x.
 	 * @see #findWebApplicationContext(ServletContext)
 	 */
 	private static WebApplicationContext _findWebApplicationContext(ServletContext sc) {
@@ -64,8 +66,8 @@ public abstract class SecurityWebApplicationContextUtils extends WebApplicationC
 				Object attrValue = sc.getAttribute(attrName);
 				if (attrValue instanceof WebApplicationContext) {
 					if (wac != null) {
-						throw new IllegalStateException("No unique WebApplicationContext found: more than one " +
-								"DispatcherServlet registered with publishContext=true?");
+						throw new IllegalStateException("No unique WebApplicationContext found: more than one "
+								+ "DispatcherServlet registered with publishContext=true?");
 					}
 					wac = (WebApplicationContext) attrValue;
 				}
@@ -73,4 +75,5 @@ public abstract class SecurityWebApplicationContextUtils extends WebApplicationC
 		}
 		return wac;
 	}
+
 }

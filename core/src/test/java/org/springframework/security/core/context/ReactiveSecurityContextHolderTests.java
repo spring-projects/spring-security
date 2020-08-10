@@ -32,22 +32,19 @@ public class ReactiveSecurityContextHolderTests {
 	public void getContextWhenEmpty() {
 		Mono<SecurityContext> context = ReactiveSecurityContextHolder.getContext();
 
-		StepVerifier.create(context)
-			.verifyComplete();
+		StepVerifier.create(context).verifyComplete();
 	}
 
 	@Test
 	public void setContextAndGetContextThenEmitsContext() {
 		SecurityContext expectedContext = new SecurityContextImpl(
-			new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+				new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 
 		Mono<SecurityContext> context = Mono.subscriberContext()
-			.flatMap( c -> ReactiveSecurityContextHolder.getContext())
-			.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(expectedContext)));
+				.flatMap(c -> ReactiveSecurityContextHolder.getContext())
+				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(expectedContext)));
 
-		StepVerifier.create(context)
-			.expectNext(expectedContext)
-			.verifyComplete();
+		StepVerifier.create(context).expectNext(expectedContext).verifyComplete();
 	}
 
 	@Test
@@ -55,14 +52,11 @@ public class ReactiveSecurityContextHolderTests {
 		Authentication authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 
 		Mono<String> messageByUsername = ReactiveSecurityContextHolder.getContext()
-			.map(SecurityContext::getAuthentication)
-			.map(Authentication::getName)
-			.flatMap(this::findMessageByUsername)
-			.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication));
+				.map(SecurityContext::getAuthentication).map(Authentication::getName)
+				.flatMap(this::findMessageByUsername)
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication));
 
-		StepVerifier.create(messageByUsername)
-			.expectNext("Hi user")
-			.verifyComplete();
+		StepVerifier.create(messageByUsername).expectNext("Hi user").verifyComplete();
 	}
 
 	private Mono<String> findMessageByUsername(String username) {
@@ -72,29 +66,25 @@ public class ReactiveSecurityContextHolderTests {
 	@Test
 	public void setContextAndClearAndGetContextThenEmitsEmpty() {
 		SecurityContext expectedContext = new SecurityContextImpl(
-			new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+				new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 
 		Mono<SecurityContext> context = Mono.subscriberContext()
-			.flatMap( c -> ReactiveSecurityContextHolder.getContext())
-			.subscriberContext(ReactiveSecurityContextHolder.clearContext())
-			.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(expectedContext)));
+				.flatMap(c -> ReactiveSecurityContextHolder.getContext())
+				.subscriberContext(ReactiveSecurityContextHolder.clearContext())
+				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(expectedContext)));
 
-		StepVerifier.create(context)
-			.verifyComplete();
+		StepVerifier.create(context).verifyComplete();
 	}
 
 	@Test
 	public void setAuthenticationAndGetContextThenEmitsContext() {
-		Authentication expectedAuthentication = new TestingAuthenticationToken("user",
-			"password", "ROLE_USER");
+		Authentication expectedAuthentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 
 		Mono<Authentication> authentication = Mono.subscriberContext()
-			.flatMap( c -> ReactiveSecurityContextHolder.getContext())
-			.map(SecurityContext::getAuthentication)
-			.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(expectedAuthentication));
+				.flatMap(c -> ReactiveSecurityContextHolder.getContext()).map(SecurityContext::getAuthentication)
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(expectedAuthentication));
 
-		StepVerifier.create(authentication)
-			.expectNext(expectedAuthentication)
-			.verifyComplete();
+		StepVerifier.create(authentication).expectNext(expectedAuthentication).verifyComplete();
 	}
+
 }

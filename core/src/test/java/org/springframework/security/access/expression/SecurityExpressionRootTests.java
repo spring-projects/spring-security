@@ -19,7 +19,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.*;
 
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -28,13 +27,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
- *
  * @author Luke Taylor
  * @since 3.0
  */
 public class SecurityExpressionRootTests {
-	final static Authentication JOE = new TestingAuthenticationToken("joe", "pass",
-			"ROLE_A", "ROLE_B");
+
+	final static Authentication JOE = new TestingAuthenticationToken("joe", "pass", "ROLE_A", "ROLE_B");
 
 	SecurityExpressionRoot root;
 
@@ -135,4 +133,5 @@ public class SecurityExpressionRootTests {
 		assertThat(root.hasAnyAuthority("NO", "A")).isFalse();
 		assertThat(root.hasAnyAuthority("ROLE_A", "NOT")).isTrue();
 	}
+
 }

@@ -33,6 +33,7 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
  * @author Rob Winch
  */
 public class NamespaceAuthenticationManagerTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -44,15 +45,16 @@ public class NamespaceAuthenticationManagerTests {
 		this.spring.register(EraseCredentialsTrueDefaultConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withAuthentication(a-> assertThat(a.getCredentials()).isNull()));
+				.andExpect(authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNull()));
 
 		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withAuthentication(a-> assertThat(a.getCredentials()).isNull()));
+				.andExpect(authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNull()));
 		// no exception due to username being cleared out
 	}
 
 	@EnableWebSecurity
 	static class EraseCredentialsTrueDefaultConfig extends WebSecurityConfigurerAdapter {
+
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
@@ -61,6 +63,7 @@ public class NamespaceAuthenticationManagerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -68,15 +71,16 @@ public class NamespaceAuthenticationManagerTests {
 		this.spring.register(EraseCredentialsFalseConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withAuthentication(a-> assertThat(a.getCredentials()).isNotNull()));
+				.andExpect(authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNotNull()));
 
 		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withAuthentication(a-> assertThat(a.getCredentials()).isNotNull()));
+				.andExpect(authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNotNull()));
 		// no exception due to username being cleared out
 	}
 
 	@EnableWebSecurity
 	static class EraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
@@ -86,6 +90,7 @@ public class NamespaceAuthenticationManagerTests {
 				.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -94,11 +99,12 @@ public class NamespaceAuthenticationManagerTests {
 		this.spring.register(GlobalEraseCredentialsFalseConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withAuthentication(a-> assertThat(a.getCredentials()).isNotNull()));
+				.andExpect(authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNotNull()));
 	}
 
 	@EnableWebSecurity
 	static class GlobalEraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
+
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
@@ -108,5 +114,7 @@ public class NamespaceAuthenticationManagerTests {
 				.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
+
 }

@@ -36,6 +36,7 @@ import org.springframework.web.util.WebUtils;
  * @since 4.1
  */
 public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
+
 	static final String DEFAULT_CSRF_COOKIE_NAME = "XSRF-TOKEN";
 
 	static final String DEFAULT_CSRF_PARAMETER_NAME = "_csrf";
@@ -61,25 +62,25 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	@Override
 	public CsrfToken generateToken(HttpServletRequest request) {
-		return new DefaultCsrfToken(this.headerName, this.parameterName,
-				createNewToken());
+		return new DefaultCsrfToken(this.headerName, this.parameterName, createNewToken());
 	}
 
 	@Override
-	public void saveToken(CsrfToken token, HttpServletRequest request,
-			HttpServletResponse response) {
+	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
 		String tokenValue = token == null ? "" : token.getToken();
 		Cookie cookie = new Cookie(this.cookieName, tokenValue);
 		if (secure == null) {
 			cookie.setSecure(request.isSecure());
-		} else {
+		}
+		else {
 			cookie.setSecure(secure);
 		}
 
 		if (this.cookiePath != null && !this.cookiePath.isEmpty()) {
-				cookie.setPath(this.cookiePath);
-		} else {
-				cookie.setPath(this.getRequestContext(request));
+			cookie.setPath(this.cookiePath);
+		}
+		else {
+			cookie.setPath(this.getRequestContext(request));
 		}
 		if (token == null) {
 			cookie.setMaxAge(0);
@@ -110,7 +111,6 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	/**
 	 * Sets the name of the HTTP request parameter that should be used to provide a token.
-	 *
 	 * @param parameterName the name of the HTTP request parameter that should be used to
 	 * provide a token
 	 */
@@ -121,7 +121,6 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	/**
 	 * Sets the name of the HTTP header that should be used to provide the token.
-	 *
 	 * @param headerName the name of the HTTP header that should be used to provide the
 	 * token
 	 */
@@ -132,7 +131,6 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	/**
 	 * Sets the name of the cookie that the expected CSRF token is saved to and read from.
-	 *
 	 * @param cookieName the name of the cookie that the expected CSRF token is saved to
 	 * and read from
 	 */
@@ -142,10 +140,10 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * Sets the HttpOnly attribute on the cookie containing the CSRF token.
-	 * Defaults to <code>true</code>.
-	 *
-	 * @param cookieHttpOnly <code>true</code> sets the HttpOnly attribute, <code>false</code> does not set it
+	 * Sets the HttpOnly attribute on the cookie containing the CSRF token. Defaults to
+	 * <code>true</code>.
+	 * @param cookieHttpOnly <code>true</code> sets the HttpOnly attribute,
+	 * <code>false</code> does not set it
 	 */
 	public void setCookieHttpOnly(boolean cookieHttpOnly) {
 		this.cookieHttpOnly = cookieHttpOnly;
@@ -159,7 +157,6 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	/**
 	 * Factory method to conveniently create an instance that has
 	 * {@link #setCookieHttpOnly(boolean)} set to false.
-	 *
 	 * @return an instance of CookieCsrfTokenRepository with
 	 * {@link #setCookieHttpOnly(boolean)} set to false
 	 */
@@ -174,9 +171,8 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * Set the path that the Cookie will be created with. This will override the default functionality which uses the
-	 * request context as the path.
-	 *
+	 * Set the path that the Cookie will be created with. This will override the default
+	 * functionality which uses the request context as the path.
 	 * @param path the path to use
 	 */
 	public void setCookiePath(String path) {
@@ -185,7 +181,6 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	/**
 	 * Get the path that the CSRF cookie will be set to.
-	 *
 	 * @return the path to be used.
 	 */
 	public String getCookiePath() {
@@ -193,27 +188,27 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * Sets the domain of the cookie that the expected CSRF token is saved to and read from.
+	 * Sets the domain of the cookie that the expected CSRF token is saved to and read
+	 * from.
 	 *
 	 * @since 5.2
-	 * @param cookieDomain the domain of the cookie that the expected CSRF token is saved to
-	 * and read from
+	 * @param cookieDomain the domain of the cookie that the expected CSRF token is saved
+	 * to and read from
 	 */
 	public void setCookieDomain(String cookieDomain) {
 		this.cookieDomain = cookieDomain;
 	}
 
 	/**
-	 * Sets secure flag of the cookie that the expected CSRF token is saved to and read from.
-	 * By default secure flag depends on {@link ServletRequest#isSecure()}
+	 * Sets secure flag of the cookie that the expected CSRF token is saved to and read
+	 * from. By default secure flag depends on {@link ServletRequest#isSecure()}
 	 *
 	 * @since 5.4
-	 * @param secure the secure flag of the cookie that the expected CSRF token is saved to
-	 * and read from
+	 * @param secure the secure flag of the cookie that the expected CSRF token is saved
+	 * to and read from
 	 */
 	public void setSecure(Boolean secure) {
 		this.secure = secure;
 	}
-
 
 }

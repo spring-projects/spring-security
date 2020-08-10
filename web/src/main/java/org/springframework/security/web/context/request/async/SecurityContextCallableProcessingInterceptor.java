@@ -39,8 +39,8 @@ import org.springframework.web.context.request.async.CallableProcessingIntercept
  * @author Rob Winch
  * @since 3.2
  */
-public final class SecurityContextCallableProcessingInterceptor extends
-		CallableProcessingInterceptorAdapter {
+public final class SecurityContextCallableProcessingInterceptor extends CallableProcessingInterceptorAdapter {
+
 	private volatile SecurityContext securityContext;
 
 	/**
@@ -77,12 +77,12 @@ public final class SecurityContextCallableProcessingInterceptor extends
 	}
 
 	@Override
-	public <T> void postProcess(NativeWebRequest request, Callable<T> task,
-			Object concurrentResult) {
+	public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult) {
 		SecurityContextHolder.clearContext();
 	}
 
 	private void setSecurityContext(SecurityContext securityContext) {
 		this.securityContext = securityContext;
 	}
+
 }

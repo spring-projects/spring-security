@@ -28,13 +28,13 @@ import org.springframework.security.core.AuthenticationException;
  * @see InternalAuthenticationServiceException
  */
 public class AuthenticationServiceException extends AuthenticationException {
+
 	// ~ Constructors
 	// ===================================================================================================
 
 	/**
 	 * Constructs an <code>AuthenticationServiceException</code> with the specified
 	 * message.
-	 *
 	 * @param msg the detail message
 	 */
 	public AuthenticationServiceException(String msg) {
@@ -44,11 +44,11 @@ public class AuthenticationServiceException extends AuthenticationException {
 	/**
 	 * Constructs an <code>AuthenticationServiceException</code> with the specified
 	 * message and root cause.
-	 *
 	 * @param msg the detail message
 	 * @param t root cause
 	 */
 	public AuthenticationServiceException(String msg, Throwable t) {
 		super(msg, t);
 	}
+
 }

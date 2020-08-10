@@ -36,7 +36,6 @@ import org.springframework.security.core.authority.mapping.SimpleMappableAttribu
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 
 /**
- *
  * @author TSARDD
  */
 public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
@@ -111,16 +110,15 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 		testDetails(mappedRoles, roles, expectedRoles);
 	}
 
-	private void testDetails(String[] mappedRoles, String[] userRoles,
-			String[] expectedRoles) {
+	private void testDetails(String[] mappedRoles, String[] userRoles, String[] expectedRoles) {
 		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource src = getJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource(
 				mappedRoles);
 		Object o = src.buildDetails(getRequest("testUser", userRoles));
 		assertThat(o).isNotNull();
-		assertThat(
-				o instanceof PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails).withFailMessage(
-						"Returned object not of type PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails, actual type: "
-								+ o.getClass()).isTrue();
+		assertThat(o instanceof PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails).withFailMessage(
+				"Returned object not of type PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails, actual type: "
+						+ o.getClass())
+				.isTrue();
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = (PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails) o;
 		List<GrantedAuthority> gas = details.getGrantedAuthorities();
 		assertThat(gas).as("Granted authorities should not be null").isNotNull();
@@ -131,17 +129,15 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 		for (GrantedAuthority grantedAuthority : gas) {
 			gasRolesSet.add(grantedAuthority.getAuthority());
 		}
-		assertThat(expectedRolesColl.containsAll(gasRolesSet)
-				&& gasRolesSet.containsAll(expectedRolesColl)).withFailMessage(
-						"Granted Authorities do not match expected roles").isTrue();
+		assertThat(expectedRolesColl.containsAll(gasRolesSet) && gasRolesSet.containsAll(expectedRolesColl))
+				.withFailMessage("Granted Authorities do not match expected roles").isTrue();
 	}
 
 	private J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource getJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource(
 			String[] mappedRoles) {
 		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource result = new J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource();
 		result.setMappableRolesRetriever(getMappableRolesRetriever(mappedRoles));
-		result.setUserRoles2GrantedAuthoritiesMapper(
-				getJ2eeUserRoles2GrantedAuthoritiesMapper());
+		result.setUserRoles2GrantedAuthoritiesMapper(getJ2eeUserRoles2GrantedAuthoritiesMapper());
 
 		try {
 			result.afterPropertiesSet();
@@ -179,4 +175,5 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 		req.setRemoteUser(userName);
 		return req;
 	}
+
 }

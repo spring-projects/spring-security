@@ -29,8 +29,7 @@ import static org.mockito.Mockito.mock;
  * Forward Authentication Failure Handler Tests
  * </p>
  *
- * @author Shazin Sadakath
- * @since4.1
+ * @author Shazin Sadakath @since4.1
  */
 public class ForwardAuthenticationFailureHandlerTests {
 
@@ -57,4 +56,5 @@ public class ForwardAuthenticationFailureHandlerTests {
 		assertThat(response.getForwardedUrl()).isEqualTo("/forwardUrl");
 		assertThat(request.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION)).isEqualTo(e);
 	}
+
 }

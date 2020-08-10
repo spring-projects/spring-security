@@ -40,8 +40,8 @@ import org.apache.commons.logging.LogFactory;
  * @since 2.0
  */
 final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroupsExtractor {
-	private static final Log logger = LogFactory
-			.getLog(DefaultWASUsernameAndGroupsExtractor.class);
+
+	private static final Log logger = LogFactory.getLog(DefaultWASUsernameAndGroupsExtractor.class);
 
 	private static final String PORTABLE_REMOTE_OBJECT_CLASSNAME = "javax.rmi.PortableRemoteObject";
 
@@ -68,7 +68,6 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 
 	/**
 	 * Get the security name for the given subject.
-	 *
 	 * @param subject The subject for which to retrieve the security name
 	 * @return String the security name for the given subject
 	 */
@@ -79,23 +78,19 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 		String userSecurityName = null;
 		if (subject != null) {
 			// SEC-803
-			Object credential = subject.getPublicCredentials(getWSCredentialClass())
-					.iterator().next();
+			Object credential = subject.getPublicCredentials(getWSCredentialClass()).iterator().next();
 			if (credential != null) {
-				userSecurityName = (String) invokeMethod(getSecurityNameMethod(),
-						credential);
+				userSecurityName = (String) invokeMethod(getSecurityNameMethod(), credential);
 			}
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("Websphere security name is " + userSecurityName
-					+ " for subject " + subject);
+			logger.debug("Websphere security name is " + userSecurityName + " for subject " + subject);
 		}
 		return userSecurityName;
 	}
 
 	/**
 	 * Get the current RunAs subject.
-	 *
 	 * @return Subject the current RunAs subject
 	 */
 	private static Subject getRunAsSubject() {
@@ -106,7 +101,6 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 
 	/**
 	 * Get the WebSphere group names for the given subject.
-	 *
 	 * @param subject The subject for which to retrieve the WebSphere group names
 	 * @return the WebSphere group names for the given subject
 	 */
@@ -116,7 +110,6 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 
 	/**
 	 * Get the WebSphere group names for the given security name.
-	 *
 	 * @param securityName The security name for which to retrieve the WebSphere group
 	 * names
 	 * @return the WebSphere group names for the given security name
@@ -128,13 +121,14 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 			// TODO: Cache UserRegistry object
 			ic = new InitialContext();
 			Object objRef = ic.lookup(USER_REGISTRY);
-			Object userReg = invokeMethod(getNarrowMethod(), null , objRef, Class.forName("com.ibm.websphere.security.UserRegistry"));
+			Object userReg = invokeMethod(getNarrowMethod(), null, objRef,
+					Class.forName("com.ibm.websphere.security.UserRegistry"));
 			if (logger.isDebugEnabled()) {
-				logger.debug("Determining WebSphere groups for user " + securityName
-						+ " using WebSphere UserRegistry " + userReg);
+				logger.debug("Determining WebSphere groups for user " + securityName + " using WebSphere UserRegistry "
+						+ userReg);
 			}
-			final Collection groups = (Collection) invokeMethod(getGroupsForUserMethod(),
-					userReg, new Object[] { securityName });
+			final Collection groups = (Collection) invokeMethod(getGroupsForUserMethod(), userReg,
+					new Object[] { securityName });
 			if (logger.isDebugEnabled()) {
 				logger.debug("Groups for user " + securityName + ": " + groups.toString());
 			}
@@ -143,8 +137,7 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 		}
 		catch (Exception e) {
 			logger.error("Exception occured while looking up groups for user", e);
-			throw new RuntimeException(
-					"Exception occured while looking up groups for user", e);
+			throw new RuntimeException("Exception occured while looking up groups for user", e);
 		}
 		finally {
 			try {
@@ -163,30 +156,26 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 			return method.invoke(instance, args);
 		}
 		catch (IllegalArgumentException e) {
-			logger.error("Error while invoking method " + method.getClass().getName()
-					+ "." + method.getName() + "(" + Arrays.asList(args) + ")", e);
-			throw new RuntimeException("Error while invoking method "
-					+ method.getClass().getName() + "." + method.getName() + "("
+			logger.error("Error while invoking method " + method.getClass().getName() + "." + method.getName() + "("
 					+ Arrays.asList(args) + ")", e);
+			throw new RuntimeException("Error while invoking method " + method.getClass().getName() + "."
+					+ method.getName() + "(" + Arrays.asList(args) + ")", e);
 		}
 		catch (IllegalAccessException e) {
-			logger.error("Error while invoking method " + method.getClass().getName()
-					+ "." + method.getName() + "(" + Arrays.asList(args) + ")", e);
-			throw new RuntimeException("Error while invoking method "
-					+ method.getClass().getName() + "." + method.getName() + "("
+			logger.error("Error while invoking method " + method.getClass().getName() + "." + method.getName() + "("
 					+ Arrays.asList(args) + ")", e);
+			throw new RuntimeException("Error while invoking method " + method.getClass().getName() + "."
+					+ method.getName() + "(" + Arrays.asList(args) + ")", e);
 		}
 		catch (InvocationTargetException e) {
-			logger.error("Error while invoking method " + method.getClass().getName()
-					+ "." + method.getName() + "(" + Arrays.asList(args) + ")", e);
-			throw new RuntimeException("Error while invoking method "
-					+ method.getClass().getName() + "." + method.getName() + "("
+			logger.error("Error while invoking method " + method.getClass().getName() + "." + method.getName() + "("
 					+ Arrays.asList(args) + ")", e);
+			throw new RuntimeException("Error while invoking method " + method.getClass().getName() + "."
+					+ method.getName() + "(" + Arrays.asList(args) + ")", e);
 		}
 	}
 
-	private static Method getMethod(String className, String methodName,
-			String[] parameterTypeNames) {
+	private static Method getMethod(String className, String methodName, String[] parameterTypeNames) {
 		try {
 			Class<?> c = Class.forName(className);
 			final int len = parameterTypeNames.length;
@@ -201,40 +190,40 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 			throw new RuntimeException("Required class" + className + " not found", e);
 		}
 		catch (NoSuchMethodException e) {
-			logger.error("Required method " + methodName + " with parameter types ("
-					+ Arrays.asList(parameterTypeNames) + ") not found on class "
-					+ className);
+			logger.error("Required method " + methodName + " with parameter types (" + Arrays.asList(parameterTypeNames)
+					+ ") not found on class " + className);
 			throw new RuntimeException("Required class" + className + " not found", e);
 		}
 	}
 
 	private static Method getRunAsSubjectMethod() {
 		if (getRunAsSubject == null) {
-			getRunAsSubject = getMethod("com.ibm.websphere.security.auth.WSSubject",
-					"getRunAsSubject", new String[] {});
+			getRunAsSubject = getMethod("com.ibm.websphere.security.auth.WSSubject", "getRunAsSubject",
+					new String[] {});
 		}
 		return getRunAsSubject;
 	}
 
 	private static Method getGroupsForUserMethod() {
 		if (getGroupsForUser == null) {
-			getGroupsForUser = getMethod("com.ibm.websphere.security.UserRegistry",
-					"getGroupsForUser", new String[] { "java.lang.String" });
+			getGroupsForUser = getMethod("com.ibm.websphere.security.UserRegistry", "getGroupsForUser",
+					new String[] { "java.lang.String" });
 		}
 		return getGroupsForUser;
 	}
 
 	private static Method getSecurityNameMethod() {
 		if (getSecurityName == null) {
-			getSecurityName = getMethod("com.ibm.websphere.security.cred.WSCredential",
-					"getSecurityName", new String[] {});
+			getSecurityName = getMethod("com.ibm.websphere.security.cred.WSCredential", "getSecurityName",
+					new String[] {});
 		}
 		return getSecurityName;
 	}
 
 	private static Method getNarrowMethod() {
 		if (narrow == null) {
-			narrow = getMethod(PORTABLE_REMOTE_OBJECT_CLASSNAME, "narrow", new String[] { Object.class.getName() , Class.class.getName()});
+			narrow = getMethod(PORTABLE_REMOTE_OBJECT_CLASSNAME, "narrow",
+					new String[] { Object.class.getName(), Class.class.getName() });
 		}
 		return narrow;
 	}

@@ -26,14 +26,16 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 /**
- * A {@link SecurityWebFilterChain} that leverages a {@link ServerWebExchangeMatcher} to determine which
- * {@link WebFilter} to execute.
+ * A {@link SecurityWebFilterChain} that leverages a {@link ServerWebExchangeMatcher} to
+ * determine which {@link WebFilter} to execute.
  *
  * @author Rob Winch
  * @since 5.0
  */
 public class MatcherSecurityWebFilterChain implements SecurityWebFilterChain {
+
 	private final ServerWebExchangeMatcher matcher;
+
 	private final List<WebFilter> filters;
 
 	public MatcherSecurityWebFilterChain(ServerWebExchangeMatcher matcher, List<WebFilter> filters) {
@@ -45,12 +47,12 @@ public class MatcherSecurityWebFilterChain implements SecurityWebFilterChain {
 
 	@Override
 	public Mono<Boolean> matches(ServerWebExchange exchange) {
-		return matcher.matches(exchange)
-			.map( m -> m.isMatch() );
+		return matcher.matches(exchange).map(m -> m.isMatch());
 	}
 
 	@Override
 	public Flux<WebFilter> getWebFilters() {
 		return Flux.fromIterable(this.filters);
 	}
+
 }

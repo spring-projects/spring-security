@@ -36,21 +36,19 @@ import org.springframework.util.ObjectUtils;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public final class DelegatingMethodSecurityMetadataSource extends
-		AbstractMethodSecurityMetadataSource {
-	private final static List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = Collections
-			.emptyList();
+public final class DelegatingMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
+
+	private final static List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = Collections.emptyList();
 
 	private final List<MethodSecurityMetadataSource> methodSecurityMetadataSources;
+
 	private final Map<DefaultCacheKey, Collection<ConfigAttribute>> attributeCache = new HashMap<>();
 
 	// ~ Constructor
 	// ====================================================================================================
 
-	public DelegatingMethodSecurityMetadataSource(
-			List<MethodSecurityMetadataSource> methodSecurityMetadataSources) {
-		Assert.notNull(methodSecurityMetadataSources,
-				"MethodSecurityMetadataSources cannot be null");
+	public DelegatingMethodSecurityMetadataSource(List<MethodSecurityMetadataSource> methodSecurityMetadataSources) {
+		Assert.notNull(methodSecurityMetadataSources, "MethodSecurityMetadataSources cannot be null");
 		this.methodSecurityMetadataSources = methodSecurityMetadataSources;
 	}
 
@@ -83,8 +81,7 @@ public final class DelegatingMethodSecurityMetadataSource extends
 			}
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("Caching method [" + cacheKey + "] with attributes "
-						+ attributes);
+				logger.debug("Caching method [" + cacheKey + "] with attributes " + attributes);
 			}
 
 			this.attributeCache.put(cacheKey, attributes);
@@ -113,7 +110,9 @@ public final class DelegatingMethodSecurityMetadataSource extends
 	// ==================================================================================================
 
 	private static class DefaultCacheKey {
+
 		private final Method method;
+
 		private final Class<?> targetClass;
 
 		DefaultCacheKey(Method method, Class<?> targetClass) {
@@ -124,20 +123,20 @@ public final class DelegatingMethodSecurityMetadataSource extends
 		@Override
 		public boolean equals(Object other) {
 			DefaultCacheKey otherKey = (DefaultCacheKey) other;
-			return (this.method.equals(otherKey.method) && ObjectUtils.nullSafeEquals(
-					this.targetClass, otherKey.targetClass));
+			return (this.method.equals(otherKey.method)
+					&& ObjectUtils.nullSafeEquals(this.targetClass, otherKey.targetClass));
 		}
 
 		@Override
 		public int hashCode() {
-			return this.method.hashCode() * 21
-					+ (this.targetClass != null ? this.targetClass.hashCode() : 0);
+			return this.method.hashCode() * 21 + (this.targetClass != null ? this.targetClass.hashCode() : 0);
 		}
 
 		@Override
 		public String toString() {
-			return "CacheKey[" + (targetClass == null ? "-" : targetClass.getName())
-					+ "; " + method + "]";
+			return "CacheKey[" + (targetClass == null ? "-" : targetClass.getName()) + "; " + method + "]";
 		}
+
 	}
+
 }

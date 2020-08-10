@@ -26,9 +26,9 @@ import org.springframework.messaging.Message;
  * @since 4.0
  */
 public final class OrMessageMatcher<T> extends AbstractMessageMatcherComposite<T> {
+
 	/**
 	 * Creates a new instance
-	 *
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	public OrMessageMatcher(List<MessageMatcher<T>> messageMatchers) {
@@ -37,7 +37,6 @@ public final class OrMessageMatcher<T> extends AbstractMessageMatcherComposite<T
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	@SafeVarargs
@@ -59,4 +58,5 @@ public final class OrMessageMatcher<T> extends AbstractMessageMatcherComposite<T
 		LOGGER.debug("No matches found");
 		return false;
 	}
+
 }

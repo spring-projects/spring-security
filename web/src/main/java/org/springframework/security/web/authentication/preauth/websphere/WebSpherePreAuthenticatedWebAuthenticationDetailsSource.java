@@ -33,9 +33,9 @@ import java.util.*;
  *
  * @author Ruud Senden
  */
-public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource
-		implements
+public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource implements
 		AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private Attributes2GrantedAuthoritiesMapper webSphereGroups2GrantedAuthoritiesMapper = new SimpleAttributes2GrantedAuthoritiesMapper();
@@ -46,20 +46,17 @@ public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource
 		this(new DefaultWASUsernameAndGroupsExtractor());
 	}
 
-	public WebSpherePreAuthenticatedWebAuthenticationDetailsSource(
-			WASUsernameAndGroupsExtractor wasHelper) {
+	public WebSpherePreAuthenticatedWebAuthenticationDetailsSource(WASUsernameAndGroupsExtractor wasHelper) {
 		this.wasHelper = wasHelper;
 	}
 
-	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails buildDetails(
-			HttpServletRequest context) {
+	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails buildDetails(HttpServletRequest context) {
 		return new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(context,
 				getWebSphereGroupsBasedGrantedAuthorities());
 	}
 
 	/**
 	 * Get a list of Granted Authorities based on the current user's WebSphere groups.
-	 *
 	 * @return authorities mapped from the user's WebSphere groups.
 	 */
 	private Collection<? extends GrantedAuthority> getWebSphereGroupsBasedGrantedAuthorities() {
@@ -67,8 +64,7 @@ public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource
 		Collection<? extends GrantedAuthority> userGas = webSphereGroups2GrantedAuthoritiesMapper
 				.getGrantedAuthorities(webSphereGroups);
 		if (logger.isDebugEnabled()) {
-			logger.debug("WebSphere groups: " + webSphereGroups
-					+ " mapped to Granted Authorities: " + userGas);
+			logger.debug("WebSphere groups: " + webSphereGroups + " mapped to Granted Authorities: " + userGas);
 		}
 		return userGas;
 	}
@@ -77,8 +73,7 @@ public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource
 	 * @param mapper The Attributes2GrantedAuthoritiesMapper to use for converting the WAS
 	 * groups to authorities
 	 */
-	public void setWebSphereGroups2GrantedAuthoritiesMapper(
-			Attributes2GrantedAuthoritiesMapper mapper) {
+	public void setWebSphereGroups2GrantedAuthoritiesMapper(Attributes2GrantedAuthoritiesMapper mapper) {
 		webSphereGroups2GrantedAuthoritiesMapper = mapper;
 	}
 

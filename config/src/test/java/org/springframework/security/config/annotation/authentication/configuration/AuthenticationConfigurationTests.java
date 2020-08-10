@@ -79,81 +79,100 @@ public class AuthenticationConfigurationTests {
 
 	@Test
 	public void orderingAutowiredOnEnableGlobalMethodSecurity() {
-		this.spring.register(AuthenticationTestConfiguration.class, GlobalMethodSecurityAutowiredConfig.class, ServicesConfig.class).autowire();
+		this.spring.register(AuthenticationTestConfiguration.class, GlobalMethodSecurityAutowiredConfig.class,
+				ServicesConfig.class).autowire();
 
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		this.service.run();
 	}
 
 	@EnableGlobalMethodSecurity(securedEnabled = true)
 	static class GlobalMethodSecurityAutowiredConfig {
+
 	}
 
 	@Test
 	public void orderingAutowiredOnEnableWebSecurity() {
-		this.spring.register(AuthenticationTestConfiguration.class, WebSecurityConfig.class, GlobalMethodSecurityAutowiredConfig.class, ServicesConfig.class).autowire();
+		this.spring.register(AuthenticationTestConfiguration.class, WebSecurityConfig.class,
+				GlobalMethodSecurityAutowiredConfig.class, ServicesConfig.class).autowire();
 
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		this.service.run();
 	}
 
 	@EnableWebSecurity
-	static class WebSecurityConfig {}
+	static class WebSecurityConfig {
 
+	}
 
 	@Test
 	public void orderingAutowiredOnEnableWebMvcSecurity() {
-		this.spring.register(AuthenticationTestConfiguration.class, WebMvcSecurityConfig.class, GlobalMethodSecurityAutowiredConfig.class, ServicesConfig.class).autowire();
+		this.spring.register(AuthenticationTestConfiguration.class, WebMvcSecurityConfig.class,
+				GlobalMethodSecurityAutowiredConfig.class, ServicesConfig.class).autowire();
 
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		this.service.run();
 	}
 
 	@EnableWebMvcSecurity
-	static class WebMvcSecurityConfig {}
+	static class WebMvcSecurityConfig {
+
+	}
 
 	@Test
 	public void getAuthenticationManagerWhenNoAuthenticationThenNull() throws Exception {
 		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class).autowire();
 
-		assertThat(this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager()).isNull();
+		assertThat(this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager())
+				.isNull();
 	}
-
 
 	@Test
 	public void getAuthenticationManagerWhenNoOpGlobalAuthenticationConfigurerAdapterThenNull() throws Exception {
-		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class, NoOpGlobalAuthenticationConfigurerAdapter.class).autowire();
+		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
+				NoOpGlobalAuthenticationConfigurerAdapter.class).autowire();
 
-		assertThat(this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager()).isNull();
+		assertThat(this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager())
+				.isNull();
 	}
 
 	@Configuration
-	static class NoOpGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {}
+	static class NoOpGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {
+
+	}
 
 	@Test
 	public void getAuthenticationWhenGlobalAuthenticationConfigurerAdapterThenAuthenticates() throws Exception {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
-		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class, UserGlobalAuthenticationConfigurerAdapter.class).autowire();
+		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
+				UserGlobalAuthenticationConfigurerAdapter.class).autowire();
 
-		AuthenticationManager authentication = this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
+		AuthenticationManager authentication = this.spring.getContext().getBean(AuthenticationConfiguration.class)
+				.getAuthenticationManager();
 
 		assertThat(authentication.authenticate(token).getName()).isEqualTo(token.getName());
 	}
 
 	@Configuration
 	static class UserGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {
+
 		public void init(AuthenticationManagerBuilder auth) throws Exception {
-			auth.inMemoryAuthentication()
-				.withUser(PasswordEncodedUser.user());
+			auth.inMemoryAuthentication().withUser(PasswordEncodedUser.user());
 		}
+
 	}
 
 	@Test
 	public void getAuthenticationWhenAuthenticationManagerBeanThenAuthenticates() throws Exception {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
-		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class, AuthenticationManagerBeanConfig.class).autowire();
+		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
+				AuthenticationManagerBeanConfig.class).autowire();
 
-		AuthenticationManager authentication = this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
+		AuthenticationManager authentication = this.spring.getContext().getBean(AuthenticationConfiguration.class)
+				.getAuthenticationManager();
 		when(authentication.authenticate(token)).thenReturn(TestAuthentication.authenticatedUser());
 
 		assertThat(authentication.authenticate(token).getName()).isEqualTo(token.getName());
@@ -161,70 +180,93 @@ public class AuthenticationConfigurationTests {
 
 	@Configuration
 	static class AuthenticationManagerBeanConfig {
+
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 
 		@Bean
 		public AuthenticationManager authenticationManager() {
 			return this.authenticationManager;
 		}
+
 	}
-		//
-		//	//
-		//
-		@Configuration
-		static class ServicesConfig {
-			@Bean
-			public Service service() {
-				return new ServiceImpl();
-			}
+
+	//
+	// //
+	//
+	@Configuration
+	static class ServicesConfig {
+
+		@Bean
+		public Service service() {
+			return new ServiceImpl();
 		}
 
-		interface Service {
-			void run();
+	}
+
+	interface Service {
+
+		void run();
+
+	}
+
+	static class ServiceImpl implements Service {
+
+		@Secured("ROLE_USER")
+		public void run() {
 		}
 
-		static class ServiceImpl implements Service {
-			@Secured("ROLE_USER")
-			public void run() {}
+	}
+
+	@Test
+	public void getAuthenticationWhenMultipleThenOrdered() throws Exception {
+		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
+				AuthenticationManagerBeanConfig.class).autowire();
+		AuthenticationConfiguration config = this.spring.getContext().getBean(AuthenticationConfiguration.class);
+		config.setGlobalAuthenticationConfigurers(Arrays.asList(new LowestOrderGlobalAuthenticationConfigurerAdapter(),
+				new HighestOrderGlobalAuthenticationConfigurerAdapter(),
+				new DefaultOrderGlobalAuthenticationConfigurerAdapter()));
+	}
+
+	static class DefaultOrderGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {
+
+		static List<Class<?>> inits = new ArrayList<>();
+		static List<Class<?>> configs = new ArrayList<>();
+
+		public void init(AuthenticationManagerBuilder auth) throws Exception {
+			inits.add(getClass());
 		}
 
-		@Test
-		public void getAuthenticationWhenMultipleThenOrdered() throws Exception {
-			this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class, AuthenticationManagerBeanConfig.class).autowire();
-			AuthenticationConfiguration config = this.spring.getContext().getBean(AuthenticationConfiguration.class);
-			config.setGlobalAuthenticationConfigurers(Arrays.asList(new LowestOrderGlobalAuthenticationConfigurerAdapter(), new HighestOrderGlobalAuthenticationConfigurerAdapter(), new DefaultOrderGlobalAuthenticationConfigurerAdapter()));
+		public void configure(AuthenticationManagerBuilder auth) {
+			configs.add(getClass());
 		}
 
-		static class DefaultOrderGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {
-			static List<Class<?>> inits = new ArrayList<>();
-			static List<Class<?>> configs = new ArrayList<>();
+	}
 
-			public void init(AuthenticationManagerBuilder auth) throws Exception {
-				inits.add(getClass());
-			}
+	@Order(Ordered.LOWEST_PRECEDENCE)
+	static class LowestOrderGlobalAuthenticationConfigurerAdapter
+			extends DefaultOrderGlobalAuthenticationConfigurerAdapter {
 
-			public void configure(AuthenticationManagerBuilder auth) {
-				configs.add(getClass());
-			}
-		}
+	}
 
-		@Order(Ordered.LOWEST_PRECEDENCE)
-		static class LowestOrderGlobalAuthenticationConfigurerAdapter extends DefaultOrderGlobalAuthenticationConfigurerAdapter {}
+	@Order(Ordered.HIGHEST_PRECEDENCE)
+	static class HighestOrderGlobalAuthenticationConfigurerAdapter
+			extends DefaultOrderGlobalAuthenticationConfigurerAdapter {
 
-		@Order(Ordered.HIGHEST_PRECEDENCE)
-		static class HighestOrderGlobalAuthenticationConfigurerAdapter extends DefaultOrderGlobalAuthenticationConfigurerAdapter {}
+	}
 
 	@Test
 	public void getAuthenticationWhenConfiguredThenBootNotTrigger() throws Exception {
 		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class).autowire();
 		AuthenticationConfiguration config = this.spring.getContext().getBean(AuthenticationConfiguration.class);
-		config.setGlobalAuthenticationConfigurers(Arrays.asList(new ConfiguresInMemoryConfigurerAdapter(), new BootGlobalAuthenticationConfigurerAdapter()));
+		config.setGlobalAuthenticationConfigurers(Arrays.asList(new ConfiguresInMemoryConfigurerAdapter(),
+				new BootGlobalAuthenticationConfigurerAdapter()));
 		AuthenticationManager authenticationManager = config.getAuthenticationManager();
 
 		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 
-		assertThatThrownBy(() -> authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("boot", "password")))
-			.isInstanceOf(AuthenticationException.class);
+		assertThatThrownBy(
+				() -> authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("boot", "password")))
+						.isInstanceOf(AuthenticationException.class);
 
 	}
 
@@ -247,16 +289,21 @@ public class AuthenticationConfigurationTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Order(Ordered.LOWEST_PRECEDENCE)
 	static class BootGlobalAuthenticationConfigurerAdapter extends DefaultOrderGlobalAuthenticationConfigurerAdapter {
+
 		public void init(AuthenticationManagerBuilder auth) throws Exception {
 			auth.apply(new DefaultBootGlobalAuthenticationConfigurerAdapter());
 		}
+
 	}
 
-	static class DefaultBootGlobalAuthenticationConfigurerAdapter extends DefaultOrderGlobalAuthenticationConfigurerAdapter {
+	static class DefaultBootGlobalAuthenticationConfigurerAdapter
+			extends DefaultOrderGlobalAuthenticationConfigurerAdapter {
+
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) {
 			if (auth.isConfigured()) {
@@ -273,6 +320,7 @@ public class AuthenticationConfigurationTests {
 
 			auth.authenticationProvider(provider);
 		}
+
 	}
 
 	// gh-2531
@@ -301,6 +349,7 @@ public class AuthenticationConfigurationTests {
 		public AuthenticationManager manager() {
 			return null;
 		}
+
 	}
 
 	@Test
@@ -313,19 +362,24 @@ public class AuthenticationConfigurationTests {
 
 	@Configuration
 	@Import(AuthenticationConfiguration.class)
-	static class Sec2822Config {}
+	static class Sec2822Config {
+
+	}
 
 	@Configuration
 	@EnableWebSecurity
 	static class Sec2822WebSecurity extends WebSecurityConfigurerAdapter {
+
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			auth.inMemoryAuthentication();
 		}
+
 	}
 
 	@Configuration
 	static class Sec2822UseAuth {
+
 		@Autowired
 		public void useAuthenticationManager(AuthenticationConfiguration auth) throws Exception {
 			auth.getAuthenticationManager();
@@ -338,52 +392,62 @@ public class AuthenticationConfigurationTests {
 			return new BootGlobalAuthenticationConfigurerAdapter();
 		}
 
-		static class BootGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter { }
+		static class BootGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {
+
+		}
+
 	}
 
 	// sec-2868
 	@Test
-	public void getAuthenticationWhenUserDetailsServiceBeanThenAuthenticationManagerUsesUserDetailsServiceBean() throws Exception {
+	public void getAuthenticationWhenUserDetailsServiceBeanThenAuthenticationManagerUsesUserDetailsServiceBean()
+			throws Exception {
 		this.spring.register(UserDetailsServiceBeanConfig.class).autowire();
 		UserDetailsService uds = this.spring.getContext().getBean(UserDetailsService.class);
-		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
+		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
+				.getAuthenticationManager();
 		when(uds.loadUserByUsername("user")).thenReturn(PasswordEncodedUser.user(), PasswordEncodedUser.user());
 
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 
 		assertThatThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid")))
-			.isInstanceOf(AuthenticationException.class);
+				.isInstanceOf(AuthenticationException.class);
 	}
 
 	@Configuration
-	@Import({AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class})
+	@Import({ AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class })
 	static class UserDetailsServiceBeanConfig {
+
 		UserDetailsService uds = mock(UserDetailsService.class);
 
 		@Bean
 		UserDetailsService userDetailsService() {
 			return this.uds;
 		}
+
 	}
 
 	@Test
 	public void getAuthenticationWhenUserDetailsServiceAndPasswordEncoderBeanThenEncoderUsed() throws Exception {
 		UserDetails user = new User("user", "$2a$10$FBAKClV1zBIOOC9XMXf3AO8RoGXYVYsfvUdoLxGkd/BnXEn4tqT3u",
-			AuthorityUtils.createAuthorityList("ROLE_USER"));
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		this.spring.register(UserDetailsServiceBeanWithPasswordEncoderConfig.class).autowire();
 		UserDetailsService uds = this.spring.getContext().getBean(UserDetailsService.class);
-		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
-		when(uds.loadUserByUsername("user")).thenReturn(User.withUserDetails(user).build(), User.withUserDetails(user).build());
+		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
+				.getAuthenticationManager();
+		when(uds.loadUserByUsername("user")).thenReturn(User.withUserDetails(user).build(),
+				User.withUserDetails(user).build());
 
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 
 		assertThatThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid")))
-			.isInstanceOf(AuthenticationException.class);
+				.isInstanceOf(AuthenticationException.class);
 	}
 
 	@Configuration
-	@Import({AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class})
+	@Import({ AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class })
 	static class UserDetailsServiceBeanWithPasswordEncoderConfig {
+
 		UserDetailsService uds = mock(UserDetailsService.class);
 
 		@Bean
@@ -395,16 +459,19 @@ public class AuthenticationConfigurationTests {
 		PasswordEncoder passwordEncoder() {
 			return new BCryptPasswordEncoder();
 		}
+
 	}
 
 	@Test
 	public void getAuthenticationWhenUserDetailsServiceAndPasswordManagerThenManagerUsed() throws Exception {
-		UserDetails user = new User("user", "{noop}password",
-				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		UserDetails user = new User("user", "{noop}password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		this.spring.register(UserDetailsPasswordManagerBeanConfig.class).autowire();
-		UserDetailsPasswordManagerBeanConfig.Manager manager = this.spring.getContext().getBean(UserDetailsPasswordManagerBeanConfig.Manager.class);
-		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
-		when(manager.loadUserByUsername("user")).thenReturn(User.withUserDetails(user).build(), User.withUserDetails(user).build());
+		UserDetailsPasswordManagerBeanConfig.Manager manager = this.spring.getContext()
+				.getBean(UserDetailsPasswordManagerBeanConfig.Manager.class);
+		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
+				.getAuthenticationManager();
+		when(manager.loadUserByUsername("user")).thenReturn(User.withUserDetails(user).build(),
+				User.withUserDetails(user).build());
 		when(manager.updatePassword(any(), any())).thenReturn(user);
 
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
@@ -413,8 +480,9 @@ public class AuthenticationConfigurationTests {
 	}
 
 	@Configuration
-	@Import({AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class})
+	@Import({ AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class })
 	static class UserDetailsPasswordManagerBeanConfig {
+
 		Manager manager = mock(Manager.class);
 
 		@Bean
@@ -423,15 +491,18 @@ public class AuthenticationConfigurationTests {
 		}
 
 		interface Manager extends UserDetailsService, UserDetailsPasswordService {
+
 		}
+
 	}
 
-	//gh-3091
+	// gh-3091
 	@Test
 	public void getAuthenticationWhenAuthenticationProviderBeanThenUsed() throws Exception {
 		this.spring.register(AuthenticationProviderBeanConfig.class).autowire();
 		AuthenticationProvider ap = this.spring.getContext().getBean(AuthenticationProvider.class);
-		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
+		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
+				.getAuthenticationManager();
 		when(ap.supports(any())).thenReturn(true);
 		when(ap.authenticate(any())).thenReturn(TestAuthentication.authenticatedUser());
 
@@ -439,21 +510,25 @@ public class AuthenticationConfigurationTests {
 	}
 
 	@Configuration
-	@Import({AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class})
+	@Import({ AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class })
 	static class AuthenticationProviderBeanConfig {
+
 		AuthenticationProvider provider = mock(AuthenticationProvider.class);
 
 		@Bean
 		AuthenticationProvider authenticationProvider() {
 			return this.provider;
 		}
+
 	}
 
 	@Test
-	public void getAuthenticationWhenAuthenticationProviderAndUserDetailsBeanThenAuthenticationProviderUsed() throws Exception {
+	public void getAuthenticationWhenAuthenticationProviderAndUserDetailsBeanThenAuthenticationProviderUsed()
+			throws Exception {
 		this.spring.register(AuthenticationProviderBeanAndUserDetailsServiceConfig.class).autowire();
 		AuthenticationProvider ap = this.spring.getContext().getBean(AuthenticationProvider.class);
-		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
+		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
+				.getAuthenticationManager();
 		when(ap.supports(any())).thenReturn(true);
 		when(ap.authenticate(any())).thenReturn(TestAuthentication.authenticatedUser());
 
@@ -461,8 +536,9 @@ public class AuthenticationConfigurationTests {
 	}
 
 	@Configuration
-	@Import({AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class})
+	@Import({ AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class })
 	static class AuthenticationProviderBeanAndUserDetailsServiceConfig {
+
 		AuthenticationProvider provider = mock(AuthenticationProvider.class);
 
 		UserDetailsService uds = mock(UserDetailsService.class);
@@ -476,11 +552,13 @@ public class AuthenticationConfigurationTests {
 		AuthenticationProvider authenticationProvider() {
 			return this.provider;
 		}
+
 	}
 
 	@Test
 	public void enableGlobalMethodSecurityWhenPreAuthorizeThenNoException() {
-		this.spring.register(UsesPreAuthorizeMethodSecurityConfig.class, AuthenticationManagerBeanConfig.class).autowire();
+		this.spring.register(UsesPreAuthorizeMethodSecurityConfig.class, AuthenticationManagerBeanConfig.class)
+				.autowire();
 
 		// no exception
 	}
@@ -488,13 +566,17 @@ public class AuthenticationConfigurationTests {
 	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class UsesPreAuthorizeMethodSecurityConfig {
+
 		@PreAuthorize("denyAll")
-		void run() {}
+		void run() {
+		}
+
 	}
 
 	@Test
 	public void enableGlobalMethodSecurityWhenPreAuthorizeThenUsesMethodSecurityService() {
-		this.spring.register(ServicesConfig.class, UsesPreAuthorizeMethodSecurityConfig.class, AuthenticationManagerBeanConfig.class).autowire();
+		this.spring.register(ServicesConfig.class, UsesPreAuthorizeMethodSecurityConfig.class,
+				AuthenticationManagerBeanConfig.class).autowire();
 
 		// no exception
 	}
@@ -502,8 +584,10 @@ public class AuthenticationConfigurationTests {
 	@Configuration
 	@EnableGlobalMethodSecurity(securedEnabled = true)
 	static class UsesServiceMethodSecurityConfig {
+
 		@Autowired
 		Service service;
+
 	}
 
 	@Test
@@ -537,11 +621,12 @@ public class AuthenticationConfigurationTests {
 
 		this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
 
-		assertThatThrownBy(ap::build)
-				.isInstanceOf(AlreadyBuiltException.class);
+		assertThatThrownBy(ap::build).isInstanceOf(AlreadyBuiltException.class);
 	}
 
 	@Configuration
 	static class AuthenticationConfigurationSubclass extends AuthenticationConfiguration {
+
 	}
+
 }

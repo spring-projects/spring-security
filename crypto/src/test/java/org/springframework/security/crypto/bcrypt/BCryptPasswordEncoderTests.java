@@ -79,8 +79,7 @@ public class BCryptPasswordEncoderTests {
 
 	@Test
 	public void $2bUnicode() {
-		BCryptPasswordEncoder encoder =
-				new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2B);
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2B);
 		String result = encoder.encode("passw\u9292rd");
 		assertThat(encoder.matches("pass\u9292\u9292rd", result)).isFalse();
 		assertThat(encoder.matches("passw\u9292rd", result)).isTrue();
@@ -96,16 +95,14 @@ public class BCryptPasswordEncoderTests {
 
 	@Test
 	public void $2aNotMatches() {
-		BCryptPasswordEncoder encoder =
-				new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2A);
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2A);
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("bogus", result)).isFalse();
 	}
 
 	@Test
 	public void $2bNotMatches() {
-		BCryptPasswordEncoder encoder =
-				new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2B);
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2B);
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("bogus", result)).isFalse();
 	}
@@ -120,16 +117,14 @@ public class BCryptPasswordEncoderTests {
 
 	@Test
 	public void $2aCustomStrength() {
-		BCryptPasswordEncoder encoder =
-				new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2A, 8);
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2A, 8);
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("password", result)).isTrue();
 	}
 
 	@Test
 	public void $2bCustomStrength() {
-		BCryptPasswordEncoder encoder =
-				new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2B, 8);
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2B, 8);
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("password", result)).isTrue();
 	}
@@ -182,7 +177,8 @@ public class BCryptPasswordEncoderTests {
 	}
 
 	/**
-	 * @see <a href="https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</>
+	 * @see <a href=
+	 * "https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</>
 	 */
 	@Test
 	public void upgradeFromNullOrEmpty() {
@@ -192,7 +188,8 @@ public class BCryptPasswordEncoderTests {
 	}
 
 	/**
-	 * @see <a href="https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</>
+	 * @see <a href=
+	 * "https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</>
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void upgradeFromNonBCrypt() {

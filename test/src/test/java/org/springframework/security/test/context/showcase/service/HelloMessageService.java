@@ -28,8 +28,8 @@ public class HelloMessageService implements MessageService {
 
 	@PreAuthorize("authenticated")
 	public String getMessage() {
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		return "Hello " + authentication;
 	}
+
 }

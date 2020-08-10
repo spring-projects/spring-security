@@ -38,4 +38,5 @@ public class InMemoryResourceTests {
 		assertThat(new InMemoryResource("xxx").equals(new InMemoryResource("xxxx"))).isFalse();
 		assertThat(new InMemoryResource("xxx").equals(new Object())).isFalse();
 	}
+
 }

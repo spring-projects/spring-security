@@ -33,8 +33,8 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationManager,
-		InitializingBean {
+public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationManager, InitializingBean {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -47,10 +47,9 @@ public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationMana
 		Assert.notNull(this.authenticationManager, "authenticationManager is required");
 	}
 
-	public Collection<? extends GrantedAuthority> attemptAuthentication(String username,
-			String password) throws RemoteAuthenticationException {
-		UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(
-				username, password);
+	public Collection<? extends GrantedAuthority> attemptAuthentication(String username, String password)
+			throws RemoteAuthenticationException {
+		UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(username, password);
 
 		try {
 			return authenticationManager.authenticate(request).getAuthorities();
@@ -67,4 +66,5 @@ public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationMana
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
+
 }

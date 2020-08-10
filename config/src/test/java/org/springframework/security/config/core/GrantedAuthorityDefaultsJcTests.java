@@ -52,13 +52,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class GrantedAuthorityDefaultsJcTests {
+
 	@Autowired
 	FilterChainProxy springSecurityFilterChain;
+
 	@Autowired
 	MessageService messageService;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	@Before
@@ -153,7 +157,7 @@ public class GrantedAuthorityDefaultsJcTests {
 
 	@Configuration
 	@EnableWebSecurity
-	@EnableGlobalMethodSecurity(prePostEnabled=true, jsr250Enabled=true)
+	@EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
 	static class Config extends WebSecurityConfigurerAdapter {
 
 		@Autowired
@@ -183,5 +187,7 @@ public class GrantedAuthorityDefaultsJcTests {
 		public static GrantedAuthorityDefaults grantedAuthorityDefaults() {
 			return new GrantedAuthorityDefaults("");
 		}
+
 	}
+
 }

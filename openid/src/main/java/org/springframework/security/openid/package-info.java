@@ -14,4 +14,3 @@
  * limitations under the License.
  */
 package org.springframework.security.openid;
-

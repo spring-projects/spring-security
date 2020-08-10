@@ -37,14 +37,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- *
  * @author Rob Winch
  */
 public class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepositoryTests {
+
 	private String registrationId = "registrationId";
+
 	private String principalName = "principalName";
+
 	private ReactiveOAuth2AuthorizedClientService authorizedClientService;
+
 	private ServerOAuth2AuthorizedClientRepository anonymousAuthorizedClientRepository;
+
 	private AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 
 	private MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
@@ -52,10 +56,11 @@ public class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepositoryTests {
 	@Before
 	public void setup() {
 		this.authorizedClientService = mock(ReactiveOAuth2AuthorizedClientService.class);
-		this.anonymousAuthorizedClientRepository = mock(
-				ServerOAuth2AuthorizedClientRepository.class);
-		this.authorizedClientRepository = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(this.authorizedClientService);
-		this.authorizedClientRepository.setAnonymousAuthorizedClientRepository(this.anonymousAuthorizedClientRepository);
+		this.anonymousAuthorizedClientRepository = mock(ServerOAuth2AuthorizedClientRepository.class);
+		this.authorizedClientRepository = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(
+				this.authorizedClientService);
+		this.authorizedClientRepository
+				.setAnonymousAuthorizedClientRepository(this.anonymousAuthorizedClientRepository);
 	}
 
 	@Test
@@ -74,16 +79,20 @@ public class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepositoryTests {
 	public void loadAuthorizedClientWhenAuthenticatedPrincipalThenLoadFromService() {
 		when(this.authorizedClientService.loadAuthorizedClient(any(), any())).thenReturn(Mono.empty());
 		Authentication authentication = this.createAuthenticatedPrincipal();
-		this.authorizedClientRepository.loadAuthorizedClient(this.registrationId, authentication, this.exchange).block();
+		this.authorizedClientRepository.loadAuthorizedClient(this.registrationId, authentication, this.exchange)
+				.block();
 		verify(this.authorizedClientService).loadAuthorizedClient(this.registrationId, this.principalName);
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenAnonymousPrincipalThenLoadFromAnonymousRepository() {
-		when(this.anonymousAuthorizedClientRepository.loadAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
+		when(this.anonymousAuthorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
+				.thenReturn(Mono.empty());
 		Authentication authentication = this.createAnonymousPrincipal();
-		this.authorizedClientRepository.loadAuthorizedClient(this.registrationId, authentication, this.exchange).block();
-		verify(this.anonymousAuthorizedClientRepository).loadAuthorizedClient(this.registrationId, authentication, this.exchange);
+		this.authorizedClientRepository.loadAuthorizedClient(this.registrationId, authentication, this.exchange)
+				.block();
+		verify(this.anonymousAuthorizedClientRepository).loadAuthorizedClient(this.registrationId, authentication,
+				this.exchange);
 	}
 
 	@Test
@@ -97,27 +106,33 @@ public class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void saveAuthorizedClientWhenAnonymousPrincipalThenSaveToAnonymousRepository() {
-		when(this.anonymousAuthorizedClientRepository.saveAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
+		when(this.anonymousAuthorizedClientRepository.saveAuthorizedClient(any(), any(), any()))
+				.thenReturn(Mono.empty());
 		Authentication authentication = this.createAnonymousPrincipal();
 		OAuth2AuthorizedClient authorizedClient = mock(OAuth2AuthorizedClient.class);
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, authentication, this.exchange).block();
-		verify(this.anonymousAuthorizedClientRepository).saveAuthorizedClient(authorizedClient, authentication, this.exchange);
+		verify(this.anonymousAuthorizedClientRepository).saveAuthorizedClient(authorizedClient, authentication,
+				this.exchange);
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenAuthenticatedPrincipalThenRemoveFromService() {
 		when(this.authorizedClientService.removeAuthorizedClient(any(), any())).thenReturn(Mono.empty());
 		Authentication authentication = this.createAuthenticatedPrincipal();
-		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId, authentication, this.exchange).block();
+		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId, authentication, this.exchange)
+				.block();
 		verify(this.authorizedClientService).removeAuthorizedClient(this.registrationId, this.principalName);
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenAnonymousPrincipalThenRemoveFromAnonymousRepository() {
-		when(this.anonymousAuthorizedClientRepository.removeAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
+		when(this.anonymousAuthorizedClientRepository.removeAuthorizedClient(any(), any(), any()))
+				.thenReturn(Mono.empty());
 		Authentication authentication = this.createAnonymousPrincipal();
-		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId, authentication, this.exchange).block();
-		verify(this.anonymousAuthorizedClientRepository).removeAuthorizedClient(this.registrationId, authentication, this.exchange);
+		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId, authentication, this.exchange)
+				.block();
+		verify(this.anonymousAuthorizedClientRepository).removeAuthorizedClient(this.registrationId, authentication,
+				this.exchange);
 	}
 
 	private Authentication createAuthenticatedPrincipal() {
@@ -127,6 +142,8 @@ public class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepositoryTests {
 	}
 
 	private Authentication createAnonymousPrincipal() {
-		return new AnonymousAuthenticationToken("key-1234", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+		return new AnonymousAuthenticationToken("key-1234", "anonymousUser",
+				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 	}
+
 }

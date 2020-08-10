@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.*;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AnonymousPayloadInterceptorTests {
+
 	@Mock
 	private PayloadExchange exchange;
 
@@ -51,31 +52,27 @@ public class AnonymousPayloadInterceptorTests {
 	@Test
 	public void constructorKeyWhenKeyNullThenException() {
 		String key = null;
-		assertThatCode(() -> new AnonymousPayloadInterceptor(key))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> new AnonymousPayloadInterceptor(key)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorKeyPrincipalAuthoritiesWhenKeyNullThenException() {
 		String key = null;
 		assertThatCode(() -> new AnonymousPayloadInterceptor(key, "principal",
-				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")))
-				.isInstanceOf(IllegalArgumentException.class);
+				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorKeyPrincipalAuthoritiesWhenPrincipalNullThenException() {
 		Object principal = null;
 		assertThatCode(() -> new AnonymousPayloadInterceptor("key", principal,
-				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")))
-				.isInstanceOf(IllegalArgumentException.class);
+				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorKeyPrincipalAuthoritiesWhenAuthoritiesNullThenException() {
 		List<GrantedAuthority> authorities = null;
-		assertThatCode(() -> new AnonymousPayloadInterceptor("key", "principal",
-				authorities))
+		assertThatCode(() -> new AnonymousPayloadInterceptor("key", "principal", authorities))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -93,15 +90,14 @@ public class AnonymousPayloadInterceptorTests {
 	@Test
 	public void interceptWhenAuthenticationThenOriginalAuthentication() {
 		AuthenticationPayloadInterceptorChain chain = new AuthenticationPayloadInterceptorChain();
-		TestingAuthenticationToken expected =
-				new TestingAuthenticationToken("test", "password");
+		TestingAuthenticationToken expected = new TestingAuthenticationToken("test", "password");
 
 		this.interceptor.intercept(this.exchange, chain)
-			.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(expected))
-			.block();
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(expected)).block();
 
 		Authentication authentication = chain.getAuthentication();
 
 		assertThat(authentication).isEqualTo(expected);
 	}
+
 }

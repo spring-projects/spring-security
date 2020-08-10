@@ -86,15 +86,14 @@ public class NamespaceHttpOpenIDLoginTests {
 	@Test
 	public void openidLoginWhenUsingDefaultsThenMatchesNamespace() throws Exception {
 		this.spring.register(OpenIDLoginConfig.class).autowire();
-		this.mvc.perform(get("/"))
-				.andExpect(redirectedUrl("http://localhost/login"));
-		this.mvc.perform(post("/login/openid").with(csrf()))
-				.andExpect(redirectedUrl("/login?error"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
+		this.mvc.perform(post("/login/openid").with(csrf())).andExpect(redirectedUrl("/login?error"));
 	}
 
 	@Configuration
 	@EnableWebSecurity
 	static class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -106,6 +105,7 @@ public class NamespaceHttpOpenIDLoginTests {
 					.permitAll();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -114,49 +114,42 @@ public class NamespaceHttpOpenIDLoginTests {
 		AuthRequest mockAuthRequest = mock(AuthRequest.class);
 		DiscoveryInformation mockDiscoveryInformation = mock(DiscoveryInformation.class);
 		when(mockAuthRequest.getDestinationUrl(anyBoolean())).thenReturn("mockUrl");
-		when(OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER.associate(any()))
-				.thenReturn(mockDiscoveryInformation);
-		when(OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(), any()))
-				.thenReturn(mockAuthRequest);
+		when(OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER.associate(any())).thenReturn(mockDiscoveryInformation);
+		when(OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
+				any())).thenReturn(mockAuthRequest);
 		this.spring.register(OpenIDLoginAttributeExchangeConfig.class).autowire();
 
 		try (MockWebServer server = new MockWebServer()) {
 			String endpoint = server.url("/").toString();
 
-			server.enqueue(new MockResponse()
-					.addHeader(YADIS_XRDS_LOCATION, endpoint));
+			server.enqueue(new MockResponse().addHeader(YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
 					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
 
 			MvcResult mvcResult = this.mvc.perform(get("/login/openid")
 					.param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "https://www.google.com/1"))
-					.andExpect(status().isFound())
-					.andReturn();
+					.andExpect(status().isFound()).andReturn();
 
-			Object attributeObject = mvcResult.getRequest().getSession().getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
+			Object attributeObject = mvcResult.getRequest().getSession()
+					.getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
 			assertThat(attributeObject).isInstanceOf(List.class);
 			List<OpenIDAttribute> attributeList = (List<OpenIDAttribute>) attributeObject;
-			assertThat(attributeList.stream().anyMatch(attribute ->
-					"firstname".equals(attribute.getName())
-							&& "https://axschema.org/namePerson/first".equals(attribute.getType())
-							&& attribute.isRequired()))
-					.isTrue();
-			assertThat(attributeList.stream().anyMatch(attribute ->
-					"lastname".equals(attribute.getName())
-							&& "https://axschema.org/namePerson/last".equals(attribute.getType())
-							&& attribute.isRequired()))
-					.isTrue();
-			assertThat(attributeList.stream().anyMatch(attribute ->
-					"email".equals(attribute.getName())
-							&& "https://axschema.org/contact/email".equals(attribute.getType())
-							&& attribute.isRequired()))
-					.isTrue();
+			assertThat(attributeList.stream().anyMatch(attribute -> "firstname".equals(attribute.getName())
+					&& "https://axschema.org/namePerson/first".equals(attribute.getType()) && attribute.isRequired()))
+							.isTrue();
+			assertThat(attributeList.stream().anyMatch(attribute -> "lastname".equals(attribute.getName())
+					&& "https://axschema.org/namePerson/last".equals(attribute.getType()) && attribute.isRequired()))
+							.isTrue();
+			assertThat(attributeList.stream().anyMatch(attribute -> "email".equals(attribute.getName())
+					&& "https://axschema.org/contact/email".equals(attribute.getType()) && attribute.isRequired()))
+							.isTrue();
 		}
 	}
 
 	@Configuration
 	@EnableWebSecurity
 	static class OpenIDLoginAttributeExchangeConfig extends WebSecurityConfigurerAdapter {
+
 		static ConsumerManager CONSUMER_MANAGER;
 
 		@Override
@@ -196,13 +189,13 @@ public class NamespaceHttpOpenIDLoginTests {
 					.permitAll();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void openidLoginWhenUsingCustomEndpointsThenMatchesNamespace() throws Exception {
 		this.spring.register(OpenIDLoginCustomConfig.class).autowire();
-		this.mvc.perform(get("/"))
-				.andExpect(redirectedUrl("http://localhost/authentication/login"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/authentication/login"));
 		this.mvc.perform(post("/authentication/login/process").with(csrf()))
 				.andExpect(redirectedUrl("/authentication/login?failed"));
 	}
@@ -210,6 +203,7 @@ public class NamespaceHttpOpenIDLoginTests {
 	@Configuration
 	@EnableWebSecurity
 	static class OpenIDLoginCustomConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			boolean alwaysUseDefaultSuccess = true;
@@ -226,15 +220,13 @@ public class NamespaceHttpOpenIDLoginTests {
 					.defaultSuccessUrl("/default", alwaysUseDefaultSuccess); // openid-login@default-target-url / openid-login@always-use-default-target
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void openidLoginWithCustomHandlersThenBehaviorMatchesNamespace() throws Exception {
-		OpenIDAuthenticationToken token = new OpenIDAuthenticationToken(
-				OpenIDAuthenticationStatus.SUCCESS,
-				"identityUrl",
-				"message",
-				Arrays.asList(new OpenIDAttribute("name", "type")));
+		OpenIDAuthenticationToken token = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS,
+				"identityUrl", "message", Arrays.asList(new OpenIDAttribute("name", "type")));
 
 		OpenIDLoginCustomRefsConfig.AUDS = mock(AuthenticationUserDetailsService.class);
 		when(OpenIDLoginCustomRefsConfig.AUDS.loadUserDetails(any(Authentication.class)))
@@ -246,15 +238,12 @@ public class NamespaceHttpOpenIDLoginTests {
 
 		when(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class)))
 				.thenThrow(new AuthenticationServiceException("boom"));
-		this.mvc.perform(post("/login/openid").with(csrf())
-				.param("openid.identity", "identity"))
+		this.mvc.perform(post("/login/openid").with(csrf()).param("openid.identity", "identity"))
 				.andExpect(redirectedUrl("/custom/failure"));
 		reset(OpenIDLoginCustomRefsConfig.CONSUMER);
 
-		when(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class)))
-				.thenReturn(token);
-		this.mvc.perform(post("/login/openid").with(csrf())
-				.param("openid.identity", "identity"))
+		when(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class))).thenReturn(token);
+		this.mvc.perform(post("/login/openid").with(csrf()).param("openid.identity", "identity"))
 				.andExpect(redirectedUrl("/custom/targetUrl"));
 
 		verify(OpenIDLoginCustomRefsConfig.AUDS).loadUserDetails(any(Authentication.class));
@@ -264,14 +253,14 @@ public class NamespaceHttpOpenIDLoginTests {
 	@Configuration
 	@EnableWebSecurity
 	static class OpenIDLoginCustomRefsConfig extends WebSecurityConfigurerAdapter {
+
 		static AuthenticationUserDetailsService AUDS;
 		static AuthenticationDetailsSource ADS;
 		static OpenIDConsumer CONSUMER;
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			SavedRequestAwareAuthenticationSuccessHandler handler =
-					new SavedRequestAwareAuthenticationSuccessHandler();
+			SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
 			handler.setDefaultTargetUrl("/custom/targetUrl");
 			// @formatter:off
 			http
@@ -293,14 +282,16 @@ public class NamespaceHttpOpenIDLoginTests {
 					});
 			// @formatter:on
 		}
+
 	}
 
 	@Configuration
 	static class UserDetailsServiceConfig {
+
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
-					// @formatter:off
+			// @formatter:off
 					User.withDefaultPasswordEncoder()
 							.username("user")
 							.password("password")
@@ -308,5 +299,7 @@ public class NamespaceHttpOpenIDLoginTests {
 							.build());
 					// @formatter:on
 		}
+
 	}
+
 }

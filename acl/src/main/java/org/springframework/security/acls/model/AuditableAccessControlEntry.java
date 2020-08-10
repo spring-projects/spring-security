@@ -22,10 +22,12 @@ package org.springframework.security.acls.model;
  *
  */
 public interface AuditableAccessControlEntry extends AccessControlEntry {
+
 	// ~ Methods
 	// ========================================================================================================
 
 	boolean isAuditFailure();
 
 	boolean isAuditSuccess();
+
 }

@@ -42,14 +42,13 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 	// ~ Constructors
 	// ===================================================================================================
 
-	public JaasAuthenticationToken(Object principal, Object credentials,
-			LoginContext loginContext) {
+	public JaasAuthenticationToken(Object principal, Object credentials, LoginContext loginContext) {
 		super(principal, credentials);
 		this.loginContext = loginContext;
 	}
 
-	public JaasAuthenticationToken(Object principal, Object credentials,
-			List<GrantedAuthority> authorities, LoginContext loginContext) {
+	public JaasAuthenticationToken(Object principal, Object credentials, List<GrantedAuthority> authorities,
+			LoginContext loginContext) {
 		super(principal, credentials, authorities);
 		this.loginContext = loginContext;
 	}
@@ -60,4 +59,5 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 	public LoginContext getLoginContext() {
 		return loginContext;
 	}
+
 }

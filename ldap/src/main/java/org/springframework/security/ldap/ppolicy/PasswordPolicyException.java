@@ -25,6 +25,7 @@ package org.springframework.security.ldap.ppolicy;
  * @since 3.0
  */
 public class PasswordPolicyException extends RuntimeException {
+
 	private final PasswordPolicyErrorStatus status;
 
 	public PasswordPolicyException(PasswordPolicyErrorStatus status) {
@@ -35,4 +36,5 @@ public class PasswordPolicyException extends RuntimeException {
 	public PasswordPolicyErrorStatus getStatus() {
 		return status;
 	}
+
 }

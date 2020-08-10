@@ -37,6 +37,7 @@ import static org.mockito.Mockito.mock;
  * @author Joe Grandja
  */
 public class HttpSessionOAuth2AuthorizedClientRepositoryTests {
+
 	private String principalName1 = "principalName-1";
 
 	private ClientRegistration registration1 = TestClientRegistrations.clientRegistration().build();
@@ -47,8 +48,7 @@ public class HttpSessionOAuth2AuthorizedClientRepositoryTests {
 
 	private String registrationId2 = this.registration2.getRegistrationId();
 
-	private HttpSessionOAuth2AuthorizedClientRepository authorizedClientRepository =
-			new HttpSessionOAuth2AuthorizedClientRepository();
+	private HttpSessionOAuth2AuthorizedClientRepository authorizedClientRepository = new HttpSessionOAuth2AuthorizedClientRepository();
 
 	private MockHttpServletRequest request;
 
@@ -79,63 +79,66 @@ public class HttpSessionOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationNotFoundThenReturnNull() {
-		OAuth2AuthorizedClient authorizedClient =
-				this.authorizedClientRepository.loadAuthorizedClient("registration-not-found", null, this.request);
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository
+				.loadAuthorizedClient("registration-not-found", null, this.request);
 		assertThat(authorizedClient).isNull();
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenSavedThenReturnAuthorizedClient() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration1, this.principalName1, mock(OAuth2AccessToken.class));
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration1, this.principalName1,
+				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, this.request, this.response);
 
-		OAuth2AuthorizedClient loadedAuthorizedClient =
-				this.authorizedClientRepository.loadAuthorizedClient(this.registrationId1, null, this.request);
+		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientRepository
+				.loadAuthorizedClient(this.registrationId1, null, this.request);
 		assertThat(loadedAuthorizedClient).isEqualTo(authorizedClient);
 	}
 
 	@Test
 	public void saveAuthorizedClientWhenAuthorizedClientIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientRepository.saveAuthorizedClient(null, null, this.request, this.response))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(
+				() -> this.authorizedClientRepository.saveAuthorizedClient(null, null, this.request, this.response))
+						.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void saveAuthorizedClientWhenAuthenticationIsNullThenExceptionNotThrown() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration2, this.principalName1, mock(OAuth2AccessToken.class));
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration2, this.principalName1,
+				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, this.request, this.response);
 	}
 
 	@Test
 	public void saveAuthorizedClientWhenRequestIsNullThenThrowIllegalArgumentException() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration2, this.principalName1, mock(OAuth2AccessToken.class));
-		assertThatThrownBy(() -> this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, null, this.response))
-				.isInstanceOf(IllegalArgumentException.class);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration2, this.principalName1,
+				mock(OAuth2AccessToken.class));
+		assertThatThrownBy(
+				() -> this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, null, this.response))
+						.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void saveAuthorizedClientWhenResponseIsNullThenThrowIllegalArgumentException() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration2, this.principalName1, mock(OAuth2AccessToken.class));
-		assertThatThrownBy(() -> this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, this.request, null))
-				.isInstanceOf(IllegalArgumentException.class);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration2, this.principalName1,
+				mock(OAuth2AccessToken.class));
+		assertThatThrownBy(
+				() -> this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, this.request, null))
+						.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void saveAuthorizedClientWhenSavedThenSavedToSession() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration2, this.principalName1, mock(OAuth2AccessToken.class));
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration2, this.principalName1,
+				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, this.request, this.response);
 
 		HttpSession session = this.request.getSession(false);
 		assertThat(session).isNotNull();
 
 		@SuppressWarnings("unchecked")
-		Map<String, OAuth2AuthorizedClient> authorizedClients = (Map<String, OAuth2AuthorizedClient>)
-				session.getAttribute(HttpSessionOAuth2AuthorizedClientRepository.class.getName() + ".AUTHORIZED_CLIENTS");
+		Map<String, OAuth2AuthorizedClient> authorizedClients = (Map<String, OAuth2AuthorizedClient>) session
+				.getAttribute(HttpSessionOAuth2AuthorizedClientRepository.class.getName() + ".AUTHORIZED_CLIENTS");
 		assertThat(authorizedClients).isNotEmpty();
 		assertThat(authorizedClients).hasSize(1);
 		assertThat(authorizedClients.values().iterator().next()).isSameAs(authorizedClient);
@@ -143,8 +146,9 @@ public class HttpSessionOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void removeAuthorizedClientWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientRepository.removeAuthorizedClient(
-				null, null, this.request, this.response)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(
+				() -> this.authorizedClientRepository.removeAuthorizedClient(null, null, this.request, this.response))
+						.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -154,8 +158,8 @@ public class HttpSessionOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void removeAuthorizedClientWhenRequestIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientRepository.removeAuthorizedClient(
-				this.registrationId1, null, null, this.response)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> this.authorizedClientRepository.removeAuthorizedClient(this.registrationId1, null,
+				null, this.response)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -165,74 +169,72 @@ public class HttpSessionOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void removeAuthorizedClientWhenNotSavedThenSessionNotCreated() {
-		this.authorizedClientRepository.removeAuthorizedClient(
-				this.registrationId2, null, this.request, this.response);
+		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId2, null, this.request, this.response);
 		assertThat(this.request.getSession(false)).isNull();
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenClient1SavedAndClient2RemovedThenClient1NotRemoved() {
-		OAuth2AuthorizedClient authorizedClient1 = new OAuth2AuthorizedClient(
-				this.registration1, this.principalName1, mock(OAuth2AccessToken.class));
+		OAuth2AuthorizedClient authorizedClient1 = new OAuth2AuthorizedClient(this.registration1, this.principalName1,
+				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient1, null, this.request, this.response);
 
 		// Remove registrationId2 (never added so is not removed either)
-		this.authorizedClientRepository.removeAuthorizedClient(
-				this.registrationId2, null, this.request, this.response);
+		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId2, null, this.request, this.response);
 
-		OAuth2AuthorizedClient loadedAuthorizedClient1 = this.authorizedClientRepository.loadAuthorizedClient(
-				this.registrationId1, null, this.request);
+		OAuth2AuthorizedClient loadedAuthorizedClient1 = this.authorizedClientRepository
+				.loadAuthorizedClient(this.registrationId1, null, this.request);
 		assertThat(loadedAuthorizedClient1).isNotNull();
 		assertThat(loadedAuthorizedClient1).isSameAs(authorizedClient1);
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenSavedThenRemoved() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration2, this.principalName1, mock(OAuth2AccessToken.class));
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration2, this.principalName1,
+				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, this.request, this.response);
-		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
-				this.registrationId2, null, this.request);
+		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientRepository
+				.loadAuthorizedClient(this.registrationId2, null, this.request);
 		assertThat(loadedAuthorizedClient).isSameAs(authorizedClient);
-		this.authorizedClientRepository.removeAuthorizedClient(
-				this.registrationId2, null, this.request, this.response);
-		loadedAuthorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
-				this.registrationId2, null, this.request);
+		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId2, null, this.request, this.response);
+		loadedAuthorizedClient = this.authorizedClientRepository.loadAuthorizedClient(this.registrationId2, null,
+				this.request);
 		assertThat(loadedAuthorizedClient).isNull();
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenSavedThenRemovedFromSession() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration1, this.principalName1, mock(OAuth2AccessToken.class));
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration1, this.principalName1,
+				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, this.request, this.response);
-		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
-				this.registrationId1, null, this.request);
+		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientRepository
+				.loadAuthorizedClient(this.registrationId1, null, this.request);
 		assertThat(loadedAuthorizedClient).isSameAs(authorizedClient);
-		this.authorizedClientRepository.removeAuthorizedClient(
-				this.registrationId1, null, this.request, this.response);
+		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId1, null, this.request, this.response);
 
 		HttpSession session = this.request.getSession(false);
 		assertThat(session).isNotNull();
-		assertThat(session.getAttribute(HttpSessionOAuth2AuthorizedClientRepository.class.getName() + ".AUTHORIZED_CLIENTS")).isNull();
+		assertThat(session
+				.getAttribute(HttpSessionOAuth2AuthorizedClientRepository.class.getName() + ".AUTHORIZED_CLIENTS"))
+						.isNull();
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenClient1Client2SavedAndClient1RemovedThenClient2NotRemoved() {
-		OAuth2AuthorizedClient authorizedClient1 = new OAuth2AuthorizedClient(
-				this.registration1, this.principalName1, mock(OAuth2AccessToken.class));
+		OAuth2AuthorizedClient authorizedClient1 = new OAuth2AuthorizedClient(this.registration1, this.principalName1,
+				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient1, null, this.request, this.response);
 
-		OAuth2AuthorizedClient authorizedClient2 = new OAuth2AuthorizedClient(
-				this.registration2, this.principalName1, mock(OAuth2AccessToken.class));
+		OAuth2AuthorizedClient authorizedClient2 = new OAuth2AuthorizedClient(this.registration2, this.principalName1,
+				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient2, null, this.request, this.response);
 
-		this.authorizedClientRepository.removeAuthorizedClient(
-				this.registrationId1, null, this.request, this.response);
+		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId1, null, this.request, this.response);
 
-		OAuth2AuthorizedClient loadedAuthorizedClient2 = this.authorizedClientRepository.loadAuthorizedClient(
-				this.registrationId2, null, this.request);
+		OAuth2AuthorizedClient loadedAuthorizedClient2 = this.authorizedClientRepository
+				.loadAuthorizedClient(this.registrationId2, null, this.request);
 		assertThat(loadedAuthorizedClient2).isNotNull();
 		assertThat(loadedAuthorizedClient2).isSameAs(authorizedClient2);
 	}
+
 }

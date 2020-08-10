@@ -41,7 +41,9 @@ public class RegisterSessionAuthenticationStrategyTests {
 	private RegisterSessionAuthenticationStrategy authenticationStrategy;
 
 	private Authentication authentication;
+
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
 
 	@Before
@@ -61,8 +63,7 @@ public class RegisterSessionAuthenticationStrategyTests {
 	public void onAuthenticationRegistersSession() {
 		authenticationStrategy.onAuthentication(authentication, request, response);
 
-		verify(registry).registerNewSession(request.getSession().getId(),
-				authentication.getPrincipal());
+		verify(registry).registerNewSession(request.getSession().getId(), authentication.getPrincipal());
 	}
 
 }

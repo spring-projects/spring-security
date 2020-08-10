@@ -46,8 +46,8 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.1
  */
-public class InMemoryUserDetailsManager implements UserDetailsManager,
-		UserDetailsPasswordService {
+public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetailsPasswordService {
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final Map<String, MutableUserDetails> users = new HashMap<>();
@@ -77,8 +77,8 @@ public class InMemoryUserDetailsManager implements UserDetailsManager,
 			String name = (String) names.nextElement();
 			editor.setAsText(users.getProperty(name));
 			UserAttribute attr = (UserAttribute) editor.getValue();
-			UserDetails user = new User(name, attr.getPassword(), attr.isEnabled(), true,
-					true, true, attr.getAuthorities());
+			UserDetails user = new User(name, attr.getPassword(), attr.isEnabled(), true, true, true,
+					attr.getAuthorities());
 			createUser(user);
 		}
 	}
@@ -104,14 +104,12 @@ public class InMemoryUserDetailsManager implements UserDetailsManager,
 	}
 
 	public void changePassword(String oldPassword, String newPassword) {
-		Authentication currentUser = SecurityContextHolder.getContext()
-				.getAuthentication();
+		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
 
 		if (currentUser == null) {
 			// This would indicate bad coding somewhere
 			throw new AccessDeniedException(
-					"Can't change password as no Authentication object found in context "
-							+ "for current user.");
+					"Can't change password as no Authentication object found in context " + "for current user.");
 		}
 
 		String username = currentUser.getName();
@@ -121,11 +119,9 @@ public class InMemoryUserDetailsManager implements UserDetailsManager,
 		// If an authentication manager has been set, re-authenticate the user with the
 		// supplied password.
 		if (authenticationManager != null) {
-			logger.debug("Reauthenticating user '" + username
-					+ "' for password change request.");
+			logger.debug("Reauthenticating user '" + username + "' for password change request.");
 
-			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-					username, oldPassword));
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, oldPassword));
 		}
 		else {
 			logger.debug("No authentication manager set. Password won't be re-checked.");
@@ -148,20 +144,19 @@ public class InMemoryUserDetailsManager implements UserDetailsManager,
 		return mutableUser;
 	}
 
-	public UserDetails loadUserByUsername(String username)
-			throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserDetails user = users.get(username.toLowerCase());
 
 		if (user == null) {
 			throw new UsernameNotFoundException(username);
 		}
 
-		return new User(user.getUsername(), user.getPassword(), user.isEnabled(),
-				user.isAccountNonExpired(), user.isCredentialsNonExpired(),
-				user.isAccountNonLocked(), user.getAuthorities());
+		return new User(user.getUsername(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(),
+				user.isCredentialsNonExpired(), user.isAccountNonLocked(), user.getAuthorities());
 	}
 
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
+
 }

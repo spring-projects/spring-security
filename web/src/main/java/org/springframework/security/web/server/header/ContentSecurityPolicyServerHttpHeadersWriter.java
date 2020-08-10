@@ -28,8 +28,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Vedran Pavic
  * @since 5.1
  */
-public final class ContentSecurityPolicyServerHttpHeadersWriter
-		implements ServerHttpHeadersWriter {
+public final class ContentSecurityPolicyServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 
 	public static final String CONTENT_SECURITY_POLICY = "Content-Security-Policy";
 
@@ -43,8 +42,7 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter
 
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		return (this.delegate != null) ? this.delegate.writeHttpHeaders(exchange)
-				: Mono.empty();
+		return (this.delegate != null) ? this.delegate.writeHttpHeaders(exchange) : Mono.empty();
 	}
 
 	/**

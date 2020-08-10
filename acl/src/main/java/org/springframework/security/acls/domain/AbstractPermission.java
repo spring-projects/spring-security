@@ -29,6 +29,7 @@ public abstract class AbstractPermission implements Permission {
 	// ================================================================================================
 
 	protected final char code;
+
 	protected int mask;
 
 	// ~ Constructors
@@ -36,7 +37,6 @@ public abstract class AbstractPermission implements Permission {
 	/**
 	 * Sets the permission mask and uses the '*' character to represent active bits when
 	 * represented as a bit pattern string.
-	 *
 	 * @param mask the integer bit mask for the permission
 	 */
 	protected AbstractPermission(int mask) {
@@ -46,7 +46,6 @@ public abstract class AbstractPermission implements Permission {
 
 	/**
 	 * Sets the permission mask and uses the specified character for active bits.
-	 *
 	 * @param mask the integer bit mask for the permission
 	 * @param code the character to print for each active bit in the mask (see
 	 * {@link Permission#getPattern()})
@@ -88,4 +87,5 @@ public abstract class AbstractPermission implements Permission {
 	public final int hashCode() {
 		return this.mask;
 	}
+
 }

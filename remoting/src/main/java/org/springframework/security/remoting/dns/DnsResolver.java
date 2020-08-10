@@ -27,14 +27,12 @@ public interface DnsResolver {
 	/**
 	 * Resolves the IP Address (A record) to the specified host name. Throws
 	 * DnsEntryNotFoundException if there is no record.
-	 *
 	 * @param hostname The hostname for which you need the IP Address
 	 * @return IP Address as a String
 	 * @throws DnsEntryNotFoundException No record found
 	 * @throws DnsLookupException Unknown DNS error
 	 */
-	String resolveIpAddress(String hostname) throws DnsEntryNotFoundException,
-			DnsLookupException;
+	String resolveIpAddress(String hostname) throws DnsEntryNotFoundException, DnsLookupException;
 
 	/**
 	 * <p>
@@ -56,22 +54,19 @@ public interface DnsResolver {
 	 * The method will return the record with highest priority (which means the lowest
 	 * number in the DNS record) and if there are more than one records with the same
 	 * priority, it will return the one with the highest weight. You will find more
-	 * informatione about DNS service records at <a
-	 * href="https://en.wikipedia.org/wiki/SRV_record">Wikipedia</a>.
-	 *
+	 * informatione about DNS service records at
+	 * <a href="https://en.wikipedia.org/wiki/SRV_record">Wikipedia</a>.
 	 * @param serviceType The service type you are searching for, e.g. ldap, kerberos, ...
 	 * @param domain The domain, in which you are searching for the service
 	 * @return The hostname of the service
 	 * @throws DnsEntryNotFoundException No record found
 	 * @throws DnsLookupException Unknown DNS error
 	 */
-	String resolveServiceEntry(String serviceType, String domain)
-			throws DnsEntryNotFoundException, DnsLookupException;
+	String resolveServiceEntry(String serviceType, String domain) throws DnsEntryNotFoundException, DnsLookupException;
 
 	/**
 	 * Resolves the host name for the specified service and then the IP Address for this
 	 * host in one call.
-	 *
 	 * @param serviceType The service type you are searching for, e.g. ldap, kerberos, ...
 	 * @param domain The domain, in which you are searching for the service
 	 * @return IP Address of the service

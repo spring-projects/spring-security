@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Ben Alex
  */
 public class DigestAuthenticationEntryPointTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -111,14 +112,12 @@ public class DigestAuthenticationEntryPointTests {
 
 		// Check response is properly formed
 		assertThat(response.getStatus()).isEqualTo(401);
-		assertThat(response.getHeader("WWW-Authenticate").toString())
-				.startsWith("Digest ");
+		assertThat(response.getHeader("WWW-Authenticate").toString()).startsWith("Digest ");
 
 		// Break up response header
 		String header = response.getHeader("WWW-Authenticate").toString().substring(7);
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
-		Map<String, String> headerMap = DigestAuthUtils
-				.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
 		assertThat(headerMap.get("realm")).isEqualTo("hello");
 		assertThat(headerMap.get("qop")).isEqualTo("auth");
@@ -144,14 +143,12 @@ public class DigestAuthenticationEntryPointTests {
 
 		// Check response is properly formed
 		assertThat(response.getStatus()).isEqualTo(401);
-		assertThat(response.getHeader("WWW-Authenticate").toString())
-				.startsWith("Digest ");
+		assertThat(response.getHeader("WWW-Authenticate").toString()).startsWith("Digest ");
 
 		// Break up response header
 		String header = response.getHeader("WWW-Authenticate").toString().substring(7);
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
-		Map<String, String> headerMap = DigestAuthUtils
-				.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
 		assertThat(headerMap.get("realm")).isEqualTo("hello");
 		assertThat(headerMap.get("qop")).isEqualTo("auth");
@@ -159,4 +156,5 @@ public class DigestAuthenticationEntryPointTests {
 
 		checkNonceValid(headerMap.get("nonce"));
 	}
+
 }

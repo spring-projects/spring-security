@@ -39,33 +39,38 @@ import org.springframework.util.Assert;
  * @since 5.2
  */
 public class RsaKeyConverters {
+
 	private static final String DASHES = "-----";
+
 	private static final String PKCS8_PEM_HEADER = DASHES + "BEGIN PRIVATE KEY" + DASHES;
+
 	private static final String PKCS8_PEM_FOOTER = DASHES + "END PRIVATE KEY" + DASHES;
+
 	private static final String X509_PEM_HEADER = DASHES + "BEGIN PUBLIC KEY" + DASHES;
+
 	private static final String X509_PEM_FOOTER = DASHES + "END PUBLIC KEY" + DASHES;
 
 	/**
 	 * Construct a {@link Converter} for converting a PEM-encoded PKCS#8 RSA Private Key
 	 * into a {@link RSAPrivateKey}.
 	 *
-	 * Note that keys are often formatted in PKCS#1 and this can easily be identified by the header.
-	 * If the key file begins with "-----BEGIN RSA PRIVATE KEY-----", then it is PKCS#1. If it is
-	 * PKCS#8 formatted, then it begins with "-----BEGIN PRIVATE KEY-----".
+	 * Note that keys are often formatted in PKCS#1 and this can easily be identified by
+	 * the header. If the key file begins with "-----BEGIN RSA PRIVATE KEY-----", then it
+	 * is PKCS#1. If it is PKCS#8 formatted, then it begins with "-----BEGIN PRIVATE
+	 * KEY-----".
 	 *
-	 * This converter does not close the {@link InputStream} in order to avoid making non-portable
-	 * assumptions about the streams' origin and further use.
-	 *
-	 * @return A {@link Converter} that can read a PEM-encoded PKCS#8 RSA Private Key and return a
-	 * {@link RSAPrivateKey}.
+	 * This converter does not close the {@link InputStream} in order to avoid making
+	 * non-portable assumptions about the streams' origin and further use.
+	 * @return A {@link Converter} that can read a PEM-encoded PKCS#8 RSA Private Key and
+	 * return a {@link RSAPrivateKey}.
 	 */
 	public static Converter<InputStream, RSAPrivateKey> pkcs8() {
 		KeyFactory keyFactory = rsaFactory();
 		return source -> {
 			List<String> lines = readAllLines(source);
 			Assert.isTrue(!lines.isEmpty() && lines.get(0).startsWith(PKCS8_PEM_HEADER),
-					"Key is not in PEM-encoded PKCS#8 format, " +
-							"please check that the header begins with -----" + PKCS8_PEM_HEADER + "-----");
+					"Key is not in PEM-encoded PKCS#8 format, " + "please check that the header begins with -----"
+							+ PKCS8_PEM_HEADER + "-----");
 			StringBuilder base64Encoded = new StringBuilder();
 			for (String line : lines) {
 				if (RsaKeyConverters.isNotPkcs8Wrapper(line)) {
@@ -75,9 +80,9 @@ public class RsaKeyConverters {
 			byte[] pkcs8 = Base64.getDecoder().decode(base64Encoded.toString());
 
 			try {
-				return (RSAPrivateKey) keyFactory.generatePrivate(
-						new PKCS8EncodedKeySpec(pkcs8));
-			} catch (Exception e) {
+				return (RSAPrivateKey) keyFactory.generatePrivate(new PKCS8EncodedKeySpec(pkcs8));
+			}
+			catch (Exception e) {
 				throw new IllegalArgumentException(e);
 			}
 		};
@@ -87,19 +92,18 @@ public class RsaKeyConverters {
 	 * Construct a {@link Converter} for converting a PEM-encoded X.509 RSA Public Key
 	 * into a {@link RSAPublicKey}.
 	 *
-	 * This converter does not close the {@link InputStream} in order to avoid making non-portable
-	 * assumptions about the streams' origin and further use.
-	 *
-	 * @return A {@link Converter} that can read a PEM-encoded X.509 RSA Public Key and return a
-	 * {@link RSAPublicKey}.
+	 * This converter does not close the {@link InputStream} in order to avoid making
+	 * non-portable assumptions about the streams' origin and further use.
+	 * @return A {@link Converter} that can read a PEM-encoded X.509 RSA Public Key and
+	 * return a {@link RSAPublicKey}.
 	 */
 	public static Converter<InputStream, RSAPublicKey> x509() {
 		KeyFactory keyFactory = rsaFactory();
 		return source -> {
 			List<String> lines = readAllLines(source);
 			Assert.isTrue(!lines.isEmpty() && lines.get(0).startsWith(X509_PEM_HEADER),
-					"Key is not in PEM-encoded X.509 format, " +
-							"please check that the header begins with -----" + X509_PEM_HEADER + "-----");
+					"Key is not in PEM-encoded X.509 format, " + "please check that the header begins with -----"
+							+ X509_PEM_HEADER + "-----");
 			StringBuilder base64Encoded = new StringBuilder();
 			for (String line : lines) {
 				if (RsaKeyConverters.isNotX509Wrapper(line)) {
@@ -109,9 +113,9 @@ public class RsaKeyConverters {
 			byte[] x509 = Base64.getDecoder().decode(base64Encoded.toString());
 
 			try {
-				return (RSAPublicKey) keyFactory.generatePublic(
-						new X509EncodedKeySpec(x509));
-			} catch (Exception e) {
+				return (RSAPublicKey) keyFactory.generatePublic(new X509EncodedKeySpec(x509));
+			}
+			catch (Exception e) {
 				throw new IllegalArgumentException(e);
 			}
 		};
@@ -125,7 +129,8 @@ public class RsaKeyConverters {
 	private static KeyFactory rsaFactory() {
 		try {
 			return KeyFactory.getInstance("RSA");
-		} catch (NoSuchAlgorithmException e) {
+		}
+		catch (NoSuchAlgorithmException e) {
 			throw new IllegalStateException(e);
 		}
 	}
@@ -137,4 +142,5 @@ public class RsaKeyConverters {
 	private static boolean isNotX509Wrapper(String line) {
 		return !X509_PEM_HEADER.equals(line) && !X509_PEM_FOOTER.equals(line);
 	}
+
 }

@@ -106,5 +106,7 @@ public class Gh3409Tests {
 			// @formatter:on
 
 		}
+
 	}
+
 }

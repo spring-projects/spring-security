@@ -77,14 +77,14 @@ import org.springframework.web.socket.sockjs.transport.TransportHandlingSockJsSe
  * }
  * </pre>
  *
- *
  * @since 4.0
  * @author Rob Winch
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 100)
 @Import(ObjectPostProcessorConfiguration.class)
-public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
-		AbstractWebSocketMessageBrokerConfigurer implements SmartInitializingSingleton {
+public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends AbstractWebSocketMessageBrokerConfigurer
+		implements SmartInitializingSingleton {
+
 	private final WebSocketMessageSecurityMetadataSourceRegistry inboundRegistry = new WebSocketMessageSecurityMetadataSourceRegistry();
 
 	private SecurityExpressionHandler<Message<Object>> defaultExpressionHandler = new DefaultMessageSecurityExpressionHandler<>();
@@ -117,7 +117,8 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 	private PathMatcher getDefaultPathMatcher() {
 		try {
 			return context.getBean(SimpAnnotationMethodMessageHandler.class).getPathMatcher();
-		} catch(NoSuchBeanDefinitionException e) {
+		}
+		catch (NoSuchBeanDefinitionException e) {
 			return new AntPathMatcher();
 		}
 	}
@@ -131,7 +132,6 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 	 * <p>
 	 * Subclasses can override this method to disable CSRF protection
 	 * </p>
-	 *
 	 * @return false if a CSRF token is required for connecting, else true
 	 */
 	protected boolean sameOriginDisabled() {
@@ -141,7 +141,6 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 	/**
 	 * Allows subclasses to customize the configuration of the {@link ChannelRegistration}
 	 * .
-	 *
 	 * @param registration the {@link ChannelRegistration} to customize
 	 */
 	protected void customizeClientInboundChannel(ChannelRegistration registration) {
@@ -153,7 +152,8 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 	}
 
 	@Bean
-	public ChannelSecurityInterceptor inboundChannelSecurity(MessageSecurityMetadataSource messageSecurityMetadataSource) {
+	public ChannelSecurityInterceptor inboundChannelSecurity(
+			MessageSecurityMetadataSource messageSecurityMetadataSource) {
 		ChannelSecurityInterceptor channelSecurityInterceptor = new ChannelSecurityInterceptor(
 				messageSecurityMetadataSource);
 		MessageExpressionVoter<Object> voter = new MessageExpressionVoter<>();
@@ -180,14 +180,13 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 	}
 
 	/**
-	 *
 	 * @param messages
 	 */
 	protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
 	}
 
-	private static class WebSocketMessageSecurityMetadataSourceRegistry extends
-			MessageSecurityMetadataSourceRegistry {
+	private static class WebSocketMessageSecurityMetadataSourceRegistry extends MessageSecurityMetadataSourceRegistry {
+
 		@Override
 		public MessageSecurityMetadataSource createMetadataSource() {
 			return super.createMetadataSource();
@@ -202,6 +201,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 		protected boolean isSimpDestPathMatcherConfigured() {
 			return super.isSimpDestPathMatcherConfigured();
 		}
+
 	}
 
 	@Autowired
@@ -226,7 +226,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 		defaultExpressionHandler = objectPostProcessor.postProcess(defaultExpressionHandler);
 	}
 
-	private  SecurityExpressionHandler<Message<Object>> getMessageExpressionHandler() {
+	private SecurityExpressionHandler<Message<Object>> getMessageExpressionHandler() {
 		if (expressionHandler == null) {
 			return defaultExpressionHandler;
 		}
@@ -239,8 +239,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 		}
 
 		String beanName = "stompWebSocketHandlerMapping";
-		SimpleUrlHandlerMapping mapping = context.getBean(beanName,
-				SimpleUrlHandlerMapping.class);
+		SimpleUrlHandlerMapping mapping = context.getBean(beanName, SimpleUrlHandlerMapping.class);
 		Map<String, Object> mappings = mapping.getHandlerMap();
 		for (Object object : mappings.values()) {
 			if (object instanceof SockJsHttpRequestHandler) {
@@ -248,38 +247,31 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 				SockJsService sockJsService = sockjsHandler.getSockJsService();
 				if (!(sockJsService instanceof TransportHandlingSockJsService)) {
 					throw new IllegalStateException(
-							"sockJsService must be instance of TransportHandlingSockJsService got "
-									+ sockJsService);
+							"sockJsService must be instance of TransportHandlingSockJsService got " + sockJsService);
 				}
 
 				TransportHandlingSockJsService transportHandlingSockJsService = (TransportHandlingSockJsService) sockJsService;
 				List<HandshakeInterceptor> handshakeInterceptors = transportHandlingSockJsService
 						.getHandshakeInterceptors();
-				List<HandshakeInterceptor> interceptorsToSet = new ArrayList<>(
-						handshakeInterceptors.size() + 1);
+				List<HandshakeInterceptor> interceptorsToSet = new ArrayList<>(handshakeInterceptors.size() + 1);
 				interceptorsToSet.add(new CsrfTokenHandshakeInterceptor());
 				interceptorsToSet.addAll(handshakeInterceptors);
 
-				transportHandlingSockJsService
-						.setHandshakeInterceptors(interceptorsToSet);
+				transportHandlingSockJsService.setHandshakeInterceptors(interceptorsToSet);
 			}
 			else if (object instanceof WebSocketHttpRequestHandler) {
 				WebSocketHttpRequestHandler handler = (WebSocketHttpRequestHandler) object;
-				List<HandshakeInterceptor> handshakeInterceptors = handler
-						.getHandshakeInterceptors();
-				List<HandshakeInterceptor> interceptorsToSet = new ArrayList<>(
-						handshakeInterceptors.size() + 1);
+				List<HandshakeInterceptor> handshakeInterceptors = handler.getHandshakeInterceptors();
+				List<HandshakeInterceptor> interceptorsToSet = new ArrayList<>(handshakeInterceptors.size() + 1);
 				interceptorsToSet.add(new CsrfTokenHandshakeInterceptor());
 				interceptorsToSet.addAll(handshakeInterceptors);
 
 				handler.setHandshakeInterceptors(interceptorsToSet);
 			}
 			else {
-				throw new IllegalStateException(
-						"Bean "
-								+ beanName
-								+ " is expected to contain mappings to either a SockJsHttpRequestHandler or a WebSocketHttpRequestHandler but got "
-								+ object);
+				throw new IllegalStateException("Bean " + beanName
+						+ " is expected to contain mappings to either a SockJsHttpRequestHandler or a WebSocketHttpRequestHandler but got "
+						+ object);
 			}
 		}
 
@@ -288,4 +280,5 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 			inboundRegistry.simpDestPathMatcher(pathMatcher);
 		}
 	}
+
 }

@@ -34,6 +34,7 @@ import org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache
  * @author Ben Alex
  */
 public class EhCacheBasedUserCacheTests {
+
 	private static CacheManager cacheManager;
 
 	// ~ Methods
@@ -41,8 +42,7 @@ public class EhCacheBasedUserCacheTests {
 	@BeforeClass
 	public static void initCacheManaer() {
 		cacheManager = CacheManager.create();
-		cacheManager.addCache(new Cache("ehcacheusercachetests", 500, false, false, 30,
-				30));
+		cacheManager.addCache(new Cache("ehcacheusercachetests", 500, false, false, 30, 30));
 	}
 
 	@AfterClass
@@ -93,4 +93,5 @@ public class EhCacheBasedUserCacheTests {
 		cache.setCache(myCache);
 		assertThat(cache.getCache()).isEqualTo(myCache);
 	}
+
 }

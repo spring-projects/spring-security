@@ -33,11 +33,15 @@ import org.springframework.security.acls.model.AuditableAccessControlEntry;
  * @author Andrei Stefan
  */
 public class AuditLoggerTests {
+
 	// ~ Instance fields
 	// ================================================================================================
 	private PrintStream console;
+
 	private ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
 	private ConsoleAuditLogger logger;
+
 	private AuditableAccessControlEntry ace;
 
 	// ~ Methods
@@ -92,4 +96,5 @@ public class AuditLoggerTests {
 		logger.logIfNeeded(false, ace);
 		assertThat(bytes.toString()).startsWith("DENIED due to ACE");
 	}
+
 }

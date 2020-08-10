@@ -65,25 +65,21 @@ public class NamespaceHttpBasicTests {
 	public void basicAuthenticationWhenUsingDefaultsThenMatchesNamespace() throws Exception {
 		this.spring.register(HttpBasicConfig.class, UserConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "invalid")))
-				.andExpect(status().isUnauthorized())
+		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\""));
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isNotFound());
+		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isNotFound());
 	}
 
 	@Configuration
 	static class UserConfig {
+
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
-				// @formatter:off
+			// @formatter:off
 				User.withDefaultPasswordEncoder()
 					.username("user")
 					.password("password")
@@ -92,10 +88,12 @@ public class NamespaceHttpBasicTests {
 				// @formatter:on
 			);
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class HttpBasicConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -105,27 +103,24 @@ public class NamespaceHttpBasicTests {
 				.httpBasic();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void basicAuthenticationWhenUsingDefaultsInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(HttpBasicLambdaConfig.class, UserConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "invalid")))
-				.andExpect(status().isUnauthorized())
+		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\""));
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isNotFound());
+		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isNotFound());
 	}
 
 	@EnableWebSecurity
 	static class HttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -136,6 +131,7 @@ public class NamespaceHttpBasicTests {
 				.httpBasic(withDefaults());
 			// @formatter:on
 		}
+
 	}
 
 	/**
@@ -145,14 +141,13 @@ public class NamespaceHttpBasicTests {
 	public void basicAuthenticationWhenUsingCustomRealmThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpBasicConfig.class, UserConfig.class).autowire();
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "invalid")))
-				.andExpect(status().isUnauthorized())
+		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Custom Realm\""));
 	}
 
 	@EnableWebSecurity
 	static class CustomHttpBasicConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -163,20 +158,20 @@ public class NamespaceHttpBasicTests {
 				.httpBasic().realmName("Custom Realm");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void basicAuthenticationWhenUsingCustomRealmInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpBasicLambdaConfig.class, UserConfig.class).autowire();
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "invalid")))
-				.andExpect(status().isUnauthorized())
+		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Custom Realm\""));
 	}
 
 	@EnableWebSecurity
 	static class CustomHttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -188,6 +183,7 @@ public class NamespaceHttpBasicTests {
 				.httpBasic(httpBasicConfig -> httpBasicConfig.realmName("Custom Realm"));
 			// @formatter:on
 		}
+
 	}
 
 	/**
@@ -197,19 +193,19 @@ public class NamespaceHttpBasicTests {
 	public void basicAuthenticationWhenUsingAuthenticationDetailsSourceRefThenMatchesNamespace() throws Exception {
 		this.spring.register(AuthenticationDetailsSourceHttpBasicConfig.class, UserConfig.class).autowire();
 
-		AuthenticationDetailsSource<HttpServletRequest, ?> source =
-				this.spring.getContext().getBean(AuthenticationDetailsSource.class);
+		AuthenticationDetailsSource<HttpServletRequest, ?> source = this.spring.getContext()
+				.getBean(AuthenticationDetailsSource.class);
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "password")));
+		this.mvc.perform(get("/").with(httpBasic("user", "password")));
 
 		verify(source).buildDetails(any(HttpServletRequest.class));
 	}
 
 	@EnableWebSecurity
 	static class AuthenticationDetailsSourceHttpBasicConfig extends WebSecurityConfigurerAdapter {
-		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource =
-				mock(AuthenticationDetailsSource.class);
+
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = mock(
+				AuthenticationDetailsSource.class);
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -224,6 +220,7 @@ public class NamespaceHttpBasicTests {
 		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource() {
 			return this.authenticationDetailsSource;
 		}
+
 	}
 
 	@Test
@@ -231,19 +228,19 @@ public class NamespaceHttpBasicTests {
 			throws Exception {
 		this.spring.register(AuthenticationDetailsSourceHttpBasicLambdaConfig.class, UserConfig.class).autowire();
 
-		AuthenticationDetailsSource<HttpServletRequest, ?> source =
-				this.spring.getContext().getBean(AuthenticationDetailsSource.class);
+		AuthenticationDetailsSource<HttpServletRequest, ?> source = this.spring.getContext()
+				.getBean(AuthenticationDetailsSource.class);
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "password")));
+		this.mvc.perform(get("/").with(httpBasic("user", "password")));
 
 		verify(source).buildDetails(any(HttpServletRequest.class));
 	}
 
 	@EnableWebSecurity
 	static class AuthenticationDetailsSourceHttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
-		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource =
-				mock(AuthenticationDetailsSource.class);
+
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = mock(
+				AuthenticationDetailsSource.class);
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -258,6 +255,7 @@ public class NamespaceHttpBasicTests {
 		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource() {
 			return this.authenticationDetailsSource;
 		}
+
 	}
 
 	/**
@@ -267,22 +265,17 @@ public class NamespaceHttpBasicTests {
 	public void basicAuthenticationWhenUsingEntryPointRefThenMatchesNamespace() throws Exception {
 		this.spring.register(EntryPointRefHttpBasicConfig.class, UserConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(status().is(999));
+		this.mvc.perform(get("/")).andExpect(status().is(999));
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "invalid")))
-				.andExpect(status().is(999));
+		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().is(999));
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isNotFound());
+		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isNotFound());
 	}
 
 	@EnableWebSecurity
 	static class EntryPointRefHttpBasicConfig extends WebSecurityConfigurerAdapter {
-		AuthenticationEntryPoint authenticationEntryPoint =
-				(request, response, ex) -> response.setStatus(999);
+
+		AuthenticationEntryPoint authenticationEntryPoint = (request, response, ex) -> response.setStatus(999);
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -295,28 +288,24 @@ public class NamespaceHttpBasicTests {
 					.authenticationEntryPoint(this.authenticationEntryPoint);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void basicAuthenticationWhenUsingEntryPointRefInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(EntryPointRefHttpBasicLambdaConfig.class, UserConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(status().is(999));
+		this.mvc.perform(get("/")).andExpect(status().is(999));
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "invalid")))
-				.andExpect(status().is(999));
+		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().is(999));
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isNotFound());
+		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isNotFound());
 	}
 
 	@EnableWebSecurity
 	static class EntryPointRefHttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
-		AuthenticationEntryPoint authenticationEntryPoint =
-				(request, response, ex) -> response.setStatus(999);
+
+		AuthenticationEntryPoint authenticationEntryPoint = (request, response, ex) -> response.setStatus(999);
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -330,5 +319,7 @@ public class NamespaceHttpBasicTests {
 						httpBasicConfig.authenticationEntryPoint(this.authenticationEntryPoint));
 			// @formatter:on
 		}
+
 	}
+
 }

@@ -78,13 +78,14 @@ import java.util.Stack;
  * </ul>
  * </p>
  *
- * @see <a
- * href="https://cwiki.apache.org/confluence/display/MAVENOLD/Versioning">"Versioning" on
- * Maven Wiki</a>
+ * @see <a href=
+ * "https://cwiki.apache.org/confluence/display/MAVENOLD/Versioning">"Versioning" on Maven
+ * Wiki</a>
  * @author <a href="mailto:kenney@apache.org">Kenney Westerhof</a>
  * @author <a href="mailto:hboutemy@apache.org">HervÃ© Boutemy</a>
  */
 class ComparableVersion implements Comparable<ComparableVersion> {
+
 	private String value;
 
 	private String canonical;
@@ -92,8 +93,11 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 	private ListItem items;
 
 	private interface Item {
+
 		int INTEGER_ITEM = 0;
+
 		int STRING_ITEM = 1;
+
 		int LIST_ITEM = 2;
 
 		int compareTo(Item item);
@@ -101,12 +105,14 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		int getType();
 
 		boolean isNull();
+
 	}
 
 	/**
 	 * Represents a numeric item in the version item list.
 	 */
 	private static class IntegerItem implements Item {
+
 		private static final BigInteger BigInteger_ZERO = new BigInteger("0");
 
 		private final BigInteger value;
@@ -156,14 +162,15 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		public String toString() {
 			return value.toString();
 		}
+
 	}
 
 	/**
 	 * Represents a string in the version item list, usually a qualifier.
 	 */
 	private static class StringItem implements Item {
-		private static final String[] QUALIFIERS = { "alpha", "beta", "milestone", "rc",
-				"snapshot", "", "sp" };
+
+		private static final String[] QUALIFIERS = { "alpha", "beta", "milestone", "rc", "snapshot", "", "sp" };
 
 		private static final List<String> _QUALIFIERS = Arrays.asList(QUALIFIERS);
 
@@ -179,8 +186,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		 * determine if a given qualifier makes the version older than one without a
 		 * qualifier, or more recent.
 		 */
-		private static final String RELEASE_VERSION_INDEX = String.valueOf(_QUALIFIERS
-				.indexOf(""));
+		private static final String RELEASE_VERSION_INDEX = String.valueOf(_QUALIFIERS.indexOf(""));
 
 		private String value;
 
@@ -222,7 +228,6 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		 * if/then/else to check for -1 or QUALIFIERS.size and then resort to lexical
 		 * ordering. Most comparisons are decided by the first character, so this is still
 		 * fast. If more characters are needed then it requires a lexical sort anyway.
-		 *
 		 * @param qualifier
 		 * @return an equivalent value that can be used with lexical comparison
 		 */
@@ -243,8 +248,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 				return -1; // 1.any < 1.1 ?
 
 			case STRING_ITEM:
-				return comparableQualifier(value).compareTo(
-						comparableQualifier(((StringItem) item).value));
+				return comparableQualifier(value).compareTo(comparableQualifier(((StringItem) item).value));
 
 			case LIST_ITEM:
 				return -1; // 1.any < 1-1
@@ -258,6 +262,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		public String toString() {
 			return value;
 		}
+
 	}
 
 	/**
@@ -265,6 +270,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 	 * and for sub-lists (which start with '-(number)' in the version specification).
 	 */
 	private static class ListItem extends ArrayList<Item> implements Item {
+
 		@Override
 		public int getType() {
 			return LIST_ITEM;
@@ -276,8 +282,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 
 		void normalize() {
-			for (ListIterator<Item> iterator = listIterator(size()); iterator
-					.hasPrevious();) {
+			for (ListIterator<Item> iterator = listIterator(size()); iterator.hasPrevious();) {
 				Item item = iterator.previous();
 				if (item.isNull()) {
 					iterator.remove(); // remove null trailing items: 0, "", empty list
@@ -339,6 +344,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 			buffer.append(')');
 			return buffer.toString();
 		}
+
 	}
 
 	ComparableVersion(String version) {
@@ -385,8 +391,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 				if (isDigit) {
 					list.normalize(); // 1.0-* = 1-*
 
-					if ((i + 1 < version.length())
-							&& Character.isDigit(version.charAt(i + 1))) {
+					if ((i + 1 < version.length()) && Character.isDigit(version.charAt(i + 1))) {
 						// new ListItem only if previous were digits and new char is a
 						// digit,
 						// ie need to differentiate only 1.1 from 1-1
@@ -442,12 +447,12 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 	@Override
 	public boolean equals(Object o) {
-		return (o instanceof ComparableVersion)
-				&& canonical.equals(((ComparableVersion) o).canonical);
+		return (o instanceof ComparableVersion) && canonical.equals(((ComparableVersion) o).canonical);
 	}
 
 	@Override
 	public int hashCode() {
 		return canonical.hashCode();
 	}
+
 }

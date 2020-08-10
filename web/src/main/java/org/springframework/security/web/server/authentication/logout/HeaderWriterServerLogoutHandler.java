@@ -23,17 +23,21 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 /**
- * <p>A {@link ServerLogoutHandler} implementation which writes HTTP headers during logout.</p>
+ * <p>
+ * A {@link ServerLogoutHandler} implementation which writes HTTP headers during logout.
+ * </p>
  *
  * @author MD Sayem Ahmed
  * @since 5.2
  */
 public final class HeaderWriterServerLogoutHandler implements ServerLogoutHandler {
+
 	private final ServerHttpHeadersWriter headersWriter;
 
 	/**
-	 * <p>Constructs a new instance using the {@link ServerHttpHeadersWriter} implementation.</p>
-
+	 * <p>
+	 * Constructs a new instance using the {@link ServerHttpHeadersWriter} implementation.
+	 * </p>
 	 * @param headersWriter a {@link ServerHttpHeadersWriter} implementation
 	 * @throws IllegalArgumentException if the argument is null
 	 */
@@ -44,7 +48,7 @@ public final class HeaderWriterServerLogoutHandler implements ServerLogoutHandle
 
 	@Override
 	public Mono<Void> logout(WebFilterExchange exchange, Authentication authentication) {
-		return this.headersWriter
-				.writeHttpHeaders(exchange.getExchange());
+		return this.headersWriter.writeHttpHeaders(exchange.getExchange());
 	}
+
 }

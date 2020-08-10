@@ -81,4 +81,5 @@ public class PortResolverImplTests {
 		request.setServerPort(1021);
 		assertThat(pr.getServerPort(request)).isEqualTo(1021);
 	}
+
 }

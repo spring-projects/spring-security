@@ -50,6 +50,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @author colin sampaleanu
  */
 public class RoleVoter implements AccessDecisionVoter<Object> {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -65,7 +66,6 @@ public class RoleVoter implements AccessDecisionVoter<Object> {
 	/**
 	 * Allows the default role prefix of <code>ROLE_</code> to be overridden. May be set
 	 * to an empty value, although this is usually not desirable.
-	 *
 	 * @param rolePrefix the new prefix
 	 */
 	public void setRolePrefix(String rolePrefix) {
@@ -73,8 +73,7 @@ public class RoleVoter implements AccessDecisionVoter<Object> {
 	}
 
 	public boolean supports(ConfigAttribute attribute) {
-		if ((attribute.getAttribute() != null)
-				&& attribute.getAttribute().startsWith(getRolePrefix())) {
+		if ((attribute.getAttribute() != null) && attribute.getAttribute().startsWith(getRolePrefix())) {
 			return true;
 		}
 		else {
@@ -85,17 +84,14 @@ public class RoleVoter implements AccessDecisionVoter<Object> {
 	/**
 	 * This implementation supports any type of class, because it does not query the
 	 * presented secure object.
-	 *
 	 * @param clazz the secure object
-	 *
 	 * @return always <code>true</code>
 	 */
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}
 
-	public int vote(Authentication authentication, Object object,
-			Collection<ConfigAttribute> attributes) {
+	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 		if (authentication == null) {
 			return ACCESS_DENIED;
 		}
@@ -118,8 +114,8 @@ public class RoleVoter implements AccessDecisionVoter<Object> {
 		return result;
 	}
 
-	Collection<? extends GrantedAuthority> extractAuthorities(
-			Authentication authentication) {
+	Collection<? extends GrantedAuthority> extractAuthorities(Authentication authentication) {
 		return authentication.getAuthorities();
 	}
+
 }

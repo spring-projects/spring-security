@@ -43,8 +43,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  *
- * Tests for {@link HeaderWriterLogoutHandler} that passing {@link ClearSiteDataHeaderWriter}
- * implementation.
+ * Tests for {@link HeaderWriterLogoutHandler} that passing
+ * {@link ClearSiteDataHeaderWriter} implementation.
  *
  * @author Rafiullah Hamedy
  *
@@ -55,8 +55,7 @@ public class LogoutConfigurerClearSiteDataTests {
 
 	private static final String CLEAR_SITE_DATA_HEADER = "Clear-Site-Data";
 
-	private static final ClearSiteDataHeaderWriter.Directive[] SOURCE =
-			{ CACHE, COOKIES, STORAGE, EXECUTION_CONTEXTS };
+	private static final ClearSiteDataHeaderWriter.Directive[] SOURCE = { CACHE, COOKIES, STORAGE, EXECUTION_CONTEXTS };
 
 	private static final String HEADER_VALUE = "\"cache\", \"cookies\", \"storage\", \"executionContexts\"";
 
@@ -72,7 +71,7 @@ public class LogoutConfigurerClearSiteDataTests {
 		this.spring.register(HttpLogoutConfig.class).autowire();
 
 		this.mvc.perform(get("/logout").secure(true).with(csrf()))
-			.andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
+				.andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
 	}
 
 	@Test
@@ -80,8 +79,7 @@ public class LogoutConfigurerClearSiteDataTests {
 	public void logoutWhenRequestTypePostAndNotSecureThenHeaderNotPresent() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
 
-		this.mvc.perform(post("/logout").with(csrf()))
-			.andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
+		this.mvc.perform(post("/logout").with(csrf())).andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
 	}
 
 	@Test
@@ -90,11 +88,12 @@ public class LogoutConfigurerClearSiteDataTests {
 		this.spring.register(HttpLogoutConfig.class).autowire();
 
 		this.mvc.perform(post("/logout").secure(true).with(csrf()))
-			.andExpect(header().stringValues(CLEAR_SITE_DATA_HEADER, HEADER_VALUE));
+				.andExpect(header().stringValues(CLEAR_SITE_DATA_HEADER, HEADER_VALUE));
 	}
 
 	@EnableWebSecurity
 	static class HttpLogoutConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -103,5 +102,7 @@ public class LogoutConfigurerClearSiteDataTests {
 					.addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(SOURCE)));
 			// @formatter:on
 		}
+
 	}
+
 }

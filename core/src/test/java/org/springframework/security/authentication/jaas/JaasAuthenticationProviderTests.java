@@ -51,11 +51,14 @@ import org.springframework.security.core.session.SessionDestroyedEvent;
  * @author Ray Krueger
  */
 public class JaasAuthenticationProviderTests {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private ApplicationContext context;
+
 	private JaasAuthenticationProvider jaasProvider;
+
 	private JaasEventCheck eventCheck;
 
 	// ~ Methods
@@ -66,37 +69,36 @@ public class JaasAuthenticationProviderTests {
 		String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
 		context = new ClassPathXmlApplicationContext(resName);
 		eventCheck = (JaasEventCheck) context.getBean("eventCheck");
-		jaasProvider = (JaasAuthenticationProvider) context
-				.getBean("jaasAuthenticationProvider");
+		jaasProvider = (JaasAuthenticationProvider) context.getBean("jaasAuthenticationProvider");
 	}
 
 	@Test
 	public void testBadPassword() {
 		try {
-			jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user",
-					"asdf"));
+			jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "asdf"));
 			fail("LoginException should have been thrown for the bad password");
 		}
 		catch (AuthenticationException e) {
 		}
 
 		assertThat(eventCheck.failedEvent).as("Failure event not fired").isNotNull();
-		assertThat(eventCheck.failedEvent.getException()).withFailMessage("Failure event exception was null").isNotNull();
+		assertThat(eventCheck.failedEvent.getException()).withFailMessage("Failure event exception was null")
+				.isNotNull();
 		assertThat(eventCheck.successEvent).as("Success event was fired").isNull();
 	}
 
 	@Test
 	public void testBadUser() {
 		try {
-			jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("asdf",
-					"password"));
+			jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("asdf", "password"));
 			fail("LoginException should have been thrown for the bad user");
 		}
 		catch (AuthenticationException e) {
 		}
 
 		assertThat(eventCheck.failedEvent).as("Failure event not fired").isNotNull();
-		assertThat(eventCheck.failedEvent.getException()).withFailMessage("Failure event exception was null").isNotNull();
+		assertThat(eventCheck.failedEvent.getException()).withFailMessage("Failure event exception was null")
+				.isNotNull();
 		assertThat(eventCheck.successEvent).as("Success event was fired").isNull();
 	}
 
@@ -133,8 +135,7 @@ public class JaasAuthenticationProviderTests {
 	public void spacesInLoginConfigPathAreAccepted() throws Exception {
 		File configFile;
 		// Create temp directory with a space in the name
-		File configDir = new File(System.getProperty("java.io.tmpdir") + File.separator
-				+ "jaas test");
+		File configDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "jaas test");
 		configDir.deleteOnExit();
 
 		if (configDir.exists()) {
@@ -145,9 +146,8 @@ public class JaasAuthenticationProviderTests {
 		configFile.deleteOnExit();
 		FileOutputStream fos = new FileOutputStream(configFile);
 		PrintWriter pw = new PrintWriter(fos);
-		pw.append("JAASTestBlah {"
-				+ "org.springframework.security.authentication.jaas.TestLoginModule required;"
-				+ "};");
+		pw.append(
+				"JAASTestBlah {" + "org.springframework.security.authentication.jaas.TestLoginModule required;" + "};");
 		pw.flush();
 		pw.close();
 
@@ -191,8 +191,8 @@ public class JaasAuthenticationProviderTests {
 
 	@Test
 	public void testFull() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"user", "password", AuthorityUtils.createAuthorityList("ROLE_ONE"));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password",
+				AuthorityUtils.createAuthorityList("ROLE_ONE"));
 
 		assertThat(jaasProvider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
 
@@ -206,7 +206,8 @@ public class JaasAuthenticationProviderTests {
 		Collection<? extends GrantedAuthority> list = auth.getAuthorities();
 		Set<String> set = AuthorityUtils.authorityListToSet(list);
 
-		assertThat(set.contains("ROLE_ONE")).withFailMessage("GrantedAuthorities should not contain ROLE_ONE").isFalse();
+		assertThat(set.contains("ROLE_ONE")).withFailMessage("GrantedAuthorities should not contain ROLE_ONE")
+				.isFalse();
 		assertThat(set.contains("ROLE_TEST1")).withFailMessage("GrantedAuthorities should contain ROLE_TEST1").isTrue();
 		assertThat(set.contains("ROLE_TEST2")).withFailMessage("GrantedAuthorities should contain ROLE_TEST2").isTrue();
 		boolean foundit = false;
@@ -214,7 +215,8 @@ public class JaasAuthenticationProviderTests {
 		for (GrantedAuthority a : list) {
 			if (a instanceof JaasGrantedAuthority) {
 				JaasGrantedAuthority grant = (JaasGrantedAuthority) a;
-				assertThat(grant.getPrincipal()).withFailMessage("Principal was null on JaasGrantedAuthority").isNotNull();
+				assertThat(grant.getPrincipal()).withFailMessage("Principal was null on JaasGrantedAuthority")
+						.isNotNull();
 				foundit = true;
 			}
 		}
@@ -222,7 +224,8 @@ public class JaasAuthenticationProviderTests {
 		assertThat(foundit).as("Could not find a JaasGrantedAuthority").isTrue();
 
 		assertThat(eventCheck.successEvent).as("Success event should be fired").isNotNull();
-		assertThat(eventCheck.successEvent.getAuthentication()).withFailMessage("Auth objects should be equal").isEqualTo(auth);
+		assertThat(eventCheck.successEvent.getAuthentication()).withFailMessage("Auth objects should be equal")
+				.isEqualTo(auth);
 		assertThat(eventCheck.failedEvent).as("Failure event should not be fired").isNull();
 	}
 
@@ -237,8 +240,7 @@ public class JaasAuthenticationProviderTests {
 		jaasProvider.setLoginExceptionResolver(e -> new LockedException("This is just a test!"));
 
 		try {
-			jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user",
-					"password"));
+			jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 		}
 		catch (LockedException e) {
 		}
@@ -249,11 +251,9 @@ public class JaasAuthenticationProviderTests {
 
 	@Test
 	public void testLogout() throws Exception {
-		MockLoginContext loginContext = new MockLoginContext(
-				jaasProvider.getLoginContextName());
+		MockLoginContext loginContext = new MockLoginContext(jaasProvider.getLoginContextName());
 
-		JaasAuthenticationToken token = new JaasAuthenticationToken(null, null,
-				loginContext);
+		JaasAuthenticationToken token = new JaasAuthenticationToken(null, null, loginContext);
 
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(token);
@@ -268,26 +268,27 @@ public class JaasAuthenticationProviderTests {
 
 	@Test
 	public void testNullDefaultAuthorities() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"user", "password");
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
 
 		assertThat(jaasProvider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
 
 		Authentication auth = jaasProvider.authenticate(token);
-		assertThat(auth
-				.getAuthorities()).withFailMessage("Only ROLE_TEST1 and ROLE_TEST2 should have been returned").hasSize(2);
+		assertThat(auth.getAuthorities()).withFailMessage("Only ROLE_TEST1 and ROLE_TEST2 should have been returned")
+				.hasSize(2);
 	}
 
 	@Test
 	public void testUnsupportedAuthenticationObjectReturnsNull() {
-		assertThat(jaasProvider.authenticate(new TestingAuthenticationToken("foo", "bar",
-				AuthorityUtils.NO_AUTHORITIES))).isNull();
+		assertThat(
+				jaasProvider.authenticate(new TestingAuthenticationToken("foo", "bar", AuthorityUtils.NO_AUTHORITIES)))
+						.isNull();
 	}
 
 	// ~ Inner Classes
 	// ==================================================================================================
 
 	private static class MockLoginContext extends LoginContext {
+
 		boolean loggedOut = false;
 
 		MockLoginContext(String loginModule) throws LoginException {
@@ -297,5 +298,7 @@ public class JaasAuthenticationProviderTests {
 		public void logout() {
 			this.loggedOut = true;
 		}
+
 	}
+
 }

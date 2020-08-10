@@ -50,6 +50,7 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
  * @author Ben Alex
  */
 public class FilterChainProxyConfigTests {
+
 	private ClassPathXmlApplicationContext appCtx;
 
 	// ~ Methods
@@ -59,8 +60,7 @@ public class FilterChainProxyConfigTests {
 	public void loadContext() {
 		System.setProperty("sec1235.pattern1", "/login");
 		System.setProperty("sec1235.pattern2", "/logout");
-		appCtx = new ClassPathXmlApplicationContext(
-				"org/springframework/security/util/filtertest-valid.xml");
+		appCtx = new ClassPathXmlApplicationContext("org/springframework/security/util/filtertest-valid.xml");
 	}
 
 	@After
@@ -72,15 +72,13 @@ public class FilterChainProxyConfigTests {
 
 	@Test
 	public void normalOperation() throws Exception {
-		FilterChainProxy filterChainProxy = appCtx.getBean("filterChain",
-				FilterChainProxy.class);
+		FilterChainProxy filterChainProxy = appCtx.getBean("filterChain", FilterChainProxy.class);
 		doNormalOperation(filterChainProxy);
 	}
 
 	@Test
 	public void normalOperationWithNewConfig() throws Exception {
-		FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxy",
-				FilterChainProxy.class);
+		FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxy", FilterChainProxy.class);
 		filterChainProxy.setFirewall(new DefaultHttpFirewall());
 		checkPathAndFilterOrder(filterChainProxy);
 		doNormalOperation(filterChainProxy);
@@ -88,8 +86,7 @@ public class FilterChainProxyConfigTests {
 
 	@Test
 	public void normalOperationWithNewConfigRegex() throws Exception {
-		FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyRegex",
-				FilterChainProxy.class);
+		FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyRegex", FilterChainProxy.class);
 		filterChainProxy.setFirewall(new DefaultHttpFirewall());
 		checkPathAndFilterOrder(filterChainProxy);
 		doNormalOperation(filterChainProxy);
@@ -97,8 +94,7 @@ public class FilterChainProxyConfigTests {
 
 	@Test
 	public void normalOperationWithNewConfigNonNamespace() throws Exception {
-		FilterChainProxy filterChainProxy = appCtx.getBean(
-				"newFilterChainProxyNonNamespace", FilterChainProxy.class);
+		FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyNonNamespace", FilterChainProxy.class);
 		filterChainProxy.setFirewall(new DefaultHttpFirewall());
 		checkPathAndFilterOrder(filterChainProxy);
 		doNormalOperation(filterChainProxy);
@@ -106,26 +102,24 @@ public class FilterChainProxyConfigTests {
 
 	@Test
 	public void pathWithNoMatchHasNoFilters() {
-		FilterChainProxy filterChainProxy = appCtx.getBean(
-				"newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
+		FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
 		assertThat(filterChainProxy.getFilters("/nomatch")).isNull();
 	}
 
 	// SEC-1235
 	@Test
 	public void mixingPatternsAndPlaceholdersDoesntCauseOrderingIssues() {
-		FilterChainProxy fcp = appCtx.getBean("sec1235FilterChainProxy",
-				FilterChainProxy.class);
+		FilterChainProxy fcp = appCtx.getBean("sec1235FilterChainProxy", FilterChainProxy.class);
 
 		List<SecurityFilterChain> chains = fcp.getFilterChains();
 		assertThat(getPattern(chains.get(0))).isEqualTo("/login*");
 		assertThat(getPattern(chains.get(1))).isEqualTo("/logout");
-		assertThat(((DefaultSecurityFilterChain) chains.get(2)).getRequestMatcher() instanceof AnyRequestMatcher).isTrue();
+		assertThat(((DefaultSecurityFilterChain) chains.get(2)).getRequestMatcher() instanceof AnyRequestMatcher)
+				.isTrue();
 	}
 
 	private String getPattern(SecurityFilterChain chain) {
-		return ((AntPathRequestMatcher) ((DefaultSecurityFilterChain) chain)
-				.getRequestMatcher()).getPattern();
+		return ((AntPathRequestMatcher) ((DefaultSecurityFilterChain) chain).getRequestMatcher()).getPattern();
 	}
 
 	private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) {
@@ -158,13 +152,12 @@ public class FilterChainProxyConfigTests {
 		FilterChain chain = mock(FilterChain.class);
 
 		filterChainProxy.doFilter(request, response, chain);
-		verify(chain).doFilter(any(HttpServletRequest.class),
-				any(HttpServletResponse.class));
+		verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
 		request.setServletPath("/a/path/which/doesnt/match/any/filter.html");
 		chain = mock(FilterChain.class);
 		filterChainProxy.doFilter(request, response, chain);
-		verify(chain).doFilter(any(HttpServletRequest.class),
-				any(HttpServletResponse.class));
+		verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
+
 }

@@ -25,8 +25,8 @@ import org.junit.Before;
  * @since 3.2
  *
  */
-public class CurrentDelegatingSecurityContextScheduledExecutorServiceTests extends
-		AbstractDelegatingSecurityContextScheduledExecutorServiceTests {
+public class CurrentDelegatingSecurityContextScheduledExecutorServiceTests
+		extends AbstractDelegatingSecurityContextScheduledExecutorServiceTests {
 
 	@Before
 	public void setUp() throws Exception {

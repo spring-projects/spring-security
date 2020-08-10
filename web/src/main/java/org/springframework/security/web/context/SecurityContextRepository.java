@@ -32,7 +32,6 @@ import org.springframework.security.core.context.SecurityContext;
  *
  * @author Luke Taylor
  * @since 3.0
- *
  * @see SecurityContextPersistenceFilter
  * @see HttpSessionSecurityContextRepository
  * @see SaveContextOnUpdateOrErrorResponseWrapper
@@ -51,10 +50,8 @@ public interface SecurityContextRepository {
 	 * method when it is finally called. Implementations may wish to return a subclass of
 	 * {@link SaveContextOnUpdateOrErrorResponseWrapper} as the response object, which
 	 * guarantees that the context is persisted when an error or redirect occurs.
-	 *
 	 * @param requestResponseHolder holder for the current request and response for which
 	 * the context should be loaded.
-	 *
 	 * @return The security context which should be used for the current request, never
 	 * null.
 	 */
@@ -62,20 +59,18 @@ public interface SecurityContextRepository {
 
 	/**
 	 * Stores the security context on completion of a request.
-	 *
 	 * @param context the non-null context which was obtained from the holder.
 	 * @param request
 	 * @param response
 	 */
-	void saveContext(SecurityContext context, HttpServletRequest request,
-			HttpServletResponse response);
+	void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response);
 
 	/**
 	 * Allows the repository to be queried as to whether it contains a security context
 	 * for the current request.
-	 *
 	 * @param request the current request
 	 * @return true if a context is found for the request, false otherwise
 	 */
 	boolean containsContext(HttpServletRequest request);
+
 }

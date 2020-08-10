@@ -36,7 +36,7 @@ import org.springframework.security.core.Authentication;
  */
 public interface LogoutSuccessHandler {
 
-	void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException, ServletException;
+	void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+			throws IOException, ServletException;
 
 }

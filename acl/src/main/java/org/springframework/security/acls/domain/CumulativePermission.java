@@ -37,8 +37,7 @@ public class CumulativePermission extends AbstractPermission {
 
 	public CumulativePermission clear(Permission permission) {
 		this.mask &= ~permission.getMask();
-		this.pattern = AclFormattingUtils.demergePatterns(this.pattern,
-				permission.getPattern());
+		this.pattern = AclFormattingUtils.demergePatterns(this.pattern, permission.getPattern());
 
 		return this;
 	}
@@ -52,8 +51,7 @@ public class CumulativePermission extends AbstractPermission {
 
 	public CumulativePermission set(Permission permission) {
 		this.mask |= permission.getMask();
-		this.pattern = AclFormattingUtils.mergePatterns(this.pattern,
-				permission.getPattern());
+		this.pattern = AclFormattingUtils.mergePatterns(this.pattern, permission.getPattern());
 
 		return this;
 	}

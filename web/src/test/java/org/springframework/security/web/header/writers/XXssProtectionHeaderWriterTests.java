@@ -99,4 +99,5 @@ public class XXssProtectionHeaderWriterTests {
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(XSS_PROTECTION_HEADER)).isSameAs(value);
 	}
+
 }

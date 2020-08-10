@@ -36,9 +36,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  *         return token;
  *     }
  * }
- * </code>
- * </pre>
- *
+ * </code> </pre>
  *
  * @author Rob Winch
  * @since 4.0
@@ -48,9 +46,8 @@ public final class CsrfTokenArgumentResolver implements HandlerMethodArgumentRes
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * org.springframework.web.method.support.HandlerMethodArgumentResolver#supportsParameter
-	 * (org.springframework.core.MethodParameter)
+	 * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#
+	 * supportsParameter (org.springframework.core.MethodParameter)
 	 */
 	public boolean supportsParameter(MethodParameter parameter) {
 		return CsrfToken.class.equals(parameter.getParameterType());
@@ -59,18 +56,17 @@ public final class CsrfTokenArgumentResolver implements HandlerMethodArgumentRes
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * org.springframework.web.method.support.HandlerMethodArgumentResolver#resolveArgument
-	 * (org.springframework.core.MethodParameter,
+	 * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#
+	 * resolveArgument (org.springframework.core.MethodParameter,
 	 * org.springframework.web.method.support.ModelAndViewContainer,
 	 * org.springframework.web.context.request.NativeWebRequest,
 	 * org.springframework.web.bind.support.WebDataBinderFactory)
 	 */
-	public Object resolveArgument(MethodParameter parameter,
-			ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-			WebDataBinderFactory binderFactory) {
+	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 		CsrfToken token = (CsrfToken) webRequest.getAttribute(CsrfToken.class.getName(),
 				NativeWebRequest.SCOPE_REQUEST);
 		return token;
 	}
+
 }

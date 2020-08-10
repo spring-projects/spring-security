@@ -81,8 +81,7 @@ import org.springframework.util.StringUtils;
  * @author Rob Winch
  * @since 4.0
  */
-public final class AuthenticationPrincipalArgumentResolver
-		implements HandlerMethodArgumentResolver {
+public final class AuthenticationPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
 
 	private ExpressionParser parser = new SpelExpressionParser();
 
@@ -106,15 +105,13 @@ public final class AuthenticationPrincipalArgumentResolver
 	 * org.springframework.messaging.Message)
 	 */
 	public Object resolveArgument(MethodParameter parameter, Message<?> message) {
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null) {
 			return null;
 		}
 		Object principal = authentication.getPrincipal();
 
-		AuthenticationPrincipal authPrincipal = findMethodAnnotation(
-				AuthenticationPrincipal.class, parameter);
+		AuthenticationPrincipal authPrincipal = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
 
 		String expressionToParse = authPrincipal.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
@@ -126,11 +123,9 @@ public final class AuthenticationPrincipalArgumentResolver
 			principal = expression.getValue(context);
 		}
 
-		if (principal != null
-				&& !parameter.getParameterType().isAssignableFrom(principal.getClass())) {
+		if (principal != null && !parameter.getParameterType().isAssignableFrom(principal.getClass())) {
 			if (authPrincipal.errorOnInvalidType()) {
-				throw new ClassCastException(principal + " is not assignable to "
-						+ parameter.getParameterType());
+				throw new ClassCastException(principal + " is not assignable to " + parameter.getParameterType());
 			}
 			else {
 				return null;
@@ -141,26 +136,24 @@ public final class AuthenticationPrincipalArgumentResolver
 
 	/**
 	 * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
-	 *
 	 * @param annotationClass the class of the {@link Annotation} to find on the
 	 * {@link MethodParameter}
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass,
-			MethodParameter parameter) {
+	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
 		T annotation = parameter.getParameterAnnotation(annotationClass);
 		if (annotation != null) {
 			return annotation;
 		}
 		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
 		for (Annotation toSearch : annotationsToSearch) {
-			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(),
-					annotationClass);
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
 			if (annotation != null) {
 				return annotation;
 			}
 		}
 		return null;
 	}
+
 }

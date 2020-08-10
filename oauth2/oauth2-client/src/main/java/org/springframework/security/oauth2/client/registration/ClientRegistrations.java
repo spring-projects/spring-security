@@ -42,10 +42,11 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * Allows creating a {@link ClientRegistration.Builder} from an
- * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig">OpenID Provider Configuration</a>
- * or <a href="https://tools.ietf.org/html/rfc8414#section-3">Authorization Server Metadata</a> based on
- * provided issuer.
+ * Allows creating a {@link ClientRegistration.Builder} from an <a href=
+ * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig">OpenID
+ * Provider Configuration</a> or
+ * <a href="https://tools.ietf.org/html/rfc8414#section-3">Authorization Server
+ * Metadata</a> based on provided issuer.
  *
  * @author Rob Winch
  * @author Josh Cummings
@@ -53,24 +54,31 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @since 5.1
  */
 public final class ClientRegistrations {
+
 	private static final String OIDC_METADATA_PATH = "/.well-known/openid-configuration";
+
 	private static final String OAUTH_METADATA_PATH = "/.well-known/oauth-authorization-server";
+
 	private static final RestTemplate rest = new RestTemplate();
-	private static final ParameterizedTypeReference<Map<String, Object>> typeReference =
-			new ParameterizedTypeReference<Map<String, Object>>() {};
+
+	private static final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
+	};
 
 	/**
-	 * Creates a {@link ClientRegistration.Builder}  using the provided
-	 * <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> by making an
-	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID Provider
-	 * Configuration Request</a> and using the values in the
-	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
-	 * Provider Configuration Response</a> to initialize the {@link ClientRegistration.Builder}.
+	 * Creates a {@link ClientRegistration.Builder} using the provided <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * by making an <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID
+	 * Provider Configuration Request</a> and using the values in the <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
+	 * Provider Configuration Response</a> to initialize the
+	 * {@link ClientRegistration.Builder}.
 	 *
 	 * <p>
-	 * For example, if the issuer provided is "https://example.com", then an "OpenID Provider Configuration Request" will
-	 * be made to "https://example.com/.well-known/openid-configuration". The result is expected to be an "OpenID
-	 * Provider Configuration Response".
+	 * For example, if the issuer provided is "https://example.com", then an "OpenID
+	 * Provider Configuration Request" will be made to
+	 * "https://example.com/.well-known/openid-configuration". The result is expected to
+	 * be an "OpenID Provider Configuration Response".
 	 * </p>
 	 *
 	 * <p>
@@ -82,8 +90,10 @@ public final class ClientRegistrations {
 	 *     .clientSecret("client-secret")
 	 *     .build();
 	 * </pre>
-	 * @param issuer the <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
-	 * @return a {@link ClientRegistration.Builder} that was initialized by the OpenID Provider Configuration.
+	 * @param issuer the <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @return a {@link ClientRegistration.Builder} that was initialized by the OpenID
+	 * Provider Configuration.
 	 */
 	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
@@ -91,29 +101,25 @@ public final class ClientRegistrations {
 	}
 
 	/**
-	 * Creates a {@link ClientRegistration.Builder}  using the provided
-	 * <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> by querying
-	 * three different discovery endpoints serially, using the values in the first successful response to
-	 * initialize. If an endpoint returns anything other than a 200 or a 4xx, the method will exit without
-	 * attempting subsequent endpoints.
+	 * Creates a {@link ClientRegistration.Builder} using the provided <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * by querying three different discovery endpoints serially, using the values in the
+	 * first successful response to initialize. If an endpoint returns anything other than
+	 * a 200 or a 4xx, the method will exit without attempting subsequent endpoints.
 	 *
-	 * The three endpoints are computed as follows, given that the {@code issuer} is composed of a {@code host}
-	 * and a {@code path}:
+	 * The three endpoints are computed as follows, given that the {@code issuer} is
+	 * composed of a {@code host} and a {@code path}:
 	 *
 	 * <ol>
-	 * 	<li>
-	 * 	   {@code host/.well-known/openid-configuration/path}, as defined in
-	 * 	   <a href="https://tools.ietf.org/html/rfc8414#section-5">RFC 8414's Compatibility Notes</a>.
-	 *  </li>
-	 *  <li>
-	 *      {@code issuer/.well-known/openid-configuration}, as defined in
-	 *  	<a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">
-	 * 	    OpenID Provider Configuration</a>.
-	 *  </li>
-	 *  <li>
-	 *      {@code host/.well-known/oauth-authorization-server/path}, as defined in
-	 *  	<a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server Metadata Request</a>.
-	 *  </li>
+	 * <li>{@code host/.well-known/openid-configuration/path}, as defined in
+	 * <a href="https://tools.ietf.org/html/rfc8414#section-5">RFC 8414's Compatibility
+	 * Notes</a>.</li>
+	 * <li>{@code issuer/.well-known/openid-configuration}, as defined in <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">
+	 * OpenID Provider Configuration</a>.</li>
+	 * <li>{@code host/.well-known/oauth-authorization-server/path}, as defined in
+	 * <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server
+	 * Metadata Request</a>.</li>
 	 * </ol>
 	 *
 	 * Note that the second endpoint is the equivalent of calling
@@ -128,9 +134,9 @@ public final class ClientRegistrations {
 	 *     .clientSecret("client-secret")
 	 *     .build();
 	 * </pre>
-	 *
 	 * @param issuer
-	 * @return a {@link ClientRegistration.Builder} that was initialized by one of the described endpoints
+	 * @return a {@link ClientRegistration.Builder} that was initialized by one of the
+	 * described endpoints
 	 */
 	public static ClientRegistration.Builder fromIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
@@ -139,8 +145,8 @@ public final class ClientRegistrations {
 	}
 
 	private static Supplier<ClientRegistration.Builder> oidc(URI issuer) {
-		URI uri = UriComponentsBuilder.fromUri(issuer)
-				.replacePath(issuer.getPath() + OIDC_METADATA_PATH).build(Collections.emptyMap());
+		URI uri = UriComponentsBuilder.fromUri(issuer).replacePath(issuer.getPath() + OIDC_METADATA_PATH)
+				.build(Collections.emptyMap());
 
 		return () -> {
 			RequestEntity<Void> request = RequestEntity.get(uri).build();
@@ -156,14 +162,14 @@ public final class ClientRegistrations {
 	}
 
 	private static Supplier<ClientRegistration.Builder> oidcRfc8414(URI issuer) {
-		URI uri = UriComponentsBuilder.fromUri(issuer)
-				.replacePath(OIDC_METADATA_PATH + issuer.getPath()).build(Collections.emptyMap());
+		URI uri = UriComponentsBuilder.fromUri(issuer).replacePath(OIDC_METADATA_PATH + issuer.getPath())
+				.build(Collections.emptyMap());
 		return getRfc8414Builder(issuer, uri);
 	}
 
 	private static Supplier<ClientRegistration.Builder> oauth(URI issuer) {
-		URI uri = UriComponentsBuilder.fromUri(issuer)
-				.replacePath(OAUTH_METADATA_PATH + issuer.getPath()).build(Collections.emptyMap());
+		URI uri = UriComponentsBuilder.fromUri(issuer).replacePath(OAUTH_METADATA_PATH + issuer.getPath())
+				.build(Collections.emptyMap());
 		return getRfc8414Builder(issuer, uri);
 	}
 
@@ -188,73 +194,79 @@ public final class ClientRegistrations {
 	}
 
 	@SafeVarargs
-	private static ClientRegistration.Builder getBuilder(String issuer, Supplier<ClientRegistration.Builder>... suppliers) {
+	private static ClientRegistration.Builder getBuilder(String issuer,
+			Supplier<ClientRegistration.Builder>... suppliers) {
 		String errorMessage = "Unable to resolve Configuration with the provided Issuer of \"" + issuer + "\"";
 		for (Supplier<ClientRegistration.Builder> supplier : suppliers) {
 			try {
 				return supplier.get();
-			} catch (HttpClientErrorException e) {
+			}
+			catch (HttpClientErrorException e) {
 				if (!e.getStatusCode().is4xxClientError()) {
 					throw e;
 				}
 				// else try another endpoint
-			} catch (IllegalArgumentException | IllegalStateException e) {
+			}
+			catch (IllegalArgumentException | IllegalStateException e) {
 				throw e;
-			} catch (RuntimeException e) {
+			}
+			catch (RuntimeException e) {
 				throw new IllegalArgumentException(errorMessage, e);
 			}
 		}
 		throw new IllegalArgumentException(errorMessage);
 	}
 
-	private static <T> T parse(Map<String, Object> body,
-			ThrowingFunction<JSONObject, T, ParseException> parser) {
+	private static <T> T parse(Map<String, Object> body, ThrowingFunction<JSONObject, T, ParseException> parser) {
 
 		try {
 			return parser.apply(new JSONObject(body));
-		} catch (ParseException e) {
+		}
+		catch (ParseException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	private interface ThrowingFunction<S, T, E extends Throwable> {
+
 		T apply(S src) throws E;
+
 	}
 
-	private static ClientRegistration.Builder withProviderConfiguration(AuthorizationServerMetadata metadata, String issuer) {
+	private static ClientRegistration.Builder withProviderConfiguration(AuthorizationServerMetadata metadata,
+			String issuer) {
 		String metadataIssuer = metadata.getIssuer().getValue();
 		if (!issuer.equals(metadataIssuer)) {
-			throw new IllegalStateException("The Issuer \"" + metadataIssuer + "\" provided in the configuration metadata did "
-					+ "not match the requested issuer \"" + issuer + "\"");
+			throw new IllegalStateException(
+					"The Issuer \"" + metadataIssuer + "\" provided in the configuration metadata did "
+							+ "not match the requested issuer \"" + issuer + "\"");
 		}
 
 		String name = URI.create(issuer).getHost();
-		ClientAuthenticationMethod method = getClientAuthenticationMethod(issuer, metadata.getTokenEndpointAuthMethods());
+		ClientAuthenticationMethod method = getClientAuthenticationMethod(issuer,
+				metadata.getTokenEndpointAuthMethods());
 		List<GrantType> grantTypes = metadata.getGrantTypes();
 		// If null, the default includes authorization_code
 		if (grantTypes != null && !grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
-			throw new IllegalArgumentException("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \"" + issuer +
-					"\" returned a configuration of " + grantTypes);
+			throw new IllegalArgumentException(
+					"Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \"" + issuer
+							+ "\" returned a configuration of " + grantTypes);
 		}
 		List<String> scopes = getScopes(metadata);
 		Map<String, Object> configurationMetadata = new LinkedHashMap<>(metadata.toJSONObject());
 
-		return ClientRegistration.withRegistrationId(name)
-				.userNameAttributeName(IdTokenClaimNames.SUB)
-				.scope(scopes)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.clientAuthenticationMethod(method)
+		return ClientRegistration.withRegistrationId(name).userNameAttributeName(IdTokenClaimNames.SUB).scope(scopes)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).clientAuthenticationMethod(method)
 				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
 				.authorizationUri(metadata.getAuthorizationEndpointURI().toASCIIString())
 				.providerConfigurationMetadata(configurationMetadata)
-				.tokenUri(metadata.getTokenEndpointURI().toASCIIString())
-				.issuerUri(issuer)
-				.clientName(issuer);
+				.tokenUri(metadata.getTokenEndpointURI().toASCIIString()).issuerUri(issuer).clientName(issuer);
 	}
 
 	private static ClientAuthenticationMethod getClientAuthenticationMethod(String issuer,
 			List<com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod> metadataAuthMethods) {
-		if (metadataAuthMethods == null || metadataAuthMethods.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)) {
+		if (metadataAuthMethods == null || metadataAuthMethods
+				.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)) {
 			// If null, the default includes client_secret_basic
 			return ClientAuthenticationMethod.BASIC;
 		}
@@ -265,7 +277,8 @@ public final class ClientRegistrations {
 			return ClientAuthenticationMethod.NONE;
 		}
 		throw new IllegalArgumentException("Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and "
-				+ "ClientAuthenticationMethod.NONE are supported. The issuer \"" + issuer + "\" returned a configuration of " + metadataAuthMethods);
+				+ "ClientAuthenticationMethod.NONE are supported. The issuer \"" + issuer
+				+ "\" returned a configuration of " + metadataAuthMethods);
 	}
 
 	private static List<String> getScopes(AuthorizationServerMetadata metadata) {
@@ -273,11 +286,13 @@ public final class ClientRegistrations {
 		if (scope == null) {
 			// If null, default to "openid" which must be supported
 			return Collections.singletonList(OidcScopes.OPENID);
-		} else {
+		}
+		else {
 			return scope.toStringList();
 		}
 	}
 
-	private ClientRegistrations() {}
+	private ClientRegistrations() {
+	}
 
 }

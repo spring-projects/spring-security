@@ -28,6 +28,7 @@ import org.springframework.util.StringUtils;
  * @author Ben Alex
  */
 public class SecurityConfig implements ConfigAttribute {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -76,8 +77,7 @@ public class SecurityConfig implements ConfigAttribute {
 
 	public static List<ConfigAttribute> createList(String... attributeNames) {
 		Assert.notNull(attributeNames, "You must supply an array of attribute names");
-		List<ConfigAttribute> attributes = new ArrayList<>(
-				attributeNames.length);
+		List<ConfigAttribute> attributes = new ArrayList<>(attributeNames.length);
 
 		for (String attribute : attributeNames) {
 			attributes.add(new SecurityConfig(attribute.trim()));
@@ -85,4 +85,5 @@ public class SecurityConfig implements ConfigAttribute {
 
 		return attributes;
 	}
+
 }

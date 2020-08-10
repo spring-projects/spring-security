@@ -45,8 +45,11 @@ public class SessionInformation implements Serializable {
 	// ================================================================================================
 
 	private Date lastRequest;
+
 	private final Object principal;
+
 	private final String sessionId;
+
 	private boolean expired = false;
 
 	// ~ Constructors
@@ -90,4 +93,5 @@ public class SessionInformation implements Serializable {
 	public void refreshLastRequest() {
 		this.lastRequest = new Date();
 	}
+
 }

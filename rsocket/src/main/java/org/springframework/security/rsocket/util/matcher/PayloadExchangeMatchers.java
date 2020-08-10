@@ -28,9 +28,8 @@ public abstract class PayloadExchangeMatchers {
 	public static PayloadExchangeMatcher setup() {
 		return new PayloadExchangeMatcher() {
 			public Mono<MatchResult> matches(PayloadExchange exchange) {
-				return PayloadExchangeType.SETUP.equals(exchange.getType()) ?
-						MatchResult.match() :
-						MatchResult.notMatch();
+				return PayloadExchangeType.SETUP.equals(exchange.getType()) ? MatchResult.match()
+						: MatchResult.notMatch();
 			}
 		};
 	}
@@ -38,9 +37,7 @@ public abstract class PayloadExchangeMatchers {
 	public static PayloadExchangeMatcher anyRequest() {
 		return new PayloadExchangeMatcher() {
 			public Mono<MatchResult> matches(PayloadExchange exchange) {
-				return exchange.getType().isRequest() ?
-						MatchResult.match() :
-						MatchResult.notMatch();
+				return exchange.getType().isRequest() ? MatchResult.match() : MatchResult.notMatch();
 			}
 		};
 	}
@@ -53,5 +50,7 @@ public abstract class PayloadExchangeMatchers {
 		};
 	}
 
-	private PayloadExchangeMatchers() {}
+	private PayloadExchangeMatchers() {
+	}
+
 }

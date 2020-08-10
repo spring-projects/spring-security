@@ -29,6 +29,7 @@ import org.springframework.security.core.token.DefaultToken;
  *
  */
 public class DefaultTokenTests {
+
 	@Test
 	public void testEquality() {
 		String key = "key";
@@ -56,4 +57,5 @@ public class DefaultTokenTests {
 		DefaultToken t2 = new DefaultToken(key, created, "longerLength2");
 		assertThat(t1).isNotEqualTo(t2);
 	}
+
 }

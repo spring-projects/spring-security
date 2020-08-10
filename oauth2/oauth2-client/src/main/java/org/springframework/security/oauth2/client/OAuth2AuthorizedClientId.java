@@ -30,13 +30,15 @@ import java.util.Objects;
  * @see OAuth2AuthorizedClientService
  */
 public final class OAuth2AuthorizedClientId implements Serializable {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	private final String clientRegistrationId;
+
 	private final String principalName;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizedClientId} using the provided parameters.
-	 *
 	 * @param clientRegistrationId the identifier for the client's registration
 	 * @param principalName the name of the End-User {@code Principal} (Resource Owner)
 	 */
@@ -64,4 +66,5 @@ public final class OAuth2AuthorizedClientId implements Serializable {
 	public int hashCode() {
 		return Objects.hash(this.clientRegistrationId, this.principalName);
 	}
+
 }

@@ -33,8 +33,8 @@ public class HexTests {
 
 	@Test
 	public void encode() {
-		assertThat(Hex.encode(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C',
-				(byte) 'D' })).isEqualTo(new char[] {'4', '1', '4', '2', '4', '3', '4', '4'});
+		assertThat(Hex.encode(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D' }))
+				.isEqualTo(new char[] { '4', '1', '4', '2', '4', '3', '4', '4' });
 	}
 
 	@Test
@@ -44,8 +44,7 @@ public class HexTests {
 
 	@Test
 	public void decode() {
-		assertThat(Hex.decode("41424344")).isEqualTo(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C',
-			(byte) 'D' });
+		assertThat(Hex.decode("41424344")).isEqualTo(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D' });
 	}
 
 	@Test

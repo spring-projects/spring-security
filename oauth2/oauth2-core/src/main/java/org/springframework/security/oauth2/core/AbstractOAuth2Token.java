@@ -30,14 +30,17 @@ import java.time.Instant;
  * @see OAuth2AccessToken
  */
 public abstract class AbstractOAuth2Token implements Serializable {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	private final String tokenValue;
+
 	private final Instant issuedAt;
+
 	private final Instant expiresAt;
 
 	/**
 	 * Sub-class constructor.
-	 *
 	 * @param tokenValue the token value
 	 */
 	protected AbstractOAuth2Token(String tokenValue) {
@@ -46,10 +49,10 @@ public abstract class AbstractOAuth2Token implements Serializable {
 
 	/**
 	 * Sub-class constructor.
-	 *
 	 * @param tokenValue the token value
 	 * @param issuedAt the time at which the token was issued, may be null
-	 * @param expiresAt the expiration time on or after which the token MUST NOT be accepted, may be null
+	 * @param expiresAt the expiration time on or after which the token MUST NOT be
+	 * accepted, may be null
 	 */
 	protected AbstractOAuth2Token(String tokenValue, @Nullable Instant issuedAt, @Nullable Instant expiresAt) {
 		Assert.hasText(tokenValue, "tokenValue cannot be empty");
@@ -63,7 +66,6 @@ public abstract class AbstractOAuth2Token implements Serializable {
 
 	/**
 	 * Returns the token value.
-	 *
 	 * @return the token value
 	 */
 	public String getTokenValue() {
@@ -72,7 +74,6 @@ public abstract class AbstractOAuth2Token implements Serializable {
 
 	/**
 	 * Returns the time at which the token was issued.
-	 *
 	 * @return the time the token was issued or null
 	 */
 	public @Nullable Instant getIssuedAt() {
@@ -81,7 +82,6 @@ public abstract class AbstractOAuth2Token implements Serializable {
 
 	/**
 	 * Returns the expiration time on or after which the token MUST NOT be accepted.
-	 *
 	 * @return the expiration time of the token or null
 	 */
 	public @Nullable Instant getExpiresAt() {
@@ -105,7 +105,8 @@ public abstract class AbstractOAuth2Token implements Serializable {
 		if (this.getIssuedAt() != null ? !this.getIssuedAt().equals(that.getIssuedAt()) : that.getIssuedAt() != null) {
 			return false;
 		}
-		return this.getExpiresAt() != null ? this.getExpiresAt().equals(that.getExpiresAt()) : that.getExpiresAt() == null;
+		return this.getExpiresAt() != null ? this.getExpiresAt().equals(that.getExpiresAt())
+				: that.getExpiresAt() == null;
 	}
 
 	@Override
@@ -115,4 +116,5 @@ public abstract class AbstractOAuth2Token implements Serializable {
 		result = 31 * result + (this.getExpiresAt() != null ? this.getExpiresAt().hashCode() : 0);
 		return result;
 	}
+
 }

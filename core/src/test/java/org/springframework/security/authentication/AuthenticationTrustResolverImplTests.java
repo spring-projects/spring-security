@@ -34,35 +34,36 @@ public class AuthenticationTrustResolverImplTests {
 	@Test
 	public void testCorrectOperationIsAnonymous() {
 		AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
-		assertThat(trustResolver.isAnonymous(new AnonymousAuthenticationToken("ignored",
-				"ignored", AuthorityUtils.createAuthorityList("ignored")))).isTrue();
-		assertThat(trustResolver.isAnonymous(new TestingAuthenticationToken("ignored",
-				"ignored", AuthorityUtils.createAuthorityList("ignored")))).isFalse();
+		assertThat(trustResolver.isAnonymous(
+				new AnonymousAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))))
+						.isTrue();
+		assertThat(trustResolver.isAnonymous(
+				new TestingAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))))
+						.isFalse();
 	}
 
 	@Test
 	public void testCorrectOperationIsRememberMe() {
 		AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
-		assertThat(trustResolver.isRememberMe(new RememberMeAuthenticationToken("ignored",
-				"ignored", AuthorityUtils.createAuthorityList("ignored")))).isTrue();
-		assertThat(trustResolver.isAnonymous(new TestingAuthenticationToken("ignored",
-				"ignored", AuthorityUtils.createAuthorityList("ignored")))).isFalse();
+		assertThat(trustResolver.isRememberMe(
+				new RememberMeAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))))
+						.isTrue();
+		assertThat(trustResolver.isAnonymous(
+				new TestingAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))))
+						.isFalse();
 	}
 
 	@Test
 	public void testGettersSetters() {
 		AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
 
-		assertThat(AnonymousAuthenticationToken.class).isEqualTo(
-				trustResolver.getAnonymousClass());
+		assertThat(AnonymousAuthenticationToken.class).isEqualTo(trustResolver.getAnonymousClass());
 		trustResolver.setAnonymousClass(TestingAuthenticationToken.class);
-		assertThat(trustResolver.getAnonymousClass()).isEqualTo(
-				TestingAuthenticationToken.class);
+		assertThat(trustResolver.getAnonymousClass()).isEqualTo(TestingAuthenticationToken.class);
 
-		assertThat(RememberMeAuthenticationToken.class).isEqualTo(
-				trustResolver.getRememberMeClass());
+		assertThat(RememberMeAuthenticationToken.class).isEqualTo(trustResolver.getRememberMeClass());
 		trustResolver.setRememberMeClass(TestingAuthenticationToken.class);
-		assertThat(trustResolver.getRememberMeClass()).isEqualTo(
-				TestingAuthenticationToken.class);
+		assertThat(trustResolver.getRememberMeClass()).isEqualTo(TestingAuthenticationToken.class);
 	}
+
 }

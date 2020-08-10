@@ -50,4 +50,5 @@ public class AuthorizationGrantTypeTests {
 	public void getValueWhenPasswordGrantTypeThenReturnPassword() {
 		assertThat(AuthorizationGrantType.PASSWORD.getValue()).isEqualTo("password");
 	}
+
 }

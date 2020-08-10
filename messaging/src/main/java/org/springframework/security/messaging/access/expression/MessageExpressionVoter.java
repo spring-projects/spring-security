@@ -38,10 +38,10 @@ import java.util.Collection;
  * @author Daniel Bustamante Ospina
  */
 public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>> {
+
 	private SecurityExpressionHandler<Message<T>> expressionHandler = new DefaultMessageSecurityExpressionHandler<>();
 
-	public int vote(Authentication authentication, Message<T> message,
-			Collection<ConfigAttribute> attributes) {
+	public int vote(Authentication authentication, Message<T> message, Collection<ConfigAttribute> attributes) {
 		assert authentication != null;
 		assert message != null;
 		assert attributes != null;
@@ -52,16 +52,13 @@ public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>
 			return ACCESS_ABSTAIN;
 		}
 
-		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication,
-				message);
+		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, message);
 		ctx = attr.postProcess(ctx, message);
 
-		return ExpressionUtils.evaluateAsBoolean(attr.getAuthorizeExpression(), ctx) ? ACCESS_GRANTED
-				: ACCESS_DENIED;
+		return ExpressionUtils.evaluateAsBoolean(attr.getAuthorizeExpression(), ctx) ? ACCESS_GRANTED : ACCESS_DENIED;
 	}
 
-	private MessageExpressionConfigAttribute findConfigAttribute(
-			Collection<ConfigAttribute> attributes) {
+	private MessageExpressionConfigAttribute findConfigAttribute(Collection<ConfigAttribute> attributes) {
 		for (ConfigAttribute attribute : attributes) {
 			if (attribute instanceof MessageExpressionConfigAttribute) {
 				return (MessageExpressionConfigAttribute) attribute;
@@ -78,9 +75,9 @@ public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>
 		return Message.class.isAssignableFrom(clazz);
 	}
 
-	public void setExpressionHandler(
-			SecurityExpressionHandler<Message<T>> expressionHandler) {
+	public void setExpressionHandler(SecurityExpressionHandler<Message<T>> expressionHandler) {
 		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
 		this.expressionHandler = expressionHandler;
 	}
+
 }

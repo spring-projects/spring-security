@@ -30,7 +30,7 @@ import java.util.Date;
 import static org.mockito.Mockito.*;
 
 /**
- * Test An implementation of {@link TaskScheduler}  invoking it whenever the trigger
+ * Test An implementation of {@link TaskScheduler} invoking it whenever the trigger
  * indicates a next execution time.
  *
  * @author Richard Valdivieso
@@ -40,8 +40,10 @@ public class DelegatingSecurityContextTaskSchedulerTests {
 
 	@Mock
 	private TaskScheduler scheduler;
+
 	@Mock
 	private Runnable runnable;
+
 	@Mock
 	private Trigger trigger;
 
@@ -89,4 +91,5 @@ public class DelegatingSecurityContextTaskSchedulerTests {
 		delegatingSecurityContextTaskScheduler.scheduleAtFixedRate(runnable, 1000L);
 		verify(scheduler).scheduleAtFixedRate(isA(Runnable.class), eq(1000L));
 	}
+
 }

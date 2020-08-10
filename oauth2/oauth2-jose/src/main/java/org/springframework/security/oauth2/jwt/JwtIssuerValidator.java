@@ -33,7 +33,6 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 
 	/**
 	 * Constructs a {@link JwtIssuerValidator} using the provided parameters
-	 *
 	 * @param issuer - The issuer that each {@link Jwt} should have.
 	 */
 	public JwtIssuerValidator(String issuer) {
@@ -49,4 +48,5 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 		Assert.notNull(token, "token cannot be null");
 		return this.validator.validate(token);
 	}
+
 }

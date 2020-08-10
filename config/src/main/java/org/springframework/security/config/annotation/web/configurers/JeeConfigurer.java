@@ -42,15 +42,13 @@ import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthe
  * The following Filters are populated
  *
  * <ul>
- * <li>
- * {@link J2eePreAuthenticatedProcessingFilter}</li>
+ * <li>{@link J2eePreAuthenticatedProcessingFilter}</li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
  *
  * <ul>
- * <li>
- * {@link AuthenticationEntryPoint} is populated with an
+ * <li>{@link AuthenticationEntryPoint} is populated with an
  * {@link Http403ForbiddenEntryPoint}</li>
  * <li>A {@link PreAuthenticatedAuthenticationProvider} is populated into
  * {@link HttpSecurity#authenticationProvider(org.springframework.security.authentication.AuthenticationProvider)}
@@ -68,10 +66,12 @@ import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthe
  * @author Rob Winch
  * @since 3.2
  */
-public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractHttpConfigurer<JeeConfigurer<H>, H> {
+public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<JeeConfigurer<H>, H> {
+
 	private J2eePreAuthenticatedProcessingFilter j2eePreAuthenticatedProcessingFilter;
+
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService;
+
 	private Set<String> mappableRoles = new HashSet<>();
 
 	/**
@@ -91,7 +91,6 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * <p>
 	 * There are no default roles that are mapped.
 	 * </p>
-	 *
 	 * @param mappableRoles the roles to attempt to map to the {@link UserDetails} (i.e.
 	 * "ROLE_USER", "ROLE_ADMIN", etc).
 	 * @return the {@link JeeConfigurer} for further customizations
@@ -117,7 +116,6 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * <p>
 	 * There are no default roles that are mapped.
 	 * </p>
-	 *
 	 * @param mappableRoles the roles to attempt to map to the {@link UserDetails} (i.e.
 	 * "USER", "ADMIN", etc).
 	 * @return the {@link JeeConfigurer} for further customizations
@@ -142,7 +140,6 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * <p>
 	 * There are no default roles that are mapped.
 	 * </p>
-	 *
 	 * @param mappableRoles the roles to attempt to map to the {@link UserDetails}.
 	 * @return the {@link JeeConfigurer} for further customizations
 	 * @see SimpleMappableAttributesRetriever
@@ -156,7 +153,6 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * Specifies the {@link AuthenticationUserDetailsService} that is used with the
 	 * {@link PreAuthenticatedAuthenticationProvider}. The default is a
 	 * {@link PreAuthenticatedGrantedAuthoritiesUserDetailsService}.
-	 *
 	 * @param authenticatedUserDetailsService the {@link AuthenticationUserDetailsService}
 	 * to use.
 	 * @return the {@link JeeConfigurer} for further configuration
@@ -172,7 +168,6 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * {@link J2eePreAuthenticatedProcessingFilter} is provided, all of its attributes
 	 * must also be configured manually (i.e. all attributes populated in the
 	 * {@link JeeConfigurer} are not used).
-	 *
 	 * @param j2eePreAuthenticatedProcessingFilter the
 	 * {@link J2eePreAuthenticatedProcessingFilter} to use.
 	 * @return the {@link JeeConfigurer} for further configuration
@@ -194,8 +189,7 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 	@Override
 	public void init(H http) {
 		PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
-		authenticationProvider
-				.setPreAuthenticatedUserDetailsService(getUserDetailsService());
+		authenticationProvider.setPreAuthenticatedUserDetailsService(getUserDetailsService());
 		authenticationProvider = postProcess(authenticationProvider);
 
 		// @formatter:off
@@ -207,8 +201,7 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 
 	@Override
 	public void configure(H http) {
-		J2eePreAuthenticatedProcessingFilter filter = getFilter(http
-				.getSharedObject(AuthenticationManager.class));
+		J2eePreAuthenticatedProcessingFilter filter = getFilter(http.getSharedObject(AuthenticationManager.class));
 		http.addFilter(filter);
 	}
 
@@ -218,14 +211,11 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * @param authenticationManager the {@link AuthenticationManager} to use.
 	 * @return the {@link J2eePreAuthenticatedProcessingFilter} to use.
 	 */
-	private J2eePreAuthenticatedProcessingFilter getFilter(
-			AuthenticationManager authenticationManager) {
+	private J2eePreAuthenticatedProcessingFilter getFilter(AuthenticationManager authenticationManager) {
 		if (j2eePreAuthenticatedProcessingFilter == null) {
 			j2eePreAuthenticatedProcessingFilter = new J2eePreAuthenticatedProcessingFilter();
-			j2eePreAuthenticatedProcessingFilter
-					.setAuthenticationManager(authenticationManager);
-			j2eePreAuthenticatedProcessingFilter
-					.setAuthenticationDetailsSource(createWebAuthenticationDetailsSource());
+			j2eePreAuthenticatedProcessingFilter.setAuthenticationManager(authenticationManager);
+			j2eePreAuthenticatedProcessingFilter.setAuthenticationDetailsSource(createWebAuthenticationDetailsSource());
 			j2eePreAuthenticatedProcessingFilter = postProcess(j2eePreAuthenticatedProcessingFilter);
 		}
 
@@ -235,7 +225,6 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 	/**
 	 * Gets the {@link AuthenticationUserDetailsService} that was specified or defaults to
 	 * {@link PreAuthenticatedGrantedAuthoritiesUserDetailsService}.
-	 *
 	 * @return the {@link AuthenticationUserDetailsService} to use
 	 */
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> getUserDetailsService() {
@@ -247,7 +236,6 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * Creates the {@link J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource} to set
 	 * on the {@link J2eePreAuthenticatedProcessingFilter}. It is populated with a
 	 * {@link SimpleMappableAttributesRetriever}.
-	 *
 	 * @return the {@link J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource} to use.
 	 */
 	private J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource createWebAuthenticationDetailsSource() {
@@ -259,4 +247,5 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 		detailsSource = postProcess(detailsSource);
 		return detailsSource;
 	}
+
 }

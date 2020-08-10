@@ -51,8 +51,7 @@ public class CookieClearingLogoutHandlerTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setContextPath("/app");
-		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler(
-				"my_cookie", "my_cookie_too");
+		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie", "my_cookie_too");
 		handler.logout(request, response, mock(Authentication.class));
 		assertThat(response.getCookies()).hasSize(2);
 		for (Cookie c : response.getCookies()) {
@@ -106,7 +105,7 @@ public class CookieClearingLogoutHandlerTests {
 		}
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void invalidAge() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -117,4 +116,5 @@ public class CookieClearingLogoutHandlerTests {
 		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler(cookie1);
 		handler.logout(request, response, mock(Authentication.class));
 	}
+
 }

@@ -36,17 +36,15 @@ import org.apache.commons.logging.LogFactory;
  * @since 2.0
  */
 public class SpringSecurityAuthenticationSource implements AuthenticationSource {
-	private static final Log log = LogFactory
-			.getLog(SpringSecurityAuthenticationSource.class);
+
+	private static final Log log = LogFactory.getLog(SpringSecurityAuthenticationSource.class);
 
 	/**
 	 * Get the principals of the logged in user, in this case the distinguished name.
-	 *
 	 * @return the distinguished name of the logged in user.
 	 */
 	public String getPrincipal() {
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		if (authentication == null) {
 			log.warn("No Authentication object set in SecurityContext - returning empty String as Principal");
@@ -67,8 +65,7 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 		}
 		else {
 			throw new IllegalArgumentException(
-					"The principal property of the authentication object"
-							+ "needs to be an LdapUserDetails.");
+					"The principal property of the authentication object" + "needs to be an LdapUserDetails.");
 		}
 	}
 
@@ -76,8 +73,7 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 	 * @see org.springframework.ldap.core.AuthenticationSource#getCredentials()
 	 */
 	public String getCredentials() {
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		if (authentication == null) {
 			log.warn("No Authentication object set in SecurityContext - returning empty String as Credentials");
@@ -86,4 +82,5 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 
 		return (String) authentication.getCredentials();
 	}
+
 }

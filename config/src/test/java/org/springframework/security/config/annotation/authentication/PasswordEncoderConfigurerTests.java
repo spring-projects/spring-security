@@ -49,6 +49,7 @@ public class PasswordEncoderConfigurerTests {
 
 	@EnableWebSecurity
 	static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = passwordEncoder();
 			// @formatter:off
@@ -67,19 +68,19 @@ public class PasswordEncoderConfigurerTests {
 		public BCryptPasswordEncoder passwordEncoder() {
 			return new BCryptPasswordEncoder();
 		}
+
 	}
 
 	@Test
 	public void passwordEncoderRefWhenAuthenticationManagerBuilderThenAuthenticationSuccess() throws Exception {
 		this.spring.register(PasswordEncoderNoAuthManagerLoadsConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated());
+		this.mockMvc.perform(formLogin()).andExpect(authenticated());
 	}
 
 	@EnableWebSecurity
-	static class PasswordEncoderNoAuthManagerLoadsConfig extends
-		WebSecurityConfigurerAdapter {
+	static class PasswordEncoderNoAuthManagerLoadsConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = passwordEncoder();
 			// @formatter:off
@@ -94,5 +95,7 @@ public class PasswordEncoderConfigurerTests {
 		public BCryptPasswordEncoder passwordEncoder() {
 			return new BCryptPasswordEncoder();
 		}
+
 	}
+
 }

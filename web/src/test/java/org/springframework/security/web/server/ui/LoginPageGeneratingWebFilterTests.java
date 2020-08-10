@@ -23,7 +23,6 @@ import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class LoginPageGeneratingWebFilterTests {
 
 	@Test
@@ -31,7 +30,8 @@ public class LoginPageGeneratingWebFilterTests {
 		LoginPageGeneratingWebFilter filter = new LoginPageGeneratingWebFilter();
 		filter.setFormLoginEnabled(true);
 
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/test/login").contextPath("/test"));
+		MockServerWebExchange exchange = MockServerWebExchange
+				.from(MockServerHttpRequest.get("/test/login").contextPath("/test"));
 
 		filter.filter(exchange, e -> Mono.empty()).block();
 
@@ -49,4 +49,5 @@ public class LoginPageGeneratingWebFilterTests {
 
 		assertThat(exchange.getResponse().getBodyAsString().block()).contains("action=\"/login\"");
 	}
+
 }

@@ -31,10 +31,12 @@ import java.util.List;
 
 /**
  * Combines the {@link PayloadInterceptor} with an {@link RSocketProxy}
+ *
  * @author Rob Winch
  * @since 5.2
  */
 class PayloadInterceptorRSocket extends RSocketProxy {
+
 	private final List<PayloadInterceptor> interceptors;
 
 	private final MimeType metadataMimeType;
@@ -43,14 +45,12 @@ class PayloadInterceptorRSocket extends RSocketProxy {
 
 	private final Context context;
 
-	PayloadInterceptorRSocket(RSocket delegate,
-			List<PayloadInterceptor> interceptors, MimeType metadataMimeType,
+	PayloadInterceptorRSocket(RSocket delegate, List<PayloadInterceptor> interceptors, MimeType metadataMimeType,
 			MimeType dataMimeType) {
 		this(delegate, interceptors, metadataMimeType, dataMimeType, Context.empty());
 	}
 
-	PayloadInterceptorRSocket(RSocket delegate,
-			List<PayloadInterceptor> interceptors, MimeType metadataMimeType,
+	PayloadInterceptorRSocket(RSocket delegate, List<PayloadInterceptor> interceptors, MimeType metadataMimeType,
 			MimeType dataMimeType, Context context) {
 		super(delegate);
 		this.metadataMimeType = metadataMimeType;
@@ -71,71 +71,52 @@ class PayloadInterceptorRSocket extends RSocketProxy {
 	@Override
 	public Mono<Void> fireAndForget(Payload payload) {
 		return intercept(PayloadExchangeType.FIRE_AND_FORGET, payload)
-			.flatMap(context ->
-				this.source.fireAndForget(payload)
-					.subscriberContext(context)
-			);
+				.flatMap(context -> this.source.fireAndForget(payload).subscriberContext(context));
 	}
 
 	@Override
 	public Mono<Payload> requestResponse(Payload payload) {
 		return intercept(PayloadExchangeType.REQUEST_RESPONSE, payload)
-			.flatMap(context ->
-				this.source.requestResponse(payload)
-					.subscriberContext(context)
-			);
+				.flatMap(context -> this.source.requestResponse(payload).subscriberContext(context));
 	}
 
 	@Override
 	public Flux<Payload> requestStream(Payload payload) {
 		return intercept(PayloadExchangeType.REQUEST_STREAM, payload)
-			.flatMapMany(context ->
-				this.source.requestStream(payload)
-					.subscriberContext(context)
-			);
+				.flatMapMany(context -> this.source.requestStream(payload).subscriberContext(context));
 	}
 
 	@Override
 	public Flux<Payload> requestChannel(Publisher<Payload> payloads) {
-		return Flux.from(payloads)
-			.switchOnFirst((signal, innerFlux) -> {
-				Payload firstPayload = signal.get();
-				return intercept(PayloadExchangeType.REQUEST_CHANNEL, firstPayload)
-					.flatMapMany(context ->
-						innerFlux
-							.skip(1)
-							.flatMap(p -> intercept(PayloadExchangeType.PAYLOAD, p).thenReturn(p))
+		return Flux.from(payloads).switchOnFirst((signal, innerFlux) -> {
+			Payload firstPayload = signal.get();
+			return intercept(PayloadExchangeType.REQUEST_CHANNEL, firstPayload).flatMapMany(
+					context -> innerFlux.skip(1).flatMap(p -> intercept(PayloadExchangeType.PAYLOAD, p).thenReturn(p))
 							.transform(securedPayloads -> Flux.concat(Flux.just(firstPayload), securedPayloads))
 							.transform(securedPayloads -> this.source.requestChannel(securedPayloads))
-							.subscriberContext(context)
-					);
-			});
+							.subscriberContext(context));
+		});
 	}
 
 	@Override
 	public Mono<Void> metadataPush(Payload payload) {
 		return intercept(PayloadExchangeType.METADATA_PUSH, payload)
-			.flatMap(c -> this.source
-					.metadataPush(payload)
-					.subscriberContext(c)
-			);
+				.flatMap(c -> this.source.metadataPush(payload).subscriberContext(c));
 	}
 
 	private Mono<Context> intercept(PayloadExchangeType type, Payload payload) {
 		return Mono.defer(() -> {
 			ContextPayloadInterceptorChain chain = new ContextPayloadInterceptorChain(this.interceptors);
-			DefaultPayloadExchange exchange = new DefaultPayloadExchange(type, payload,
-					this.metadataMimeType, this.dataMimeType);
-			return chain.next(exchange)
-				.then(Mono.fromCallable(() -> chain.getContext()))
-				.defaultIfEmpty(Context.empty())
-				.subscriberContext(this.context);
+			DefaultPayloadExchange exchange = new DefaultPayloadExchange(type, payload, this.metadataMimeType,
+					this.dataMimeType);
+			return chain.next(exchange).then(Mono.fromCallable(() -> chain.getContext()))
+					.defaultIfEmpty(Context.empty()).subscriberContext(this.context);
 		});
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[source=" + this.source + ",interceptors="
-				+ this.interceptors + "]";
+		return getClass().getSimpleName() + "[source=" + this.source + ",interceptors=" + this.interceptors + "]";
 	}
+
 }

@@ -30,13 +30,16 @@ import org.springframework.security.web.util.UrlUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author Rob Winch
  */
 public class DefaultServiceAuthenticationDetailsTests {
+
 	private DefaultServiceAuthenticationDetails details;
+
 	private MockHttpServletRequest request;
+
 	private Pattern artifactPattern;
+
 	private String casServiceUrl;
 
 	private ConfigurableApplicationContext context;
@@ -63,17 +66,14 @@ public class DefaultServiceAuthenticationDetailsTests {
 
 	@Test
 	public void getServiceUrlNullQuery() throws Exception {
-		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl,
-				this.request, this.artifactPattern);
-		assertThat(this.details.getServiceUrl())
-				.isEqualTo(UrlUtils.buildFullRequestUrl(this.request));
+		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl, this.request, this.artifactPattern);
+		assertThat(this.details.getServiceUrl()).isEqualTo(UrlUtils.buildFullRequestUrl(this.request));
 	}
 
 	@Test
 	public void getServiceUrlTicketOnlyParam() throws Exception {
 		this.request.setQueryString("ticket=123");
-		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl,
-				this.request, this.artifactPattern);
+		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl, this.request, this.artifactPattern);
 		String serviceUrl = this.details.getServiceUrl();
 		this.request.setQueryString(null);
 		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(this.request));
@@ -82,8 +82,7 @@ public class DefaultServiceAuthenticationDetailsTests {
 	@Test
 	public void getServiceUrlTicketFirstMultiParam() throws Exception {
 		this.request.setQueryString("ticket=123&other=value");
-		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl,
-				this.request, this.artifactPattern);
+		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl, this.request, this.artifactPattern);
 		String serviceUrl = this.details.getServiceUrl();
 		this.request.setQueryString("other=value");
 		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(this.request));
@@ -92,8 +91,7 @@ public class DefaultServiceAuthenticationDetailsTests {
 	@Test
 	public void getServiceUrlTicketLastMultiParam() throws Exception {
 		this.request.setQueryString("other=value&ticket=123");
-		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl,
-				this.request, this.artifactPattern);
+		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl, this.request, this.artifactPattern);
 		String serviceUrl = this.details.getServiceUrl();
 		this.request.setQueryString("other=value");
 		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(this.request));
@@ -102,8 +100,7 @@ public class DefaultServiceAuthenticationDetailsTests {
 	@Test
 	public void getServiceUrlTicketMiddleMultiParam() throws Exception {
 		this.request.setQueryString("other=value&ticket=123&last=this");
-		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl,
-				this.request, this.artifactPattern);
+		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl, this.request, this.artifactPattern);
 		String serviceUrl = this.details.getServiceUrl();
 		this.request.setQueryString("other=value&last=this");
 		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(this.request));
@@ -113,10 +110,8 @@ public class DefaultServiceAuthenticationDetailsTests {
 	public void getServiceUrlDoesNotUseHostHeader() throws Exception {
 		this.casServiceUrl = "https://example.com/j_spring_security_cas";
 		this.request.setServerName("evil.com");
-		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl,
-				this.request, this.artifactPattern);
-		assertThat(this.details.getServiceUrl())
-				.isEqualTo("https://example.com/cas-sample/secure/");
+		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl, this.request, this.artifactPattern);
+		assertThat(this.details.getServiceUrl()).isEqualTo("https://example.com/cas-sample/secure/");
 	}
 
 	@Test
@@ -125,15 +120,13 @@ public class DefaultServiceAuthenticationDetailsTests {
 		this.request.setServerName("evil.com");
 		ServiceAuthenticationDetails details = loadServiceAuthenticationDetails(
 				"defaultserviceauthenticationdetails-explicit.xml");
-		assertThat(details.getServiceUrl())
-				.isEqualTo("https://example.com/cas-sample/secure/");
+		assertThat(details.getServiceUrl()).isEqualTo("https://example.com/cas-sample/secure/");
 	}
 
-	private ServiceAuthenticationDetails loadServiceAuthenticationDetails(
-			String resourceName) {
+	private ServiceAuthenticationDetails loadServiceAuthenticationDetails(String resourceName) {
 		this.context = new GenericXmlApplicationContext(getClass(), resourceName);
-		ServiceAuthenticationDetailsSource source = this.context
-				.getBean(ServiceAuthenticationDetailsSource.class);
+		ServiceAuthenticationDetailsSource source = this.context.getBean(ServiceAuthenticationDetailsSource.class);
 		return source.buildDetails(this.request);
 	}
+
 }

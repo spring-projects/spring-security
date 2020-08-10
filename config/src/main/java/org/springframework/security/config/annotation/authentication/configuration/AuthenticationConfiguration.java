@@ -68,18 +68,19 @@ public class AuthenticationConfiguration {
 
 	private boolean authenticationManagerInitialized;
 
-	private List<GlobalAuthenticationConfigurerAdapter> globalAuthConfigurers = Collections
-			.emptyList();
+	private List<GlobalAuthenticationConfigurerAdapter> globalAuthConfigurers = Collections.emptyList();
 
 	private ObjectPostProcessor<Object> objectPostProcessor;
 
 	@Bean
-	public AuthenticationManagerBuilder authenticationManagerBuilder(
-			ObjectPostProcessor<Object> objectPostProcessor, ApplicationContext context) {
+	public AuthenticationManagerBuilder authenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor,
+			ApplicationContext context) {
 		LazyPasswordEncoder defaultPasswordEncoder = new LazyPasswordEncoder(context);
-		AuthenticationEventPublisher authenticationEventPublisher = getBeanOrNull(context, AuthenticationEventPublisher.class);
+		AuthenticationEventPublisher authenticationEventPublisher = getBeanOrNull(context,
+				AuthenticationEventPublisher.class);
 
-		DefaultPasswordEncoderAuthenticationManagerBuilder result = new DefaultPasswordEncoderAuthenticationManagerBuilder(objectPostProcessor, defaultPasswordEncoder);
+		DefaultPasswordEncoderAuthenticationManagerBuilder result = new DefaultPasswordEncoderAuthenticationManagerBuilder(
+				objectPostProcessor, defaultPasswordEncoder);
 		if (authenticationEventPublisher != null) {
 			result.authenticationEventPublisher(authenticationEventPublisher);
 		}
@@ -93,12 +94,14 @@ public class AuthenticationConfiguration {
 	}
 
 	@Bean
-	public static InitializeUserDetailsBeanManagerConfigurer initializeUserDetailsBeanManagerConfigurer(ApplicationContext context) {
+	public static InitializeUserDetailsBeanManagerConfigurer initializeUserDetailsBeanManagerConfigurer(
+			ApplicationContext context) {
 		return new InitializeUserDetailsBeanManagerConfigurer(context);
 	}
 
 	@Bean
-	public static InitializeAuthenticationProviderBeanManagerConfigurer initializeAuthenticationProviderBeanManagerConfigurer(ApplicationContext context) {
+	public static InitializeAuthenticationProviderBeanManagerConfigurer initializeAuthenticationProviderBeanManagerConfigurer(
+			ApplicationContext context) {
 		return new InitializeAuthenticationProviderBeanManagerConfigurer(context);
 	}
 
@@ -126,8 +129,7 @@ public class AuthenticationConfiguration {
 	}
 
 	@Autowired(required = false)
-	public void setGlobalAuthenticationConfigurers(
-			List<GlobalAuthenticationConfigurerAdapter> configurers) {
+	public void setGlobalAuthenticationConfigurers(List<GlobalAuthenticationConfigurerAdapter> configurers) {
 		configurers.sort(AnnotationAwareOrderComparator.INSTANCE);
 		this.globalAuthConfigurers = configurers;
 	}
@@ -145,8 +147,8 @@ public class AuthenticationConfiguration {
 	@SuppressWarnings("unchecked")
 	private <T> T lazyBean(Class<T> interfaceName) {
 		LazyInitTargetSource lazyTargetSource = new LazyInitTargetSource();
-		String[] beanNamesForType = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
-				applicationContext, interfaceName);
+		String[] beanNamesForType = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext,
+				interfaceName);
 		if (beanNamesForType.length == 0) {
 			return null;
 		}
@@ -154,12 +156,13 @@ public class AuthenticationConfiguration {
 		if (beanNamesForType.length > 1) {
 			List<String> primaryBeanNames = getPrimaryBeanNames(beanNamesForType);
 
-			Assert.isTrue(primaryBeanNames.size() != 0, () -> "Found " + beanNamesForType.length
-					+ " beans for type " + interfaceName + ", but none marked as primary");
-			Assert.isTrue(primaryBeanNames.size() == 1, () -> "Found " + primaryBeanNames.size()
-					+ " beans for type " + interfaceName + " marked as primary");
+			Assert.isTrue(primaryBeanNames.size() != 0, () -> "Found " + beanNamesForType.length + " beans for type "
+					+ interfaceName + ", but none marked as primary");
+			Assert.isTrue(primaryBeanNames.size() == 1, () -> "Found " + primaryBeanNames.size() + " beans for type "
+					+ interfaceName + " marked as primary");
 			beanName = primaryBeanNames.get(0);
-		} else {
+		}
+		else {
 			beanName = beanNamesForType[0];
 		}
 
@@ -177,8 +180,8 @@ public class AuthenticationConfiguration {
 			return Collections.emptyList();
 		}
 		for (String beanName : beanNamesForType) {
-			if (((ConfigurableApplicationContext) applicationContext).getBeanFactory()
-					.getBeanDefinition(beanName).isPrimary()) {
+			if (((ConfigurableApplicationContext) applicationContext).getBeanFactory().getBeanDefinition(beanName)
+					.isPrimary()) {
 				list.add(beanName);
 			}
 		}
@@ -192,16 +195,17 @@ public class AuthenticationConfiguration {
 	private static <T> T getBeanOrNull(ApplicationContext applicationContext, Class<T> type) {
 		try {
 			return applicationContext.getBean(type);
-		} catch(NoSuchBeanDefinitionException notFound) {
+		}
+		catch (NoSuchBeanDefinitionException notFound) {
 			return null;
 		}
 	}
 
-	private static class EnableGlobalAuthenticationAutowiredConfigurer extends
-			GlobalAuthenticationConfigurerAdapter {
+	private static class EnableGlobalAuthenticationAutowiredConfigurer extends GlobalAuthenticationConfigurerAdapter {
+
 		private final ApplicationContext context;
-		private static final Log logger = LogFactory
-				.getLog(EnableGlobalAuthenticationAutowiredConfigurer.class);
+
+		private static final Log logger = LogFactory.getLog(EnableGlobalAuthenticationAutowiredConfigurer.class);
 
 		EnableGlobalAuthenticationAutowiredConfigurer(ApplicationContext context) {
 			this.context = context;
@@ -209,12 +213,12 @@ public class AuthenticationConfiguration {
 
 		@Override
 		public void init(AuthenticationManagerBuilder auth) {
-			Map<String, Object> beansWithAnnotation = context
-					.getBeansWithAnnotation(EnableGlobalAuthentication.class);
+			Map<String, Object> beansWithAnnotation = context.getBeansWithAnnotation(EnableGlobalAuthentication.class);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Eagerly initializing " + beansWithAnnotation);
 			}
 		}
+
 	}
 
 	/**
@@ -225,8 +229,11 @@ public class AuthenticationConfiguration {
 	 * @since 4.1.1
 	 */
 	static final class AuthenticationManagerDelegator implements AuthenticationManager {
+
 		private AuthenticationManagerBuilder delegateBuilder;
+
 		private AuthenticationManager delegate;
+
 		private final Object delegateMonitor = new Object();
 
 		AuthenticationManagerDelegator(AuthenticationManagerBuilder delegateBuilder) {
@@ -235,8 +242,7 @@ public class AuthenticationConfiguration {
 		}
 
 		@Override
-		public Authentication authenticate(Authentication authentication)
-				throws AuthenticationException {
+		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			if (this.delegate != null) {
 				return this.delegate.authenticate(authentication);
 			}
@@ -255,46 +261,46 @@ public class AuthenticationConfiguration {
 		public String toString() {
 			return "AuthenticationManagerDelegator [delegate=" + this.delegate + "]";
 		}
+
 	}
 
 	static class DefaultPasswordEncoderAuthenticationManagerBuilder extends AuthenticationManagerBuilder {
+
 		private PasswordEncoder defaultPasswordEncoder;
 
 		/**
 		 * Creates a new instance
-		 *
 		 * @param objectPostProcessor the {@link ObjectPostProcessor} instance to use.
 		 */
-		DefaultPasswordEncoderAuthenticationManagerBuilder(
-			ObjectPostProcessor<Object> objectPostProcessor, PasswordEncoder defaultPasswordEncoder) {
+		DefaultPasswordEncoderAuthenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor,
+				PasswordEncoder defaultPasswordEncoder) {
 			super(objectPostProcessor);
 			this.defaultPasswordEncoder = defaultPasswordEncoder;
 		}
 
 		@Override
 		public InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemoryAuthentication()
-			throws Exception {
-			return super.inMemoryAuthentication()
-				.passwordEncoder(this.defaultPasswordEncoder);
+				throws Exception {
+			return super.inMemoryAuthentication().passwordEncoder(this.defaultPasswordEncoder);
 		}
 
 		@Override
-		public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication()
-			throws Exception {
-			return super.jdbcAuthentication()
-				.passwordEncoder(this.defaultPasswordEncoder);
+		public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
+			return super.jdbcAuthentication().passwordEncoder(this.defaultPasswordEncoder);
 		}
 
 		@Override
 		public <T extends UserDetailsService> DaoAuthenticationConfigurer<AuthenticationManagerBuilder, T> userDetailsService(
-			T userDetailsService) throws Exception {
-			return super.userDetailsService(userDetailsService)
-				.passwordEncoder(this.defaultPasswordEncoder);
+				T userDetailsService) throws Exception {
+			return super.userDetailsService(userDetailsService).passwordEncoder(this.defaultPasswordEncoder);
 		}
+
 	}
 
 	static class LazyPasswordEncoder implements PasswordEncoder {
+
 		private ApplicationContext applicationContext;
+
 		private PasswordEncoder passwordEncoder;
 
 		LazyPasswordEncoder(ApplicationContext applicationContext) {
@@ -307,8 +313,7 @@ public class AuthenticationConfiguration {
 		}
 
 		@Override
-		public boolean matches(CharSequence rawPassword,
-			String encodedPassword) {
+		public boolean matches(CharSequence rawPassword, String encodedPassword) {
 			return getPasswordEncoder().matches(rawPassword, encodedPassword);
 		}
 
@@ -333,5 +338,7 @@ public class AuthenticationConfiguration {
 		public String toString() {
 			return getPasswordEncoder().toString();
 		}
+
 	}
+
 }

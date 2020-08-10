@@ -19,15 +19,18 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  * @author Robin Bramley, Opsera Ltd
  */
 public class MockOpenIDConsumer implements OpenIDConsumer {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private OpenIDAuthenticationToken token;
+
 	private String redirectUrl;
 
 	public MockOpenIDConsumer() {
@@ -49,8 +52,7 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
 	// ~ Methods
 	// ========================================================================================================
 
-	public String beginConsumption(HttpServletRequest req, String claimedIdentity,
-			String returnToUrl, String realm) {
+	public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl, String realm) {
 		return redirectUrl;
 	}
 
@@ -60,7 +62,6 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
 
 	/**
 	 * Set the redirectUrl to be returned by beginConsumption
-	 *
 	 * @param redirectUrl
 	 */
 	public void setRedirectUrl(String redirectUrl) {
@@ -73,10 +74,10 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
 
 	/**
 	 * Set the token to be returned by endConsumption
-	 *
 	 * @param token
 	 */
 	public void setToken(OpenIDAuthenticationToken token) {
 		this.token = token;
 	}
+
 }

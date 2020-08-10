@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class GrantedAuthoritySid implements Sid {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -46,8 +47,7 @@ public class GrantedAuthoritySid implements Sid {
 
 	public GrantedAuthoritySid(GrantedAuthority grantedAuthority) {
 		Assert.notNull(grantedAuthority, "GrantedAuthority required");
-		Assert.notNull(
-				grantedAuthority.getAuthority(),
+		Assert.notNull(grantedAuthority.getAuthority(),
 				"This Sid is only compatible with GrantedAuthoritys that provide a non-null getAuthority()");
 		this.grantedAuthority = grantedAuthority.getAuthority();
 	}
@@ -63,8 +63,7 @@ public class GrantedAuthoritySid implements Sid {
 
 		// Delegate to getGrantedAuthority() to perform actual comparison (both should be
 		// identical)
-		return ((GrantedAuthoritySid) object).getGrantedAuthority().equals(
-				this.getGrantedAuthority());
+		return ((GrantedAuthoritySid) object).getGrantedAuthority().equals(this.getGrantedAuthority());
 	}
 
 	@Override
@@ -80,4 +79,5 @@ public class GrantedAuthoritySid implements Sid {
 	public String toString() {
 		return "GrantedAuthoritySid[" + this.grantedAuthority + "]";
 	}
+
 }

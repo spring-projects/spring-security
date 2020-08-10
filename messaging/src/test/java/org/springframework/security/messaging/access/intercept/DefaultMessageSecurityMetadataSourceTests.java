@@ -35,12 +35,16 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultMessageSecurityMetadataSourceTests {
+
 	@Mock
 	MessageMatcher<Object> matcher1;
+
 	@Mock
 	MessageMatcher<Object> matcher2;
+
 	@Mock
 	Message<?> message;
+
 	@Mock
 	Authentication authentication;
 
@@ -55,8 +59,8 @@ public class DefaultMessageSecurityMetadataSourceTests {
 	@Before
 	public void setup() {
 		messageMap = new LinkedHashMap<>();
-		messageMap.put(matcher1, Arrays.<ConfigAttribute> asList(config1));
-		messageMap.put(matcher2, Arrays.<ConfigAttribute> asList(config2));
+		messageMap.put(matcher1, Arrays.<ConfigAttribute>asList(config1));
+		messageMap.put(matcher2, Arrays.<ConfigAttribute>asList(config2));
 
 		source = new DefaultMessageSecurityMetadataSource(messageMap);
 	}
@@ -94,4 +98,5 @@ public class DefaultMessageSecurityMetadataSourceTests {
 	public void supportsTrue() {
 		assertThat(source.supports(Message.class)).isTrue();
 	}
+
 }

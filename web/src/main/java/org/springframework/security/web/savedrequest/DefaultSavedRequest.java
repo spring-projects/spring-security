@@ -51,31 +51,45 @@ import java.util.*;
  * @author Luke Taylor
  */
 public class DefaultSavedRequest implements SavedRequest {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
 	protected static final Log logger = LogFactory.getLog(DefaultSavedRequest.class);
 
 	private static final String HEADER_IF_NONE_MATCH = "If-None-Match";
+
 	private static final String HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
 
 	// ~ Instance fields
 	// ================================================================================================
 
 	private final ArrayList<SavedCookie> cookies = new ArrayList<>();
+
 	private final ArrayList<Locale> locales = new ArrayList<>();
-	private final Map<String, List<String>> headers = new TreeMap<>(
-			String.CASE_INSENSITIVE_ORDER);
+
+	private final Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
 	private final Map<String, String[]> parameters = new TreeMap<>();
+
 	private final String contextPath;
+
 	private final String method;
+
 	private final String pathInfo;
+
 	private final String queryString;
+
 	private final String requestURI;
+
 	private final String requestURL;
+
 	private final String scheme;
+
 	private final String serverName;
+
 	private final String servletPath;
+
 	private final int serverPort;
 
 	// ~ Constructors
@@ -95,8 +109,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
 			// Skip If-Modified-Since and If-None-Match header. SEC-1412, SEC-1624.
-			if (HEADER_IF_MODIFIED_SINCE.equalsIgnoreCase(name)
-					|| HEADER_IF_NONE_MATCH.equalsIgnoreCase(name)) {
+			if (HEADER_IF_MODIFIED_SINCE.equalsIgnoreCase(name) || HEADER_IF_NONE_MATCH.equalsIgnoreCase(name)) {
 				continue;
 			}
 			Enumeration<String> values = request.getHeaders(name);
@@ -188,7 +201,8 @@ public class DefaultSavedRequest implements SavedRequest {
 				Object paramValues = parameters.get(paramName);
 				if (paramValues instanceof String[]) {
 					this.addParameter(paramName, (String[]) paramValues);
-				} else {
+				}
+				else {
 					if (logger.isWarnEnabled()) {
 						logger.warn("ServletRequest.getParameterMap() returned non-String array");
 					}
@@ -205,8 +219,7 @@ public class DefaultSavedRequest implements SavedRequest {
 	 * Determines if the current request matches the <code>DefaultSavedRequest</code>.
 	 * <p>
 	 * All URL arguments are considered but not cookies, locales, headers or parameters.
-	 *
-	 * @param request      the actual request to be matched against this one
+	 * @param request the actual request to be matched against this one
 	 * @param portResolver used to obtain the server port of the request
 	 * @return true if the request is deemed to match this one.
 	 */
@@ -229,13 +242,11 @@ public class DefaultSavedRequest implements SavedRequest {
 			return false;
 		}
 
-		if (!propertyEquals("serverPort", this.serverPort,
-				portResolver.getServerPort(request))) {
+		if (!propertyEquals("serverPort", this.serverPort, portResolver.getServerPort(request))) {
 			return false;
 		}
 
-		if (!propertyEquals("requestURL", this.requestURL, request.getRequestURL()
-				.toString())) {
+		if (!propertyEquals("requestURL", this.requestURL, request.getRequestURL().toString())) {
 			return false;
 		}
 
@@ -272,13 +283,11 @@ public class DefaultSavedRequest implements SavedRequest {
 
 	/**
 	 * Indicates the URL that the user agent used for this request.
-	 *
 	 * @return the full URL of this request
 	 */
 	@Override
 	public String getRedirectUrl() {
-		return UrlUtils.buildFullRequestUrl(scheme, serverName, serverPort, requestURI,
-				queryString);
+		return UrlUtils.buildFullRequestUrl(scheme, serverName, serverPort, requestURI, queryString);
 	}
 
 	@Override
@@ -364,8 +373,7 @@ public class DefaultSavedRequest implements SavedRequest {
 
 		if (arg1 == null || arg2 == null) {
 			if (logger.isDebugEnabled()) {
-				logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2
-						+ " (property not equals)");
+				logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2 + " (property not equals)");
 			}
 
 			return false;
@@ -373,15 +381,14 @@ public class DefaultSavedRequest implements SavedRequest {
 
 		if (arg1.equals(arg2)) {
 			if (logger.isDebugEnabled()) {
-				logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2
-						+ " (property equals)");
+				logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2 + " (property equals)");
 			}
 
 			return true;
-		} else {
+		}
+		else {
 			if (logger.isDebugEnabled()) {
-				logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2
-						+ " (property not equals)");
+				logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2 + " (property not equals)");
 			}
 
 			return false;
@@ -401,18 +408,31 @@ public class DefaultSavedRequest implements SavedRequest {
 	public static class Builder {
 
 		private List<SavedCookie> cookies = null;
+
 		private List<Locale> locales = null;
+
 		private Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
 		private Map<String, String[]> parameters = new TreeMap<>();
+
 		private String contextPath;
+
 		private String method;
+
 		private String pathInfo;
+
 		private String queryString;
+
 		private String requestURI;
+
 		private String requestURL;
+
 		private String scheme;
+
 		private String serverName;
+
 		private String servletPath;
+
 		private int serverPort = 80;
 
 		public Builder setCookies(List<SavedCookie> cookies) {
@@ -507,5 +527,7 @@ public class DefaultSavedRequest implements SavedRequest {
 			}
 			return savedRequest;
 		}
+
 	}
+
 }

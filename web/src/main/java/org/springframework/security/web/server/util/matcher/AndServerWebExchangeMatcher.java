@@ -29,13 +29,16 @@ import java.util.Map;
 
 /**
  * Matches if all the provided {@link ServerWebExchangeMatcher} match
+ *
  * @author Rob Winch
  * @author Mathieu Ouellet
  * @since 5.0
  * @see OrServerWebExchangeMatcher
  */
 public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
+
 	private static final Log logger = LogFactory.getLog(AndServerWebExchangeMatcher.class);
+
 	private final List<ServerWebExchangeMatcher> matchers;
 
 	public AndServerWebExchangeMatcher(List<ServerWebExchangeMatcher> matchers) {
@@ -47,35 +50,34 @@ public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 		this(Arrays.asList(matchers));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher#matches(org.springframework.web.server.ServerWebExchange)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher#
+	 * matches(org.springframework.web.server.ServerWebExchange)
 	 */
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
 		return Mono.defer(() -> {
 			Map<String, Object> variables = new HashMap<>();
-			return Flux.fromIterable(matchers)
-				.doOnNext(it -> {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Trying to match using " + it);
-					}
-				})
-				.flatMap(matcher -> matcher.matches(exchange))
-				.doOnNext(matchResult -> variables.putAll(matchResult.getVariables()))
-				.all(MatchResult::isMatch)
-				.flatMap(allMatch -> allMatch ? MatchResult.match(variables) : MatchResult.notMatch())
-				.doOnNext(it -> {
-					if (logger.isDebugEnabled()) {
-						logger.debug(it.isMatch() ? "All requestMatchers returned true" : "Did not match");
-					}
-				});
+			return Flux.fromIterable(matchers).doOnNext(it -> {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Trying to match using " + it);
+				}
+			}).flatMap(matcher -> matcher.matches(exchange))
+					.doOnNext(matchResult -> variables.putAll(matchResult.getVariables())).all(MatchResult::isMatch)
+					.flatMap(allMatch -> allMatch ? MatchResult.match(variables) : MatchResult.notMatch())
+					.doOnNext(it -> {
+						if (logger.isDebugEnabled()) {
+							logger.debug(it.isMatch() ? "All requestMatchers returned true" : "Did not match");
+						}
+					});
 		});
 	}
 
 	@Override
 	public String toString() {
-		return "AndServerWebExchangeMatcher{" +
-				"matchers=" + matchers +
-				'}';
+		return "AndServerWebExchangeMatcher{" + "matchers=" + matchers + '}';
 	}
+
 }

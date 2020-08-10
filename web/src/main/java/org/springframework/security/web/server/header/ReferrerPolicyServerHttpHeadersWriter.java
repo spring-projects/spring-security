@@ -31,8 +31,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Vedran Pavic
  * @since 5.1
  */
-public final class ReferrerPolicyServerHttpHeadersWriter
-		implements ServerHttpHeadersWriter {
+public final class ReferrerPolicyServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 
 	public static final String REFERRER_POLICY = "Referrer-Policy";
 

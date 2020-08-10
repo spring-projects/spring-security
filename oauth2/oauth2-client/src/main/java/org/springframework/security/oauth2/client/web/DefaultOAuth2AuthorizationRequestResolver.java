@@ -45,12 +45,14 @@ import java.util.function.Consumer;
 
 /**
  * An implementation of an {@link OAuth2AuthorizationRequestResolver} that attempts to
- * resolve an {@link OAuth2AuthorizationRequest} from the provided {@code HttpServletRequest}
- * using the default request {@code URI} pattern {@code /oauth2/authorization/{registrationId}}.
+ * resolve an {@link OAuth2AuthorizationRequest} from the provided
+ * {@code HttpServletRequest} using the default request {@code URI} pattern
+ * {@code /oauth2/authorization/{registrationId}}.
  *
  * <p>
- * <b>NOTE:</b> The default base {@code URI} {@code /oauth2/authorization} may be overridden
- * via it's constructor {@link #DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository, String)}.
+ * <b>NOTE:</b> The default base {@code URI} {@code /oauth2/authorization} may be
+ * overridden via it's constructor
+ * {@link #DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository, String)}.
  *
  * @author Joe Grandja
  * @author Rob Winch
@@ -61,22 +63,32 @@ import java.util.function.Consumer;
  * @see OAuth2AuthorizationRequestRedirectFilter
  */
 public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
+
 	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
+
 	private static final char PATH_DELIMITER = '/';
+
 	private final ClientRegistrationRepository clientRegistrationRepository;
+
 	private final AntPathRequestMatcher authorizationRequestMatcher;
+
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
-	private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
-	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer = customizer -> {};
+
+	private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(
+			Base64.getUrlEncoder().withoutPadding(), 96);
+
+	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer = customizer -> {
+	};
 
 	/**
-	 * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the provided parameters.
-	 *
+	 * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the provided
+	 * parameters.
 	 * @param clientRegistrationRepository the repository of client registrations
-	 * @param authorizationRequestBaseUri the base {@code URI} used for resolving authorization requests
+	 * @param authorizationRequestBaseUri the base {@code URI} used for resolving
+	 * authorization requests
 	 */
 	public DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository,
-														String authorizationRequestBaseUri) {
+			String authorizationRequestBaseUri) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
 		this.clientRegistrationRepository = clientRegistrationRepository;
@@ -104,13 +116,15 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	}
 
 	/**
-	 * Sets the {@code Consumer} to be provided the {@link OAuth2AuthorizationRequest.Builder}
-	 * allowing for further customizations.
+	 * Sets the {@code Consumer} to be provided the
+	 * {@link OAuth2AuthorizationRequest.Builder} allowing for further customizations.
 	 *
 	 * @since 5.3
-	 * @param authorizationRequestCustomizer the {@code Consumer} to be provided the {@link OAuth2AuthorizationRequest.Builder}
+	 * @param authorizationRequestCustomizer the {@code Consumer} to be provided the
+	 * {@link OAuth2AuthorizationRequest.Builder}
 	 */
-	public void setAuthorizationRequestCustomizer(Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer) {
+	public void setAuthorizationRequestCustomizer(
+			Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer) {
 		Assert.notNull(authorizationRequestCustomizer, "authorizationRequestCustomizer cannot be null");
 		this.authorizationRequestCustomizer = authorizationRequestCustomizer;
 	}
@@ -123,7 +137,8 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		return action;
 	}
 
-	private OAuth2AuthorizationRequest resolve(HttpServletRequest request, String registrationId, String redirectUriAction) {
+	private OAuth2AuthorizationRequest resolve(HttpServletRequest request, String registrationId,
+			String redirectUriAction) {
 		if (registrationId == null) {
 			return null;
 		}
@@ -140,34 +155,35 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
 			builder = OAuth2AuthorizationRequest.authorizationCode();
 			Map<String, Object> additionalParameters = new HashMap<>();
-			if (!CollectionUtils.isEmpty(clientRegistration.getScopes()) &&
-					clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
-				// Section 3.1.2.1 Authentication Request - https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+			if (!CollectionUtils.isEmpty(clientRegistration.getScopes())
+					&& clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
+				// Section 3.1.2.1 Authentication Request -
+				// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 				// scope
-				// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
+				// REQUIRED. OpenID Connect requests MUST contain the "openid" scope
+				// value.
 				addNonceParameters(attributes, additionalParameters);
 			}
 			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
 				addPkceParameters(attributes, additionalParameters);
 			}
 			builder.additionalParameters(additionalParameters);
-		} else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
+		}
+		else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
 			builder = OAuth2AuthorizationRequest.implicit();
-		} else {
-			throw new IllegalArgumentException("Invalid Authorization Grant Type ("  +
-					clientRegistration.getAuthorizationGrantType().getValue() +
-					") for Client Registration with Id: " + clientRegistration.getRegistrationId());
+		}
+		else {
+			throw new IllegalArgumentException(
+					"Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
+							+ ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 		}
 
 		String redirectUriStr = expandRedirectUri(request, clientRegistration, redirectUriAction);
 
-		builder
-				.clientId(clientRegistration.getClientId())
+		builder.clientId(clientRegistration.getClientId())
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(redirectUriStr)
-				.scopes(clientRegistration.getScopes())
-				.state(this.stateGenerator.generateKey())
-				.attributes(attributes);
+				.redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
+				.state(this.stateGenerator.generateKey()).attributes(attributes);
 
 		this.authorizationRequestCustomizer.accept(builder);
 
@@ -176,14 +192,15 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 	private String resolveRegistrationId(HttpServletRequest request) {
 		if (this.authorizationRequestMatcher.matches(request)) {
-			return this.authorizationRequestMatcher
-					.matcher(request).getVariables().get(REGISTRATION_ID_URI_VARIABLE_NAME);
+			return this.authorizationRequestMatcher.matcher(request).getVariables()
+					.get(REGISTRATION_ID_URI_VARIABLE_NAME);
 		}
 		return null;
 	}
 
 	/**
-	 * Expands the {@link ClientRegistration#getRedirectUri()} with following provided variables:<br/>
+	 * Expands the {@link ClientRegistration#getRedirectUri()} with following provided
+	 * variables:<br/>
 	 * - baseUrl (e.g. https://localhost/app) <br/>
 	 * - baseScheme (e.g. https) <br/>
 	 * - baseHost (e.g. localhost) <br/>
@@ -194,19 +211,17 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	 * <p/>
 	 * Null variables are provided as empty strings.
 	 * <p/>
-	 * Default redirectUri is: {@code org.springframework.security.config.oauth2.client.CommonOAuth2Provider#DEFAULT_REDIRECT_URL}
-	 *
+	 * Default redirectUri is:
+	 * {@code org.springframework.security.config.oauth2.client.CommonOAuth2Provider#DEFAULT_REDIRECT_URL}
 	 * @return expanded URI
 	 */
-	private static String expandRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration, String action) {
+	private static String expandRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration,
+			String action) {
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
-				.replacePath(request.getContextPath())
-				.replaceQuery(null)
-				.fragment(null)
-				.build();
+				.replacePath(request.getContextPath()).replaceQuery(null).fragment(null).build();
 		String scheme = uriComponents.getScheme();
 		uriVariables.put("baseScheme", scheme == null ? "" : scheme);
 		String host = uriComponents.getHost();
@@ -225,19 +240,21 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 		uriVariables.put("action", action == null ? "" : action);
 
-		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
-				.buildAndExpand(uriVariables)
+		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri()).buildAndExpand(uriVariables)
 				.toUriString();
 	}
 
 	/**
 	 * Creates nonce and its hash for use in OpenID Connect 1.0 Authentication Requests.
-	 *
-	 * @param attributes where the {@link OidcParameterNames#NONCE} is stored for the authentication request
-	 * @param additionalParameters where the {@link OidcParameterNames#NONCE} hash is added for the authentication request
+	 * @param attributes where the {@link OidcParameterNames#NONCE} is stored for the
+	 * authentication request
+	 * @param additionalParameters where the {@link OidcParameterNames#NONCE} hash is
+	 * added for the authentication request
 	 *
 	 * @since 5.2
-	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest">3.1.2.1.  Authentication Request</a>
+	 * @see <a target="_blank" href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest">3.1.2.1.
+	 * Authentication Request</a>
 	 */
 	private void addNonceParameters(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
 		try {
@@ -245,20 +262,27 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 			String nonceHash = createHash(nonce);
 			attributes.put(OidcParameterNames.NONCE, nonce);
 			additionalParameters.put(OidcParameterNames.NONCE, nonceHash);
-		} catch (NoSuchAlgorithmException e) { }
+		}
+		catch (NoSuchAlgorithmException e) {
+		}
 	}
 
 	/**
-	 * Creates and adds additional PKCE parameters for use in the OAuth 2.0 Authorization and Access Token Requests
-	 *
-	 * @param attributes where {@link PkceParameterNames#CODE_VERIFIER} is stored for the token request
-	 * @param additionalParameters where {@link PkceParameterNames#CODE_CHALLENGE} and, usually,
-	 * {@link PkceParameterNames#CODE_CHALLENGE_METHOD} are added to be used in the authorization request.
+	 * Creates and adds additional PKCE parameters for use in the OAuth 2.0 Authorization
+	 * and Access Token Requests
+	 * @param attributes where {@link PkceParameterNames#CODE_VERIFIER} is stored for the
+	 * token request
+	 * @param additionalParameters where {@link PkceParameterNames#CODE_CHALLENGE} and,
+	 * usually, {@link PkceParameterNames#CODE_CHALLENGE_METHOD} are added to be used in
+	 * the authorization request.
 	 *
 	 * @since 5.2
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-1.1">1.1.  Protocol Flow</a>
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.1">4.1.  Client Creates a Code Verifier</a>
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.2">4.2.  Client Creates the Code Challenge</a>
+	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-1.1">1.1.
+	 * Protocol Flow</a>
+	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.1">4.1.
+	 * Client Creates a Code Verifier</a>
+	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.2">4.2.
+	 * Client Creates the Code Challenge</a>
 	 */
 	private void addPkceParameters(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
 		String codeVerifier = this.secureKeyGenerator.generateKey();
@@ -267,7 +291,8 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 			String codeChallenge = createHash(codeVerifier);
 			additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, codeChallenge);
 			additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
-		} catch (NoSuchAlgorithmException e) {
+		}
+		catch (NoSuchAlgorithmException e) {
 			additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, codeVerifier);
 		}
 	}
@@ -277,4 +302,5 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		byte[] digest = md.digest(value.getBytes(StandardCharsets.US_ASCII));
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
+
 }

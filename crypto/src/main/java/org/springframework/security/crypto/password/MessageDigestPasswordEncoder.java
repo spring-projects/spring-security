@@ -24,7 +24,8 @@ import java.security.MessageDigest;
 import java.util.Base64;
 
 /**
- * This {@link PasswordEncoder} is provided for legacy purposes only and is not considered secure.
+ * This {@link PasswordEncoder} is provided for legacy purposes only and is not considered
+ * secure.
  *
  * Encodes passwords using the passed in {@link MessageDigest}.
  *
@@ -76,14 +77,18 @@ import java.util.Base64;
  * @deprecated Digest based password encoding is not considered secure. Instead use an
  * adaptive one way function like BCryptPasswordEncoder, Pbkdf2PasswordEncoder, or
  * SCryptPasswordEncoder. Even better use {@link DelegatingPasswordEncoder} which supports
- * password upgrades. There are no plans to remove this support. It is deprecated to indicate
- * that this is a legacy implementation and using it is considered insecure.
+ * password upgrades. There are no plans to remove this support. It is deprecated to
+ * indicate that this is a legacy implementation and using it is considered insecure.
  */
 @Deprecated
 public class MessageDigestPasswordEncoder implements PasswordEncoder {
+
 	private static final String PREFIX = "{";
+
 	private static final String SUFFIX = "}";
+
 	private StringKeyGenerator saltGenerator = new Base64StringKeyGenerator();
+
 	private boolean encodeHashAsBase64;
 
 	private Digester digester;
@@ -92,7 +97,6 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 	 * The digest algorithm to use Supports the named
 	 * <a href="https://java.sun.com/j2se/1.4.2/docs/guide/security/CryptoSpec.html#AppA">
 	 * Message Digest Algorithms</a> in the Java environment.
-	 *
 	 * @param algorithm
 	 */
 	public MessageDigestPasswordEncoder(String algorithm) {
@@ -106,7 +110,6 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 	/**
 	 * Encodes the rawPass using a MessageDigest. If a salt is specified it will be merged
 	 * with the password before encoding.
-	 *
 	 * @param rawPassword The plain text password
 	 * @return Hex string of password digest (or base64 encoded string if
 	 * encodeHashAsBase64 is enabled.
@@ -136,7 +139,6 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 	/**
 	 * Takes a previously encoded password and compares it with a rawpassword after mixing
 	 * in the salt and encoding that value
-	 *
 	 * @param rawPassword plain text password
 	 * @param encodedPassword previously encoded password
 	 * @return true or false
@@ -152,7 +154,6 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 	 * "stretched". If this is greater than one, the initial digest is calculated, the
 	 * digest function will be called repeatedly on the result for the additional number
 	 * of iterations.
-	 *
 	 * @param iterations the number of iterations which will be executed on the hashed
 	 * password/salt value. Defaults to 1.
 	 */
@@ -171,4 +172,5 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 		}
 		return prefixEncodedPassword.substring(start, end + 1);
 	}
+
 }

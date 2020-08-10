@@ -28,12 +28,12 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class NegatedRequestMatcherTests {
+
 	@Mock
 	private RequestMatcher delegate;
 
@@ -62,4 +62,5 @@ public class NegatedRequestMatcherTests {
 
 		assertThat(matcher.matches(request)).isFalse();
 	}
+
 }

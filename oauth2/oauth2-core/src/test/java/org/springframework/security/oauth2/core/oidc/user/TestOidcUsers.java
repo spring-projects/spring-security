@@ -34,35 +34,25 @@ public class TestOidcUsers {
 	public static DefaultOidcUser create() {
 		OidcIdToken idToken = idToken();
 		OidcUserInfo userInfo = userInfo();
-		return new DefaultOidcUser(
-				authorities(idToken, userInfo), idToken, userInfo);
+		return new DefaultOidcUser(authorities(idToken, userInfo), idToken, userInfo);
 	}
 
 	private static OidcIdToken idToken() {
 		Instant issuedAt = Instant.now();
 		Instant expiresAt = issuedAt.plusSeconds(3600);
-		return OidcIdToken.withTokenValue("id-token")
-				.issuedAt(issuedAt)
-				.expiresAt(expiresAt)
-				.subject("subject")
+		return OidcIdToken.withTokenValue("id-token").issuedAt(issuedAt).expiresAt(expiresAt).subject("subject")
 				.issuer("http://localhost/issuer")
 				.audience(Collections.unmodifiableSet(new LinkedHashSet<>(Collections.singletonList("client"))))
-				.authorizedParty("client")
-				.build();
+				.authorizedParty("client").build();
 	}
 
 	private static OidcUserInfo userInfo() {
-		return OidcUserInfo.builder()
-				.subject("subject")
-				.name("full name")
-				.build();
+		return OidcUserInfo.builder().subject("subject").name("full name").build();
 	}
 
 	private static Collection<? extends GrantedAuthority> authorities(OidcIdToken idToken, OidcUserInfo userInfo) {
-		return new LinkedHashSet<>(
-				Arrays.asList(
-						new OidcUserAuthority(idToken, userInfo),
-						new SimpleGrantedAuthority("SCOPE_read"),
-						new SimpleGrantedAuthority("SCOPE_write")));
+		return new LinkedHashSet<>(Arrays.asList(new OidcUserAuthority(idToken, userInfo),
+				new SimpleGrantedAuthority("SCOPE_read"), new SimpleGrantedAuthority("SCOPE_write")));
 	}
+
 }

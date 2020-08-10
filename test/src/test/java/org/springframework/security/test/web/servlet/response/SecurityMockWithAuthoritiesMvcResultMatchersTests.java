@@ -49,6 +49,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @ContextConfiguration(classes = SecurityMockWithAuthoritiesMvcResultMatchersTests.Config.class)
 @WebAppConfiguration
 public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
+
 	@Autowired
 	private WebApplicationContext context;
 
@@ -56,8 +57,7 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 
 	@Before
 	public void setup() {
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity())
-				.build();
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
 	}
 
 	@Test
@@ -65,8 +65,7 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 		List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_SELLER"));
-		mockMvc.perform(formLogin())
-				.andExpect(authenticated().withAuthorities(grantedAuthorities));
+		mockMvc.perform(formLogin()).andExpect(authenticated().withAuthorities(grantedAuthorities));
 	}
 
 	@Test(expected = AssertionError.class)
@@ -90,10 +89,14 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 
 		@RestController
 		static class Controller {
+
 			@RequestMapping("/")
 			public String ok() {
 				return "ok";
 			}
+
 		}
+
 	}
+
 }

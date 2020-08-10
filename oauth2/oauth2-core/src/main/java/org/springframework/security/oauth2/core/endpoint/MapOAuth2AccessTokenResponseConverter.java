@@ -27,29 +27,27 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.StringUtils;
 
 /**
- * A {@link Converter} that converts the provided
- * OAuth 2.0 Access Token Response parameters to an {@link OAuth2AccessTokenResponse}.
+ * A {@link Converter} that converts the provided OAuth 2.0 Access Token Response
+ * parameters to an {@link OAuth2AccessTokenResponse}.
  *
  * @author Joe Grandja
  * @author Nikita Konev
  * @since 5.3
  */
-public final class MapOAuth2AccessTokenResponseConverter implements Converter<Map<String, String>, OAuth2AccessTokenResponse> {
-	private static final Set<String> TOKEN_RESPONSE_PARAMETER_NAMES = new HashSet<>(Arrays.asList(
-			OAuth2ParameterNames.ACCESS_TOKEN,
-			OAuth2ParameterNames.EXPIRES_IN,
-			OAuth2ParameterNames.REFRESH_TOKEN,
-			OAuth2ParameterNames.SCOPE,
-			OAuth2ParameterNames.TOKEN_TYPE
-	));
+public final class MapOAuth2AccessTokenResponseConverter
+		implements Converter<Map<String, String>, OAuth2AccessTokenResponse> {
+
+	private static final Set<String> TOKEN_RESPONSE_PARAMETER_NAMES = new HashSet<>(
+			Arrays.asList(OAuth2ParameterNames.ACCESS_TOKEN, OAuth2ParameterNames.EXPIRES_IN,
+					OAuth2ParameterNames.REFRESH_TOKEN, OAuth2ParameterNames.SCOPE, OAuth2ParameterNames.TOKEN_TYPE));
 
 	@Override
 	public OAuth2AccessTokenResponse convert(Map<String, String> tokenResponseParameters) {
 		String accessToken = tokenResponseParameters.get(OAuth2ParameterNames.ACCESS_TOKEN);
 
 		OAuth2AccessToken.TokenType accessTokenType = null;
-		if (OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(
-				tokenResponseParameters.get(OAuth2ParameterNames.TOKEN_TYPE))) {
+		if (OAuth2AccessToken.TokenType.BEARER.getValue()
+				.equalsIgnoreCase(tokenResponseParameters.get(OAuth2ParameterNames.TOKEN_TYPE))) {
 			accessTokenType = OAuth2AccessToken.TokenType.BEARER;
 		}
 
@@ -57,7 +55,8 @@ public final class MapOAuth2AccessTokenResponseConverter implements Converter<Ma
 		if (tokenResponseParameters.containsKey(OAuth2ParameterNames.EXPIRES_IN)) {
 			try {
 				expiresIn = Long.parseLong(tokenResponseParameters.get(OAuth2ParameterNames.EXPIRES_IN));
-			} catch (NumberFormatException ex) {
+			}
+			catch (NumberFormatException ex) {
 			}
 		}
 
@@ -76,12 +75,8 @@ public final class MapOAuth2AccessTokenResponseConverter implements Converter<Ma
 			}
 		}
 
-		return OAuth2AccessTokenResponse.withToken(accessToken)
-				.tokenType(accessTokenType)
-				.expiresIn(expiresIn)
-				.scopes(scopes)
-				.refreshToken(refreshToken)
-				.additionalParameters(additionalParameters)
-				.build();
+		return OAuth2AccessTokenResponse.withToken(accessToken).tokenType(accessTokenType).expiresIn(expiresIn)
+				.scopes(scopes).refreshToken(refreshToken).additionalParameters(additionalParameters).build();
 	}
+
 }

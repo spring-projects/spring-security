@@ -35,8 +35,7 @@ public final class NullSecurityContextRepository implements SecurityContextRepos
 		return SecurityContextHolder.createEmptyContext();
 	}
 
-	public void saveContext(SecurityContext context, HttpServletRequest request,
-			HttpServletResponse response) {
+	public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
 	}
 
 }

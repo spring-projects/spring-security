@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.*;
  * @since 5.0
  */
 public class Base64StringKeyGeneratorTests {
+
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorIntWhenLessThan32ThenIllegalArgumentException() {
 		new Base64StringKeyGenerator(31);
@@ -63,4 +64,5 @@ public class Base64StringKeyGeneratorTests {
 		String result = new Base64StringKeyGenerator(Base64.getUrlEncoder(), size).generateKey();
 		assertThat(Base64.getUrlDecoder().decode(result.getBytes())).hasSize(size);
 	}
+
 }

@@ -28,13 +28,14 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 /**
- *
  * @author Rob Winch
  * @author Mathieu Ouellet
  * @since 5.0
  */
 public class AuthorizationWebFilter implements WebFilter {
+
 	private static final Log logger = LogFactory.getLog(AuthorizationWebFilter.class);
+
 	private ReactiveAuthorizationManager<? super ServerWebExchange> authorizationManager;
 
 	public AuthorizationWebFilter(ReactiveAuthorizationManager<? super ServerWebExchange> authorizationManager) {
@@ -43,20 +44,17 @@ public class AuthorizationWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return ReactiveSecurityContextHolder.getContext()
-			.filter(c -> c.getAuthentication() != null)
-			.map(SecurityContext::getAuthentication)
-			.as(authentication -> this.authorizationManager.verify(authentication, exchange))
-			.doOnSuccess(it -> {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Authorization successful");
-				}
-			})
-			.doOnError(AccessDeniedException.class, e -> {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Authorization failed: " + e.getMessage());
-				}
-			})
-			.switchIfEmpty(chain.filter(exchange));
+		return ReactiveSecurityContextHolder.getContext().filter(c -> c.getAuthentication() != null)
+				.map(SecurityContext::getAuthentication)
+				.as(authentication -> this.authorizationManager.verify(authentication, exchange)).doOnSuccess(it -> {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Authorization successful");
+					}
+				}).doOnError(AccessDeniedException.class, e -> {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Authorization failed: " + e.getMessage());
+					}
+				}).switchIfEmpty(chain.filter(exchange));
 	}
+
 }

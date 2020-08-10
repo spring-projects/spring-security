@@ -75,8 +75,7 @@ public class WebMvcSecurityConfigurationTests {
 
 	@Test
 	public void authenticationPrincipalResolved() throws Exception {
-		mockMvc.perform(get("/authentication-principal"))
-				.andExpect(assertResult(authentication.getPrincipal()))
+		mockMvc.perform(get("/authentication-principal")).andExpect(assertResult(authentication.getPrincipal()))
 				.andExpect(view().name("authentication-principal-view"));
 	}
 
@@ -90,8 +89,7 @@ public class WebMvcSecurityConfigurationTests {
 	@Test
 	public void csrfToken() throws Exception {
 		CsrfToken csrfToken = new DefaultCsrfToken("headerName", "paramName", "token");
-		MockHttpServletRequestBuilder request = get("/csrf").requestAttr(
-				CsrfToken.class.getName(), csrfToken);
+		MockHttpServletRequestBuilder request = get("/csrf").requestAttr(CsrfToken.class.getName(), csrfToken);
 
 		mockMvc.perform(request).andExpect(assertResult(csrfToken));
 	}
@@ -104,32 +102,33 @@ public class WebMvcSecurityConfigurationTests {
 	static class TestController {
 
 		@RequestMapping("/authentication-principal")
-		public ModelAndView authenticationPrincipal(
-				@AuthenticationPrincipal String principal) {
+		public ModelAndView authenticationPrincipal(@AuthenticationPrincipal String principal) {
 			return new ModelAndView("authentication-principal-view", "result", principal);
 		}
 
 		@RequestMapping("/deprecated-authentication-principal")
 		public ModelAndView deprecatedAuthenticationPrincipal(
 				@org.springframework.security.web.bind.annotation.AuthenticationPrincipal String principal) {
-			return new ModelAndView("deprecated-authentication-principal-view", "result",
-					principal);
+			return new ModelAndView("deprecated-authentication-principal-view", "result", principal);
 		}
 
 		@RequestMapping("/csrf")
 		public ModelAndView csrf(CsrfToken token) {
 			return new ModelAndView("view", "result", token);
 		}
+
 	}
 
 	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class Config {
+
 		@Bean
 		public TestController testController() {
 			return new TestController();
 		}
+
 	}
 
 }

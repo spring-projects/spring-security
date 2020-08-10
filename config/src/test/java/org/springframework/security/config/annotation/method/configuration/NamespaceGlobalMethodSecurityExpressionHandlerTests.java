@@ -35,7 +35,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- *
  * @author Rob Winch
  * @author Josh Cummings
  */
@@ -54,11 +53,9 @@ public class NamespaceGlobalMethodSecurityExpressionHandlerTests {
 	public void methodSecurityWhenUsingCustomPermissionEvaluatorThenPreAuthorizesAccordingly() {
 		this.spring.register(CustomAccessDecisionManagerConfig.class, MethodSecurityServiceConfig.class).autowire();
 
-		assertThatCode(() -> this.service.hasPermission("granted"))
-			.doesNotThrowAnyException();
+		assertThatCode(() -> this.service.hasPermission("granted")).doesNotThrowAnyException();
 
-		assertThatThrownBy(() -> this.service.hasPermission("denied"))
-			.isInstanceOf(AccessDeniedException.class);
+		assertThatThrownBy(() -> this.service.hasPermission("denied")).isInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -66,30 +63,33 @@ public class NamespaceGlobalMethodSecurityExpressionHandlerTests {
 	public void methodSecurityWhenUsingCustomPermissionEvaluatorThenPostAuthorizesAccordingly() {
 		this.spring.register(CustomAccessDecisionManagerConfig.class, MethodSecurityServiceConfig.class).autowire();
 
-		assertThatCode(() -> this.service.postHasPermission("granted"))
-			.doesNotThrowAnyException();
+		assertThatCode(() -> this.service.postHasPermission("granted")).doesNotThrowAnyException();
 
-		assertThatThrownBy(() -> this.service.postHasPermission("denied"))
-			.isInstanceOf(AccessDeniedException.class);
+		assertThatThrownBy(() -> this.service.postHasPermission("denied")).isInstanceOf(AccessDeniedException.class);
 	}
 
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class CustomAccessDecisionManagerConfig extends GlobalMethodSecurityConfiguration {
+
 		@Override
 		protected MethodSecurityExpressionHandler createExpressionHandler() {
 			DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
 			expressionHandler.setPermissionEvaluator(new PermissionEvaluator() {
-				public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+				public boolean hasPermission(Authentication authentication, Object targetDomainObject,
+						Object permission) {
 					return "granted".equals(targetDomainObject);
 				}
 
-				public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+				public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+						Object permission) {
 					throw new UnsupportedOperationException();
 				}
 			});
 
 			return expressionHandler;
 		}
+
 	}
+
 }

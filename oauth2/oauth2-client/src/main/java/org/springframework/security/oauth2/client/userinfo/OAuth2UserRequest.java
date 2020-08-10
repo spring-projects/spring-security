@@ -25,8 +25,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Represents a request the {@link OAuth2UserService} uses
- * when initiating a request to the UserInfo Endpoint.
+ * Represents a request the {@link OAuth2UserService} uses when initiating a request to
+ * the UserInfo Endpoint.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -35,13 +35,15 @@ import java.util.Map;
  * @see OAuth2UserService
  */
 public class OAuth2UserRequest {
+
 	private final ClientRegistration clientRegistration;
+
 	private final OAuth2AccessToken accessToken;
+
 	private final Map<String, Object> additionalParameters;
 
 	/**
 	 * Constructs an {@code OAuth2UserRequest} using the provided parameters.
-	 *
 	 * @param clientRegistration the client registration
 	 * @param accessToken the access token
 	 */
@@ -58,19 +60,17 @@ public class OAuth2UserRequest {
 	 * @param additionalParameters the additional parameters, may be empty
 	 */
 	public OAuth2UserRequest(ClientRegistration clientRegistration, OAuth2AccessToken accessToken,
-								Map<String, Object> additionalParameters) {
+			Map<String, Object> additionalParameters) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		this.clientRegistration = clientRegistration;
 		this.accessToken = accessToken;
-		this.additionalParameters = Collections.unmodifiableMap(
-				CollectionUtils.isEmpty(additionalParameters) ?
-				Collections.emptyMap() : new LinkedHashMap<>(additionalParameters));
+		this.additionalParameters = Collections.unmodifiableMap(CollectionUtils.isEmpty(additionalParameters)
+				? Collections.emptyMap() : new LinkedHashMap<>(additionalParameters));
 	}
 
 	/**
 	 * Returns the {@link ClientRegistration client registration}.
-	 *
 	 * @return the {@link ClientRegistration}
 	 */
 	public ClientRegistration getClientRegistration() {
@@ -79,7 +79,6 @@ public class OAuth2UserRequest {
 
 	/**
 	 * Returns the {@link OAuth2AccessToken access token}.
-	 *
 	 * @return the {@link OAuth2AccessToken}
 	 */
 	public OAuth2AccessToken getAccessToken() {
@@ -95,4 +94,5 @@ public class OAuth2UserRequest {
 	public Map<String, Object> getAdditionalParameters() {
 		return this.additionalParameters;
 	}
+
 }

@@ -38,4 +38,5 @@ public class TestController {
 	public String secure() {
 		return "A Secure Page";
 	}
+
 }

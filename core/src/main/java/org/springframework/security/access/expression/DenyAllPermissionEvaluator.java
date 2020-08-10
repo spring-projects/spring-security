@@ -36,20 +36,19 @@ public class DenyAllPermissionEvaluator implements PermissionEvaluator {
 	/**
 	 * @return false always
 	 */
-	public boolean hasPermission(Authentication authentication, Object target,
-			Object permission) {
-		logger.warn("Denying user " + authentication.getName() + " permission '"
-				+ permission + "' on object " + target);
+	public boolean hasPermission(Authentication authentication, Object target, Object permission) {
+		logger.warn(
+				"Denying user " + authentication.getName() + " permission '" + permission + "' on object " + target);
 		return false;
 	}
 
 	/**
 	 * @return false always
 	 */
-	public boolean hasPermission(Authentication authentication, Serializable targetId,
-			String targetType, Object permission) {
-		logger.warn("Denying user " + authentication.getName() + " permission '"
-				+ permission + "' on object with Id '" + targetId);
+	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+			Object permission) {
+		logger.warn("Denying user " + authentication.getName() + " permission '" + permission + "' on object with Id '"
+				+ targetId);
 		return false;
 	}
 

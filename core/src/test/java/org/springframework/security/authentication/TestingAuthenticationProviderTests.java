@@ -32,8 +32,7 @@ public class TestingAuthenticationProviderTests {
 	@Test
 	public void testAuthenticates() {
 		TestingAuthenticationProvider provider = new TestingAuthenticationProvider();
-		TestingAuthenticationToken token = new TestingAuthenticationToken("Test",
-				"Password", "ROLE_ONE", "ROLE_TWO");
+		TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password", "ROLE_ONE", "ROLE_TWO");
 		Authentication result = provider.authenticate(token);
 
 		assertThat(result instanceof TestingAuthenticationToken).isTrue();
@@ -41,9 +40,7 @@ public class TestingAuthenticationProviderTests {
 		TestingAuthenticationToken castResult = (TestingAuthenticationToken) result;
 		assertThat(castResult.getPrincipal()).isEqualTo("Test");
 		assertThat(castResult.getCredentials()).isEqualTo("Password");
-		assertThat(
-				AuthorityUtils.authorityListToSet(castResult.getAuthorities())).contains(
-						"ROLE_ONE", "ROLE_TWO");
+		assertThat(AuthorityUtils.authorityListToSet(castResult.getAuthorities())).contains("ROLE_ONE", "ROLE_TWO");
 	}
 
 	@Test
@@ -52,4 +49,5 @@ public class TestingAuthenticationProviderTests {
 		assertThat(provider.supports(TestingAuthenticationToken.class)).isTrue();
 		assertThat(!provider.supports(String.class)).isTrue();
 	}
+
 }

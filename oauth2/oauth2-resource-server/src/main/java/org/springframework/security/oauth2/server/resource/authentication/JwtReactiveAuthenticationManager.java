@@ -39,10 +39,11 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public final class JwtReactiveAuthenticationManager implements ReactiveAuthenticationManager {
+
 	private final ReactiveJwtDecoder jwtDecoder;
 
-	private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter
-			= new ReactiveJwtAuthenticationConverterAdapter(new JwtAuthenticationConverter());
+	private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter = new ReactiveJwtAuthenticationConverterAdapter(
+			new JwtAuthenticationConverter());
 
 	public JwtReactiveAuthenticationManager(ReactiveJwtDecoder jwtDecoder) {
 		Assert.notNull(jwtDecoder, "jwtDecoder cannot be null");
@@ -51,19 +52,15 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
-		return Mono.justOrEmpty(authentication)
-				.filter(a -> a instanceof  BearerTokenAuthenticationToken)
-				.cast(BearerTokenAuthenticationToken.class)
-				.map(BearerTokenAuthenticationToken::getToken)
-				.flatMap(this.jwtDecoder::decode)
-				.flatMap(this.jwtAuthenticationConverter::convert)
-				.cast(Authentication.class)
-				.onErrorMap(JwtException.class, this::onError);
+		return Mono.justOrEmpty(authentication).filter(a -> a instanceof BearerTokenAuthenticationToken)
+				.cast(BearerTokenAuthenticationToken.class).map(BearerTokenAuthenticationToken::getToken)
+				.flatMap(this.jwtDecoder::decode).flatMap(this.jwtAuthenticationConverter::convert)
+				.cast(Authentication.class).onErrorMap(JwtException.class, this::onError);
 	}
 
 	/**
-	 * Use the given {@link Converter} for converting a {@link Jwt} into an {@link AbstractAuthenticationToken}.
-	 *
+	 * Use the given {@link Converter} for converting a {@link Jwt} into an
+	 * {@link AbstractAuthenticationToken}.
 	 * @param jwtAuthenticationConverter the {@link Converter} to use
 	 */
 	public void setJwtAuthenticationConverter(
@@ -76,8 +73,10 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 	private AuthenticationException onError(JwtException e) {
 		if (e instanceof BadJwtException) {
 			return new InvalidBearerTokenException(e.getMessage(), e);
-		} else {
+		}
+		else {
 			return new AuthenticationServiceException(e.getMessage(), e);
 		}
 	}
+
 }

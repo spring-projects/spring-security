@@ -28,8 +28,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Josh Cummings
  */
 public class OAuth2TokenValidatorResultTests {
-	private static final OAuth2Error DETAIL = new OAuth2Error(
-			"error", "description", "uri");
+
+	private static final OAuth2Error DETAIL = new OAuth2Error("error", "description", "uri");
 
 	@Test
 	public void successWhenInvokedThenReturnsSuccessfulResult() {
@@ -52,4 +52,5 @@ public class OAuth2TokenValidatorResultTests {
 		assertThat(failure.hasErrors()).isTrue();
 		assertThat(failure.getErrors()).containsExactly(DETAIL, DETAIL);
 	}
+
 }

@@ -62,36 +62,38 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Andrei Stefan
  */
 @ContextConfiguration(locations = { "/jdbcMutableAclServiceTests-context.xml" })
-public class JdbcMutableAclServiceTests extends
-		AbstractTransactionalJUnit4SpringContextTests {
+public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
+
 	// ~ Constant fields
 	// ================================================================================================
 
 	private static final String TARGET_CLASS = TargetObject.class.getName();
 
-	private final Authentication auth = new TestingAuthenticationToken("ben", "ignored",
-			"ROLE_ADMINISTRATOR");
+	private final Authentication auth = new TestingAuthenticationToken("ben", "ignored", "ROLE_ADMINISTRATOR");
 
 	public static final String SELECT_ALL_CLASSES = "SELECT * FROM acl_class WHERE class = ?";
 
 	// ~ Instance fields
 	// ================================================================================================
 
-	private final ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS,
-			100L);
-	private final ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS,
-			101L);
-	private final ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS,
-			102L);
+	private final ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
+
+	private final ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, 101L);
+
+	private final ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 102L);
 
 	@Autowired
 	private JdbcMutableAclService jdbcMutableAclService;
+
 	@Autowired
 	private AclCache aclCache;
+
 	@Autowired
 	private LookupStrategy lookupStrategy;
+
 	@Autowired
 	private DataSource dataSource;
+
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
@@ -166,8 +168,8 @@ public class JdbcMutableAclServiceTests extends
 		jdbcMutableAclService.updateAcl(child);
 
 		// Let's check if we can read them back correctly
-		Map<ObjectIdentity, Acl> map = jdbcMutableAclService.readAclsById(Arrays.asList(
-			getTopParentOid(), getMiddleParentOid(), getChildOid()));
+		Map<ObjectIdentity, Acl> map = jdbcMutableAclService
+				.readAclsById(Arrays.asList(getTopParentOid(), getMiddleParentOid(), getChildOid()));
 		assertThat(map).hasSize(3);
 
 		// Replace our current objects with their retrieved versions
@@ -257,8 +259,9 @@ public class JdbcMutableAclServiceTests extends
 		}
 
 		// Check the permissions are as they should be
-		assertThat(child.isGranted(delete, pSid, true)).isFalse(); // as earlier permission
-															// overrode
+		assertThat(child.isGranted(delete, pSid, true)).isFalse(); // as earlier
+																	// permission
+		// overrode
 		assertThat(child.isGranted(Arrays.asList(BasePermission.CREATE), pSid, true)).isTrue();
 
 		// Now check the first ACE (index 0) really is DELETE for our Sid and is
@@ -360,8 +363,7 @@ public class JdbcMutableAclServiceTests extends
 	@Transactional
 	public void createAclForADuplicateDomainObject() {
 		SecurityContextHolder.getContext().setAuthentication(auth);
-		ObjectIdentity duplicateOid = new ObjectIdentityImpl(TARGET_CLASS,
-				100L);
+		ObjectIdentity duplicateOid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		jdbcMutableAclService.createAcl(duplicateOid);
 		// Try to add the same object second time
 		try {
@@ -419,11 +421,8 @@ public class JdbcMutableAclServiceTests extends
 
 		// Remove the child and check all related database rows were removed accordingly
 		jdbcMutableAclService.deleteAcl(getChildOid(), false);
-		assertThat(
-				jdbcTemplate.queryForList(SELECT_ALL_CLASSES,
-						new Object[] { getTargetClass() })).hasSize(1);
-		assertThat(jdbcTemplate.queryForList("select * from acl_object_identity")
-				).isEmpty();
+		assertThat(jdbcTemplate.queryForList(SELECT_ALL_CLASSES, new Object[] { getTargetClass() })).hasSize(1);
+		assertThat(jdbcTemplate.queryForList("select * from acl_object_identity")).isEmpty();
 		assertThat(jdbcTemplate.queryForList("select * from acl_entry")).isEmpty();
 
 		// Check the cache
@@ -439,8 +438,7 @@ public class JdbcMutableAclServiceTests extends
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 101);
 		jdbcMutableAclService.createAcl(oid);
 
-		assertThat(jdbcMutableAclService.readAclById(new ObjectIdentityImpl(
-				TARGET_CLASS, 101L))).isNotNull();
+		assertThat(jdbcMutableAclService.readAclById(new ObjectIdentityImpl(TARGET_CLASS, 101L))).isNotNull();
 	}
 
 	/**
@@ -449,8 +447,7 @@ public class JdbcMutableAclServiceTests extends
 	@Test
 	@Transactional
 	public void childrenAreClearedFromCacheWhenParentIsUpdated() {
-		Authentication auth = new TestingAuthenticationToken("ben", "ignored",
-				"ROLE_ADMINISTRATOR");
+		Authentication auth = new TestingAuthenticationToken("ben", "ignored", "ROLE_ADMINISTRATOR");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -474,7 +471,8 @@ public class JdbcMutableAclServiceTests extends
 		child = (MutableAcl) jdbcMutableAclService.readAclById(childOid);
 		parent = (MutableAcl) child.getParentAcl();
 
-		assertThat(parent.getEntries()).hasSize(2).withFailMessage("Fails because child has a stale reference to its parent");
+		assertThat(parent.getEntries()).hasSize(2)
+				.withFailMessage("Fails because child has a stale reference to its parent");
 		assertThat(parent.getEntries().get(0).getPermission().getMask()).isEqualTo(1);
 		assertThat(parent.getEntries().get(0).getSid()).isEqualTo(new PrincipalSid("ben"));
 		assertThat(parent.getEntries().get(1).getPermission().getMask()).isEqualTo(1);
@@ -487,34 +485,28 @@ public class JdbcMutableAclServiceTests extends
 	@Test
 	@Transactional
 	public void childrenAreClearedFromCacheWhenParentisUpdated2() {
-		Authentication auth = new TestingAuthenticationToken("system", "secret",
-				"ROLE_IGNORED");
+		Authentication auth = new TestingAuthenticationToken("system", "secret", "ROLE_IGNORED");
 		SecurityContextHolder.getContext().setAuthentication(auth);
-		ObjectIdentityImpl rootObject = new ObjectIdentityImpl(TARGET_CLASS,
-				1L);
+		ObjectIdentityImpl rootObject = new ObjectIdentityImpl(TARGET_CLASS, 1L);
 
 		MutableAcl parent = jdbcMutableAclService.createAcl(rootObject);
-		MutableAcl child = jdbcMutableAclService.createAcl(new ObjectIdentityImpl(
-				TARGET_CLASS, 2L));
+		MutableAcl child = jdbcMutableAclService.createAcl(new ObjectIdentityImpl(TARGET_CLASS, 2L));
 		child.setParent(parent);
 		jdbcMutableAclService.updateAcl(child);
 
-		parent.insertAce(0, BasePermission.ADMINISTRATION, new GrantedAuthoritySid(
-				"ROLE_ADMINISTRATOR"), true);
+		parent.insertAce(0, BasePermission.ADMINISTRATION, new GrantedAuthoritySid("ROLE_ADMINISTRATOR"), true);
 		jdbcMutableAclService.updateAcl(parent);
 
 		parent.insertAce(1, BasePermission.DELETE, new PrincipalSid("terry"), true);
 		jdbcMutableAclService.updateAcl(parent);
 
-		child = (MutableAcl) jdbcMutableAclService.readAclById(new ObjectIdentityImpl(
-				TARGET_CLASS, 2L));
+		child = (MutableAcl) jdbcMutableAclService.readAclById(new ObjectIdentityImpl(TARGET_CLASS, 2L));
 
 		parent = (MutableAcl) child.getParentAcl();
 
 		assertThat(parent.getEntries()).hasSize(2);
 		assertThat(parent.getEntries().get(0).getPermission().getMask()).isEqualTo(16);
-		assertThat(parent.getEntries()
-				.get(0).getSid()).isEqualTo(new GrantedAuthoritySid("ROLE_ADMINISTRATOR"));
+		assertThat(parent.getEntries().get(0).getSid()).isEqualTo(new GrantedAuthoritySid("ROLE_ADMINISTRATOR"));
 		assertThat(parent.getEntries().get(1).getPermission().getMask()).isEqualTo(8);
 		assertThat(parent.getEntries().get(1).getSid()).isEqualTo(new PrincipalSid("terry"));
 	}
@@ -522,18 +514,15 @@ public class JdbcMutableAclServiceTests extends
 	@Test
 	@Transactional
 	public void cumulativePermissions() {
-		Authentication auth = new TestingAuthenticationToken("ben", "ignored",
-				"ROLE_ADMINISTRATOR");
+		Authentication auth = new TestingAuthenticationToken("ben", "ignored", "ROLE_ADMINISTRATOR");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
-		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS,
-				110L);
+		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, 110L);
 		MutableAcl topParent = jdbcMutableAclService.createAcl(topParentOid);
 
 		// Add an ACE permission entry
-		Permission cm = new CumulativePermission().set(BasePermission.READ).set(
-				BasePermission.ADMINISTRATION);
+		Permission cm = new CumulativePermission().set(BasePermission.READ).set(BasePermission.ADMINISTRATION);
 		assertThat(cm.getMask()).isEqualTo(17);
 		Sid benSid = new PrincipalSid(auth);
 		topParent.insertAce(0, cm, benSid, true);
@@ -551,15 +540,12 @@ public class JdbcMutableAclServiceTests extends
 
 	@Test
 	public void testProcessingCustomSid() {
-		CustomJdbcMutableAclService customJdbcMutableAclService = spy(new CustomJdbcMutableAclService(
-				dataSource, lookupStrategy, aclCache));
+		CustomJdbcMutableAclService customJdbcMutableAclService = spy(
+				new CustomJdbcMutableAclService(dataSource, lookupStrategy, aclCache));
 		CustomSid customSid = new CustomSid("Custom sid");
-		when(
-				customJdbcMutableAclService.createOrRetrieveSidPrimaryKey("Custom sid",
-						false, false)).thenReturn(1L);
+		when(customJdbcMutableAclService.createOrRetrieveSidPrimaryKey("Custom sid", false, false)).thenReturn(1L);
 
-		Long result = customJdbcMutableAclService.createOrRetrieveSidPrimaryKey(
-				customSid, false);
+		Long result = customJdbcMutableAclService.createOrRetrieveSidPrimaryKey(customSid, false);
 
 		assertThat(new Long(1L)).isEqualTo(result);
 	}
@@ -570,8 +556,7 @@ public class JdbcMutableAclServiceTests extends
 	 */
 	private class CustomJdbcMutableAclService extends JdbcMutableAclService {
 
-		private CustomJdbcMutableAclService(DataSource dataSource,
-				LookupStrategy lookupStrategy, AclCache aclCache) {
+		private CustomJdbcMutableAclService(DataSource dataSource, LookupStrategy lookupStrategy, AclCache aclCache) {
 			super(dataSource, lookupStrategy, aclCache);
 		}
 
@@ -591,6 +576,7 @@ public class JdbcMutableAclServiceTests extends
 			}
 			return createOrRetrieveSidPrimaryKey(sidName, isPrincipal, allowCreate);
 		}
+
 	}
 
 	protected Authentication getAuth() {
@@ -600,4 +586,5 @@ public class JdbcMutableAclServiceTests extends
 	protected JdbcMutableAclService getJdbcMutableAclService() {
 		return jdbcMutableAclService;
 	}
+
 }

@@ -23,20 +23,21 @@ import java.util.List;
 import org.springframework.security.oauth2.core.ClaimAccessor;
 
 /**
- * A {@link ClaimAccessor} for the &quot;claims&quot; that may be contained
- * in the Introspection Response.
+ * A {@link ClaimAccessor} for the &quot;claims&quot; that may be contained in the
+ * Introspection Response.
  *
  * @author David Kovac
  * @since 5.4
  * @see ClaimAccessor
  * @see OAuth2IntrospectionClaimNames
  * @see OAuth2IntrospectionAuthenticatedPrincipal
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7662#section-2.2">Introspection Response</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc7662#section-2.2">Introspection Response</a>
  */
 public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
+
 	/**
 	 * Returns the indicator {@code (active)} whether or not the token is currently active
-	 *
 	 * @return the indicator whether or not the token is currently active
 	 */
 	default boolean isActive() {
@@ -45,7 +46,6 @@ public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
 
 	/**
 	 * Returns the scopes {@code (scope)} associated with the token
-	 *
 	 * @return the scopes associated with the token
 	 */
 	default String getScope() {
@@ -54,7 +54,6 @@ public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
 
 	/**
 	 * Returns the client identifier {@code (client_id)} for the token
-	 *
 	 * @return the client identifier for the token
 	 */
 	default String getClientId() {
@@ -62,9 +61,10 @@ public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
 	}
 
 	/**
-	 * Returns a human-readable identifier {@code (username)} for the resource owner that authorized the token
-	 *
-	 * @return a human-readable identifier for the resource owner that authorized the token
+	 * Returns a human-readable identifier {@code (username)} for the resource owner that
+	 * authorized the token
+	 * @return a human-readable identifier for the resource owner that authorized the
+	 * token
 	 */
 	default String getUsername() {
 		return this.getClaimAsString(OAuth2IntrospectionClaimNames.USERNAME);
@@ -72,7 +72,6 @@ public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
 
 	/**
 	 * Returns the type of the token {@code (token_type)}, for example {@code bearer}.
-	 *
 	 * @return the type of the token, for example {@code bearer}.
 	 */
 	default String getTokenType() {
@@ -81,7 +80,6 @@ public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
 
 	/**
 	 * Returns a timestamp {@code (exp)} indicating when the token expires
-	 *
 	 * @return a timestamp indicating when the token expires
 	 */
 	default Instant getExpiresAt() {
@@ -90,7 +88,6 @@ public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
 
 	/**
 	 * Returns a timestamp {@code (iat)} indicating when the token was issued
-	 *
 	 * @return a timestamp indicating when the token was issued
 	 */
 	default Instant getIssuedAt() {
@@ -98,8 +95,8 @@ public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
 	}
 
 	/**
-	 * Returns a timestamp {@code (nbf)} indicating when the token is not to be used before
-	 *
+	 * Returns a timestamp {@code (nbf)} indicating when the token is not to be used
+	 * before
 	 * @return a timestamp indicating when the token is not to be used before
 	 */
 	default Instant getNotBefore() {
@@ -107,9 +104,10 @@ public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
 	}
 
 	/**
-	 * Returns usually a machine-readable identifier {@code (sub)} of the resource owner who authorized the token
-	 *
-	 * @return usually a machine-readable identifier of the resource owner who authorized the token
+	 * Returns usually a machine-readable identifier {@code (sub)} of the resource owner
+	 * who authorized the token
+	 * @return usually a machine-readable identifier of the resource owner who authorized
+	 * the token
 	 */
 	default String getSubject() {
 		return this.getClaimAsString(OAuth2IntrospectionClaimNames.SUBJECT);
@@ -117,7 +115,6 @@ public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
 
 	/**
 	 * Returns the intended audience {@code (aud)} for the token
-	 *
 	 * @return the intended audience for the token
 	 */
 	default List<String> getAudience() {
@@ -126,7 +123,6 @@ public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
 
 	/**
 	 * Returns the issuer {@code (iss)} of the token
-	 *
 	 * @return the issuer of the token
 	 */
 	default URL getIssuer() {
@@ -135,10 +131,10 @@ public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
 
 	/**
 	 * Returns the identifier {@code (jti)} for the token
-	 *
 	 * @return the identifier for the token
 	 */
 	default String getId() {
 		return this.getClaimAsString(OAuth2IntrospectionClaimNames.JTI);
 	}
+
 }

@@ -27,14 +27,15 @@ import org.springframework.security.web.FilterInvocation;
 
 /**
  * Voter which handles web authorisation decisions.
+ *
  * @author Luke Taylor
  * @since 3.0
  */
 public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation> {
+
 	private SecurityExpressionHandler<FilterInvocation> expressionHandler = new DefaultWebSecurityExpressionHandler();
 
-	public int vote(Authentication authentication, FilterInvocation fi,
-			Collection<ConfigAttribute> attributes) {
+	public int vote(Authentication authentication, FilterInvocation fi, Collection<ConfigAttribute> attributes) {
 		assert authentication != null;
 		assert fi != null;
 		assert attributes != null;
@@ -45,16 +46,13 @@ public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation>
 			return ACCESS_ABSTAIN;
 		}
 
-		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication,
-				fi);
+		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, fi);
 		ctx = weca.postProcess(ctx, fi);
 
-		return ExpressionUtils.evaluateAsBoolean(weca.getAuthorizeExpression(), ctx) ? ACCESS_GRANTED
-				: ACCESS_DENIED;
+		return ExpressionUtils.evaluateAsBoolean(weca.getAuthorizeExpression(), ctx) ? ACCESS_GRANTED : ACCESS_DENIED;
 	}
 
-	private WebExpressionConfigAttribute findConfigAttribute(
-			Collection<ConfigAttribute> attributes) {
+	private WebExpressionConfigAttribute findConfigAttribute(Collection<ConfigAttribute> attributes) {
 		for (ConfigAttribute attribute : attributes) {
 			if (attribute instanceof WebExpressionConfigAttribute) {
 				return (WebExpressionConfigAttribute) attribute;
@@ -71,8 +69,8 @@ public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation>
 		return FilterInvocation.class.isAssignableFrom(clazz);
 	}
 
-	public void setExpressionHandler(
-			SecurityExpressionHandler<FilterInvocation> expressionHandler) {
+	public void setExpressionHandler(SecurityExpressionHandler<FilterInvocation> expressionHandler) {
 		this.expressionHandler = expressionHandler;
 	}
+
 }

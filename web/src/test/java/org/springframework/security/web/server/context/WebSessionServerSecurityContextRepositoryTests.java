@@ -31,8 +31,7 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class WebSessionServerSecurityContextRepositoryTests {
 
-	private MockServerWebExchange exchange = MockServerWebExchange.from(
-		MockServerHttpRequest.get("/"));
+	private MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
 
 	private WebSessionServerSecurityContextRepository repository = new WebSessionServerSecurityContextRepository();
 
@@ -86,4 +85,5 @@ public class WebSessionServerSecurityContextRepositoryTests {
 		SecurityContext context = this.repository.load(this.exchange).block();
 		assertThat(context).isNull();
 	}
+
 }

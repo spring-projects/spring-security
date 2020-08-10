@@ -30,10 +30,11 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  *
  * @author Ankur Pathak
  */
-public class AbstractRequestMatcherRegistryAnyMatcherTests{
+public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
 	@EnableWebSecurity
 	static class AntMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -43,15 +44,17 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 			// @formatter:on
 
 		}
+
 	}
 
 	@Test(expected = BeanCreationException.class)
-	public void antMatchersCanNotWorkAfterAnyRequest(){
+	public void antMatchersCanNotWorkAfterAnyRequest() {
 		loadConfig(AntMatchersAfterAnyRequestConfig.class);
 	}
 
 	@EnableWebSecurity
 	static class MvcMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -61,6 +64,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 			// @formatter:on
 
 		}
+
 	}
 
 	@Test(expected = BeanCreationException.class)
@@ -70,6 +74,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 
 	@EnableWebSecurity
 	static class RegexMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -79,6 +84,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 			// @formatter:on
 
 		}
+
 	}
 
 	@Test(expected = BeanCreationException.class)
@@ -88,6 +94,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 
 	@EnableWebSecurity
 	static class AnyRequestAfterItselfConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -97,6 +104,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 			// @formatter:on
 
 		}
+
 	}
 
 	@Test(expected = BeanCreationException.class)
@@ -106,6 +114,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 
 	@EnableWebSecurity
 	static class RequestMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -115,6 +124,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 			// @formatter:on
 
 		}
+
 	}
 
 	@Test(expected = BeanCreationException.class)
@@ -129,4 +139,5 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 		context.setServletContext(new MockServletContext());
 		context.refresh();
 	}
+
 }

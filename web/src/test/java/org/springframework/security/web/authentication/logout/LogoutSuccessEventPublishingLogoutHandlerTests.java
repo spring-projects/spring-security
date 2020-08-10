@@ -63,5 +63,7 @@ public class LogoutSuccessEventPublishingLogoutHandlerTests {
 				flag = true;
 			}
 		}
+
 	}
+
 }

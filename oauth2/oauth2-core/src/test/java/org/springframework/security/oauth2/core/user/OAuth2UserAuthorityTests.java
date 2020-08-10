@@ -28,7 +28,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class OAuth2UserAuthorityTests {
+
 	private static final String AUTHORITY = "ROLE_USER";
+
 	private static final Map<String, Object> ATTRIBUTES = Collections.singletonMap("username", "test");
 
 	@Test(expected = IllegalArgumentException.class)
@@ -53,4 +55,5 @@ public class OAuth2UserAuthorityTests {
 		assertThat(userAuthority.getAuthority()).isEqualTo(AUTHORITY);
 		assertThat(userAuthority.getAttributes()).isEqualTo(ATTRIBUTES);
 	}
+
 }

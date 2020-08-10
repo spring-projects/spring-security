@@ -39,8 +39,7 @@ abstract class AbstractVariableEvaluationContextPostProcessor
 		implements EvaluationContextPostProcessor<FilterInvocation> {
 
 	@Override
-	public final EvaluationContext postProcess(EvaluationContext context,
-			FilterInvocation invocation) {
+	public final EvaluationContext postProcess(EvaluationContext context, FilterInvocation invocation) {
 		final HttpServletRequest request = invocation.getHttpRequest();
 		return new DelegatingEvaluationContext(context) {
 			private Map<String, String> variables;

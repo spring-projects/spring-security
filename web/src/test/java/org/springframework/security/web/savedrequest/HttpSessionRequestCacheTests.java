@@ -32,7 +32,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.PortResolverImpl;
 
 /**
- *
  * @author Luke Taylor
  * @author Eddú Meléndez
  * @since 3.0
@@ -43,16 +42,13 @@ public class HttpSessionRequestCacheTests {
 	public void originalGetRequestDoesntMatchIncomingPost() {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
 
-		MockHttpServletRequest request = new MockHttpServletRequest("GET",
-				"/destination");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
-		assertThat(request.getSession().getAttribute(
-				HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
+		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
 		assertThat(cache.getRequest(request, response)).isNotNull();
 
-		MockHttpServletRequest newRequest = new MockHttpServletRequest("POST",
-				"/destination");
+		MockHttpServletRequest newRequest = new MockHttpServletRequest("POST", "/destination");
 		newRequest.setSession(request.getSession());
 		assertThat(cache.getMatchingRequest(newRequest, response)).isNull();
 
@@ -63,37 +59,32 @@ public class HttpSessionRequestCacheTests {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
 		cache.setRequestMatcher(request -> request.getMethod().equals("GET"));
 
-		MockHttpServletRequest request = new MockHttpServletRequest("POST",
-				"/destination");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
 		assertThat(cache.getRequest(request, response)).isNull();
-		assertThat(cache.getRequest(new MockHttpServletRequest(),
-				new MockHttpServletResponse())).isNull();
+		assertThat(cache.getRequest(new MockHttpServletRequest(), new MockHttpServletResponse())).isNull();
 		assertThat(cache.getMatchingRequest(request, response)).isNull();
 	}
 
 	// SEC-2246
 	@Test
 	public void getRequestCustomNoClassCastException() {
-		MockHttpServletRequest request = new MockHttpServletRequest("POST",
-				"/destination");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		HttpSessionRequestCache cache = new HttpSessionRequestCache() {
 
 			@Override
-			public void saveRequest(HttpServletRequest request,
-					HttpServletResponse response) {
-				request.getSession().setAttribute(SAVED_REQUEST, new CustomSavedRequest(
-						new DefaultSavedRequest(request, new PortResolverImpl())));
+			public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
+				request.getSession().setAttribute(SAVED_REQUEST,
+						new CustomSavedRequest(new DefaultSavedRequest(request, new PortResolverImpl())));
 			}
 
 		};
 		cache.saveRequest(request, response);
 
 		cache.saveRequest(request, response);
-		assertThat(cache.getRequest(request, response)).isInstanceOf(
-				CustomSavedRequest.class);
+		assertThat(cache.getRequest(request, response)).isInstanceOf(CustomSavedRequest.class);
 	}
 
 	@Test
@@ -101,8 +92,7 @@ public class HttpSessionRequestCacheTests {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
 		cache.setSessionAttrName("CUSTOM_SAVED_REQUEST");
 
-		MockHttpServletRequest request = new MockHttpServletRequest("GET",
-				"/destination");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
 
@@ -152,5 +142,7 @@ public class HttpSessionRequestCacheTests {
 		}
 
 		private static final long serialVersionUID = 2426831999233621470L;
+
 	}
+
 }

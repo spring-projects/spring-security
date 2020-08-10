@@ -58,7 +58,7 @@ public class WithUserClassLevelAuthenticationTests {
 	@Test
 	public void requestProtectedUrlWithUser() throws Exception {
 		mvc.perform(get("/"))
-		// Ensure we got past Security
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withUsername("user"));
@@ -67,7 +67,7 @@ public class WithUserClassLevelAuthenticationTests {
 	@Test
 	public void requestProtectedUrlWithAdmin() throws Exception {
 		mvc.perform(get("/admin"))
-		// Ensure we got past Security
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withUsername("user").withRoles("ADMIN"));
@@ -107,5 +107,7 @@ public class WithUserClassLevelAuthenticationTests {
 					.withUser("user").password("password").roles("USER");
 			// @formatter:on
 		}
+
 	}
+
 }

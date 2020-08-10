@@ -29,7 +29,6 @@ public interface WebInvocationPrivilegeEvaluator {
 	/**
 	 * Determines whether the user represented by the supplied <tt>Authentication</tt>
 	 * object is allowed to invoke the supplied URI.
-	 *
 	 * @param uri the URI excluding the context path (a default context path setting will
 	 * be used)
 	 */
@@ -44,7 +43,6 @@ public interface WebInvocationPrivilegeEvaluator {
 	 * metadata applies to a given request URI, so generally the <code>contextPath</code>
 	 * is unimportant unless you are using a custom
 	 * <code>FilterInvocationSecurityMetadataSource</code>.
-	 *
 	 * @param uri the URI excluding the context path
 	 * @param contextPath the context path (may be null).
 	 * @param method the HTTP method (or null, for any method)
@@ -53,4 +51,5 @@ public interface WebInvocationPrivilegeEvaluator {
 	 * @return true if access is allowed, false if denied
 	 */
 	boolean isAllowed(String contextPath, String uri, String method, Authentication authentication);
+
 }

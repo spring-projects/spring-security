@@ -39,27 +39,33 @@ import org.springframework.security.oauth2.server.resource.web.DefaultBearerToke
 import org.springframework.util.Assert;
 
 /**
- * An implementation of {@link AuthenticationManagerResolver} that resolves a JWT-based {@link AuthenticationManager}
- * based on the <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> in a
- * signed JWT (JWS).
+ * An implementation of {@link AuthenticationManagerResolver} that resolves a JWT-based
+ * {@link AuthenticationManager} based on the <a href=
+ * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> in
+ * a signed JWT (JWS).
  *
- * To use, this class must be able to determine whether or not the `iss` claim is trusted. Recall that
- * anyone can stand up an authorization server and issue valid tokens to a resource server. The simplest way
- * to achieve this is to supply a list of trusted issuers in the constructor.
+ * To use, this class must be able to determine whether or not the `iss` claim is trusted.
+ * Recall that anyone can stand up an authorization server and issue valid tokens to a
+ * resource server. The simplest way to achieve this is to supply a list of trusted
+ * issuers in the constructor.
  *
- * This class derives the Issuer from the `iss` claim found in the {@link HttpServletRequest}'s
- * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>.
+ * This class derives the Issuer from the `iss` claim found in the
+ * {@link HttpServletRequest}'s
+ * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
+ * Token</a>.
  *
  * @author Josh Cummings
  * @since 5.3
  */
 public final class JwtIssuerAuthenticationManagerResolver implements AuthenticationManagerResolver<HttpServletRequest> {
+
 	private final AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
+
 	private final Converter<HttpServletRequest, String> issuerConverter = new JwtClaimIssuerConverter();
 
 	/**
-	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided parameters
-	 *
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
+	 * parameters
 	 * @param trustedIssuers a list of trusted issuers
 	 */
 	public JwtIssuerAuthenticationManagerResolver(String... trustedIssuers) {
@@ -67,22 +73,23 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	}
 
 	/**
-	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided parameters
-	 *
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
+	 * parameters
 	 * @param trustedIssuers a list of trusted issuers
 	 */
 	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
-		this.issuerAuthenticationManagerResolver =
-				new TrustedIssuerJwtAuthenticationManagerResolver
-						(Collections.unmodifiableCollection(trustedIssuers)::contains);
+		this.issuerAuthenticationManagerResolver = new TrustedIssuerJwtAuthenticationManagerResolver(
+				Collections.unmodifiableCollection(trustedIssuers)::contains);
 	}
 
 	/**
-	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided parameters
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
+	 * parameters
 	 *
-	 * Note that the {@link AuthenticationManagerResolver} provided in this constructor will need to
-	 * verify that the issuer is trusted. This should be done via an allowlist.
+	 * Note that the {@link AuthenticationManagerResolver} provided in this constructor
+	 * will need to verify that the issuer is trusted. This should be done via an
+	 * allowlist.
 	 *
 	 * One way to achieve this is with a {@link Map} where the keys are the known issuers:
 	 * <pre>
@@ -94,19 +101,20 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * </pre>
 	 *
 	 * The keys in the {@link Map} are the allowed issuers.
-	 *
-	 * @param issuerAuthenticationManagerResolver a strategy for resolving the {@link AuthenticationManager} by the issuer
+	 * @param issuerAuthenticationManagerResolver a strategy for resolving the
+	 * {@link AuthenticationManager} by the issuer
 	 */
-	public JwtIssuerAuthenticationManagerResolver(AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
+	public JwtIssuerAuthenticationManagerResolver(
+			AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
 		Assert.notNull(issuerAuthenticationManagerResolver, "issuerAuthenticationManagerResolver cannot be null");
 		this.issuerAuthenticationManagerResolver = issuerAuthenticationManagerResolver;
 	}
 
 	/**
-	 * Return an {@link AuthenticationManager} based off of the `iss` claim found in the request's bearer token
-	 *
-	 * @throws OAuth2AuthenticationException if the bearer token is malformed or an {@link AuthenticationManager}
-	 * can't be derived from the issuer
+	 * Return an {@link AuthenticationManager} based off of the `iss` claim found in the
+	 * request's bearer token
+	 * @throws OAuth2AuthenticationException if the bearer token is malformed or an
+	 * {@link AuthenticationManager} can't be derived from the issuer
 	 */
 	@Override
 	public AuthenticationManager resolve(HttpServletRequest request) {
@@ -118,8 +126,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 		return authenticationManager;
 	}
 
-	private static class JwtClaimIssuerConverter
-			implements Converter<HttpServletRequest, String> {
+	private static class JwtClaimIssuerConverter implements Converter<HttpServletRequest, String> {
 
 		private final BearerTokenResolver resolver = new DefaultBearerTokenResolver();
 
@@ -131,17 +138,20 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 				if (issuer != null) {
 					return issuer;
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				throw new InvalidBearerTokenException(e.getMessage(), e);
 			}
 			throw new InvalidBearerTokenException("Missing issuer");
 		}
+
 	}
 
 	private static class TrustedIssuerJwtAuthenticationManagerResolver
 			implements AuthenticationManagerResolver<String> {
 
 		private final Map<String, AuthenticationManager> authenticationManagers = new ConcurrentHashMap<>();
+
 		private final Predicate<String> trustedIssuer;
 
 		TrustedIssuerJwtAuthenticationManagerResolver(Predicate<String> trustedIssuer) {
@@ -158,5 +168,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 			}
 			return null;
 		}
+
 	}
+
 }

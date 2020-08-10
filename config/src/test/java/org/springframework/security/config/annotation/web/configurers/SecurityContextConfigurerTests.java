@@ -52,6 +52,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author Eleftheria Stein
  */
 public class SecurityContextConfigurerTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -62,12 +63,12 @@ public class SecurityContextConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnSecurityContextPersistenceFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(SecurityContextPersistenceFilter.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(SecurityContextPersistenceFilter.class));
 	}
 
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
 		@Override
@@ -82,13 +83,16 @@ public class SecurityContextConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
 		}
+
 	}
 
 	@Test
@@ -98,12 +102,12 @@ public class SecurityContextConfigurerTests {
 
 		this.mvc.perform(get("/"));
 
-		verify(DuplicateDoesNotOverrideConfig.SCR)
-				.loadContext(any(HttpRequestResponseHolder.class));
+		verify(DuplicateDoesNotOverrideConfig.SCR).loadContext(any(HttpRequestResponseHolder.class));
 	}
 
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+
 		static SecurityContextRepository SCR = mock(SecurityContextRepository.class);
 
 		@Override
@@ -116,9 +120,10 @@ public class SecurityContextConfigurerTests {
 				.securityContext();
 			// @formatter:on
 		}
+
 	}
 
-	//SEC-2932
+	// SEC-2932
 	@Test
 	public void securityContextWhenSecurityContextRepositoryNotConfiguredThenDoesNotThrowException() throws Exception {
 		this.spring.register(SecurityContextRepositoryDefaultsSecurityContextRepositoryConfig.class).autowire();
@@ -129,6 +134,7 @@ public class SecurityContextConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	static class SecurityContextRepositoryDefaultsSecurityContextRepositoryConfig extends WebSecurityConfigurerAdapter {
+
 		SecurityContextRepositoryDefaultsSecurityContextRepositoryConfig() {
 			super(true);
 		}
@@ -157,6 +163,7 @@ public class SecurityContextConfigurerTests {
 				.withUser("user").password("password").roles("USER");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -170,6 +177,7 @@ public class SecurityContextConfigurerTests {
 
 	@EnableWebSecurity
 	static class SecurityContextWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -187,6 +195,7 @@ public class SecurityContextConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -200,6 +209,7 @@ public class SecurityContextConfigurerTests {
 
 	@EnableWebSecurity
 	static class SecurityContextDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -217,6 +227,7 @@ public class SecurityContextConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -230,6 +241,7 @@ public class SecurityContextConfigurerTests {
 
 	@EnableWebSecurity
 	static class NullSecurityContextRepositoryInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -250,5 +262,7 @@ public class SecurityContextConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
+
 }

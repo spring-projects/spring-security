@@ -42,26 +42,31 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(Logger.class)
 public class DebugFilterTests {
+
 	@Captor
 	private ArgumentCaptor<HttpServletRequest> requestCaptor;
+
 	@Captor
 	private ArgumentCaptor<String> logCaptor;
 
 	@Mock
 	private HttpServletRequest request;
+
 	@Mock
 	private HttpServletResponse response;
+
 	@Mock
 	private FilterChain filterChain;
+
 	@Mock
 	private FilterChainProxy fcp;
+
 	@Mock
 	private Logger logger;
 
@@ -71,8 +76,7 @@ public class DebugFilterTests {
 
 	@Before
 	public void setUp() {
-		when(request.getHeaderNames()).thenReturn(
-				Collections.enumeration(Collections.<String> emptyList()));
+		when(request.getHeaderNames()).thenReturn(Collections.enumeration(Collections.<String>emptyList()));
 		when(request.getServletPath()).thenReturn("/login");
 		filter = new DebugFilter(fcp);
 		ReflectionTestUtils.setField(filter, "logger", logger);
@@ -106,8 +110,7 @@ public class DebugFilterTests {
 	@Test
 	public void doFilterDoesNotWrapWithDebugRequestWrapperAgain() throws Exception {
 		when(request.getAttribute(requestAttr)).thenReturn(Boolean.TRUE);
-		HttpServletRequest fireWalledRequest = new HttpServletRequestWrapper(
-				new DebugRequestWrapper(this.request));
+		HttpServletRequest fireWalledRequest = new HttpServletRequestWrapper(new DebugRequestWrapper(this.request));
 
 		filter.doFilter(fireWalledRequest, response, filterChain);
 
@@ -128,10 +131,9 @@ public class DebugFilterTests {
 
 		verify(logger).info(logCaptor.capture());
 
-		assertThat(logCaptor.getValue()).isEqualTo(
-				"Request received for GET '/path/':\n" + "\n" + request + "\n" + "\n"
-						+ "servletPath:/path\n" + "pathInfo:/\n" + "headers: \n"
-						+ "A: A Value, Another Value\n" + "B: B Value\n" + "\n" + "\n"
-						+ "Security filter chain: no match");
+		assertThat(logCaptor.getValue()).isEqualTo("Request received for GET '/path/':\n" + "\n" + request + "\n" + "\n"
+				+ "servletPath:/path\n" + "pathInfo:/\n" + "headers: \n" + "A: A Value, Another Value\n"
+				+ "B: B Value\n" + "\n" + "\n" + "Security filter chain: no match");
 	}
+
 }

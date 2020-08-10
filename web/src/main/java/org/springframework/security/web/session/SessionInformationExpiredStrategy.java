@@ -28,6 +28,6 @@ import javax.servlet.ServletException;
  */
 public interface SessionInformationExpiredStrategy {
 
-	void onExpiredSessionDetected(SessionInformationExpiredEvent event)
-			throws IOException, ServletException;
+	void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException, ServletException;
+
 }

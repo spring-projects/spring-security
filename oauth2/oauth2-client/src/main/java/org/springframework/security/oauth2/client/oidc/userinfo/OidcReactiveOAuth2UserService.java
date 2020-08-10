@@ -46,7 +46,8 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * An implementation of an {@link ReactiveOAuth2UserService} that supports OpenID Connect 1.0 Provider's.
+ * An implementation of an {@link ReactiveOAuth2UserService} that supports OpenID Connect
+ * 1.0 Provider's.
  *
  * @author Rob Winch
  * @since 5.1
@@ -56,24 +57,24 @@ import java.util.function.Function;
  * @see DefaultOidcUser
  * @see OidcUserInfo
  */
-public class OidcReactiveOAuth2UserService implements
-		ReactiveOAuth2UserService<OidcUserRequest, OidcUser> {
+public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<OidcUserRequest, OidcUser> {
 
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 
-	private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER =
-			new ClaimTypeConverter(createDefaultClaimTypeConverters());
+	private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
+			createDefaultClaimTypeConverters());
 
 	private ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = new DefaultReactiveOAuth2UserService();
 
-	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory =
-			clientRegistration -> DEFAULT_CLAIM_TYPE_CONVERTER;
+	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = clientRegistration -> DEFAULT_CLAIM_TYPE_CONVERTER;
 
 	/**
-	 * Returns the default {@link Converter}'s used for type conversion of claim values for an {@link OidcUserInfo}.
-
+	 * Returns the default {@link Converter}'s used for type conversion of claim values
+	 * for an {@link OidcUserInfo}.
+	 *
 	 * @since 5.2
-	 * @return a {@link Map} of {@link Converter}'s keyed by {@link StandardClaimNames claim name}
+	 * @return a {@link Map} of {@link Converter}'s keyed by {@link StandardClaimNames
+	 * claim name}
 	 */
 	public static Map<String, Converter<Object, ?>> createDefaultClaimTypeConverters() {
 		Converter<Object, ?> booleanConverter = getConverter(TypeDescriptor.valueOf(Boolean.class));
@@ -94,25 +95,25 @@ public class OidcReactiveOAuth2UserService implements
 	@Override
 	public Mono<OidcUser> loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
-		return getUserInfo(userRequest)
-			.map(userInfo -> new OidcUserAuthority(userRequest.getIdToken(), userInfo))
-			.defaultIfEmpty(new OidcUserAuthority(userRequest.getIdToken(), null))
-			.map(authority -> {
-				OidcUserInfo userInfo = authority.getUserInfo();
-				Set<GrantedAuthority> authorities = new HashSet<>();
-				authorities.add(authority);
-				OAuth2AccessToken token = userRequest.getAccessToken();
-				for (String scope : token.getScopes()) {
-					authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
-				}
-				String userNameAttributeName = userRequest.getClientRegistration()
-							.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-				if (StringUtils.hasText(userNameAttributeName)) {
-					return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
-				} else {
-					return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
-				}
-			});
+		return getUserInfo(userRequest).map(userInfo -> new OidcUserAuthority(userRequest.getIdToken(), userInfo))
+				.defaultIfEmpty(new OidcUserAuthority(userRequest.getIdToken(), null)).map(authority -> {
+					OidcUserInfo userInfo = authority.getUserInfo();
+					Set<GrantedAuthority> authorities = new HashSet<>();
+					authorities.add(authority);
+					OAuth2AccessToken token = userRequest.getAccessToken();
+					for (String scope : token.getScopes()) {
+						authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
+					}
+					String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
+							.getUserInfoEndpoint().getUserNameAttributeName();
+					if (StringUtils.hasText(userNameAttributeName)) {
+						return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo,
+								userNameAttributeName);
+					}
+					else {
+						return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
+					}
+				});
 	}
 
 	private Mono<OidcUserInfo> getUserInfo(OidcUserRequest userRequest) {
@@ -120,25 +121,22 @@ public class OidcReactiveOAuth2UserService implements
 			return Mono.empty();
 		}
 
-		return this.oauth2UserService.loadUser(userRequest)
-			.map(OAuth2User::getAttributes)
-			.map(claims -> convertClaims(claims, userRequest.getClientRegistration()))
-			.map(OidcUserInfo::new)
-			.doOnNext(userInfo -> {
-				String subject = userInfo.getSubject();
-				if (subject == null || !subject.equals(userRequest.getIdToken().getSubject())) {
-					OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE);
-					throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-				}
-			});
+		return this.oauth2UserService.loadUser(userRequest).map(OAuth2User::getAttributes)
+				.map(claims -> convertClaims(claims, userRequest.getClientRegistration())).map(OidcUserInfo::new)
+				.doOnNext(userInfo -> {
+					String subject = userInfo.getSubject();
+					if (subject == null || !subject.equals(userRequest.getIdToken().getSubject())) {
+						OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE);
+						throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+					}
+				});
 	}
 
 	private Map<String, Object> convertClaims(Map<String, Object> claims, ClientRegistration clientRegistration) {
-		Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter =
-				this.claimTypeConverterFactory.apply(clientRegistration);
-		return claimTypeConverter != null ?
-				claimTypeConverter.convert(claims) :
-				DEFAULT_CLAIM_TYPE_CONVERTER.convert(claims);
+		Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
+				.apply(clientRegistration);
+		return claimTypeConverter != null ? claimTypeConverter.convert(claims)
+				: DEFAULT_CLAIM_TYPE_CONVERTER.convert(claims);
 	}
 
 	public void setOauth2UserService(ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService) {
@@ -147,15 +145,19 @@ public class OidcReactiveOAuth2UserService implements
 	}
 
 	/**
-	 * Sets the factory that provides a {@link Converter} used for type conversion of claim values for an {@link OidcUserInfo}.
-	 * The default is {@link ClaimTypeConverter} for all {@link ClientRegistration clients}.
+	 * Sets the factory that provides a {@link Converter} used for type conversion of
+	 * claim values for an {@link OidcUserInfo}. The default is {@link ClaimTypeConverter}
+	 * for all {@link ClientRegistration clients}.
 	 *
 	 * @since 5.2
-	 * @param claimTypeConverterFactory the factory that provides a {@link Converter} used for type conversion
-	 *                                  of claim values for a specific {@link ClientRegistration client}
+	 * @param claimTypeConverterFactory the factory that provides a {@link Converter} used
+	 * for type conversion of claim values for a specific {@link ClientRegistration
+	 * client}
 	 */
-	public final void setClaimTypeConverterFactory(Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
+	public final void setClaimTypeConverterFactory(
+			Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
 	}
+
 }

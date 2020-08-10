@@ -34,6 +34,7 @@ import org.springframework.security.core.session.SessionRegistryImpl;
  * @author Ben Alex
  */
 public class SessionRegistryImplTests {
+
 	private SessionRegistryImpl sessionRegistry;
 
 	// ~ Methods
@@ -121,8 +122,7 @@ public class SessionRegistryImplTests {
 		sessionRegistry.registerNewSession(sessionId, principal);
 
 		// Retrieve existing session by session ID
-		Date currentDateTime = sessionRegistry.getSessionInformation(sessionId)
-				.getLastRequest();
+		Date currentDateTime = sessionRegistry.getSessionInformation(sessionId).getLastRequest();
 		assertThat(sessionRegistry.getSessionInformation(sessionId).getPrincipal()).isEqualTo(principal);
 		assertThat(sessionRegistry.getSessionInformation(sessionId).getSessionId()).isEqualTo(sessionId);
 		assertThat(sessionRegistry.getSessionInformation(sessionId).getLastRequest()).isNotNull();
@@ -136,12 +136,12 @@ public class SessionRegistryImplTests {
 		// Update request date/time
 		sessionRegistry.refreshLastRequest(sessionId);
 
-		Date retrieved = sessionRegistry.getSessionInformation(sessionId)
-				.getLastRequest();
+		Date retrieved = sessionRegistry.getSessionInformation(sessionId).getLastRequest();
 		assertThat(retrieved.after(currentDateTime)).isTrue();
 
 		// Check it retrieves correctly when looked up via principal
-		assertThat(sessionRegistry.getAllSessions(principal, false).get(0).getLastRequest()).isCloseTo(retrieved, 2000L);
+		assertThat(sessionRegistry.getAllSessions(principal, false).get(0).getLastRequest()).isCloseTo(retrieved,
+				2000L);
 
 		// Clear session information
 		sessionRegistry.removeSessionInformation(sessionId);
@@ -158,8 +158,7 @@ public class SessionRegistryImplTests {
 		String sessionId2 = "9876543210";
 
 		sessionRegistry.registerNewSession(sessionId1, principal);
-		List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal,
-				false);
+		List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
 		assertThat(sessions).hasSize(1);
 		assertThat(contains(sessionId1, principal)).isTrue();
 
@@ -184,8 +183,7 @@ public class SessionRegistryImplTests {
 		String sessionId2 = "9876543210";
 
 		sessionRegistry.registerNewSession(sessionId1, principal);
-		List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal,
-				false);
+		List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
 		assertThat(sessions).hasSize(1);
 		assertThat(contains(sessionId1, principal)).isTrue();
 
@@ -215,4 +213,5 @@ public class SessionRegistryImplTests {
 
 		return false;
 	}
+
 }

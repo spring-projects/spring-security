@@ -26,13 +26,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class PreAuthorizeTests {
+
 	@Autowired
 	PreAuthorizeServiceImpl service;
 
@@ -43,25 +43,30 @@ public class PreAuthorizeTests {
 
 	@Test(expected = AccessDeniedException.class)
 	public void preAuthorizeAdminRoleDenied() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
 		service.preAuthorizeAdminRole();
 	}
 
 	@Test
 	public void preAuthorizeAdminRoleGranted() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
 		service.preAuthorizeAdminRole();
 	}
 
 	@Test
 	public void preAuthorizeContactPermissionGranted() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
 		service.contactPermission(new Contact("user"));
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void preAuthorizeContactPermissionDenied() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
 		service.contactPermission(new Contact("admin"));
 	}
+
 }

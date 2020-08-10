@@ -23,7 +23,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 
 /**
- *
  * @author Rob Winch
  *
  */
@@ -59,40 +58,32 @@ public class RequestHeaderRequestMatcherTests {
 	@Test
 	public void matchesHeaderNameDoesNotMatch() {
 		request.addHeader(headerName + "notMatch", headerValue);
-		assertThat(new RequestHeaderRequestMatcher(headerName).matches(request))
-				.isFalse();
+		assertThat(new RequestHeaderRequestMatcher(headerName).matches(request)).isFalse();
 	}
 
 	@Test
 	public void matchesHeaderNameValueMatches() {
 		request.addHeader(headerName, headerValue);
-		assertThat(
-				new RequestHeaderRequestMatcher(headerName, headerValue).matches(request))
-				.isTrue();
+		assertThat(new RequestHeaderRequestMatcher(headerName, headerValue).matches(request)).isTrue();
 	}
 
 	@Test
 	public void matchesHeaderNameValueHeaderNameNotMatch() {
 		request.addHeader(headerName + "notMatch", headerValue);
-		assertThat(
-				new RequestHeaderRequestMatcher(headerName, headerValue).matches(request))
-				.isFalse();
+		assertThat(new RequestHeaderRequestMatcher(headerName, headerValue).matches(request)).isFalse();
 	}
 
 	@Test
 	public void matchesHeaderNameValueHeaderValueNotMatch() {
 		request.addHeader(headerName, headerValue + "notMatch");
-		assertThat(
-				new RequestHeaderRequestMatcher(headerName, headerValue).matches(request))
-				.isFalse();
+		assertThat(new RequestHeaderRequestMatcher(headerName, headerValue).matches(request)).isFalse();
 	}
 
 	@Test
 	public void matchesHeaderNameValueHeaderValueMultiNotMatch() {
 		request.addHeader(headerName, headerValue + "notMatch");
 		request.addHeader(headerName, headerValue);
-		assertThat(
-				new RequestHeaderRequestMatcher(headerName, headerValue).matches(request))
-				.isFalse();
+		assertThat(new RequestHeaderRequestMatcher(headerName, headerValue).matches(request)).isFalse();
 	}
+
 }

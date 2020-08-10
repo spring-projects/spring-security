@@ -26,32 +26,33 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 
 /**
- * Reactive version of {@link JwtAuthenticationConverter} for converting a {@link Jwt}
- * to a {@link AbstractAuthenticationToken Mono&lt;AbstractAuthenticationToken&gt;}.
+ * Reactive version of {@link JwtAuthenticationConverter} for converting a {@link Jwt} to
+ * a {@link AbstractAuthenticationToken Mono&lt;AbstractAuthenticationToken&gt;}.
  *
  * @author Eric Deandrea
  * @since 5.2
  */
 public final class ReactiveJwtAuthenticationConverter implements Converter<Jwt, Mono<AbstractAuthenticationToken>> {
-	private Converter<Jwt, Flux<GrantedAuthority>> jwtGrantedAuthoritiesConverter
-			= new ReactiveJwtGrantedAuthoritiesConverterAdapter(new JwtGrantedAuthoritiesConverter());
+
+	private Converter<Jwt, Flux<GrantedAuthority>> jwtGrantedAuthoritiesConverter = new ReactiveJwtGrantedAuthoritiesConverterAdapter(
+			new JwtGrantedAuthoritiesConverter());
 
 	@Override
 	public Mono<AbstractAuthenticationToken> convert(Jwt jwt) {
-		return this.jwtGrantedAuthoritiesConverter.convert(jwt)
-				.collectList()
+		return this.jwtGrantedAuthoritiesConverter.convert(jwt).collectList()
 				.map(authorities -> new JwtAuthenticationToken(jwt, authorities));
 	}
 
 	/**
-	 * Sets the {@link Converter Converter&lt;Jwt, Flux&lt;GrantedAuthority&gt;&gt;} to use.
-	 * Defaults to a reactive {@link JwtGrantedAuthoritiesConverter}.
-	 *
+	 * Sets the {@link Converter Converter&lt;Jwt, Flux&lt;GrantedAuthority&gt;&gt;} to
+	 * use. Defaults to a reactive {@link JwtGrantedAuthoritiesConverter}.
 	 * @param jwtGrantedAuthoritiesConverter The converter
 	 * @see JwtGrantedAuthoritiesConverter
 	 */
-	public void setJwtGrantedAuthoritiesConverter(Converter<Jwt, Flux<GrantedAuthority>> jwtGrantedAuthoritiesConverter) {
+	public void setJwtGrantedAuthoritiesConverter(
+			Converter<Jwt, Flux<GrantedAuthority>> jwtGrantedAuthoritiesConverter) {
 		Assert.notNull(jwtGrantedAuthoritiesConverter, "jwtGrantedAuthoritiesConverter cannot be null");
 		this.jwtGrantedAuthoritiesConverter = jwtGrantedAuthoritiesConverter;
 	}
+
 }

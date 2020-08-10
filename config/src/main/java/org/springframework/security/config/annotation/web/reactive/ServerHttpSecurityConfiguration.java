@@ -45,7 +45,9 @@ import org.springframework.web.reactive.result.method.annotation.ArgumentResolve
  */
 @Configuration(proxyBeanMethods = false)
 class ServerHttpSecurityConfiguration {
+
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.HttpSecurityConfiguration.";
+
 	private static final String HTTPSECURITY_BEAN_NAME = BEAN_NAME_PREFIX + "httpSecurity";
 
 	private ReactiveAdapterRegistry adapterRegistry = new ReactiveAdapterRegistry();
@@ -100,7 +102,7 @@ class ServerHttpSecurityConfiguration {
 	@Bean
 	public AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver() {
 		AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver(
-			this.adapterRegistry);
+				this.adapterRegistry);
 		if (this.beanFactory != null) {
 			resolver.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
 		}
@@ -121,10 +123,7 @@ class ServerHttpSecurityConfiguration {
 	@Scope("prototype")
 	public ServerHttpSecurity httpSecurity() {
 		ContextAwareServerHttpSecurity http = new ContextAwareServerHttpSecurity();
-		return http
-			.authenticationManager(authenticationManager())
-			.headers().and()
-			.logout().and();
+		return http.authenticationManager(authenticationManager()).headers().and().logout().and();
 	}
 
 	private ReactiveAuthenticationManager authenticationManager() {
@@ -132,8 +131,8 @@ class ServerHttpSecurityConfiguration {
 			return this.authenticationManager;
 		}
 		if (this.reactiveUserDetailsService != null) {
-			UserDetailsRepositoryReactiveAuthenticationManager manager =
-				new UserDetailsRepositoryReactiveAuthenticationManager(this.reactiveUserDetailsService);
+			UserDetailsRepositoryReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(
+					this.reactiveUserDetailsService);
 			if (this.passwordEncoder != null) {
 				manager.setPasswordEncoder(this.passwordEncoder);
 			}
@@ -143,12 +142,13 @@ class ServerHttpSecurityConfiguration {
 		return null;
 	}
 
-	private static class ContextAwareServerHttpSecurity extends ServerHttpSecurity implements
-			ApplicationContextAware {
+	private static class ContextAwareServerHttpSecurity extends ServerHttpSecurity implements ApplicationContextAware {
+
 		@Override
-		public void setApplicationContext(ApplicationContext applicationContext)
-				throws BeansException {
+		public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 			super.setApplicationContext(applicationContext);
 		}
+
 	}
+
 }

@@ -31,20 +31,22 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class WebFilterExchangeTests {
+
 	@Mock
 	private ServerWebExchange exchange;
+
 	@Mock
 	private WebFilterChain chain;
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorServerWebExchangeWebFilterChainWhenExchangeNullThenException() {
-		this. exchange = null;
+		this.exchange = null;
 		new WebFilterExchange(this.exchange, this.chain);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorServerWebExchangeWebFilterChainWhenChainNullThenException() {
-		this. chain = null;
+		this.chain = null;
 		new WebFilterExchange(this.exchange, this.chain);
 	}
 
@@ -61,4 +63,5 @@ public class WebFilterExchangeTests {
 
 		assertThat(filterExchange.getChain()).isEqualTo(this.chain);
 	}
+
 }

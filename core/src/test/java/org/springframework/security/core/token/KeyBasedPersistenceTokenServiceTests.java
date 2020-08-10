@@ -98,4 +98,5 @@ public class KeyBasedPersistenceTokenServiceTests {
 		Token token = new DefaultToken(fake, new Date().getTime(), "");
 		service.verifyToken(token.getKey());
 	}
+
 }

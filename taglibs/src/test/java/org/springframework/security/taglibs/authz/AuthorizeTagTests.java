@@ -48,15 +48,19 @@ import org.springframework.web.context.support.StaticWebApplicationContext;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizeTagTests {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	@Mock
 	private PermissionEvaluator permissionEvaluator;
+
 	private JspAuthorizeTag authorizeTag;
+
 	private MockHttpServletRequest request = new MockHttpServletRequest();
-	private final TestingAuthenticationToken currentUser = new TestingAuthenticationToken(
-			"abc", "123", "ROLE SUPERVISOR", "ROLE_TELLER");
+
+	private final TestingAuthenticationToken currentUser = new TestingAuthenticationToken("abc", "123",
+			"ROLE SUPERVISOR", "ROLE_TELLER");
 
 	// ~ Methods
 	// ========================================================================================================
@@ -70,15 +74,12 @@ public class AuthorizeTagTests {
 				.rootBeanDefinition(DefaultWebSecurityExpressionHandler.class);
 		webExpressionHandler.addPropertyValue("permissionEvaluator", permissionEvaluator);
 
-		ctx.registerBeanDefinition("expressionHandler",
-				webExpressionHandler.getBeanDefinition());
+		ctx.registerBeanDefinition("expressionHandler", webExpressionHandler.getBeanDefinition());
 		ctx.registerSingleton("wipe", MockWebInvocationPrivilegeEvaluator.class);
 		MockServletContext servletCtx = new MockServletContext();
-		servletCtx.setAttribute(
-				WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
+		servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
 		authorizeTag = new JspAuthorizeTag();
-		authorizeTag.setPageContext(new MockPageContext(servletCtx, request,
-				new MockHttpServletResponse()));
+		authorizeTag.setPageContext(new MockPageContext(servletCtx, request, new MockHttpServletResponse()));
 	}
 
 	@After
@@ -92,10 +93,8 @@ public class AuthorizeTagTests {
 	public void taglibsDocumentationHasPermissionOr() throws Exception {
 		Object domain = new Object();
 		request.setAttribute("domain", domain);
-		authorizeTag
-				.setAccess("hasPermission(#domain,'read') or hasPermission(#domain,'write')");
-		when(permissionEvaluator.hasPermission(eq(currentUser), eq(domain), anyString()))
-				.thenReturn(true);
+		authorizeTag.setAccess("hasPermission(#domain,'read') or hasPermission(#domain,'write')");
+		when(permissionEvaluator.hasPermission(eq(currentUser), eq(domain), anyString())).thenReturn(true);
 
 		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 	}
@@ -154,16 +153,16 @@ public class AuthorizeTagTests {
 		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 	}
 
-	public static class MockWebInvocationPrivilegeEvaluator implements
-			WebInvocationPrivilegeEvaluator {
+	public static class MockWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
 
 		public boolean isAllowed(String uri, Authentication authentication) {
 			return "/allowed".equals(uri);
 		}
 
-		public boolean isAllowed(String contextPath, String uri, String method,
-				Authentication authentication) {
+		public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
 			return "/allowed".equals(uri) && (method == null || "GET".equals(method));
 		}
+
 	}
+
 }

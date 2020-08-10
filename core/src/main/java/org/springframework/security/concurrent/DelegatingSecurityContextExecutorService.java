@@ -36,29 +36,27 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Rob Winch
  * @since 3.2
  */
-public class DelegatingSecurityContextExecutorService extends
-		DelegatingSecurityContextExecutor implements ExecutorService {
+public class DelegatingSecurityContextExecutorService extends DelegatingSecurityContextExecutor
+		implements ExecutorService {
+
 	/**
 	 * Creates a new {@link DelegatingSecurityContextExecutorService} that uses the
 	 * specified {@link SecurityContext}.
-	 *
 	 * @param delegateExecutorService the {@link ExecutorService} to delegate to. Cannot
 	 * be null.
 	 * @param securityContext the {@link SecurityContext} to use for each
 	 * {@link DelegatingSecurityContextRunnable} and each
 	 * {@link DelegatingSecurityContextCallable}.
 	 */
-	public DelegatingSecurityContextExecutorService(
-			ExecutorService delegateExecutorService, SecurityContext securityContext) {
+	public DelegatingSecurityContextExecutorService(ExecutorService delegateExecutorService,
+			SecurityContext securityContext) {
 		super(delegateExecutorService, securityContext);
 	}
 
 	/**
 	 * Creates a new {@link DelegatingSecurityContextExecutorService} that uses the
 	 * current {@link SecurityContext} from the {@link SecurityContextHolder}.
-	 *
-	 * @param delegate the {@link ExecutorService} to delegate to. Cannot be
-	 * null.
+	 * @param delegate the {@link ExecutorService} to delegate to. Cannot be null.
 	 */
 	public DelegatingSecurityContextExecutorService(ExecutorService delegate) {
 		this(delegate, null);
@@ -80,8 +78,7 @@ public class DelegatingSecurityContextExecutorService extends
 		return getDelegate().isTerminated();
 	}
 
-	public final boolean awaitTermination(long timeout, TimeUnit unit)
-			throws InterruptedException {
+	public final boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
 		return getDelegate().awaitTermination(timeout, unit);
 	}
 
@@ -107,15 +104,13 @@ public class DelegatingSecurityContextExecutorService extends
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public final List invokeAll(Collection tasks, long timeout, TimeUnit unit)
-			throws InterruptedException {
+	public final List invokeAll(Collection tasks, long timeout, TimeUnit unit) throws InterruptedException {
 		tasks = createTasks(tasks);
 		return getDelegate().invokeAll(tasks, timeout, unit);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public final Object invokeAny(Collection tasks) throws InterruptedException,
-			ExecutionException {
+	public final Object invokeAny(Collection tasks) throws InterruptedException, ExecutionException {
 		tasks = createTasks(tasks);
 		return getDelegate().invokeAny(tasks);
 	}
@@ -141,4 +136,5 @@ public class DelegatingSecurityContextExecutorService extends
 	private ExecutorService getDelegate() {
 		return (ExecutorService) getDelegateExecutor();
 	}
+
 }

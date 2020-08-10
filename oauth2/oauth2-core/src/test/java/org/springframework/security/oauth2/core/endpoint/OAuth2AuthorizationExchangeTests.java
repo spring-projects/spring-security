@@ -42,9 +42,10 @@ public class OAuth2AuthorizationExchangeTests {
 	public void constructorWhenRequiredArgsProvidedThenCreated() {
 		OAuth2AuthorizationRequest authorizationRequest = request().build();
 		OAuth2AuthorizationResponse authorizationResponse = success().build();
-		OAuth2AuthorizationExchange authorizationExchange =
-			new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse);
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
+				authorizationResponse);
 		assertThat(authorizationExchange.getAuthorizationRequest()).isEqualTo(authorizationRequest);
 		assertThat(authorizationExchange.getAuthorizationResponse()).isEqualTo(authorizationResponse);
 	}
+
 }

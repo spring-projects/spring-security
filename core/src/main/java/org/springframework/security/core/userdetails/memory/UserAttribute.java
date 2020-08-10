@@ -24,17 +24,20 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
- * Used by {@link org.springframework.security.provisioning.InMemoryUserDetailsManager} to temporarily store the attributes associated with a
- * user.
+ * Used by {@link org.springframework.security.provisioning.InMemoryUserDetailsManager} to
+ * temporarily store the attributes associated with a user.
  *
  * @author Ben Alex
  */
 public class UserAttribute {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private List<GrantedAuthority> authorities = new Vector<>();
+
 	private String password;
+
 	private boolean enabled = true;
 
 	// ~ Methods
@@ -50,7 +53,6 @@ public class UserAttribute {
 
 	/**
 	 * Set all authorities for this user.
-	 *
 	 * @param authorities {@link List} &lt;{@link GrantedAuthority}&gt;
 	 * @since 1.1
 	 */
@@ -61,7 +63,6 @@ public class UserAttribute {
 	/**
 	 * Set all authorities for this user from String values. It will create the necessary
 	 * {@link GrantedAuthority} objects.
-	 *
 	 * @param authoritiesAsStrings {@link List} &lt;{@link String}&gt;
 	 * @since 1.1
 	 */
@@ -96,4 +97,5 @@ public class UserAttribute {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
 }

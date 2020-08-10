@@ -28,8 +28,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @author Paul Wheeler
  */
 public class BasicLookupStrategyTests extends AbstractBasicLookupStrategyTests {
-	private static final BasicLookupStrategyTestsDbHelper DATABASE_HELPER = new BasicLookupStrategyTestsDbHelper();
 
+	private static final BasicLookupStrategyTestsDbHelper DATABASE_HELPER = new BasicLookupStrategyTestsDbHelper();
 
 	@BeforeClass
 	public static void createDatabase() throws Exception {
@@ -50,4 +50,5 @@ public class BasicLookupStrategyTests extends AbstractBasicLookupStrategyTests {
 	public DataSource getDataSource() {
 		return DATABASE_HELPER.getDataSource();
 	}
+
 }

@@ -44,20 +44,22 @@ import org.springframework.security.web.AuthenticationEntryPoint;
  *
  * @author Ben Alex
  */
-public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
-		InitializingBean, Ordered {
+public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	private static final Log logger = LogFactory
-			.getLog(DigestAuthenticationEntryPoint.class);
+	private static final Log logger = LogFactory.getLog(DigestAuthenticationEntryPoint.class);
 
 	// ~ Instance fields
 	// ================================================================================================
 
 	private String key;
+
 	private String realmName;
+
 	private int nonceValiditySeconds = 300;
+
 	private int order = Integer.MAX_VALUE; // ~ default
 
 	// ~ Methods
@@ -96,21 +98,19 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 		// qop is quality of protection, as defined by RFC 2617.
 		// we do not use opaque due to IE violation of RFC 2617 in not
 		// representing opaque on subsequent requests in same session.
-		String authenticateHeader = "Digest realm=\"" + realmName + "\", "
-				+ "qop=\"auth\", nonce=\"" + nonceValueBase64 + "\"";
+		String authenticateHeader = "Digest realm=\"" + realmName + "\", " + "qop=\"auth\", nonce=\"" + nonceValueBase64
+				+ "\"";
 
 		if (authException instanceof NonceExpiredException) {
 			authenticateHeader = authenticateHeader + ", stale=\"true\"";
 		}
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("WWW-Authenticate header sent to user agent: "
-					+ authenticateHeader);
+			logger.debug("WWW-Authenticate header sent to user agent: " + authenticateHeader);
 		}
 
 		httpResponse.addHeader("WWW-Authenticate", authenticateHeader);
-		httpResponse.sendError(HttpStatus.UNAUTHORIZED.value(),
-			HttpStatus.UNAUTHORIZED.getReasonPhrase());
+		httpResponse.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 	}
 
 	public String getKey() {
@@ -136,4 +136,5 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 	public void setRealmName(String realmName) {
 		this.realmName = realmName;
 	}
+
 }

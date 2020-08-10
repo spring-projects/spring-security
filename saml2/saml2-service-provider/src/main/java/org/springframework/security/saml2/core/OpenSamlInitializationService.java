@@ -36,17 +36,21 @@ import static java.lang.Boolean.TRUE;
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.setParserPool;
 
 /**
- * An initialization service for initializing OpenSAML. Each Spring Security OpenSAML-based component invokes
- * the {@link #initialize()} method at static initialization time.
+ * An initialization service for initializing OpenSAML. Each Spring Security
+ * OpenSAML-based component invokes the {@link #initialize()} method at static
+ * initialization time.
  *
- * {@link #initialize()} is idempotent and may be safely called in custom classes that need OpenSAML to be
- * initialized in order to function correctly. It's recommended that you call this {@link #initialize()} method
- * when using Spring Security and OpenSAML instead of OpenSAML's {@link InitializationService#initialize()}.
+ * {@link #initialize()} is idempotent and may be safely called in custom classes that
+ * need OpenSAML to be initialized in order to function correctly. It's recommended that
+ * you call this {@link #initialize()} method when using Spring Security and OpenSAML
+ * instead of OpenSAML's {@link InitializationService#initialize()}.
  *
- * The primary purpose of {@link #initialize()} is to prepare OpenSAML's {@link XMLObjectProviderRegistry}
- * with some reasonable defaults. Any changes that Spring Security makes to the registry happen in this method.
+ * The primary purpose of {@link #initialize()} is to prepare OpenSAML's
+ * {@link XMLObjectProviderRegistry} with some reasonable defaults. Any changes that
+ * Spring Security makes to the registry happen in this method.
  *
- * To override those defaults, call {@link #requireInitialize(Consumer)} and change the registry:
+ * To override those defaults, call {@link #requireInitialize(Consumer)} and change the
+ * registry:
  *
  * <pre>
  * 	static {
@@ -59,45 +63,50 @@ import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.setP
  *
  * {@link #requireInitialize(Consumer)} may only be called once per application.
  *
- * If the application already initialized OpenSAML before {@link #requireInitialize(Consumer)} was called,
- * then the configuration changes will not be applied and an exception will be thrown. The reason for this is to
- * alert you to the fact that there are likely some initialization ordering problems in your application that
- * would otherwise lead to an unpredictable state.
+ * If the application already initialized OpenSAML before
+ * {@link #requireInitialize(Consumer)} was called, then the configuration changes will
+ * not be applied and an exception will be thrown. The reason for this is to alert you to
+ * the fact that there are likely some initialization ordering problems in your
+ * application that would otherwise lead to an unpredictable state.
  *
- * If you must change the registry's configuration in multiple places in your application, you are expected
- * to handle the initialization ordering issues yourself instead of trying to call {@link #requireInitialize(Consumer)}
- * multiple times.
+ * If you must change the registry's configuration in multiple places in your application,
+ * you are expected to handle the initialization ordering issues yourself instead of
+ * trying to call {@link #requireInitialize(Consumer)} multiple times.
  *
  * @author Josh Cummings
  * @since 5.4
  */
 public class OpenSamlInitializationService {
+
 	private static final Log log = LogFactory.getLog(OpenSamlInitializationService.class);
+
 	private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
 	/**
 	 * Ready OpenSAML for use and configure it with reasonable defaults.
 	 *
-	 * Initialization is guaranteed to happen only once per application. This method will passively return
-	 * {@code false} if initialization already took place earlier in the application.
-	 *
-	 * @return whether or not initialization was performed. The first thread to initialize OpenSAML will
-	 * return {@code true} while the rest will return {@code false}.
+	 * Initialization is guaranteed to happen only once per application. This method will
+	 * passively return {@code false} if initialization already took place earlier in the
+	 * application.
+	 * @return whether or not initialization was performed. The first thread to initialize
+	 * OpenSAML will return {@code true} while the rest will return {@code false}.
 	 * @throws Saml2Exception if OpenSAML failed to initialize
 	 */
 	public static boolean initialize() {
-		return initialize(registry -> {});
+		return initialize(registry -> {
+		});
 	}
 
 	/**
-	 * Ready OpenSAML for use, configure it with reasonable defaults, and modify the {@link XMLObjectProviderRegistry}
-	 * using the provided {@link Consumer}.
+	 * Ready OpenSAML for use, configure it with reasonable defaults, and modify the
+	 * {@link XMLObjectProviderRegistry} using the provided {@link Consumer}.
 	 *
-	 * Initialization is guaranteed to happen only once per application. This method will throw an exception
-	 * if initialization already took place earlier in the application.
-	 *
-	 * @param registryConsumer the {@link Consumer} to further configure the {@link XMLObjectProviderRegistry}
-	 * @throws Saml2Exception if initialization already happened previously or if OpenSAML failed to initialize
+	 * Initialization is guaranteed to happen only once per application. This method will
+	 * throw an exception if initialization already took place earlier in the application.
+	 * @param registryConsumer the {@link Consumer} to further configure the
+	 * {@link XMLObjectProviderRegistry}
+	 * @throws Saml2Exception if initialization already happened previously or if OpenSAML
+	 * failed to initialize
 	 */
 	public static void requireInitialize(Consumer<XMLObjectProviderRegistry> registryConsumer) {
 		if (!initialize(registryConsumer)) {
@@ -111,7 +120,8 @@ public class OpenSamlInitializationService {
 
 			try {
 				InitializationService.initialize();
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				throw new Saml2Exception(e);
 			}
 
@@ -129,7 +139,8 @@ public class OpenSamlInitializationService {
 
 			try {
 				parserPool.initialize();
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				throw new Saml2Exception(e);
 			}
 			setParserPool(parserPool);
@@ -138,9 +149,11 @@ public class OpenSamlInitializationService {
 
 			log.debug("Initialized OpenSAML");
 			return true;
-		} else {
+		}
+		else {
 			log.debug("Refused to re-initialize OpenSAML");
 			return false;
 		}
 	}
+
 }

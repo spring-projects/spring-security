@@ -45,6 +45,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author Josh Cummings
  */
 public class NamespaceDebugTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -60,8 +61,9 @@ public class NamespaceDebugTests {
 		verify(appender, atLeastOnce()).doAppend(any(ILoggingEvent.class));
 	}
 
-	@EnableWebSecurity(debug=true)
+	@EnableWebSecurity(debug = true)
 	static class DebugWebSecurity extends WebSecurityConfigurerAdapter {
+
 	}
 
 	@Test
@@ -75,6 +77,7 @@ public class NamespaceDebugTests {
 
 	@EnableWebSecurity
 	static class NoDebugWebSecurity extends WebSecurityConfigurerAdapter {
+
 	}
 
 	private Appender<ILoggingEvent> mockAppenderFor(String name) {
@@ -88,4 +91,5 @@ public class NamespaceDebugTests {
 	private Class<?> filterChainClass() {
 		return this.spring.getContext().getBean("springSecurityFilterChain").getClass();
 	}
+
 }

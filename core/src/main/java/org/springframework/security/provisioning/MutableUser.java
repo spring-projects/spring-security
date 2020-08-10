@@ -22,7 +22,6 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- *
  * @author Luke Taylor
  * @since 3.1
  */
@@ -31,6 +30,7 @@ class MutableUser implements MutableUserDetails {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	private String password;
+
 	private final UserDetails delegate;
 
 	MutableUser(UserDetails user) {
@@ -69,4 +69,5 @@ class MutableUser implements MutableUserDetails {
 	public boolean isEnabled() {
 		return delegate.isEnabled();
 	}
+
 }

@@ -34,13 +34,16 @@ import static org.springframework.security.core.authority.AuthorityUtils.NO_AUTH
  * @since 5.2
  */
 public final class DefaultOAuth2AuthenticatedPrincipal implements OAuth2AuthenticatedPrincipal, Serializable {
+
 	private final Map<String, Object> attributes;
+
 	private final Collection<GrantedAuthority> authorities;
+
 	private final String name;
 
 	/**
-	 * Constructs an {@code DefaultOAuth2AuthenticatedPrincipal} using the provided parameters.
-	 *
+	 * Constructs an {@code DefaultOAuth2AuthenticatedPrincipal} using the provided
+	 * parameters.
 	 * @param attributes the attributes of the OAuth 2.0 token
 	 * @param authorities the authorities of the OAuth 2.0 token
 	 */
@@ -51,8 +54,8 @@ public final class DefaultOAuth2AuthenticatedPrincipal implements OAuth2Authenti
 	}
 
 	/**
-	 * Constructs an {@code DefaultOAuth2AuthenticatedPrincipal} using the provided parameters.
-	 *
+	 * Constructs an {@code DefaultOAuth2AuthenticatedPrincipal} using the provided
+	 * parameters.
 	 * @param name the name attached to the OAuth 2.0 token
 	 * @param attributes the attributes of the OAuth 2.0 token
 	 * @param authorities the authorities of the OAuth 2.0 token
@@ -62,14 +65,12 @@ public final class DefaultOAuth2AuthenticatedPrincipal implements OAuth2Authenti
 
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		this.attributes = Collections.unmodifiableMap(attributes);
-		this.authorities = authorities == null ?
-				NO_AUTHORITIES : Collections.unmodifiableCollection(authorities);
+		this.authorities = authorities == null ? NO_AUTHORITIES : Collections.unmodifiableCollection(authorities);
 		this.name = name == null ? (String) this.attributes.get("sub") : name;
 	}
 
 	/**
 	 * Gets the attributes of the OAuth 2.0 token in map form.
-	 *
 	 * @return a {@link Map} of the attribute's objects keyed by the attribute's names
 	 */
 	public Map<String, Object> getAttributes() {
@@ -91,4 +92,5 @@ public final class DefaultOAuth2AuthenticatedPrincipal implements OAuth2Authenti
 	public String getName() {
 		return this.name;
 	}
+
 }

@@ -36,6 +36,7 @@ import java.net.URISyntaxException;
  * @author Luke Taylor
  */
 public final class LdapUtils {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -82,16 +83,12 @@ public final class LdapUtils {
 	 * If the DN is "cn=bob,ou=people,dc=springframework,dc=org" and the base context name
 	 * is "ou=people,dc=springframework,dc=org" it would return "cn=bob".
 	 * </p>
-	 *
 	 * @param fullDn the DN
 	 * @param baseCtx the context to work out the name relative to.
-	 *
 	 * @return the
-	 *
 	 * @throws NamingException any exceptions thrown by the context are propagated.
 	 */
-	public static String getRelativeName(String fullDn, Context baseCtx)
-			throws NamingException {
+	public static String getRelativeName(String fullDn, Context baseCtx) throws NamingException {
 
 		String baseDn = baseCtx.getNameInNamespace();
 
@@ -117,8 +114,7 @@ public final class LdapUtils {
 	 * Gets the full dn of a name by prepending the name of the context it is relative to.
 	 * If the name already contains the base name, it is returned unaltered.
 	 */
-	public static DistinguishedName getFullDn(DistinguishedName dn, Context baseCtx)
-			throws NamingException {
+	public static DistinguishedName getFullDn(DistinguishedName dn, Context baseCtx) throws NamingException {
 		DistinguishedName baseDn = new DistinguishedName(baseCtx.getNameInNamespace());
 
 		if (dn.contains(baseDn)) {
@@ -140,8 +136,7 @@ public final class LdapUtils {
 			return (String) passObj;
 		}
 		else {
-			throw new IllegalArgumentException(
-					"Password object was not a String or byte array.");
+			throw new IllegalArgumentException("Password object was not a String or byte array.");
 		}
 	}
 
@@ -151,9 +146,7 @@ public final class LdapUtils {
 	 * For example, the URL <tt>ldap://monkeymachine:11389/dc=springframework,dc=org</tt>
 	 * has the root DN "dc=springframework,dc=org".
 	 * </p>
-	 *
 	 * @param url the LDAP URL
-	 *
 	 * @return the root DN
 	 */
 	public static String parseRootDnFromUrl(String url) {
@@ -193,10 +186,10 @@ public final class LdapUtils {
 			return new URI(url);
 		}
 		catch (URISyntaxException e) {
-			IllegalArgumentException iae = new IllegalArgumentException(
-					"Unable to parse url: " + url);
+			IllegalArgumentException iae = new IllegalArgumentException("Unable to parse url: " + url);
 			iae.initCause(e);
 			throw iae;
 		}
 	}
+
 }

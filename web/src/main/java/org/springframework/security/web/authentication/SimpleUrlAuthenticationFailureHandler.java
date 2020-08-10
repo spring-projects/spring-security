@@ -45,13 +45,16 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.0
  */
-public class SimpleUrlAuthenticationFailureHandler implements
-		AuthenticationFailureHandler {
+public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFailureHandler {
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private String defaultFailureUrl;
+
 	private boolean forwardToDestination = false;
+
 	private boolean allowSessionCreation = true;
+
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	public SimpleUrlAuthenticationFailureHandler() {
@@ -68,15 +71,13 @@ public class SimpleUrlAuthenticationFailureHandler implements
 	 * If redirecting or forwarding, {@code saveException} will be called to cache the
 	 * exception for use in the target view.
 	 */
-	public void onAuthenticationFailure(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException exception)
-			throws IOException, ServletException {
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) throws IOException, ServletException {
 
 		if (defaultFailureUrl == null) {
 			logger.debug("No failure URL set, sending 401 Unauthorized error");
 
-			response.sendError(HttpStatus.UNAUTHORIZED.value(),
-				HttpStatus.UNAUTHORIZED.getReasonPhrase());
+			response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 		}
 		else {
 			saveException(request, exception);
@@ -84,8 +85,7 @@ public class SimpleUrlAuthenticationFailureHandler implements
 			if (forwardToDestination) {
 				logger.debug("Forwarding to " + defaultFailureUrl);
 
-				request.getRequestDispatcher(defaultFailureUrl)
-						.forward(request, response);
+				request.getRequestDispatcher(defaultFailureUrl).forward(request, response);
 			}
 			else {
 				logger.debug("Redirecting to " + defaultFailureUrl);
@@ -102,8 +102,7 @@ public class SimpleUrlAuthenticationFailureHandler implements
 	 * session and {@code allowSessionCreation} is {@code true} a session will be created.
 	 * Otherwise the exception will not be stored.
 	 */
-	protected final void saveException(HttpServletRequest request,
-			AuthenticationException exception) {
+	protected final void saveException(HttpServletRequest request, AuthenticationException exception) {
 		if (forwardToDestination) {
 			request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);
 		}
@@ -111,15 +110,13 @@ public class SimpleUrlAuthenticationFailureHandler implements
 			HttpSession session = request.getSession(false);
 
 			if (session != null || allowSessionCreation) {
-				request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION,
-						exception);
+				request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);
 			}
 		}
 	}
 
 	/**
 	 * The URL which will be used as the failure destination.
-	 *
 	 * @param defaultFailureUrl the failure URL, for example "/loginFailed.jsp".
 	 */
 	public void setDefaultFailureUrl(String defaultFailureUrl) {
@@ -158,4 +155,5 @@ public class SimpleUrlAuthenticationFailureHandler implements
 	public void setAllowSessionCreation(boolean allowSessionCreation) {
 		this.allowSessionCreation = allowSessionCreation;
 	}
+
 }

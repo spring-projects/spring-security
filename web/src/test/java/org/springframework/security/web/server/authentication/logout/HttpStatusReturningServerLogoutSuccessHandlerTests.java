@@ -33,11 +33,12 @@ import org.springframework.web.server.WebFilterChain;
  * @since 5.1
  */
 public class HttpStatusReturningServerLogoutSuccessHandlerTests {
+
 	@Test
 	public void defaultHttpStatusBeingReturned() {
 		WebFilterExchange filterExchange = buildFilterExchange();
-		new HttpStatusReturningServerLogoutSuccessHandler()
-				.onLogoutSuccess(filterExchange, mock(Authentication.class)).block();
+		new HttpStatusReturningServerLogoutSuccessHandler().onLogoutSuccess(filterExchange, mock(Authentication.class))
+				.block();
 
 		assertThat(filterExchange.getExchange().getResponse().getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
@@ -64,4 +65,5 @@ public class HttpStatusReturningServerLogoutSuccessHandlerTests {
 
 		return new WebFilterExchange(exchange, mock(WebFilterChain.class));
 	}
+
 }

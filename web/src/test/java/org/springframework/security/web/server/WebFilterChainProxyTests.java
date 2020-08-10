@@ -44,17 +44,17 @@ public class WebFilterChainProxyTests {
 		MatcherSecurityWebFilterChain chain = new MatcherSecurityWebFilterChain(notMatch, filters);
 		WebFilterChainProxy filter = new WebFilterChainProxy(chain);
 
-		WebTestClient.bindToController(new Object()).webFilter(filter).build()
-			.get()
-			.exchange()
-			.expectStatus().isNotFound();
+		WebTestClient.bindToController(new Object()).webFilter(filter).build().get().exchange().expectStatus()
+				.isNotFound();
 	}
 
 	static class Http200WebFilter implements WebFilter {
+
 		@Override
-		public Mono<Void> filter(ServerWebExchange exchange,
-			WebFilterChain chain) {
+		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 			return Mono.fromRunnable(() -> exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN));
 		}
+
 	}
+
 }

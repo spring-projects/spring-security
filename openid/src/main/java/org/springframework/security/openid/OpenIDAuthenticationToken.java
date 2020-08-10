@@ -27,8 +27,9 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  * OpenID Authentication Token
  *
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  * @author Robin Bramley
  */
 public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
@@ -39,16 +40,20 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 	// ================================================================================================
 
 	private final OpenIDAuthenticationStatus status;
+
 	private final Object principal;
+
 	private final String identityUrl;
+
 	private final String message;
+
 	private final List<OpenIDAttribute> attributes;
 
 	// ~ Constructors
 	// ===================================================================================================
 
-	public OpenIDAuthenticationToken(OpenIDAuthenticationStatus status,
-			String identityUrl, String message, List<OpenIDAttribute> attributes) {
+	public OpenIDAuthenticationToken(OpenIDAuthenticationStatus status, String identityUrl, String message,
+			List<OpenIDAttribute> attributes) {
 		super(new ArrayList<>(0));
 		this.principal = identityUrl;
 		this.status = status;
@@ -60,14 +65,12 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 
 	/**
 	 * Created by the <tt>OpenIDAuthenticationProvider</tt> on successful authentication.
-	 *
 	 * @param principal usually the <tt>UserDetails</tt> returned by the configured
 	 * <tt>UserDetailsService</tt> used by the <tt>OpenIDAuthenticationProvider</tt>.
 	 *
 	 */
-	public OpenIDAuthenticationToken(Object principal,
-			Collection<? extends GrantedAuthority> authorities, String identityUrl,
-			List<OpenIDAttribute> attributes) {
+	public OpenIDAuthenticationToken(Object principal, Collection<? extends GrantedAuthority> authorities,
+			String identityUrl, List<OpenIDAttribute> attributes) {
 		super(authorities);
 		this.principal = principal;
 		this.status = OpenIDAuthenticationStatus.SUCCESS;
@@ -118,4 +121,5 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 	public String toString() {
 		return "[" + super.toString() + ", attributes : " + attributes + "]";
 	}
+
 }

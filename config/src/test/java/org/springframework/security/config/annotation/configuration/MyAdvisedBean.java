@@ -20,4 +20,5 @@ public class MyAdvisedBean {
 	public Object doStuff() {
 		return null;
 	}
+
 }

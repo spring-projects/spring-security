@@ -28,11 +28,12 @@ import javax.servlet.http.HttpServletResponse;
  * @since 3.0
  */
 public final class HttpRequestResponseHolder {
+
 	private HttpServletRequest request;
+
 	private HttpServletResponse response;
 
-	public HttpRequestResponseHolder(HttpServletRequest request,
-			HttpServletResponse response) {
+	public HttpRequestResponseHolder(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
 		this.response = response;
 	}
@@ -52,4 +53,5 @@ public final class HttpRequestResponseHolder {
 	public void setResponse(HttpServletResponse response) {
 		this.response = response;
 	}
+
 }

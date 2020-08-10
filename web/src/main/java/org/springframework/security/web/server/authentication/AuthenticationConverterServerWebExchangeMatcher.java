@@ -27,25 +27,27 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * Matches if the {@link ServerAuthenticationConverter} can convert a {@link ServerWebExchange} to an {@link Authentication}.
+ * Matches if the {@link ServerAuthenticationConverter} can convert a
+ * {@link ServerWebExchange} to an {@link Authentication}.
  *
  * @author David Kovac
  * @since 5.4
  * @see ServerAuthenticationConverter
  */
 public final class AuthenticationConverterServerWebExchangeMatcher implements ServerWebExchangeMatcher {
+
 	private final ServerAuthenticationConverter serverAuthenticationConverter;
 
-	public AuthenticationConverterServerWebExchangeMatcher(ServerAuthenticationConverter serverAuthenticationConverter) {
+	public AuthenticationConverterServerWebExchangeMatcher(
+			ServerAuthenticationConverter serverAuthenticationConverter) {
 		Assert.notNull(serverAuthenticationConverter, "serverAuthenticationConverter cannot be null");
 		this.serverAuthenticationConverter = serverAuthenticationConverter;
 	}
 
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
-		return this.serverAuthenticationConverter.convert(exchange)
-				.flatMap(a -> match())
-				.onErrorResume(e -> notMatch())
+		return this.serverAuthenticationConverter.convert(exchange).flatMap(a -> match()).onErrorResume(e -> notMatch())
 				.switchIfEmpty(notMatch());
 	}
+
 }

@@ -36,14 +36,13 @@ public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAut
 
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
-		return authentication
-			.filter(this::isNotAnonymous)
-			.map(a -> new AuthorizationDecision(a.isAuthenticated()))
-			.defaultIfEmpty(new AuthorizationDecision(false));
+		return authentication.filter(this::isNotAnonymous).map(a -> new AuthorizationDecision(a.isAuthenticated()))
+				.defaultIfEmpty(new AuthorizationDecision(false));
 	}
 
 	/**
-	 * Verify (via {@link AuthenticationTrustResolver}) that the given authentication is not anonymous.
+	 * Verify (via {@link AuthenticationTrustResolver}) that the given authentication is
+	 * not anonymous.
 	 * @param authentication to be checked
 	 * @return <code>true</code> if not anonymous, otherwise <code>false</code>.
 	 */
@@ -60,5 +59,7 @@ public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAut
 		return new AuthenticatedReactiveAuthorizationManager<>();
 	}
 
-	private AuthenticatedReactiveAuthorizationManager() {}
+	private AuthenticatedReactiveAuthorizationManager() {
+	}
+
 }

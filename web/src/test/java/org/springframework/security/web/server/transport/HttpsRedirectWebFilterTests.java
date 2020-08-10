@@ -45,6 +45,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class HttpsRedirectWebFilterTests {
+
 	HttpsRedirectWebFilter filter;
 
 	@Mock
@@ -74,8 +75,7 @@ public class HttpsRedirectWebFilterTests {
 	@Test
 	public void filterWhenExchangeMismatchesThenNoRedirect() {
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
-		when(matcher.matches(any(ServerWebExchange.class)))
-				.thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		when(matcher.matches(any(ServerWebExchange.class))).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		this.filter.setRequiresHttpsRedirectMatcher(matcher);
 
 		ServerWebExchange exchange = get("http://localhost:8080");
@@ -86,8 +86,7 @@ public class HttpsRedirectWebFilterTests {
 	@Test
 	public void filterWhenExchangeMatchesAndRequestIsInsecureThenRedirects() {
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
-		when(matcher.matches(any(ServerWebExchange.class)))
-				.thenReturn(ServerWebExchangeMatcher.MatchResult.match());
+		when(matcher.matches(any(ServerWebExchange.class))).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
 		this.filter.setRequiresHttpsRedirectMatcher(matcher);
 
 		ServerWebExchange exchange = get("http://localhost:8080");
@@ -135,13 +134,11 @@ public class HttpsRedirectWebFilterTests {
 
 	@Test
 	public void setPortMapperWhenSetWithNullValueThenThrowsIllegalArgument() {
-		assertThatCode(() -> this.filter.setPortMapper(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> this.filter.setPortMapper(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	private String redirectedUrl(ServerWebExchange exchange) {
-		return exchange.getResponse().getHeaders().get(HttpHeaders.LOCATION)
-				.iterator().next();
+		return exchange.getResponse().getHeaders().get(HttpHeaders.LOCATION).iterator().next();
 	}
 
 	private int statusCode(ServerWebExchange exchange) {
@@ -149,7 +146,7 @@ public class HttpsRedirectWebFilterTests {
 	}
 
 	private ServerWebExchange get(String uri) {
-		return MockServerWebExchange.from(
-				MockServerHttpRequest.get(uri).build());
+		return MockServerWebExchange.from(MockServerHttpRequest.get(uri).build());
 	}
+
 }

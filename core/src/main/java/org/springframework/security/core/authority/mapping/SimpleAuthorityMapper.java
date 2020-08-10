@@ -30,11 +30,14 @@ import java.util.*;
  * @author Luke Taylor
  * @since 3.1
  */
-public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper,
-		InitializingBean {
+public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper, InitializingBean {
+
 	private GrantedAuthority defaultAuthority;
+
 	private String prefix = "ROLE_";
+
 	private boolean convertToUpperCase = false;
+
 	private boolean convertToLowerCase = false;
 
 	public void afterPropertiesSet() {
@@ -47,15 +50,11 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper,
 	 * prefix settings. The mapping will be one-to-one unless duplicates are produced
 	 * during the conversion. If a default authority has been set, this will also be
 	 * assigned to each mapping.
-	 *
 	 * @param authorities the original authorities
-	 *
 	 * @return the converted set of authorities
 	 */
-	public Set<GrantedAuthority> mapAuthorities(
-			Collection<? extends GrantedAuthority> authorities) {
-		HashSet<GrantedAuthority> mapped = new HashSet<>(
-				authorities.size());
+	public Set<GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> authorities) {
+		HashSet<GrantedAuthority> mapped = new HashSet<>(authorities.size());
 		for (GrantedAuthority authority : authorities) {
 			mapped.add(mapAuthority(authority.getAuthority()));
 		}
@@ -85,7 +84,6 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper,
 	/**
 	 * Sets the prefix which should be added to the authority name (if it doesn't already
 	 * exist)
-	 *
 	 * @param prefix the prefix, typically to satisfy the behaviour of an
 	 * {@code AccessDecisionVoter}.
 	 */
@@ -96,7 +94,6 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper,
 
 	/**
 	 * Whether to convert the authority value to upper case in the mapping.
-	 *
 	 * @param convertToUpperCase defaults to {@code false}
 	 */
 	public void setConvertToUpperCase(boolean convertToUpperCase) {
@@ -105,7 +102,6 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper,
 
 	/**
 	 * Whether to convert the authority value to lower case in the mapping.
-	 *
 	 * @param convertToLowerCase defaults to {@code false}
 	 */
 	public void setConvertToLowerCase(boolean convertToLowerCase) {
@@ -114,11 +110,11 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper,
 
 	/**
 	 * Sets a default authority to be assigned to all users
-	 *
 	 * @param authority the name of the authority to be assigned to all users.
 	 */
 	public void setDefaultAuthority(String authority) {
 		Assert.hasText(authority, "The authority name cannot be set to an empty value");
 		this.defaultAuthority = new SimpleGrantedAuthority(authority);
 	}
+
 }

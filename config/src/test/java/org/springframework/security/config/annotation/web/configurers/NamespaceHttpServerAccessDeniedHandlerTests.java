@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -44,7 +43,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests to verify that all the functionality of <access-denied-handler> attributes is present
+ * Tests to verify that all the functionality of <access-denied-handler> attributes is
+ * present
  *
  * @author Rob Winch
  * @author Josh Cummings
@@ -61,14 +61,13 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	@Test
 	public void requestWhenCustomAccessDeniedPageThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(AccessDeniedPageConfig.class).autowire();
-		this.mvc.perform(get("/")
-				.with(authentication(user())))
-				.andExpect(status().isForbidden())
+		this.mvc.perform(get("/").with(authentication(user()))).andExpect(status().isForbidden())
 				.andExpect(forwardedUrl("/AccessDeniedPageConfig"));
 	}
 
 	@EnableWebSecurity
 	static class AccessDeniedPageConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -79,6 +78,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 					.accessDeniedPage("/AccessDeniedPageConfig");
 			// @formatter:on
 		}
+
 	}
 
 	private static Authentication user() {
@@ -89,14 +89,13 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	public void requestWhenCustomAccessDeniedPageInLambdaThenForwardedToCustomPage() throws Exception {
 		this.spring.register(AccessDeniedPageInLambdaConfig.class).autowire();
 
-		this.mvc.perform(get("/")
-				.with(authentication(user())))
-				.andExpect(status().isForbidden())
+		this.mvc.perform(get("/").with(authentication(user()))).andExpect(status().isForbidden())
 				.andExpect(forwardedUrl("/AccessDeniedPageConfig"));
 	}
 
 	@EnableWebSecurity
 	static class AccessDeniedPageInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -109,19 +108,20 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 				);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenCustomAccessDeniedHandlerThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(AccessDeniedHandlerRefConfig.class).autowire();
-		this.mvc.perform(get("/")
-				.with(authentication(user())));
-		verifyBean(AccessDeniedHandler.class)
-				.handle(any(HttpServletRequest.class), any(HttpServletResponse.class), any(AccessDeniedException.class));
+		this.mvc.perform(get("/").with(authentication(user())));
+		verifyBean(AccessDeniedHandler.class).handle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(AccessDeniedException.class));
 	}
 
 	@EnableWebSecurity
 	static class AccessDeniedHandlerRefConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -137,21 +137,22 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		AccessDeniedHandler accessDeniedHandler() {
 			return mock(AccessDeniedHandler.class);
 		}
+
 	}
 
 	@Test
 	public void requestWhenCustomAccessDeniedHandlerInLambdaThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(AccessDeniedHandlerRefInLambdaConfig.class).autowire();
 
-		this.mvc.perform(get("/")
-				.with(authentication(user())));
+		this.mvc.perform(get("/").with(authentication(user())));
 
-		verify(AccessDeniedHandlerRefInLambdaConfig.accessDeniedHandler)
-				.handle(any(HttpServletRequest.class), any(HttpServletResponse.class), any(AccessDeniedException.class));
+		verify(AccessDeniedHandlerRefInLambdaConfig.accessDeniedHandler).handle(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(AccessDeniedException.class));
 	}
 
 	@EnableWebSecurity
 	static class AccessDeniedHandlerRefInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		static AccessDeniedHandler accessDeniedHandler = mock(AccessDeniedHandler.class);
 
 		protected void configure(HttpSecurity http) throws Exception {
@@ -171,9 +172,11 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		AccessDeniedHandler accessDeniedHandler() {
 			return accessDeniedHandler;
 		}
+
 	}
 
 	private <T> T verifyBean(Class<T> beanClass) {
 		return verify(this.spring.getContext().getBean(beanClass));
 	}
+
 }

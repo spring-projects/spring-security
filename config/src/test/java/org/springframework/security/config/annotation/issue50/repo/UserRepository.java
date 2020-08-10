@@ -27,4 +27,5 @@ public interface UserRepository extends CrudRepository<User, String> {
 
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	User findByUsername(String username);
+
 }

@@ -30,19 +30,14 @@ import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SU
  * Tests for {@link OidcUserInfo}
  */
 public class OidcIdTokenBuilderTests {
+
 	@Test
 	public void buildWhenCalledTwiceThenGeneratesTwoOidcIdTokens() {
 		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token");
 
-		OidcIdToken first = idTokenBuilder
-				.tokenValue("V1")
-				.claim("TEST_CLAIM_1", "C1")
-				.build();
+		OidcIdToken first = idTokenBuilder.tokenValue("V1").claim("TEST_CLAIM_1", "C1").build();
 
-		OidcIdToken second = idTokenBuilder
-				.tokenValue("V2")
-				.claim("TEST_CLAIM_1", "C2")
-				.claim("TEST_CLAIM_2", "C3")
+		OidcIdToken second = idTokenBuilder.tokenValue("V2").claim("TEST_CLAIM_1", "C2").claim("TEST_CLAIM_2", "C3")
 				.build();
 
 		assertThat(first.getClaims()).hasSize(1);
@@ -61,16 +56,13 @@ public class OidcIdTokenBuilderTests {
 
 		Instant now = Instant.now();
 
-		OidcIdToken idToken = idTokenBuilder
-				.expiresAt(now).build();
+		OidcIdToken idToken = idTokenBuilder.expiresAt(now).build();
 		assertThat(idToken.getExpiresAt()).isSameAs(now);
 
-		idToken = idTokenBuilder
-				.expiresAt(now).build();
+		idToken = idTokenBuilder.expiresAt(now).build();
 		assertThat(idToken.getExpiresAt()).isSameAs(now);
 
-		assertThatCode(() -> idTokenBuilder
-				.claim(EXP, "not an instant").build())
+		assertThatCode(() -> idTokenBuilder.claim(EXP, "not an instant").build())
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -80,16 +72,13 @@ public class OidcIdTokenBuilderTests {
 
 		Instant now = Instant.now();
 
-		OidcIdToken idToken = idTokenBuilder
-				.issuedAt(now).build();
+		OidcIdToken idToken = idTokenBuilder.issuedAt(now).build();
 		assertThat(idToken.getIssuedAt()).isSameAs(now);
 
-		idToken = idTokenBuilder
-				.issuedAt(now).build();
+		idToken = idTokenBuilder.issuedAt(now).build();
 		assertThat(idToken.getIssuedAt()).isSameAs(now);
 
-		assertThatCode(() -> idTokenBuilder
-				.claim(IAT, "not an instant").build())
+		assertThatCode(() -> idTokenBuilder.claim(IAT, "not an instant").build())
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -100,26 +89,18 @@ public class OidcIdTokenBuilderTests {
 		String generic = new String("sub");
 		String named = new String("sub");
 
-		OidcIdToken idToken = idTokenBuilder
-				.subject(named)
-				.claim(SUB, generic).build();
+		OidcIdToken idToken = idTokenBuilder.subject(named).claim(SUB, generic).build();
 		assertThat(idToken.getSubject()).isSameAs(generic);
 
-		idToken = idTokenBuilder
-				.claim(SUB, generic)
-				.subject(named).build();
+		idToken = idTokenBuilder.claim(SUB, generic).subject(named).build();
 		assertThat(idToken.getSubject()).isSameAs(named);
 	}
 
 	@Test
 	public void claimsWhenRemovingAClaimThenIsNotPresent() {
-		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token")
-				.claim("needs", "a claim");
+		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token").claim("needs", "a claim");
 
-		OidcIdToken idToken = idTokenBuilder
-				.subject("sub")
-				.claims(claims -> claims.remove(SUB))
-				.build();
+		OidcIdToken idToken = idTokenBuilder.subject("sub").claims(claims -> claims.remove(SUB)).build();
 		assertThat(idToken.getSubject()).isNull();
 	}
 
@@ -129,11 +110,10 @@ public class OidcIdTokenBuilderTests {
 
 		String name = new String("name");
 		String value = new String("value");
-		OidcIdToken idToken = idTokenBuilder
-				.claims(claims -> claims.put(name, value))
-				.build();
+		OidcIdToken idToken = idTokenBuilder.claims(claims -> claims.put(name, value)).build();
 
 		assertThat(idToken.getClaims()).hasSize(1);
 		assertThat(idToken.getClaims().get(name)).isSameAs(value);
 	}
+
 }

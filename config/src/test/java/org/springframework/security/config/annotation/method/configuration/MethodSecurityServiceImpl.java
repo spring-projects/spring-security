@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Rob Winch
  */
 public class MethodSecurityServiceImpl implements MethodSecurityService {
+
 	@Override
 	public String preAuthorize() {
 		return null;

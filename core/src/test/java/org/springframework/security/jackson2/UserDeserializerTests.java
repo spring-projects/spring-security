@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.2
  */
 public class UserDeserializerTests extends AbstractMixinTests {
+
 	public static final String USER_PASSWORD = "\"1234\"";
 
 	// @formatter:off
@@ -69,7 +70,8 @@ public class UserDeserializerTests extends AbstractMixinTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void deserializeUserWithNullPasswordEmptyAuthorityTest() throws IOException {
-		String userJsonWithoutPasswordString = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON, "[]");
+		String userJsonWithoutPasswordString = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
+				"[]");
 
 		mapper.readValue(userJsonWithoutPasswordString, User.class);
 	}
@@ -88,7 +90,8 @@ public class UserDeserializerTests extends AbstractMixinTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void deserializeUserWithNoClassIdInAuthoritiesTest() throws Exception {
-		String userJson = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,  "[{\"authority\": \"ROLE_USER\"}]");
+		String userJson = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
+				"[{\"authority\": \"ROLE_USER\"}]");
 		mapper.readValue(userJson, User.class);
 	}
 
@@ -115,10 +118,12 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	}
 
 	public static String userWithPasswordJson(String password) {
-		return userJson().replaceAll(Pattern.quote(USER_PASSWORD), "\""+ password +"\"");
+		return userJson().replaceAll(Pattern.quote(USER_PASSWORD), "\"" + password + "\"");
 	}
 
 	public static String userWithNoAuthoritiesJson() {
-		return userJson().replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON, SimpleGrantedAuthorityMixinTests.NO_AUTHORITIES_SET_JSON);
+		return userJson().replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
+				SimpleGrantedAuthorityMixinTests.NO_AUTHORITIES_SET_JSON);
 	}
+
 }

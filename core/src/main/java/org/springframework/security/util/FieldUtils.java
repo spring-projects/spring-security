@@ -33,16 +33,12 @@ public final class FieldUtils {
 	// ========================================================================================================
 	/**
 	 * Attempts to locate the specified field on the class.
-	 *
 	 * @param clazz the class definition containing the field
 	 * @param fieldName the name of the field to locate
-	 *
 	 * @return the Field (never null)
-	 *
 	 * @throws IllegalStateException if field could not be found
 	 */
-	public static Field getField(Class<?> clazz, String fieldName)
-			throws IllegalStateException {
+	public static Field getField(Class<?> clazz, String fieldName) throws IllegalStateException {
 		Assert.notNull(clazz, "Class required");
 		Assert.hasText(fieldName, "Field name required");
 
@@ -55,8 +51,7 @@ public final class FieldUtils {
 				return getField(clazz.getSuperclass(), fieldName);
 			}
 
-			throw new IllegalStateException("Could not locate field '" + fieldName
-					+ "' on class " + clazz);
+			throw new IllegalStateException("Could not locate field '" + fieldName + "' on class " + clazz);
 		}
 	}
 
@@ -66,8 +61,7 @@ public final class FieldUtils {
 	 * @param fieldName the field name, with "." separating nested properties
 	 * @return the value of the nested field
 	 */
-	public static Object getFieldValue(Object bean, String fieldName)
-			throws IllegalAccessException {
+	public static Object getFieldValue(Object bean, String fieldName) throws IllegalAccessException {
 		Assert.notNull(bean, "Bean cannot be null");
 		Assert.hasText(fieldName, "Field name required");
 		String[] nestedFields = StringUtils.tokenizeToStringArray(fieldName, ".");
@@ -102,8 +96,7 @@ public final class FieldUtils {
 		}
 	}
 
-	public static void setProtectedFieldValue(String protectedField, Object object,
-			Object newValue) {
+	public static void setProtectedFieldValue(String protectedField, Object object, Object newValue) {
 		Field field = FieldUtils.getField(object.getClass(), protectedField);
 
 		try {
@@ -114,4 +107,5 @@ public final class FieldUtils {
 			ReflectionUtils.handleReflectionException(ex);
 		}
 	}
+
 }

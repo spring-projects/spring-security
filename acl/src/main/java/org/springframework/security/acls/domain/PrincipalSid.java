@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class PrincipalSid implements Sid {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -78,4 +79,5 @@ public class PrincipalSid implements Sid {
 	public String toString() {
 		return "PrincipalSid[" + this.principal + "]";
 	}
+
 }

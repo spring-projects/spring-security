@@ -33,6 +33,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * @author Luke Taylor
  */
 public abstract class AbstractWebServerIntegrationTests {
+
 	protected ConfigurableApplicationContext context;
 
 	@After
@@ -53,9 +54,7 @@ public abstract class AbstractWebServerIntegrationTests {
 		context.refresh();
 		this.context = context;
 
-		return MockMvcBuilders
-			.webAppContextSetup(context)
-			.apply(springSecurity())
-			.build();
+		return MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
 	}
+
 }

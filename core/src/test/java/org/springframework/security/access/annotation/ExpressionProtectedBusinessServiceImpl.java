@@ -67,4 +67,5 @@ public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
 	public void rolesAllowedUser() {
 
 	}
+
 }

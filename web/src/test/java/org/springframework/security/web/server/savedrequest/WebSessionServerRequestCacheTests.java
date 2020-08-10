@@ -32,11 +32,13 @@ import static org.assertj.core.api.Assertions.*;
  * @since 5.0
  */
 public class WebSessionServerRequestCacheTests {
+
 	private WebSessionServerRequestCache cache = new WebSessionServerRequestCache();
 
 	@Test
 	public void saveRequestGetRequestWhenGetThenFound() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML));
+		MockServerWebExchange exchange = MockServerWebExchange
+				.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
 
 		URI saved = this.cache.getRedirectUri(exchange).block();
@@ -46,7 +48,8 @@ public class WebSessionServerRequestCacheTests {
 
 	@Test
 	public void saveRequestGetRequestWithQueryParamsWhenGetThenFound() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/").queryParam("key", "value").accept(MediaType.TEXT_HTML));
+		MockServerWebExchange exchange = MockServerWebExchange
+				.from(MockServerHttpRequest.get("/secured/").queryParam("key", "value").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
 
 		URI saved = this.cache.getRedirectUri(exchange).block();
@@ -56,7 +59,8 @@ public class WebSessionServerRequestCacheTests {
 
 	@Test
 	public void saveRequestGetRequestWhenFaviconThenNotFound() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/favicon.png").accept(MediaType.TEXT_HTML));
+		MockServerWebExchange exchange = MockServerWebExchange
+				.from(MockServerHttpRequest.get("/favicon.png").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
 
 		URI saved = this.cache.getRedirectUri(exchange).block();
@@ -85,7 +89,8 @@ public class WebSessionServerRequestCacheTests {
 
 	@Test
 	public void saveRequestRemoveRequestWhenThenFound() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML));
+		MockServerWebExchange exchange = MockServerWebExchange
+				.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
 
 		ServerHttpRequest saved = this.cache.removeMatchingRequest(exchange).block();
@@ -102,4 +107,5 @@ public class WebSessionServerRequestCacheTests {
 
 		assertThat(this.cache.getRedirectUri(exchange).block()).isNull();
 	}
+
 }

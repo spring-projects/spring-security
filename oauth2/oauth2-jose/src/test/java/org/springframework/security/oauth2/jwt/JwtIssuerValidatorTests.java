@@ -28,6 +28,7 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
  * @since 5.1
  */
 public class JwtIssuerValidatorTests {
+
 	private static final String ISSUER = "https://issuer";
 
 	private final JwtIssuerValidator validator = new JwtIssuerValidator(ISSUER);
@@ -36,8 +37,7 @@ public class JwtIssuerValidatorTests {
 	public void validateWhenIssuerMatchesThenReturnsSuccess() {
 		Jwt jwt = jwt().claim("iss", ISSUER).build();
 
-		assertThat(this.validator.validate(jwt))
-				.isEqualTo(OAuth2TokenValidatorResult.success());
+		assertThat(this.validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
 	}
 
 	@Test
@@ -63,19 +63,17 @@ public class JwtIssuerValidatorTests {
 		Jwt jwt = jwt().claim(JwtClaimNames.ISS, "issuer").build();
 		JwtIssuerValidator validator = new JwtIssuerValidator("issuer");
 
-		assertThat(validator.validate(jwt))
-				.isEqualTo(OAuth2TokenValidatorResult.success());
+		assertThat(validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
 	}
 
 	@Test
 	public void validateWhenJwtIsNullThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> this.validator.validate(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> this.validator.validate(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorWhenNullIssuerIsGivenThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> new JwtIssuerValidator(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> new JwtIssuerValidator(null)).isInstanceOf(IllegalArgumentException.class);
 	}
+
 }

@@ -36,4 +36,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Import({ RSocketSecurityConfiguration.class, SecuritySocketAcceptorInterceptorConfiguration.class })
-public @interface EnableRSocketSecurity { }
+public @interface EnableRSocketSecurity {
+
+}

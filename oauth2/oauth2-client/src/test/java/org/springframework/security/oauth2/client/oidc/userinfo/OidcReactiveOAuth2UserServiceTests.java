@@ -69,6 +69,7 @@ import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idT
  */
 @RunWith(MockitoJUnitRunner.class)
 public class OidcReactiveOAuth2UserServiceTests {
+
 	@Mock
 	private ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService;
 
@@ -77,11 +78,8 @@ public class OidcReactiveOAuth2UserServiceTests {
 
 	private OidcIdToken idToken = idToken().build();
 
-	private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-			"token",
-			Instant.now(),
-			Instant.now().plus(Duration.ofDays(1)),
-			Collections.singleton("read:user"));
+	private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token",
+			Instant.now(), Instant.now().plus(Duration.ofDays(1)), Collections.singleton("read:user"));
 
 	private OidcReactiveOAuth2UserService userService = new OidcReactiveOAuth2UserService();
 
@@ -92,7 +90,8 @@ public class OidcReactiveOAuth2UserServiceTests {
 
 	@Test
 	public void createDefaultClaimTypeConvertersWhenCalledThenDefaultsAreCorrect() {
-		Map<String, Converter<Object, ?>> claimTypeConverters = OidcReactiveOAuth2UserService.createDefaultClaimTypeConverters();
+		Map<String, Converter<Object, ?>> claimTypeConverters = OidcReactiveOAuth2UserService
+				.createDefaultClaimTypeConverters();
 		assertThat(claimTypeConverters).containsKey(StandardClaimNames.EMAIL_VERIFIED);
 		assertThat(claimTypeConverters).containsKey(StandardClaimNames.PHONE_NUMBER_VERIFIED);
 		assertThat(claimTypeConverters).containsKey(StandardClaimNames.UPDATED_AT);
@@ -124,11 +123,12 @@ public class OidcReactiveOAuth2UserServiceTests {
 
 	@Test
 	public void loadUserWhenOAuth2UserSubjectNullThenOAuth2AuthenticationException() {
-		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), Collections.singletonMap("user", "rob"), "user");
+		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
+				Collections.singletonMap("user", "rob"), "user");
 		when(this.oauth2UserService.loadUser(any())).thenReturn(Mono.just(oauth2User));
 
 		assertThatCode(() -> this.userService.loadUser(userRequest()).block())
-			.isInstanceOf(OAuth2AuthenticationException.class);
+				.isInstanceOf(OAuth2AuthenticationException.class);
 	}
 
 	@Test
@@ -136,8 +136,8 @@ public class OidcReactiveOAuth2UserServiceTests {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(StandardClaimNames.SUB, "not-equal");
 		attributes.put("user", "rob");
-		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
-				attributes, "user");
+		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
+				"user");
 		when(this.oauth2UserService.loadUser(any())).thenReturn(Mono.just(oauth2User));
 
 		assertThatCode(() -> this.userService.loadUser(userRequest()).block())
@@ -149,8 +149,8 @@ public class OidcReactiveOAuth2UserServiceTests {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(StandardClaimNames.SUB, "subject");
 		attributes.put("user", "rob");
-		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
-				attributes, "user");
+		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
+				"user");
 		when(this.oauth2UserService.loadUser(any())).thenReturn(Mono.just(oauth2User));
 
 		assertThat(this.userService.loadUser(userRequest()).block().getUserInfo()).isNotNull();
@@ -162,8 +162,8 @@ public class OidcReactiveOAuth2UserServiceTests {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(StandardClaimNames.SUB, "subject");
 		attributes.put("user", "rob");
-		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
-				attributes, "user");
+		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
+				"user");
 		when(this.oauth2UserService.loadUser(any())).thenReturn(Mono.just(oauth2User));
 
 		assertThat(this.userService.loadUser(userRequest()).block().getName()).isEqualTo("rob");
@@ -174,13 +174,14 @@ public class OidcReactiveOAuth2UserServiceTests {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(StandardClaimNames.SUB, "subject");
 		attributes.put("user", "rob");
-		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
-				attributes, "user");
+		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
+				"user");
 		when(this.oauth2UserService.loadUser(any())).thenReturn(Mono.just(oauth2User));
 
 		OidcUserRequest userRequest = userRequest();
 
-		Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> customClaimTypeConverterFactory = mock(Function.class);
+		Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> customClaimTypeConverterFactory = mock(
+				Function.class);
 		this.userService.setClaimTypeConverterFactory(customClaimTypeConverterFactory);
 
 		when(customClaimTypeConverterFactory.apply(same(userRequest.getClientRegistration())))
@@ -194,8 +195,8 @@ public class OidcReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenTokenContainsScopesThenIndividualScopeAuthorities() {
 		OidcReactiveOAuth2UserService userService = new OidcReactiveOAuth2UserService();
-		OidcUserRequest request = new OidcUserRequest(
-				clientRegistration().build(), scopes("message:read", "message:write"), idToken().build());
+		OidcUserRequest request = new OidcUserRequest(clientRegistration().build(),
+				scopes("message:read", "message:write"), idToken().build());
 		OidcUser user = userService.loadUser(request).block();
 
 		assertThat(user.getAuthorities()).hasSize(3);
@@ -208,8 +209,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenTokenDoesNotContainScopesThenNoScopeAuthorities() {
 		OidcReactiveOAuth2UserService userService = new OidcReactiveOAuth2UserService();
-		OidcUserRequest request = new OidcUserRequest(
-				clientRegistration().build(), noScopes(), idToken().build());
+		OidcUserRequest request = new OidcUserRequest(clientRegistration().build(), noScopes(), idToken().build());
 		OidcUser user = userService.loadUser(request).block();
 
 		assertThat(user.getAuthorities()).hasSize(1);
@@ -220,4 +220,5 @@ public class OidcReactiveOAuth2UserServiceTests {
 	private OidcUserRequest userRequest() {
 		return new OidcUserRequest(this.registration.build(), this.accessToken, this.idToken);
 	}
+
 }

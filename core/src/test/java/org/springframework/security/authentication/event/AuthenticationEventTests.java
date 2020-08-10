@@ -31,12 +31,13 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class AuthenticationEventTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
 	private Authentication getAuthentication() {
-		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-				"Principal", "Credentials");
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
+				"Credentials");
 		authentication.setDetails("127.0.0.1");
 
 		return authentication;
@@ -53,8 +54,7 @@ public class AuthenticationEventTests {
 	public void testAbstractAuthenticationFailureEvent() {
 		Authentication auth = getAuthentication();
 		AuthenticationException exception = new DisabledException("TEST");
-		AbstractAuthenticationFailureEvent event = new AuthenticationFailureDisabledEvent(
-				auth, exception);
+		AbstractAuthenticationFailureEvent event = new AuthenticationFailureDisabledEvent(auth, exception);
 		assertThat(event.getAuthentication()).isEqualTo(auth);
 		assertThat(event.getException()).isEqualTo(exception);
 	}
@@ -82,4 +82,5 @@ public class AuthenticationEventTests {
 
 		}
 	}
+
 }

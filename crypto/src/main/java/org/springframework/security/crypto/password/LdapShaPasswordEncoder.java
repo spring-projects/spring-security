@@ -39,19 +39,24 @@ import java.util.Base64;
  * @deprecated Digest based password encoding is not considered secure. Instead use an
  * adaptive one way function like BCryptPasswordEncoder, Pbkdf2PasswordEncoder, or
  * SCryptPasswordEncoder. Even better use {@link DelegatingPasswordEncoder} which supports
- * password upgrades. There are no plans to remove this support. It is deprecated to indicate
- * that this is a legacy implementation and using it is considered insecure.
+ * password upgrades. There are no plans to remove this support. It is deprecated to
+ * indicate that this is a legacy implementation and using it is considered insecure.
  */
 @Deprecated
 public class LdapShaPasswordEncoder implements PasswordEncoder {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
 	/** The number of bytes in a SHA hash */
 	private static final int SHA_LENGTH = 20;
+
 	private static final String SSHA_PREFIX = "{SSHA}";
+
 	private static final String SSHA_PREFIX_LC = SSHA_PREFIX.toLowerCase();
+
 	private static final String SHA_PREFIX = "{SHA}";
+
 	private static final String SHA_PREFIX_LC = SHA_PREFIX.toLowerCase();
 
 	// ~ Instance fields
@@ -93,9 +98,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	 * Calculates the hash of password (and salt bytes, if supplied) and returns a base64
 	 * encoded concatenation of the hash and salt, prefixed with {SHA} (or {SSHA} if salt
 	 * was used).
-	 *
 	 * @param rawPass the password to be encoded.
-	 *
 	 * @return the encoded password in the specified format
 	 *
 	 */
@@ -103,7 +106,6 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		byte[] salt = this.saltGenerator.generateKey();
 		return encode(rawPass, salt);
 	}
-
 
 	private String encode(CharSequence rawPassword, byte[] salt) {
 		MessageDigest sha;
@@ -148,10 +150,8 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	/**
 	 * Checks the validity of an unencoded password against an encoded one in the form
 	 * "{SSHA}sQuQF8vj8Eg2Y1hPdh3bkQhCKQBgjhQI".
-	 *
 	 * @param rawPassword unencoded password to be verified.
 	 * @param encodedPassword the actual SSHA or SHA encoded password
-	 *
 	 * @return true if they match (independent of the case of the prefix).
 	 */
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
@@ -170,8 +170,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 			salt = extractSalt(encodedPassword);
 		}
 		else if (!prefix.equals(SHA_PREFIX) && !prefix.equals(SHA_PREFIX_LC)) {
-			throw new IllegalArgumentException("Unsupported password prefix '" + prefix
-					+ "'");
+			throw new IllegalArgumentException("Unsupported password prefix '" + prefix + "'");
 		}
 		else {
 			// Standard SHA
@@ -182,8 +181,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 
 		String encodedRawPass = encode(rawPassword, salt).substring(startOfHash);
 
-		return PasswordEncoderUtils
-				.equals(encodedRawPass, encodedPassword.substring(startOfHash));
+		return PasswordEncoderUtils.equals(encodedRawPass, encodedPassword.substring(startOfHash));
 	}
 
 	/**
@@ -197,8 +195,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		int secondBrace = encPass.lastIndexOf('}');
 
 		if (secondBrace < 0) {
-			throw new IllegalArgumentException(
-					"Couldn't find closing brace for SHA prefix");
+			throw new IllegalArgumentException("Couldn't find closing brace for SHA prefix");
 		}
 
 		return encPass.substring(0, secondBrace + 1);
@@ -207,4 +204,5 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	public void setForceLowerCasePrefix(boolean forceLowerCasePrefix) {
 		this.forceLowerCasePrefix = forceLowerCasePrefix;
 	}
+
 }

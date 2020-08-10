@@ -46,5 +46,7 @@ class UnmodifiableListMixin {
 	 * @param s the Set
 	 */
 	@JsonCreator
-	UnmodifiableListMixin(Set<?> s) {}
+	UnmodifiableListMixin(Set<?> s) {
+	}
+
 }

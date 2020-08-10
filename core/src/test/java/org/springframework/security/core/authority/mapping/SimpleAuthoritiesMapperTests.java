@@ -39,8 +39,8 @@ public class SimpleAuthoritiesMapperTests {
 	@Test
 	public void defaultPrefixIsCorrectlyApplied() {
 		SimpleAuthorityMapper mapper = new SimpleAuthorityMapper();
-		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper
-				.mapAuthorities(AuthorityUtils.createAuthorityList("AaA", "ROLE_bbb")));
+		Set<String> mapped = AuthorityUtils
+				.authorityListToSet(mapper.mapAuthorities(AuthorityUtils.createAuthorityList("AaA", "ROLE_bbb")));
 		assertThat(mapped.contains("ROLE_AaA")).isTrue();
 		assertThat(mapped.contains("ROLE_bbb")).isTrue();
 	}
@@ -50,8 +50,7 @@ public class SimpleAuthoritiesMapperTests {
 		SimpleAuthorityMapper mapper = new SimpleAuthorityMapper();
 		mapper.setPrefix("");
 		List<GrantedAuthority> toMap = AuthorityUtils.createAuthorityList("AaA", "Bbb");
-		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper
-				.mapAuthorities(toMap));
+		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper.mapAuthorities(toMap));
 		assertThat(mapped).hasSize(2);
 		assertThat(mapped.contains("AaA")).isTrue();
 		assertThat(mapped.contains("Bbb")).isTrue();
@@ -75,8 +74,8 @@ public class SimpleAuthoritiesMapperTests {
 		SimpleAuthorityMapper mapper = new SimpleAuthorityMapper();
 		mapper.setConvertToUpperCase(true);
 
-		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper
-				.mapAuthorities(AuthorityUtils.createAuthorityList("AaA", "AAA")));
+		Set<String> mapped = AuthorityUtils
+				.authorityListToSet(mapper.mapAuthorities(AuthorityUtils.createAuthorityList("AaA", "AAA")));
 		assertThat(mapped).hasSize(1);
 	}
 
@@ -84,9 +83,9 @@ public class SimpleAuthoritiesMapperTests {
 	public void defaultAuthorityIsAssignedIfSet() {
 		SimpleAuthorityMapper mapper = new SimpleAuthorityMapper();
 		mapper.setDefaultAuthority("ROLE_USER");
-		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper
-				.mapAuthorities(AuthorityUtils.NO_AUTHORITIES));
+		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper.mapAuthorities(AuthorityUtils.NO_AUTHORITIES));
 		assertThat(mapped).hasSize(1);
 		assertThat(mapped.contains("ROLE_USER")).isTrue();
 	}
+
 }

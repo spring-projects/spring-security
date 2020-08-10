@@ -20,11 +20,11 @@ import org.junit.Test;
 import org.springframework.context.support.GenericXmlApplicationContext;
 
 /**
- *
  * @author Rob Winch
  *
  */
 public class Sec2499Tests {
+
 	private GenericXmlApplicationContext parent;
 
 	private GenericXmlApplicationContext child;
@@ -41,11 +41,11 @@ public class Sec2499Tests {
 
 	@Test
 	public void methodExpressionHandlerInParentContextLoads() {
-		parent = new GenericXmlApplicationContext(
-				"org/springframework/security/config/method/sec2499/parent.xml");
+		parent = new GenericXmlApplicationContext("org/springframework/security/config/method/sec2499/parent.xml");
 		child = new GenericXmlApplicationContext();
 		child.load("org/springframework/security/config/method/sec2499/child.xml");
 		child.setParent(parent);
 		child.refresh();
 	}
+
 }

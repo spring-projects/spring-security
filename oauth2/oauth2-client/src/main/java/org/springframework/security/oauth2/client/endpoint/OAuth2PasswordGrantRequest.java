@@ -20,22 +20,26 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
 
 /**
- * An OAuth 2.0 Resource Owner Password Credentials Grant request
- * that holds the resource owner's credentials.
+ * An OAuth 2.0 Resource Owner Password Credentials Grant request that holds the resource
+ * owner's credentials.
  *
  * @author Joe Grandja
  * @since 5.2
  * @see AbstractOAuth2AuthorizationGrantRequest
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.3.3">Section 1.3.3 Resource Owner Password Credentials</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-1.3.3">Section 1.3.3 Resource Owner
+ * Password Credentials</a>
  */
 public class OAuth2PasswordGrantRequest extends AbstractOAuth2AuthorizationGrantRequest {
+
 	private final ClientRegistration clientRegistration;
+
 	private final String username;
+
 	private final String password;
 
 	/**
 	 * Constructs an {@code OAuth2PasswordGrantRequest} using the provided parameters.
-	 *
 	 * @param clientRegistration the client registration
 	 * @param username the resource owner's username
 	 * @param password the resource owner's password
@@ -54,7 +58,6 @@ public class OAuth2PasswordGrantRequest extends AbstractOAuth2AuthorizationGrant
 
 	/**
 	 * Returns the {@link ClientRegistration client registration}.
-	 *
 	 * @return the {@link ClientRegistration}
 	 */
 	public ClientRegistration getClientRegistration() {
@@ -63,7 +66,6 @@ public class OAuth2PasswordGrantRequest extends AbstractOAuth2AuthorizationGrant
 
 	/**
 	 * Returns the resource owner's username.
-	 *
 	 * @return the resource owner's username
 	 */
 	public String getUsername() {
@@ -72,10 +74,10 @@ public class OAuth2PasswordGrantRequest extends AbstractOAuth2AuthorizationGrant
 
 	/**
 	 * Returns the resource owner's password.
-	 *
 	 * @return the resource owner's password
 	 */
 	public String getPassword() {
 		return this.password;
 	}
+
 }

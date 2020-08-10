@@ -36,8 +36,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
  * @author Ben Alex
  */
 public class UserTests {
-	private static final List<GrantedAuthority> ROLE_12 = AuthorityUtils
-			.createAuthorityList("ROLE_ONE", "ROLE_TWO");
+
+	private static final List<GrantedAuthority> ROLE_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 
 	// ~ Methods
 	// ========================================================================================================
@@ -49,8 +49,7 @@ public class UserTests {
 		assertThat(user1).isNotNull();
 		assertThat(user1).isNotEqualTo("A STRING");
 		assertThat(user1).isEqualTo(user1);
-		assertThat(user1).isEqualTo((new User("rod", "notthesame", true, true, true, true,
-				ROLE_12)));
+		assertThat(user1).isEqualTo((new User("rod", "notthesame", true, true, true, true, ROLE_12)));
 	}
 
 	@Test
@@ -59,12 +58,10 @@ public class UserTests {
 		Set<UserDetails> users = new HashSet<>();
 		users.add(user1);
 
-		assertThat(users).contains(new User("rod", "koala", true, true, true, true,
-				ROLE_12));
-		assertThat(users).contains(new User("rod", "anotherpass", false, false, false,
-				false, AuthorityUtils.createAuthorityList("ROLE_X")));
-		assertThat(users).doesNotContain(new User("bod", "koala", true, true, true, true,
-				ROLE_12));
+		assertThat(users).contains(new User("rod", "koala", true, true, true, true, ROLE_12));
+		assertThat(users).contains(new User("rod", "anotherpass", false, false, false, false,
+				AuthorityUtils.createAuthorityList("ROLE_X")));
+		assertThat(users).doesNotContain(new User("bod", "koala", true, true, true, true, ROLE_12));
 	}
 
 	@Test
@@ -125,10 +122,8 @@ public class UserTests {
 		assertThat(user.getUsername()).isEqualTo("rod");
 		assertThat(user.getPassword()).isEqualTo("koala");
 		assertThat(user.isEnabled()).isTrue();
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains(
-				"ROLE_ONE");
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains(
-				"ROLE_TWO");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_ONE");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_TWO");
 		assertThat(user.toString()).contains("rod");
 	}
 
@@ -163,7 +158,6 @@ public class UserTests {
 		assertThat(actual.isEnabled()).isEqualTo(expected.isEnabled());
 	}
 
-
 	@Test
 	public void withUserDetailsWhenAllDisabled() {
 		User expected = new User("rob", "pass", false, false, false, false, ROLE_12);
@@ -183,20 +177,15 @@ public class UserTests {
 	public void withUserWhenDetailsPasswordEncoderThenEncodes() {
 		UserDetails userDetails = User.withUsername("user").password("password").roles("USER").build();
 
-		UserDetails withEncodedPassword = User.withUserDetails(userDetails)
-			.passwordEncoder(p -> p + "encoded")
-			.build();
+		UserDetails withEncodedPassword = User.withUserDetails(userDetails).passwordEncoder(p -> p + "encoded").build();
 
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
 
 	@Test
 	public void withUsernameWhenPasswordEncoderAndPasswordThenEncodes() {
-		UserDetails withEncodedPassword = User.withUsername("user")
-			.password("password")
-			.passwordEncoder(p -> p + "encoded")
-			.roles("USER")
-			.build();
+		UserDetails withEncodedPassword = User.withUsername("user").password("password")
+				.passwordEncoder(p -> p + "encoded").roles("USER").build();
 
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
@@ -228,4 +217,5 @@ public class UserTests {
 
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
+
 }

@@ -34,20 +34,15 @@ public class OpenSamlMetadataResolverTests {
 	@Test
 	public void resolveWhenRelyingPartyThenMetadataMatches() {
 		// given
-		RelyingPartyRegistration relyingPartyRegistration = full()
-				.assertionConsumerServiceBinding(REDIRECT)
-				.build();
+		RelyingPartyRegistration relyingPartyRegistration = full().assertionConsumerServiceBinding(REDIRECT).build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 
 		// when
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
 
 		// then
-		assertThat(metadata)
-				.contains("<EntityDescriptor")
-				.contains("entityID=\"rp-entity-id\"")
-				.contains("WantAssertionsSigned=\"true\"")
-				.contains("<md:KeyDescriptor use=\"signing\">")
+		assertThat(metadata).contains("<EntityDescriptor").contains("entityID=\"rp-entity-id\"")
+				.contains("WantAssertionsSigned=\"true\"").contains("<md:KeyDescriptor use=\"signing\">")
 				.contains("<md:KeyDescriptor use=\"encryption\">")
 				.contains("<ds:X509Certificate>MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBh")
 				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\"")
@@ -58,9 +53,8 @@ public class OpenSamlMetadataResolverTests {
 	public void resolveWhenRelyingPartyNoCredentialsThenMetadataMatches() {
 		// given
 		RelyingPartyRegistration relyingPartyRegistration = noCredentials()
-				.assertingPartyDetails(party -> party
-					.verificationX509Credentials(c -> c.add(relyingPartyVerifyingCredential()))
-				)
+				.assertingPartyDetails(
+						party -> party.verificationX509Credentials(c -> c.add(relyingPartyVerifyingCredential())))
 				.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 
@@ -68,13 +62,11 @@ public class OpenSamlMetadataResolverTests {
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
 
 		// then
-		assertThat(metadata)
-				.contains("<EntityDescriptor")
-				.contains("entityID=\"rp-entity-id\"")
-				.contains("WantAssertionsSigned=\"true\"")
-				.doesNotContain("<md:KeyDescriptor use=\"signing\">")
+		assertThat(metadata).contains("<EntityDescriptor").contains("entityID=\"rp-entity-id\"")
+				.contains("WantAssertionsSigned=\"true\"").doesNotContain("<md:KeyDescriptor use=\"signing\">")
 				.doesNotContain("<md:KeyDescriptor use=\"encryption\">")
 				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\"")
 				.contains("Location=\"https://rp.example.org/acs\" index=\"1\"");
 	}
+
 }

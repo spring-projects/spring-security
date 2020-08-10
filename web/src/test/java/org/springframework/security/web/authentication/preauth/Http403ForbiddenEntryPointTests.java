@@ -34,13 +34,13 @@ public class Http403ForbiddenEntryPointTests {
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		Http403ForbiddenEntryPoint fep = new Http403ForbiddenEntryPoint();
 		try {
-			fep.commence(req, resp,
-					new AuthenticationCredentialsNotFoundException("test"));
-			assertThat(resp.getStatus()).withFailMessage("Incorrect status").isEqualTo(
-					HttpServletResponse.SC_FORBIDDEN);
+			fep.commence(req, resp, new AuthenticationCredentialsNotFoundException("test"));
+			assertThat(resp.getStatus()).withFailMessage("Incorrect status")
+					.isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 		}
 		catch (IOException e) {
 			fail("Unexpected exception thrown: " + e);
 		}
 	}
+
 }

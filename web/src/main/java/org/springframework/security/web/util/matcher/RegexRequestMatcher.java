@@ -40,14 +40,15 @@ import org.springframework.util.StringUtils;
  * @since 3.1
  */
 public final class RegexRequestMatcher implements RequestMatcher {
+
 	private final static Log logger = LogFactory.getLog(RegexRequestMatcher.class);
 
 	private final Pattern pattern;
+
 	private final HttpMethod httpMethod;
 
 	/**
 	 * Creates a case-sensitive {@code Pattern} instance to match against the request.
-	 *
 	 * @param pattern the regular expression to compile into a pattern.
 	 * @param httpMethod the HTTP method to match. May be null to match all methods.
 	 */
@@ -57,7 +58,6 @@ public final class RegexRequestMatcher implements RequestMatcher {
 
 	/**
 	 * As above, but allows setting of whether case-insensitive matching should be used.
-	 *
 	 * @param pattern the regular expression to compile into a pattern.
 	 * @param httpMethod the HTTP method to match. May be null to match all methods.
 	 * @param caseInsensitive if true, the pattern will be compiled with the
@@ -70,21 +70,18 @@ public final class RegexRequestMatcher implements RequestMatcher {
 		else {
 			this.pattern = Pattern.compile(pattern);
 		}
-		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod
-				.valueOf(httpMethod) : null;
+		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod) : null;
 	}
 
 	/**
 	 * Performs the match of the request URL ({@code servletPath + pathInfo + queryString}
 	 * ) against the compiled pattern. If the query string is present, a question mark
 	 * will be prepended.
-	 *
 	 * @param request the request to match
 	 * @return true if the pattern matches the URL, false otherwise.
 	 */
 	public boolean matches(HttpServletRequest request) {
-		if (httpMethod != null && request.getMethod() != null
-				&& httpMethod != valueOf(request.getMethod())) {
+		if (httpMethod != null && request.getMethod() != null && httpMethod != valueOf(request.getMethod())) {
 			return false;
 		}
 
@@ -106,8 +103,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 		}
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Checking match of request : '" + url + "'; against '" + pattern
-					+ "'");
+			logger.debug("Checking match of request : '" + url + "'; against '" + pattern + "'");
 		}
 
 		return pattern.matcher(url).matches();
@@ -116,9 +112,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 	/**
 	 * Provides a save way of obtaining the HttpMethod from a String. If the method is
 	 * invalid, returns null.
-	 *
 	 * @param method the HTTP method to use.
-	 *
 	 * @return the HttpMethod or null if method is invalid.
 	 */
 	private static HttpMethod valueOf(String method) {
@@ -144,4 +138,5 @@ public final class RegexRequestMatcher implements RequestMatcher {
 
 		return sb.toString();
 	}
+
 }

@@ -32,7 +32,6 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedC
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 
 /**
- *
  * @author Luke Taylor
  */
 public class RequestHeaderAuthenticationFilterTests {
@@ -100,8 +99,7 @@ public class RequestHeaderAuthenticationFilterTests {
 	}
 
 	@Test
-	public void userIsReauthenticatedIfPrincipalChangesAndCheckForPrincipalChangesIsSet()
-			throws Exception {
+	public void userIsReauthenticatedIfPrincipalChangesAndCheckForPrincipalChangesIsSet() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
@@ -134,8 +132,7 @@ public class RequestHeaderAuthenticationFilterTests {
 	}
 
 	@Test
-	public void missingHeaderIsIgnoredIfExceptionIfHeaderMissingIsFalse()
-			throws Exception {
+	public void missingHeaderIsIgnoredIfExceptionIfHeaderMissingIsFalse() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
@@ -150,9 +147,10 @@ public class RequestHeaderAuthenticationFilterTests {
 	 */
 	private AuthenticationManager createAuthenticationManager() {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenAnswer(
-				(Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
+		when(am.authenticate(any(Authentication.class)))
+				.thenAnswer((Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
 
 		return am;
 	}
+
 }

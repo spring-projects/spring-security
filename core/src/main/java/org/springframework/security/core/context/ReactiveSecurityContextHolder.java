@@ -16,7 +16,6 @@
 
 package org.springframework.security.core.context;
 
-
 import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
@@ -30,6 +29,7 @@ import java.util.function.Function;
  * @since 5.0
  */
 public class ReactiveSecurityContextHolder {
+
 	private static final Class<?> SECURITY_CONTEXT_KEY = SecurityContext.class;
 
 	/**
@@ -37,9 +37,8 @@ public class ReactiveSecurityContextHolder {
 	 * @return the {@code Mono<SecurityContext>}
 	 */
 	public static Mono<SecurityContext> getContext() {
-		return Mono.subscriberContext()
-			.filter( c -> c.hasKey(SECURITY_CONTEXT_KEY))
-			.flatMap( c-> c.<Mono<SecurityContext>>get(SECURITY_CONTEXT_KEY));
+		return Mono.subscriberContext().filter(c -> c.hasKey(SECURITY_CONTEXT_KEY))
+				.flatMap(c -> c.<Mono<SecurityContext>>get(SECURITY_CONTEXT_KEY));
 	}
 
 	/**
@@ -70,4 +69,5 @@ public class ReactiveSecurityContextHolder {
 	public static Context withAuthentication(Authentication authentication) {
 		return withSecurityContext(Mono.just(new SecurityContextImpl(authentication)));
 	}
+
 }

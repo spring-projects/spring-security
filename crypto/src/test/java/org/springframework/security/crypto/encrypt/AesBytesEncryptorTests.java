@@ -36,8 +36,11 @@ import static org.springframework.security.crypto.password.Pbkdf2PasswordEncoder
  * Tests for {@link AesBytesEncryptor}
  */
 public class AesBytesEncryptorTests {
+
 	private String secret = "value";
+
 	private String password = "password";
+
 	private String hexSalt = "deadbeef";
 
 	private BytesKeyGenerator generator;
@@ -86,8 +89,7 @@ public class AesBytesEncryptorTests {
 	@Test
 	public void roundtripWhenUsingSecretKeyThenEncryptsAndDecrypts() {
 		CryptoAssumptions.assumeGCMJCE();
-		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), Hex.decode(this.hexSalt),
-				1024, 256);
+		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), Hex.decode(this.hexSalt), 1024, 256);
 		SecretKey secretKey = newSecretKey(PBKDF2WithHmacSHA1.name(), keySpec);
 		AesBytesEncryptor encryptor = new AesBytesEncryptor(secretKey, this.generator, GCM);
 

@@ -37,8 +37,8 @@ public class OpenSamlInitializationServiceTests {
 		OpenSamlInitializationService.initialize();
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		assertThat(registry.getParserPool()).isNotNull();
-		assertThatCode(() -> OpenSamlInitializationService.requireInitialize(r -> {}))
-				.isInstanceOf(Saml2Exception.class)
-				.hasMessageContaining("OpenSAML was already initialized previously");
+		assertThatCode(() -> OpenSamlInitializationService.requireInitialize(r -> {
+		})).isInstanceOf(Saml2Exception.class).hasMessageContaining("OpenSAML was already initialized previously");
 	}
+
 }

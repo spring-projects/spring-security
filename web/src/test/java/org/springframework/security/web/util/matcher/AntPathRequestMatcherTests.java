@@ -61,8 +61,7 @@ public class AntPathRequestMatcherTests {
 
 	@Test
 	public void trailingWildcardMatchesCorrectly() {
-		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/blah/blAh/**", null,
-				false);
+		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/blah/blAh/**", null, false);
 		assertThat(matcher.matches(createRequest("/BLAH/blah"))).isTrue();
 		assertThat(matcher.matches(createRequest("/blah/bleh"))).isFalse();
 		assertThat(matcher.matches(createRequest("/blah/blah/"))).isTrue();
@@ -86,8 +85,7 @@ public class AntPathRequestMatcherTests {
 
 	@Test
 	public void trailingWildcardWithVariableMatchesCorrectly() {
-		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/{id}/blAh/**", null,
-				false);
+		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/{id}/blAh/**", null, false);
 		assertThat(matcher.matches(createRequest("/1234/blah"))).isTrue();
 		assertThat(matcher.matches(createRequest("/4567/bleh"))).isFalse();
 		assertThat(matcher.matches(createRequest("/paskos/blah/"))).isTrue();
@@ -159,17 +157,12 @@ public class AntPathRequestMatcherTests {
 	@Test
 	public void caseSensitive() {
 		MockHttpServletRequest request = createRequest("/UPPER");
-		assertThat(new AntPathRequestMatcher("/upper", null, true).matches(request))
-				.isFalse();
-		assertThat(new AntPathRequestMatcher("/upper", "POST", true).matches(request))
-				.isFalse();
-		assertThat(new AntPathRequestMatcher("/upper", "GET", true).matches(request))
-				.isFalse();
+		assertThat(new AntPathRequestMatcher("/upper", null, true).matches(request)).isFalse();
+		assertThat(new AntPathRequestMatcher("/upper", "POST", true).matches(request)).isFalse();
+		assertThat(new AntPathRequestMatcher("/upper", "GET", true).matches(request)).isFalse();
 
-		assertThat(new AntPathRequestMatcher("/upper", null, false).matches(request))
-				.isTrue();
-		assertThat(new AntPathRequestMatcher("/upper", "POST", false).matches(request))
-				.isTrue();
+		assertThat(new AntPathRequestMatcher("/upper", null, false).matches(request)).isTrue();
+		assertThat(new AntPathRequestMatcher("/upper", "POST", false).matches(request)).isTrue();
 	}
 
 	@Test
@@ -186,18 +179,12 @@ public class AntPathRequestMatcherTests {
 	@Test
 	public void equalsBehavesCorrectly() {
 		// Both universal wildcard options should be equal
-		assertThat(new AntPathRequestMatcher("**"))
-				.isEqualTo(new AntPathRequestMatcher("/**"));
-		assertThat(new AntPathRequestMatcher("/xyz"))
-				.isEqualTo(new AntPathRequestMatcher("/xyz"));
-		assertThat(new AntPathRequestMatcher("/xyz", "POST"))
-				.isEqualTo(new AntPathRequestMatcher("/xyz", "POST"));
-		assertThat(new AntPathRequestMatcher("/xyz", "POST"))
-				.isNotEqualTo(new AntPathRequestMatcher("/xyz", "GET"));
-		assertThat(new AntPathRequestMatcher("/xyz"))
-				.isNotEqualTo(new AntPathRequestMatcher("/xxx"));
-		assertThat(new AntPathRequestMatcher("/xyz").equals(AnyRequestMatcher.INSTANCE))
-				.isFalse();
+		assertThat(new AntPathRequestMatcher("**")).isEqualTo(new AntPathRequestMatcher("/**"));
+		assertThat(new AntPathRequestMatcher("/xyz")).isEqualTo(new AntPathRequestMatcher("/xyz"));
+		assertThat(new AntPathRequestMatcher("/xyz", "POST")).isEqualTo(new AntPathRequestMatcher("/xyz", "POST"));
+		assertThat(new AntPathRequestMatcher("/xyz", "POST")).isNotEqualTo(new AntPathRequestMatcher("/xyz", "GET"));
+		assertThat(new AntPathRequestMatcher("/xyz")).isNotEqualTo(new AntPathRequestMatcher("/xxx"));
+		assertThat(new AntPathRequestMatcher("/xyz").equals(AnyRequestMatcher.INSTANCE)).isFalse();
 		assertThat(new AntPathRequestMatcher("/xyz", "GET", false))
 				.isNotEqualTo(new AntPathRequestMatcher("/xyz", "GET", true));
 	}
@@ -231,4 +218,5 @@ public class AntPathRequestMatcherTests {
 
 		return request;
 	}
+
 }

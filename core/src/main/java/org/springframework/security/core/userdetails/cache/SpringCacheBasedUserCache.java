@@ -84,4 +84,5 @@ public class SpringCacheBasedUserCache implements UserCache {
 	public void removeUserFromCache(String username) {
 		cache.evict(username);
 	}
+
 }

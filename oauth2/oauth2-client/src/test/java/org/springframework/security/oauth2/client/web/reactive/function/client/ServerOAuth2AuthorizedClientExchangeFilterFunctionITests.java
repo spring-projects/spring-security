@@ -70,12 +70,19 @@ import static org.springframework.security.oauth2.client.web.reactive.function.c
 public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 
 	private ReactiveClientRegistrationRepository clientRegistrationRepository;
+
 	private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
+
 	private ServerOAuth2AuthorizedClientExchangeFilterFunction authorizedClientFilter;
+
 	private MockWebServer server;
+
 	private String serverUrl;
+
 	private WebClient webClient;
+
 	private Authentication authentication;
+
 	private MockServerWebExchange exchange;
 
 	@Before
@@ -86,23 +93,20 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		this.authorizedClientRepository = spy(new ServerOAuth2AuthorizedClientRepository() {
 
 			@Override
-			public <T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(
-					String clientRegistrationId,
+			public <T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(String clientRegistrationId,
 					Authentication principal, ServerWebExchange exchange) {
 				return delegate.loadAuthorizedClient(clientRegistrationId, principal, exchange);
 			}
 
 			@Override
-			public Mono<Void> saveAuthorizedClient(
-					OAuth2AuthorizedClient authorizedClient,
-					Authentication principal, ServerWebExchange exchange) {
+			public Mono<Void> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal,
+					ServerWebExchange exchange) {
 				return delegate.saveAuthorizedClient(authorizedClient, principal, exchange);
 			}
 
 			@Override
-			public Mono<Void> removeAuthorizedClient(
-					String clientRegistrationId,
-					Authentication principal, ServerWebExchange exchange) {
+			public Mono<Void> removeAuthorizedClient(String clientRegistrationId, Authentication principal,
+					ServerWebExchange exchange) {
 				return delegate.removeAuthorizedClient(clientRegistrationId, principal, exchange);
 			}
 
@@ -112,9 +116,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		this.server = new MockWebServer();
 		this.server.start();
 		this.serverUrl = this.server.url("/").toString();
-		this.webClient = WebClient.builder()
-				.filter(this.authorizedClientFilter)
-				.build();
+		this.webClient = WebClient.builder().filter(this.authorizedClientFilter).build();
 		this.authentication = new TestingAuthenticationToken("principal", "password");
 		this.exchange = MockServerWebExchange.builder(MockServerHttpRequest.get("/").build()).build();
 	}
@@ -126,83 +128,67 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 
 	@Test
 	public void requestWhenNotAuthorizedThenAuthorizeAndSendRequest() {
-		String accessTokenResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\",\n" +
-				"   \"scope\": \"read write\"\n" +
-				"}\n";
-		String clientResponse = "{\n" +
-				"	\"attribute1\": \"value1\",\n" +
-				"	\"attribute2\": \"value2\"\n" +
-				"}\n";
+		String accessTokenResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"read write\"\n" + "}\n";
+		String clientResponse = "{\n" + "	\"attribute1\": \"value1\",\n" + "	\"attribute2\": \"value2\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenResponse));
 		this.server.enqueue(jsonResponse(clientResponse));
 
-		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials().tokenUri(this.serverUrl).build();
-		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId()))).thenReturn(Mono.just(clientRegistration));
+		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials().tokenUri(this.serverUrl)
+				.build();
+		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
+				.thenReturn(Mono.just(clientRegistration));
 
-		this.webClient
-				.get()
-				.uri(this.serverUrl)
-				.attributes(clientRegistrationId(clientRegistration.getRegistrationId()))
-				.retrieve()
-				.bodyToMono(String.class)
-				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
-				.block();
+		this.webClient.get().uri(this.serverUrl)
+				.attributes(clientRegistrationId(clientRegistration.getRegistrationId())).retrieve()
+				.bodyToMono(String.class).subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
 
 		assertThat(this.server.getRequestCount()).isEqualTo(2);
 
-		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor.forClass(OAuth2AuthorizedClient.class);
-		verify(this.authorizedClientRepository).saveAuthorizedClient(
-				authorizedClientCaptor.capture(), eq(this.authentication), eq(this.exchange));
+		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
+				.forClass(OAuth2AuthorizedClient.class);
+		verify(this.authorizedClientRepository).saveAuthorizedClient(authorizedClientCaptor.capture(),
+				eq(this.authentication), eq(this.exchange));
 		assertThat(authorizedClientCaptor.getValue().getClientRegistration()).isSameAs(clientRegistration);
 	}
 
 	@Test
 	public void requestWhenAuthorizedButExpiredThenRefreshAndSendRequest() {
-		String accessTokenResponse = "{\n" +
-				"	\"access_token\": \"refreshed-access-token\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\"\n" +
-				"}\n";
-		String clientResponse = "{\n" +
-				"	\"attribute1\": \"value1\",\n" +
-				"	\"attribute2\": \"value2\"\n" +
-				"}\n";
+		String accessTokenResponse = "{\n" + "	\"access_token\": \"refreshed-access-token\",\n"
+				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
+		String clientResponse = "{\n" + "	\"attribute1\": \"value1\",\n" + "	\"attribute2\": \"value2\"\n" + "}\n";
 
 		this.server.enqueue(jsonResponse(accessTokenResponse));
 		this.server.enqueue(jsonResponse(clientResponse));
 
-		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().tokenUri(this.serverUrl).build();
-		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId()))).thenReturn(Mono.just(clientRegistration));
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().tokenUri(this.serverUrl)
+				.build();
+		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
+				.thenReturn(Mono.just(clientRegistration));
 
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant expiresAt = issuedAt.plus(Duration.ofHours(1));
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				"expired-access-token", issuedAt, expiresAt, new HashSet<>(Arrays.asList("read", "write")));
 		OAuth2RefreshToken refreshToken = TestOAuth2RefreshTokens.refreshToken();
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				clientRegistration, this.authentication.getName(), accessToken, refreshToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration,
+				this.authentication.getName(), accessToken, refreshToken);
 		doReturn(Mono.just(authorizedClient)).when(this.authorizedClientRepository).loadAuthorizedClient(
 				eq(clientRegistration.getRegistrationId()), eq(this.authentication), eq(this.exchange));
 
-		this.webClient
-				.get()
-				.uri(this.serverUrl)
-				.attributes(clientRegistrationId(clientRegistration.getRegistrationId()))
-				.retrieve()
-				.bodyToMono(String.class)
-				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
-				.block();
+		this.webClient.get().uri(this.serverUrl)
+				.attributes(clientRegistrationId(clientRegistration.getRegistrationId())).retrieve()
+				.bodyToMono(String.class).subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
 
 		assertThat(this.server.getRequestCount()).isEqualTo(2);
 
-		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor.forClass(OAuth2AuthorizedClient.class);
-		verify(this.authorizedClientRepository).saveAuthorizedClient(
-				authorizedClientCaptor.capture(), eq(this.authentication), eq(this.exchange));
+		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
+				.forClass(OAuth2AuthorizedClient.class);
+		verify(this.authorizedClientRepository).saveAuthorizedClient(authorizedClientCaptor.capture(),
+				eq(this.authentication), eq(this.exchange));
 		OAuth2AuthorizedClient refreshedAuthorizedClient = authorizedClientCaptor.getValue();
 		assertThat(refreshedAuthorizedClient.getClientRegistration()).isSameAs(clientRegistration);
 		assertThat(refreshedAuthorizedClient.getAccessToken().getTokenValue()).isEqualTo("refreshed-access-token");
@@ -210,124 +196,104 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 
 	@Test
 	public void requestMultipleWhenNoneAuthorizedThenAuthorizeAndSendRequest() {
-		String accessTokenResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\",\n" +
-				"   \"scope\": \"read write\"\n" +
-				"}\n";
-		String clientResponse = "{\n" +
-				"	\"attribute1\": \"value1\",\n" +
-				"	\"attribute2\": \"value2\"\n" +
-				"}\n";
+		String accessTokenResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"read write\"\n" + "}\n";
+		String clientResponse = "{\n" + "	\"attribute1\": \"value1\",\n" + "	\"attribute2\": \"value2\"\n" + "}\n";
 
 		// Client 1
 		this.server.enqueue(jsonResponse(accessTokenResponse));
 		this.server.enqueue(jsonResponse(clientResponse));
 
-		ClientRegistration clientRegistration1 = TestClientRegistrations.clientCredentials()
-				.registrationId("client-1").tokenUri(this.serverUrl).build();
-		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration1.getRegistrationId()))).thenReturn(Mono.just(clientRegistration1));
+		ClientRegistration clientRegistration1 = TestClientRegistrations.clientCredentials().registrationId("client-1")
+				.tokenUri(this.serverUrl).build();
+		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration1.getRegistrationId())))
+				.thenReturn(Mono.just(clientRegistration1));
 
 		// Client 2
 		this.server.enqueue(jsonResponse(accessTokenResponse));
 		this.server.enqueue(jsonResponse(clientResponse));
 
-		ClientRegistration clientRegistration2 = TestClientRegistrations.clientCredentials()
-				.registrationId("client-2").tokenUri(this.serverUrl).build();
-		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration2.getRegistrationId()))).thenReturn(Mono.just(clientRegistration2));
+		ClientRegistration clientRegistration2 = TestClientRegistrations.clientCredentials().registrationId("client-2")
+				.tokenUri(this.serverUrl).build();
+		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration2.getRegistrationId())))
+				.thenReturn(Mono.just(clientRegistration2));
 
-		this.webClient
-				.get()
-				.uri(this.serverUrl)
-				.attributes(clientRegistrationId(clientRegistration1.getRegistrationId()))
-				.retrieve()
+		this.webClient.get().uri(this.serverUrl)
+				.attributes(clientRegistrationId(clientRegistration1.getRegistrationId())).retrieve()
 				.bodyToMono(String.class)
-				.flatMap(response -> this.webClient
-						.get()
-						.uri(this.serverUrl)
-						.attributes(clientRegistrationId(clientRegistration2.getRegistrationId()))
-						.retrieve()
+				.flatMap(response -> this.webClient.get().uri(this.serverUrl)
+						.attributes(clientRegistrationId(clientRegistration2.getRegistrationId())).retrieve()
 						.bodyToMono(String.class))
 				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
-				.block();
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
 
 		assertThat(this.server.getRequestCount()).isEqualTo(4);
 
-		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor.forClass(OAuth2AuthorizedClient.class);
-		verify(this.authorizedClientRepository, times(2)).saveAuthorizedClient(
-				authorizedClientCaptor.capture(), eq(this.authentication), eq(this.exchange));
+		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
+				.forClass(OAuth2AuthorizedClient.class);
+		verify(this.authorizedClientRepository, times(2)).saveAuthorizedClient(authorizedClientCaptor.capture(),
+				eq(this.authentication), eq(this.exchange));
 		assertThat(authorizedClientCaptor.getAllValues().get(0).getClientRegistration()).isSameAs(clientRegistration1);
 		assertThat(authorizedClientCaptor.getAllValues().get(1).getClientRegistration()).isSameAs(clientRegistration2);
 	}
 
 	/**
-	 * When a non-expired {@link OAuth2AuthorizedClient} exists
-	 * but the resource server returns 401,
-	 * then remove the {@link OAuth2AuthorizedClient} from the repository.
+	 * When a non-expired {@link OAuth2AuthorizedClient} exists but the resource server
+	 * returns 401, then remove the {@link OAuth2AuthorizedClient} from the repository.
 	 */
 	@Test
 	public void requestWhenUnauthorizedThenReAuthorize() {
-		String accessTokenResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\",\n" +
-				"   \"scope\": \"read write\"\n" +
-				"}\n";
-		String clientResponse = "{\n" +
-				"	\"attribute1\": \"value1\",\n" +
-				"	\"attribute2\": \"value2\"\n" +
-				"}\n";
+		String accessTokenResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"read write\"\n" + "}\n";
+		String clientResponse = "{\n" + "	\"attribute1\": \"value1\",\n" + "	\"attribute2\": \"value2\"\n" + "}\n";
 		this.server.enqueue(new MockResponse().setResponseCode(HttpStatus.UNAUTHORIZED.value()));
 		this.server.enqueue(jsonResponse(accessTokenResponse));
 		this.server.enqueue(jsonResponse(clientResponse));
 
-		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials().tokenUri(this.serverUrl).build();
-		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId()))).thenReturn(Mono.just(clientRegistration));
+		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials().tokenUri(this.serverUrl)
+				.build();
+		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
+				.thenReturn(Mono.just(clientRegistration));
 
 		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.scopes("read", "write");
 		OAuth2RefreshToken refreshToken = TestOAuth2RefreshTokens.refreshToken();
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				clientRegistration, this.authentication.getName(), accessToken, refreshToken);
-		doReturn(Mono.just(authorizedClient))
-				.doReturn(Mono.empty())
-				.when(this.authorizedClientRepository).loadAuthorizedClient(
-						eq(clientRegistration.getRegistrationId()), eq(this.authentication), eq(this.exchange));
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration,
+				this.authentication.getName(), accessToken, refreshToken);
+		doReturn(Mono.just(authorizedClient)).doReturn(Mono.empty()).when(this.authorizedClientRepository)
+				.loadAuthorizedClient(eq(clientRegistration.getRegistrationId()), eq(this.authentication),
+						eq(this.exchange));
 
-		Mono<String> requestMono = this.webClient
-				.get()
-				.uri(this.serverUrl)
-				.attributes(clientRegistrationId(clientRegistration.getRegistrationId()))
-				.retrieve()
-				.bodyToMono(String.class)
-				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
+		Mono<String> requestMono = this.webClient.get().uri(this.serverUrl)
+				.attributes(clientRegistrationId(clientRegistration.getRegistrationId())).retrieve()
+				.bodyToMono(String.class).subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
 
 		// first try should fail, and remove the cached authorized client
-		assertThatCode(requestMono::block)
-				.isInstanceOfSatisfying(WebClientResponseException.class, e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED));
+		assertThatCode(requestMono::block).isInstanceOfSatisfying(WebClientResponseException.class,
+				e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED));
 
 		assertThat(this.server.getRequestCount()).isEqualTo(1);
 
 		verify(this.authorizedClientRepository, never()).saveAuthorizedClient(any(), any(), any());
-		verify(this.authorizedClientRepository).removeAuthorizedClient(
-				eq(clientRegistration.getRegistrationId()), eq(this.authentication), eq(this.exchange));
+		verify(this.authorizedClientRepository).removeAuthorizedClient(eq(clientRegistration.getRegistrationId()),
+				eq(this.authentication), eq(this.exchange));
 
 		// second try should retrieve the authorized client and succeed
 		requestMono.block();
 
 		assertThat(this.server.getRequestCount()).isEqualTo(3);
 
-		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor.forClass(OAuth2AuthorizedClient.class);
-		verify(this.authorizedClientRepository).saveAuthorizedClient(
-				authorizedClientCaptor.capture(), eq(this.authentication), eq(this.exchange));
+		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
+				.forClass(OAuth2AuthorizedClient.class);
+		verify(this.authorizedClientRepository).saveAuthorizedClient(authorizedClientCaptor.capture(),
+				eq(this.authentication), eq(this.exchange));
 		assertThat(authorizedClientCaptor.getValue().getClientRegistration()).isSameAs(clientRegistration);
 	}
 
 	private MockResponse jsonResponse(String json) {
-		return new MockResponse()
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(json);
+		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
 	}
+
 }

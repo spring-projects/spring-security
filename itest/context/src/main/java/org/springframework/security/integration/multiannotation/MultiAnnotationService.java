@@ -36,4 +36,5 @@ public interface MultiAnnotationService {
 
 	@Secured("ROLE_A")
 	void securedRoleAMethod();
+
 }

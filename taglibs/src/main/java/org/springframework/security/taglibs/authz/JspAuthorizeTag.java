@@ -61,7 +61,6 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	/**
 	 * Invokes the base class {@link AbstractAuthorizeTag#authorize()} method to decide if
 	 * the body of the tag should be skipped or not.
-	 *
 	 * @return {@link Tag#SKIP_BODY} or {@link Tag#EVAL_BODY_INCLUDE}
 	 */
 	public int doStartTag() throws JspException {
@@ -85,15 +84,12 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	}
 
 	@Override
-	protected EvaluationContext createExpressionEvaluationContext(
-			SecurityExpressionHandler<FilterInvocation> handler) {
-		return new PageContextVariableLookupEvaluationContext(
-				super.createExpressionEvaluationContext(handler));
+	protected EvaluationContext createExpressionEvaluationContext(SecurityExpressionHandler<FilterInvocation> handler) {
+		return new PageContextVariableLookupEvaluationContext(super.createExpressionEvaluationContext(handler));
 	}
 
 	/**
 	 * Default processing of the end tag returning EVAL_PAGE.
-	 *
 	 * @return EVAL_PAGE
 	 * @see Tag#doEndTag()
 	 */
@@ -158,8 +154,7 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 		return pageContext.getServletContext();
 	}
 
-	private final class PageContextVariableLookupEvaluationContext implements
-			EvaluationContext {
+	private final class PageContextVariableLookupEvaluationContext implements EvaluationContext {
 
 		private EvaluationContext delegate;
 
@@ -215,6 +210,7 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 			}
 			return result;
 		}
+
 	}
 
 }

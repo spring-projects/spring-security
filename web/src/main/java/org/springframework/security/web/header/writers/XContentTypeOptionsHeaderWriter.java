@@ -33,4 +33,5 @@ public final class XContentTypeOptionsHeaderWriter extends StaticHeadersWriter {
 	public XContentTypeOptionsHeaderWriter() {
 		super("X-Content-Type-Options", "nosniff");
 	}
+
 }

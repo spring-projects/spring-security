@@ -32,8 +32,8 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
- * Custom Deserializer for {@link User} class. This is already registered with {@link UserMixin}.
- * You can also use it directly with your mixin class.
+ * Custom Deserializer for {@link User} class. This is already registered with
+ * {@link UserMixin}. You can also use it directly with your mixin class.
  *
  * @author Jitendra Singh
  * @see UserMixin
@@ -42,10 +42,10 @@ import java.util.Set;
 class UserDeserializer extends JsonDeserializer<User> {
 
 	/**
-	 * This method will create {@link User} object. It will ensure successful object creation even if password key is null in
-	 * serialized json, because credentials may be removed from the {@link User} by invoking {@link User#eraseCredentials()}.
-	 * In that case there won't be any password key in serialized json.
-	 *
+	 * This method will create {@link User} object. It will ensure successful object
+	 * creation even if password key is null in serialized json, because credentials may
+	 * be removed from the {@link User} by invoking {@link User#eraseCredentials()}. In
+	 * that case there won't be any password key in serialized json.
 	 * @param jp the JsonParser
 	 * @param ctxt the DeserializationContext
 	 * @return the user
@@ -56,18 +56,14 @@ class UserDeserializer extends JsonDeserializer<User> {
 	public User deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode jsonNode = mapper.readTree(jp);
-		Set<? extends GrantedAuthority> authorities =
-				mapper.convertValue(
-						jsonNode.get("authorities"),
-						new TypeReference<Set<SimpleGrantedAuthority>>() {}
-				);
+		Set<? extends GrantedAuthority> authorities = mapper.convertValue(jsonNode.get("authorities"),
+				new TypeReference<Set<SimpleGrantedAuthority>>() {
+				});
 		JsonNode password = readJsonNode(jsonNode, "password");
-		User result =  new User(
-				readJsonNode(jsonNode, "username").asText(), password.asText(""),
+		User result = new User(readJsonNode(jsonNode, "username").asText(), password.asText(""),
 				readJsonNode(jsonNode, "enabled").asBoolean(), readJsonNode(jsonNode, "accountNonExpired").asBoolean(),
 				readJsonNode(jsonNode, "credentialsNonExpired").asBoolean(),
-				readJsonNode(jsonNode, "accountNonLocked").asBoolean(), authorities
-		);
+				readJsonNode(jsonNode, "accountNonLocked").asBoolean(), authorities);
 
 		if (password.asText(null) == null) {
 			result.eraseCredentials();
@@ -78,4 +74,5 @@ class UserDeserializer extends JsonDeserializer<User> {
 	private JsonNode readJsonNode(JsonNode jsonNode, String field) {
 		return jsonNode.has(field) ? jsonNode.get(field) : MissingNode.getInstance();
 	}
+
 }

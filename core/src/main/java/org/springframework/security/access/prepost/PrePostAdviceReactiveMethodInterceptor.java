@@ -36,15 +36,16 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 
 /**
- * A {@link MethodInterceptor} that supports {@link PreAuthorize} and {@link PostAuthorize} for methods that return
- * {@link Mono} or {@link Flux}
+ * A {@link MethodInterceptor} that supports {@link PreAuthorize} and
+ * {@link PostAuthorize} for methods that return {@link Mono} or {@link Flux}
  *
  * @author Rob Winch
  * @since 5.0
  */
 public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor {
+
 	private Authentication anonymous = new AnonymousAuthenticationToken("key", "anonymous",
-		AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+			AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
 	private final MethodSecurityMetadataSource attributeSource;
 
@@ -58,7 +59,9 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 	 * @param preInvocationAdvice the {@link PreInvocationAuthorizationAdvice} to use
 	 * @param postInvocationAdvice the {@link PostInvocationAuthorizationAdvice} to use
 	 */
-	public PrePostAdviceReactiveMethodInterceptor(MethodSecurityMetadataSource attributeSource, PreInvocationAuthorizationAdvice preInvocationAdvice, PostInvocationAuthorizationAdvice postInvocationAdvice) {
+	public PrePostAdviceReactiveMethodInterceptor(MethodSecurityMetadataSource attributeSource,
+			PreInvocationAuthorizationAdvice preInvocationAdvice,
+			PostInvocationAuthorizationAdvice postInvocationAdvice) {
 		Assert.notNull(attributeSource, "attributeSource cannot be null");
 		Assert.notNull(preInvocationAdvice, "preInvocationAdvice cannot be null");
 		Assert.notNull(postInvocationAdvice, "postInvocationAdvice cannot be null");
@@ -73,52 +76,44 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 		Method method = invocation.getMethod();
 		Class<?> returnType = method.getReturnType();
 		if (!Publisher.class.isAssignableFrom(returnType)) {
-			throw new IllegalStateException("The returnType " + returnType + " on " + method + " must return an instance of org.reactivestreams.Publisher (i.e. Mono / Flux) in order to support Reactor Context");
+			throw new IllegalStateException("The returnType " + returnType + " on " + method
+					+ " must return an instance of org.reactivestreams.Publisher (i.e. Mono / Flux) in order to support Reactor Context");
 		}
 		Class<?> targetClass = invocation.getThis().getClass();
-		Collection<ConfigAttribute> attributes = this.attributeSource
-			.getAttributes(method, targetClass);
+		Collection<ConfigAttribute> attributes = this.attributeSource.getAttributes(method, targetClass);
 
 		PreInvocationAttribute preAttr = findPreInvocationAttribute(attributes);
 		Mono<Authentication> toInvoke = ReactiveSecurityContextHolder.getContext()
-			.map(SecurityContext::getAuthentication)
-			.defaultIfEmpty(this.anonymous)
-			.filter( auth -> this.preInvocationAdvice.before(auth, invocation, preAttr))
-			.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Denied"))));
-
+				.map(SecurityContext::getAuthentication).defaultIfEmpty(this.anonymous)
+				.filter(auth -> this.preInvocationAdvice.before(auth, invocation, preAttr))
+				.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Denied"))));
 
 		PostInvocationAttribute attr = findPostInvocationAttribute(attributes);
 
 		if (Mono.class.isAssignableFrom(returnType)) {
-			return toInvoke
-				.flatMap( auth -> this.<Mono<?>>proceed(invocation)
-					.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))
-				);
+			return toInvoke.flatMap(auth -> this.<Mono<?>>proceed(invocation)
+					.map(r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r)));
 		}
 
 		if (Flux.class.isAssignableFrom(returnType)) {
-			return toInvoke
-				.flatMapMany( auth -> this.<Flux<?>>proceed(invocation)
-					.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))
-				);
+			return toInvoke.flatMapMany(auth -> this.<Flux<?>>proceed(invocation)
+					.map(r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r)));
 		}
 
-		return toInvoke
-			.flatMapMany( auth -> Flux.from(this.<Publisher<?>>proceed(invocation))
-				.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))
-			);
+		return toInvoke.flatMapMany(auth -> Flux.from(this.<Publisher<?>>proceed(invocation))
+				.map(r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r)));
 	}
 
 	private static <T extends Publisher<?>> T proceed(final MethodInvocation invocation) {
 		try {
 			return (T) invocation.proceed();
-		} catch(Throwable throwable) {
+		}
+		catch (Throwable throwable) {
 			throw Exceptions.propagate(throwable);
 		}
 	}
 
-	private static PostInvocationAttribute findPostInvocationAttribute(
-		Collection<ConfigAttribute> config) {
+	private static PostInvocationAttribute findPostInvocationAttribute(Collection<ConfigAttribute> config) {
 		for (ConfigAttribute attribute : config) {
 			if (attribute instanceof PostInvocationAttribute) {
 				return (PostInvocationAttribute) attribute;
@@ -128,8 +123,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 		return null;
 	}
 
-	private static PreInvocationAttribute findPreInvocationAttribute(
-		Collection<ConfigAttribute> config) {
+	private static PreInvocationAttribute findPreInvocationAttribute(Collection<ConfigAttribute> config) {
 		for (ConfigAttribute attribute : config) {
 			if (attribute instanceof PreInvocationAttribute) {
 				return (PreInvocationAttribute) attribute;
@@ -138,4 +132,5 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 
 		return null;
 	}
+
 }

@@ -27,13 +27,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Ankur Pathak
  */
 public class ContentSecurityPolicyHeaderWriterTests {
-	private static final String DEFAULT_POLICY_DIRECTIVES = "default-src 'self'";
-	private MockHttpServletRequest request;
-	private MockHttpServletResponse response;
-	private ContentSecurityPolicyHeaderWriter writer;
-	private static final String CONTENT_SECURITY_POLICY_HEADER = "Content-Security-Policy";
-	private static final String CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER = "Content-Security-Policy-Report-Only";
 
+	private static final String DEFAULT_POLICY_DIRECTIVES = "default-src 'self'";
+
+	private MockHttpServletRequest request;
+
+	private MockHttpServletResponse response;
+
+	private ContentSecurityPolicyHeaderWriter writer;
+
+	private static final String CONTENT_SECURITY_POLICY_HEADER = "Content-Security-Policy";
+
+	private static final String CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER = "Content-Security-Policy-Report-Only";
 
 	@Before
 	public void setup() {
@@ -62,9 +67,8 @@ public class ContentSecurityPolicyHeaderWriterTests {
 
 	@Test
 	public void writeHeadersContentSecurityPolicyCustom() {
-		String policyDirectives = "default-src 'self'; " +
-				"object-src plugins1.example.com plugins2.example.com; " +
-				"script-src trustedscripts.example.com";
+		String policyDirectives = "default-src 'self'; " + "object-src plugins1.example.com plugins2.example.com; "
+				+ "script-src trustedscripts.example.com";
 
 		writer = new ContentSecurityPolicyHeaderWriter(policyDirectives);
 		writer.writeHeaders(request, response);
@@ -110,7 +114,6 @@ public class ContentSecurityPolicyHeaderWriterTests {
 		writer = new ContentSecurityPolicyHeaderWriter(null);
 	}
 
-
 	@Test
 	public void writeContentSecurityPolicyHeaderWhenNotPresent() {
 		String value = new String("value");
@@ -127,4 +130,5 @@ public class ContentSecurityPolicyHeaderWriterTests {
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER)).isSameAs(value);
 	}
+
 }

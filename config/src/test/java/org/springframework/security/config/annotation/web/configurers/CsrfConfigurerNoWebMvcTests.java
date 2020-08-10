@@ -36,6 +36,7 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  *
  */
 public class CsrfConfigurerNoWebMvcTests {
+
 	ConfigurableApplicationContext context;
 
 	@After
@@ -73,15 +74,18 @@ public class CsrfConfigurerNoWebMvcTests {
 		@Override
 		protected void configure(HttpSecurity http) {
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class EnableWebOverrideRequestDataConfig {
+
 		@Bean
 		@Primary
 		public RequestDataValueProcessor requestDataValueProcessor() {
 			return mock(RequestDataValueProcessor.class);
 		}
+
 	}
 
 	@EnableWebSecurity
@@ -90,6 +94,7 @@ public class CsrfConfigurerNoWebMvcTests {
 		@Override
 		protected void configure(HttpSecurity http) {
 		}
+
 	}
 
 	private void loadContext(Class<?> configs) {
@@ -98,4 +103,5 @@ public class CsrfConfigurerNoWebMvcTests {
 		annotationConfigApplicationContext.refresh();
 		this.context = annotationConfigApplicationContext;
 	}
+
 }

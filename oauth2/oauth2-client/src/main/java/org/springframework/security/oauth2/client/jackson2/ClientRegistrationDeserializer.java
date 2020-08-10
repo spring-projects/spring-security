@@ -43,12 +43,12 @@ import static org.springframework.security.oauth2.client.jackson2.JsonNodeUtils.
  * @see ClientRegistrationMixin
  */
 final class ClientRegistrationDeserializer extends JsonDeserializer<ClientRegistration> {
-	private static final StdConverter<JsonNode, ClientAuthenticationMethod> CLIENT_AUTHENTICATION_METHOD_CONVERTER =
-			new StdConverters.ClientAuthenticationMethodConverter();
-	private static final StdConverter<JsonNode, AuthorizationGrantType> AUTHORIZATION_GRANT_TYPE_CONVERTER =
-			new StdConverters.AuthorizationGrantTypeConverter();
-	private static final StdConverter<JsonNode, AuthenticationMethod> AUTHENTICATION_METHOD_CONVERTER =
-			new StdConverters.AuthenticationMethodConverter();
+
+	private static final StdConverter<JsonNode, ClientAuthenticationMethod> CLIENT_AUTHENTICATION_METHOD_CONVERTER = new StdConverters.ClientAuthenticationMethodConverter();
+
+	private static final StdConverter<JsonNode, AuthorizationGrantType> AUTHORIZATION_GRANT_TYPE_CONVERTER = new StdConverters.AuthorizationGrantTypeConverter();
+
+	private static final StdConverter<JsonNode, AuthenticationMethod> AUTHENTICATION_METHOD_CONVERTER = new StdConverters.AuthenticationMethodConverter();
 
 	@Override
 	public ClientRegistration deserialize(JsonParser parser, DeserializationContext context) throws IOException {
@@ -57,29 +57,26 @@ final class ClientRegistrationDeserializer extends JsonDeserializer<ClientRegist
 		JsonNode providerDetailsNode = findObjectNode(clientRegistrationNode, "providerDetails");
 		JsonNode userInfoEndpointNode = findObjectNode(providerDetailsNode, "userInfoEndpoint");
 
-		return ClientRegistration
-				.withRegistrationId(findStringValue(clientRegistrationNode, "registrationId"))
+		return ClientRegistration.withRegistrationId(findStringValue(clientRegistrationNode, "registrationId"))
 				.clientId(findStringValue(clientRegistrationNode, "clientId"))
 				.clientSecret(findStringValue(clientRegistrationNode, "clientSecret"))
-				.clientAuthenticationMethod(
-						CLIENT_AUTHENTICATION_METHOD_CONVERTER.convert(
-								findObjectNode(clientRegistrationNode, "clientAuthenticationMethod")))
-				.authorizationGrantType(
-						AUTHORIZATION_GRANT_TYPE_CONVERTER.convert(
-								findObjectNode(clientRegistrationNode, "authorizationGrantType")))
+				.clientAuthenticationMethod(CLIENT_AUTHENTICATION_METHOD_CONVERTER
+						.convert(findObjectNode(clientRegistrationNode, "clientAuthenticationMethod")))
+				.authorizationGrantType(AUTHORIZATION_GRANT_TYPE_CONVERTER
+						.convert(findObjectNode(clientRegistrationNode, "authorizationGrantType")))
 				.redirectUri(findStringValue(clientRegistrationNode, "redirectUri"))
 				.scope(findValue(clientRegistrationNode, "scopes", SET_TYPE_REFERENCE, mapper))
 				.clientName(findStringValue(clientRegistrationNode, "clientName"))
 				.authorizationUri(findStringValue(providerDetailsNode, "authorizationUri"))
 				.tokenUri(findStringValue(providerDetailsNode, "tokenUri"))
 				.userInfoUri(findStringValue(userInfoEndpointNode, "uri"))
-				.userInfoAuthenticationMethod(
-						AUTHENTICATION_METHOD_CONVERTER.convert(
-								findObjectNode(userInfoEndpointNode, "authenticationMethod")))
+				.userInfoAuthenticationMethod(AUTHENTICATION_METHOD_CONVERTER
+						.convert(findObjectNode(userInfoEndpointNode, "authenticationMethod")))
 				.userNameAttributeName(findStringValue(userInfoEndpointNode, "userNameAttributeName"))
 				.jwkSetUri(findStringValue(providerDetailsNode, "jwkSetUri"))
-				.issuerUri(findStringValue(providerDetailsNode, "issuerUri"))
-				.providerConfigurationMetadata(findValue(providerDetailsNode, "configurationMetadata", MAP_TYPE_REFERENCE, mapper))
+				.issuerUri(findStringValue(providerDetailsNode, "issuerUri")).providerConfigurationMetadata(
+						findValue(providerDetailsNode, "configurationMetadata", MAP_TYPE_REFERENCE, mapper))
 				.build();
 	}
+
 }

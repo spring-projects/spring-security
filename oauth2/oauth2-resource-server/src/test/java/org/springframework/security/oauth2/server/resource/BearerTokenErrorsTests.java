@@ -27,6 +27,7 @@ import static org.springframework.security.oauth2.server.resource.BearerTokenErr
 import static org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes.INVALID_TOKEN;
 
 public class BearerTokenErrorsTests {
+
 	@Test
 	public void invalidRequestWhenMessageGivenThenBearerTokenErrorReturned() {
 		String message = "message";
@@ -89,4 +90,5 @@ public class BearerTokenErrorsTests {
 		assertThat(error.getScope()).isNull();
 		assertThat(error.getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
 	}
+
 }

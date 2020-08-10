@@ -39,8 +39,9 @@ import org.springframework.util.Assert;
  * and the access control behaviour if all voters abstain from voting (defaults to deny
  * access).
  */
-public abstract class AbstractAccessDecisionManager implements AccessDecisionManager,
-		InitializingBean, MessageSourceAware {
+public abstract class AbstractAccessDecisionManager
+		implements AccessDecisionManager, InitializingBean, MessageSourceAware {
+
 	// ~ Instance fields
 	// ================================================================================================
 	protected final Log logger = LogFactory.getLog(getClass());
@@ -51,8 +52,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 
 	private boolean allowIfAllAbstainDecisions = false;
 
-	protected AbstractAccessDecisionManager(
-			List<AccessDecisionVoter<?>> decisionVoters) {
+	protected AbstractAccessDecisionManager(List<AccessDecisionVoter<?>> decisionVoters) {
 		Assert.notEmpty(decisionVoters, "A list of AccessDecisionVoters is required");
 		this.decisionVoters = decisionVoters;
 	}
@@ -67,8 +67,8 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 
 	protected final void checkAllowIfAllAbstainDecisions() {
 		if (!this.isAllowIfAllAbstainDecisions()) {
-			throw new AccessDeniedException(messages.getMessage(
-					"AbstractAccessDecisionManager.accessDenied", "Access is denied"));
+			throw new AccessDeniedException(
+					messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
 		}
 	}
 
@@ -104,7 +104,6 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 	 * <p>
 	 * If one or more voters cannot support the presented class, <code>false</code> is
 	 * returned.
-	 *
 	 * @param clazz the type of secured object being presented
 	 * @return true if this type is supported
 	 */
@@ -117,4 +116,5 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 
 		return true;
 	}
+
 }

@@ -41,31 +41,33 @@ import static org.springframework.security.web.server.DelegatingServerAuthentica
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingServerAuthenticationEntryPointTests {
+
 	private ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 	@Mock
 	private ServerWebExchangeMatcher matcher1;
+
 	@Mock
 	private ServerWebExchangeMatcher matcher2;
+
 	@Mock
 	private ServerAuthenticationEntryPoint delegate1;
+
 	@Mock
 	private ServerAuthenticationEntryPoint delegate2;
 
 	private AuthenticationException e = new AuthenticationCredentialsNotFoundException("Log In");
+
 	private DelegatingServerAuthenticationEntryPoint entryPoint;
 
 	@Test
 	public void commenceWhenNotMatchThenMatchThenOnlySecondDelegateInvoked() {
 		Mono<Void> expectedResult = Mono.empty();
-		when(this.matcher1.matches(this.exchange)).thenReturn(
-			ServerWebExchangeMatcher.MatchResult.notMatch());
-		when(this.matcher2.matches(this.exchange)).thenReturn(
-			ServerWebExchangeMatcher.MatchResult.match());
+		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		when(this.matcher2.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
 		when(this.delegate2.commence(this.exchange, this.e)).thenReturn(expectedResult);
-		this.entryPoint = new DelegatingServerAuthenticationEntryPoint(
-			new DelegateEntry(this.matcher1, this.delegate1),
-			new DelegateEntry(this.matcher2, this.delegate2));
+		this.entryPoint = new DelegatingServerAuthenticationEntryPoint(new DelegateEntry(this.matcher1, this.delegate1),
+				new DelegateEntry(this.matcher2, this.delegate2));
 
 		Mono<Void> actualResult = this.entryPoint.commence(this.exchange, this.e);
 		actualResult.block();
@@ -76,15 +78,14 @@ public class DelegatingServerAuthenticationEntryPointTests {
 
 	@Test
 	public void commenceWhenNotMatchThenDefault() {
-		when(this.matcher1.matches(this.exchange)).thenReturn(
-			ServerWebExchangeMatcher.MatchResult.notMatch());
+		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		this.entryPoint = new DelegatingServerAuthenticationEntryPoint(
-			new DelegateEntry(this.matcher1, this.delegate1));
+				new DelegateEntry(this.matcher1, this.delegate1));
 
 		this.entryPoint.commence(this.exchange, this.e).block();
 
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.UNAUTHORIZED);
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 		verifyZeroInteractions(this.delegate1);
 	}
+
 }

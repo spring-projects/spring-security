@@ -39,8 +39,11 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticationConverterServerWebExchangeMatcherTests {
+
 	private MockServerWebExchange exchange;
+
 	private AuthenticationConverterServerWebExchangeMatcher matcher;
+
 	private Authentication authentication = new TestingAuthenticationToken("user", "password");
 
 	@Mock
@@ -83,15 +86,14 @@ public class AuthenticationConverterServerWebExchangeMatcherTests {
 	public void matchesWhenNullThenThrowsException() {
 		when(this.converter.convert(any())).thenReturn(null);
 
-		assertThatCode(() -> this.matcher.matches(this.exchange).block())
-				.isInstanceOf(NullPointerException.class);
+		assertThatCode(() -> this.matcher.matches(this.exchange).block()).isInstanceOf(NullPointerException.class);
 	}
 
 	@Test
 	public void matchesWhenExceptionThenPropagates() {
 		when(this.converter.convert(any())).thenThrow(RuntimeException.class);
 
-		assertThatCode(() -> this.matcher.matches(this.exchange).block())
-				.isInstanceOf(RuntimeException.class);
+		assertThatCode(() -> this.matcher.matches(this.exchange).block()).isInstanceOf(RuntimeException.class);
 	}
+
 }

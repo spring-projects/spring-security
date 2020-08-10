@@ -98,4 +98,5 @@ public final class DefaultCsrfToken implements CsrfToken {
 		result = 31 * result + getHeaderName().hashCode();
 		return result;
 	}
+
 }

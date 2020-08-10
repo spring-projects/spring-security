@@ -42,7 +42,9 @@ import static org.springframework.security.config.Customizer.withDefaults;
  */
 @Configuration(proxyBeanMethods = false)
 class HttpSecurityConfiguration {
+
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.configuration.HttpSecurityConfiguration.";
+
 	private static final String HTTPSECURITY_BEAN_NAME = BEAN_NAME_PREFIX + "httpSecurity";
 
 	private ObjectPostProcessor<Object> objectPostProcessor;
@@ -64,8 +66,7 @@ class HttpSecurityConfiguration {
 	}
 
 	@Autowired
-	public void setAuthenticationConfiguration(
-			AuthenticationConfiguration authenticationConfiguration) {
+	public void setAuthenticationConfiguration(AuthenticationConfiguration authenticationConfiguration) {
 		this.authenticationConfiguration = authenticationConfiguration;
 	}
 
@@ -77,26 +78,18 @@ class HttpSecurityConfiguration {
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
 	public HttpSecurity httpSecurity() throws Exception {
-		WebSecurityConfigurerAdapter.LazyPasswordEncoder passwordEncoder =
-				new WebSecurityConfigurerAdapter.LazyPasswordEncoder(this.context);
+		WebSecurityConfigurerAdapter.LazyPasswordEncoder passwordEncoder = new WebSecurityConfigurerAdapter.LazyPasswordEncoder(
+				this.context);
 
-		AuthenticationManagerBuilder authenticationBuilder =
-				new WebSecurityConfigurerAdapter.DefaultPasswordEncoderAuthenticationManagerBuilder(this.objectPostProcessor, passwordEncoder);
+		AuthenticationManagerBuilder authenticationBuilder = new WebSecurityConfigurerAdapter.DefaultPasswordEncoderAuthenticationManagerBuilder(
+				this.objectPostProcessor, passwordEncoder);
 		authenticationBuilder.parentAuthenticationManager(authenticationManager());
 
 		HttpSecurity http = new HttpSecurity(objectPostProcessor, authenticationBuilder, createSharedObjects());
-		http
-				.csrf(withDefaults())
-				.addFilter(new WebAsyncManagerIntegrationFilter())
-				.exceptionHandling(withDefaults())
-				.headers(withDefaults())
-				.sessionManagement(withDefaults())
-				.securityContext(withDefaults())
-				.requestCache(withDefaults())
-				.anonymous(withDefaults())
-				.servletApi(withDefaults())
-				.logout(withDefaults())
-				.apply(new DefaultLoginPageConfigurer<>());
+		http.csrf(withDefaults()).addFilter(new WebAsyncManagerIntegrationFilter()).exceptionHandling(withDefaults())
+				.headers(withDefaults()).sessionManagement(withDefaults()).securityContext(withDefaults())
+				.requestCache(withDefaults()).anonymous(withDefaults()).servletApi(withDefaults())
+				.logout(withDefaults()).apply(new DefaultLoginPageConfigurer<>());
 
 		return http;
 	}
@@ -104,7 +97,8 @@ class HttpSecurityConfiguration {
 	private AuthenticationManager authenticationManager() throws Exception {
 		if (this.authenticationManager != null) {
 			return this.authenticationManager;
-		} else {
+		}
+		else {
 			return this.authenticationConfiguration.getAuthenticationManager();
 		}
 	}
@@ -114,4 +108,5 @@ class HttpSecurityConfiguration {
 		sharedObjects.put(ApplicationContext.class, context);
 		return sharedObjects;
 	}
+
 }

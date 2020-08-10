@@ -22,8 +22,11 @@ import org.junit.Test;
  *
  */
 public class DefaultCsrfTokenTests {
+
 	private final String headerName = "headerName";
+
 	private final String parameterName = "parameterName";
+
 	private final String tokenValue = "tokenValue";
 
 	@Test(expected = IllegalArgumentException.class)
@@ -55,4 +58,5 @@ public class DefaultCsrfTokenTests {
 	public void constructorEmptyTokenValue() {
 		new DefaultCsrfToken(headerName, parameterName, "");
 	}
+
 }

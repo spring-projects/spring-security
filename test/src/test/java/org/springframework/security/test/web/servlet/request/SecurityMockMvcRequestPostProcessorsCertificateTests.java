@@ -29,6 +29,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityMockMvcRequestPostProcessorsCertificateTests {
+
 	@Mock
 	private X509Certificate certificate;
 
@@ -41,8 +42,7 @@ public class SecurityMockMvcRequestPostProcessorsCertificateTests {
 
 	@Test
 	public void x509SingleCertificate() {
-		MockHttpServletRequest postProcessedRequest = x509(certificate)
-				.postProcessRequest(request);
+		MockHttpServletRequest postProcessedRequest = x509(certificate).postProcessRequest(request);
 
 		X509Certificate[] certificates = (X509Certificate[]) postProcessedRequest
 				.getAttribute("javax.servlet.request.X509Certificate");
@@ -52,14 +52,14 @@ public class SecurityMockMvcRequestPostProcessorsCertificateTests {
 
 	@Test
 	public void x509ResourceName() throws Exception {
-		MockHttpServletRequest postProcessedRequest = x509("rod.cer").postProcessRequest(
-				request);
+		MockHttpServletRequest postProcessedRequest = x509("rod.cer").postProcessRequest(request);
 
 		X509Certificate[] certificates = (X509Certificate[]) postProcessedRequest
 				.getAttribute("javax.servlet.request.X509Certificate");
 
 		assertThat(certificates).hasSize(1);
-		assertThat(certificates[0].getSubjectDN().getName()).isEqualTo(
-				"CN=rod, OU=Spring Security, O=Spring Framework");
+		assertThat(certificates[0].getSubjectDN().getName())
+				.isEqualTo("CN=rod, OU=Spring Security, O=Spring Framework");
 	}
+
 }

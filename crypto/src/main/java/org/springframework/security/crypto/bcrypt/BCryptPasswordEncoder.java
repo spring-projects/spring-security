@@ -25,22 +25,23 @@ import java.util.regex.Pattern;
 
 /**
  * Implementation of PasswordEncoder that uses the BCrypt strong hashing function. Clients
- * can optionally supply a "version" ($2a, $2b, $2y) and a "strength" (a.k.a. log rounds in BCrypt)
- * and a SecureRandom instance. The larger the strength parameter the more work will have to be done
- * (exponentially) to hash the passwords. The default value is 10.
+ * can optionally supply a "version" ($2a, $2b, $2y) and a "strength" (a.k.a. log rounds
+ * in BCrypt) and a SecureRandom instance. The larger the strength parameter the more work
+ * will have to be done (exponentially) to hash the passwords. The default value is 10.
  *
  * @author Dave Syer
  */
 public class BCryptPasswordEncoder implements PasswordEncoder {
-	private Pattern BCRYPT_PATTERN = Pattern
-			.compile("\\A\\$2(a|y|b)?\\$(\\d\\d)\\$[./0-9A-Za-z]{53}");
+
+	private Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2(a|y|b)?\\$(\\d\\d)\\$[./0-9A-Za-z]{53}");
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final int strength;
+
 	private final BCryptVersion version;
 
 	private final SecureRandom random;
-
 
 	public BCryptPasswordEncoder() {
 		this(-1);
@@ -62,7 +63,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * @param version the version of bcrypt, can be 2a,2b,2y
-	 * @param random  the secure random instance to use
+	 * @param random the secure random instance to use
 	 */
 	public BCryptPasswordEncoder(BCryptVersion version, SecureRandom random) {
 		this(version, -1, random);
@@ -70,14 +71,14 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * @param strength the log rounds to use, between 4 and 31
-	 * @param random   the secure random instance to use
+	 * @param random the secure random instance to use
 	 */
 	public BCryptPasswordEncoder(int strength, SecureRandom random) {
 		this(BCryptVersion.$2A, strength, random);
 	}
 
 	/**
-	 * @param version  the version of bcrypt, can be 2a,2b,2y
+	 * @param version the version of bcrypt, can be 2a,2b,2y
 	 * @param strength the log rounds to use, between 4 and 31
 	 */
 	public BCryptPasswordEncoder(BCryptVersion version, int strength) {
@@ -85,9 +86,9 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	/**
-	 * @param version  the version of bcrypt, can be 2a,2b,2y
+	 * @param version the version of bcrypt, can be 2a,2b,2y
 	 * @param strength the log rounds to use, between 4 and 31
-	 * @param random   the secure random instance to use
+	 * @param random the secure random instance to use
 	 */
 	public BCryptPasswordEncoder(BCryptVersion version, int strength, SecureRandom random) {
 		if (strength != -1 && (strength < BCrypt.MIN_LOG_ROUNDS || strength > BCrypt.MAX_LOG_ROUNDS)) {
@@ -106,7 +107,8 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 		String salt;
 		if (random != null) {
 			salt = BCrypt.gensalt(version.getVersion(), strength, random);
-		} else {
+		}
+		else {
 			salt = BCrypt.gensalt(version.getVersion(), strength);
 		}
 		return BCrypt.hashpw(rawPassword.toString(), salt);
@@ -153,9 +155,8 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	 * @author Lin Feng
 	 */
 	public enum BCryptVersion {
-		$2A("$2a"),
-		$2Y("$2y"),
-		$2B("$2b");
+
+		$2A("$2a"), $2Y("$2y"), $2B("$2b");
 
 		private final String version;
 
@@ -166,5 +167,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 		public String getVersion() {
 			return this.version;
 		}
+
 	}
+
 }

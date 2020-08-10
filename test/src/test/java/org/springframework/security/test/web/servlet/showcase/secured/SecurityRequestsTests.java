@@ -63,7 +63,7 @@ public class SecurityRequestsTests {
 	@Test
 	public void requestProtectedUrlWithUser() throws Exception {
 		mvc.perform(get("/").with(user("user")))
-		// Ensure we got past Security
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withUsername("user"));
@@ -72,7 +72,7 @@ public class SecurityRequestsTests {
 	@Test
 	public void requestProtectedUrlWithAdmin() throws Exception {
 		mvc.perform(get("/admin").with(user("admin").roles("ADMIN")))
-		// Ensure we got past Security
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with admin
 				.andExpect(authenticated().withUsername("admin"));
@@ -82,7 +82,7 @@ public class SecurityRequestsTests {
 	public void requestProtectedUrlWithUserDetails() throws Exception {
 		UserDetails user = userDetailsService.loadUserByUsername("user");
 		mvc.perform(get("/").with(user(user)))
-		// Ensure we got past Security
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withAuthenticationPrincipal(user));
@@ -90,10 +90,9 @@ public class SecurityRequestsTests {
 
 	@Test
 	public void requestProtectedUrlWithAuthentication() throws Exception {
-		Authentication authentication = new TestingAuthenticationToken("test", "notused",
-				"ROLE_USER");
+		Authentication authentication = new TestingAuthenticationToken("test", "notused", "ROLE_USER");
 		mvc.perform(get("/").with(authentication(authentication)))
-		// Ensure we got past Security
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withAuthentication(authentication));
@@ -129,5 +128,7 @@ public class SecurityRequestsTests {
 		public UserDetailsService userDetailsServiceBean() throws Exception {
 			return super.userDetailsServiceBean();
 		}
+
 	}
+
 }

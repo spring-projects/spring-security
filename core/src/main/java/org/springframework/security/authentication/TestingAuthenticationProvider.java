@@ -33,15 +33,16 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class TestingAuthenticationProvider implements AuthenticationProvider {
+
 	// ~ Methods
 	// ========================================================================================================
 
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		return authentication;
 	}
 
 	public boolean supports(Class<?> authentication) {
 		return TestingAuthenticationToken.class.isAssignableFrom(authentication);
 	}
+
 }

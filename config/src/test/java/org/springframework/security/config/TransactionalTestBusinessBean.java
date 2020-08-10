@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Luke Taylor
  */
 public class TransactionalTestBusinessBean implements TestBusinessBean {
+
 	public void setInteger(int i) {
 	}
 
@@ -37,4 +38,5 @@ public class TransactionalTestBusinessBean implements TestBusinessBean {
 
 	public void unprotected() {
 	}
+
 }

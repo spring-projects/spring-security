@@ -24,11 +24,11 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public class OAuth2AuthorizationException extends RuntimeException {
+
 	private OAuth2Error error;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationException} using the provided parameters.
-	 *
 	 * @param error the {@link OAuth2Error OAuth 2.0 Error}
 	 */
 	public OAuth2AuthorizationException(OAuth2Error error) {
@@ -37,7 +37,6 @@ public class OAuth2AuthorizationException extends RuntimeException {
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationException} using the provided parameters.
-	 *
 	 * @param error the {@link OAuth2Error OAuth 2.0 Error}
 	 * @param message the exception message
 	 * @since 5.3
@@ -50,7 +49,6 @@ public class OAuth2AuthorizationException extends RuntimeException {
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationException} using the provided parameters.
-	 *
 	 * @param error the {@link OAuth2Error OAuth 2.0 Error}
 	 * @param cause the root cause
 	 */
@@ -60,7 +58,6 @@ public class OAuth2AuthorizationException extends RuntimeException {
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationException} using the provided parameters.
-	 *
 	 * @param error the {@link OAuth2Error OAuth 2.0 Error}
 	 * @param message the exception message
 	 * @param cause the root cause
@@ -74,10 +71,10 @@ public class OAuth2AuthorizationException extends RuntimeException {
 
 	/**
 	 * Returns the {@link OAuth2Error OAuth 2.0 Error}.
-	 *
 	 * @return the {@link OAuth2Error}
 	 */
 	public OAuth2Error getError() {
 		return this.error;
 	}
+
 }

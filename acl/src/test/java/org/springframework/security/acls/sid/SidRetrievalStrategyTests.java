@@ -39,8 +39,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 @SuppressWarnings("unchecked")
 public class SidRetrievalStrategyTests {
-	Authentication authentication = new TestingAuthenticationToken("scott", "password",
-			"A", "B", "C");
+
+	Authentication authentication = new TestingAuthenticationToken("scott", "password", "A", "B", "C");
 
 	// ~ Methods
 	// ========================================================================================================
@@ -69,8 +69,7 @@ public class SidRetrievalStrategyTests {
 	public void roleHierarchyIsUsedWhenSet() {
 		RoleHierarchy rh = mock(RoleHierarchy.class);
 		List rhAuthorities = AuthorityUtils.createAuthorityList("D");
-		when(rh.getReachableGrantedAuthorities(anyCollection()))
-				.thenReturn(rhAuthorities);
+		when(rh.getReachableGrantedAuthorities(anyCollection())).thenReturn(rhAuthorities);
 		SidRetrievalStrategy strat = new SidRetrievalStrategyImpl(rh);
 
 		List<Sid> sids = strat.getSids(authentication);
@@ -79,4 +78,5 @@ public class SidRetrievalStrategyTests {
 		assertThat(sids.get(0) instanceof PrincipalSid).isTrue();
 		assertThat(((GrantedAuthoritySid) sids.get(1)).getGrantedAuthority()).isEqualTo("D");
 	}
+
 }

@@ -24,9 +24,12 @@ import java.util.List;
 
 /**
  * A reactive version of {@link com.nimbusds.jose.jwk.source.JWKSource}
+ *
  * @author Rob Winch
  * @since 5.1
  */
 interface ReactiveJWKSource {
+
 	Mono<List<JWK>> get(JWKSelector jwkSelector);
+
 }

@@ -24,18 +24,20 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 /**
- * Implementation of the {@link ServerLogoutSuccessHandler}. By default returns an HTTP status code of {@code 200}.
- * This is useful in REST-type scenarios where a redirect upon a successful logout is not desired.
+ * Implementation of the {@link ServerLogoutSuccessHandler}. By default returns an HTTP
+ * status code of {@code 200}. This is useful in REST-type scenarios where a redirect upon
+ * a successful logout is not desired.
  *
  * @author Eric Deandrea
  * @since 5.1
  */
 public class HttpStatusReturningServerLogoutSuccessHandler implements ServerLogoutSuccessHandler {
+
 	private final HttpStatus httpStatusToReturn;
 
 	/**
-	 * Initialize the {@code HttpStatusReturningServerLogoutSuccessHandler} with a user-defined {@link HttpStatus}.
-	 *
+	 * Initialize the {@code HttpStatusReturningServerLogoutSuccessHandler} with a
+	 * user-defined {@link HttpStatus}.
 	 * @param httpStatusToReturn Must not be {@code null}.
 	 */
 	public HttpStatusReturningServerLogoutSuccessHandler(HttpStatus httpStatusToReturn) {
@@ -44,16 +46,17 @@ public class HttpStatusReturningServerLogoutSuccessHandler implements ServerLogo
 	}
 
 	/**
-	 * Initialize the {@code HttpStatusReturningServerLogoutSuccessHandler} with the default {@link HttpStatus#OK}.
+	 * Initialize the {@code HttpStatusReturningServerLogoutSuccessHandler} with the
+	 * default {@link HttpStatus#OK}.
 	 */
 	public HttpStatusReturningServerLogoutSuccessHandler() {
 		this.httpStatusToReturn = HttpStatus.OK;
 	}
 
 	/**
-	 * Implementation of {@link ServerLogoutSuccessHandler#onLogoutSuccess(WebFilterExchange, Authentication)}. Sets the status
-	 * on the {@link WebFilterExchange}.
-	 *
+	 * Implementation of
+	 * {@link ServerLogoutSuccessHandler#onLogoutSuccess(WebFilterExchange, Authentication)}.
+	 * Sets the status on the {@link WebFilterExchange}.
 	 * @param exchange The exchange
 	 * @param authentication The {@link Authentication}
 	 * @return A completion notification (success or error)
@@ -62,4 +65,5 @@ public class HttpStatusReturningServerLogoutSuccessHandler implements ServerLogo
 	public Mono<Void> onLogoutSuccess(WebFilterExchange exchange, Authentication authentication) {
 		return Mono.fromRunnable(() -> exchange.getExchange().getResponse().setStatusCode(this.httpStatusToReturn));
 	}
+
 }

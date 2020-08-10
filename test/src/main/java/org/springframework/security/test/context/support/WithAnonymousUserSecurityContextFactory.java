@@ -25,17 +25,15 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * A {@link WithAnonymousUserSecurityContextFactory} that runs with an {@link AnonymousAuthenticationToken}.
- * .
+ * A {@link WithAnonymousUserSecurityContextFactory} that runs with an
+ * {@link AnonymousAuthenticationToken}. .
  *
  * @see WithUserDetails
- *
  * @author Rob Winch
  * @since 4.1
  */
 
-final class WithAnonymousUserSecurityContextFactory implements
-		WithSecurityContextFactory<WithAnonymousUser> {
+final class WithAnonymousUserSecurityContextFactory implements WithSecurityContextFactory<WithAnonymousUser> {
 
 	public SecurityContext createSecurityContext(WithAnonymousUser withUser) {
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
@@ -44,4 +42,5 @@ final class WithAnonymousUserSecurityContextFactory implements
 		context.setAuthentication(authentication);
 		return context;
 	}
+
 }

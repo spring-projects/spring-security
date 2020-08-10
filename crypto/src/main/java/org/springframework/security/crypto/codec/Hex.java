@@ -26,8 +26,8 @@ package org.springframework.security.crypto.codec;
  */
 public final class Hex {
 
-	private static final char[] HEX = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-			'a', 'b', 'c', 'd', 'e', 'f' };
+	private static final char[] HEX = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e',
+			'f' };
 
 	public static char[] encode(byte[] bytes) {
 		final int nBytes = bytes.length;
@@ -48,8 +48,7 @@ public final class Hex {
 		int nChars = s.length();
 
 		if (nChars % 2 != 0) {
-			throw new IllegalArgumentException(
-					"Hex-encoded string must have an even number of characters");
+			throw new IllegalArgumentException("Hex-encoded string must have an even number of characters");
 		}
 
 		byte[] result = new byte[nChars / 2];
@@ -60,7 +59,7 @@ public final class Hex {
 
 			if (msb < 0 || lsb < 0) {
 				throw new IllegalArgumentException(
-					"Detected a Non-hex character at " + (i + 1) + " or " + (i + 2) + " position");
+						"Detected a Non-hex character at " + (i + 1) + " or " + (i + 2) + " position");
 			}
 			result[i / 2] = (byte) ((msb << 4) | lsb);
 		}

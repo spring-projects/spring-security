@@ -58,7 +58,7 @@ public class WithUserDetailsAuthenticationTests {
 	@WithUserDetails
 	public void requestProtectedUrlWithUser() throws Exception {
 		mvc.perform(get("/"))
-		// Ensure we got past Security
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withUsername("user"));
@@ -71,8 +71,7 @@ public class WithUserDetailsAuthenticationTests {
 				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
-				.andExpect(
-						authenticated().withUsername("admin").withRoles("ADMIN", "USER"));
+				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN", "USER"));
 	}
 
 	@EnableWebSecurity
@@ -106,5 +105,7 @@ public class WithUserDetailsAuthenticationTests {
 					.withUser("admin").password("password").roles("USER", "ADMIN");
 			// @formatter:on
 		}
+
 	}
+
 }

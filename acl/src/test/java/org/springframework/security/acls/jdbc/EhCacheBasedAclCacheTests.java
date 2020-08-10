@@ -54,10 +54,12 @@ import org.springframework.test.util.ReflectionTestUtils;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class EhCacheBasedAclCacheTests {
+
 	private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
 
 	@Mock
 	private Ehcache cache;
+
 	@Captor
 	private ArgumentCaptor<Element> element;
 
@@ -67,17 +69,15 @@ public class EhCacheBasedAclCacheTests {
 
 	@Before
 	public void setup() {
-		myCache = new EhCacheBasedAclCache(cache, new DefaultPermissionGrantingStrategy(
-				new ConsoleAuditLogger()), new AclAuthorizationStrategyImpl(
-				new SimpleGrantedAuthority("ROLE_USER")));
+		myCache = new EhCacheBasedAclCache(cache, new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()),
+				new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_USER")));
 
 		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
-				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority(
-						"ROLE_AUDITING"), new SimpleGrantedAuthority("ROLE_GENERAL"));
+				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
+				new SimpleGrantedAuthority("ROLE_GENERAL"));
 
-		acl = new AclImpl(identity, 1L, aclAuthorizationStrategy,
-				new ConsoleAuditLogger());
+		acl = new AclImpl(identity, 1L, aclAuthorizationStrategy, new ConsoleAuditLogger());
 	}
 
 	@After
@@ -87,9 +87,8 @@ public class EhCacheBasedAclCacheTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorRejectsNullParameters() {
-		new EhCacheBasedAclCache(null, new DefaultPermissionGrantingStrategy(
-				new ConsoleAuditLogger()), new AclAuthorizationStrategyImpl(
-				new SimpleGrantedAuthority("ROLE_USER")));
+		new EhCacheBasedAclCache(null, new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()),
+				new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_USER")));
 	}
 
 	@Test
@@ -152,12 +151,10 @@ public class EhCacheBasedAclCacheTests {
 
 		assertThat(retrieved).isEqualTo(acl);
 
-		Object retrieved1 = FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy",
-				retrieved);
+		Object retrieved1 = FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy", retrieved);
 		assertThat(retrieved1).isNull();
 
-		Object retrieved2 = FieldUtils.getProtectedFieldValue(
-				"permissionGrantingStrategy", retrieved);
+		Object retrieved2 = FieldUtils.getProtectedFieldValue("permissionGrantingStrategy", retrieved);
 		assertThat(retrieved2).isNull();
 	}
 
@@ -175,25 +172,21 @@ public class EhCacheBasedAclCacheTests {
 		verify(cache, times(2)).put(element.capture());
 		assertThat(element.getValue().getKey()).isEqualTo(acl.getId());
 		assertThat(element.getValue().getObjectValue()).isEqualTo(acl);
-		assertThat(element.getAllValues().get(0).getKey()).isEqualTo(
-				acl.getObjectIdentity());
+		assertThat(element.getAllValues().get(0).getKey()).isEqualTo(acl.getObjectIdentity());
 		assertThat(element.getAllValues().get(0).getObjectValue()).isEqualTo(acl);
 	}
 
 	@Test
 	public void putInCacheAclWithParent() {
-		Authentication auth = new TestingAuthenticationToken("user", "password",
-				"ROLE_GENERAL");
+		Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_GENERAL");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
-		ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS,
-				2L);
+		ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS, 2L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
-				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority(
-						"ROLE_AUDITING"), new SimpleGrantedAuthority("ROLE_GENERAL"));
-		MutableAcl parentAcl = new AclImpl(identityParent, 2L,
-				aclAuthorizationStrategy, new ConsoleAuditLogger());
+				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
+				new SimpleGrantedAuthority("ROLE_GENERAL"));
+		MutableAcl parentAcl = new AclImpl(identityParent, 2L, aclAuthorizationStrategy, new ConsoleAuditLogger());
 		acl.setParent(parentAcl);
 
 		myCache.putInCache(acl);
@@ -233,10 +226,8 @@ public class EhCacheBasedAclCacheTests {
 
 		MutableAcl fromCache = myCache.getFromCache(acl.getId());
 
-		assertThat(ReflectionTestUtils.getField(fromCache, "aclAuthorizationStrategy"))
-				.isNotNull();
-		assertThat(ReflectionTestUtils.getField(fromCache, "permissionGrantingStrategy"))
-				.isNotNull();
+		assertThat(ReflectionTestUtils.getField(fromCache, "aclAuthorizationStrategy")).isNotNull();
+		assertThat(ReflectionTestUtils.getField(fromCache, "permissionGrantingStrategy")).isNotNull();
 	}
 
 	@Test
@@ -248,8 +239,7 @@ public class EhCacheBasedAclCacheTests {
 
 	@Test
 	public void getFromCacheObjectIdentityPopulatesTransient() {
-		when(cache.get(acl.getObjectIdentity()))
-				.thenReturn(new Element(acl.getId(), acl));
+		when(cache.get(acl.getObjectIdentity())).thenReturn(new Element(acl.getId(), acl));
 
 		myCache.putInCache(acl);
 
@@ -258,16 +248,13 @@ public class EhCacheBasedAclCacheTests {
 
 		MutableAcl fromCache = myCache.getFromCache(acl.getObjectIdentity());
 
-		assertThat(ReflectionTestUtils.getField(fromCache, "aclAuthorizationStrategy"))
-				.isNotNull();
-		assertThat(ReflectionTestUtils.getField(fromCache, "permissionGrantingStrategy"))
-				.isNotNull();
+		assertThat(ReflectionTestUtils.getField(fromCache, "aclAuthorizationStrategy")).isNotNull();
+		assertThat(ReflectionTestUtils.getField(fromCache, "permissionGrantingStrategy")).isNotNull();
 	}
 
 	@Test
 	public void evictCacheSerializable() {
-		when(cache.get(acl.getObjectIdentity()))
-				.thenReturn(new Element(acl.getId(), acl));
+		when(cache.get(acl.getObjectIdentity())).thenReturn(new Element(acl.getId(), acl));
 
 		myCache.evictFromCache(acl.getObjectIdentity());
 
@@ -284,4 +271,5 @@ public class EhCacheBasedAclCacheTests {
 		verify(cache).remove(acl.getId());
 		verify(cache).remove(acl.getObjectIdentity());
 	}
+
 }

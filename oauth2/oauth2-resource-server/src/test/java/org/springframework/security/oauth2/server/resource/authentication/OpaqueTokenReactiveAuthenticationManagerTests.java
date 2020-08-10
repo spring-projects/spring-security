@@ -55,53 +55,47 @@ import static org.springframework.security.oauth2.server.resource.introspection.
  * @author Josh Cummings
  */
 public class OpaqueTokenReactiveAuthenticationManagerTests {
+
 	@Test
 	public void authenticateWhenActiveTokenThenOk() throws Exception {
-		OAuth2AuthenticatedPrincipal authority = active(attributes -> attributes.put("extension_field", "twenty-seven"));
+		OAuth2AuthenticatedPrincipal authority = active(
+				attributes -> attributes.put("extension_field", "twenty-seven"));
 		ReactiveOpaqueTokenIntrospector introspector = mock(ReactiveOpaqueTokenIntrospector.class);
 		when(introspector.introspect(any())).thenReturn(Mono.just(authority));
-		OpaqueTokenReactiveAuthenticationManager provider =
-				new OpaqueTokenReactiveAuthenticationManager(introspector);
+		OpaqueTokenReactiveAuthenticationManager provider = new OpaqueTokenReactiveAuthenticationManager(introspector);
 
-		Authentication result =
-				provider.authenticate(new BearerTokenAuthenticationToken("token")).block();
+		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token")).block();
 
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2IntrospectionAuthenticatedPrincipal.class);
 
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
-		assertThat(attributes)
-				.isNotNull()
-				.containsEntry(ACTIVE, true)
+		assertThat(attributes).isNotNull().containsEntry(ACTIVE, true)
 				.containsEntry(AUDIENCE, Arrays.asList("https://protected.example.net/resource"))
 				.containsEntry(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
 				.containsEntry(EXPIRES_AT, Instant.ofEpochSecond(1419356238))
 				.containsEntry(ISSUER, new URL("https://server.example.com/"))
 				.containsEntry(NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
 				.containsEntry(SCOPE, Arrays.asList("read", "write", "dolphin"))
-				.containsEntry(SUBJECT, "Z5O3upPC88QrAjx00dis")
-				.containsEntry(USERNAME, "jdoe")
+				.containsEntry(SUBJECT, "Z5O3upPC88QrAjx00dis").containsEntry(USERNAME, "jdoe")
 				.containsEntry("extension_field", "twenty-seven");
 
-		assertThat(result.getAuthorities()).extracting("authority")
-				.containsExactly("SCOPE_read", "SCOPE_write", "SCOPE_dolphin");
+		assertThat(result.getAuthorities()).extracting("authority").containsExactly("SCOPE_read", "SCOPE_write",
+				"SCOPE_dolphin");
 	}
 
 	@Test
 	public void authenticateWhenMissingScopeAttributeThenNoAuthorities() {
-		OAuth2AuthenticatedPrincipal authority = new OAuth2IntrospectionAuthenticatedPrincipal(Collections.singletonMap("claim", "value"), null);
+		OAuth2AuthenticatedPrincipal authority = new OAuth2IntrospectionAuthenticatedPrincipal(
+				Collections.singletonMap("claim", "value"), null);
 		ReactiveOpaqueTokenIntrospector introspector = mock(ReactiveOpaqueTokenIntrospector.class);
 		when(introspector.introspect(any())).thenReturn(Mono.just(authority));
-		OpaqueTokenReactiveAuthenticationManager provider =
-				new OpaqueTokenReactiveAuthenticationManager(introspector);
+		OpaqueTokenReactiveAuthenticationManager provider = new OpaqueTokenReactiveAuthenticationManager(introspector);
 
-		Authentication result =
-				provider.authenticate(new BearerTokenAuthenticationToken("token")).block();
+		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token")).block();
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2IntrospectionAuthenticatedPrincipal.class);
 
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
-		assertThat(attributes)
-				.isNotNull()
-				.doesNotContainKey(SCOPE);
+		assertThat(attributes).isNotNull().doesNotContainKey(SCOPE);
 
 		assertThat(result.getAuthorities()).isEmpty();
 	}
@@ -111,8 +105,7 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 		ReactiveOpaqueTokenIntrospector introspector = mock(ReactiveOpaqueTokenIntrospector.class);
 		when(introspector.introspect(any()))
 				.thenReturn(Mono.error(new OAuth2IntrospectionException("with \"invalid\" chars")));
-		OpaqueTokenReactiveAuthenticationManager provider =
-				new OpaqueTokenReactiveAuthenticationManager(introspector);
+		OpaqueTokenReactiveAuthenticationManager provider = new OpaqueTokenReactiveAuthenticationManager(introspector);
 
 		assertThatCode(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")).block())
 				.isInstanceOf(AuthenticationServiceException.class);
@@ -123,4 +116,5 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 		assertThatCode(() -> new OpaqueTokenReactiveAuthenticationManager(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
+
 }

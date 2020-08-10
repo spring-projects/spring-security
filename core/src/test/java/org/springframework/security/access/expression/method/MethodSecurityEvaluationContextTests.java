@@ -36,10 +36,13 @@ import static org.mockito.Mockito.doReturn;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class MethodSecurityEvaluationContextTests {
+
 	@Mock
 	private ParameterNameDiscoverer paramNameDiscoverer;
+
 	@Mock
 	private Authentication authentication;
+
 	@Mock
 	private MethodInvocation methodInvocation;
 
@@ -47,16 +50,16 @@ public class MethodSecurityEvaluationContextTests {
 	public void lookupVariableWhenParameterNameNullThenNotSet() {
 		Class<String> type = String.class;
 		Method method = ReflectionUtils.findMethod(String.class, "contains", CharSequence.class);
-		doReturn(new String[] {null}).when(paramNameDiscoverer).getParameterNames(method);
-		doReturn(new Object[]{null}).when(methodInvocation).getArguments();
+		doReturn(new String[] { null }).when(paramNameDiscoverer).getParameterNames(method);
+		doReturn(new Object[] { null }).when(methodInvocation).getArguments();
 		doReturn(type).when(methodInvocation).getThis();
 		doReturn(method).when(methodInvocation).getMethod();
-		NotNullVariableMethodSecurityEvaluationContext context= new NotNullVariableMethodSecurityEvaluationContext(authentication, methodInvocation, paramNameDiscoverer);
+		NotNullVariableMethodSecurityEvaluationContext context = new NotNullVariableMethodSecurityEvaluationContext(
+				authentication, methodInvocation, paramNameDiscoverer);
 		context.lookupVariable("testVariable");
 	}
 
-	private static class  NotNullVariableMethodSecurityEvaluationContext
-			extends MethodSecurityEvaluationContext {
+	private static class NotNullVariableMethodSecurityEvaluationContext extends MethodSecurityEvaluationContext {
 
 		NotNullVariableMethodSecurityEvaluationContext(Authentication auth, MethodInvocation mi,
 				ParameterNameDiscoverer parameterNameDiscoverer) {
@@ -65,12 +68,14 @@ public class MethodSecurityEvaluationContextTests {
 
 		@Override
 		public void setVariable(String name, @Nullable Object value) {
-			if ( name == null ) {
+			if (name == null) {
 				throw new IllegalArgumentException("name  should not be null");
 			}
 			else {
 				super.setVariable(name, value);
 			}
 		}
+
 	}
+
 }

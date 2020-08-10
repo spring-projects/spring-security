@@ -32,8 +32,8 @@ import org.springframework.security.task.AbstractDelegatingSecurityContextAsyncT
  * @see CurrentSecurityContextSchedulingTaskExecutorTests
  * @see ExplicitSecurityContextSchedulingTaskExecutorTests
  */
-public abstract class AbstractSecurityContextSchedulingTaskExecutorTests extends
-		AbstractDelegatingSecurityContextAsyncTaskExecutorTests {
+public abstract class AbstractSecurityContextSchedulingTaskExecutorTests
+		extends AbstractDelegatingSecurityContextAsyncTaskExecutorTests {
 
 	@Mock
 	protected SchedulingTaskExecutor taskExecutorDelegate;
@@ -52,4 +52,5 @@ public abstract class AbstractSecurityContextSchedulingTaskExecutorTests extends
 	}
 
 	protected abstract DelegatingSecurityContextSchedulingTaskExecutor create();
+
 }

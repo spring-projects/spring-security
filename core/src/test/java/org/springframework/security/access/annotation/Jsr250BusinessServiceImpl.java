@@ -22,7 +22,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.PermitAll;
 
 /**
- *
  * @author Luke Taylor
  */
 @PermitAll
@@ -68,4 +67,5 @@ public class Jsr250BusinessServiceImpl implements BusinessService {
 	public void rolesAllowedUser() {
 
 	}
+
 }

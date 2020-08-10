@@ -53,6 +53,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 @ContextConfiguration
 @RunWith(SpringRunner.class)
 public class HelloRSocketITests {
+
 	@Autowired
 	RSocketMessageHandler handler;
 
@@ -68,13 +69,9 @@ public class HelloRSocketITests {
 
 	@Before
 	public void setup() {
-		this.server = RSocketFactory.receive()
-				.frameDecoder(PayloadDecoder.ZERO_COPY)
-				.addSocketAcceptorPlugin(this.interceptor)
-				.acceptor(this.handler.responder())
-				.transport(TcpServerTransport.create("localhost", 0))
-				.start()
-				.block();
+		this.server = RSocketFactory.receive().frameDecoder(PayloadDecoder.ZERO_COPY)
+				.addSocketAcceptorPlugin(this.interceptor).acceptor(this.handler.responder())
+				.transport(TcpServerTransport.create("localhost", 0)).start().block();
 	}
 
 	@After
@@ -86,20 +83,14 @@ public class HelloRSocketITests {
 
 	@Test
 	public void retrieveMonoWhenSecureThenDenied() throws Exception {
-		this.requester = RSocketRequester.builder()
-				.rsocketStrategies(this.handler.getRSocketStrategies())
-				.connectTcp("localhost", this.server.address().getPort())
-				.block();
+		this.requester = RSocketRequester.builder().rsocketStrategies(this.handler.getRSocketStrategies())
+				.connectTcp("localhost", this.server.address().getPort()).block();
 
 		String data = "rob";
-		assertThatCode(() -> this.requester.route("secure.retrieve-mono")
-				.data(data)
-				.retrieveMono(String.class)
-				.block()
-			)
-			.isNotNull();
+		assertThatCode(() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block())
+				.isNotNull();
 		// FIXME: https://github.com/rsocket/rsocket-java/issues/686
-		//			.isInstanceOf(RejectedSetupException.class);
+		// .isInstanceOf(RejectedSetupException.class);
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -109,14 +100,11 @@ public class HelloRSocketITests {
 		this.requester = RSocketRequester.builder()
 				.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.rsocketStrategies(this.handler.getRSocketStrategies())
-				.connectTcp("localhost", this.server.address().getPort())
-				.block();
+				.connectTcp("localhost", this.server.address().getPort()).block();
 		String data = "rob";
 		String hiRob = this.requester.route("secure.retrieve-mono")
-				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.data(data)
-				.retrieveMono(String.class)
-				.block();
+				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE).data(data)
+				.retrieveMono(String.class).block();
 
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
@@ -140,9 +128,7 @@ public class HelloRSocketITests {
 
 		@Bean
 		public RSocketStrategies rsocketStrategies() {
-			return RSocketStrategies.builder()
-					.encoder(new BasicAuthenticationEncoder())
-					.build();
+			return RSocketStrategies.builder().encoder(new BasicAuthenticationEncoder()).build();
 		}
 
 		@Bean
@@ -156,10 +142,12 @@ public class HelloRSocketITests {
 			// @formatter:on
 			return new MapReactiveUserDetailsService(rob);
 		}
+
 	}
 
 	@Controller
 	static class ServerController {
+
 		private List<String> payloads = new ArrayList<>();
 
 		@MessageMapping("**")
@@ -171,6 +159,7 @@ public class HelloRSocketITests {
 		private void add(String p) {
 			this.payloads.add(p);
 		}
+
 	}
 
 }

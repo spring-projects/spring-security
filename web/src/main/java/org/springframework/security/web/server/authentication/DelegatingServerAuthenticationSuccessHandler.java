@@ -26,12 +26,14 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Delegates to a collection of {@link ServerAuthenticationSuccessHandler} implementations.
+ * Delegates to a collection of {@link ServerAuthenticationSuccessHandler}
+ * implementations.
  *
  * @author Rob Winch
  * @since 5.1
  */
 public class DelegatingServerAuthenticationSuccessHandler implements ServerAuthenticationSuccessHandler {
+
 	private final List<ServerAuthenticationSuccessHandler> delegates;
 
 	public DelegatingServerAuthenticationSuccessHandler(ServerAuthenticationSuccessHandler... delegates) {
@@ -40,10 +42,9 @@ public class DelegatingServerAuthenticationSuccessHandler implements ServerAuthe
 	}
 
 	@Override
-	public Mono<Void> onAuthenticationSuccess(WebFilterExchange exchange,
-			Authentication authentication) {
+	public Mono<Void> onAuthenticationSuccess(WebFilterExchange exchange, Authentication authentication) {
 		return Flux.fromIterable(this.delegates)
-			.concatMap(delegate -> delegate.onAuthenticationSuccess(exchange, authentication))
-			.then();
+				.concatMap(delegate -> delegate.onAuthenticationSuccess(exchange, authentication)).then();
 	}
+
 }

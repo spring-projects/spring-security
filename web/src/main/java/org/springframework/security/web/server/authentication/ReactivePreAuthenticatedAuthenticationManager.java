@@ -25,29 +25,30 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import reactor.core.publisher.Mono;
 
 /**
- * Reactive version of {@link org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider}
+ * Reactive version of
+ * {@link org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider}
  *
- * This manager receives a {@link PreAuthenticatedAuthenticationToken}, checks that associated account is not disabled,
- * expired, or blocked, and returns new authenticated {@link PreAuthenticatedAuthenticationToken}.
+ * This manager receives a {@link PreAuthenticatedAuthenticationToken}, checks that
+ * associated account is not disabled, expired, or blocked, and returns new authenticated
+ * {@link PreAuthenticatedAuthenticationToken}.
  *
- * If no {@link UserDetailsChecker} is provided, a default {@link AccountStatusUserDetailsChecker} will be
- * created.
+ * If no {@link UserDetailsChecker} is provided, a default
+ * {@link AccountStatusUserDetailsChecker} will be created.
  *
  * @author Alexey Nesterov
  * @since 5.2
  */
-public class ReactivePreAuthenticatedAuthenticationManager
-		implements ReactiveAuthenticationManager {
+public class ReactivePreAuthenticatedAuthenticationManager implements ReactiveAuthenticationManager {
 
 	private final ReactiveUserDetailsService userDetailsService;
+
 	private final UserDetailsChecker userDetailsChecker;
 
 	public ReactivePreAuthenticatedAuthenticationManager(ReactiveUserDetailsService userDetailsService) {
 		this(userDetailsService, new AccountStatusUserDetailsChecker());
 	}
 
-	public ReactivePreAuthenticatedAuthenticationManager(
-			ReactiveUserDetailsService userDetailsService,
+	public ReactivePreAuthenticatedAuthenticationManager(ReactiveUserDetailsService userDetailsService,
 			UserDetailsChecker userDetailsChecker) {
 		this.userDetailsService = userDetailsService;
 		this.userDetailsChecker = userDetailsChecker;
@@ -55,15 +56,12 @@ public class ReactivePreAuthenticatedAuthenticationManager
 
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
-		return Mono.just(authentication)
-				.filter(this::supports)
-				.map(Authentication::getName)
+		return Mono.just(authentication).filter(this::supports).map(Authentication::getName)
 				.flatMap(userDetailsService::findByUsername)
 				.switchIfEmpty(Mono.error(() -> new UsernameNotFoundException("User not found")))
-				.doOnNext(userDetailsChecker::check)
-				.map(ud -> {
-					PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(
-							ud, authentication.getCredentials(), ud.getAuthorities());
+				.doOnNext(userDetailsChecker::check).map(ud -> {
+					PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(ud,
+							authentication.getCredentials(), ud.getAuthorities());
 					result.setDetails(authentication.getDetails());
 
 					return result;
@@ -73,4 +71,5 @@ public class ReactivePreAuthenticatedAuthenticationManager
 	private boolean supports(Authentication authentication) {
 		return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication.getClass());
 	}
+
 }

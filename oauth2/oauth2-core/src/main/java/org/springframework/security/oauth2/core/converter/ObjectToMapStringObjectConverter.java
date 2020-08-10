@@ -36,8 +36,8 @@ final class ObjectToMapStringObjectConverter implements ConditionalGenericConver
 
 	@Override
 	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (targetType.getElementTypeDescriptor() == null ||
-				targetType.getMapKeyTypeDescriptor().getType().equals(String.class)) {
+		if (targetType.getElementTypeDescriptor() == null
+				|| targetType.getMapKeyTypeDescriptor().getType().equals(String.class)) {
 			return true;
 		}
 		return false;
@@ -59,4 +59,5 @@ final class ObjectToMapStringObjectConverter implements ConditionalGenericConver
 		sourceMap.forEach((k, v) -> result.put(k.toString(), v));
 		return result;
 	}
+
 }

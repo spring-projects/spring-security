@@ -39,6 +39,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
 
 public class SecurityMockMvcRequestBuildersFormLogoutTests {
+
 	private MockServletContext servletContext;
 
 	@Before
@@ -50,43 +51,42 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	public void defaults() {
 		MockHttpServletRequest request = logout().buildRequest(servletContext);
 
-		CsrfToken token = (CsrfToken) request.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
+		CsrfToken token = (CsrfToken) request
+				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
 
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName())).isEqualTo(
-				token.getToken());
+		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
 		assertThat(request.getRequestURI()).isEqualTo("/logout");
 	}
 
 	@Test
 	public void custom() {
-		MockHttpServletRequest request = logout("/admin/logout").buildRequest(
-				servletContext);
+		MockHttpServletRequest request = logout("/admin/logout").buildRequest(servletContext);
 
-		CsrfToken token = (CsrfToken) request.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
+		CsrfToken token = (CsrfToken) request
+				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
 
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName())).isEqualTo(
-				token.getToken());
+		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
 		assertThat(request.getRequestURI()).isEqualTo("/admin/logout");
 	}
 
 	@Test
 	public void customWithUriVars() {
-		MockHttpServletRequest request = logout().logoutUrl("/uri-logout/{var1}/{var2}", "val1", "val2").buildRequest(
-				servletContext);
+		MockHttpServletRequest request = logout().logoutUrl("/uri-logout/{var1}/{var2}", "val1", "val2")
+				.buildRequest(servletContext);
 
-		CsrfToken token = (CsrfToken) request.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
+		CsrfToken token = (CsrfToken) request
+				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
 
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName())).isEqualTo(
-				token.getToken());
+		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
 		assertThat(request.getRequestURI()).isEqualTo("/uri-logout/val1/val2");
 	}
 
 	/**
-	 * spring-restdocs uses postprocessors to do its trick. It will work only if these are merged together
-	 * with our request builders. (gh-7572)
+	 * spring-restdocs uses postprocessors to do its trick. It will work only if these are
+	 * merged together with our request builders. (gh-7572)
 	 * @throws Exception
 	 */
 	@Test
@@ -94,8 +94,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 		RequestPostProcessor postProcessor = mock(RequestPostProcessor.class);
 		when(postProcessor.postProcessRequest(any())).thenAnswer(i -> i.getArgument(0));
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object())
-				.defaultRequest(MockMvcRequestBuilders.get("/").with(postProcessor))
-				.build();
+				.defaultRequest(MockMvcRequestBuilders.get("/").with(postProcessor)).build();
 
 		MvcResult mvcResult = mockMvc.perform(logout()).andReturn();
 		assertThat(mvcResult.getRequest().getMethod()).isEqualTo(HttpMethod.POST.name());
@@ -105,4 +104,5 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 		assertThat(mvcResult.getRequest().getParameter("_csrf")).isNotEmpty();
 		verify(postProcessor).postProcessRequest(any());
 	}
+
 }

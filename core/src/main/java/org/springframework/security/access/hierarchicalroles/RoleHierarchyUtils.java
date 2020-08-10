@@ -35,13 +35,13 @@ public final class RoleHierarchyUtils {
 
 	/**
 	 * Converts the supplied {@link Map} of role name to implied role name(s) to a string
-	 * representation understood by {@link RoleHierarchyImpl#setHierarchy(String)}.
-	 * The map key is the role name and the map value is a {@link List} of implied role name(s).
-	 *
+	 * representation understood by {@link RoleHierarchyImpl#setHierarchy(String)}. The
+	 * map key is the role name and the map value is a {@link List} of implied role
+	 * name(s).
 	 * @param roleHierarchyMap the mapping(s) of role name to implied role name(s)
 	 * @return a string representation of a role hierarchy
-	 * @throws IllegalArgumentException if roleHierarchyMap is null or empty or if a role name is null or
-	 * empty or if an implied role name(s) is null or empty
+	 * @throws IllegalArgumentException if roleHierarchyMap is null or empty or if a role
+	 * name is null or empty or if an implied role name(s) is null or empty
 	 *
 	 */
 	public static String roleHierarchyFromMap(Map<String, List<String>> roleHierarchyMap) {

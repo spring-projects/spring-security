@@ -34,14 +34,13 @@ public interface ClaimAccessor {
 
 	/**
 	 * Returns a set of claims that may be used for assertions.
-	 *
 	 * @return a {@code Map} of claims
 	 */
 	Map<String, Object> getClaims();
 
 	/**
-	 * Returns the claim value as a {@code T} type.
-	 * The claim value is expected to be of type {@code T}.
+	 * Returns the claim value as a {@code T} type. The claim value is expected to be of
+	 * type {@code T}.
 	 *
 	 * @since 5.2
 	 * @param claim the name of the claim
@@ -54,8 +53,8 @@ public interface ClaimAccessor {
 	}
 
 	/**
-	 * Returns {@code true} if the claim exists in {@link #getClaims()}, otherwise {@code false}.
-	 *
+	 * Returns {@code true} if the claim exists in {@link #getClaims()}, otherwise
+	 * {@code false}.
 	 * @param claim the name of the claim
 	 * @return {@code true} if the claim exists, otherwise {@code false}
 	 */
@@ -65,30 +64,29 @@ public interface ClaimAccessor {
 	}
 
 	/**
-	 * Returns the claim value as a {@code String} or {@code null} if it does not exist or is equal to {@code null}.
-	 *
+	 * Returns the claim value as a {@code String} or {@code null} if it does not exist or
+	 * is equal to {@code null}.
 	 * @param claim the name of the claim
-	 * @return the claim value or {@code null} if it does not exist or is equal to {@code null}
+	 * @return the claim value or {@code null} if it does not exist or is equal to
+	 * {@code null}
 	 */
 	default String getClaimAsString(String claim) {
-		return !containsClaim(claim) ? null :
-				ClaimConversionService.getSharedInstance().convert(getClaims().get(claim), String.class);
+		return !containsClaim(claim) ? null
+				: ClaimConversionService.getSharedInstance().convert(getClaims().get(claim), String.class);
 	}
 
 	/**
 	 * Returns the claim value as a {@code Boolean} or {@code null} if it does not exist.
-	 *
 	 * @param claim the name of the claim
 	 * @return the claim value or {@code null} if it does not exist
 	 */
 	default Boolean getClaimAsBoolean(String claim) {
-		return !containsClaim(claim) ? null :
-				ClaimConversionService.getSharedInstance().convert(getClaims().get(claim), Boolean.class);
+		return !containsClaim(claim) ? null
+				: ClaimConversionService.getSharedInstance().convert(getClaims().get(claim), Boolean.class);
 	}
 
 	/**
 	 * Returns the claim value as an {@code Instant} or {@code null} if it does not exist.
-	 *
 	 * @param claim the name of the claim
 	 * @return the claim value or {@code null} if it does not exist
 	 */
@@ -99,15 +97,14 @@ public interface ClaimAccessor {
 		Object claimValue = getClaims().get(claim);
 		Instant convertedValue = ClaimConversionService.getSharedInstance().convert(claimValue, Instant.class);
 		if (convertedValue == null) {
-			throw new IllegalArgumentException("Unable to convert claim '" + claim +
-					"' of type '" + claimValue.getClass() + "' to Instant.");
+			throw new IllegalArgumentException(
+					"Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to Instant.");
 		}
 		return convertedValue;
 	}
 
 	/**
 	 * Returns the claim value as an {@code URL} or {@code null} if it does not exist.
-	 *
 	 * @param claim the name of the claim
 	 * @return the claim value or {@code null} if it does not exist
 	 */
@@ -118,18 +115,18 @@ public interface ClaimAccessor {
 		Object claimValue = getClaims().get(claim);
 		URL convertedValue = ClaimConversionService.getSharedInstance().convert(claimValue, URL.class);
 		if (convertedValue == null) {
-			throw new IllegalArgumentException("Unable to convert claim '" + claim +
-					"' of type '" + claimValue.getClass() + "' to URL.");
+			throw new IllegalArgumentException(
+					"Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to URL.");
 		}
 		return convertedValue;
 	}
 
 	/**
-	 * Returns the claim value as a {@code Map<String, Object>}
-	 * or {@code null} if it does not exist or cannot be assigned to a {@code Map}.
-	 *
+	 * Returns the claim value as a {@code Map<String, Object>} or {@code null} if it does
+	 * not exist or cannot be assigned to a {@code Map}.
 	 * @param claim the name of the claim
-	 * @return the claim value or {@code null} if it does not exist or cannot be assigned to a {@code Map}
+	 * @return the claim value or {@code null} if it does not exist or cannot be assigned
+	 * to a {@code Map}
 	 */
 	@SuppressWarnings("unchecked")
 	default Map<String, Object> getClaimAsMap(String claim) {
@@ -137,24 +134,24 @@ public interface ClaimAccessor {
 			return null;
 		}
 		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
-		final TypeDescriptor targetDescriptor = TypeDescriptor.map(
-				Map.class, TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Object.class));
+		final TypeDescriptor targetDescriptor = TypeDescriptor.map(Map.class, TypeDescriptor.valueOf(String.class),
+				TypeDescriptor.valueOf(Object.class));
 		Object claimValue = getClaims().get(claim);
-		Map<String, Object> convertedValue = (Map<String, Object>) ClaimConversionService.getSharedInstance().convert(
-				claimValue, sourceDescriptor, targetDescriptor);
+		Map<String, Object> convertedValue = (Map<String, Object>) ClaimConversionService.getSharedInstance()
+				.convert(claimValue, sourceDescriptor, targetDescriptor);
 		if (convertedValue == null) {
-			throw new IllegalArgumentException("Unable to convert claim '" + claim +
-					"' of type '" + claimValue.getClass() + "' to Map.");
+			throw new IllegalArgumentException(
+					"Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to Map.");
 		}
 		return convertedValue;
 	}
 
 	/**
-	 * Returns the claim value as a {@code List<String>}
-	 * or {@code null} if it does not exist or cannot be assigned to a {@code List}.
-	 *
+	 * Returns the claim value as a {@code List<String>} or {@code null} if it does not
+	 * exist or cannot be assigned to a {@code List}.
 	 * @param claim the name of the claim
-	 * @return the claim value or {@code null} if it does not exist or cannot be assigned to a {@code List}
+	 * @return the claim value or {@code null} if it does not exist or cannot be assigned
+	 * to a {@code List}
 	 */
 	@SuppressWarnings("unchecked")
 	default List<String> getClaimAsStringList(String claim) {
@@ -162,15 +159,16 @@ public interface ClaimAccessor {
 			return null;
 		}
 		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
-		final TypeDescriptor targetDescriptor = TypeDescriptor.collection(
-				List.class, TypeDescriptor.valueOf(String.class));
+		final TypeDescriptor targetDescriptor = TypeDescriptor.collection(List.class,
+				TypeDescriptor.valueOf(String.class));
 		Object claimValue = getClaims().get(claim);
-		List<String> convertedValue = (List<String>) ClaimConversionService.getSharedInstance().convert(
-				claimValue, sourceDescriptor, targetDescriptor);
+		List<String> convertedValue = (List<String>) ClaimConversionService.getSharedInstance().convert(claimValue,
+				sourceDescriptor, targetDescriptor);
 		if (convertedValue == null) {
-			throw new IllegalArgumentException("Unable to convert claim '" + claim +
-					"' of type '" + claimValue.getClass() + "' to List.");
+			throw new IllegalArgumentException(
+					"Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to List.");
 		}
 		return convertedValue;
 	}
+
 }

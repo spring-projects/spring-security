@@ -26,6 +26,7 @@ import org.springframework.security.core.context.SecurityContext;
  * @since 3.1
  */
 public enum SessionCreationPolicy {
+
 	/** Always create an {@link HttpSession} */
 	ALWAYS,
 	/**
@@ -40,4 +41,5 @@ public enum SessionCreationPolicy {
 	 * to obtain the {@link SecurityContext}
 	 */
 	STATELESS
+
 }

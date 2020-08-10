@@ -44,11 +44,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests for applications of {@link SecurityReactorContextConfiguration} in resource servers.
+ * Tests for applications of {@link SecurityReactorContextConfiguration} in resource
+ * servers.
  *
  * @author Josh Cummings
  */
 public class SecurityReactorContextConfigurationResourceServerTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -61,9 +63,7 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 		BearerTokenAuthentication authentication = bearer();
 		this.spring.register(BearerFilterConfig.class, WebServerConfig.class, Controller.class).autowire();
 
-		this.mockMvc.perform(get("/token")
-				.with(authentication(authentication)))
-				.andExpect(status().isOk())
+		this.mockMvc.perform(get("/token").with(authentication(authentication))).andExpect(status().isOk())
 				.andExpect(content().string("Bearer token"));
 	}
 
@@ -73,30 +73,28 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 		BearerTokenAuthentication authentication = bearer();
 		this.spring.register(BearerFilterlessConfig.class, WebServerConfig.class, Controller.class).autowire();
 
-		this.mockMvc.perform(get("/token")
-				.with(authentication(authentication)))
-				.andExpect(status().isOk())
+		this.mockMvc.perform(get("/token").with(authentication(authentication))).andExpect(status().isOk())
 				.andExpect(content().string(""));
 	}
 
-
 	@EnableWebSecurity
 	static class BearerFilterConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 		}
 
 		@Bean
 		WebClient rest() {
-			ServletBearerExchangeFilterFunction bearer =
-					new ServletBearerExchangeFilterFunction();
-			return WebClient.builder()
-					.filter(bearer).build();
+			ServletBearerExchangeFilterFunction bearer = new ServletBearerExchangeFilterFunction();
+			return WebClient.builder().filter(bearer).build();
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class BearerFilterlessConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 		}
@@ -105,35 +103,33 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 		WebClient rest() {
 			return WebClient.create();
 		}
+
 	}
 
 	@RestController
 	static class Controller {
+
 		private final WebClient rest;
+
 		private final String uri;
 
 		@Autowired
-			Controller(MockWebServer server, WebClient rest) {
+		Controller(MockWebServer server, WebClient rest) {
 			this.uri = server.url("/").toString();
 			this.rest = rest;
 		}
 
 		@GetMapping("/token")
 		public String token() {
-			return this.rest.get()
-					.uri(this.uri)
-					.retrieve()
-					.bodyToMono(String.class)
-					.flatMap(result -> this.rest.get()
-							.uri(this.uri)
-							.retrieve()
-							.bodyToMono(String.class))
-					.block();
+			return this.rest.get().uri(this.uri).retrieve().bodyToMono(String.class)
+					.flatMap(result -> this.rest.get().uri(this.uri).retrieve().bodyToMono(String.class)).block();
 		}
+
 	}
 
 	@Configuration
 	static class WebServerConfig {
+
 		private final MockWebServer server = new MockWebServer();
 
 		@Bean
@@ -147,6 +143,7 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 		void shutdown() throws Exception {
 			this.server.shutdown();
 		}
+
 	}
 
 	static class AuthorizationHeaderDispatcher extends Dispatcher {
@@ -161,5 +158,7 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 			}
 			return response.setBody(header);
 		}
+
 	}
+
 }

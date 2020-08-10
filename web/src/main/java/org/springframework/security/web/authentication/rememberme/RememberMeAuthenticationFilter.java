@@ -61,15 +61,17 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public class RememberMeAuthenticationFilter extends GenericFilterBean implements
-		ApplicationEventPublisherAware {
+public class RememberMeAuthenticationFilter extends GenericFilterBean implements ApplicationEventPublisherAware {
 
 	// ~ Instance fields
 	// ================================================================================================
 
 	private ApplicationEventPublisher eventPublisher;
+
 	private AuthenticationSuccessHandler successHandler;
+
 	private AuthenticationManager authenticationManager;
+
 	private RememberMeServices rememberMeServices;
 
 	public RememberMeAuthenticationFilter(AuthenticationManager authenticationManager,
@@ -95,8 +97,7 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 		HttpServletResponse response = (HttpServletResponse) res;
 
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
-			Authentication rememberMeAuth = rememberMeServices.autoLogin(request,
-					response);
+			Authentication rememberMeAuth = rememberMeServices.autoLogin(request, response);
 
 			if (rememberMeAuth != null) {
 				// Attempt authenticaton via AuthenticationManager
@@ -110,21 +111,17 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 
 					if (logger.isDebugEnabled()) {
 						logger.debug("SecurityContextHolder populated with remember-me token: '"
-								+ SecurityContextHolder.getContext().getAuthentication()
-								+ "'");
+								+ SecurityContextHolder.getContext().getAuthentication() + "'");
 					}
 
 					// Fire event
 					if (this.eventPublisher != null) {
-						eventPublisher
-								.publishEvent(new InteractiveAuthenticationSuccessEvent(
-										SecurityContextHolder.getContext()
-												.getAuthentication(), this.getClass()));
+						eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
+								SecurityContextHolder.getContext().getAuthentication(), this.getClass()));
 					}
 
 					if (successHandler != null) {
-						successHandler.onAuthenticationSuccess(request, response,
-								rememberMeAuth);
+						successHandler.onAuthenticationSuccess(request, response, rememberMeAuth);
 
 						return;
 					}
@@ -132,18 +129,14 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 				}
 				catch (AuthenticationException authenticationException) {
 					if (logger.isDebugEnabled()) {
-						logger.debug(
-								"SecurityContextHolder not populated with remember-me token, as "
-										+ "AuthenticationManager rejected Authentication returned by RememberMeServices: '"
-										+ rememberMeAuth
-										+ "'; invalidating remember-me token",
-								authenticationException);
+						logger.debug("SecurityContextHolder not populated with remember-me token, as "
+								+ "AuthenticationManager rejected Authentication returned by RememberMeServices: '"
+								+ rememberMeAuth + "'; invalidating remember-me token", authenticationException);
 					}
 
 					rememberMeServices.loginFail(request, response);
 
-					onUnsuccessfulAuthentication(request, response,
-							authenticationException);
+					onUnsuccessfulAuthentication(request, response, authenticationException);
 				}
 			}
 
@@ -164,8 +157,8 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 	 * {@code RememberMeServices} {@code autoLogin} method and the
 	 * {@code AuthenticationManager}.
 	 */
-	protected void onSuccessfulAuthentication(HttpServletRequest request,
-			HttpServletResponse response, Authentication authResult) {
+	protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+			Authentication authResult) {
 	}
 
 	/**
@@ -174,8 +167,8 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 	 * will not be called when no remember-me token is present in the request and
 	 * {@code autoLogin} reurns null.
 	 */
-	protected void onUnsuccessfulAuthentication(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException failed) {
+	protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException failed) {
 	}
 
 	public RememberMeServices getRememberMeServices() {
@@ -193,12 +186,10 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 	 * be invoked and the {@code doFilter()} method will return immediately, thus allowing
 	 * the application to redirect the user to a specific URL, regardless of whatthe
 	 * original request was for.
-	 *
 	 * @param successHandler the strategy to invoke immediately before returning from
 	 * {@code doFilter()}.
 	 */
-	public void setAuthenticationSuccessHandler(
-			AuthenticationSuccessHandler successHandler) {
+	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler successHandler) {
 		Assert.notNull(successHandler, "successHandler cannot be null");
 		this.successHandler = successHandler;
 	}

@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class InvalidSessionAccessDeniedHandler implements AccessDeniedHandler {
+
 	private final InvalidSessionStrategy invalidSessionStrategy;
 
 	/**
@@ -44,8 +45,8 @@ public final class InvalidSessionAccessDeniedHandler implements AccessDeniedHand
 	}
 
 	public void handle(HttpServletRequest request, HttpServletResponse response,
-			AccessDeniedException accessDeniedException) throws IOException,
-			ServletException {
+			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 		invalidSessionStrategy.onInvalidSessionDetected(request, response);
 	}
+
 }

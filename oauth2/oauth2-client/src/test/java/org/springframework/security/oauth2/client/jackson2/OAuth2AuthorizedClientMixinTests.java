@@ -46,10 +46,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Joe Grandja
  */
 public class OAuth2AuthorizedClientMixinTests {
+
 	private ObjectMapper mapper;
+
 	private ClientRegistration.Builder clientRegistrationBuilder;
+
 	private OAuth2AccessToken accessToken;
+
 	private OAuth2RefreshToken refreshToken;
+
 	private String principalName;
 
 	@Before
@@ -60,8 +65,7 @@ public class OAuth2AuthorizedClientMixinTests {
 		Map<String, Object> providerConfigurationMetadata = new LinkedHashMap<>();
 		providerConfigurationMetadata.put("config1", "value1");
 		providerConfigurationMetadata.put("config2", "value2");
-		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration()
-				.scope("read", "write")
+		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration().scope("read", "write")
 				.providerConfigurationMetadata(providerConfigurationMetadata);
 		this.accessToken = TestOAuth2AccessTokens.scopes("read", "write");
 		this.refreshToken = TestOAuth2RefreshTokens.refreshToken();
@@ -70,8 +74,8 @@ public class OAuth2AuthorizedClientMixinTests {
 
 	@Test
 	public void serializeWhenMixinRegisteredThenSerializes() throws Exception {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.clientRegistrationBuilder.build(), this.principalName, this.accessToken, this.refreshToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistrationBuilder.build(),
+				this.principalName, this.accessToken, this.refreshToken);
 		String expectedJson = asJson(authorizedClient);
 		String json = this.mapper.writeValueAsString(authorizedClient);
 		JSONAssert.assertEquals(expectedJson, json, true);
@@ -79,17 +83,10 @@ public class OAuth2AuthorizedClientMixinTests {
 
 	@Test
 	public void serializeWhenRequiredAttributesOnlyThenSerializes() throws Exception {
-		ClientRegistration clientRegistration =
-				TestClientRegistrations.clientRegistration()
-						.clientSecret(null)
-						.clientName(null)
-						.userInfoUri(null)
-						.userNameAttributeName(null)
-						.jwkSetUri(null)
-						.issuerUri(null)
-						.build();
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				clientRegistration, this.principalName, TestOAuth2AccessTokens.noScopes());
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().clientSecret(null)
+				.clientName(null).userInfoUri(null).userNameAttributeName(null).jwkSetUri(null).issuerUri(null).build();
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, this.principalName,
+				TestOAuth2AccessTokens.noScopes());
 		String expectedJson = asJson(authorizedClient);
 		String json = this.mapper.writeValueAsString(authorizedClient);
 		JSONAssert.assertEquals(expectedJson, json, true);
@@ -97,8 +94,8 @@ public class OAuth2AuthorizedClientMixinTests {
 
 	@Test
 	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.clientRegistrationBuilder.build(), this.principalName, this.accessToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistrationBuilder.build(),
+				this.principalName, this.accessToken);
 		String json = asJson(authorizedClient);
 		assertThatThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthorizedClient.class))
 				.isInstanceOf(JsonProcessingException.class);
@@ -109,120 +106,88 @@ public class OAuth2AuthorizedClientMixinTests {
 		ClientRegistration expectedClientRegistration = this.clientRegistrationBuilder.build();
 		OAuth2AccessToken expectedAccessToken = this.accessToken;
 		OAuth2RefreshToken expectedRefreshToken = this.refreshToken;
-		OAuth2AuthorizedClient expectedAuthorizedClient = new OAuth2AuthorizedClient(
-				expectedClientRegistration, this.principalName, expectedAccessToken, expectedRefreshToken);
+		OAuth2AuthorizedClient expectedAuthorizedClient = new OAuth2AuthorizedClient(expectedClientRegistration,
+				this.principalName, expectedAccessToken, expectedRefreshToken);
 		String json = asJson(expectedAuthorizedClient);
 		OAuth2AuthorizedClient authorizedClient = this.mapper.readValue(json, OAuth2AuthorizedClient.class);
 		ClientRegistration clientRegistration = authorizedClient.getClientRegistration();
-		assertThat(clientRegistration.getRegistrationId())
-				.isEqualTo(expectedClientRegistration.getRegistrationId());
-		assertThat(clientRegistration.getClientId())
-				.isEqualTo(expectedClientRegistration.getClientId());
-		assertThat(clientRegistration.getClientSecret())
-				.isEqualTo(expectedClientRegistration.getClientSecret());
+		assertThat(clientRegistration.getRegistrationId()).isEqualTo(expectedClientRegistration.getRegistrationId());
+		assertThat(clientRegistration.getClientId()).isEqualTo(expectedClientRegistration.getClientId());
+		assertThat(clientRegistration.getClientSecret()).isEqualTo(expectedClientRegistration.getClientSecret());
 		assertThat(clientRegistration.getClientAuthenticationMethod())
 				.isEqualTo(expectedClientRegistration.getClientAuthenticationMethod());
 		assertThat(clientRegistration.getAuthorizationGrantType())
 				.isEqualTo(expectedClientRegistration.getAuthorizationGrantType());
-		assertThat(clientRegistration.getRedirectUri())
-				.isEqualTo(expectedClientRegistration.getRedirectUri());
-		assertThat(clientRegistration.getScopes())
-				.isEqualTo(expectedClientRegistration.getScopes());
+		assertThat(clientRegistration.getRedirectUri()).isEqualTo(expectedClientRegistration.getRedirectUri());
+		assertThat(clientRegistration.getScopes()).isEqualTo(expectedClientRegistration.getScopes());
 		assertThat(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getAuthorizationUri());
 		assertThat(clientRegistration.getProviderDetails().getTokenUri())
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getTokenUri());
 		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
-		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())
-				.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod());
-		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName())
-				.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName());
+		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod()).isEqualTo(
+				expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod());
+		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo(
+				expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName());
 		assertThat(clientRegistration.getProviderDetails().getJwkSetUri())
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getJwkSetUri());
 		assertThat(clientRegistration.getProviderDetails().getIssuerUri())
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getIssuerUri());
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata())
 				.containsExactlyEntriesOf(clientRegistration.getProviderDetails().getConfigurationMetadata());
-		assertThat(clientRegistration.getClientName())
-				.isEqualTo(expectedClientRegistration.getClientName());
-		assertThat(authorizedClient.getPrincipalName())
-				.isEqualTo(expectedAuthorizedClient.getPrincipalName());
+		assertThat(clientRegistration.getClientName()).isEqualTo(expectedClientRegistration.getClientName());
+		assertThat(authorizedClient.getPrincipalName()).isEqualTo(expectedAuthorizedClient.getPrincipalName());
 		OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
-		assertThat(accessToken.getTokenType())
-				.isEqualTo(expectedAccessToken.getTokenType());
-		assertThat(accessToken.getScopes())
-				.isEqualTo(expectedAccessToken.getScopes());
-		assertThat(accessToken.getTokenValue())
-				.isEqualTo(expectedAccessToken.getTokenValue());
-		assertThat(accessToken.getIssuedAt())
-				.isEqualTo(expectedAccessToken.getIssuedAt());
-		assertThat(accessToken.getExpiresAt())
-				.isEqualTo(expectedAccessToken.getExpiresAt());
+		assertThat(accessToken.getTokenType()).isEqualTo(expectedAccessToken.getTokenType());
+		assertThat(accessToken.getScopes()).isEqualTo(expectedAccessToken.getScopes());
+		assertThat(accessToken.getTokenValue()).isEqualTo(expectedAccessToken.getTokenValue());
+		assertThat(accessToken.getIssuedAt()).isEqualTo(expectedAccessToken.getIssuedAt());
+		assertThat(accessToken.getExpiresAt()).isEqualTo(expectedAccessToken.getExpiresAt());
 		OAuth2RefreshToken refreshToken = authorizedClient.getRefreshToken();
-		assertThat(refreshToken.getTokenValue())
-				.isEqualTo(expectedRefreshToken.getTokenValue());
-		assertThat(refreshToken.getIssuedAt())
-				.isEqualTo(expectedRefreshToken.getIssuedAt());
-		assertThat(refreshToken.getExpiresAt())
-				.isEqualTo(expectedRefreshToken.getExpiresAt());
+		assertThat(refreshToken.getTokenValue()).isEqualTo(expectedRefreshToken.getTokenValue());
+		assertThat(refreshToken.getIssuedAt()).isEqualTo(expectedRefreshToken.getIssuedAt());
+		assertThat(refreshToken.getExpiresAt()).isEqualTo(expectedRefreshToken.getExpiresAt());
 	}
 
 	@Test
 	public void deserializeWhenRequiredAttributesOnlyThenDeserializes() throws Exception {
-		ClientRegistration expectedClientRegistration =
-				TestClientRegistrations.clientRegistration()
-						.clientSecret(null)
-						.clientName(null)
-						.userInfoUri(null)
-						.userNameAttributeName(null)
-						.jwkSetUri(null)
-						.issuerUri(null)
-						.build();
+		ClientRegistration expectedClientRegistration = TestClientRegistrations.clientRegistration().clientSecret(null)
+				.clientName(null).userInfoUri(null).userNameAttributeName(null).jwkSetUri(null).issuerUri(null).build();
 		OAuth2AccessToken expectedAccessToken = TestOAuth2AccessTokens.noScopes();
-		OAuth2AuthorizedClient expectedAuthorizedClient = new OAuth2AuthorizedClient(
-				expectedClientRegistration, this.principalName, expectedAccessToken);
+		OAuth2AuthorizedClient expectedAuthorizedClient = new OAuth2AuthorizedClient(expectedClientRegistration,
+				this.principalName, expectedAccessToken);
 		String json = asJson(expectedAuthorizedClient);
 		OAuth2AuthorizedClient authorizedClient = this.mapper.readValue(json, OAuth2AuthorizedClient.class);
 		ClientRegistration clientRegistration = authorizedClient.getClientRegistration();
-		assertThat(clientRegistration.getRegistrationId())
-				.isEqualTo(expectedClientRegistration.getRegistrationId());
-		assertThat(clientRegistration.getClientId())
-				.isEqualTo(expectedClientRegistration.getClientId());
+		assertThat(clientRegistration.getRegistrationId()).isEqualTo(expectedClientRegistration.getRegistrationId());
+		assertThat(clientRegistration.getClientId()).isEqualTo(expectedClientRegistration.getClientId());
 		assertThat(clientRegistration.getClientSecret()).isEmpty();
 		assertThat(clientRegistration.getClientAuthenticationMethod())
 				.isEqualTo(expectedClientRegistration.getClientAuthenticationMethod());
 		assertThat(clientRegistration.getAuthorizationGrantType())
 				.isEqualTo(expectedClientRegistration.getAuthorizationGrantType());
-		assertThat(clientRegistration.getRedirectUri())
-				.isEqualTo(expectedClientRegistration.getRedirectUri());
-		assertThat(clientRegistration.getScopes())
-				.isEqualTo(expectedClientRegistration.getScopes());
+		assertThat(clientRegistration.getRedirectUri()).isEqualTo(expectedClientRegistration.getRedirectUri());
+		assertThat(clientRegistration.getScopes()).isEqualTo(expectedClientRegistration.getScopes());
 		assertThat(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getAuthorizationUri());
 		assertThat(clientRegistration.getProviderDetails().getTokenUri())
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getTokenUri());
 		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri()).isNull();
-		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())
-				.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod());
+		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod()).isEqualTo(
+				expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod());
 		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName()).isNull();
 		assertThat(clientRegistration.getProviderDetails().getJwkSetUri()).isNull();
 		assertThat(clientRegistration.getProviderDetails().getIssuerUri()).isNull();
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata()).isEmpty();
-		assertThat(clientRegistration.getClientName())
-				.isEqualTo(clientRegistration.getRegistrationId());
-		assertThat(authorizedClient.getPrincipalName())
-				.isEqualTo(expectedAuthorizedClient.getPrincipalName());
+		assertThat(clientRegistration.getClientName()).isEqualTo(clientRegistration.getRegistrationId());
+		assertThat(authorizedClient.getPrincipalName()).isEqualTo(expectedAuthorizedClient.getPrincipalName());
 		OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
-		assertThat(accessToken.getTokenType())
-				.isEqualTo(expectedAccessToken.getTokenType());
+		assertThat(accessToken.getTokenType()).isEqualTo(expectedAccessToken.getTokenType());
 		assertThat(accessToken.getScopes()).isEmpty();
-		assertThat(accessToken.getTokenValue())
-				.isEqualTo(expectedAccessToken.getTokenValue());
-		assertThat(accessToken.getIssuedAt())
-				.isEqualTo(expectedAccessToken.getIssuedAt());
-		assertThat(accessToken.getExpiresAt())
-				.isEqualTo(expectedAccessToken.getExpiresAt());
+		assertThat(accessToken.getTokenValue()).isEqualTo(expectedAccessToken.getTokenValue());
+		assertThat(accessToken.getIssuedAt()).isEqualTo(expectedAccessToken.getIssuedAt());
+		assertThat(accessToken.getExpiresAt()).isEqualTo(expectedAccessToken.getExpiresAt());
 		assertThat(authorizedClient.getRefreshToken()).isNull();
 	}
 
@@ -333,4 +298,5 @@ public class OAuth2AuthorizedClientMixinTests {
 		}
 		return DecimalUtils.toBigDecimal(instant.getEpochSecond(), instant.getNano()).toString();
 	}
+
 }

@@ -46,10 +46,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Joe Grandja
  */
 public class WebClientReactiveRefreshTokenTokenResponseClientTests {
+
 	private WebClientReactiveRefreshTokenTokenResponseClient tokenResponseClient = new WebClientReactiveRefreshTokenTokenResponseClient();
+
 	private ClientRegistration.Builder clientRegistrationBuilder;
+
 	private OAuth2AccessToken accessToken;
+
 	private OAuth2RefreshToken refreshToken;
+
 	private MockWebServer server;
 
 	@Before
@@ -81,11 +86,8 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseThenReturnAccessTokenResponse() throws Exception {
-		String accessTokenSuccessResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\"\n" +
-				"}\n";
+		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
@@ -93,14 +95,16 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
 				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken);
 
-		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest).block();
+		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
+				.getTokenResponse(refreshTokenGrantRequest).block();
 
 		Instant expiresAtAfter = Instant.now().plusSeconds(3600);
 
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		assertThat(recordedRequest.getMethod()).isEqualTo(HttpMethod.POST.toString());
 		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
-		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE))
+				.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 		assertThat(recordedRequest.getHeader(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
 
 		String formParameters = recordedRequest.getBody().readUtf8();
@@ -110,25 +114,22 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 		assertThat(accessTokenResponse.getAccessToken().getTokenValue()).isEqualTo("access-token-1234");
 		assertThat(accessTokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBetween(expiresAtBefore, expiresAtAfter);
-		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly(this.accessToken.getScopes().toArray(new String[0]));
+		assertThat(accessTokenResponse.getAccessToken().getScopes())
+				.containsExactly(this.accessToken.getScopes().toArray(new String[0]));
 		assertThat(accessTokenResponse.getRefreshToken().getTokenValue()).isEqualTo(this.refreshToken.getTokenValue());
 	}
 
 	@Test
 	public void getTokenResponseWhenClientAuthenticationPostThenFormParametersAreSent() throws Exception {
-		String accessTokenSuccessResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\"\n" +
-				"}\n";
+		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.clientAuthenticationMethod(ClientAuthenticationMethod.POST)
-				.build();
+				.clientAuthenticationMethod(ClientAuthenticationMethod.POST).build();
 
-		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
-				clientRegistration, this.accessToken, this.refreshToken);
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
+				this.accessToken, this.refreshToken);
 
 		this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest).block();
 
@@ -142,37 +143,32 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
-		String accessTokenSuccessResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"not-bearer\",\n" +
-				"   \"expires_in\": \"3600\"\n" +
-				"}\n";
+		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"not-bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 
 		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
 				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest).block())
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining("[invalid_token_response]")
+				.isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("[invalid_token_response]")
 				.hasMessageContaining("An error occurred parsing the Access Token response")
 				.hasCauseInstanceOf(Throwable.class);
 	}
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseIncludesScopeThenAccessTokenHasResponseScope() throws Exception {
-		String accessTokenSuccessResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\",\n" +
-				"   \"scope\": \"read\"\n" +
-				"}\n";
+		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n" + "   \"scope\": \"read\"\n"
+				+ "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 
 		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
-				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken, Collections.singleton("read"));
+				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken,
+				Collections.singleton("read"));
 
-		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest).block();
+		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
+				.getTokenResponse(refreshTokenGrantRequest).block();
 
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		String formParameters = recordedRequest.getBody().readUtf8();
@@ -183,16 +179,15 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenErrorResponse = "{\n" +
-				"   \"error\": \"unauthorized_client\"\n" +
-				"}\n";
+		String accessTokenErrorResponse = "{\n" + "   \"error\": \"unauthorized_client\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(400));
 
 		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
 				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest).block())
-				.isInstanceOfSatisfying(OAuth2AuthorizationException.class, e -> assertThat(e.getError().getErrorCode()).isEqualTo("unauthorized_client"))
+				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
+						e -> assertThat(e.getError().getErrorCode()).isEqualTo("unauthorized_client"))
 				.hasMessageContaining("[unauthorized_client]");
 	}
 
@@ -204,14 +199,14 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest).block())
-				.isInstanceOfSatisfying(OAuth2AuthorizationException.class, e -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
+						e -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
 				.hasMessageContaining("[invalid_token_response]")
 				.hasMessageContaining("Empty OAuth 2.0 Access Token Response");
 	}
 
 	private MockResponse jsonResponse(String json) {
-		return new MockResponse()
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(json);
+		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
 	}
+
 }

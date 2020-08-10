@@ -53,6 +53,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
+
 		static CsrfTokenRepository cookieCsrfTokenRepository = new CookieCsrfTokenRepository();
 
 		@Override
@@ -65,5 +66,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 			// Enable the DebugFilter
 			web.debug(true);
 		}
+
 	}
+
 }

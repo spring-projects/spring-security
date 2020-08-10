@@ -46,12 +46,16 @@ import static org.springframework.security.oauth2.server.resource.introspection.
  * @author Josh Cummings
  */
 public class BearerTokenAuthenticationTests {
-	private final OAuth2AccessToken token =
-			new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-				"token", Instant.now(), Instant.now().plusSeconds(3600));
+
+	private final OAuth2AccessToken token = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token",
+			Instant.now(), Instant.now().plusSeconds(3600));
+
 	private final String name = "sub";
+
 	private Map<String, Object> attributesMap = new HashMap<>();
+
 	private DefaultOAuth2AuthenticatedPrincipal principal;
+
 	private final Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("USER");
 
 	@Before
@@ -64,15 +68,17 @@ public class BearerTokenAuthenticationTests {
 
 	@Test
 	public void getNameWhenConfiguredInConstructorThenReturnsName() {
-		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(this.name, this.attributesMap, this.authorities);
-		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(principal, this.token, this.authorities);
+		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(this.name, this.attributesMap,
+				this.authorities);
+		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(principal, this.token,
+				this.authorities);
 		assertThat(authenticated.getName()).isEqualTo(this.name);
 	}
 
 	@Test
 	public void getNameWhenHasNoSubjectThenReturnsNull() {
-		OAuth2AuthenticatedPrincipal principal =
-				new DefaultOAuth2AuthenticatedPrincipal(Collections.singletonMap("claim", "value"), null);
+		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(
+				Collections.singletonMap("claim", "value"), null);
 		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(principal, this.token, null);
 		assertThat(authenticated.getName()).isNull();
 	}
@@ -86,37 +92,35 @@ public class BearerTokenAuthenticationTests {
 	@Test
 	public void constructorWhenTokenIsNullThenThrowsException() {
 		assertThatCode(() -> new BearerTokenAuthentication(this.principal, null, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("token cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("token cannot be null");
 	}
 
 	@Test
 	public void constructorWhenCredentialIsNullThenThrowsException() {
 		assertThatCode(() -> new BearerTokenAuthentication(null, this.token, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("principal cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("principal cannot be null");
 	}
 
 	@Test
 	public void constructorWhenPassingAllAttributesThenTokenIsAuthenticated() {
-		OAuth2AuthenticatedPrincipal principal =
-				new DefaultOAuth2AuthenticatedPrincipal("harris", Collections.singletonMap("claim", "value"), null);
+		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal("harris",
+				Collections.singletonMap("claim", "value"), null);
 		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(principal, this.token, null);
 		assertThat(authenticated.isAuthenticated()).isTrue();
 	}
 
 	@Test
 	public void getTokenAttributesWhenHasTokenThenReturnsThem() {
-		BearerTokenAuthentication authenticated =
-				new BearerTokenAuthentication(this.principal, this.token, Collections.emptyList());
+		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(this.principal, this.token,
+				Collections.emptyList());
 		assertThat(authenticated.getTokenAttributes()).isEqualTo(this.principal.getAttributes());
 	}
 
 	@Test
 	public void getAuthoritiesWhenHasAuthoritiesThenReturnsThem() {
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("USER");
-		BearerTokenAuthentication authenticated =
-				new BearerTokenAuthentication(this.principal, this.token, authorities);
+		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(this.principal, this.token,
+				authorities);
 		assertThat(authenticated.getAuthorities()).isEqualTo(authorities);
 	}
 
@@ -137,7 +141,7 @@ public class BearerTokenAuthenticationTests {
 		JSONObject attributes = new JSONObject(Collections.singletonMap("iss", new URL("https://idp.example.com")));
 		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(attributes, null);
 		BearerTokenAuthentication token = new BearerTokenAuthentication(principal, this.token, null);
-		assertThatCode(token::toString)
-				.doesNotThrowAnyException();
+		assertThatCode(token::toString).doesNotThrowAnyException();
 	}
+
 }

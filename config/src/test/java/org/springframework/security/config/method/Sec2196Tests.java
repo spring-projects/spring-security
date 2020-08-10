@@ -37,8 +37,8 @@ public class Sec2196Tests {
 		loadContext("<global-method-security secured-annotations=\"enabled\" pre-post-annotations=\"enabled\"/>"
 				+ "<b:bean class='" + Service.class.getName() + "'/>");
 
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("test", "pass", "ROLE_USER"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("test", "pass", "ROLE_USER"));
 		Service service = context.getBean(Service.class);
 		service.save(new User());
 	}
@@ -48,8 +48,8 @@ public class Sec2196Tests {
 		loadContext("<global-method-security secured-annotations=\"enabled\" pre-post-annotations=\"enabled\"/>"
 				+ "<b:bean class='" + Service.class.getName() + "'/>");
 
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("test", "pass", "saveUsers"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("test", "pass", "saveUsers"));
 		Service service = context.getBean(Service.class);
 		service.save(new User());
 	}
@@ -68,12 +68,16 @@ public class Sec2196Tests {
 	}
 
 	public static class Service {
+
 		@PreAuthorize("hasAuthority('saveUsers')")
 		public <T extends User> T save(T dto) {
 			return dto;
 		}
+
 	}
 
 	static class User {
+
 	}
+
 }

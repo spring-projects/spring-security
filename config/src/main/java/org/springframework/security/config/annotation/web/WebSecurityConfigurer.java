@@ -28,17 +28,15 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * Allows customization to the {@link WebSecurity}. In most instances users will use
  * {@link EnableWebSecurity} and either create a {@link Configuration} that extends
- * {@link WebSecurityConfigurerAdapter} or expose a {@link SecurityFilterChain} bean.
- * Both will automatically be applied to the {@link WebSecurity} by the
+ * {@link WebSecurityConfigurerAdapter} or expose a {@link SecurityFilterChain} bean. Both
+ * will automatically be applied to the {@link WebSecurity} by the
  * {@link EnableWebSecurity} annotation.
  *
  * @see WebSecurityConfigurerAdapter
  * @see SecurityFilterChain
- *
  * @author Rob Winch
  * @since 3.2
  */
-public interface WebSecurityConfigurer<T extends SecurityBuilder<Filter>> extends
-		SecurityConfigurer<Filter, T> {
+public interface WebSecurityConfigurer<T extends SecurityBuilder<Filter>> extends SecurityConfigurer<Filter, T> {
 
 }

@@ -44,15 +44,13 @@ public class DefaultSaml2AuthenticatedPrincipalTests {
 		Map<String, List<Object>> attributes = new LinkedHashMap<>();
 		attributes.put("email", Arrays.asList("john.doe@example.com", "doe.john@example.com"));
 		assertThatCode(() -> new DefaultSaml2AuthenticatedPrincipal(null, attributes))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("name cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("name cannot be null");
 	}
 
 	@Test
 	public void createDefaultSaml2AuthenticatedPrincipalWhenAttributesNullThenException() {
 		assertThatCode(() -> new DefaultSaml2AuthenticatedPrincipal("user", null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("attributes cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("attributes cannot be null");
 	}
 
 	@Test
@@ -87,4 +85,5 @@ public class DefaultSaml2AuthenticatedPrincipalTests {
 		assertThat((Boolean) registrationInfo.get(0)).isEqualTo(registered);
 		assertThat((Instant) registrationInfo.get(1)).isEqualTo(registeredDate);
 	}
+
 }

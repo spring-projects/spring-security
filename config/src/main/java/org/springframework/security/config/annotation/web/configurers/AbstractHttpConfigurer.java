@@ -35,7 +35,6 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 	/**
 	 * Disables the {@link AbstractHttpConfigurer} by removing it. After doing so a fresh
 	 * version of the configuration can be applied.
-	 *
 	 * @return the {@link HttpSecurityBuilder} for additional customizations
 	 */
 	@SuppressWarnings("unchecked")
@@ -49,4 +48,5 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 		addObjectPostProcessor(objectPostProcessor);
 		return (T) this;
 	}
+
 }

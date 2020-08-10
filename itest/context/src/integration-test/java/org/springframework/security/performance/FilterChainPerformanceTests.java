@@ -37,20 +37,23 @@ import javax.servlet.http.HttpSession;
 import java.util.*;
 
 /**
- *
  * @author Luke Taylor
  * @since 2.0
  */
 @ContextConfiguration(locations = { "/filter-chain-performance-app-context.xml" })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class FilterChainPerformanceTests {
+
 	// Adjust as required
 	private static final int N_INVOCATIONS = 1; // 1000
+
 	private static final int N_AUTHORITIES = 2; // 200
+
 	private static StopWatch sw = new StopWatch("Filter Chain Performance Tests");
 
-	private final UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(
-			"bob", "bobspassword", createRoles(N_AUTHORITIES));
+	private final UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken("bob",
+			"bobspassword", createRoles(N_AUTHORITIES));
+
 	private HttpSession session;
 
 	@Autowired
@@ -65,8 +68,7 @@ public class FilterChainPerformanceTests {
 	public void createAuthenticatedSession() {
 		session = new MockHttpSession();
 		SecurityContextHolder.getContext().setAuthentication(user);
-		session.setAttribute(
-				HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+		session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				SecurityContextHolder.getContext());
 		SecurityContextHolder.clearContext();
 	}
@@ -121,10 +123,8 @@ public class FilterChainPerformanceTests {
 		for (int user = 0; user < N_AUTHORITIES / 10; user++) {
 			int nAuthorities = user == 0 ? 1 : user * 10;
 			SecurityContextHolder.getContext().setAuthentication(
-					new UsernamePasswordAuthenticationToken("bob", "bobspassword",
-							createRoles(nAuthorities)));
-			session.setAttribute(
-					HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+					new UsernamePasswordAuthenticationToken("bob", "bobspassword", createRoles(nAuthorities)));
+			session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 					SecurityContextHolder.getContext());
 			SecurityContextHolder.clearContext();
 			sw.start(nAuthorities + " authorities");
@@ -146,4 +146,5 @@ public class FilterChainPerformanceTests {
 
 		return Arrays.asList(roles);
 	}
+
 }

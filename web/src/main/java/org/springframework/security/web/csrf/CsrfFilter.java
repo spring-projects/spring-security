@@ -58,6 +58,7 @@ import static java.lang.Boolean.TRUE;
  * @since 3.2
  */
 public final class CsrfFilter extends OncePerRequestFilter {
+
 	/**
 	 * The default {@link RequestMatcher} that indicates if CSRF protection is required or
 	 * not. The default is to ignore GET, HEAD, TRACE, OPTIONS and process all other
@@ -66,18 +67,21 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	public static final RequestMatcher DEFAULT_CSRF_MATCHER = new DefaultRequiresCsrfMatcher();
 
 	/**
-	 * The attribute name to use when marking a given request as one that should not be filtered.
+	 * The attribute name to use when marking a given request as one that should not be
+	 * filtered.
 	 *
-	 * To use, set the attribute on your {@link HttpServletRequest}:
-	 * <pre>
+	 * To use, set the attribute on your {@link HttpServletRequest}: <pre>
 	 * 	CsrfFilter.skipRequest(request);
 	 * </pre>
 	 */
 	private static final String SHOULD_NOT_FILTER = "SHOULD_NOT_FILTER" + CsrfFilter.class.getName();
 
 	private final Log logger = LogFactory.getLog(getClass());
+
 	private final CsrfTokenRepository tokenRepository;
+
 	private RequestMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
+
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
 	public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
@@ -99,9 +103,8 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	 * javax.servlet.FilterChain)
 	 */
 	@Override
-	protected void doFilterInternal(HttpServletRequest request,
-			HttpServletResponse response, FilterChain filterChain)
-					throws ServletException, IOException {
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 		request.setAttribute(HttpServletResponse.class.getName(), response);
 
 		CsrfToken csrfToken = this.tokenRepository.loadToken(request);
@@ -124,12 +127,10 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		}
 		if (!csrfToken.getToken().equals(actualToken)) {
 			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Invalid CSRF token found for "
-						+ UrlUtils.buildFullRequestUrl(request));
+				this.logger.debug("Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request));
 			}
 			if (missingToken) {
-				this.accessDeniedHandler.handle(request, response,
-						new MissingCsrfTokenException(actualToken));
+				this.accessDeniedHandler.handle(request, response, new MissingCsrfTokenException(actualToken));
 			}
 			else {
 				this.accessDeniedHandler.handle(request, response,
@@ -154,14 +155,11 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	 * The default is to apply CSRF protection for any HTTP method other than GET, HEAD,
 	 * TRACE, OPTIONS.
 	 * </p>
-	 *
 	 * @param requireCsrfProtectionMatcher the {@link RequestMatcher} used to determine if
 	 * CSRF protection should be applied.
 	 */
-	public void setRequireCsrfProtectionMatcher(
-			RequestMatcher requireCsrfProtectionMatcher) {
-		Assert.notNull(requireCsrfProtectionMatcher,
-				"requireCsrfProtectionMatcher cannot be null");
+	public void setRequireCsrfProtectionMatcher(RequestMatcher requireCsrfProtectionMatcher) {
+		Assert.notNull(requireCsrfProtectionMatcher, "requireCsrfProtectionMatcher cannot be null");
 		this.requireCsrfProtectionMatcher = requireCsrfProtectionMatcher;
 	}
 
@@ -172,7 +170,6 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	 * <p>
 	 * The default is to use AccessDeniedHandlerImpl with no arguments.
 	 * </p>
-	 *
 	 * @param accessDeniedHandler the {@link AccessDeniedHandler} to use
 	 */
 	public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
@@ -181,8 +178,8 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	}
 
 	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {
-		private final HashSet<String> allowedMethods = new HashSet<>(
-				Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
+
+		private final HashSet<String> allowedMethods = new HashSet<>(Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
 
 		/*
 		 * (non-Javadoc)
@@ -195,5 +192,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		public boolean matches(HttpServletRequest request) {
 			return !this.allowedMethods.contains(request.getMethod());
 		}
+
 	}
+
 }

@@ -42,6 +42,7 @@ import static org.springframework.security.authorization.AuthorityReactiveAuthor
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationPayloadInterceptorTests {
+
 	@Mock
 	private ReactiveAuthorizationManager<PayloadExchange> authorizationManager;
 
@@ -59,42 +60,35 @@ public class AuthorizationPayloadInterceptorTests {
 	public void interceptWhenAuthenticationEmptyAndSubscribedThenException() {
 		when(this.chain.next(any())).thenReturn(this.chainResult.mono());
 
-		AuthorizationPayloadInterceptor interceptor =
-				new AuthorizationPayloadInterceptor(authenticated());
+		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(authenticated());
 
 		StepVerifier.create(interceptor.intercept(this.exchange, this.chain))
-			.then(() -> this.chainResult.assertWasNotSubscribed())
-			.verifyError(AuthenticationCredentialsNotFoundException.class);
+				.then(() -> this.chainResult.assertWasNotSubscribed())
+				.verifyError(AuthenticationCredentialsNotFoundException.class);
 	}
 
 	@Test
 	public void interceptWhenAuthenticationNotSubscribedAndEmptyThenCompletes() {
 		when(this.chain.next(any())).thenReturn(this.chainResult.mono());
-		when(this.authorizationManager.verify(any(), any()))
-			.thenReturn(this.managerResult.mono());
+		when(this.authorizationManager.verify(any(), any())).thenReturn(this.managerResult.mono());
 
-		AuthorizationPayloadInterceptor interceptor =
-				new AuthorizationPayloadInterceptor(this.authorizationManager);
+		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(this.authorizationManager);
 
 		StepVerifier.create(interceptor.intercept(this.exchange, this.chain))
-				.then(() -> this.chainResult.assertWasSubscribed())
-				.verifyComplete();
+				.then(() -> this.chainResult.assertWasSubscribed()).verifyComplete();
 	}
 
 	@Test
 	public void interceptWhenNotAuthorizedThenException() {
 		when(this.chain.next(any())).thenReturn(this.chainResult.mono());
 
-		AuthorizationPayloadInterceptor interceptor =
-				new AuthorizationPayloadInterceptor(hasRole("USER"));
+		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(hasRole("USER"));
 		Context userContext = ReactiveSecurityContextHolder
 				.withAuthentication(new TestingAuthenticationToken("user", "password"));
 
-		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain)
-				.subscriberContext(userContext);
+		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).subscriberContext(userContext);
 
-		StepVerifier.create(intercept)
-				.then(() -> this.chainResult.assertWasNotSubscribed())
+		StepVerifier.create(intercept).then(() -> this.chainResult.assertWasNotSubscribed())
 				.verifyError(AccessDeniedException.class);
 	}
 
@@ -102,16 +96,13 @@ public class AuthorizationPayloadInterceptorTests {
 	public void interceptWhenAuthorizedThenContinues() {
 		when(this.chain.next(any())).thenReturn(this.chainResult.mono());
 
-		AuthorizationPayloadInterceptor interceptor =
-				new AuthorizationPayloadInterceptor(authenticated());
+		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(authenticated());
 		Context userContext = ReactiveSecurityContextHolder
 				.withAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 
-		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain)
-				.subscriberContext(userContext);
+		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).subscriberContext(userContext);
 
-		StepVerifier.create(intercept)
-				.then(() -> this.chainResult.assertWasSubscribed())
-				.verifyComplete();
+		StepVerifier.create(intercept).then(() -> this.chainResult.assertWasSubscribed()).verifyComplete();
 	}
+
 }

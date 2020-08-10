@@ -26,6 +26,7 @@ import java.util.stream.Stream;
  * @author Josh Cummings
  */
 public class XmlNode {
+
 	private final Node node;
 
 	public XmlNode(Node node) {
@@ -34,7 +35,7 @@ public class XmlNode {
 
 	public String simpleName() {
 		String[] parts = this.node.getNodeName().split(":");
-		return parts[parts.length-1];
+		return parts[parts.length - 1];
 	}
 
 	public String text() {
@@ -44,30 +45,24 @@ public class XmlNode {
 	public Stream<XmlNode> children() {
 		NodeList children = this.node.getChildNodes();
 
-		return IntStream.range(0, children.getLength())
-				.mapToObj(children::item)
-				.map(XmlNode::new);
+		return IntStream.range(0, children.getLength()).mapToObj(children::item).map(XmlNode::new);
 	}
 
 	public Optional<XmlNode> child(String name) {
-		return this.children()
-				.filter(child -> name.equals(child.simpleName()))
-				.findFirst();
+		return this.children().filter(child -> name.equals(child.simpleName())).findFirst();
 	}
 
 	public Optional<XmlNode> parent() {
-		return Optional.ofNullable(this.node.getParentNode())
-				.map(parent -> new XmlNode(parent));
+		return Optional.ofNullable(this.node.getParentNode()).map(parent -> new XmlNode(parent));
 	}
 
 	public String attribute(String name) {
-		return Optional.ofNullable(this.node.getAttributes())
-				.map(attrs -> attrs.getNamedItem(name))
-				.map(attr -> attr.getTextContent())
-				.orElse(null);
+		return Optional.ofNullable(this.node.getAttributes()).map(attrs -> attrs.getNamedItem(name))
+				.map(attr -> attr.getTextContent()).orElse(null);
 	}
 
 	public Node node() {
 		return this.node;
 	}
+
 }

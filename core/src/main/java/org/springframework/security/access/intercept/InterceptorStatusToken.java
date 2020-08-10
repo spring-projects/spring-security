@@ -31,20 +31,23 @@ import org.springframework.security.core.context.SecurityContext;
  * @author Ben Alex
  */
 public class InterceptorStatusToken {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private SecurityContext securityContext;
+
 	private Collection<ConfigAttribute> attr;
+
 	private Object secureObject;
+
 	private boolean contextHolderRefreshRequired;
 
 	// ~ Constructors
 	// ===================================================================================================
 
-	public InterceptorStatusToken(SecurityContext securityContext,
-			boolean contextHolderRefreshRequired, Collection<ConfigAttribute> attributes,
-			Object secureObject) {
+	public InterceptorStatusToken(SecurityContext securityContext, boolean contextHolderRefreshRequired,
+			Collection<ConfigAttribute> attributes, Object secureObject) {
 		this.securityContext = securityContext;
 		this.contextHolderRefreshRequired = contextHolderRefreshRequired;
 		this.attr = attributes;
@@ -69,4 +72,5 @@ public class InterceptorStatusToken {
 	public boolean isContextHolderRefreshRequired() {
 		return contextHolderRefreshRequired;
 	}
+
 }

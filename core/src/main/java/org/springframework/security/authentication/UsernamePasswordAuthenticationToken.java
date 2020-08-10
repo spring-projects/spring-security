@@ -40,6 +40,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	// ================================================================================================
 
 	private final Object principal;
+
 	private Object credentials;
 
 	// ~ Constructors
@@ -63,7 +64,6 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	 * <code>AuthenticationProvider</code> implementations that are satisfied with
 	 * producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
 	 * authentication token.
-	 *
 	 * @param principal
 	 * @param credentials
 	 * @param authorities
@@ -101,4 +101,5 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 		super.eraseCredentials();
 		credentials = null;
 	}
+
 }

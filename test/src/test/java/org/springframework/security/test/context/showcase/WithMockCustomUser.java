@@ -22,6 +22,7 @@ import org.springframework.security.test.context.support.WithSecurityContext;
  */
 @WithSecurityContext(factory = WithMockCustomUserSecurityContextFactory.class)
 public @interface WithMockCustomUser {
+
 	/**
 	 * The username to be used. The default is rob
 	 * @return
@@ -33,7 +34,6 @@ public @interface WithMockCustomUser {
 	 * {@link org.springframework.security.core.GrantedAuthority} will be created for each
 	 * value within roles. Each value in roles will automatically be prefixed with
 	 * "ROLE_". For example, the default will result in "ROLE_USER" being used.
-	 *
 	 * @return
 	 */
 	String[] roles() default { "USER" };
@@ -43,4 +43,5 @@ public @interface WithMockCustomUser {
 	 * @return
 	 */
 	String name() default "Rob Winch";
+
 }

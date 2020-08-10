@@ -28,6 +28,7 @@ import org.springframework.security.cas.ServiceProperties;
  * @author Ben Alex
  */
 public class ServicePropertiesTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -75,4 +76,5 @@ public class ServicePropertiesTests {
 			sp.afterPropertiesSet();
 		}
 	}
+
 }

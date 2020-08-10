@@ -40,17 +40,14 @@ public final class MethodInvocationUtils {
 	/**
 	 * Generates a <code>MethodInvocation</code> for specified <code>methodName</code> on
 	 * the passed object, using the <code>args</code> to locate the method.
-	 *
 	 * @param object the object that will be used to find the relevant <code>Method</code>
 	 * @param methodName the name of the method to find
 	 * @param args arguments that are required as part of the method signature (can be
 	 * empty)
-	 *
 	 * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a
 	 * problem
 	 */
-	public static MethodInvocation create(Object object, String methodName,
-			Object... args) {
+	public static MethodInvocation create(Object object, String methodName, Object... args) {
 		Assert.notNull(object, "Object required");
 
 		Class<?>[] classArgs = null;
@@ -95,11 +92,9 @@ public final class MethodInvocationUtils {
 	 * through the declared methods on the class, until one is found matching the supplied
 	 * name. If more than one method name matches, an <tt>IllegalArgumentException</tt>
 	 * will be raised.
-	 *
 	 * @param clazz the class of object that will be used to find the relevant
 	 * <code>Method</code>
 	 * @param methodName the name of the method to find
-	 *
 	 * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a
 	 * problem
 	 */
@@ -110,9 +105,8 @@ public final class MethodInvocationUtils {
 			for (Method m : clazz.getDeclaredMethods()) {
 				if (m.getName().equals(methodName)) {
 					if (mi != null) {
-						throw new IllegalArgumentException("The class " + clazz
-								+ " has more than one method named" + " '" + methodName
-								+ "'");
+						throw new IllegalArgumentException(
+								"The class " + clazz + " has more than one method named" + " '" + methodName + "'");
 					}
 					mi = new SimpleMethodInvocation(null, m);
 				}
@@ -125,7 +119,6 @@ public final class MethodInvocationUtils {
 	/**
 	 * Generates a <code>MethodInvocation</code> for specified <code>methodName</code> on
 	 * the passed class, using the <code>args</code> to locate the method.
-	 *
 	 * @param targetObject the object being invoked
 	 * @param clazz the class of object that will be used to find the relevant
 	 * <code>Method</code>
@@ -136,8 +129,8 @@ public final class MethodInvocationUtils {
 	 * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a
 	 * problem
 	 */
-	public static MethodInvocation createFromClass(Object targetObject, Class<?> clazz,
-			String methodName, Class<?>[] classArgs, Object[] args) {
+	public static MethodInvocation createFromClass(Object targetObject, Class<?> clazz, String methodName,
+			Class<?>[] classArgs, Object[] args) {
 		Assert.notNull(clazz, "Class required");
 		Assert.hasText(methodName, "MethodName required");
 
@@ -152,4 +145,5 @@ public final class MethodInvocationUtils {
 
 		return new SimpleMethodInvocation(targetObject, method, args);
 	}
+
 }

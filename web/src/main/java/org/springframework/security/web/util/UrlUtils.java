@@ -29,12 +29,13 @@ import javax.servlet.http.HttpServletRequest;
  * @author Ben Alex
  */
 public final class UrlUtils {
+
 	// ~ Methods
 	// ========================================================================================================
 
 	public static String buildFullRequestUrl(HttpServletRequest r) {
-		return buildFullRequestUrl(r.getScheme(), r.getServerName(), r.getServerPort(),
-				r.getRequestURI(), r.getQueryString());
+		return buildFullRequestUrl(r.getScheme(), r.getServerName(), r.getServerPort(), r.getRequestURI(),
+				r.getQueryString());
 	}
 
 	/**
@@ -42,11 +43,10 @@ public final class UrlUtils {
 	 * <p>
 	 * Note that the server port will not be shown if it is the default server port for
 	 * HTTP or HTTPS (80 and 443 respectively).
-	 *
 	 * @return the full URL, suitable for redirects (not decoded).
 	 */
-	public static String buildFullRequestUrl(String scheme, String serverName,
-			int serverPort, String requestURI, String queryString) {
+	public static String buildFullRequestUrl(String scheme, String serverName, int serverPort, String requestURI,
+			String queryString) {
 
 		scheme = scheme.toLowerCase();
 
@@ -91,20 +91,19 @@ public final class UrlUtils {
 	 * building the returned value. But this method may also be called using dummy request
 	 * objects which just have the requestURI and contextPatth set, for example, so it
 	 * will fall back to using those.
-	 *
 	 * @return the decoded URL, excluding any server name, context path or servlet path
 	 *
 	 */
 	public static String buildRequestUrl(HttpServletRequest r) {
-		return buildRequestUrl(r.getServletPath(), r.getRequestURI(), r.getContextPath(),
-				r.getPathInfo(), r.getQueryString());
+		return buildRequestUrl(r.getServletPath(), r.getRequestURI(), r.getContextPath(), r.getPathInfo(),
+				r.getQueryString());
 	}
 
 	/**
 	 * Obtains the web application-specific fragment of the URL.
 	 */
-	private static String buildRequestUrl(String servletPath, String requestURI,
-			String contextPath, String pathInfo, String queryString) {
+	private static String buildRequestUrl(String servletPath, String requestURI, String contextPath, String pathInfo,
+			String queryString) {
 
 		StringBuilder url = new StringBuilder();
 
@@ -140,9 +139,9 @@ public final class UrlUtils {
 		if (url == null) {
 			return false;
 		}
-		final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z0-9.+-]+://.*",
-				Pattern.CASE_INSENSITIVE);
+		final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z0-9.+-]+://.*", Pattern.CASE_INSENSITIVE);
 
 		return ABSOLUTE_URL.matcher(url).matches();
 	}
+
 }

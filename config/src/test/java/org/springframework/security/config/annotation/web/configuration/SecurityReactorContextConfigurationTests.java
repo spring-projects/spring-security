@@ -59,11 +59,14 @@ import static org.springframework.security.config.annotation.web.configuration.S
  * @since 5.2
  */
 public class SecurityReactorContextConfigurationTests {
+
 	private MockHttpServletRequest servletRequest;
+
 	private MockHttpServletResponse servletResponse;
+
 	private Authentication authentication;
-	private SecurityReactorContextConfiguration.SecurityReactorContextSubscriberRegistrar subscriberRegistrar =
-			new SecurityReactorContextConfiguration.SecurityReactorContextSubscriberRegistrar();
+
+	private SecurityReactorContextConfiguration.SecurityReactorContextSubscriberRegistrar subscriberRegistrar = new SecurityReactorContextConfiguration.SecurityReactorContextSubscriberRegistrar();
 
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -90,14 +93,15 @@ public class SecurityReactorContextConfigurationTests {
 				return context;
 			}
 		};
-		CoreSubscriber<Object> resultSubscriber = this.subscriberRegistrar.createSubscriberIfNecessary(originalSubscriber);
+		CoreSubscriber<Object> resultSubscriber = this.subscriberRegistrar
+				.createSubscriberIfNecessary(originalSubscriber);
 		assertThat(resultSubscriber).isSameAs(originalSubscriber);
 	}
 
 	@Test
 	public void createSubscriberIfNecessaryWhenWebSecurityContextAvailableThenCreateWithParentContext() {
-		RequestContextHolder.setRequestAttributes(
-				new ServletRequestAttributes(this.servletRequest, this.servletResponse));
+		RequestContextHolder
+				.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 
 		String testKey = "test_key";
@@ -116,16 +120,15 @@ public class SecurityReactorContextConfigurationTests {
 		assertThat(resultContext.getOrEmpty(testKey)).hasValue(testValue);
 		Map<Object, Object> securityContextAttributes = resultContext.getOrDefault(SECURITY_CONTEXT_ATTRIBUTES, null);
 		assertThat(securityContextAttributes).hasSize(3);
-		assertThat(securityContextAttributes).contains(
-				entry(HttpServletRequest.class, this.servletRequest),
+		assertThat(securityContextAttributes).contains(entry(HttpServletRequest.class, this.servletRequest),
 				entry(HttpServletResponse.class, this.servletResponse),
 				entry(Authentication.class, this.authentication));
 	}
 
 	@Test
 	public void createSubscriberIfNecessaryWhenParentContextContainsSecurityContextAttributesThenUseParentContext() {
-		RequestContextHolder.setRequestAttributes(
-				new ServletRequestAttributes(this.servletRequest, this.servletResponse));
+		RequestContextHolder
+				.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 
 		Context parentContext = Context.of(SECURITY_CONTEXT_ATTRIBUTES, new HashMap<>());
@@ -143,76 +146,75 @@ public class SecurityReactorContextConfigurationTests {
 
 	@Test
 	public void createSubscriberIfNecessaryWhenNotServletRequestAttributesThenStillCreate() {
-		RequestContextHolder.setRequestAttributes(
-				new RequestAttributes() {
-					@Override
-					public Object getAttribute(String name, int scope) {
-						return null;
-					}
+		RequestContextHolder.setRequestAttributes(new RequestAttributes() {
+			@Override
+			public Object getAttribute(String name, int scope) {
+				return null;
+			}
 
-					@Override
-					public void setAttribute(String name, Object value, int scope) {
-					}
+			@Override
+			public void setAttribute(String name, Object value, int scope) {
+			}
 
-					@Override
-					public void removeAttribute(String name, int scope) {
-					}
+			@Override
+			public void removeAttribute(String name, int scope) {
+			}
 
-					@Override
-					public String[] getAttributeNames(int scope) {
-						return new String[0];
-					}
+			@Override
+			public String[] getAttributeNames(int scope) {
+				return new String[0];
+			}
 
-					@Override
-					public void registerDestructionCallback(String name, Runnable callback, int scope) {
-					}
+			@Override
+			public void registerDestructionCallback(String name, Runnable callback, int scope) {
+			}
 
-					@Override
-					public Object resolveReference(String key) {
-						return null;
-					}
+			@Override
+			public Object resolveReference(String key) {
+				return null;
+			}
 
-					@Override
-					public String getSessionId() {
-						return null;
-					}
+			@Override
+			public String getSessionId() {
+				return null;
+			}
 
-					@Override
-					public Object getSessionMutex() {
-						return null;
-					}
-				});
+			@Override
+			public Object getSessionMutex() {
+				return null;
+			}
+		});
 
-		CoreSubscriber<Object> subscriber = this.subscriberRegistrar.createSubscriberIfNecessary(Operators.emptySubscriber());
+		CoreSubscriber<Object> subscriber = this.subscriberRegistrar
+				.createSubscriberIfNecessary(Operators.emptySubscriber());
 		assertThat(subscriber).isInstanceOf(SecurityReactorContextConfiguration.SecurityReactorContextSubscriber.class);
 	}
 
 	@Test
 	public void createPublisherWhenLastOperatorAddedThenSecurityContextAttributesAvailable() {
-		// Trigger the importing of SecurityReactorContextConfiguration via OAuth2ImportSelector
+		// Trigger the importing of SecurityReactorContextConfiguration via
+		// OAuth2ImportSelector
 		this.spring.register(SecurityConfig.class).autowire();
 
 		// Setup for SecurityReactorContextSubscriberRegistrar
-		RequestContextHolder.setRequestAttributes(
-				new ServletRequestAttributes(this.servletRequest, this.servletResponse));
+		RequestContextHolder
+				.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 
 		ClientResponse clientResponseOk = ClientResponse.create(HttpStatus.OK).build();
 
-		ExchangeFilterFunction filter = (req, next) ->
-				Mono.subscriberContext()
-						.filter(ctx -> ctx.hasKey(SECURITY_CONTEXT_ATTRIBUTES))
-						.map(ctx -> ctx.get(SECURITY_CONTEXT_ATTRIBUTES))
-						.cast(Map.class)
-						.map(attributes -> {
-							if (attributes.containsKey(HttpServletRequest.class) &&
-									attributes.containsKey(HttpServletResponse.class) &&
-									attributes.containsKey(Authentication.class)) {
-								return clientResponseOk;
-							} else {
-								return ClientResponse.create(HttpStatus.NOT_FOUND).build();
-							}
-						});
+		ExchangeFilterFunction filter = (req, next) -> Mono.subscriberContext()
+				.filter(ctx -> ctx.hasKey(SECURITY_CONTEXT_ATTRIBUTES)).map(ctx -> ctx.get(SECURITY_CONTEXT_ATTRIBUTES))
+				.cast(Map.class).map(attributes -> {
+					if (attributes.containsKey(HttpServletRequest.class)
+							&& attributes.containsKey(HttpServletResponse.class)
+							&& attributes.containsKey(Authentication.class)) {
+						return clientResponseOk;
+					}
+					else {
+						return ClientResponse.create(HttpStatus.NOT_FOUND).build();
+					}
+				});
 
 		ClientRequest clientRequest = ClientRequest.create(GET, URI.create("https://example.com")).build();
 		MockExchangeFunction exchange = new MockExchangeFunction();
@@ -225,11 +227,8 @@ public class SecurityReactorContextConfigurationTests {
 		Mono<ClientResponse> clientResponseMono = filter.filter(clientRequest, exchange)
 				.flatMap(response -> filter.filter(clientRequest, exchange));
 
-		StepVerifier.create(clientResponseMono)
-				.expectAccessibleContext()
-				.contains(SECURITY_CONTEXT_ATTRIBUTES, expectedContextAttributes)
-				.then()
-				.expectNext(clientResponseOk)
+		StepVerifier.create(clientResponseMono).expectAccessibleContext()
+				.contains(SECURITY_CONTEXT_ATTRIBUTES, expectedContextAttributes).then().expectNext(clientResponseOk)
 				.verifyComplete();
 	}
 
@@ -239,5 +238,7 @@ public class SecurityReactorContextConfigurationTests {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 		}
+
 	}
+
 }

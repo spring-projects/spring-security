@@ -21,8 +21,9 @@ import javax.servlet.http.HttpServletRequest;
  * An interface for OpenID library implementations
  *
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  * @author Ray Krueger
  * @author Robin Bramley, Opsera Ltd
  */
@@ -31,7 +32,6 @@ public interface OpenIDConsumer {
 	/**
 	 * Given the request, the claimedIdentity, the return to url, and a realm, lookup the
 	 * openId authentication page the user should be redirected to.
-	 *
 	 * @param req HttpServletRequest
 	 * @param claimedIdentity String URI the user presented during authentication
 	 * @param returnToUrl String URI of the URL we want the user sent back to by the OP
@@ -39,10 +39,9 @@ public interface OpenIDConsumer {
 	 * @return String URI to redirect user to for authentication
 	 * @throws OpenIDConsumerException if anything bad happens
 	 */
-	String beginConsumption(HttpServletRequest req, String claimedIdentity,
-							String returnToUrl, String realm) throws OpenIDConsumerException;
-
-	OpenIDAuthenticationToken endConsumption(HttpServletRequest req)
+	String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl, String realm)
 			throws OpenIDConsumerException;
+
+	OpenIDAuthenticationToken endConsumption(HttpServletRequest req) throws OpenIDConsumerException;
 
 }

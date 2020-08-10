@@ -35,4 +35,5 @@ interface HttpServletRequestFactory {
 	 * @return a non-null HttpServletRequest
 	 */
 	HttpServletRequest create(HttpServletRequest request, HttpServletResponse response);
+
 }

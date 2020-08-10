@@ -36,7 +36,8 @@ import static org.springframework.security.web.server.util.matcher.ServerWebExch
 /**
  * Redirects any non-HTTPS request to its HTTPS equivalent.
  *
- * Can be configured to use a {@link ServerWebExchangeMatcher} to narrow which requests get redirected.
+ * Can be configured to use a {@link ServerWebExchangeMatcher} to narrow which requests
+ * get redirected.
  *
  * Can also be configured for custom ports using {@link PortMapper}.
  *
@@ -44,6 +45,7 @@ import static org.springframework.security.web.server.util.matcher.ServerWebExch
  * @since 5.1
  */
 public final class HttpsRedirectWebFilter implements WebFilter {
+
 	private PortMapper portMapper = new PortMapperImpl();
 
 	private ServerWebExchangeMatcher requiresHttpsRedirectMatcher = anyExchange();
@@ -55,18 +57,14 @@ public final class HttpsRedirectWebFilter implements WebFilter {
 	 */
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return Mono.just(exchange)
-				.filter(this::isInsecure)
-				.flatMap(this.requiresHttpsRedirectMatcher::matches)
-				.filter(matchResult -> matchResult.isMatch())
-				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
+		return Mono.just(exchange).filter(this::isInsecure).flatMap(this.requiresHttpsRedirectMatcher::matches)
+				.filter(matchResult -> matchResult.isMatch()).switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 				.map(matchResult -> createRedirectUri(exchange))
 				.flatMap(uri -> this.redirectStrategy.sendRedirect(exchange, uri));
 	}
 
 	/**
 	 * Use this {@link PortMapper} for mapping custom ports
-	 *
 	 * @param portMapper the {@link PortMapper} to use
 	 */
 	public void setPortMapper(PortMapper portMapper) {
@@ -75,18 +73,16 @@ public final class HttpsRedirectWebFilter implements WebFilter {
 	}
 
 	/**
-	 * Use this {@link ServerWebExchangeMatcher} to narrow which requests are redirected to HTTPS.
+	 * Use this {@link ServerWebExchangeMatcher} to narrow which requests are redirected
+	 * to HTTPS.
 	 *
 	 * The filter already first checks for HTTPS in the uri scheme, so it is not necessary
 	 * to include that check in this matcher.
-	 *
 	 * @param requiresHttpsRedirectMatcher the {@link ServerWebExchangeMatcher} to use
 	 */
-	public void setRequiresHttpsRedirectMatcher
-			(ServerWebExchangeMatcher requiresHttpsRedirectMatcher) {
+	public void setRequiresHttpsRedirectMatcher(ServerWebExchangeMatcher requiresHttpsRedirectMatcher) {
 
-		Assert.notNull(requiresHttpsRedirectMatcher,
-				"requiresHttpsRedirectMatcher cannot be null");
+		Assert.notNull(requiresHttpsRedirectMatcher, "requiresHttpsRedirectMatcher cannot be null");
 		this.requiresHttpsRedirectMatcher = requiresHttpsRedirectMatcher;
 	}
 
@@ -97,8 +93,7 @@ public final class HttpsRedirectWebFilter implements WebFilter {
 	private URI createRedirectUri(ServerWebExchange exchange) {
 		int port = exchange.getRequest().getURI().getPort();
 
-		UriComponentsBuilder builder =
-				UriComponentsBuilder.fromUri(exchange.getRequest().getURI());
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(exchange.getRequest().getURI());
 
 		if (port > 0) {
 			Integer httpsPort = this.portMapper.lookupHttpsPort(port);
@@ -110,4 +105,5 @@ public final class HttpsRedirectWebFilter implements WebFilter {
 
 		return builder.scheme("https").build().toUri();
 	}
+
 }

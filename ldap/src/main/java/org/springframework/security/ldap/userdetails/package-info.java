@@ -18,4 +18,3 @@
  * contained in some of the standard LDAP types (such as {@code InetOrgPerson}).
  */
 package org.springframework.security.ldap.userdetails;
-

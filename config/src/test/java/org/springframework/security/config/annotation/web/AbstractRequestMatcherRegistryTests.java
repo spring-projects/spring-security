@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class AbstractRequestMatcherRegistryTests {
+
 	private TestRequestMatcherRegistry matcherRegistry;
 
 	@Before
@@ -87,5 +88,7 @@ public class AbstractRequestMatcherRegistryTests {
 		protected List<RequestMatcher> chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			return requestMatchers;
 		}
+
 	}
+
 }

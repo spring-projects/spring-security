@@ -32,10 +32,10 @@ public interface ServerHttpHeadersWriter {
 
 	/**
 	 * Write the headers to the response.
-	 *
 	 * @param exchange
 	 * @return A Mono which is returned to the {@link Supplier} of the
-	 *         {@link ServerHttpResponse#beforeCommit(Supplier)}.
+	 * {@link ServerHttpResponse#beforeCommit(Supplier)}.
 	 */
 	Mono<Void> writeHttpHeaders(ServerWebExchange exchange);
+
 }

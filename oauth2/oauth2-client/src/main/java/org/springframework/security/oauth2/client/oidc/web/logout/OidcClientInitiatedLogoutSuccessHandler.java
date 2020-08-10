@@ -38,10 +38,13 @@ import org.springframework.web.util.UriComponentsBuilder;
  *
  * @author Josh Cummings
  * @since 5.2
- * @see <a href="https://openid.net/specs/openid-connect-session-1_0.html#RPLogout">RP-Initiated Logout</a>
+ * @see <a href=
+ * "https://openid.net/specs/openid-connect-session-1_0.html#RPLogout">RP-Initiated
+ * Logout</a>
  * @see org.springframework.security.web.authentication.logout.LogoutSuccessHandler
  */
 public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
+
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
 	private String postLogoutRedirectUri;
@@ -52,8 +55,8 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 	}
 
 	@Override
-	protected String determineTargetUrl(HttpServletRequest request,
-			HttpServletResponse response, Authentication authentication) {
+	protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication) {
 		String targetUrl = null;
 		URI endSessionEndpoint;
 		if (authentication instanceof OAuth2AuthenticationToken && authentication.getPrincipal() instanceof OidcUser) {
@@ -96,15 +99,10 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 			return null;
 		}
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
-				.replacePath(request.getContextPath())
-				.replaceQuery(null)
-				.fragment(null)
-				.build();
+				.replacePath(request.getContextPath()).replaceQuery(null).fragment(null).build();
 		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
-				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
-				.toUri();
+				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString())).toUri();
 	}
-
 
 	private String endpointUri(URI endSessionEndpoint, String idToken, URI postLogoutRedirectUri) {
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(endSessionEndpoint);
@@ -117,8 +115,8 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 
 	/**
 	 * Set the post logout redirect uri to use
-	 *
-	 * @param postLogoutRedirectUri - A valid URL to which the OP should redirect after logging out the user
+	 * @param postLogoutRedirectUri - A valid URL to which the OP should redirect after
+	 * logging out the user
 	 * @deprecated {@link #setPostLogoutRedirectUri(String)}
 	 */
 	@Deprecated
@@ -135,15 +133,15 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 	 * 	handler.setPostLogoutRedirectUri("{baseUrl}");
 	 * </pre>
 	 *
-	 * will make so that {@code post_logout_redirect_uri} will be set to the base url for the client
-	 * application.
-	 *
-	 * @param postLogoutRedirectUri - A template for creating the {@code post_logout_redirect_uri}
-	 * query parameter
+	 * will make so that {@code post_logout_redirect_uri} will be set to the base url for
+	 * the client application.
+	 * @param postLogoutRedirectUri - A template for creating the
+	 * {@code post_logout_redirect_uri} query parameter
 	 * @since 5.3
 	 */
 	public void setPostLogoutRedirectUri(String postLogoutRedirectUri) {
 		Assert.notNull(postLogoutRedirectUri, "postLogoutRedirectUri cannot be null");
 		this.postLogoutRedirectUri = postLogoutRedirectUri;
 	}
+
 }

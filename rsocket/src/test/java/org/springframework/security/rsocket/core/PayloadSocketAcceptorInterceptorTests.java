@@ -48,6 +48,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PayloadSocketAcceptorInterceptorTests {
+
 	@Mock
 	private PayloadInterceptor interceptor;
 
@@ -79,7 +80,8 @@ public class PayloadSocketAcceptorInterceptorTests {
 
 		PayloadExchange exchange = captureExchange();
 
-		assertThat(exchange.getMetadataMimeType().toString()).isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+		assertThat(exchange.getMetadataMimeType().toString())
+				.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
 
@@ -100,7 +102,8 @@ public class PayloadSocketAcceptorInterceptorTests {
 
 		PayloadExchange exchange = captureExchange();
 
-		assertThat(exchange.getMetadataMimeType().toString()).isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+		assertThat(exchange.getMetadataMimeType().toString())
+				.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
 
@@ -117,9 +120,9 @@ public class PayloadSocketAcceptorInterceptorTests {
 
 		result.fireAndForget(this.payload).block();
 
-		ArgumentCaptor<PayloadExchange> exchangeArg =
-				ArgumentCaptor.forClass(PayloadExchange.class);
+		ArgumentCaptor<PayloadExchange> exchangeArg = ArgumentCaptor.forClass(PayloadExchange.class);
 		verify(this.interceptor, times(2)).intercept(exchangeArg.capture(), any());
 		return exchangeArg.getValue();
 	}
+
 }

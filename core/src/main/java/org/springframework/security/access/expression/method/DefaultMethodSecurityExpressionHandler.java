@@ -49,15 +49,17 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.0
  */
-public class DefaultMethodSecurityExpressionHandler extends
-		AbstractSecurityExpressionHandler<MethodInvocation> implements
-		MethodSecurityExpressionHandler {
+public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpressionHandler<MethodInvocation>
+		implements MethodSecurityExpressionHandler {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+
 	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultSecurityParameterNameDiscoverer();
+
 	private PermissionCacheOptimizer permissionCacheOptimizer = null;
+
 	private String defaultRolePrefix = "ROLE_";
 
 	public DefaultMethodSecurityExpressionHandler() {
@@ -67,18 +69,16 @@ public class DefaultMethodSecurityExpressionHandler extends
 	 * Uses a {@link MethodSecurityEvaluationContext} as the <tt>EvaluationContext</tt>
 	 * implementation.
 	 */
-	public StandardEvaluationContext createEvaluationContextInternal(Authentication auth,
-			MethodInvocation mi) {
+	public StandardEvaluationContext createEvaluationContextInternal(Authentication auth, MethodInvocation mi) {
 		return new MethodSecurityEvaluationContext(auth, mi, getParameterNameDiscoverer());
 	}
 
 	/**
 	 * Creates the root object for expression evaluation.
 	 */
-	protected MethodSecurityExpressionOperations createSecurityExpressionRoot(
-			Authentication authentication, MethodInvocation invocation) {
-		MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(
-				authentication);
+	protected MethodSecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+			MethodInvocation invocation) {
+		MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication);
 		root.setThis(invocation.getThis());
 		root.setPermissionEvaluator(getPermissionEvaluator());
 		root.setTrustResolver(getTrustResolver());
@@ -89,24 +89,22 @@ public class DefaultMethodSecurityExpressionHandler extends
 	}
 
 	/**
-	 * Filters the {@code filterTarget} object (which must be either a collection, array, map
-	 * or stream), by evaluating the supplied expression.
+	 * Filters the {@code filterTarget} object (which must be either a collection, array,
+	 * map or stream), by evaluating the supplied expression.
 	 * <p>
-	 * If a {@code Collection} or {@code Map} is used, the original instance will be modified to contain
-	 * the elements for which the permission expression evaluates to {@code true}. For an
-	 * array, a new array instance will be returned.
+	 * If a {@code Collection} or {@code Map} is used, the original instance will be
+	 * modified to contain the elements for which the permission expression evaluates to
+	 * {@code true}. For an array, a new array instance will be returned.
 	 */
 	@SuppressWarnings("unchecked")
-	public Object filter(Object filterTarget, Expression filterExpression,
-			EvaluationContext ctx) {
-		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx
-				.getRootObject().getValue();
+	public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
+		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
+				.getValue();
 		final boolean debug = logger.isDebugEnabled();
 		List retainList;
 
 		if (debug) {
-			logger.debug("Filtering with expression: "
-					+ filterExpression.getExpressionString());
+			logger.debug("Filtering with expression: " + filterExpression.getExpressionString());
 		}
 
 		if (filterTarget instanceof Collection) {
@@ -114,13 +112,11 @@ public class DefaultMethodSecurityExpressionHandler extends
 			retainList = new ArrayList(collection.size());
 
 			if (debug) {
-				logger.debug("Filtering collection with " + collection.size()
-						+ " elements");
+				logger.debug("Filtering collection with " + collection.size() + " elements");
 			}
 
 			if (permissionCacheOptimizer != null) {
-				permissionCacheOptimizer.cachePermissionsFor(
-						rootObject.getAuthentication(), collection);
+				permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), collection);
 			}
 
 			for (Object filterObject : (Collection) filterTarget) {
@@ -150,8 +146,7 @@ public class DefaultMethodSecurityExpressionHandler extends
 			}
 
 			if (permissionCacheOptimizer != null) {
-				permissionCacheOptimizer.cachePermissionsFor(
-						rootObject.getAuthentication(), Arrays.asList(array));
+				permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), Arrays.asList(array));
 			}
 
 			for (Object o : array) {
@@ -166,8 +161,8 @@ public class DefaultMethodSecurityExpressionHandler extends
 				logger.debug("Retaining elements: " + retainList);
 			}
 
-			Object[] filtered = (Object[]) Array.newInstance(filterTarget.getClass()
-					.getComponentType(), retainList.size());
+			Object[] filtered = (Object[]) Array.newInstance(filterTarget.getClass().getComponentType(),
+					retainList.size());
 			for (int i = 0; i < retainList.size(); i++) {
 				filtered[i] = retainList.get(i);
 			}
@@ -207,19 +202,16 @@ public class DefaultMethodSecurityExpressionHandler extends
 			return original.filter(filterObject -> {
 				rootObject.setFilterObject(filterObject);
 				return ExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
-			})
-					.onClose(original::close);
+			}).onClose(original::close);
 		}
 
 		throw new IllegalArgumentException(
-				"Filter target must be a collection, array, map or stream type, but was "
-						+ filterTarget);
+				"Filter target must be a collection, array, map or stream type, but was " + filterTarget);
 	}
 
 	/**
 	 * Sets the {@link AuthenticationTrustResolver} to be used. The default is
 	 * {@link AuthenticationTrustResolverImpl}.
-	 *
 	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
 	 * null.
 	 */
@@ -230,7 +222,7 @@ public class DefaultMethodSecurityExpressionHandler extends
 
 	/**
 	 * @return The current {@link AuthenticationTrustResolver}
-     */
+	 */
 	protected AuthenticationTrustResolver getTrustResolver() {
 		return trustResolver;
 	}
@@ -246,33 +238,32 @@ public class DefaultMethodSecurityExpressionHandler extends
 
 	/**
 	 * @return The current {@link ParameterNameDiscoverer}
-     */
+	 */
 	protected ParameterNameDiscoverer getParameterNameDiscoverer() {
 		return parameterNameDiscoverer;
 	}
 
-	public void setPermissionCacheOptimizer(
-			PermissionCacheOptimizer permissionCacheOptimizer) {
+	public void setPermissionCacheOptimizer(PermissionCacheOptimizer permissionCacheOptimizer) {
 		this.permissionCacheOptimizer = permissionCacheOptimizer;
 	}
 
 	public void setReturnObject(Object returnObject, EvaluationContext ctx) {
-		((MethodSecurityExpressionOperations) ctx.getRootObject().getValue())
-				.setReturnObject(returnObject);
+		((MethodSecurityExpressionOperations) ctx.getRootObject().getValue()).setReturnObject(returnObject);
 	}
 
 	/**
 	 * <p>
-	 * Sets the default prefix to be added to {@link org.springframework.security.access.expression.SecurityExpressionRoot#hasAnyRole(String...)} or
-	 * {@link org.springframework.security.access.expression.SecurityExpressionRoot#hasRole(String)}. For example, if hasRole("ADMIN") or hasRole("ROLE_ADMIN")
-	 * is passed in, then the role ROLE_ADMIN will be used when the defaultRolePrefix is
-	 * "ROLE_" (default).
+	 * Sets the default prefix to be added to
+	 * {@link org.springframework.security.access.expression.SecurityExpressionRoot#hasAnyRole(String...)}
+	 * or
+	 * {@link org.springframework.security.access.expression.SecurityExpressionRoot#hasRole(String)}.
+	 * For example, if hasRole("ADMIN") or hasRole("ROLE_ADMIN") is passed in, then the
+	 * role ROLE_ADMIN will be used when the defaultRolePrefix is "ROLE_" (default).
 	 * </p>
 	 *
 	 * <p>
 	 * If null or empty, then no default role prefix is used.
 	 * </p>
-	 *
 	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
 	 */
 	public void setDefaultRolePrefix(String defaultRolePrefix) {
@@ -281,8 +272,9 @@ public class DefaultMethodSecurityExpressionHandler extends
 
 	/**
 	 * @return The default role prefix
-     */
+	 */
 	protected String getDefaultRolePrefix() {
 		return defaultRolePrefix;
 	}
+
 }

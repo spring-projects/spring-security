@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * An {@link OAuth2AuthorizedClientService} that stores
- * {@link OAuth2AuthorizedClient Authorized Client(s)} in-memory.
+ * An {@link OAuth2AuthorizedClientService} that stores {@link OAuth2AuthorizedClient
+ * Authorized Client(s)} in-memory.
  *
  * @author Rob Winch
  * @author Vedran Pavic
@@ -37,22 +37,26 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see Authentication
  */
 public final class InMemoryReactiveOAuth2AuthorizedClientService implements ReactiveOAuth2AuthorizedClientService {
+
 	private final Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients = new ConcurrentHashMap<>();
+
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
 	/**
-	 * Constructs an {@code InMemoryReactiveOAuth2AuthorizedClientService} using the provided parameters.
-	 *
+	 * Constructs an {@code InMemoryReactiveOAuth2AuthorizedClientService} using the
+	 * provided parameters.
 	 * @param clientRegistrationRepository the repository of client registrations
 	 */
-	public InMemoryReactiveOAuth2AuthorizedClientService(ReactiveClientRegistrationRepository clientRegistrationRepository) {
+	public InMemoryReactiveOAuth2AuthorizedClientService(
+			ReactiveClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(String clientRegistrationId, String principalName) {
+	public <T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(String clientRegistrationId,
+			String principalName) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		return (Mono<T>) this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
@@ -77,7 +81,7 @@ public final class InMemoryReactiveOAuth2AuthorizedClientService implements Reac
 		Assert.hasText(principalName, "principalName cannot be empty");
 		return this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
 				.map(clientRegistration -> new OAuth2AuthorizedClientId(clientRegistrationId, principalName))
-				.doOnNext(this.authorizedClients::remove)
-				.then(Mono.empty());
+				.doOnNext(this.authorizedClients::remove).then(Mono.empty());
 	}
+
 }

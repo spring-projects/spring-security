@@ -31,6 +31,7 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 public class HttpInterceptUrlTests {
+
 	ConfigurableWebApplicationContext context;
 
 	MockMvc mockMvc;
@@ -46,18 +47,15 @@ public class HttpInterceptUrlTests {
 	public void interceptUrlWhenRequestMatcherRefThenWorks() throws Exception {
 		loadConfig("interceptUrlWhenRequestMatcherRefThenWorks.xml");
 
-		mockMvc.perform(get("/foo"))
-			.andExpect(status().isUnauthorized());
+		mockMvc.perform(get("/foo")).andExpect(status().isUnauthorized());
 
-		mockMvc.perform(get("/FOO"))
-			.andExpect(status().isUnauthorized());
+		mockMvc.perform(get("/FOO")).andExpect(status().isUnauthorized());
 
-		mockMvc.perform(get("/other"))
-			.andExpect(status().isOk());
+		mockMvc.perform(get("/other")).andExpect(status().isOk());
 	}
 
 	private void loadConfig(String... configLocations) {
-		for (int i=0; i<configLocations.length; i++) {
+		for (int i = 0; i < configLocations.length; i++) {
 			configLocations[i] = getClass().getName().replaceAll("\\.", "/") + "-" + configLocations[i];
 		}
 		XmlWebApplicationContext context = new XmlWebApplicationContext();
@@ -69,17 +67,17 @@ public class HttpInterceptUrlTests {
 		context.getAutowireCapableBeanFactory().autowireBean(this);
 
 		Filter springSecurityFilterChain = context.getBean("springSecurityFilterChain", Filter.class);
-		mockMvc = MockMvcBuilders
-				.standaloneSetup(new FooController())
-				.addFilters(springSecurityFilterChain)
-				.build();
+		mockMvc = MockMvcBuilders.standaloneSetup(new FooController()).addFilters(springSecurityFilterChain).build();
 	}
 
 	@RestController
 	static class FooController {
+
 		@GetMapping("/*")
 		String foo() {
 			return "foo";
 		}
+
 	}
+
 }

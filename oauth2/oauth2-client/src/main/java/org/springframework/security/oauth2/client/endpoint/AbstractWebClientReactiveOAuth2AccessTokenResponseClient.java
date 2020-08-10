@@ -35,17 +35,22 @@ import java.util.Set;
 import static org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors.oauth2AccessTokenResponse;
 
 /**
- * Abstract base class for all of the {@code WebClientReactive*TokenResponseClient}s
- * that communicate to the Authorization Server's Token Endpoint.
+ * Abstract base class for all of the {@code WebClientReactive*TokenResponseClient}s that
+ * communicate to the Authorization Server's Token Endpoint.
  *
- * <p>Submits a form request body specific to the type of grant request.</p>
+ * <p>
+ * Submits a form request body specific to the type of grant request.
+ * </p>
  *
- * <p>Accepts a JSON response body containing an OAuth 2.0 Access token or error.</p>
+ * <p>
+ * Accepts a JSON response body containing an OAuth 2.0 Access token or error.
+ * </p>
  *
  * @author Phil Clay
  * @since 5.3
  * @param <T> type of grant request
- * @see <a href="https://tools.ietf.org/html/rfc6749#section-3.2">RFC-6749 Token Endpoint</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-3.2">RFC-6749 Token
+ * Endpoint</a>
  * @see WebClientReactiveAuthorizationCodeTokenResponseClient
  * @see WebClientReactiveClientCredentialsTokenResponseClient
  * @see WebClientReactivePasswordTokenResponseClient
@@ -59,17 +64,15 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 	@Override
 	public Mono<OAuth2AccessTokenResponse> getTokenResponse(T grantRequest) {
 		Assert.notNull(grantRequest, "grantRequest cannot be null");
-		return Mono.defer(() -> this.webClient.post()
-				.uri(clientRegistration(grantRequest).getProviderDetails().getTokenUri())
-				.headers(headers -> populateTokenRequestHeaders(grantRequest, headers))
-				.body(createTokenRequestBody(grantRequest))
-				.exchange()
-				.flatMap(response -> readTokenResponse(grantRequest, response)));
+		return Mono.defer(
+				() -> this.webClient.post().uri(clientRegistration(grantRequest).getProviderDetails().getTokenUri())
+						.headers(headers -> populateTokenRequestHeaders(grantRequest, headers))
+						.body(createTokenRequestBody(grantRequest)).exchange()
+						.flatMap(response -> readTokenResponse(grantRequest, response)));
 	}
 
 	/**
 	 * Returns the {@link ClientRegistration} for the given {@code grantRequest}.
-	 *
 	 * @param grantRequest the grant request
 	 * @return the {@link ClientRegistration} for the given {@code grantRequest}.
 	 */
@@ -77,7 +80,6 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 
 	/**
 	 * Populates the headers for the token request.
-	 *
 	 * @param grantRequest the grant request
 	 * @param headers the headers to populate
 	 */
@@ -93,30 +95,34 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 	/**
 	 * Creates and returns the body for the token request.
 	 *
-	 * <p>This method pre-populates the body with some standard properties,
-	 * and then delegates to {@link #populateTokenRequestBody(AbstractOAuth2AuthorizationGrantRequest, BodyInserters.FormInserter)}
-	 * for subclasses to further populate the body before returning.</p>
-	 *
+	 * <p>
+	 * This method pre-populates the body with some standard properties, and then
+	 * delegates to
+	 * {@link #populateTokenRequestBody(AbstractOAuth2AuthorizationGrantRequest, BodyInserters.FormInserter)}
+	 * for subclasses to further populate the body before returning.
+	 * </p>
 	 * @param grantRequest the grant request
 	 * @return the body for the token request.
 	 */
 	private BodyInserters.FormInserter<String> createTokenRequestBody(T grantRequest) {
-		BodyInserters.FormInserter<String> body = BodyInserters
-				.fromFormData(OAuth2ParameterNames.GRANT_TYPE, grantRequest.getGrantType().getValue());
+		BodyInserters.FormInserter<String> body = BodyInserters.fromFormData(OAuth2ParameterNames.GRANT_TYPE,
+				grantRequest.getGrantType().getValue());
 		return populateTokenRequestBody(grantRequest, body);
 	}
 
 	/**
 	 * Populates the body of the token request.
 	 *
-	 * <p>By default, populates properties that are common to all grant types.
-	 * Subclasses can extend this method to populate grant type specific properties.</p>
-	 *
+	 * <p>
+	 * By default, populates properties that are common to all grant types. Subclasses can
+	 * extend this method to populate grant type specific properties.
+	 * </p>
 	 * @param grantRequest the grant request
 	 * @param body the body to populate
 	 * @return the populated body
 	 */
-	BodyInserters.FormInserter<String> populateTokenRequestBody(T grantRequest, BodyInserters.FormInserter<String> body) {
+	BodyInserters.FormInserter<String> populateTokenRequestBody(T grantRequest,
+			BodyInserters.FormInserter<String> body) {
 		ClientRegistration clientRegistration = clientRegistration(grantRequest);
 		if (!ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
 			body.with(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
@@ -126,31 +132,30 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 		}
 		Set<String> scopes = scopes(grantRequest);
 		if (!CollectionUtils.isEmpty(scopes)) {
-			body.with(OAuth2ParameterNames.SCOPE,
-					StringUtils.collectionToDelimitedString(scopes, " "));
+			body.with(OAuth2ParameterNames.SCOPE, StringUtils.collectionToDelimitedString(scopes, " "));
 		}
 		return body;
 	}
 
 	/**
 	 * Returns the scopes to include as a property in the token request.
-	 *
 	 * @param grantRequest the grant request
 	 * @return the scopes to include as a property in the token request.
 	 */
 	abstract Set<String> scopes(T grantRequest);
 
 	/**
-	 * Returns the scopes to include in the response if the authorization
-	 * server returned no scopes in the response.
+	 * Returns the scopes to include in the response if the authorization server returned
+	 * no scopes in the response.
 	 *
-	 * <p>As per <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC-6749 Section 5.1 Successful Access Token Response</a>,
-	 * if AccessTokenResponse.scope is empty, then default to the scope
-	 * originally requested by the client in the Token Request.</p>
-	 *
+	 * <p>
+	 * As per <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC-6749 Section
+	 * 5.1 Successful Access Token Response</a>, if AccessTokenResponse.scope is empty,
+	 * then default to the scope originally requested by the client in the Token Request.
+	 * </p>
 	 * @param grantRequest the grant request
-	 * @return the scopes to include in the response if the authorization
-	 *         server returned no scopes.
+	 * @return the scopes to include in the response if the authorization server returned
+	 * no scopes.
 	 */
 	Set<String> defaultScopes(T grantRequest) {
 		return scopes(grantRequest);
@@ -158,7 +163,6 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 
 	/**
 	 * Reads the token response from the response body.
-	 *
 	 * @param grantRequest the request for which the response was received.
 	 * @param response the client response from which to read
 	 * @return the token response from the response body.
@@ -169,30 +173,30 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 	}
 
 	/**
-	 * Populates the given {@link OAuth2AccessTokenResponse} with additional details
-	 * from the grant request.
-	 *
+	 * Populates the given {@link OAuth2AccessTokenResponse} with additional details from
+	 * the grant request.
 	 * @param grantRequest the request for which the response was received.
 	 * @param tokenResponse the original token response
-	 * @return a token response optionally populated with additional details from the request.
+	 * @return a token response optionally populated with additional details from the
+	 * request.
 	 */
 	OAuth2AccessTokenResponse populateTokenResponse(T grantRequest, OAuth2AccessTokenResponse tokenResponse) {
 		if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
 			Set<String> defaultScopes = defaultScopes(grantRequest);
-			tokenResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
-					.scopes(defaultScopes)
-					.build();
+			tokenResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse).scopes(defaultScopes).build();
 		}
 		return tokenResponse;
 	}
 
 	/**
-	 * Sets the {@link WebClient} used when requesting the OAuth 2.0 Access Token Response.
-	 *
-	 * @param webClient the {@link WebClient} used when requesting the Access Token Response
+	 * Sets the {@link WebClient} used when requesting the OAuth 2.0 Access Token
+	 * Response.
+	 * @param webClient the {@link WebClient} used when requesting the Access Token
+	 * Response
 	 */
 	public void setWebClient(WebClient webClient) {
 		Assert.notNull(webClient, "webClient cannot be null");
 		this.webClient = webClient;
 	}
+
 }

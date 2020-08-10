@@ -40,12 +40,14 @@ import static org.springframework.util.StringUtils.hasText;
 public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
 	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/saml2/sso/{registrationId}";
+
 	private final AuthenticationConverter authenticationConverter;
 
 	/**
-	 * Creates a {@code Saml2WebSsoAuthenticationFilter} authentication filter that is configured
-	 * to use the {@link #DEFAULT_FILTER_PROCESSES_URI} processing URL
-	 * @param relyingPartyRegistrationRepository - repository of configured SAML 2 entities. Required.
+	 * Creates a {@code Saml2WebSsoAuthenticationFilter} authentication filter that is
+	 * configured to use the {@link #DEFAULT_FILTER_PROCESSES_URI} processing URL
+	 * @param relyingPartyRegistrationRepository - repository of configured SAML 2
+	 * entities. Required.
 	 */
 	public Saml2WebSsoAuthenticationFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
 		this(relyingPartyRegistrationRepository, DEFAULT_FILTER_PROCESSES_URI);
@@ -53,35 +55,32 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 
 	/**
 	 * Creates a {@code Saml2WebSsoAuthenticationFilter} authentication filter
-	 * @param relyingPartyRegistrationRepository - repository of configured SAML 2 entities. Required.
-	 * @param filterProcessesUrl the processing URL, must contain a {registrationId} variable. Required.
+	 * @param relyingPartyRegistrationRepository - repository of configured SAML 2
+	 * entities. Required.
+	 * @param filterProcessesUrl the processing URL, must contain a {registrationId}
+	 * variable. Required.
 	 */
-	public Saml2WebSsoAuthenticationFilter(
-			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
+	public Saml2WebSsoAuthenticationFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
 			String filterProcessesUrl) {
-		this(new Saml2AuthenticationTokenConverter
-				(new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository)),
-				filterProcessesUrl);
+		this(new Saml2AuthenticationTokenConverter(
+				new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository)), filterProcessesUrl);
 	}
 
 	/**
 	 * Creates a {@link Saml2WebSsoAuthenticationFilter} given the provided parameters
-	 *
-	 * @param authenticationConverter the strategy for converting an {@link HttpServletRequest}
-	 * into an {@link Authentication}
-	 * @param filterProcessingUrl the processing URL, must contain a {registrationId} variable
+	 * @param authenticationConverter the strategy for converting an
+	 * {@link HttpServletRequest} into an {@link Authentication}
+	 * @param filterProcessingUrl the processing URL, must contain a {registrationId}
+	 * variable
 	 * @since 5.4
 	 */
-	public Saml2WebSsoAuthenticationFilter(
-			AuthenticationConverter authenticationConverter,
+	public Saml2WebSsoAuthenticationFilter(AuthenticationConverter authenticationConverter,
 			String filterProcessingUrl) {
 		super(filterProcessingUrl);
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 		Assert.hasText(filterProcessingUrl, "filterProcessesUrl must contain a URL pattern");
-		Assert.isTrue(
-				filterProcessingUrl.contains("{registrationId}"),
-				"filterProcessesUrl must contain a {registrationId} match variable"
-		);
+		Assert.isTrue(filterProcessingUrl.contains("{registrationId}"),
+				"filterProcessesUrl must contain a {registrationId} match variable");
 		this.authenticationConverter = authenticationConverter;
 		setAllowSessionCreation(true);
 		setSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
@@ -103,4 +102,5 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 		}
 		return getAuthenticationManager().authenticate(authentication);
 	}
+
 }

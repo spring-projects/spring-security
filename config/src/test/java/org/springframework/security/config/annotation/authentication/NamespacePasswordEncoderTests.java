@@ -52,12 +52,12 @@ public class NamespacePasswordEncoderTests {
 	public void passwordEncoderRefWithInMemory() throws Exception {
 		this.spring.register(PasswordEncoderWithInMemoryConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated());
+		this.mockMvc.perform(formLogin()).andExpect(authenticated());
 	}
 
 	@EnableWebSecurity
 	static class PasswordEncoderWithInMemoryConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -68,18 +68,19 @@ public class NamespacePasswordEncoderTests {
 				.passwordEncoder(encoder);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void passwordEncoderRefWithJdbc() throws Exception {
 		this.spring.register(PasswordEncoderWithJdbcConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated());
+		this.mockMvc.perform(formLogin()).andExpect(authenticated());
 	}
 
 	@EnableWebSecurity
 	static class PasswordEncoderWithJdbcConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
@@ -99,18 +100,19 @@ public class NamespacePasswordEncoderTests {
 			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
 			return builder.setType(EmbeddedDatabaseType.HSQL).build();
 		}
+
 	}
 
 	@Test
 	public void passwordEncoderRefWithUserDetailsService() throws Exception {
 		this.spring.register(PasswordEncoderWithUserDetailsServiceConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated());
+		this.mockMvc.perform(formLogin()).andExpect(authenticated());
 	}
 
 	@EnableWebSecurity
 	static class PasswordEncoderWithUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -134,5 +136,7 @@ public class NamespacePasswordEncoderTests {
 			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
 			return builder.setType(EmbeddedDatabaseType.HSQL).build();
 		}
+
 	}
+
 }

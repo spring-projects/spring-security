@@ -36,27 +36,28 @@ public class CsrfMetaTagsTagTests {
 
 	@Test
 	public void handleTokenRendersTags() {
-		CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf",
-				"abc123def456ghi789");
+		CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf", "abc123def456ghi789");
 
 		String value = this.tag.handleToken(token);
 
 		assertThat(value).as("The returned value should not be null.").isNotNull();
-		assertThat(value).withFailMessage("The output is not correct.").isEqualTo("<meta name=\"_csrf_parameter\" content=\"_csrf\" />"
-				+ "<meta name=\"_csrf_header\" content=\"X-Csrf-Token\" />"
-				+ "<meta name=\"_csrf\" content=\"abc123def456ghi789\" />");
+		assertThat(value).withFailMessage("The output is not correct.")
+				.isEqualTo("<meta name=\"_csrf_parameter\" content=\"_csrf\" />"
+						+ "<meta name=\"_csrf_header\" content=\"X-Csrf-Token\" />"
+						+ "<meta name=\"_csrf\" content=\"abc123def456ghi789\" />");
 	}
 
 	@Test
 	public void handleTokenRendersTagsDifferentToken() {
-		CsrfToken token = new DefaultCsrfToken("csrfHeader", "csrfParameter",
-				"fooBarBazQux");
+		CsrfToken token = new DefaultCsrfToken("csrfHeader", "csrfParameter", "fooBarBazQux");
 
 		String value = this.tag.handleToken(token);
 
 		assertThat(value).as("The returned value should not be null.").isNotNull();
-		assertThat(value).withFailMessage("The output is not correct.").isEqualTo("<meta name=\"_csrf_parameter\" content=\"csrfParameter\" />"
-				+ "<meta name=\"_csrf_header\" content=\"csrfHeader\" />"
-				+ "<meta name=\"_csrf\" content=\"fooBarBazQux\" />");
+		assertThat(value).withFailMessage("The output is not correct.")
+				.isEqualTo("<meta name=\"_csrf_parameter\" content=\"csrfParameter\" />"
+						+ "<meta name=\"_csrf_header\" content=\"csrfHeader\" />"
+						+ "<meta name=\"_csrf\" content=\"fooBarBazQux\" />");
 	}
+
 }

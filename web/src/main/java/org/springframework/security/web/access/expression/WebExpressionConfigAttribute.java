@@ -26,9 +26,10 @@ import org.springframework.security.web.FilterInvocation;
  * @author Luke Taylor
  * @since 3.0
  */
-class WebExpressionConfigAttribute implements ConfigAttribute,
-		EvaluationContextPostProcessor<FilterInvocation> {
+class WebExpressionConfigAttribute implements ConfigAttribute, EvaluationContextPostProcessor<FilterInvocation> {
+
 	private final Expression authorizeExpression;
+
 	private final EvaluationContextPostProcessor<FilterInvocation> postProcessor;
 
 	WebExpressionConfigAttribute(Expression authorizeExpression,
@@ -43,8 +44,7 @@ class WebExpressionConfigAttribute implements ConfigAttribute,
 
 	@Override
 	public EvaluationContext postProcess(EvaluationContext context, FilterInvocation fi) {
-		return this.postProcessor == null ? context
-				: this.postProcessor.postProcess(context, fi);
+		return this.postProcessor == null ? context : this.postProcessor.postProcess(context, fi);
 	}
 
 	@Override
@@ -56,4 +56,5 @@ class WebExpressionConfigAttribute implements ConfigAttribute,
 	public String toString() {
 		return this.authorizeExpression.getExpressionString();
 	}
+
 }

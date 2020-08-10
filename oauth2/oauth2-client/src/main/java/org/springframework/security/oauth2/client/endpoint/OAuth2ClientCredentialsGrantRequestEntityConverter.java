@@ -31,9 +31,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 
 /**
- * A {@link Converter} that converts the provided {@link OAuth2ClientCredentialsGrantRequest}
- * to a {@link RequestEntity} representation of an OAuth 2.0 Access Token Request
- * for the Client Credentials Grant.
+ * A {@link Converter} that converts the provided
+ * {@link OAuth2ClientCredentialsGrantRequest} to a {@link RequestEntity} representation
+ * of an OAuth 2.0 Access Token Request for the Client Credentials Grant.
  *
  * @author Joe Grandja
  * @since 5.1
@@ -41,11 +41,11 @@ import java.net.URI;
  * @see OAuth2ClientCredentialsGrantRequest
  * @see RequestEntity
  */
-public class OAuth2ClientCredentialsGrantRequestEntityConverter implements Converter<OAuth2ClientCredentialsGrantRequest, RequestEntity<?>> {
+public class OAuth2ClientCredentialsGrantRequestEntityConverter
+		implements Converter<OAuth2ClientCredentialsGrantRequest, RequestEntity<?>> {
 
 	/**
 	 * Returns the {@link RequestEntity} used for the Access Token Request.
-	 *
 	 * @param clientCredentialsGrantRequest the client credentials grant request
 	 * @return the {@link RequestEntity} used for the Access Token Request
 	 */
@@ -55,20 +55,21 @@ public class OAuth2ClientCredentialsGrantRequestEntityConverter implements Conve
 
 		HttpHeaders headers = OAuth2AuthorizationGrantRequestEntityUtils.getTokenRequestHeaders(clientRegistration);
 		MultiValueMap<String, String> formParameters = this.buildFormParameters(clientCredentialsGrantRequest);
-		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri())
-				.build()
+		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri()).build()
 				.toUri();
 
 		return new RequestEntity<>(formParameters, headers, HttpMethod.POST, uri);
 	}
 
 	/**
-	 * Returns a {@link MultiValueMap} of the form parameters used for the Access Token Request body.
-	 *
+	 * Returns a {@link MultiValueMap} of the form parameters used for the Access Token
+	 * Request body.
 	 * @param clientCredentialsGrantRequest the client credentials grant request
-	 * @return a {@link MultiValueMap} of the form parameters used for the Access Token Request body
+	 * @return a {@link MultiValueMap} of the form parameters used for the Access Token
+	 * Request body
 	 */
-	private MultiValueMap<String, String> buildFormParameters(OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
+	private MultiValueMap<String, String> buildFormParameters(
+			OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
 		ClientRegistration clientRegistration = clientCredentialsGrantRequest.getClientRegistration();
 
 		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
@@ -84,4 +85,5 @@ public class OAuth2ClientCredentialsGrantRequestEntityConverter implements Conve
 
 		return formParameters;
 	}
+
 }

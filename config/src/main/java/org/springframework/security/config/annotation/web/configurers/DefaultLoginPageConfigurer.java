@@ -49,7 +49,8 @@ import java.util.function.Function;
  *
  * <h2>Shared Objects Created</h2>
  *
- * No shared objects are created. isLogoutRequest <h2>Shared Objects Used</h2>
+ * No shared objects are created. isLogoutRequest
+ * <h2>Shared Objects Used</h2>
  *
  * The following shared objects are used:
  *
@@ -61,12 +62,11 @@ import java.util.function.Function;
  * </ul>
  *
  * @see WebSecurityConfigurerAdapter
- *
  * @author Rob Winch
  * @since 3.2
  */
-public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractHttpConfigurer<DefaultLoginPageConfigurer<H>, H> {
+public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractHttpConfigurer<DefaultLoginPageConfigurer<H>, H> {
 
 	private DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = new DefaultLoginPageGeneratingFilter();
 
@@ -83,16 +83,14 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> 
 		};
 		this.loginPageGeneratingFilter.setResolveHiddenInputs(hiddenInputs);
 		this.logoutPageGeneratingFilter.setResolveHiddenInputs(hiddenInputs);
-		http.setSharedObject(DefaultLoginPageGeneratingFilter.class,
-				loginPageGeneratingFilter);
+		http.setSharedObject(DefaultLoginPageGeneratingFilter.class, loginPageGeneratingFilter);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public void configure(H http) {
 		AuthenticationEntryPoint authenticationEntryPoint = null;
-		ExceptionHandlingConfigurer<?> exceptionConf = http
-				.getConfigurer(ExceptionHandlingConfigurer.class);
+		ExceptionHandlingConfigurer<?> exceptionConf = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptionConf != null) {
 			authenticationEntryPoint = exceptionConf.getAuthenticationEntryPoint();
 		}

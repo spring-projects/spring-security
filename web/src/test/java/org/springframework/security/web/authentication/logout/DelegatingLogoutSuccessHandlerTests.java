@@ -44,18 +44,25 @@ public class DelegatingLogoutSuccessHandlerTests {
 
 	@Mock
 	RequestMatcher matcher;
+
 	@Mock
 	RequestMatcher matcher2;
+
 	@Mock
 	LogoutSuccessHandler handler;
+
 	@Mock
 	LogoutSuccessHandler handler2;
+
 	@Mock
 	LogoutSuccessHandler defaultHandler;
+
 	@Mock
 	HttpServletRequest request;
+
 	@Mock
 	MockHttpServletResponse response;
+
 	@Mock
 	Authentication authentication;
 
@@ -74,11 +81,9 @@ public class DelegatingLogoutSuccessHandlerTests {
 		this.delegatingHandler.setDefaultLogoutSuccessHandler(this.defaultHandler);
 		when(this.matcher.matches(this.request)).thenReturn(true);
 
-		this.delegatingHandler.onLogoutSuccess(this.request, this.response,
-				this.authentication);
+		this.delegatingHandler.onLogoutSuccess(this.request, this.response, this.authentication);
 
-		verify(this.handler).onLogoutSuccess(this.request, this.response,
-				this.authentication);
+		verify(this.handler).onLogoutSuccess(this.request, this.response, this.authentication);
 		verifyZeroInteractions(this.matcher2, this.handler2, this.defaultHandler);
 	}
 
@@ -87,11 +92,9 @@ public class DelegatingLogoutSuccessHandlerTests {
 		this.delegatingHandler.setDefaultLogoutSuccessHandler(this.defaultHandler);
 		when(this.matcher2.matches(this.request)).thenReturn(true);
 
-		this.delegatingHandler.onLogoutSuccess(this.request, this.response,
-				this.authentication);
+		this.delegatingHandler.onLogoutSuccess(this.request, this.response, this.authentication);
 
-		verify(this.handler2).onLogoutSuccess(this.request, this.response,
-				this.authentication);
+		verify(this.handler2).onLogoutSuccess(this.request, this.response, this.authentication);
 		verifyZeroInteractions(this.handler, this.defaultHandler);
 	}
 
@@ -99,20 +102,18 @@ public class DelegatingLogoutSuccessHandlerTests {
 	public void onLogoutSuccessDefault() throws Exception {
 		this.delegatingHandler.setDefaultLogoutSuccessHandler(this.defaultHandler);
 
-		this.delegatingHandler.onLogoutSuccess(this.request, this.response,
-				this.authentication);
+		this.delegatingHandler.onLogoutSuccess(this.request, this.response, this.authentication);
 
-		verify(this.defaultHandler).onLogoutSuccess(this.request, this.response,
-				this.authentication);
+		verify(this.defaultHandler).onLogoutSuccess(this.request, this.response, this.authentication);
 		verifyZeroInteractions(this.handler, this.handler2);
 	}
 
 	@Test
 	public void onLogoutSuccessNoMatchDefaultNull() throws Exception {
 
-		this.delegatingHandler.onLogoutSuccess(this.request, this.response,
-				this.authentication);
+		this.delegatingHandler.onLogoutSuccess(this.request, this.response, this.authentication);
 
 		verifyZeroInteractions(this.handler, this.handler2, this.defaultHandler);
 	}
+
 }

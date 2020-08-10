@@ -26,7 +26,6 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.WebAttributes;
 
 /**
- *
  * @author Luke Taylor
  */
 public class SimpleUrlAuthenticationFailureHandlerTests {
@@ -40,8 +39,7 @@ public class SimpleUrlAuthenticationFailureHandlerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		afh.onAuthenticationFailure(request, response,
-				mock(AuthenticationException.class));
+		afh.onAuthenticationFailure(request, response, mock(AuthenticationException.class));
 		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
@@ -61,23 +59,20 @@ public class SimpleUrlAuthenticationFailureHandlerTests {
 
 	@Test
 	public void exceptionIsNotSavedIfAllowSessionCreationIsFalse() throws Exception {
-		SimpleUrlAuthenticationFailureHandler afh = new SimpleUrlAuthenticationFailureHandler(
-				"/target");
+		SimpleUrlAuthenticationFailureHandler afh = new SimpleUrlAuthenticationFailureHandler("/target");
 		afh.setAllowSessionCreation(false);
 		assertThat(afh.isAllowSessionCreation()).isFalse();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		afh.onAuthenticationFailure(request, response,
-				mock(AuthenticationException.class));
+		afh.onAuthenticationFailure(request, response, mock(AuthenticationException.class));
 		assertThat(request.getSession(false)).isNull();
 	}
 
 	// SEC-462
 	@Test
 	public void responseIsForwardedIfUseForwardIsTrue() throws Exception {
-		SimpleUrlAuthenticationFailureHandler afh = new SimpleUrlAuthenticationFailureHandler(
-				"/target");
+		SimpleUrlAuthenticationFailureHandler afh = new SimpleUrlAuthenticationFailureHandler("/target");
 		afh.setUseForward(true);
 		assertThat(afh.isUseForward()).isTrue();
 

@@ -37,8 +37,11 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public class DelegatingAuthenticationEntryPointTests {
 
 	private DelegatingAuthenticationEntryPoint daep;
+
 	private LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
+
 	private AuthenticationEntryPoint defaultEntryPoint;
+
 	private HttpServletRequest request = new MockHttpServletRequest();
 
 	@Before

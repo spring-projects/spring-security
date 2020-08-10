@@ -47,14 +47,13 @@ import static org.springframework.security.oauth2.server.resource.web.reactive.f
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ServletBearerExchangeFilterFunctionTests {
+
 	private ServletBearerExchangeFilterFunction function = new ServletBearerExchangeFilterFunction();
 
 	private MockExchangeFunction exchange = new MockExchangeFunction();
 
-	private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-			"token-0",
-			Instant.now(),
-			Instant.now().plus(Duration.ofDays(1)));
+	private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token-0",
+			Instant.now(), Instant.now().plus(Duration.ofDays(1)));
 
 	private Authentication authentication = new AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken>(accessToken) {
 		@Override
@@ -65,38 +64,29 @@ public class ServletBearerExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenUnauthenticatedThenAuthorizationHeaderNull() {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.build();
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
 
 		this.function.filter(request, this.exchange).block();
 
-		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
-				.isNull();
+		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION)).isNull();
 	}
 
 	// gh-7353
 	@Test
 	public void filterWhenAuthenticatedWithOtherTokenThenAuthorizationHeaderNull() {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "pass");
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.build();
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
 
-		this.function.filter(request, this.exchange)
-				.subscriberContext(context(token))
-				.block();
+		this.function.filter(request, this.exchange).subscriberContext(context(token)).block();
 
-		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
-				.isNull();
+		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION)).isNull();
 	}
 
 	@Test
 	public void filterWhenAuthenticatedThenAuthorizationHeader() {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.build();
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
 
-		this.function.filter(request, this.exchange)
-				.subscriberContext(context(this.authentication))
-				.block();
+		this.function.filter(request, this.exchange).subscriberContext(context(this.authentication)).block();
 
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
 				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
@@ -105,12 +95,9 @@ public class ServletBearerExchangeFilterFunctionTests {
 	@Test
 	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() {
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.header(HttpHeaders.AUTHORIZATION, "Existing")
-				.build();
+				.header(HttpHeaders.AUTHORIZATION, "Existing").build();
 
-		this.function.filter(request, this.exchange)
-				.subscriberContext(context(this.authentication))
-				.block();
+		this.function.filter(request, this.exchange).subscriberContext(context(this.authentication)).block();
 
 		HttpHeaders headers = this.exchange.getRequest().headers();
 		assertThat(headers.get(HttpHeaders.AUTHORIZATION)).containsOnly("Bearer " + this.accessToken.getTokenValue());
@@ -121,4 +108,5 @@ public class ServletBearerExchangeFilterFunctionTests {
 		contextAttributes.put(Authentication.class, authentication);
 		return Context.of(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY, contextAttributes);
 	}
+
 }

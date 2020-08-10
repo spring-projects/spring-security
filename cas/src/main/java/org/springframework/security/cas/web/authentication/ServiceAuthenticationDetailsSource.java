@@ -34,8 +34,9 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  */
-public class ServiceAuthenticationDetailsSource implements
-		AuthenticationDetailsSource<HttpServletRequest, ServiceAuthenticationDetails> {
+public class ServiceAuthenticationDetailsSource
+		implements AuthenticationDetailsSource<HttpServletRequest, ServiceAuthenticationDetails> {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -49,7 +50,6 @@ public class ServiceAuthenticationDetailsSource implements
 	/**
 	 * Creates an implementation that uses the specified ServiceProperties and the default
 	 * CAS artifactParameterName.
-	 *
 	 * @param serviceProperties The ServiceProperties to use to construct the serviceUrl.
 	 */
 	public ServiceAuthenticationDetailsSource(ServiceProperties serviceProperties) {
@@ -58,18 +58,15 @@ public class ServiceAuthenticationDetailsSource implements
 
 	/**
 	 * Creates an implementation that uses the specified artifactParameterName
-	 *
 	 * @param serviceProperties The ServiceProperties to use to construct the serviceUrl.
 	 * @param artifactParameterName the artifactParameterName that is removed from the
 	 * current URL. The result becomes the service url. Cannot be null and cannot be an
 	 * empty String.
 	 */
-	public ServiceAuthenticationDetailsSource(ServiceProperties serviceProperties,
-			String artifactParameterName) {
+	public ServiceAuthenticationDetailsSource(ServiceProperties serviceProperties, String artifactParameterName) {
 		Assert.notNull(serviceProperties, "serviceProperties cannot be null");
 		this.serviceProperties = serviceProperties;
-		this.artifactPattern = DefaultServiceAuthenticationDetails
-				.createArtifactPattern(artifactParameterName);
+		this.artifactPattern = DefaultServiceAuthenticationDetails.createArtifactPattern(artifactParameterName);
 	}
 
 	// ~ Methods
@@ -82,11 +79,11 @@ public class ServiceAuthenticationDetailsSource implements
 	 */
 	public ServiceAuthenticationDetails buildDetails(HttpServletRequest context) {
 		try {
-			return new DefaultServiceAuthenticationDetails(
-					serviceProperties.getService(), context, artifactPattern);
+			return new DefaultServiceAuthenticationDetails(serviceProperties.getService(), context, artifactPattern);
 		}
 		catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
 	}
+
 }

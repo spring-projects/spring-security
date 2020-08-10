@@ -30,6 +30,7 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class HttpHeaderWriterWebFilter implements WebFilter {
+
 	private final ServerHttpHeadersWriter writer;
 
 	public HttpHeaderWriterWebFilter(ServerHttpHeadersWriter writer) {

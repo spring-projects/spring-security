@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class DefaultAddressStandardClaimTests {
+
 	static final String FORMATTED_FIELD_NAME = "formatted";
 	static final String STREET_ADDRESS_FIELD_NAME = "street_address";
 	static final String LOCALITY_FIELD_NAME = "locality";
@@ -43,15 +44,9 @@ public class DefaultAddressStandardClaimTests {
 
 	@Test
 	public void buildWhenAllAttributesProvidedThenAllAttributesAreSet() {
-		AddressStandardClaim addressStandardClaim =
-			new DefaultAddressStandardClaim.Builder()
-			.formatted(FORMATTED)
-			.streetAddress(STREET_ADDRESS)
-			.locality(LOCALITY)
-			.region(REGION)
-			.postalCode(POSTAL_CODE)
-			.country(COUNTRY)
-			.build();
+		AddressStandardClaim addressStandardClaim = new DefaultAddressStandardClaim.Builder().formatted(FORMATTED)
+				.streetAddress(STREET_ADDRESS).locality(LOCALITY).region(REGION).postalCode(POSTAL_CODE)
+				.country(COUNTRY).build();
 
 		assertThat(addressStandardClaim.getFormatted()).isEqualTo(FORMATTED);
 		assertThat(addressStandardClaim.getStreetAddress()).isEqualTo(STREET_ADDRESS);
@@ -71,9 +66,7 @@ public class DefaultAddressStandardClaimTests {
 		addressFields.put(POSTAL_CODE_FIELD_NAME, POSTAL_CODE);
 		addressFields.put(COUNTRY_FIELD_NAME, COUNTRY);
 
-		AddressStandardClaim addressStandardClaim =
-			new DefaultAddressStandardClaim.Builder(addressFields)
-			.build();
+		AddressStandardClaim addressStandardClaim = new DefaultAddressStandardClaim.Builder(addressFields).build();
 
 		assertThat(addressStandardClaim.getFormatted()).isEqualTo(FORMATTED);
 		assertThat(addressStandardClaim.getStreetAddress()).isEqualTo(STREET_ADDRESS);
@@ -82,4 +75,5 @@ public class DefaultAddressStandardClaimTests {
 		assertThat(addressStandardClaim.getPostalCode()).isEqualTo(POSTAL_CODE);
 		assertThat(addressStandardClaim.getCountry()).isEqualTo(COUNTRY);
 	}
+
 }

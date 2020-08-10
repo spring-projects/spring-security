@@ -38,10 +38,10 @@ public class Sec2377Tests {
 	public void refreshContextWhenParentAndChildRegisteredThenNoException() {
 		this.parent.register(Sec2377AConfig.class).autowire();
 
-		ConfigurableApplicationContext context =
-			this.child.register(Sec2377BConfig.class).getContext();
+		ConfigurableApplicationContext context = this.child.register(Sec2377BConfig.class).getContext();
 		context.setParent(this.parent.getContext());
 
 		this.child.autowire();
 	}
+
 }

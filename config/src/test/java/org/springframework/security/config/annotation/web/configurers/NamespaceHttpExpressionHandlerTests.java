@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-
 import java.security.Principal;
 
 import org.junit.Rule;
@@ -46,7 +45,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 /**
- * Tests to verify that all the functionality of <expression-handler> attributes is present
+ * Tests to verify that all the functionality of <expression-handler> attributes is
+ * present
  *
  * @author Rob Winch
  * @author Josh Cummings
@@ -73,7 +73,9 @@ public class NamespaceHttpExpressionHandlerTests {
 	@EnableWebMvc
 	@EnableWebSecurity
 	private static class ExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
-		ExpressionHandlerConfig() {}
+
+		ExpressionHandlerConfig() {
+		}
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -100,17 +102,21 @@ public class NamespaceHttpExpressionHandlerTests {
 		ExpressionParser expressionParser() {
 			return spy(new SpelExpressionParser());
 		}
+
 	}
 
 	@RestController
 	private static class ExpressionHandlerController {
+
 		@GetMapping("/whoami")
 		String whoami(Principal user) {
 			return user.getName();
 		}
+
 	}
 
 	private <T> T verifyBean(String beanName, Class<T> beanClass) {
 		return verify(this.spring.getContext().getBean(beanName, beanClass));
 	}
+
 }

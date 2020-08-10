@@ -22,14 +22,13 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 /**
- *
  * @author Luke Taylor
  * @since 3.0
  */
 public class DefaultRedirectStrategyTests {
+
 	@Test
-	public void contextRelativeUrlWithContextNameInHostnameIsHandledCorrectly()
-			throws Exception {
+	public void contextRelativeUrlWithContextNameInHostnameIsHandledCorrectly() throws Exception {
 		DefaultRedirectStrategy rds = new DefaultRedirectStrategy();
 		rds.setContextRelative(true);
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -43,30 +42,27 @@ public class DefaultRedirectStrategyTests {
 
 	// SEC-2177
 	@Test
-	public void contextRelativeUrlWithMultipleSchemesInHostnameIsHandledCorrectly()
-			throws Exception {
+	public void contextRelativeUrlWithMultipleSchemesInHostnameIsHandledCorrectly() throws Exception {
 		DefaultRedirectStrategy rds = new DefaultRedirectStrategy();
 		rds.setContextRelative(true);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setContextPath("/context");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		rds.sendRedirect(request, response,
-				"https://https://context.blah.com/context/remainder");
+		rds.sendRedirect(request, response, "https://https://context.blah.com/context/remainder");
 
 		assertThat(response.getRedirectedUrl()).isEqualTo("remainder");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void contextRelativeShouldThrowExceptionIfURLDoesNotContainContextPath()
-		throws Exception {
+	public void contextRelativeShouldThrowExceptionIfURLDoesNotContainContextPath() throws Exception {
 		DefaultRedirectStrategy rds = new DefaultRedirectStrategy();
 		rds.setContextRelative(true);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setContextPath("/context");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		rds.sendRedirect(request, response,
-			"https://redirectme.somewhere.else");
+		rds.sendRedirect(request, response, "https://redirectme.somewhere.else");
 	}
+
 }

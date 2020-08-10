@@ -37,12 +37,17 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @since 3.0
  */
 public class HttpSessionRequestCache implements RequestCache {
+
 	static final String SAVED_REQUEST = "SPRING_SECURITY_SAVED_REQUEST";
+
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	private PortResolver portResolver = new PortResolverImpl();
+
 	private boolean createSessionAllowed = true;
+
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
+
 	private String sessionAttrName = SAVED_REQUEST;
 
 	/**
@@ -50,8 +55,7 @@ public class HttpSessionRequestCache implements RequestCache {
 	 */
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
 		if (requestMatcher.matches(request)) {
-			DefaultSavedRequest savedRequest = new DefaultSavedRequest(request,
-					portResolver);
+			DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, portResolver);
 
 			if (createSessionAllowed || request.getSession(false) != null) {
 				// Store the HTTP request itself. Used by
@@ -66,8 +70,7 @@ public class HttpSessionRequestCache implements RequestCache {
 		}
 	}
 
-	public SavedRequest getRequest(HttpServletRequest currentRequest,
-			HttpServletResponse response) {
+	public SavedRequest getRequest(HttpServletRequest currentRequest, HttpServletResponse response) {
 		HttpSession session = currentRequest.getSession(false);
 
 		if (session != null) {
@@ -77,8 +80,7 @@ public class HttpSessionRequestCache implements RequestCache {
 		return null;
 	}
 
-	public void removeRequest(HttpServletRequest currentRequest,
-			HttpServletResponse response) {
+	public void removeRequest(HttpServletRequest currentRequest, HttpServletResponse response) {
 		HttpSession session = currentRequest.getSession(false);
 
 		if (session != null) {
@@ -87,8 +89,7 @@ public class HttpSessionRequestCache implements RequestCache {
 		}
 	}
 
-	public HttpServletRequest getMatchingRequest(HttpServletRequest request,
-			HttpServletResponse response) {
+	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
 		SavedRequest saved = getRequest(request, response);
 
 		if (!matchesSavedRequest(request, saved)) {
@@ -120,7 +121,6 @@ public class HttpSessionRequestCache implements RequestCache {
 	 * request will be cached by the {@code saveRequest} method.
 	 * <p>
 	 * If set, only matching requests will be cached.
-	 *
 	 * @param requestMatcher a request matching strategy which defines which requests
 	 * should be cached.
 	 */
@@ -144,14 +144,13 @@ public class HttpSessionRequestCache implements RequestCache {
 	}
 
 	/**
-	 * If the {@code sessionAttrName} property is set, the request is stored in
-	 * the session using this attribute name. Default is
-	 * "SPRING_SECURITY_SAVED_REQUEST".
-	 *
+	 * If the {@code sessionAttrName} property is set, the request is stored in the
+	 * session using this attribute name. Default is "SPRING_SECURITY_SAVED_REQUEST".
 	 * @param sessionAttrName a new session attribute name.
 	 * @since 4.2.1
 	 */
 	public void setSessionAttrName(String sessionAttrName) {
 		this.sessionAttrName = sessionAttrName;
 	}
+
 }

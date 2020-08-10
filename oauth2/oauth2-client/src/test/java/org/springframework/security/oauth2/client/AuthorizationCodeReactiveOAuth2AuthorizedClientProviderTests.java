@@ -32,17 +32,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Joe Grandja
  */
 public class AuthorizationCodeReactiveOAuth2AuthorizedClientProviderTests {
+
 	private AuthorizationCodeReactiveOAuth2AuthorizedClientProvider authorizedClientProvider;
+
 	private ClientRegistration clientRegistration;
+
 	private OAuth2AuthorizedClient authorizedClient;
+
 	private Authentication principal;
 
 	@Before
 	public void setup() {
 		this.authorizedClientProvider = new AuthorizationCodeReactiveOAuth2AuthorizedClientProvider();
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
-		this.authorizedClient = new OAuth2AuthorizedClient(
-				this.clientRegistration, "principal", TestOAuth2AccessTokens.scopes("read", "write"));
+		this.authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration, "principal",
+				TestOAuth2AccessTokens.scopes("read", "write"));
 		this.principal = new TestingAuthenticationToken("principal", "password");
 	}
 
@@ -56,29 +60,24 @@ public class AuthorizationCodeReactiveOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenNotAuthorizationCodeThenUnableToAuthorize() {
 		ClientRegistration clientCredentialsClient = TestClientRegistrations.clientCredentials().build();
 
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.withClientRegistration(clientCredentialsClient)
-						.principal(this.principal)
-						.build();
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withClientRegistration(clientCredentialsClient).principal(this.principal).build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();
 	}
 
 	@Test
 	public void authorizeWhenAuthorizationCodeAndAuthorizedThenNotAuthorize() {
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.withAuthorizedClient(this.authorizedClient)
-						.principal(this.principal)
-						.build();
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withAuthorizedClient(this.authorizedClient).principal(this.principal).build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();
 	}
 
 	@Test
 	public void authorizeWhenAuthorizationCodeAndNotAuthorizedThenAuthorize() {
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.withClientRegistration(this.clientRegistration)
-						.principal(this.principal)
-						.build();
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withClientRegistration(this.clientRegistration).principal(this.principal).build();
 		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext).block())
 				.isInstanceOf(ClientAuthorizationRequiredException.class);
 	}
+
 }

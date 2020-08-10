@@ -57,76 +57,61 @@ import static org.springframework.security.oauth2.server.resource.introspection.
  * Tests for {@link NimbusReactiveOpaqueTokenIntrospector}
  */
 public class NimbusReactiveOpaqueTokenIntrospectorTests {
+
 	private static final String INTROSPECTION_URL = "https://server.example.com";
+
 	private static final String CLIENT_ID = "client";
+
 	private static final String CLIENT_SECRET = "secret";
 
-	private static final String ACTIVE_RESPONSE = "{\n" +
-			"      \"active\": true,\n" +
-			"      \"client_id\": \"l238j323ds-23ij4\",\n" +
-			"      \"username\": \"jdoe\",\n" +
-			"      \"scope\": \"read write dolphin\",\n" +
-			"      \"sub\": \"Z5O3upPC88QrAjx00dis\",\n" +
-			"      \"aud\": \"https://protected.example.net/resource\",\n" +
-			"      \"iss\": \"https://server.example.com/\",\n" +
-			"      \"exp\": 1419356238,\n" +
-			"      \"iat\": 1419350238,\n" +
-			"      \"extension_field\": \"twenty-seven\"\n" +
-			"     }";
+	private static final String ACTIVE_RESPONSE = "{\n" + "      \"active\": true,\n"
+			+ "      \"client_id\": \"l238j323ds-23ij4\",\n" + "      \"username\": \"jdoe\",\n"
+			+ "      \"scope\": \"read write dolphin\",\n" + "      \"sub\": \"Z5O3upPC88QrAjx00dis\",\n"
+			+ "      \"aud\": \"https://protected.example.net/resource\",\n"
+			+ "      \"iss\": \"https://server.example.com/\",\n" + "      \"exp\": 1419356238,\n"
+			+ "      \"iat\": 1419350238,\n" + "      \"extension_field\": \"twenty-seven\"\n" + "     }";
 
-	private static final String INACTIVE_RESPONSE = "{\n" +
-			"      \"active\": false\n" +
-			"     }";
+	private static final String INACTIVE_RESPONSE = "{\n" + "      \"active\": false\n" + "     }";
 
-	private static final String INVALID_RESPONSE = "{\n" +
-			"      \"client_id\": \"l238j323ds-23ij4\",\n" +
-			"      \"username\": \"jdoe\",\n" +
-			"      \"scope\": \"read write dolphin\",\n" +
-			"      \"sub\": \"Z5O3upPC88QrAjx00dis\",\n" +
-			"      \"aud\": \"https://protected.example.net/resource\",\n" +
-			"      \"iss\": \"https://server.example.com/\",\n" +
-			"      \"exp\": 1419356238,\n" +
-			"      \"iat\": 1419350238,\n" +
-			"      \"extension_field\": \"twenty-seven\"\n" +
-			"     }";
+	private static final String INVALID_RESPONSE = "{\n" + "      \"client_id\": \"l238j323ds-23ij4\",\n"
+			+ "      \"username\": \"jdoe\",\n" + "      \"scope\": \"read write dolphin\",\n"
+			+ "      \"sub\": \"Z5O3upPC88QrAjx00dis\",\n"
+			+ "      \"aud\": \"https://protected.example.net/resource\",\n"
+			+ "      \"iss\": \"https://server.example.com/\",\n" + "      \"exp\": 1419356238,\n"
+			+ "      \"iat\": 1419350238,\n" + "      \"extension_field\": \"twenty-seven\"\n" + "     }";
 
-	private static final String MALFORMED_ISSUER_RESPONSE = "{\n" +
-			"     \"active\" : \"true\",\n" +
-			"     \"iss\" : \"badissuer\"\n" +
-			"    }";
+	private static final String MALFORMED_ISSUER_RESPONSE = "{\n" + "     \"active\" : \"true\",\n"
+			+ "     \"iss\" : \"badissuer\"\n" + "    }";
 
 	@Test
 	public void authenticateWhenActiveTokenThenOk() throws Exception {
-		try ( MockWebServer server = new MockWebServer() ) {
+		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
 
 			String introspectUri = server.url("/introspect").toString();
-			NimbusReactiveOpaqueTokenIntrospector introspectionClient =
-					new NimbusReactiveOpaqueTokenIntrospector(introspectUri, CLIENT_ID, CLIENT_SECRET);
+			NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
+					introspectUri, CLIENT_ID, CLIENT_SECRET);
 
 			OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token").block();
-			assertThat(authority.getAttributes())
-					.isNotNull()
-					.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
+			assertThat(authority.getAttributes()).isNotNull().containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
 					.containsEntry(AUDIENCE, Arrays.asList("https://protected.example.net/resource"))
 					.containsEntry(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
 					.containsEntry(EXPIRES_AT, Instant.ofEpochSecond(1419356238))
 					.containsEntry(ISSUER, new URL("https://server.example.com/"))
 					.containsEntry(SCOPE, Arrays.asList("read", "write", "dolphin"))
-					.containsEntry(SUBJECT, "Z5O3upPC88QrAjx00dis")
-					.containsEntry(USERNAME, "jdoe")
+					.containsEntry(SUBJECT, "Z5O3upPC88QrAjx00dis").containsEntry(USERNAME, "jdoe")
 					.containsEntry("extension_field", "twenty-seven");
 		}
 	}
 
 	@Test
 	public void authenticateWhenBadClientCredentialsThenAuthenticationException() throws IOException {
-		try ( MockWebServer server = new MockWebServer() ) {
+		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
 
 			String introspectUri = server.url("/introspect").toString();
-			NimbusReactiveOpaqueTokenIntrospector introspectionClient =
-					new NimbusReactiveOpaqueTokenIntrospector(introspectUri, CLIENT_ID, "wrong");
+			NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
+					introspectUri, CLIENT_ID, "wrong");
 
 			assertThatCode(() -> introspectionClient.introspect("token").block())
 					.isInstanceOf(OAuth2IntrospectionException.class);
@@ -136,12 +121,11 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 	@Test
 	public void authenticateWhenInactiveTokenThenInvalidToken() {
 		WebClient webClient = mockResponse(INACTIVE_RESPONSE);
-		NimbusReactiveOpaqueTokenIntrospector introspectionClient =
-				new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, webClient);
+		NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
+				INTROSPECTION_URL, webClient);
 
 		assertThatCode(() -> introspectionClient.introspect("token").block())
-				.isInstanceOf(BadOpaqueTokenException.class)
-				.extracting("message")
+				.isInstanceOf(BadOpaqueTokenException.class).extracting("message")
 				.isEqualTo("Provided token isn't active");
 	}
 
@@ -153,36 +137,32 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		introspectedValues.put(NOT_BEFORE, 29348723984L);
 
 		WebClient webClient = mockResponse(new JSONObject(introspectedValues).toJSONString());
-		NimbusReactiveOpaqueTokenIntrospector introspectionClient =
-				new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, webClient);
+		NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
+				INTROSPECTION_URL, webClient);
 
 		OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token").block();
-		assertThat(authority.getAttributes())
-				.isNotNull()
-				.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
+		assertThat(authority.getAttributes()).isNotNull().containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
 				.containsEntry(AUDIENCE, Arrays.asList("aud"))
 				.containsEntry(NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
-				.doesNotContainKey(OAuth2IntrospectionClaimNames.CLIENT_ID)
-				.doesNotContainKey(SCOPE);
+				.doesNotContainKey(OAuth2IntrospectionClaimNames.CLIENT_ID).doesNotContainKey(SCOPE);
 	}
 
 	@Test
 	public void authenticateWhenIntrospectionEndpointThrowsExceptionThenInvalidToken() {
 		WebClient webClient = mockResponse(new IllegalStateException("server was unresponsive"));
-		NimbusReactiveOpaqueTokenIntrospector introspectionClient =
-				new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, webClient);
+		NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
+				INTROSPECTION_URL, webClient);
 
 		assertThatCode(() -> introspectionClient.introspect("token").block())
-				.isInstanceOf(OAuth2IntrospectionException.class)
-				.extracting("message")
+				.isInstanceOf(OAuth2IntrospectionException.class).extracting("message")
 				.isEqualTo("server was unresponsive");
 	}
 
 	@Test
 	public void authenticateWhenIntrospectionEndpointReturnsMalformedResponseThenInvalidToken() {
 		WebClient webClient = mockResponse("malformed");
-		NimbusReactiveOpaqueTokenIntrospector introspectionClient =
-				new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, webClient);
+		NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
+				INTROSPECTION_URL, webClient);
 
 		assertThatCode(() -> introspectionClient.introspect("token").block())
 				.isInstanceOf(OAuth2IntrospectionException.class);
@@ -191,8 +171,8 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 	@Test
 	public void authenticateWhenIntrospectionTokenReturnsInvalidResponseThenInvalidToken() {
 		WebClient webClient = mockResponse(INVALID_RESPONSE);
-		NimbusReactiveOpaqueTokenIntrospector introspectionClient =
-				new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, webClient);
+		NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
+				INTROSPECTION_URL, webClient);
 
 		assertThatCode(() -> introspectionClient.introspect("token").block())
 				.isInstanceOf(OAuth2IntrospectionException.class);
@@ -201,8 +181,8 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 	@Test
 	public void authenticateWhenIntrospectionTokenReturnsMalformedIssuerResponseThenInvalidToken() {
 		WebClient webClient = mockResponse(MALFORMED_ISSUER_RESPONSE);
-		NimbusReactiveOpaqueTokenIntrospector introspectionClient =
-				new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, webClient);
+		NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
+				INTROSPECTION_URL, webClient);
 
 		assertThatCode(() -> introspectionClient.introspect("token").block())
 				.isInstanceOf(OAuth2IntrospectionException.class);
@@ -262,10 +242,8 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 			@Override
 			public MockResponse dispatch(RecordedRequest request) {
 				String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-				return Optional.ofNullable(authorization)
-						.filter(a -> isAuthorized(authorization, username, password))
-						.map(a -> ok(response))
-						.orElse(unauthorized());
+				return Optional.ofNullable(authorization).filter(a -> isAuthorized(authorization, username, password))
+						.map(a -> ok(response)).orElse(unauthorized());
 			}
 		};
 	}
@@ -276,11 +254,12 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 	}
 
 	private static MockResponse ok(String response) {
-		return new MockResponse().setBody(response)
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+		return new MockResponse().setBody(response).setHeader(HttpHeaders.CONTENT_TYPE,
+				MediaType.APPLICATION_JSON_VALUE);
 	}
 
 	private static MockResponse unauthorized() {
 		return new MockResponse().setResponseCode(401);
 	}
+
 }

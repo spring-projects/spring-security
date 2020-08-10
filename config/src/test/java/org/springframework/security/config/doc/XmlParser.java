@@ -27,6 +27,7 @@ import java.io.InputStream;
  * @author Josh Cummings
  */
 public class XmlParser implements AutoCloseable {
+
 	private InputStream xml;
 
 	public XmlParser(InputStream xml) {
@@ -39,7 +40,8 @@ public class XmlParser implements AutoCloseable {
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
 			return new XmlNode(dBuilder.parse(this.xml));
-		} catch ( IOException | ParserConfigurationException | SAXException e ) {
+		}
+		catch (IOException | ParserConfigurationException | SAXException e) {
 			throw new IllegalStateException(e);
 		}
 	}
@@ -48,4 +50,5 @@ public class XmlParser implements AutoCloseable {
 	public void close() throws IOException {
 		this.xml.close();
 	}
+
 }

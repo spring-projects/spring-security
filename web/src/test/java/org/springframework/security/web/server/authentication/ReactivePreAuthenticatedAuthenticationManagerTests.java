@@ -41,17 +41,22 @@ import static org.mockito.Mockito.when;
  */
 public class ReactivePreAuthenticatedAuthenticationManagerTests {
 
-	private ReactiveUserDetailsService mockUserDetailsService
-			= mock(ReactiveUserDetailsService.class);
+	private ReactiveUserDetailsService mockUserDetailsService = mock(ReactiveUserDetailsService.class);
 
-	private ReactivePreAuthenticatedAuthenticationManager manager
-			= new ReactivePreAuthenticatedAuthenticationManager(mockUserDetailsService);
+	private ReactivePreAuthenticatedAuthenticationManager manager = new ReactivePreAuthenticatedAuthenticationManager(
+			mockUserDetailsService);
 
 	private final User validAccount = new User("valid", "", Collections.emptySet());
+
 	private final User nonExistingAccount = new User("non existing", "", Collections.emptySet());
+
 	private final User disabledAccount = new User("disabled", "", false, true, true, true, Collections.emptySet());
+
 	private final User expiredAccount = new User("expired", "", true, false, true, true, Collections.emptySet());
-	private final User accountWithExpiredCredentials = new User("credentials expired", "", true, true, false, true, Collections.emptySet());
+
+	private final User accountWithExpiredCredentials = new User("credentials expired", "", true, true, false, true,
+			Collections.emptySet());
+
 	private final User lockedAccount = new User("locked", "", true, true, true, false, Collections.emptySet());
 
 	@Test
@@ -90,7 +95,6 @@ public class ReactivePreAuthenticatedAuthenticationManagerTests {
 		manager.authenticate(tokenForUser(expiredAccount.getUsername())).block();
 	}
 
-
 	@Test(expected = CredentialsExpiredException.class)
 	public void throwsExceptionForAccountWithExpiredCredentials() {
 		when(mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(accountWithExpiredCredentials));
@@ -101,4 +105,5 @@ public class ReactivePreAuthenticatedAuthenticationManagerTests {
 	private Authentication tokenForUser(String username) {
 		return new PreAuthenticatedAuthenticationToken(username, null);
 	}
+
 }

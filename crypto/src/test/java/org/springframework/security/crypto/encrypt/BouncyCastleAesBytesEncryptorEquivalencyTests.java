@@ -30,15 +30,18 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
 public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 
 	private byte[] testData;
+
 	private String password;
+
 	private String salt;
+
 	private SecureRandom secureRandom = new SecureRandom();
 
 	@Before
 	public void setup() {
 		// generate random password, salt, and test data
 		password = UUID.randomUUID().toString();
-		/** insecure salt byte, recommend 64 or larger than 64*/
+		/** insecure salt byte, recommend 64 or larger than 64 */
 		byte[] saltBytes = new byte[16];
 		secureRandom.nextBytes(saltBytes);
 		salt = new String(Hex.encode(saltBytes));
@@ -49,8 +52,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 		CryptoAssumptions.assumeCBCJCE();
 		BytesEncryptor bcEncryptor = new BouncyCastleAesCbcBytesEncryptor(password, salt,
 				new PredictableRandomBytesKeyGenerator(16));
-		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt,
-				new PredictableRandomBytesKeyGenerator(16));
+		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt, new PredictableRandomBytesKeyGenerator(16));
 		testEquivalence(bcEncryptor, jceEncryptor);
 	}
 
@@ -59,8 +61,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 		CryptoAssumptions.assumeCBCJCE();
 		BytesEncryptor bcEncryptor = new BouncyCastleAesCbcBytesEncryptor(password, salt,
 				KeyGenerators.secureRandom(16));
-		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt,
-				KeyGenerators.secureRandom(16));
+		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt, KeyGenerators.secureRandom(16));
 		testCompatibility(bcEncryptor, jceEncryptor);
 	}
 
@@ -69,8 +70,8 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 		CryptoAssumptions.assumeGCMJCE();
 		BytesEncryptor bcEncryptor = new BouncyCastleAesGcmBytesEncryptor(password, salt,
 				new PredictableRandomBytesKeyGenerator(16));
-		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt,
-				new PredictableRandomBytesKeyGenerator(16), CipherAlgorithm.GCM);
+		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt, new PredictableRandomBytesKeyGenerator(16),
+				CipherAlgorithm.GCM);
 		testEquivalence(bcEncryptor, jceEncryptor);
 	}
 
@@ -79,8 +80,8 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 		CryptoAssumptions.assumeGCMJCE();
 		BytesEncryptor bcEncryptor = new BouncyCastleAesGcmBytesEncryptor(password, salt,
 				KeyGenerators.secureRandom(16));
-		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt,
-				KeyGenerators.secureRandom(16), CipherAlgorithm.GCM);
+		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt, KeyGenerators.secureRandom(16),
+				CipherAlgorithm.GCM);
 		testCompatibility(bcEncryptor, jceEncryptor);
 	}
 

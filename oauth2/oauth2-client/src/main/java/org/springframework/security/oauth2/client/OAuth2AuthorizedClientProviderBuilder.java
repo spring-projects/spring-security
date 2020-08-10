@@ -32,11 +32,11 @@ import java.util.function.Consumer;
 
 /**
  * A builder that builds a {@link DelegatingOAuth2AuthorizedClientProvider} composed of
- * one or more {@link OAuth2AuthorizedClientProvider}(s) that implement specific authorization grants.
- * The supported authorization grants are {@link #authorizationCode() authorization_code},
- * {@link #refreshToken() refresh_token}, {@link #clientCredentials() client_credentials}
- * and {@link #password() password}.
- * In addition to the standard authorization grants, an implementation of an extension grant
+ * one or more {@link OAuth2AuthorizedClientProvider}(s) that implement specific
+ * authorization grants. The supported authorization grants are
+ * {@link #authorizationCode() authorization_code}, {@link #refreshToken() refresh_token},
+ * {@link #clientCredentials() client_credentials} and {@link #password() password}. In
+ * addition to the standard authorization grants, an implementation of an extension grant
  * may be supplied via {@link #provider(OAuth2AuthorizedClientProvider)}.
  *
  * @author Joe Grandja
@@ -49,14 +49,15 @@ import java.util.function.Consumer;
  * @see DelegatingOAuth2AuthorizedClientProvider
  */
 public final class OAuth2AuthorizedClientProviderBuilder {
+
 	private final Map<Class<?>, Builder> builders = new LinkedHashMap<>();
 
 	private OAuth2AuthorizedClientProviderBuilder() {
 	}
 
 	/**
-	 * Returns a new {@link OAuth2AuthorizedClientProviderBuilder} for configuring the supported authorization grant(s).
-	 *
+	 * Returns a new {@link OAuth2AuthorizedClientProviderBuilder} for configuring the
+	 * supported authorization grant(s).
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public static OAuth2AuthorizedClientProviderBuilder builder() {
@@ -64,9 +65,9 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	}
 
 	/**
-	 * Configures an {@link OAuth2AuthorizedClientProvider} to be composed with the {@link DelegatingOAuth2AuthorizedClientProvider}.
-	 * This may be used for implementations of extension authorization grants.
-	 *
+	 * Configures an {@link OAuth2AuthorizedClientProvider} to be composed with the
+	 * {@link DelegatingOAuth2AuthorizedClientProvider}. This may be used for
+	 * implementations of extension authorization grants.
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder provider(OAuth2AuthorizedClientProvider provider) {
@@ -77,11 +78,11 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 	/**
 	 * Configures support for the {@code authorization_code} grant.
-	 *
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder authorizationCode() {
-		this.builders.computeIfAbsent(AuthorizationCodeOAuth2AuthorizedClientProvider.class, k -> new AuthorizationCodeGrantBuilder());
+		this.builders.computeIfAbsent(AuthorizationCodeOAuth2AuthorizedClientProvider.class,
+				k -> new AuthorizationCodeGrantBuilder());
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -95,34 +96,34 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 		/**
 		 * Builds an instance of {@link AuthorizationCodeOAuth2AuthorizedClientProvider}.
-		 *
 		 * @return the {@link AuthorizationCodeOAuth2AuthorizedClientProvider}
 		 */
 		@Override
 		public OAuth2AuthorizedClientProvider build() {
 			return new AuthorizationCodeOAuth2AuthorizedClientProvider();
 		}
+
 	}
 
 	/**
 	 * Configures support for the {@code refresh_token} grant.
-	 *
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder refreshToken() {
-		this.builders.computeIfAbsent(RefreshTokenOAuth2AuthorizedClientProvider.class, k -> new RefreshTokenGrantBuilder());
+		this.builders.computeIfAbsent(RefreshTokenOAuth2AuthorizedClientProvider.class,
+				k -> new RefreshTokenGrantBuilder());
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
 
 	/**
 	 * Configures support for the {@code refresh_token} grant.
-	 *
-	 * @param builderConsumer a {@code Consumer} of {@link RefreshTokenGrantBuilder} used for further configuration
+	 * @param builderConsumer a {@code Consumer} of {@link RefreshTokenGrantBuilder} used
+	 * for further configuration
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder refreshToken(Consumer<RefreshTokenGrantBuilder> builderConsumer) {
-		RefreshTokenGrantBuilder builder = (RefreshTokenGrantBuilder) this.builders.computeIfAbsent(
-				RefreshTokenOAuth2AuthorizedClientProvider.class, k -> new RefreshTokenGrantBuilder());
+		RefreshTokenGrantBuilder builder = (RefreshTokenGrantBuilder) this.builders
+				.computeIfAbsent(RefreshTokenOAuth2AuthorizedClientProvider.class, k -> new RefreshTokenGrantBuilder());
 		builderConsumer.accept(builder);
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
@@ -131,28 +132,33 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * A builder for the {@code refresh_token} grant.
 	 */
 	public class RefreshTokenGrantBuilder implements Builder {
+
 		private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient;
+
 		private Duration clockSkew;
+
 		private Clock clock;
 
 		private RefreshTokenGrantBuilder() {
 		}
 
 		/**
-		 * Sets the client used when requesting an access token credential at the Token Endpoint.
-		 *
-		 * @param accessTokenResponseClient the client used when requesting an access token credential at the Token Endpoint
+		 * Sets the client used when requesting an access token credential at the Token
+		 * Endpoint.
+		 * @param accessTokenResponseClient the client used when requesting an access
+		 * token credential at the Token Endpoint
 		 * @return the {@link RefreshTokenGrantBuilder}
 		 */
-		public RefreshTokenGrantBuilder accessTokenResponseClient(OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient) {
+		public RefreshTokenGrantBuilder accessTokenResponseClient(
+				OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient) {
 			this.accessTokenResponseClient = accessTokenResponseClient;
 			return this;
 		}
 
 		/**
-		 * Sets the maximum acceptable clock skew, which is used when checking the access token expiry.
-		 * An access token is considered expired if it's before {@code Instant.now(this.clock) - clockSkew}.
-		 *
+		 * Sets the maximum acceptable clock skew, which is used when checking the access
+		 * token expiry. An access token is considered expired if it's before
+		 * {@code Instant.now(this.clock) - clockSkew}.
 		 * @param clockSkew the maximum acceptable clock skew
 		 * @return the {@link RefreshTokenGrantBuilder}
 		 */
@@ -162,8 +168,8 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 		}
 
 		/**
-		 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access token expiry.
-		 *
+		 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the
+		 * access token expiry.
 		 * @param clock the clock
 		 * @return the {@link RefreshTokenGrantBuilder}
 		 */
@@ -174,7 +180,6 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 		/**
 		 * Builds an instance of {@link RefreshTokenOAuth2AuthorizedClientProvider}.
-		 *
 		 * @return the {@link RefreshTokenOAuth2AuthorizedClientProvider}
 		 */
 		@Override
@@ -191,25 +196,27 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 			}
 			return authorizedClientProvider;
 		}
+
 	}
 
 	/**
 	 * Configures support for the {@code client_credentials} grant.
-	 *
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder clientCredentials() {
-		this.builders.computeIfAbsent(ClientCredentialsOAuth2AuthorizedClientProvider.class, k -> new ClientCredentialsGrantBuilder());
+		this.builders.computeIfAbsent(ClientCredentialsOAuth2AuthorizedClientProvider.class,
+				k -> new ClientCredentialsGrantBuilder());
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
 
 	/**
 	 * Configures support for the {@code client_credentials} grant.
-	 *
-	 * @param builderConsumer a {@code Consumer} of {@link ClientCredentialsGrantBuilder} used for further configuration
+	 * @param builderConsumer a {@code Consumer} of {@link ClientCredentialsGrantBuilder}
+	 * used for further configuration
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
-	public OAuth2AuthorizedClientProviderBuilder clientCredentials(Consumer<ClientCredentialsGrantBuilder> builderConsumer) {
+	public OAuth2AuthorizedClientProviderBuilder clientCredentials(
+			Consumer<ClientCredentialsGrantBuilder> builderConsumer) {
 		ClientCredentialsGrantBuilder builder = (ClientCredentialsGrantBuilder) this.builders.computeIfAbsent(
 				ClientCredentialsOAuth2AuthorizedClientProvider.class, k -> new ClientCredentialsGrantBuilder());
 		builderConsumer.accept(builder);
@@ -220,28 +227,33 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * A builder for the {@code client_credentials} grant.
 	 */
 	public class ClientCredentialsGrantBuilder implements Builder {
+
 		private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient;
+
 		private Duration clockSkew;
+
 		private Clock clock;
 
 		private ClientCredentialsGrantBuilder() {
 		}
 
 		/**
-		 * Sets the client used when requesting an access token credential at the Token Endpoint.
-		 *
-		 * @param accessTokenResponseClient the client used when requesting an access token credential at the Token Endpoint
+		 * Sets the client used when requesting an access token credential at the Token
+		 * Endpoint.
+		 * @param accessTokenResponseClient the client used when requesting an access
+		 * token credential at the Token Endpoint
 		 * @return the {@link ClientCredentialsGrantBuilder}
 		 */
-		public ClientCredentialsGrantBuilder accessTokenResponseClient(OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient) {
+		public ClientCredentialsGrantBuilder accessTokenResponseClient(
+				OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient) {
 			this.accessTokenResponseClient = accessTokenResponseClient;
 			return this;
 		}
 
 		/**
-		 * Sets the maximum acceptable clock skew, which is used when checking the access token expiry.
-		 * An access token is considered expired if it's before {@code Instant.now(this.clock) - clockSkew}.
-		 *
+		 * Sets the maximum acceptable clock skew, which is used when checking the access
+		 * token expiry. An access token is considered expired if it's before
+		 * {@code Instant.now(this.clock) - clockSkew}.
 		 * @param clockSkew the maximum acceptable clock skew
 		 * @return the {@link ClientCredentialsGrantBuilder}
 		 */
@@ -251,8 +263,8 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 		}
 
 		/**
-		 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access token expiry.
-		 *
+		 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the
+		 * access token expiry.
 		 * @param clock the clock
 		 * @return the {@link ClientCredentialsGrantBuilder}
 		 */
@@ -263,7 +275,6 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 		/**
 		 * Builds an instance of {@link ClientCredentialsOAuth2AuthorizedClientProvider}.
-		 *
 		 * @return the {@link ClientCredentialsOAuth2AuthorizedClientProvider}
 		 */
 		@Override
@@ -280,11 +291,11 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 			}
 			return authorizedClientProvider;
 		}
+
 	}
 
 	/**
 	 * Configures support for the {@code password} grant.
-	 *
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder password() {
@@ -294,13 +305,13 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 	/**
 	 * Configures support for the {@code password} grant.
-	 *
-	 * @param builderConsumer a {@code Consumer} of {@link PasswordGrantBuilder} used for further configuration
+	 * @param builderConsumer a {@code Consumer} of {@link PasswordGrantBuilder} used for
+	 * further configuration
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder password(Consumer<PasswordGrantBuilder> builderConsumer) {
-		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders.computeIfAbsent(
-				PasswordOAuth2AuthorizedClientProvider.class, k -> new PasswordGrantBuilder());
+		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders
+				.computeIfAbsent(PasswordOAuth2AuthorizedClientProvider.class, k -> new PasswordGrantBuilder());
 		builderConsumer.accept(builder);
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
@@ -309,28 +320,33 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * A builder for the {@code password} grant.
 	 */
 	public class PasswordGrantBuilder implements Builder {
+
 		private OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient;
+
 		private Duration clockSkew;
+
 		private Clock clock;
 
 		private PasswordGrantBuilder() {
 		}
 
 		/**
-		 * Sets the client used when requesting an access token credential at the Token Endpoint.
-		 *
-		 * @param accessTokenResponseClient the client used when requesting an access token credential at the Token Endpoint
+		 * Sets the client used when requesting an access token credential at the Token
+		 * Endpoint.
+		 * @param accessTokenResponseClient the client used when requesting an access
+		 * token credential at the Token Endpoint
 		 * @return the {@link PasswordGrantBuilder}
 		 */
-		public PasswordGrantBuilder accessTokenResponseClient(OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient) {
+		public PasswordGrantBuilder accessTokenResponseClient(
+				OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient) {
 			this.accessTokenResponseClient = accessTokenResponseClient;
 			return this;
 		}
 
 		/**
-		 * Sets the maximum acceptable clock skew, which is used when checking the access token expiry.
-		 * An access token is considered expired if it's before {@code Instant.now(this.clock) - clockSkew}.
-		 *
+		 * Sets the maximum acceptable clock skew, which is used when checking the access
+		 * token expiry. An access token is considered expired if it's before
+		 * {@code Instant.now(this.clock) - clockSkew}.
 		 * @param clockSkew the maximum acceptable clock skew
 		 * @return the {@link PasswordGrantBuilder}
 		 */
@@ -340,8 +356,8 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 		}
 
 		/**
-		 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access token expiry.
-		 *
+		 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the
+		 * access token expiry.
 		 * @param clock the clock
 		 * @return the {@link PasswordGrantBuilder}
 		 */
@@ -352,7 +368,6 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 		/**
 		 * Builds an instance of {@link PasswordOAuth2AuthorizedClientProvider}.
-		 *
 		 * @return the {@link PasswordOAuth2AuthorizedClientProvider}
 		 */
 		@Override
@@ -369,12 +384,12 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 			}
 			return authorizedClientProvider;
 		}
+
 	}
 
 	/**
-	 * Builds an instance of {@link DelegatingOAuth2AuthorizedClientProvider}
-	 * composed of one or more {@link OAuth2AuthorizedClientProvider}(s).
-	 *
+	 * Builds an instance of {@link DelegatingOAuth2AuthorizedClientProvider} composed of
+	 * one or more {@link OAuth2AuthorizedClientProvider}(s).
 	 * @return the {@link DelegatingOAuth2AuthorizedClientProvider}
 	 */
 	public OAuth2AuthorizedClientProvider build() {
@@ -386,6 +401,9 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	}
 
 	interface Builder {
+
 		OAuth2AuthorizedClientProvider build();
+
 	}
+
 }

@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingApplicationListenerTests {
+
 	@Mock
 	SmartApplicationListener delegate;
 

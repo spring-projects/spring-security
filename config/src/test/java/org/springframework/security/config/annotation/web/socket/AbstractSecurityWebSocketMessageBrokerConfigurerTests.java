@@ -79,6 +79,7 @@ import org.springframework.web.socket.sockjs.transport.handler.SockJsWebSocketHa
 import org.springframework.web.socket.sockjs.transport.session.WebSocketServerSockJsSession;
 
 public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
+
 	AnnotationConfigWebApplicationContext context;
 
 	TestingAuthenticationToken messageUser;
@@ -161,8 +162,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	public void addsCsrfProtectionWhenNoAuthorization() {
 		loadConfig(NoInboundSecurityConfig.class);
 
-		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor
-				.create(SimpMessageType.CONNECT);
+		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
 		Message<?> message = message(headers, "/authentication");
 		MessageChannel messageChannel = clientInboundChannel();
 
@@ -179,8 +179,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	public void csrfProtectionForConnect() {
 		loadConfig(SockJsSecurityConfig.class);
 
-		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor
-				.create(SimpMessageType.CONNECT);
+		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
 		Message<?> message = message(headers, "/authentication");
 		MessageChannel messageChannel = clientInboundChannel();
 
@@ -197,8 +196,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	public void csrfProtectionDisabledForConnect() {
 		loadConfig(CsrfDisabledSockJsSecurityConfig.class);
 
-		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor
-				.create(SimpMessageType.CONNECT);
+		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
 		Message<?> message = message(headers, "/permitAll/connect");
 		MessageChannel messageChannel = clientInboundChannel();
 
@@ -220,8 +218,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
 		loadConfig(SockJsSecurityConfig.class);
 
-		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor
-				.create(SimpMessageType.CONNECT);
+		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
 		Message<?> message = message(headers, "/authentication");
 		MockHttpServletRequest request = sockjsHttpRequest("/chat");
 		HttpRequestHandler handler = handler(request);
@@ -232,12 +229,10 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	@Test
-	public void messagesConnectUseCsrfTokenHandshakeInterceptorMultipleMappings()
-			throws Exception {
+	public void messagesConnectUseCsrfTokenHandshakeInterceptorMultipleMappings() throws Exception {
 		loadConfig(SockJsSecurityConfig.class);
 
-		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor
-				.create(SimpMessageType.CONNECT);
+		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
 		Message<?> message = message(headers, "/authentication");
 		MockHttpServletRequest request = sockjsHttpRequest("/other");
 		HttpRequestHandler handler = handler(request);
@@ -248,12 +243,10 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	@Test
-	public void messagesConnectWebSocketUseCsrfTokenHandshakeInterceptor()
-			throws Exception {
+	public void messagesConnectWebSocketUseCsrfTokenHandshakeInterceptor() throws Exception {
 		loadConfig(WebSocketSecurityConfig.class);
 
-		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor
-				.create(SimpMessageType.CONNECT);
+		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
 		Message<?> message = message(headers, "/authentication");
 		MockHttpServletRequest request = websocketHttpRequest("/websocket");
 		HttpRequestHandler handler = handler(request);
@@ -281,8 +274,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	@Configuration
 	@EnableWebSocketMessageBroker
 	@Import(SyncExecutorConfig.class)
-	static class MsmsRegistryCustomPatternMatcherConfig extends
-			AbstractSecurityWebSocketMessageBrokerConfigurer {
+	static class MsmsRegistryCustomPatternMatcherConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
 		// @formatter:off
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -312,6 +304,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		public TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
 		}
+
 	}
 
 	@Test
@@ -332,8 +325,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	@Configuration
 	@EnableWebSocketMessageBroker
 	@Import(SyncExecutorConfig.class)
-	static class OverrideMsmsRegistryCustomPatternMatcherConfig extends
-			AbstractSecurityWebSocketMessageBrokerConfigurer {
+	static class OverrideMsmsRegistryCustomPatternMatcherConfig
+			extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
 		// @formatter:off
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -342,7 +335,6 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 				.setHandshakeHandler(testHandshakeHandler());
 		}
 		// @formatter:on
-
 
 		// @formatter:off
 		@Override
@@ -365,6 +357,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		public TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
 		}
+
 	}
 
 	@Test
@@ -385,8 +378,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	@Configuration
 	@EnableWebSocketMessageBroker
 	@Import(SyncExecutorConfig.class)
-	static class DefaultPatternMatcherConfig extends
-			AbstractSecurityWebSocketMessageBrokerConfigurer {
+	static class DefaultPatternMatcherConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
 		// @formatter:off
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -415,6 +407,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		public TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
 		}
+
 	}
 
 	@Test
@@ -439,8 +432,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		loadConfig(SockJsProxylessSecurityConfig.class);
 
 		ChannelSecurityInterceptor channelSecurityInterceptor = context.getBean(ChannelSecurityInterceptor.class);
-		MessageSecurityMetadataSource messageSecurityMetadataSource =
-				context.getBean(MessageSecurityMetadataSource.class);
+		MessageSecurityMetadataSource messageSecurityMetadataSource = context
+				.getBean(MessageSecurityMetadataSource.class);
 
 		assertThat(channelSecurityInterceptor.obtainSecurityMetadataSource()).isSameAs(messageSecurityMetadataSource);
 	}
@@ -450,8 +443,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		loadConfig(SockJsProxylessSecurityConfig.class);
 
 		MessageChannel messageChannel = clientInboundChannel();
-		SecurityContextChannelInterceptor securityContextChannelInterceptor =
-				context.getBean(SecurityContextChannelInterceptor.class);
+		SecurityContextChannelInterceptor securityContextChannelInterceptor = context
+				.getBean(SecurityContextChannelInterceptor.class);
 
 		assertThat(((AbstractMessageChannel) messageChannel).getInterceptors())
 				.contains(securityContextChannelInterceptor);
@@ -464,15 +457,13 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		MessageChannel messageChannel = clientInboundChannel();
 		ChannelSecurityInterceptor inboundChannelSecurity = context.getBean(ChannelSecurityInterceptor.class);
 
-		assertThat(((AbstractMessageChannel) messageChannel).getInterceptors())
-				.contains(inboundChannelSecurity);
+		assertThat(((AbstractMessageChannel) messageChannel).getInterceptors()).contains(inboundChannelSecurity);
 	}
 
 	@Configuration
 	@EnableWebSocketMessageBroker
 	@Import(SyncExecutorConfig.class)
-	static class CustomExpressionConfig extends
-			AbstractSecurityWebSocketMessageBrokerConfigurer {
+	static class CustomExpressionConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
 		// @formatter:off
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -494,8 +485,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		public static SecurityExpressionHandler<Message<Object>> messageSecurityExpressionHandler() {
 			return new DefaultMessageSecurityExpressionHandler<Object>() {
 				@Override
-				protected SecurityExpressionOperations createSecurityExpressionRoot(
-						Authentication authentication,
+				protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
 						Message<Object> invocation) {
 					return new MessageSecurityExpressionRoot(authentication, invocation) {
 						public boolean denyRob() {
@@ -517,15 +507,14 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		public TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
 		}
+
 	}
 
 	private void assertHandshake(HttpServletRequest request) {
-		TestHandshakeHandler handshakeHandler = context
-				.getBean(TestHandshakeHandler.class);
-		assertThat(handshakeHandler.attributes.get(CsrfToken.class.getName())).isSameAs(
-				token);
-		assertThat(handshakeHandler.attributes.get(sessionAttr)).isEqualTo(
-				request.getSession().getAttribute(sessionAttr));
+		TestHandshakeHandler handshakeHandler = context.getBean(TestHandshakeHandler.class);
+		assertThat(handshakeHandler.attributes.get(CsrfToken.class.getName())).isSameAs(token);
+		assertThat(handshakeHandler.attributes.get(sessionAttr))
+				.isEqualTo(request.getSession().getAttribute(sessionAttr));
 	}
 
 	private HttpRequestHandler handler(HttpServletRequest request) throws Exception {
@@ -542,8 +531,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	private MockHttpServletRequest sockjsHttpRequest(String mapping) {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		request.setMethod("GET");
-		request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE,
-				"/289/tpyx6mde/websocket");
+		request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "/289/tpyx6mde/websocket");
 		request.setRequestURI(mapping + "/289/tpyx6mde/websocket");
 		request.getSession().setAttribute(sessionAttr, "sessionValue");
 
@@ -583,6 +571,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	static class MyController {
 
 		String authenticationPrincipal;
+
 		MyCustomArgument myCustomArgument;
 
 		@MessageMapping("/authentication")
@@ -594,11 +583,14 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		public void myCustom(MyCustomArgument myCustomArgument) {
 			this.myCustomArgument = myCustomArgument;
 		}
+
 	}
 
 	static class MyCustomArgument {
+
 		MyCustomArgument(String notDefaultConstr) {
 		}
+
 	}
 
 	static class MyCustomArgumentResolver implements HandlerMethodArgumentResolver {
@@ -610,13 +602,14 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		public Object resolveArgument(MethodParameter parameter, Message<?> message) {
 			return new MyCustomArgument("");
 		}
+
 	}
 
 	static class TestHandshakeHandler implements HandshakeHandler {
+
 		Map<String, Object> attributes;
 
-		public boolean doHandshake(ServerHttpRequest request,
-				ServerHttpResponse response, WebSocketHandler wsHandler,
+		public boolean doHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 				Map<String, Object> attributes) throws HandshakeFailureException {
 			this.attributes = attributes;
 			if (wsHandler instanceof SockJsWebSocketHandler) {
@@ -628,20 +621,20 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 			}
 			return true;
 		}
+
 	}
 
 	@Configuration
 	@EnableWebSocketMessageBroker
 	@Import(SyncExecutorConfig.class)
-	static class SockJsSecurityConfig extends
-			AbstractSecurityWebSocketMessageBrokerConfigurer {
+	static class SockJsSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry.addEndpoint("/other").setHandshakeHandler(testHandshakeHandler())
-					.withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
+			registry.addEndpoint("/other").setHandshakeHandler(testHandshakeHandler()).withSockJS()
+					.setInterceptors(new HttpSessionHandshakeInterceptor());
 
-			registry.addEndpoint("/chat").setHandshakeHandler(testHandshakeHandler())
-					.withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
+			registry.addEndpoint("/chat").setHandshakeHandler(testHandshakeHandler()).withSockJS()
+					.setInterceptors(new HttpSessionHandshakeInterceptor());
 		}
 
 		// @formatter:off
@@ -676,27 +669,27 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		}
 
 		static class SecurityCheck {
+
 			private boolean check;
 
 			public boolean check() {
 				check = !check;
 				return check;
 			}
+
 		}
+
 	}
 
 	@Configuration
 	@EnableWebSocketMessageBroker
 	@Import(SyncExecutorConfig.class)
-	static class NoInboundSecurityConfig extends
-			AbstractSecurityWebSocketMessageBrokerConfigurer {
+	static class NoInboundSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry.addEndpoint("/other").withSockJS()
-					.setInterceptors(new HttpSessionHandshakeInterceptor());
+			registry.addEndpoint("/other").withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
 
-			registry.addEndpoint("/chat").withSockJS()
-					.setInterceptors(new HttpSessionHandshakeInterceptor());
+			registry.addEndpoint("/chat").withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
 		}
 
 		@Override
@@ -713,6 +706,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		public MyController myController() {
 			return new MyController();
 		}
+
 	}
 
 	@Configuration
@@ -722,17 +716,16 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		protected boolean sameOriginDisabled() {
 			return true;
 		}
+
 	}
 
 	@Configuration
 	@EnableWebSocketMessageBroker
 	@Import(SyncExecutorConfig.class)
-	static class WebSocketSecurityConfig extends
-			AbstractSecurityWebSocketMessageBrokerConfigurer {
+	static class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry.addEndpoint("/websocket")
-					.setHandshakeHandler(testHandshakeHandler())
+			registry.addEndpoint("/websocket").setHandshakeHandler(testHandshakeHandler())
 					.addInterceptors(new HttpSessionHandshakeInterceptor());
 		}
 
@@ -750,19 +743,19 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		public TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
 		}
+
 	}
 
 	@Configuration(proxyBeanMethods = false)
 	@EnableWebSocketMessageBroker
 	@Import(SyncExecutorConfig.class)
-	static class SockJsProxylessSecurityConfig extends
-			AbstractSecurityWebSocketMessageBrokerConfigurer {
+	static class SockJsProxylessSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+
 		private ApplicationContext context;
 
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry.addEndpoint("/chat")
-					.setHandshakeHandler(context.getBean(TestHandshakeHandler.class))
-					.withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
+			registry.addEndpoint("/chat").setHandshakeHandler(context.getBean(TestHandshakeHandler.class)).withSockJS()
+					.setInterceptors(new HttpSessionHandshakeInterceptor());
 		}
 
 		@Autowired
@@ -782,13 +775,17 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		public TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
 		}
+
 	}
 
 	@Configuration
 	static class SyncExecutorConfig {
+
 		@Bean
 		public static SyncExecutorSubscribableChannelPostProcessor postProcessor() {
 			return new SyncExecutorSubscribableChannelPostProcessor();
 		}
+
 	}
+
 }

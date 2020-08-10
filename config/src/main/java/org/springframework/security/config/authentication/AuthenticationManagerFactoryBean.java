@@ -38,9 +38,10 @@ import java.util.Arrays;
  * @author Luke Taylor
  * @since 3.0
  */
-public class AuthenticationManagerFactoryBean implements
-		FactoryBean<AuthenticationManager>, BeanFactoryAware {
+public class AuthenticationManagerFactoryBean implements FactoryBean<AuthenticationManager>, BeanFactoryAware {
+
 	private BeanFactory bf;
+
 	public static final String MISSING_BEAN_ERROR_MESSAGE = "Did you forget to add a global <authentication-manager> element "
 			+ "to your configuration (with child <authentication-provider> elements)? Alternatively you can use the "
 			+ "authentication-manager-ref attribute on your <http> and <global-method-security> elements.";
@@ -56,8 +57,7 @@ public class AuthenticationManagerFactoryBean implements
 
 			UserDetailsService uds = getBeanOrNull(UserDetailsService.class);
 			if (uds == null) {
-				throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER,
-					MISSING_BEAN_ERROR_MESSAGE);
+				throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER, MISSING_BEAN_ERROR_MESSAGE);
 			}
 
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -67,7 +67,7 @@ public class AuthenticationManagerFactoryBean implements
 				provider.setPasswordEncoder(passwordEncoder);
 			}
 			provider.afterPropertiesSet();
-			return new ProviderManager(Arrays.<AuthenticationProvider> asList(provider));
+			return new ProviderManager(Arrays.<AuthenticationProvider>asList(provider));
 		}
 	}
 
@@ -86,8 +86,10 @@ public class AuthenticationManagerFactoryBean implements
 	private <T> T getBeanOrNull(Class<T> type) {
 		try {
 			return this.bf.getBean(type);
-		} catch (NoSuchBeanDefinitionException noUds) {
+		}
+		catch (NoSuchBeanDefinitionException noUds) {
 			return null;
 		}
 	}
+
 }

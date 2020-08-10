@@ -31,8 +31,7 @@ import org.springframework.security.access.ConfigAttribute;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public abstract class AbstractMethodSecurityMetadataSource implements
-		MethodSecurityMetadataSource {
+public abstract class AbstractMethodSecurityMetadataSource implements MethodSecurityMetadataSource {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
@@ -65,4 +64,5 @@ public abstract class AbstractMethodSecurityMetadataSource implements
 	public final boolean supports(Class<?> clazz) {
 		return (MethodInvocation.class.isAssignableFrom(clazz));
 	}
+
 }

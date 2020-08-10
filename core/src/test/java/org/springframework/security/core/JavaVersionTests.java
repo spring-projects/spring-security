@@ -23,7 +23,6 @@ import java.io.InputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author Rob Winch
  *
  */
@@ -47,4 +46,5 @@ public class JavaVersionTests {
 			assertThat(major).isEqualTo(JDK8_CLASS_VERSION);
 		}
 	}
+
 }

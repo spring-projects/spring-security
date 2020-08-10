@@ -28,9 +28,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * <p>
- * Implementation of PasswordEncoder that uses the SCrypt hashing function.
- * Clients can optionally supply a cpu cost parameter, a memory cost parameter
- * and a parallelization parameter.
+ * Implementation of PasswordEncoder that uses the SCrypt hashing function. Clients can
+ * optionally supply a cpu cost parameter, a memory cost parameter and a parallelization
+ * parameter.
  * </p>
  *
  * <p>
@@ -41,13 +41,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  *
  * <ul>
  * <li>The currently implementation uses Bouncy castle which does not exploit
- * parallelism/optimizations that password crackers will, so there is an
- * unnecessary asymmetry between attacker and defender.</li>
- * <li>Scrypt is based on Salsa20 which performs poorly in Java (on par with
- * AES) but performs awesome (~4-5x faster) on SIMD capable platforms</li>
+ * parallelism/optimizations that password crackers will, so there is an unnecessary
+ * asymmetry between attacker and defender.</li>
+ * <li>Scrypt is based on Salsa20 which performs poorly in Java (on par with AES) but
+ * performs awesome (~4-5x faster) on SIMD capable platforms</li>
  * <li>While there are some that would disagree, consider reading -
- * <a href="https://blog.ircmaxell.com/2014/03/why-i-dont-recommend-scrypt.html">
- * Why I Don't Recommend Scrypt</a> (for password storage)</li>
+ * <a href="https://blog.ircmaxell.com/2014/03/why-i-dont-recommend-scrypt.html"> Why I
+ * Don't Recommend Scrypt</a> (for password storage)</li>
  * </ul>
  *
  * @author Shazin Sadakath
@@ -74,25 +74,17 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * Creates a new instance
-	 *
-	 * @param cpuCost
-	 *            cpu cost of the algorithm (as defined in scrypt this is N).
-	 *            must be power of 2 greater than 1. Default is currently 16,384
-	 *            or 2^14)
-	 * @param memoryCost
-	 *            memory cost of the algorithm (as defined in scrypt this is r)
-	 *            Default is currently 8.
-	 * @param parallelization
-	 *            the parallelization of the algorithm (as defined in scrypt
-	 *            this is p) Default is currently 1. Note that the
-	 *            implementation does not currently take advantage of
-	 *            parallelization.
-	 * @param keyLength
-	 *            key length for the algorithm (as defined in scrypt this is
-	 *            dkLen). The default is currently 32.
-	 * @param saltLength
-	 *            salt length (as defined in scrypt this is the length of S).
-	 *            The default is currently 64.
+	 * @param cpuCost cpu cost of the algorithm (as defined in scrypt this is N). must be
+	 * power of 2 greater than 1. Default is currently 16,384 or 2^14)
+	 * @param memoryCost memory cost of the algorithm (as defined in scrypt this is r)
+	 * Default is currently 8.
+	 * @param parallelization the parallelization of the algorithm (as defined in scrypt
+	 * this is p) Default is currently 1. Note that the implementation does not currently
+	 * take advantage of parallelization.
+	 * @param keyLength key length for the algorithm (as defined in scrypt this is dkLen).
+	 * The default is currently 32.
+	 * @param saltLength salt length (as defined in scrypt this is the length of S). The
+	 * default is currently 64.
 	 */
 	public SCryptPasswordEncoder(int cpuCost, int memoryCost, int parallelization, int keyLength, int saltLength) {
 		if (cpuCost <= 1) {
@@ -153,9 +145,7 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		int memoryCost = (int) params >> 8 & 0xff;
 		int parallelization = (int) params & 0xff;
 
-		return cpuCost < this.cpuCost
-				|| memoryCost < this.memoryCost
-				|| parallelization < this.parallelization;
+		return cpuCost < this.cpuCost || memoryCost < this.memoryCost || parallelization < this.parallelization;
 	}
 
 	private boolean decodeAndCheckMatches(CharSequence rawPassword, String encodedPassword) {
@@ -180,7 +170,8 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	private String digest(CharSequence rawPassword, byte[] salt) {
-		byte[] derived = SCrypt.generate(Utf8.encode(rawPassword), salt, cpuCost, memoryCost, parallelization, keyLength);
+		byte[] derived = SCrypt.generate(Utf8.encode(rawPassword), salt, cpuCost, memoryCost, parallelization,
+				keyLength);
 
 		String params = Long
 				.toString(((int) (Math.log(cpuCost) / Math.log(2)) << 16L) | memoryCost << 8 | parallelization, 16);
@@ -200,4 +191,5 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	private String encodePart(byte[] part) {
 		return Utf8.decode(Base64.getEncoder().encode(part));
 	}
+
 }

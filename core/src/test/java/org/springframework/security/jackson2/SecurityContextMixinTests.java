@@ -48,7 +48,8 @@ public class SecurityContextMixinTests extends AbstractMixinTests {
 	@Test
 	public void securityContextSerializeTest() throws JsonProcessingException, JSONException {
 		SecurityContext context = new SecurityContextImpl();
-		context.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "1234", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))));
+		context.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "1234",
+				Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))));
 		String actualJson = mapper.writeValueAsString(context);
 		JSONAssert.assertEquals(SECURITY_CONTEXT_JSON, actualJson, true);
 	}
@@ -65,4 +66,5 @@ public class SecurityContextMixinTests extends AbstractMixinTests {
 		assertThat(authorities).hasSize(1);
 		assertThat(authorities).contains(new SimpleGrantedAuthority("ROLE_USER"));
 	}
+
 }

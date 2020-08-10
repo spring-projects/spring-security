@@ -17,10 +17,10 @@ package org.springframework.security.openid;
 
 /**
  * Authentication status codes, based on JanRain status codes
- *
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  * @author JanRain Inc.
  * @author Robin Bramley, Opsera Ltd
  * @author Luke Taylor
@@ -58,4 +58,5 @@ public enum OpenIDAuthenticationStatus {
 	public String toString() {
 		return name;
 	}
+
 }

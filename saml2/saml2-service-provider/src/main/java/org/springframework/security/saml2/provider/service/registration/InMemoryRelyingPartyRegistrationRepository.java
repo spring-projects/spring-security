@@ -46,14 +46,13 @@ public class InMemoryRelyingPartyRegistrationRepository
 	}
 
 	private static Map<String, RelyingPartyRegistration> createMappingToIdentityProvider(
-			Collection<RelyingPartyRegistration> rps
-	) {
+			Collection<RelyingPartyRegistration> rps) {
 		LinkedHashMap<String, RelyingPartyRegistration> result = new LinkedHashMap<>();
 		for (RelyingPartyRegistration rp : rps) {
 			notNull(rp, "relying party collection cannot contain null values");
 			String key = rp.getRegistrationId();
 			notNull(rp, "relying party identifier cannot be null");
-			Assert.isNull(result.get(key), () -> "relying party duplicate identifier '" + key+"' detected.");
+			Assert.isNull(result.get(key), () -> "relying party duplicate identifier '" + key + "' detected.");
 			result.put(key, rp);
 		}
 		return Collections.unmodifiableMap(result);
@@ -61,7 +60,7 @@ public class InMemoryRelyingPartyRegistrationRepository
 
 	@Override
 	public RelyingPartyRegistration findByRegistrationId(String id) {
-			return this.byRegistrationId.get(id);
+		return this.byRegistrationId.get(id);
 	}
 
 	@Override

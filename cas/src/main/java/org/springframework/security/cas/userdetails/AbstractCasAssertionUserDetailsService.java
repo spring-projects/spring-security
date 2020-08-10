@@ -28,8 +28,8 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Scott Battaglia
  * @since 3.0
  */
-public abstract class AbstractCasAssertionUserDetailsService implements
-		AuthenticationUserDetailsService<CasAssertionAuthenticationToken> {
+public abstract class AbstractCasAssertionUserDetailsService
+		implements AuthenticationUserDetailsService<CasAssertionAuthenticationToken> {
 
 	public final UserDetails loadUserDetails(final CasAssertionAuthenticationToken token) {
 		return loadUserDetails(token.getAssertion());
@@ -39,10 +39,10 @@ public abstract class AbstractCasAssertionUserDetailsService implements
 	 * Protected template method for construct a
 	 * {@link org.springframework.security.core.userdetails.UserDetails} via the supplied
 	 * CAS assertion.
-	 *
 	 * @param assertion the assertion to use to construct the new UserDetails. CANNOT be
 	 * NULL.
 	 * @return the newly constructed UserDetails.
 	 */
 	protected abstract UserDetails loadUserDetails(Assertion assertion);
+
 }

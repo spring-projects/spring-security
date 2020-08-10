@@ -26,6 +26,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class ConsoleAuditLogger implements AuditLogger {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -43,4 +44,5 @@ public class ConsoleAuditLogger implements AuditLogger {
 			}
 		}
 	}
+
 }

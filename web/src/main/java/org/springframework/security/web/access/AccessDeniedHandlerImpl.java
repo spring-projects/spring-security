@@ -43,6 +43,7 @@ import org.springframework.security.web.WebAttributes;
  * @author Ben Alex
  */
 public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -57,13 +58,11 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 	// ========================================================================================================
 
 	public void handle(HttpServletRequest request, HttpServletResponse response,
-			AccessDeniedException accessDeniedException) throws IOException,
-			ServletException {
+			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 		if (!response.isCommitted()) {
 			if (errorPage != null) {
 				// Put exception into request scope (perhaps of use to a view)
-				request.setAttribute(WebAttributes.ACCESS_DENIED_403,
-						accessDeniedException);
+				request.setAttribute(WebAttributes.ACCESS_DENIED_403, accessDeniedException);
 
 				// Set the 403 status code.
 				response.setStatus(HttpStatus.FORBIDDEN.value());
@@ -73,8 +72,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 				dispatcher.forward(request, response);
 			}
 			else {
-				response.sendError(HttpStatus.FORBIDDEN.value(),
-					HttpStatus.FORBIDDEN.getReasonPhrase());
+				response.sendError(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.getReasonPhrase());
 			}
 		}
 	}
@@ -82,9 +80,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 	/**
 	 * The error page to use. Must begin with a "/" and is interpreted relative to the
 	 * current context root.
-	 *
 	 * @param errorPage the dispatcher path to display
-	 *
 	 * @throws IllegalArgumentException if the argument doesn't comply with the above
 	 * limitations
 	 */
@@ -95,4 +91,5 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 
 		this.errorPage = errorPage;
 	}
+
 }

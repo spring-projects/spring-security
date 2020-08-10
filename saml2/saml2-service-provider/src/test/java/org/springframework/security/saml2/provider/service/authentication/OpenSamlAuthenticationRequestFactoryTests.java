@@ -57,10 +57,13 @@ import static org.springframework.security.saml2.provider.service.registration.S
 public class OpenSamlAuthenticationRequestFactoryTests {
 
 	private OpenSamlAuthenticationRequestFactory factory;
+
 	private Saml2AuthenticationRequestContext.Builder contextBuilder;
+
 	private Saml2AuthenticationRequestContext context;
 
 	private RelyingPartyRegistration.Builder relyingPartyRegistrationBuilder;
+
 	private RelyingPartyRegistration relyingPartyRegistration;
 
 	private AuthnRequestUnmarshaller unmarshaller = (AuthnRequestUnmarshaller) getUnmarshallerFactory()
@@ -74,30 +77,27 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 		this.relyingPartyRegistrationBuilder = RelyingPartyRegistration.withRegistrationId("id")
 				.assertionConsumerServiceLocation("template")
 				.providerDetails(c -> c.webSsoUrl("https://destination/sso"))
-				.providerDetails(c -> c.entityId("remote-entity-id"))
-				.localEntityIdTemplate("local-entity-id")
+				.providerDetails(c -> c.entityId("remote-entity-id")).localEntityIdTemplate("local-entity-id")
 				.credentials(c -> c.add(relyingPartySigningCredential()));
 		this.relyingPartyRegistration = this.relyingPartyRegistrationBuilder.build();
-		contextBuilder = Saml2AuthenticationRequestContext.builder()
-				.issuer("https://issuer")
-				.relyingPartyRegistration(relyingPartyRegistration)
-				.assertionConsumerServiceUrl("https://issuer/sso");
+		contextBuilder = Saml2AuthenticationRequestContext.builder().issuer("https://issuer")
+				.relyingPartyRegistration(relyingPartyRegistration).assertionConsumerServiceUrl("https://issuer/sso");
 		context = contextBuilder.build();
 		factory = new OpenSamlAuthenticationRequestFactory();
 	}
 
 	@Test
 	public void createAuthenticationRequestWhenInvokingDeprecatedMethodThenReturnsXML() {
-		Saml2AuthenticationRequest request = Saml2AuthenticationRequest.withAuthenticationRequestContext(context).build();
+		Saml2AuthenticationRequest request = Saml2AuthenticationRequest.withAuthenticationRequestContext(context)
+				.build();
 		String result = factory.createAuthenticationRequest(request);
-		assertThat(result.replace("\n", "")).startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?><saml2p:AuthnRequest");
+		assertThat(result.replace("\n", ""))
+				.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?><saml2p:AuthnRequest");
 	}
 
 	@Test
 	public void createRedirectAuthenticationRequestWhenUsingContextThenAllValuesAreSet() {
-		context = contextBuilder
-				.relayState("Relay State Value")
-				.build();
+		context = contextBuilder.relayState("Relay State Value").build();
 		Saml2RedirectAuthenticationRequest result = factory.createRedirectAuthenticationRequest(context);
 		assertThat(result.getSamlRequest()).isNotEmpty();
 		assertThat(result.getRelayState()).isEqualTo("Relay State Value");
@@ -109,13 +109,9 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	@Test
 	public void createRedirectAuthenticationRequestWhenNotSignRequestThenNoSignatureIsPresent() {
 
-		context = contextBuilder
-				.relayState("Relay State Value")
-				.relyingPartyRegistration(
-						withRelyingPartyRegistration(relyingPartyRegistration)
-						.providerDetails(c -> c.signAuthNRequest(false))
-						.build()
-				)
+		context = contextBuilder.relayState("Relay State Value")
+				.relyingPartyRegistration(withRelyingPartyRegistration(relyingPartyRegistration)
+						.providerDetails(c -> c.signAuthNRequest(false)).build())
 				.build();
 		Saml2RedirectAuthenticationRequest result = factory.createRedirectAuthenticationRequest(context);
 		assertThat(result.getSamlRequest()).isNotEmpty();
@@ -127,37 +123,26 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	@Test
 	public void createPostAuthenticationRequestWhenNotSignRequestThenNoSignatureIsPresent() {
-		context = contextBuilder
-				.relayState("Relay State Value")
-				.relyingPartyRegistration(
-						withRelyingPartyRegistration(relyingPartyRegistration)
-								.providerDetails(c -> c.signAuthNRequest(false))
-								.build()
-				)
+		context = contextBuilder.relayState("Relay State Value")
+				.relyingPartyRegistration(withRelyingPartyRegistration(relyingPartyRegistration)
+						.providerDetails(c -> c.signAuthNRequest(false)).build())
 				.build();
 		Saml2PostAuthenticationRequest result = factory.createPostAuthenticationRequest(context);
 		assertThat(result.getSamlRequest()).isNotEmpty();
 		assertThat(result.getRelayState()).isEqualTo("Relay State Value");
 		assertThat(result.getBinding()).isEqualTo(POST);
-		assertThat(new String(samlDecode(result.getSamlRequest()), UTF_8))
-				.doesNotContain("ds:Signature");
+		assertThat(new String(samlDecode(result.getSamlRequest()), UTF_8)).doesNotContain("ds:Signature");
 	}
 
 	@Test
 	public void createPostAuthenticationRequestWhenSignRequestThenSignatureIsPresent() {
-		context = contextBuilder
-				.relayState("Relay State Value")
-				.relyingPartyRegistration(
-						withRelyingPartyRegistration(relyingPartyRegistration)
-								.build()
-				)
-				.build();
+		context = contextBuilder.relayState("Relay State Value")
+				.relyingPartyRegistration(withRelyingPartyRegistration(relyingPartyRegistration).build()).build();
 		Saml2PostAuthenticationRequest result = factory.createPostAuthenticationRequest(context);
 		assertThat(result.getSamlRequest()).isNotEmpty();
 		assertThat(result.getRelayState()).isEqualTo("Relay State Value");
 		assertThat(result.getBinding()).isEqualTo(POST);
-		assertThat(new String(samlDecode(result.getSamlRequest()), UTF_8))
-				.contains("ds:Signature");
+		assertThat(new String(samlDecode(result.getSamlRequest()), UTF_8)).contains("ds:Signature");
 	}
 
 	@Test
@@ -182,9 +167,10 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	@Test
 	public void createPostAuthenticationRequestWhenAuthnRequestConsumerThenUses() {
-		Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver =
-				mock(Function.class);
-		when(authnRequestConsumerResolver.apply(this.context)).thenReturn(authnRequest -> {});
+		Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver = mock(
+				Function.class);
+		when(authnRequestConsumerResolver.apply(this.context)).thenReturn(authnRequest -> {
+		});
 		this.factory.setAuthnRequestConsumerResolver(authnRequestConsumerResolver);
 
 		this.factory.createPostAuthenticationRequest(this.context);
@@ -193,9 +179,10 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	@Test
 	public void createRedirectAuthenticationRequestWhenAuthnRequestConsumerThenUses() {
-		Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver =
-				mock(Function.class);
-		when(authnRequestConsumerResolver.apply(this.context)).thenReturn(authnRequest -> {});
+		Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver = mock(
+				Function.class);
+		when(authnRequestConsumerResolver.apply(this.context)).thenReturn(authnRequest -> {
+		});
 		this.factory.setAuthnRequestConsumerResolver(authnRequestConsumerResolver);
 
 		this.factory.createRedirectAuthenticationRequest(this.context);
@@ -211,11 +198,9 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	@Test
 	public void createPostAuthenticationRequestWhenAssertionConsumerServiceBindingThenUses() {
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationBuilder
-				.assertionConsumerServiceBinding(REDIRECT)
-				.build();
+				.assertionConsumerServiceBinding(REDIRECT).build();
 		Saml2AuthenticationRequestContext context = this.contextBuilder
-				.relyingPartyRegistration(relyingPartyRegistration)
-				.build();
+				.relyingPartyRegistration(relyingPartyRegistration).build();
 		Saml2PostAuthenticationRequest request = this.factory.createPostAuthenticationRequest(context);
 		String samlRequest = request.getSamlRequest();
 		String inflated = new String(samlDecode(samlRequest));
@@ -223,9 +208,9 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	}
 
 	private AuthnRequest getAuthNRequest(Saml2MessageBinding binding) {
-		AbstractSaml2AuthenticationRequest result = (binding == REDIRECT) ?
-				factory.createRedirectAuthenticationRequest(context) :
-				factory.createPostAuthenticationRequest(context);
+		AbstractSaml2AuthenticationRequest result = (binding == REDIRECT)
+				? factory.createRedirectAuthenticationRequest(context)
+				: factory.createPostAuthenticationRequest(context);
 		String samlRequest = result.getSamlRequest();
 		assertThat(samlRequest).isNotEmpty();
 		if (result.getBinding() == REDIRECT) {
@@ -235,8 +220,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 			samlRequest = new String(samlDecode(samlRequest), UTF_8);
 		}
 		try {
-			Document document = getParserPool().parse(
-					new ByteArrayInputStream(samlRequest.getBytes(UTF_8)));
+			Document document = getParserPool().parse(new ByteArrayInputStream(samlRequest.getBytes(UTF_8)));
 			Element element = document.getDocumentElement();
 			return (AuthnRequest) this.unmarshaller.unmarshall(element);
 		}
@@ -244,4 +228,5 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 			throw new Saml2Exception(e);
 		}
 	}
+
 }

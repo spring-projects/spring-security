@@ -22,7 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
 
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionIdListener;
@@ -46,6 +45,7 @@ import javax.servlet.http.HttpSessionListener;
  * @author Ray Krueger
  */
 public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessionIdListener {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -61,7 +61,6 @@ public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessi
 	/**
 	 * Handles the HttpSessionEvent by publishing a {@link HttpSessionCreatedEvent} to the
 	 * application appContext.
-	 *
 	 * @param event HttpSessionEvent passed in by the container
 	 */
 	public void sessionCreated(HttpSessionEvent event) {
@@ -78,7 +77,6 @@ public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessi
 	/**
 	 * Handles the HttpSessionEvent by publishing a {@link HttpSessionDestroyedEvent} to
 	 * the application appContext.
-	 *
 	 * @param event The HttpSessionEvent pass in by the container
 	 */
 	public void sessionDestroyed(HttpSessionEvent event) {
@@ -103,4 +101,5 @@ public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessi
 
 		getContext(event.getSession().getServletContext()).publishEvent(e);
 	}
+
 }

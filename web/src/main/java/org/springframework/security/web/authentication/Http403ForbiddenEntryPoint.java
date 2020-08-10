@@ -39,22 +39,23 @@ import org.springframework.security.web.AuthenticationEntryPoint;
  * <code>HttpServletResponse.SC_FORBIDDEN</code> (403 error).
  *
  * @see org.springframework.security.web.access.ExceptionTranslationFilter
- *
  * @author Luke Taylor
  * @author Ruud Senden
  * @since 2.0
  */
 public class Http403ForbiddenEntryPoint implements AuthenticationEntryPoint {
+
 	private static final Log logger = LogFactory.getLog(Http403ForbiddenEntryPoint.class);
 
 	/**
 	 * Always returns a 403 error code to the client.
 	 */
-	public void commence(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException arg2) throws IOException {
+	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException arg2)
+			throws IOException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Pre-authenticated entry point called. Rejecting access");
 		}
 		response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
 	}
+
 }

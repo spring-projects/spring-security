@@ -32,9 +32,9 @@ public class InvalidBearerTokenException extends OAuth2AuthenticationException {
 	 * Construct an instance of {@link InvalidBearerTokenException} given the provided
 	 * description.
 	 *
-	 * The description will be wrapped into an {@link org.springframework.security.oauth2.core.OAuth2Error}
-	 * instance as the {@code error_description}.
-	 *
+	 * The description will be wrapped into an
+	 * {@link org.springframework.security.oauth2.core.OAuth2Error} instance as the
+	 * {@code error_description}.
 	 * @param description the description
 	 */
 	public InvalidBearerTokenException(String description) {
@@ -45,13 +45,14 @@ public class InvalidBearerTokenException extends OAuth2AuthenticationException {
 	 * Construct an instance of {@link InvalidBearerTokenException} given the provided
 	 * description and cause
 	 *
-	 * The description will be wrapped into an {@link org.springframework.security.oauth2.core.OAuth2Error}
-	 * instance as the {@code error_description}.
-	 *
+	 * The description will be wrapped into an
+	 * {@link org.springframework.security.oauth2.core.OAuth2Error} instance as the
+	 * {@code error_description}.
 	 * @param description the description
 	 * @param cause the causing exception
 	 */
 	public InvalidBearerTokenException(String description, Throwable cause) {
 		super(invalidToken(description), cause);
 	}
+
 }

@@ -42,21 +42,14 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 @SecurityTestExecutionListeners
 public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockServerConfigurersTests {
 
-	WebTestClient client = WebTestClient
-		.bindToController(controller)
-		.webFilter(new SecurityContextServerWebExchangeWebFilter())
-		.apply(springSecurity())
-		.configureClient()
-		.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-		.build();
+	WebTestClient client = WebTestClient.bindToController(controller)
+			.webFilter(new SecurityContextServerWebExchangeWebFilter()).apply(springSecurity()).configureClient()
+			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
 
 	@Test
 	@WithMockUser
 	public void withMockUserWhenOnMethodThenSuccess() {
-		client
-			.get()
-			.exchange()
-			.expectStatus().isOk();
+		client.get().exchange().expectStatus().isOk();
 
 		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
 		controller.assertPrincipalIsEqualTo(authentication);
@@ -65,20 +58,13 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 	@Test
 	@WithMockUser
 	public void withMockUserWhenGlobalMockPrincipalThenOverridesAnnotation() {
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret", "ROLE_USER");
-		client = WebTestClient
-			.bindToController(controller)
-			.webFilter(new SecurityContextServerWebExchangeWebFilter())
-			.apply(springSecurity())
-			.apply(mockAuthentication(authentication))
-			.configureClient()
-			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-			.build();
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret",
+				"ROLE_USER");
+		client = WebTestClient.bindToController(controller).webFilter(new SecurityContextServerWebExchangeWebFilter())
+				.apply(springSecurity()).apply(mockAuthentication(authentication)).configureClient()
+				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
 
-		client
-			.get()
-			.exchange()
-			.expectStatus().isOk();
+		client.get().exchange().expectStatus().isOk();
 
 		controller.assertPrincipalIsEqualTo(authentication);
 	}
@@ -86,12 +72,9 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 	@Test
 	@WithMockUser
 	public void withMockUserWhenMutateWithMockPrincipalThenOverridesAnnotation() {
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret", "ROLE_USER");
-		client
-			.mutateWith(mockAuthentication(authentication))
-			.get()
-			.exchange()
-			.expectStatus().isOk();
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret",
+				"ROLE_USER");
+		client.mutateWith(mockAuthentication(authentication)).get().exchange().expectStatus().isOk();
 
 		controller.assertPrincipalIsEqualTo(authentication);
 	}
@@ -99,20 +82,13 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 	@Test
 	@WithMockUser
 	public void withMockUserWhenMutateWithMockPrincipalAndNoMutateThenOverridesAnnotationAndUsesAnnotation() {
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret", "ROLE_USER");
-		client
-			.mutateWith(mockAuthentication(authentication))
-			.get()
-			.exchange()
-			.expectStatus().isOk();
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret",
+				"ROLE_USER");
+		client.mutateWith(mockAuthentication(authentication)).get().exchange().expectStatus().isOk();
 
 		controller.assertPrincipalIsEqualTo(authentication);
 
-
-		client
-			.get()
-			.exchange()
-			.expectStatus().isOk();
+		client.get().exchange().expectStatus().isOk();
 
 		assertPrincipalCreatedFromUserDetails(controller.removePrincipal(), userBuilder.build());
 	}
@@ -121,16 +97,7 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 	@WithMockUser
 	public void withMockUserWhenOnMethodAndRequestIsExecutedOnDifferentThreadThenSuccess() {
 		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
-		ForkJoinPool
-			.commonPool()
-			.submit(() ->
-				client
-					.get()
-					.exchange()
-					.expectStatus()
-					.isOk()
-			)
-			.join();
+		ForkJoinPool.commonPool().submit(() -> client.get().exchange().expectStatus().isOk()).join();
 
 		controller.assertPrincipalIsEqualTo(authentication);
 	}
@@ -138,32 +105,18 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 	@Test
 	@WithMockUser
 	public void withMockUserAndWithCallOnSeparateThreadWhenMutateWithMockPrincipalAndNoMutateThenOverridesAnnotationAndUsesAnnotation() {
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret", "ROLE_USER");
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret",
+				"ROLE_USER");
 
-		ForkJoinPool
-			.commonPool()
-			.submit(() ->
-				client
-					.mutateWith(mockAuthentication(authentication))
-					.get()
-					.exchange()
-					.expectStatus().isOk()
-			)
-			.join();
+		ForkJoinPool.commonPool().submit(
+				() -> client.mutateWith(mockAuthentication(authentication)).get().exchange().expectStatus().isOk())
+				.join();
 
 		controller.assertPrincipalIsEqualTo(authentication);
 
-
-		ForkJoinPool
-			.commonPool()
-			.submit(() ->
-				client
-					.get()
-					.exchange()
-					.expectStatus().isOk()
-			)
-			.join();
+		ForkJoinPool.commonPool().submit(() -> client.get().exchange().expectStatus().isOk()).join();
 
 		assertPrincipalCreatedFromUserDetails(controller.removePrincipal(), userBuilder.build());
 	}
+
 }

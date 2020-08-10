@@ -28,14 +28,15 @@ package org.springframework.security.core.userdetails;
  *
  * @author Luke Taylor
  * @since 2.0
- *
  * @see org.springframework.security.authentication.AccountStatusUserDetailsChecker
  * @see org.springframework.security.authentication.AccountStatusException
  */
 public interface UserDetailsChecker {
+
 	/**
 	 * Examines the User
 	 * @param toCheck the UserDetails instance whose status should be checked.
 	 */
 	void check(UserDetails toCheck);
+
 }

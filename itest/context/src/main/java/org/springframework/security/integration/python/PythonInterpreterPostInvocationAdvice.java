@@ -21,12 +21,11 @@ import org.springframework.security.access.prepost.PostInvocationAttribute;
 import org.springframework.security.access.prepost.PostInvocationAuthorizationAdvice;
 import org.springframework.security.core.Authentication;
 
-public class PythonInterpreterPostInvocationAdvice implements
-		PostInvocationAuthorizationAdvice {
+public class PythonInterpreterPostInvocationAdvice implements PostInvocationAuthorizationAdvice {
 
-	public Object after(Authentication authentication, MethodInvocation mi,
-			PostInvocationAttribute pia, Object returnedObject)
-			throws AccessDeniedException {
+	public Object after(Authentication authentication, MethodInvocation mi, PostInvocationAttribute pia,
+			Object returnedObject) throws AccessDeniedException {
 		return returnedObject;
 	}
+
 }

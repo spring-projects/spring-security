@@ -26,6 +26,7 @@ import java.util.Map;
  * @author Josh Cummings
  */
 public class XmlSupport {
+
 	private XmlParser parser;
 
 	public XmlNode parse(String location) throws IOException {
@@ -41,8 +42,9 @@ public class XmlSupport {
 	}
 
 	public void close() throws IOException {
-		if ( this.parser != null ) {
+		if (this.parser != null) {
 			this.parser.close();
 		}
 	}
+
 }

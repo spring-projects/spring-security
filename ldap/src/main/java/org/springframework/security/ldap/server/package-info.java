@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /**
- * Embedded Apache Directory Server implementation, as used by the configuration namespace.
+ * Embedded Apache Directory Server implementation, as used by the configuration
+ * namespace.
  */
 package org.springframework.security.ldap.server;
-

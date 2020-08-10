@@ -29,6 +29,7 @@ import javax.annotation.security.PermitAll;
  * @author Rob Winch
  */
 public interface MethodSecurityService {
+
 	@PreAuthorize("denyAll")
 	String preAuthorize();
 
@@ -67,4 +68,5 @@ public interface MethodSecurityService {
 
 	@PostAuthorize("#o?.contains('grant')")
 	String postAnnotation(@P("o") String object);
+
 }

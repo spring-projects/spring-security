@@ -33,26 +33,43 @@ public class InetOrgPerson extends Person {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	private String carLicense;
+
 	// Person.cn
 	private String destinationIndicator;
+
 	private String departmentNumber;
+
 	// Person.description
 	private String displayName;
+
 	private String employeeNumber;
+
 	private String homePhone;
+
 	private String homePostalAddress;
+
 	private String initials;
+
 	private String mail;
+
 	private String mobile;
+
 	private String o;
+
 	private String ou;
+
 	private String postalAddress;
+
 	private String postalCode;
+
 	private String roomNumber;
+
 	private String street;
+
 	// Person.sn
 	// Person.telephoneNumber
 	private String title;
+
 	private String uid;
 
 	public String getUid() {
@@ -146,11 +163,12 @@ public class InetOrgPerson extends Person {
 		adapter.setAttributeValue("roomNumber", roomNumber);
 		adapter.setAttributeValue("street", street);
 		adapter.setAttributeValue("uid", uid);
-		adapter.setAttributeValues("objectclass", new String[] { "top", "person",
-				"organizationalPerson", "inetOrgPerson" });
+		adapter.setAttributeValues("objectclass",
+				new String[] { "top", "person", "organizationalPerson", "inetOrgPerson" });
 	}
 
 	public static class Essence extends Person.Essence {
+
 		public Essence() {
 		}
 
@@ -277,5 +295,7 @@ public class InetOrgPerson extends Person {
 		public void setHomePostalAddress(String homePostalAddress) {
 			((InetOrgPerson) instance).homePostalAddress = homePostalAddress;
 		}
+
 	}
+
 }

@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.*;
  * @since 5.1
  */
 public class InMemoryUserDetailsManagerTests {
+
 	private final UserDetails user = PasswordEncodedUser.user();
 
 	private InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager(this.user);
@@ -41,12 +42,12 @@ public class InMemoryUserDetailsManagerTests {
 
 	@Test
 	public void changePasswordWhenUsernameIsNotInLowercase() {
-		UserDetails userNotLowerCase = User.withUserDetails(PasswordEncodedUser.user())
-				.username("User")
-				.build();
+		UserDetails userNotLowerCase = User.withUserDetails(PasswordEncodedUser.user()).username("User").build();
 
 		String newPassword = "newPassword";
 		this.manager.updatePassword(userNotLowerCase, newPassword);
-		assertThat(this.manager.loadUserByUsername(userNotLowerCase.getUsername()).getPassword()).isEqualTo(newPassword);
+		assertThat(this.manager.loadUserByUsername(userNotLowerCase.getUsername()).getPassword())
+				.isEqualTo(newPassword);
 	}
+
 }

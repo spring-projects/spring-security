@@ -39,12 +39,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Adds {@link RsaKeyConverters} to the configured {@link ConversionService} or {@link PropertyEditor}s
+ * Adds {@link RsaKeyConverters} to the configured {@link ConversionService} or
+ * {@link PropertyEditor}s
  *
  * @author Josh Cummings
  * @since 5.2
  */
 public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProcessor {
+
 	private static final String CONVERSION_SERVICE_BEAN_NAME = "conversionService";
 
 	private ResourceLoader resourceLoader = new DefaultResourceLoader();
@@ -71,7 +73,8 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 			ConverterRegistry registry = (ConverterRegistry) service;
 			registry.addConverter(String.class, RSAPrivateKey.class, pkcs8);
 			registry.addConverter(String.class, RSAPublicKey.class, x509);
-		} else {
+		}
+		else {
 			beanFactory.addPropertyEditorRegistrar(registry -> {
 				registry.registerCustomEditor(RSAPublicKey.class, new ConverterPropertyEditorAdapter<>(x509));
 				registry.registerCustomEditor(RSAPrivateKey.class, new ConverterPropertyEditorAdapter<>(pkcs8));
@@ -80,8 +83,8 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 	}
 
 	private boolean hasUserDefinedConversionService(ConfigurableListableBeanFactory beanFactory) {
-		return beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
-				beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class);
+		return beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME)
+				&& beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class);
 	}
 
 	private Converter<String, RSAPrivateKey> pkcs8() {
@@ -97,8 +100,8 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 	}
 
 	private Converter<String, InputStream> pemInputStreamConverter() {
-		return source -> source.startsWith("-----") ?
-				toInputStream(source) : toInputStream(this.resourceLoader.getResource(source));
+		return source -> source.startsWith("-----") ? toInputStream(source)
+				: toInputStream(this.resourceLoader.getResource(source));
 	}
 
 	private InputStream toInputStream(String raw) {
@@ -108,7 +111,8 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 	private InputStream toInputStream(Resource resource) {
 		try {
 			return resource.getInputStream();
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
 	}
@@ -117,7 +121,8 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 		return inputStream -> {
 			try (InputStream is = inputStream) {
 				return inputStreamKeyConverter.convert(is);
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
 		};
@@ -131,6 +136,7 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 	}
 
 	private static class ConverterPropertyEditorAdapter<T> extends PropertyEditorSupport {
+
 		private final Converter<String, T> converter;
 
 		ConverterPropertyEditorAdapter(Converter<String, T> converter) {
@@ -146,9 +152,12 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 		public void setAsText(String text) throws IllegalArgumentException {
 			if (StringUtils.hasText(text)) {
 				setValue(this.converter.convert(text));
-			} else {
+			}
+			else {
 				setValue(null);
 			}
 		}
+
 	}
+
 }

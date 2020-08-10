@@ -35,9 +35,8 @@ import org.springframework.security.web.WebAttributes;
  * @author Luke Taylor
  * @since 3.0
  */
-public class SimpleUrlAuthenticationSuccessHandler extends
-		AbstractAuthenticationTargetUrlRequestHandler implements
-		AuthenticationSuccessHandler {
+public class SimpleUrlAuthenticationSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler
+		implements AuthenticationSuccessHandler {
 
 	public SimpleUrlAuthenticationSuccessHandler() {
 	}
@@ -56,9 +55,8 @@ public class SimpleUrlAuthenticationSuccessHandler extends
 	 * URL, and then calls {@code clearAuthenticationAttributes()} to remove any leftover
 	 * session data.
 	 */
-	public void onAuthenticationSuccess(HttpServletRequest request,
-			HttpServletResponse response, Authentication authentication)
-			throws IOException, ServletException {
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication) throws IOException, ServletException {
 
 		handle(request, response, authentication);
 		clearAuthenticationAttributes(request);
@@ -77,4 +75,5 @@ public class SimpleUrlAuthenticationSuccessHandler extends
 
 		session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
 	}
+
 }

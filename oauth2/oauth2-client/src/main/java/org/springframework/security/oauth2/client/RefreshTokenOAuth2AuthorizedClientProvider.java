@@ -34,8 +34,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An implementation of an {@link OAuth2AuthorizedClientProvider}
- * for the {@link AuthorizationGrantType#REFRESH_TOKEN refresh_token} grant.
+ * An implementation of an {@link OAuth2AuthorizedClientProvider} for the
+ * {@link AuthorizationGrantType#REFRESH_TOKEN refresh_token} grant.
  *
  * @author Joe Grandja
  * @since 5.2
@@ -43,26 +43,32 @@ import java.util.Set;
  * @see DefaultRefreshTokenTokenResponseClient
  */
 public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
-	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient =
-			new DefaultRefreshTokenTokenResponseClient();
+
+	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient = new DefaultRefreshTokenTokenResponseClient();
+
 	private Duration clockSkew = Duration.ofSeconds(60);
+
 	private Clock clock = Clock.systemUTC();
 
 	/**
-	 * Attempt to re-authorize the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided {@code context}.
-	 * Returns {@code null} if re-authorization is not supported,
-	 * e.g. the client is not authorized OR the {@link OAuth2AuthorizedClient#getRefreshToken() refresh token}
-	 * is not available for the authorized client OR the {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
+	 * Attempt to re-authorize the
+	 * {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided
+	 * {@code context}. Returns {@code null} if re-authorization is not supported, e.g.
+	 * the client is not authorized OR the {@link OAuth2AuthorizedClient#getRefreshToken()
+	 * refresh token} is not available for the authorized client OR the
+	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
 	 *
 	 * <p>
-	 * The following {@link OAuth2AuthorizationContext#getAttributes() context attributes} are supported:
+	 * The following {@link OAuth2AuthorizationContext#getAttributes() context attributes}
+	 * are supported:
 	 * <ol>
-	 *  <li>{@link OAuth2AuthorizationContext#REQUEST_SCOPE_ATTRIBUTE_NAME} (optional) - a {@code String[]} of scope(s)
-	 *  	to be requested by the {@link OAuth2AuthorizationContext#getClientRegistration() client}</li>
+	 * <li>{@link OAuth2AuthorizationContext#REQUEST_SCOPE_ATTRIBUTE_NAME} (optional) - a
+	 * {@code String[]} of scope(s) to be requested by the
+	 * {@link OAuth2AuthorizationContext#getClientRegistration() client}</li>
 	 * </ol>
-	 *
 	 * @param context the context that holds authorization-specific state for the client
-	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if re-authorization is not supported
+	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if re-authorization is
+	 * not supported
 	 */
 	@Override
 	@Nullable
@@ -70,17 +76,16 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 		Assert.notNull(context, "context cannot be null");
 
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
-		if (authorizedClient == null ||
-				authorizedClient.getRefreshToken() == null ||
-				!hasTokenExpired(authorizedClient.getAccessToken())) {
+		if (authorizedClient == null || authorizedClient.getRefreshToken() == null
+				|| !hasTokenExpired(authorizedClient.getAccessToken())) {
 			return null;
 		}
 
 		Object requestScope = context.getAttribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
 		Set<String> scopes = Collections.emptySet();
 		if (requestScope != null) {
-			Assert.isInstanceOf(String[].class, requestScope,
-					"The context attribute must be of type String[] '" + OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME + "'");
+			Assert.isInstanceOf(String[].class, requestScope, "The context attribute must be of type String[] '"
+					+ OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME + "'");
 			scopes = new HashSet<>(Arrays.asList((String[]) requestScope));
 		}
 
@@ -91,8 +96,10 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 		OAuth2AccessTokenResponse tokenResponse;
 		try {
 			tokenResponse = this.accessTokenResponseClient.getTokenResponse(refreshTokenGrantRequest);
-		} catch (OAuth2AuthorizationException ex) {
-			throw new ClientAuthorizationException(ex.getError(), authorizedClient.getClientRegistration().getRegistrationId(), ex);
+		}
+		catch (OAuth2AuthorizationException ex) {
+			throw new ClientAuthorizationException(ex.getError(),
+					authorizedClient.getClientRegistration().getRegistrationId(), ex);
 		}
 
 		return new OAuth2AuthorizedClient(context.getAuthorizedClient().getClientRegistration(),
@@ -104,23 +111,26 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 	}
 
 	/**
-	 * Sets the client used when requesting an access token credential at the Token Endpoint for the {@code refresh_token} grant.
-	 *
-	 * @param accessTokenResponseClient the client used when requesting an access token credential at the Token Endpoint for the {@code refresh_token} grant
+	 * Sets the client used when requesting an access token credential at the Token
+	 * Endpoint for the {@code refresh_token} grant.
+	 * @param accessTokenResponseClient the client used when requesting an access token
+	 * credential at the Token Endpoint for the {@code refresh_token} grant
 	 */
-	public void setAccessTokenResponseClient(OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient) {
+	public void setAccessTokenResponseClient(
+			OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient) {
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
 	}
 
 	/**
 	 * Sets the maximum acceptable clock skew, which is used when checking the
-	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} expiry. The default is 60 seconds.
+	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} expiry. The default is
+	 * 60 seconds.
 	 *
 	 * <p>
-	 * An access token is considered expired if {@code OAuth2AccessToken#getExpiresAt() - clockSkew}
-	 * is before the current time {@code clock#instant()}.
-	 *
+	 * An access token is considered expired if
+	 * {@code OAuth2AccessToken#getExpiresAt() - clockSkew} is before the current time
+	 * {@code clock#instant()}.
 	 * @param clockSkew the maximum acceptable clock skew
 	 */
 	public void setClockSkew(Duration clockSkew) {
@@ -130,12 +140,13 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 	}
 
 	/**
-	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access token expiry.
-	 *
+	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access
+	 * token expiry.
 	 * @param clock the clock
 	 */
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");
 		this.clock = clock;
 	}
+
 }

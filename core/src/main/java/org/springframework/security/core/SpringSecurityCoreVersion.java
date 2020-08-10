@@ -30,8 +30,8 @@ import java.util.Properties;
  * @author Rob Winch
  */
 public class SpringSecurityCoreVersion {
-	private static final String DISABLE_CHECKS = SpringSecurityCoreVersion.class.getName()
-			.concat(".DISABLE_CHECKS");
+
+	private static final String DISABLE_CHECKS = SpringSecurityCoreVersion.class.getName().concat(".DISABLE_CHECKS");
 
 	private static final Log logger = LogFactory.getLog(SpringSecurityCoreVersion.class);
 
@@ -63,7 +63,6 @@ public class SpringSecurityCoreVersion {
 
 	/**
 	 * Perform version checks with specific min Spring Version
-	 *
 	 * @param minSpringVersion
 	 */
 	private static void performVersionChecks(String minSpringVersion) {
@@ -79,8 +78,7 @@ public class SpringSecurityCoreVersion {
 		}
 
 		logger.info("You are running with Spring Security Core " + version);
-		if (new ComparableVersion(springVersion)
-				.compareTo(new ComparableVersion(minSpringVersion)) < 0) {
+		if (new ComparableVersion(springVersion).compareTo(new ComparableVersion(minSpringVersion)) < 0) {
 			logger.warn("**** You are advised to use Spring " + minSpringVersion
 					+ " or later with this version. You are running: " + springVersion);
 		}
@@ -89,13 +87,11 @@ public class SpringSecurityCoreVersion {
 	/**
 	 * Disable if springVersion and springSecurityVersion are the same to allow working
 	 * with Uber Jars.
-	 *
 	 * @param springVersion
 	 * @param springSecurityVersion
 	 * @return
 	 */
-	private static boolean disableChecks(String springVersion,
-			String springSecurityVersion) {
+	private static boolean disableChecks(String springVersion, String springSecurityVersion) {
 		if (springVersion == null || springVersion.equals(springSecurityVersion)) {
 			return true;
 		}
@@ -109,10 +105,13 @@ public class SpringSecurityCoreVersion {
 	private static String getSpringVersion() {
 		Properties properties = new Properties();
 		try {
-			properties.load(SpringSecurityCoreVersion.class.getClassLoader().getResourceAsStream("META-INF/spring-security.versions"));
-		} catch (IOException | NullPointerException e) {
+			properties.load(SpringSecurityCoreVersion.class.getClassLoader()
+					.getResourceAsStream("META-INF/spring-security.versions"));
+		}
+		catch (IOException | NullPointerException e) {
 			return null;
 		}
 		return properties.getProperty("org.springframework:spring-core");
 	}
+
 }

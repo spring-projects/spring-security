@@ -32,6 +32,7 @@ import org.springframework.util.FileCopyUtils;
 public class SecureRandomFactoryBean implements FactoryBean<SecureRandom> {
 
 	private String algorithm = "SHA1PRNG";
+
 	private Resource seed;
 
 	public SecureRandom getObject() throws Exception {
@@ -61,7 +62,6 @@ public class SecureRandomFactoryBean implements FactoryBean<SecureRandom> {
 	/**
 	 * Allows the Pseudo Random Number Generator (PRNG) algorithm to be nominated.
 	 * Defaults to "SHA1PRNG".
-	 *
 	 * @param algorithm to use (mandatory)
 	 */
 	public void setAlgorithm(String algorithm) {
@@ -76,10 +76,10 @@ public class SecureRandomFactoryBean implements FactoryBean<SecureRandom> {
 	 * {@link SecureRandom#setSeed(byte[])} method. Note that this will simply supplement,
 	 * rather than replace, the existing seed. As such, it is always safe to set a seed
 	 * using this method (it never reduces randomness).
-	 *
 	 * @param seed to use, or <code>null</code> if no additional seeding is needed
 	 */
 	public void setSeed(Resource seed) {
 		this.seed = seed;
 	}
+
 }

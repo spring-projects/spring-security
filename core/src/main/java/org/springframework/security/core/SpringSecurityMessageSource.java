@@ -32,6 +32,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
  * @author Ben Alex
  */
 public class SpringSecurityMessageSource extends ResourceBundleMessageSource {
+
 	// ~ Constructors
 	// ===================================================================================================
 
@@ -45,4 +46,5 @@ public class SpringSecurityMessageSource extends ResourceBundleMessageSource {
 	public static MessageSourceAccessor getAccessor() {
 		return new MessageSourceAccessor(new SpringSecurityMessageSource());
 	}
+
 }

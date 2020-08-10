@@ -92,10 +92,10 @@ import org.springframework.util.StringUtils;
  * <p>
  * All comparisons and prefixes are case sensitive.
  *
- *
  * @author Ben Alex
  */
 public class AclEntryVoter extends AbstractAclVoter {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -105,23 +105,26 @@ public class AclEntryVoter extends AbstractAclVoter {
 	// ================================================================================================
 
 	private AclService aclService;
+
 	private ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
+
 	private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
+
 	private String internalMethod;
+
 	private String processConfigAttribute;
+
 	private List<Permission> requirePermission;
 
 	// ~ Constructors
 	// ===================================================================================================
 
-	public AclEntryVoter(AclService aclService, String processConfigAttribute,
-			Permission[] requirePermission) {
+	public AclEntryVoter(AclService aclService, String processConfigAttribute, Permission[] requirePermission) {
 		Assert.notNull(processConfigAttribute, "A processConfigAttribute is mandatory");
 		Assert.notNull(aclService, "An AclService is mandatory");
 
 		if ((requirePermission == null) || (requirePermission.length == 0)) {
-			throw new IllegalArgumentException(
-					"One or more requirePermission entries is mandatory");
+			throw new IllegalArgumentException("One or more requirePermission entries is mandatory");
 		}
 
 		this.aclService = aclService;
@@ -138,7 +141,6 @@ public class AclEntryVoter extends AbstractAclVoter {
 	 * evaluation. This is useful if a domain object contains a parent that an ACL
 	 * evaluation should be targeted for, instead of the child domain object (which
 	 * perhaps is being created and as such does not yet have any ACL permissions)
-	 *
 	 * @return <code>null</code> to use the domain object, or the name of a method (that
 	 * requires no arguments) that should be invoked to obtain an <code>Object</code>
 	 * which will be the domain object used for ACL evaluation
@@ -155,10 +157,8 @@ public class AclEntryVoter extends AbstractAclVoter {
 		return processConfigAttribute;
 	}
 
-	public void setObjectIdentityRetrievalStrategy(
-			ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
-		Assert.notNull(objectIdentityRetrievalStrategy,
-				"ObjectIdentityRetrievalStrategy required");
+	public void setObjectIdentityRetrievalStrategy(ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
+		Assert.notNull(objectIdentityRetrievalStrategy, "ObjectIdentityRetrievalStrategy required");
 		this.objectIdentityRetrievalStrategy = objectIdentityRetrievalStrategy;
 	}
 
@@ -168,12 +168,10 @@ public class AclEntryVoter extends AbstractAclVoter {
 	}
 
 	public boolean supports(ConfigAttribute attribute) {
-		return (attribute.getAttribute() != null)
-				&& attribute.getAttribute().equals(getProcessConfigAttribute());
+		return (attribute.getAttribute() != null) && attribute.getAttribute().equals(getProcessConfigAttribute());
 	}
 
-	public int vote(Authentication authentication, MethodInvocation object,
-			Collection<ConfigAttribute> attributes) {
+	public int vote(Authentication authentication, MethodInvocation object, Collection<ConfigAttribute> attributes) {
 
 		for (ConfigAttribute attr : attributes) {
 
@@ -201,30 +199,25 @@ public class AclEntryVoter extends AbstractAclVoter {
 					domainObject = method.invoke(domainObject);
 				}
 				catch (NoSuchMethodException nsme) {
-					throw new AuthorizationServiceException("Object of class '"
-							+ domainObject.getClass()
-							+ "' does not provide the requested internalMethod: "
-							+ internalMethod);
+					throw new AuthorizationServiceException("Object of class '" + domainObject.getClass()
+							+ "' does not provide the requested internalMethod: " + internalMethod);
 				}
 				catch (IllegalAccessException iae) {
 					logger.debug("IllegalAccessException", iae);
 
 					throw new AuthorizationServiceException(
-							"Problem invoking internalMethod: " + internalMethod
-									+ " for object: " + domainObject);
+							"Problem invoking internalMethod: " + internalMethod + " for object: " + domainObject);
 				}
 				catch (InvocationTargetException ite) {
 					logger.debug("InvocationTargetException", ite);
 
 					throw new AuthorizationServiceException(
-							"Problem invoking internalMethod: " + internalMethod
-									+ " for object: " + domainObject);
+							"Problem invoking internalMethod: " + internalMethod + " for object: " + domainObject);
 				}
 			}
 
 			// Obtain the OID applicable to the domain object
-			ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy
-					.getObjectIdentity(domainObject);
+			ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
 
 			// Obtain the SIDs applicable to the principal
 			List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
@@ -253,7 +246,8 @@ public class AclEntryVoter extends AbstractAclVoter {
 				}
 				else {
 					if (logger.isDebugEnabled()) {
-						logger.debug("Voting to deny access - ACLs returned, but insufficient permissions for this principal");
+						logger.debug(
+								"Voting to deny access - ACLs returned, but insufficient permissions for this principal");
 					}
 
 					return ACCESS_DENIED;
@@ -271,4 +265,5 @@ public class AclEntryVoter extends AbstractAclVoter {
 		// No configuration attribute matched, so abstain
 		return ACCESS_ABSTAIN;
 	}
+
 }

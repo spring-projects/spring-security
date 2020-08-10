@@ -42,8 +42,7 @@ public class HttpPathParameterStrippingTests {
 	private FilterChainProxy fcp;
 
 	@Test(expected = RequestRejectedException.class)
-	public void securedFilterChainCannotBeBypassedByAddingPathParameters()
-			throws Exception {
+	public void securedFilterChainCannotBeBypassedByAddingPathParameters() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setPathInfo("/secured;x=y/admin.html");
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
@@ -60,7 +59,6 @@ public class HttpPathParameterStrippingTests {
 		fcp.doFilter(request, response, new MockFilterChain());
 	}
 
-
 	@Test(expected = RequestRejectedException.class)
 	public void adminFilePatternCannotBeBypassedByAddingPathParametersWithPathInfo() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -74,10 +72,9 @@ public class HttpPathParameterStrippingTests {
 
 	public HttpSession createAuthenticatedSession(String... roles) {
 		MockHttpSession session = new MockHttpSession();
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("bob", "bobspassword", roles));
-		session.setAttribute(
-				HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("bob", "bobspassword", roles));
+		session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				SecurityContextHolder.getContext());
 		SecurityContextHolder.clearContext();
 		return session;

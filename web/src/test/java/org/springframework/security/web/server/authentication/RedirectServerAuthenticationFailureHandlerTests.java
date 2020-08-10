@@ -43,16 +43,17 @@ import static org.mockito.Mockito.when;
 public class RedirectServerAuthenticationFailureHandlerTests {
 
 	private WebFilterExchange exchange;
+
 	@Mock
 	private ServerRedirectStrategy redirectStrategy;
 
 	private String location = "/login";
 
-	private RedirectServerAuthenticationFailureHandler handler =
-		new RedirectServerAuthenticationFailureHandler(this.location);
+	private RedirectServerAuthenticationFailureHandler handler = new RedirectServerAuthenticationFailureHandler(
+			this.location);
 
-	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException("Authentication Required");
-
+	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException(
+			"Authentication Required");
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorStringWhenNullLocationThenException() {
@@ -62,8 +63,7 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 	@Test
 	public void commenceWhenNoSubscribersThenNoActions() {
 		this.exchange = createExchange();
-		this.handler.onAuthenticationFailure(this.exchange,
-			this.exception);
+		this.handler.onAuthenticationFailure(this.exchange, this.exception);
 
 		assertThat(this.exchange.getExchange().getResponse().getHeaders().getLocation()).isNull();
 		assertThat(this.exchange.getExchange().getSession().block().isStarted()).isFalse();
@@ -75,8 +75,7 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 
 		this.handler.onAuthenticationFailure(this.exchange, this.exception).block();
 
-		assertThat(this.exchange.getExchange().getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.FOUND);
+		assertThat(this.exchange.getExchange().getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getExchange().getResponse().getHeaders().getLocation()).hasPath(this.location);
 	}
 
@@ -98,6 +97,8 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 	}
 
 	private WebFilterExchange createExchange() {
-		return new WebFilterExchange(MockServerWebExchange.from(MockServerHttpRequest.get("/").build()), new DefaultWebFilterChain(e -> Mono.empty()));
+		return new WebFilterExchange(MockServerWebExchange.from(MockServerHttpRequest.get("/").build()),
+				new DefaultWebFilterChain(e -> Mono.empty()));
 	}
+
 }

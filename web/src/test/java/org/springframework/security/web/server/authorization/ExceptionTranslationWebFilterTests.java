@@ -44,18 +44,24 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ExceptionTranslationWebFilterTests {
+
 	@Mock
 	private Principal principal;
+
 	@Mock
 	private ServerWebExchange exchange;
+
 	@Mock
 	private WebFilterChain chain;
+
 	@Mock
 	private ServerAccessDeniedHandler deniedHandler;
+
 	@Mock
 	private ServerAuthenticationEntryPoint entryPoint;
 
 	private PublisherProbe<Void> deniedPublisher = PublisherProbe.empty();
+
 	private PublisherProbe<Void> entryPointPublisher = PublisherProbe.empty();
 
 	private ExceptionTranslationWebFilter filter = new ExceptionTranslationWebFilter();
@@ -74,9 +80,7 @@ public class ExceptionTranslationWebFilterTests {
 	public void filterWhenNoExceptionThenNotHandled() {
 		when(this.chain.filter(this.exchange)).thenReturn(Mono.empty());
 
-		StepVerifier.create(this.filter.filter(this.exchange, this.chain))
-			.expectComplete()
-			.verify();
+		StepVerifier.create(this.filter.filter(this.exchange, this.chain)).expectComplete().verify();
 
 		this.deniedPublisher.assertWasNotSubscribed();
 		this.entryPointPublisher.assertWasNotSubscribed();
@@ -86,9 +90,8 @@ public class ExceptionTranslationWebFilterTests {
 	public void filterWhenNotAccessDeniedExceptionThenNotHandled() {
 		when(this.chain.filter(this.exchange)).thenReturn(Mono.error(new IllegalArgumentException("oops")));
 
-		StepVerifier.create(this.filter.filter(this.exchange, this.chain))
-			.expectError(IllegalArgumentException.class)
-			.verify();
+		StepVerifier.create(this.filter.filter(this.exchange, this.chain)).expectError(IllegalArgumentException.class)
+				.verify();
 
 		this.deniedPublisher.assertWasNotSubscribed();
 		this.entryPointPublisher.assertWasNotSubscribed();
@@ -99,13 +102,11 @@ public class ExceptionTranslationWebFilterTests {
 		when(this.exchange.getPrincipal()).thenReturn(Mono.empty());
 		when(this.chain.filter(this.exchange)).thenReturn(Mono.error(new AccessDeniedException("Not Authorized")));
 
-		StepVerifier.create(this.filter.filter(this.exchange, this.chain))
-			.verifyComplete();
+		StepVerifier.create(this.filter.filter(this.exchange, this.chain)).verifyComplete();
 
 		this.deniedPublisher.assertWasNotSubscribed();
 		this.entryPointPublisher.assertWasSubscribed();
 	}
-
 
 	@Test
 	public void filterWhenDefaultsAndAccessDeniedExceptionAndAuthenticatedThenForbidden() {
@@ -113,12 +114,9 @@ public class ExceptionTranslationWebFilterTests {
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(this.principal));
 		when(this.chain.filter(this.exchange)).thenReturn(Mono.error(new AccessDeniedException("Not Authorized")));
 
-		StepVerifier.create(this.filter.filter(this.exchange, this.chain))
-			.expectComplete()
-			.verify();
+		StepVerifier.create(this.filter.filter(this.exchange, this.chain)).expectComplete().verify();
 
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.FORBIDDEN);
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
 	@Test
@@ -127,12 +125,9 @@ public class ExceptionTranslationWebFilterTests {
 		when(this.exchange.getPrincipal()).thenReturn(Mono.empty());
 		when(this.chain.filter(this.exchange)).thenReturn(Mono.error(new AccessDeniedException("Not Authorized")));
 
-		StepVerifier.create(this.filter.filter(this.exchange, this.chain))
-			.expectComplete()
-			.verify();
+		StepVerifier.create(this.filter.filter(this.exchange, this.chain)).expectComplete().verify();
 
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.UNAUTHORIZED);
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 
 	@Test
@@ -140,9 +135,7 @@ public class ExceptionTranslationWebFilterTests {
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(this.principal));
 		when(this.chain.filter(this.exchange)).thenReturn(Mono.error(new AccessDeniedException("Not Authorized")));
 
-		StepVerifier.create(this.filter.filter(this.exchange, this.chain))
-			.expectComplete()
-			.verify();
+		StepVerifier.create(this.filter.filter(this.exchange, this.chain)).expectComplete().verify();
 
 		this.deniedPublisher.assertWasSubscribed();
 		this.entryPointPublisher.assertWasNotSubscribed();
@@ -157,4 +150,5 @@ public class ExceptionTranslationWebFilterTests {
 	public void setAuthenticationEntryPointWhenNullThenException() {
 		this.filter.setAuthenticationEntryPoint(null);
 	}
+
 }

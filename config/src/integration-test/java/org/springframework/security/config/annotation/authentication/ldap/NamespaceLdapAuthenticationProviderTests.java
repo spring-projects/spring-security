@@ -64,14 +64,15 @@ public class NamespaceLdapAuthenticationProviderTests {
 	public void ldapAuthenticationProviderCustom() throws Exception {
 		this.spring.register(CustomLdapAuthenticationProviderConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withAuthorities(Collections.singleton(new SimpleGrantedAuthority("PREFIX_DEVELOPERS"))));
+		this.mockMvc.perform(formLogin().user("bob").password("bobspassword")).andExpect(authenticated()
+				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("PREFIX_DEVELOPERS"))));
 	}
 
 	// SEC-2490
 	@Test
 	public void ldapAuthenticationProviderCustomLdapAuthoritiesPopulator() throws Exception {
-		LdapContextSource contextSource = new DefaultSpringSecurityContextSource("ldap://blah.example.com:789/dc=springframework,dc=org");
+		LdapContextSource contextSource = new DefaultSpringSecurityContextSource(
+				"ldap://blah.example.com:789/dc=springframework,dc=org");
 		CustomAuthoritiesPopulatorConfig.LAP = new DefaultLdapAuthoritiesPopulator(contextSource, null) {
 			@Override
 			protected Set<GrantedAuthority> getAdditionalRoles(DirContextOperations user, String username) {
@@ -81,8 +82,8 @@ public class NamespaceLdapAuthenticationProviderTests {
 
 		this.spring.register(CustomAuthoritiesPopulatorConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_EXTRA"))));
+		this.mockMvc.perform(formLogin().user("bob").password("bobspassword")).andExpect(
+				authenticated().withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_EXTRA"))));
 	}
 
 	@Test
@@ -92,4 +93,5 @@ public class NamespaceLdapAuthenticationProviderTests {
 		this.mockMvc.perform(formLogin().user("bcrypt").password("password"))
 				.andExpect(authenticated().withUsername("bcrypt"));
 	}
+
 }

@@ -43,16 +43,17 @@ public class RedirectServerAuthenticationEntryPointTests {
 
 	@Mock
 	private ServerWebExchange exchange;
+
 	@Mock
 	private ServerRedirectStrategy redirectStrategy;
 
 	private String location = "/login";
 
-	private RedirectServerAuthenticationEntryPoint entryPoint =
-		new RedirectServerAuthenticationEntryPoint(this.location);
+	private RedirectServerAuthenticationEntryPoint entryPoint = new RedirectServerAuthenticationEntryPoint(
+			this.location);
 
-	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException("Authentication Required");
-
+	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException(
+			"Authentication Required");
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorStringWhenNullLocationThenException() {
@@ -62,8 +63,7 @@ public class RedirectServerAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenNoSubscribersThenNoActions() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-		this.entryPoint.commence(this.exchange,
-			this.exception);
+		this.entryPoint.commence(this.exchange, this.exception);
 
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).isNull();
 		assertThat(this.exchange.getSession().block().isStarted()).isFalse();
@@ -75,8 +75,7 @@ public class RedirectServerAuthenticationEntryPointTests {
 
 		this.entryPoint.commence(this.exchange, this.exception).block();
 
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.FOUND);
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location);
 	}
 
@@ -96,4 +95,5 @@ public class RedirectServerAuthenticationEntryPointTests {
 	public void setRedirectStrategyWhenNullThenException() {
 		this.entryPoint.setRedirectStrategy(null);
 	}
+
 }

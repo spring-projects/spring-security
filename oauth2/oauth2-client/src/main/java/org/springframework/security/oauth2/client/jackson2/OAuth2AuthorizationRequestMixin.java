@@ -37,4 +37,5 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class OAuth2AuthorizationRequestMixin {
+
 }

@@ -50,8 +50,8 @@ import java.util.Map;
  * {id}encodedPassword
  * </pre>
  *
- * Such that "id" is an identifier used to look up which {@link PasswordEncoder} should
- * be used and "encodedPassword" is the original encoded password for the selected
+ * Such that "id" is an identifier used to look up which {@link PasswordEncoder} should be
+ * used and "encodedPassword" is the original encoded password for the selected
  * {@link PasswordEncoder}. The "id" must be at the beginning of the password, start with
  * "{" and end with "}". If the "id" cannot be found, the "id" will be null.
  *
@@ -70,8 +70,8 @@ import java.util.Map;
  *
  * <ol>
  * <li>The first password would have a {@code PasswordEncoder} id of "bcrypt" and
- * encodedPassword of "$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG".
- * When matching it would delegate to
+ * encodedPassword of "$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG". When
+ * matching it would delegate to
  * {@link org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder}</li>
  * <li>The second password would have a {@code PasswordEncoder} id of "noop" and
  * encodedPassword of "password". When matching it would delegate to
@@ -115,17 +115,22 @@ import java.util.Map;
  * {@link #setDefaultPasswordEncoderForMatches(PasswordEncoder)}.
  *
  * @see org.springframework.security.crypto.factory.PasswordEncoderFactories
- *
  * @author Rob Winch
  * @author Michael Simons
  * @since 5.0
  */
 public class DelegatingPasswordEncoder implements PasswordEncoder {
+
 	private static final String PREFIX = "{";
+
 	private static final String SUFFIX = "}";
+
 	private final String idForEncode;
+
 	private final PasswordEncoder passwordEncoderForEncode;
+
 	private final Map<String, PasswordEncoder> idToPasswordEncoder;
+
 	private PasswordEncoder defaultPasswordEncoderForMatches = new UnmappedIdPasswordEncoder();
 
 	/**
@@ -133,15 +138,16 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	 * @param idForEncode the id used to lookup which {@link PasswordEncoder} should be
 	 * used for {@link #encode(CharSequence)}
 	 * @param idToPasswordEncoder a Map of id to {@link PasswordEncoder} used to determine
-	 * which {@link PasswordEncoder} should be used for {@link #matches(CharSequence, String)}
+	 * which {@link PasswordEncoder} should be used for
+	 * {@link #matches(CharSequence, String)}
 	 */
-	public DelegatingPasswordEncoder(String idForEncode,
-		Map<String, PasswordEncoder> idToPasswordEncoder) {
+	public DelegatingPasswordEncoder(String idForEncode, Map<String, PasswordEncoder> idToPasswordEncoder) {
 		if (idForEncode == null) {
 			throw new IllegalArgumentException("idForEncode cannot be null");
 		}
 		if (!idToPasswordEncoder.containsKey(idForEncode)) {
-			throw new IllegalArgumentException("idForEncode " + idForEncode + "is not found in idToPasswordEncoder " + idToPasswordEncoder);
+			throw new IllegalArgumentException(
+					"idForEncode " + idForEncode + "is not found in idToPasswordEncoder " + idToPasswordEncoder);
 		}
 		for (String id : idToPasswordEncoder.keySet()) {
 			if (id == null) {
@@ -165,16 +171,15 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	 * {@link PasswordEncoder}.
 	 *
 	 * <p>
-	   The encodedPassword provided will be the full password
-	 * passed in including the {"id"} portion.* For example, if the password of
-	 * "{notmapped}foobar" was used, the "id" would be "notmapped" and the encodedPassword
-	 * passed into the {@link PasswordEncoder} would be "{notmapped}foobar".
+	 * The encodedPassword provided will be the full password passed in including the
+	 * {"id"} portion.* For example, if the password of "{notmapped}foobar" was used, the
+	 * "id" would be "notmapped" and the encodedPassword passed into the
+	 * {@link PasswordEncoder} would be "{notmapped}foobar".
 	 * </p>
-	 * @param defaultPasswordEncoderForMatches the encoder to use. The default is to
-	 * throw an {@link IllegalArgumentException}
+	 * @param defaultPasswordEncoderForMatches the encoder to use. The default is to throw
+	 * an {@link IllegalArgumentException}
 	 */
-	public void setDefaultPasswordEncoderForMatches(
-		PasswordEncoder defaultPasswordEncoderForMatches) {
+	public void setDefaultPasswordEncoderForMatches(PasswordEncoder defaultPasswordEncoderForMatches) {
 		if (defaultPasswordEncoderForMatches == null) {
 			throw new IllegalArgumentException("defaultPasswordEncoderForMatches cannot be null");
 		}
@@ -194,8 +199,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		String id = extractId(prefixEncodedPassword);
 		PasswordEncoder delegate = this.idToPasswordEncoder.get(id);
 		if (delegate == null) {
-			return this.defaultPasswordEncoderForMatches
-				.matches(rawPassword, prefixEncodedPassword);
+			return this.defaultPasswordEncoderForMatches.matches(rawPassword, prefixEncodedPassword);
 		}
 		String encodedPassword = extractEncodedPassword(prefixEncodedPassword);
 		return delegate.matches(rawPassword, encodedPassword);
@@ -244,10 +248,11 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		}
 
 		@Override
-		public boolean matches(CharSequence rawPassword,
-			String prefixEncodedPassword) {
+		public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
 			String id = extractId(prefixEncodedPassword);
 			throw new IllegalArgumentException("There is no PasswordEncoder mapped for the id \"" + id + "\"");
 		}
+
 	}
+
 }

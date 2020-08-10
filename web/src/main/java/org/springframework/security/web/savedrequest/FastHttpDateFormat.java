@@ -34,12 +34,12 @@ import java.util.TimeZone;
  * @author Andrey Grebnev
  */
 public class FastHttpDateFormat {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
 	/** HTTP date format. */
-	protected static final SimpleDateFormat format = new SimpleDateFormat(
-			"EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+	protected static final SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 
 	/** The set of SimpleDateFormat formats to use in <code>getDateHeader()</code>. */
 	protected static final SimpleDateFormat[] formats = {
@@ -76,11 +76,9 @@ public class FastHttpDateFormat {
 	/**
 	 * Formats a specified date to HTTP format. If local format is not <code>null</code>,
 	 * it's used instead.
-	 *
 	 * @param value Date value to format
 	 * @param threadLocalformat The format to use (or <code>null</code> -- then HTTP
 	 * format will be used)
-	 *
 	 * @return Formatted date
 	 */
 	public static String formatDate(long value, DateFormat threadLocalformat) {
@@ -119,7 +117,6 @@ public class FastHttpDateFormat {
 
 	/**
 	 * Gets the current date in HTTP format.
-	 *
 	 * @return Current date in HTTP format
 	 */
 	public static String getCurrentDate() {
@@ -139,10 +136,8 @@ public class FastHttpDateFormat {
 
 	/**
 	 * Parses date with given formatters.
-	 *
 	 * @param value The string to parse
 	 * @param formats Array of formats to use
-	 *
 	 * @return Parsed date (or <code>null</code> if no formatter mached)
 	 */
 	private static Long internalParseDate(String value, DateFormat[] formats) {
@@ -166,11 +161,9 @@ public class FastHttpDateFormat {
 	/**
 	 * Tries to parse the given date as an HTTP date. If local format list is not
 	 * <code>null</code>, it's used instead.
-	 *
 	 * @param value The string to parse
 	 * @param threadLocalformats Array of formats to use for parsing. If <code>null</code>
 	 * , HTTP formats are used.
-	 *
 	 * @return Parsed date (or -1 if error occurred)
 	 */
 	public static long parseDate(String value, DateFormat[] threadLocalformats) {
@@ -212,7 +205,6 @@ public class FastHttpDateFormat {
 
 	/**
 	 * Updates cache.
-	 *
 	 * @param cache Cache to be updated
 	 * @param key Key to be updated
 	 * @param value New value
@@ -229,4 +221,5 @@ public class FastHttpDateFormat {
 
 		cache.put(key, value);
 	}
+
 }

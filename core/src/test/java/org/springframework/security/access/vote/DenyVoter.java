@@ -36,6 +36,7 @@ import java.util.Iterator;
  * @author Ben Alex
  */
 public class DenyVoter implements AccessDecisionVoter<Object> {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -52,8 +53,7 @@ public class DenyVoter implements AccessDecisionVoter<Object> {
 		return true;
 	}
 
-	public int vote(Authentication authentication, Object object,
-			Collection<ConfigAttribute> attributes) {
+	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 		Iterator<ConfigAttribute> iter = attributes.iterator();
 
 		while (iter.hasNext()) {
@@ -66,4 +66,5 @@ public class DenyVoter implements AccessDecisionVoter<Object> {
 
 		return ACCESS_ABSTAIN;
 	}
+
 }

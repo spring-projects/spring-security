@@ -53,51 +53,47 @@ import static org.springframework.security.oauth2.server.resource.introspection.
  * @author Josh Cummings
  */
 public class OpaqueTokenAuthenticationProviderTests {
+
 	@Test
 	public void authenticateWhenActiveTokenThenOk() throws Exception {
-		OAuth2AuthenticatedPrincipal principal = active(attributes -> attributes.put("extension_field", "twenty-seven"));
+		OAuth2AuthenticatedPrincipal principal = active(
+				attributes -> attributes.put("extension_field", "twenty-seven"));
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
 		when(introspector.introspect(any())).thenReturn(principal);
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
 
-		Authentication result =
-				provider.authenticate(new BearerTokenAuthenticationToken("token"));
+		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token"));
 
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2IntrospectionAuthenticatedPrincipal.class);
 
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
-		assertThat(attributes)
-				.isNotNull()
-				.containsEntry(ACTIVE, true)
+		assertThat(attributes).isNotNull().containsEntry(ACTIVE, true)
 				.containsEntry(AUDIENCE, Arrays.asList("https://protected.example.net/resource"))
 				.containsEntry(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
 				.containsEntry(EXPIRES_AT, Instant.ofEpochSecond(1419356238))
 				.containsEntry(ISSUER, new URL("https://server.example.com/"))
 				.containsEntry(NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
 				.containsEntry(SCOPE, Arrays.asList("read", "write", "dolphin"))
-				.containsEntry(SUBJECT, "Z5O3upPC88QrAjx00dis")
-				.containsEntry(USERNAME, "jdoe")
+				.containsEntry(SUBJECT, "Z5O3upPC88QrAjx00dis").containsEntry(USERNAME, "jdoe")
 				.containsEntry("extension_field", "twenty-seven");
 
-		assertThat(result.getAuthorities()).extracting("authority")
-				.containsExactly("SCOPE_read", "SCOPE_write", "SCOPE_dolphin");
+		assertThat(result.getAuthorities()).extracting("authority").containsExactly("SCOPE_read", "SCOPE_write",
+				"SCOPE_dolphin");
 	}
 
 	@Test
 	public void authenticateWhenMissingScopeAttributeThenNoAuthorities() {
-		OAuth2AuthenticatedPrincipal principal = new OAuth2IntrospectionAuthenticatedPrincipal(Collections.singletonMap("claim", "value"), null);
+		OAuth2AuthenticatedPrincipal principal = new OAuth2IntrospectionAuthenticatedPrincipal(
+				Collections.singletonMap("claim", "value"), null);
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
 		when(introspector.introspect(any())).thenReturn(principal);
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
 
-		Authentication result =
-				provider.authenticate(new BearerTokenAuthenticationToken("token"));
+		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token"));
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2AuthenticatedPrincipal.class);
 
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
-		assertThat(attributes)
-				.isNotNull()
-				.doesNotContainKey(SCOPE);
+		assertThat(attributes).isNotNull().doesNotContainKey(SCOPE);
 
 		assertThat(result.getAuthorities()).isEmpty();
 	}
@@ -114,7 +110,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 
 	@Test
 	public void constructorWhenIntrospectionClientIsNullThenIllegalArgumentException() {
-		assertThatCode(() -> new OpaqueTokenAuthenticationProvider(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> new OpaqueTokenAuthenticationProvider(null)).isInstanceOf(IllegalArgumentException.class);
 	}
+
 }

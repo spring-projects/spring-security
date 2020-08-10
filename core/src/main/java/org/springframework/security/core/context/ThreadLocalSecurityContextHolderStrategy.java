@@ -23,12 +23,11 @@ import org.springframework.util.Assert;
  * {@link SecurityContextHolderStrategy}.
  *
  * @author Ben Alex
- *
  * @see java.lang.ThreadLocal
  * @see org.springframework.security.core.context.web.SecurityContextPersistenceFilter
  */
-final class ThreadLocalSecurityContextHolderStrategy implements
-		SecurityContextHolderStrategy {
+final class ThreadLocalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -60,4 +59,5 @@ final class ThreadLocalSecurityContextHolderStrategy implements
 	public SecurityContext createEmptyContext() {
 		return new SecurityContextImpl();
 	}
+
 }

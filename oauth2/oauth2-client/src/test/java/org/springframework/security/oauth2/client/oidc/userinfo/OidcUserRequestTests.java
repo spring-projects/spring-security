@@ -39,17 +39,20 @@ import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idT
  * @author Joe Grandja
  */
 public class OidcUserRequestTests {
+
 	private ClientRegistration clientRegistration;
+
 	private OAuth2AccessToken accessToken;
+
 	private OidcIdToken idToken;
+
 	private Map<String, Object> additionalParameters;
 
 	@Before
 	public void setUp() {
 		this.clientRegistration = clientRegistration().build();
-		this.accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-				"access-token-1234", Instant.now(), Instant.now().plusSeconds(60),
-				new LinkedHashSet<>(Arrays.asList("scope1", "scope2")));
+		this.accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token-1234", Instant.now(),
+				Instant.now().plusSeconds(60), new LinkedHashSet<>(Arrays.asList("scope1", "scope2")));
 		this.idToken = idToken().authorizedParty(this.clientRegistration.getClientId()).build();
 		this.additionalParameters = new HashMap<>();
 		this.additionalParameters.put("param1", "value1");
@@ -76,12 +79,13 @@ public class OidcUserRequestTests {
 
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
-		OidcUserRequest userRequest = new OidcUserRequest(
-			this.clientRegistration, this.accessToken, this.idToken, this.additionalParameters);
+		OidcUserRequest userRequest = new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken,
+				this.additionalParameters);
 
 		assertThat(userRequest.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(userRequest.getAccessToken()).isEqualTo(this.accessToken);
 		assertThat(userRequest.getIdToken()).isEqualTo(this.idToken);
 		assertThat(userRequest.getAdditionalParameters()).containsAllEntriesOf(this.additionalParameters);
 	}
+
 }

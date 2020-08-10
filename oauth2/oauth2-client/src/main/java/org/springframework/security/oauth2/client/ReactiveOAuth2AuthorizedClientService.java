@@ -22,12 +22,12 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import reactor.core.publisher.Mono;
 
 /**
- * Implementations of this interface are responsible for the management
- * of {@link OAuth2AuthorizedClient Authorized Client(s)}, which provide the purpose
- * of associating an {@link OAuth2AuthorizedClient#getAccessToken() Access Token} credential
+ * Implementations of this interface are responsible for the management of
+ * {@link OAuth2AuthorizedClient Authorized Client(s)}, which provide the purpose of
+ * associating an {@link OAuth2AuthorizedClient#getAccessToken() Access Token} credential
  * to a {@link OAuth2AuthorizedClient#getClientRegistration() Client} and Resource Owner,
- * who is the {@link OAuth2AuthorizedClient#getPrincipalName() Principal}
- * that originally granted the authorization.
+ * who is the {@link OAuth2AuthorizedClient#getPrincipalName() Principal} that originally
+ * granted the authorization.
  *
  * @author Rob Winch
  * @since 5.1
@@ -39,32 +39,27 @@ import reactor.core.publisher.Mono;
 public interface ReactiveOAuth2AuthorizedClientService {
 
 	/**
-	 * Returns the {@link OAuth2AuthorizedClient} associated to the
-	 * provided client registration identifier and End-User's {@code Principal} name
-	 * or {@code null} if not available.
-	 *
+	 * Returns the {@link OAuth2AuthorizedClient} associated to the provided client
+	 * registration identifier and End-User's {@code Principal} name or {@code null} if
+	 * not available.
 	 * @param clientRegistrationId the identifier for the client's registration
 	 * @param principalName the name of the End-User {@code Principal} (Resource Owner)
 	 * @param <T> a type of OAuth2AuthorizedClient
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if not available
 	 */
-	<T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(String clientRegistrationId,
-			String principalName);
+	<T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(String clientRegistrationId, String principalName);
 
 	/**
-	 * Saves the {@link OAuth2AuthorizedClient} associating it to
-	 * the provided End-User {@link Authentication} (Resource Owner).
-	 *
+	 * Saves the {@link OAuth2AuthorizedClient} associating it to the provided End-User
+	 * {@link Authentication} (Resource Owner).
 	 * @param authorizedClient the authorized client
 	 * @param principal the End-User {@link Authentication} (Resource Owner)
 	 */
-	Mono<Void> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient,
-			Authentication principal);
+	Mono<Void> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal);
 
 	/**
-	 * Removes the {@link OAuth2AuthorizedClient} associated to the
-	 * provided client registration identifier and End-User's {@code Principal} name.
-	 *
+	 * Removes the {@link OAuth2AuthorizedClient} associated to the provided client
+	 * registration identifier and End-User's {@code Principal} name.
 	 * @param clientRegistrationId the identifier for the client's registration
 	 * @param principalName the name of the End-User {@code Principal} (Resource Owner)
 	 */

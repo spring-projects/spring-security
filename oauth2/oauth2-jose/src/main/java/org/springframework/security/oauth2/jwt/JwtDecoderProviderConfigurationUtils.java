@@ -27,21 +27,26 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * Allows resolving configuration from an
- * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig">OpenID Provider Configuration</a> or
- * <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server Metadata Request</a> based on provided
- * issuer and method invoked.
+ * Allows resolving configuration from an <a href=
+ * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig">OpenID
+ * Provider Configuration</a> or
+ * <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server Metadata
+ * Request</a> based on provided issuer and method invoked.
  *
  * @author Thomas Vitale
  * @author Rafiullah Hamedy
  * @since 5.2
  */
 class JwtDecoderProviderConfigurationUtils {
+
 	private static final String OIDC_METADATA_PATH = "/.well-known/openid-configuration";
+
 	private static final String OAUTH_METADATA_PATH = "/.well-known/oauth-authorization-server";
+
 	private static final RestTemplate rest = new RestTemplate();
-	private static final ParameterizedTypeReference<Map<String, Object>> typeReference =
-			new ParameterizedTypeReference<Map<String, Object>>() {};
+
+	private static final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
+	};
 
 	static Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation) {
 		return getConfiguration(oidcIssuerLocation, oidc(URI.create(oidcIssuerLocation)));
@@ -58,14 +63,13 @@ class JwtDecoderProviderConfigurationUtils {
 			metadataIssuer = configuration.get("issuer").toString();
 		}
 		if (!issuer.equals(metadataIssuer)) {
-			throw new IllegalStateException("The Issuer \"" + metadataIssuer + "\" provided in the configuration did not "
-					+ "match the requested issuer \"" + issuer + "\"");
+			throw new IllegalStateException("The Issuer \"" + metadataIssuer
+					+ "\" provided in the configuration did not " + "match the requested issuer \"" + issuer + "\"");
 		}
 	}
 
 	private static Map<String, Object> getConfiguration(String issuer, URI... uris) {
-		String errorMessage = "Unable to resolve the Configuration with the provided Issuer of " +
-				"\"" + issuer + "\"";
+		String errorMessage = "Unable to resolve the Configuration with the provided Issuer of " + "\"" + issuer + "\"";
 		for (URI uri : uris) {
 			try {
 				RequestEntity<Void> request = RequestEntity.get(uri).build();
@@ -77,11 +81,13 @@ class JwtDecoderProviderConfigurationUtils {
 				}
 
 				return configuration;
-			} catch (IllegalArgumentException e) {
+			}
+			catch (IllegalArgumentException e) {
 				throw e;
-			} catch (RuntimeException e) {
-				if (!(e instanceof HttpClientErrorException &&
-						((HttpClientErrorException) e).getStatusCode().is4xxClientError())) {
+			}
+			catch (RuntimeException e) {
+				if (!(e instanceof HttpClientErrorException
+						&& ((HttpClientErrorException) e).getStatusCode().is4xxClientError())) {
 					throw new IllegalArgumentException(errorMessage, e);
 				}
 				// else try another endpoint
@@ -91,20 +97,18 @@ class JwtDecoderProviderConfigurationUtils {
 	}
 
 	private static URI oidc(URI issuer) {
-		return UriComponentsBuilder.fromUri(issuer)
-				.replacePath(issuer.getPath() + OIDC_METADATA_PATH)
+		return UriComponentsBuilder.fromUri(issuer).replacePath(issuer.getPath() + OIDC_METADATA_PATH)
 				.build(Collections.emptyMap());
 	}
 
 	private static URI oidcRfc8414(URI issuer) {
-		return UriComponentsBuilder.fromUri(issuer)
-				.replacePath(OIDC_METADATA_PATH + issuer.getPath())
+		return UriComponentsBuilder.fromUri(issuer).replacePath(OIDC_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
 	}
 
 	private static URI oauth(URI issuer) {
-		return UriComponentsBuilder.fromUri(issuer)
-				.replacePath(OAUTH_METADATA_PATH + issuer.getPath())
+		return UriComponentsBuilder.fromUri(issuer).replacePath(OAUTH_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
 	}
+
 }

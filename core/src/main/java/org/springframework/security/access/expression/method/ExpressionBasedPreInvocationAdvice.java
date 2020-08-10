@@ -34,15 +34,13 @@ import org.springframework.security.core.Authentication;
  * @author Luke Taylor
  * @since 3.0
  */
-public class ExpressionBasedPreInvocationAdvice implements
-		PreInvocationAuthorizationAdvice {
+public class ExpressionBasedPreInvocationAdvice implements PreInvocationAuthorizationAdvice {
+
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
-	public boolean before(Authentication authentication, MethodInvocation mi,
-			PreInvocationAttribute attr) {
+	public boolean before(Authentication authentication, MethodInvocation mi, PreInvocationAttribute attr) {
 		PreInvocationExpressionAttribute preAttr = (PreInvocationExpressionAttribute) attr;
-		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication,
-				mi);
+		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, mi);
 		Expression preFilter = preAttr.getFilterExpression();
 		Expression preAuthorize = preAttr.getAuthorizeExpression();
 
@@ -59,16 +57,14 @@ public class ExpressionBasedPreInvocationAdvice implements
 		return ExpressionUtils.evaluateAsBoolean(preAuthorize, ctx);
 	}
 
-	private Object findFilterTarget(String filterTargetName, EvaluationContext ctx,
-			MethodInvocation mi) {
+	private Object findFilterTarget(String filterTargetName, EvaluationContext ctx, MethodInvocation mi) {
 		Object filterTarget = null;
 
 		if (filterTargetName.length() > 0) {
 			filterTarget = ctx.lookupVariable(filterTargetName);
 			if (filterTarget == null) {
 				throw new IllegalArgumentException(
-						"Filter target was null, or no argument with name "
-								+ filterTargetName + " found in method");
+						"Filter target was null, or no argument with name " + filterTargetName + " found in method");
 			}
 		}
 		else if (mi.getArguments().length == 1) {
@@ -77,19 +73,18 @@ public class ExpressionBasedPreInvocationAdvice implements
 				filterTarget = arg;
 			}
 			if (filterTarget == null) {
-				throw new IllegalArgumentException(
-						"A PreFilter expression was set but the method argument type"
-								+ arg.getClass() + " is not filterable");
+				throw new IllegalArgumentException("A PreFilter expression was set but the method argument type"
+						+ arg.getClass() + " is not filterable");
 			}
-		} else if (mi.getArguments().length > 1) {
+		}
+		else if (mi.getArguments().length > 1) {
 			throw new IllegalArgumentException(
 					"Unable to determine the method argument for filtering. Specify the filter target.");
 		}
 
 		if (filterTarget.getClass().isArray()) {
 			throw new IllegalArgumentException(
-					"Pre-filtering on array types is not supported. "
-							+ "Using a Collection will solve this problem");
+					"Pre-filtering on array types is not supported. " + "Using a Collection will solve this problem");
 		}
 
 		return filterTarget;
@@ -98,4 +93,5 @@ public class ExpressionBasedPreInvocationAdvice implements
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
 		this.expressionHandler = expressionHandler;
 	}
+
 }

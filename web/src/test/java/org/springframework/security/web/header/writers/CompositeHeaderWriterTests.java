@@ -42,8 +42,7 @@ public class CompositeHeaderWriterTests {
 		HeaderWriter one = mock(HeaderWriter.class);
 		HeaderWriter two = mock(HeaderWriter.class);
 
-		CompositeHeaderWriter headerWriter = new CompositeHeaderWriter(
-				Arrays.asList(one, two));
+		CompositeHeaderWriter headerWriter = new CompositeHeaderWriter(Arrays.asList(one, two));
 
 		headerWriter.writeHeaders(request, response);
 		verify(one).writeHeaders(request, response);
@@ -55,4 +54,5 @@ public class CompositeHeaderWriterTests {
 		assertThatCode(() -> new CompositeHeaderWriter(Collections.emptyList()))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
+
 }

@@ -37,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * @author Josh Cummings
  */
 public class BearerTokenAccessDeniedHandlerTests {
+
 	private BearerTokenAccessDeniedHandler accessDeniedHandler;
 
 	@Before
@@ -45,8 +46,7 @@ public class BearerTokenAccessDeniedHandlerTests {
 	}
 
 	@Test
-	public void handleWhenNotOAuth2AuthenticatedThenStatus403()
-			throws Exception {
+	public void handleWhenNotOAuth2AuthenticatedThenStatus403() throws Exception {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -61,8 +61,7 @@ public class BearerTokenAccessDeniedHandlerTests {
 	}
 
 	@Test
-	public void handleWhenNotOAuth2AuthenticatedAndRealmSetThenStatus403AndAuthHeaderWithRealm()
-			throws Exception {
+	public void handleWhenNotOAuth2AuthenticatedAndRealmSetThenStatus403AndAuthHeaderWithRealm() throws Exception {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -90,15 +89,14 @@ public class BearerTokenAccessDeniedHandlerTests {
 		this.accessDeniedHandler.handle(request, response, null);
 
 		assertThat(response.getStatus()).isEqualTo(403);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\", " +
-				"error_description=\"The request requires higher privileges than provided by the access token.\", " +
-				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\", "
+				+ "error_description=\"The request requires higher privileges than provided by the access token.\", "
+				+ "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
 	}
 
 	@Test
 	public void setRealmNameWhenNullRealmNameThenNoExceptionThrown() {
-		assertThatCode(() -> this.accessDeniedHandler.setRealmName(null))
-				.doesNotThrowAnyException();
+		assertThatCode(() -> this.accessDeniedHandler.setRealmName(null)).doesNotThrowAnyException();
 	}
 
 	static class TestingOAuth2TokenAuthenticationToken
@@ -117,9 +115,13 @@ public class BearerTokenAccessDeniedHandlerTests {
 		}
 
 		static class TestingOAuth2Token extends AbstractOAuth2Token {
+
 			TestingOAuth2Token(String tokenValue) {
 				super(tokenValue);
 			}
+
 		}
+
 	}
+
 }

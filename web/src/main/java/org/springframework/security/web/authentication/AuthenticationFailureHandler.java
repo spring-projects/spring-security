@@ -45,7 +45,7 @@ public interface AuthenticationFailureHandler {
 	 * @param exception the exception which was thrown to reject the authentication
 	 * request.
 	 */
-	void onAuthenticationFailure(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException exception)
-			throws IOException, ServletException;
+	void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) throws IOException, ServletException;
+
 }

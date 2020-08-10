@@ -24,24 +24,22 @@ import org.springframework.security.access.intercept.aopalliance.MethodSecurityM
 import org.springframework.util.MultiValueMap;
 
 /**
- * Creates Spring Security's MethodSecurityMetadataSourceAdvisor only when
- * using proxy based method security (i.e. do not do it when using ASPECTJ).
- * The conditional logic is controlled through {@link GlobalMethodSecuritySelector}.
+ * Creates Spring Security's MethodSecurityMetadataSourceAdvisor only when using proxy
+ * based method security (i.e. do not do it when using ASPECTJ). The conditional logic is
+ * controlled through {@link GlobalMethodSecuritySelector}.
  *
  * @author Rob Winch
  * @since 4.0.2
  * @see GlobalMethodSecuritySelector
  */
-class MethodSecurityMetadataSourceAdvisorRegistrar implements
-		ImportBeanDefinitionRegistrar {
+class MethodSecurityMetadataSourceAdvisorRegistrar implements ImportBeanDefinitionRegistrar {
 
 	/**
 	 * Register, escalate, and configure the AspectJ auto proxy creator based on the value
 	 * of the @{@link EnableGlobalMethodSecurity#proxyTargetClass()} attribute on the
 	 * importing {@code @Configuration} class.
 	 */
-	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
-			BeanDefinitionRegistry registry) {
+	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
 		BeanDefinitionBuilder advisor = BeanDefinitionBuilder
 				.rootBeanDefinition(MethodSecurityMetadataSourceAdvisor.class);
@@ -50,13 +48,14 @@ class MethodSecurityMetadataSourceAdvisorRegistrar implements
 		advisor.addConstructorArgReference("methodSecurityMetadataSource");
 		advisor.addConstructorArgValue("methodSecurityMetadataSource");
 
-		MultiValueMap<String, Object> attributes = importingClassMetadata.getAllAnnotationAttributes(EnableGlobalMethodSecurity.class.getName());
+		MultiValueMap<String, Object> attributes = importingClassMetadata
+				.getAllAnnotationAttributes(EnableGlobalMethodSecurity.class.getName());
 		Integer order = (Integer) attributes.getFirst("order");
 		if (order != null) {
 			advisor.addPropertyValue("order", order);
 		}
 
-		registry.registerBeanDefinition("metaDataSourceAdvisor",
-				advisor.getBeanDefinition());
+		registry.registerBeanDefinition("metaDataSourceAdvisor", advisor.getBeanDefinition());
 	}
+
 }

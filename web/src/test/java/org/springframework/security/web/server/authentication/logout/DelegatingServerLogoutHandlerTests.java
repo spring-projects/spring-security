@@ -44,12 +44,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingServerLogoutHandlerTests {
+
 	@Mock
 	private ServerLogoutHandler delegate1;
 
 	@Mock
 	private ServerLogoutHandler delegate2;
+
 	private PublisherProbe<Void> delegate1Result = PublisherProbe.empty();
+
 	private PublisherProbe<Void> delegate2Result = PublisherProbe.empty();
 
 	@Mock
@@ -60,31 +63,30 @@ public class DelegatingServerLogoutHandlerTests {
 
 	@Before
 	public void setup() {
-		when(this.delegate1.logout(any(WebFilterExchange.class), any(Authentication.class))).thenReturn(this.delegate1Result.mono());
-		when(this.delegate2.logout(any(WebFilterExchange.class), any(Authentication.class))).thenReturn(this.delegate2Result.mono());
+		when(this.delegate1.logout(any(WebFilterExchange.class), any(Authentication.class)))
+				.thenReturn(this.delegate1Result.mono());
+		when(this.delegate2.logout(any(WebFilterExchange.class), any(Authentication.class)))
+				.thenReturn(this.delegate2Result.mono());
 	}
 
 	@Test
 	public void constructorWhenNullVargsThenIllegalArgumentException() {
 		assertThatThrownBy(() -> new DelegatingServerLogoutHandler((ServerLogoutHandler[]) null))
-				.isExactlyInstanceOf(IllegalArgumentException.class)
-				.hasMessage("delegates cannot be null or empty")
+				.isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("delegates cannot be null or empty")
 				.hasNoCause();
 	}
 
 	@Test
 	public void constructorWhenNullListThenIllegalArgumentException() {
 		assertThatThrownBy(() -> new DelegatingServerLogoutHandler((List<ServerLogoutHandler>) null))
-				.isExactlyInstanceOf(IllegalArgumentException.class)
-				.hasMessage("delegates cannot be null or empty")
+				.isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("delegates cannot be null or empty")
 				.hasNoCause();
 	}
 
 	@Test
 	public void constructorWhenEmptyThenIllegalArgumentException() {
 		assertThatThrownBy(() -> new DelegatingServerLogoutHandler(new ServerLogoutHandler[0]))
-				.isExactlyInstanceOf(IllegalArgumentException.class)
-				.hasMessage("delegates cannot be null or empty")
+				.isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("delegates cannot be null or empty")
 				.hasNoCause();
 	}
 
@@ -109,21 +111,17 @@ public class DelegatingServerLogoutHandlerTests {
 	public void logoutSequential() throws Exception {
 		AtomicBoolean slowDone = new AtomicBoolean();
 		CountDownLatch latch = new CountDownLatch(1);
-		ServerLogoutHandler slow = (exchange, authentication) ->
-			Mono.delay(Duration.ofMillis(100))
-				.doOnSuccess(__ -> slowDone.set(true))
-				.then();
-		ServerLogoutHandler second = (exchange, authentication) ->
-			Mono.fromRunnable(() -> {
-				latch.countDown();
-				assertThat(slowDone.get())
-					.describedAs("ServerLogoutHandler should be executed sequentially")
-					.isTrue();
-			});
+		ServerLogoutHandler slow = (exchange, authentication) -> Mono.delay(Duration.ofMillis(100))
+				.doOnSuccess(__ -> slowDone.set(true)).then();
+		ServerLogoutHandler second = (exchange, authentication) -> Mono.fromRunnable(() -> {
+			latch.countDown();
+			assertThat(slowDone.get()).describedAs("ServerLogoutHandler should be executed sequentially").isTrue();
+		});
 		DelegatingServerLogoutHandler handler = new DelegatingServerLogoutHandler(slow, second);
 
 		handler.logout(this.exchange, this.authentication).block();
 
 		assertThat(latch.await(3, TimeUnit.SECONDS)).isTrue();
 	}
+
 }

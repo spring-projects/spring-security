@@ -27,140 +27,81 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * @since 5.0
  */
 public class AuthorizeExchangeSpecTests {
+
 	ServerHttpSecurity http = ServerHttpSecurityConfigurationBuilder.httpWithDefaultAuthentication();
 
 	@Test
 	public void antMatchersWhenMethodAndPatternsThenDiscriminatesByMethod() {
-		this.http
-			.csrf().disable()
-			.authorizeExchange()
-				.pathMatchers(HttpMethod.POST, "/a", "/b").denyAll()
-				.anyExchange().permitAll();
+		this.http.csrf().disable().authorizeExchange().pathMatchers(HttpMethod.POST, "/a", "/b").denyAll().anyExchange()
+				.permitAll();
 
 		WebTestClient client = buildClient();
 
-		client.get()
-			.uri("/a")
-			.exchange()
-			.expectStatus().isOk();
+		client.get().uri("/a").exchange().expectStatus().isOk();
 
-		client.get()
-			.uri("/b")
-			.exchange()
-			.expectStatus().isOk();
+		client.get().uri("/b").exchange().expectStatus().isOk();
 
-		client.post()
-			.uri("/a")
-			.exchange()
-			.expectStatus().isUnauthorized();
+		client.post().uri("/a").exchange().expectStatus().isUnauthorized();
 
-		client.post()
-			.uri("/b")
-			.exchange()
-			.expectStatus().isUnauthorized();
+		client.post().uri("/b").exchange().expectStatus().isUnauthorized();
 	}
-
 
 	@Test
 	public void antMatchersWhenPatternsThenAnyMethod() {
-		this.http
-			.csrf().disable()
-			.authorizeExchange()
-				.pathMatchers("/a", "/b").denyAll()
-				.anyExchange().permitAll();
+		this.http.csrf().disable().authorizeExchange().pathMatchers("/a", "/b").denyAll().anyExchange().permitAll();
 
 		WebTestClient client = buildClient();
 
-		client.get()
-			.uri("/a")
-			.exchange()
-			.expectStatus().isUnauthorized();
+		client.get().uri("/a").exchange().expectStatus().isUnauthorized();
 
-		client.get()
-			.uri("/b")
-			.exchange()
-			.expectStatus().isUnauthorized();
+		client.get().uri("/b").exchange().expectStatus().isUnauthorized();
 
-		client.post()
-			.uri("/a")
-			.exchange()
-			.expectStatus().isUnauthorized();
+		client.post().uri("/a").exchange().expectStatus().isUnauthorized();
 
-		client.post()
-			.uri("/b")
-			.exchange()
-			.expectStatus().isUnauthorized();
+		client.post().uri("/b").exchange().expectStatus().isUnauthorized();
 	}
 
 	@Test
 	public void antMatchersWhenPatternsInLambdaThenAnyMethod() {
-		this.http
-			.csrf(ServerHttpSecurity.CsrfSpec::disable)
-			.authorizeExchange(exchanges ->
-				exchanges
-					.pathMatchers("/a", "/b").denyAll()
-					.anyExchange().permitAll()
-			);
+		this.http.csrf(ServerHttpSecurity.CsrfSpec::disable)
+				.authorizeExchange(exchanges -> exchanges.pathMatchers("/a", "/b").denyAll().anyExchange().permitAll());
 
 		WebTestClient client = buildClient();
 
-		client.get()
-			.uri("/a")
-			.exchange()
-			.expectStatus().isUnauthorized();
+		client.get().uri("/a").exchange().expectStatus().isUnauthorized();
 
-		client.get()
-			.uri("/b")
-			.exchange()
-			.expectStatus().isUnauthorized();
+		client.get().uri("/b").exchange().expectStatus().isUnauthorized();
 
-		client.post()
-			.uri("/a")
-			.exchange()
-			.expectStatus().isUnauthorized();
+		client.post().uri("/a").exchange().expectStatus().isUnauthorized();
 
-		client.post()
-			.uri("/b")
-			.exchange()
-			.expectStatus().isUnauthorized();
+		client.post().uri("/b").exchange().expectStatus().isUnauthorized();
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void antMatchersWhenNoAccessAndAnotherMatcherThenThrowsException() {
-		this.http
-			.authorizeExchange()
-				.pathMatchers("/incomplete");
-		this.http
-			.authorizeExchange()
-				.pathMatchers("/throws-exception");
+		this.http.authorizeExchange().pathMatchers("/incomplete");
+		this.http.authorizeExchange().pathMatchers("/throws-exception");
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void anyExchangeWhenFollowedByMatcherThenThrowsException() {
-		this.http
-			.authorizeExchange().anyExchange().denyAll()
-			.pathMatchers("/never-reached");
+		this.http.authorizeExchange().anyExchange().denyAll().pathMatchers("/never-reached");
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void buildWhenMatcherDefinedWithNoAccessThenThrowsException() {
-		this.http
-			.authorizeExchange()
-				.pathMatchers("/incomplete");
+		this.http.authorizeExchange().pathMatchers("/incomplete");
 		this.http.build();
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void buildWhenMatcherDefinedWithNoAccessInLambdaThenThrowsException() {
-		this.http
-			.authorizeExchange(exchanges ->
-				exchanges
-					.pathMatchers("/incomplete")
-			);
+		this.http.authorizeExchange(exchanges -> exchanges.pathMatchers("/incomplete"));
 		this.http.build();
 	}
 
 	private WebTestClient buildClient() {
 		return WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
 	}
+
 }

@@ -27,8 +27,7 @@ public class TextEscapeUtilsTests {
 	 */
 	@Test
 	public void charactersAreEscapedCorrectly() {
-		assertThat(TextEscapeUtils.escapeEntities("& a<script>\"'")).isEqualTo(
-				"&amp;&#32;a&lt;script&gt;&#34;&#39;");
+		assertThat(TextEscapeUtils.escapeEntities("& a<script>\"'")).isEqualTo("&amp;&#32;a&lt;script&gt;&#34;&#39;");
 	}
 
 	@Test
@@ -64,4 +63,5 @@ public class TextEscapeUtilsTests {
 	public void undefinedSurrogatePairIsIgnored() {
 		assertThat(TextEscapeUtils.escapeEntities("abc\uD888\uDC00a")).isEqualTo("abca");
 	}
+
 }

@@ -26,13 +26,13 @@ import org.springframework.util.Assert;
 import java.util.Collection;
 
 /**
- * An implementation of an {@link AbstractAuthenticationToken}
- * that represents an OAuth 2.0 {@link Authentication}.
+ * An implementation of an {@link AbstractAuthenticationToken} that represents an OAuth
+ * 2.0 {@link Authentication}.
  * <p>
- * The {@link Authentication} associates an {@link OAuth2User} {@code Principal}
- * to the identifier of the {@link #getAuthorizedClientRegistrationId() Authorized Client},
- * which the End-User ({@code Principal}) granted authorization to
- * so that it can access it's protected resources at the UserInfo Endpoint.
+ * The {@link Authentication} associates an {@link OAuth2User} {@code Principal} to the
+ * identifier of the {@link #getAuthorizedClientRegistrationId() Authorized Client}, which
+ * the End-User ({@code Principal}) granted authorization to so that it can access it's
+ * protected resources at the UserInfo Endpoint.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -41,20 +41,22 @@ import java.util.Collection;
  * @see OAuth2AuthorizedClient
  */
 public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	private final OAuth2User principal;
+
 	private final String authorizedClientRegistrationId;
 
 	/**
 	 * Constructs an {@code OAuth2AuthenticationToken} using the provided parameters.
-	 *
 	 * @param principal the user {@code Principal} registered with the OAuth 2.0 Provider
 	 * @param authorities the authorities granted to the user
-	 * @param authorizedClientRegistrationId the registration identifier of the {@link OAuth2AuthorizedClient Authorized Client}
+	 * @param authorizedClientRegistrationId the registration identifier of the
+	 * {@link OAuth2AuthorizedClient Authorized Client}
 	 */
-	public OAuth2AuthenticationToken(OAuth2User principal,
-									Collection<? extends GrantedAuthority> authorities,
-									String authorizedClientRegistrationId) {
+	public OAuth2AuthenticationToken(OAuth2User principal, Collection<? extends GrantedAuthority> authorities,
+			String authorizedClientRegistrationId) {
 		super(authorities);
 		Assert.notNull(principal, "principal cannot be null");
 		Assert.hasText(authorizedClientRegistrationId, "authorizedClientRegistrationId cannot be empty");
@@ -75,11 +77,12 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * Returns the registration identifier of the {@link OAuth2AuthorizedClient Authorized Client}.
-	 *
+	 * Returns the registration identifier of the {@link OAuth2AuthorizedClient Authorized
+	 * Client}.
 	 * @return the registration identifier of the Authorized Client.
 	 */
 	public String getAuthorizedClientRegistrationId() {
 		return this.authorizedClientRegistrationId;
 	}
+
 }

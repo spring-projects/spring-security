@@ -43,10 +43,8 @@ public class MethodSecurityMetadataSourceAdvisorTests {
 
 		MethodSecurityMetadataSource mds = mock(MethodSecurityMetadataSource.class);
 		when(mds.getAttributes(method, clazz)).thenReturn(null);
-		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor(
-				"", mds, "");
-		assertThat(advisor.getPointcut().getMethodMatcher().matches(method,
-				clazz)).isFalse();
+		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor("", mds, "");
+		assertThat(advisor.getPointcut().getMethodMatcher().matches(method, clazz)).isFalse();
 	}
 
 	@Test
@@ -55,11 +53,9 @@ public class MethodSecurityMetadataSourceAdvisorTests {
 		Method method = clazz.getMethod("countLength", new Class[] { String.class });
 
 		MethodSecurityMetadataSource mds = mock(MethodSecurityMetadataSource.class);
-		when(mds.getAttributes(method, clazz)).thenReturn(
-				SecurityConfig.createList("ROLE_A"));
-		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor(
-				"", mds, "");
-		assertThat(
-				advisor.getPointcut().getMethodMatcher().matches(method, clazz)).isTrue();
+		when(mds.getAttributes(method, clazz)).thenReturn(SecurityConfig.createList("ROLE_A"));
+		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor("", mds, "");
+		assertThat(advisor.getPointcut().getMethodMatcher().matches(method, clazz)).isTrue();
 	}
+
 }

@@ -34,8 +34,8 @@ public class UsernamePasswordAuthenticationTokenTests {
 
 	@Test
 	public void authenticatedPropertyContractIsSatisfied() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.NO_AUTHORITIES);
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+				AuthorityUtils.NO_AUTHORITIES);
 
 		// check default given we passed some GrantedAuthorty[]s (well, we passed empty
 		// list)
@@ -67,8 +67,7 @@ public class UsernamePasswordAuthenticationTokenTests {
 
 	@Test
 	public void gettersReturnCorrectData() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password",
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 		assertThat(token.getPrincipal()).isEqualTo("Test");
 		assertThat(token.getCredentials()).isEqualTo("Password");
@@ -81,4 +80,5 @@ public class UsernamePasswordAuthenticationTokenTests {
 		Class<?> clazz = UsernamePasswordAuthenticationToken.class;
 		clazz.getDeclaredConstructor((Class[]) null);
 	}
+
 }

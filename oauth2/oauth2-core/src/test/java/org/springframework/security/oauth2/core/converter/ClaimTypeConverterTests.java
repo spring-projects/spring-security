@@ -38,13 +38,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @since 5.2
  */
 public class ClaimTypeConverterTests {
+
 	private static final String STRING_CLAIM = "string-claim";
+
 	private static final String BOOLEAN_CLAIM = "boolean-claim";
+
 	private static final String INSTANT_CLAIM = "instant-claim";
+
 	private static final String URL_CLAIM = "url-claim";
+
 	private static final String COLLECTION_STRING_CLAIM = "collection-string-claim";
+
 	private static final String LIST_STRING_CLAIM = "list-string-claim";
+
 	private static final String MAP_STRING_OBJECT_CLAIM = "map-string-object-claim";
+
 	private ClaimTypeConverter claimTypeConverter;
 
 	@Before
@@ -58,8 +66,8 @@ public class ClaimTypeConverterTests {
 				TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf(String.class)));
 		Converter<Object, ?> listStringConverter = getConverter(
 				TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(String.class)));
-		Converter<Object, ?> mapStringObjectConverter = getConverter(
-				TypeDescriptor.map(Map.class, TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Object.class)));
+		Converter<Object, ?> mapStringObjectConverter = getConverter(TypeDescriptor.map(Map.class,
+				TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Object.class)));
 
 		Map<String, Converter<Object, ?>> claimTypeConverters = new HashMap<>();
 		claimTypeConverters.put(STRING_CLAIM, stringConverter);
@@ -79,8 +87,7 @@ public class ClaimTypeConverterTests {
 
 	@Test
 	public void constructorWhenConvertersNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new ClaimTypeConverter(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> new ClaimTypeConverter(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -167,4 +174,5 @@ public class ClaimTypeConverterTests {
 
 		assertThat(claims.get("claim1")).isSameAs("value1");
 	}
+
 }

@@ -47,12 +47,10 @@ public class InsecureChannelProcessorTests {
 		request.setServerPort(8080);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
-		processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE",
-				"REQUIRES_INSECURE_CHANNEL"));
+		processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL"));
 
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
@@ -69,12 +67,11 @@ public class InsecureChannelProcessorTests {
 		request.setServerPort(8443);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
-		processor.decide(fi, SecurityConfig.createList(
-				new String[] { "SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL" }));
+		processor.decide(fi,
+				SecurityConfig.createList(new String[] { "SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL" }));
 
 		assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
@@ -146,9 +143,9 @@ public class InsecureChannelProcessorTests {
 	@Test
 	public void testSupports() {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
-		assertThat(processor.supports(new SecurityConfig("REQUIRES_INSECURE_CHANNEL")))
-				.isTrue();
+		assertThat(processor.supports(new SecurityConfig("REQUIRES_INSECURE_CHANNEL"))).isTrue();
 		assertThat(processor.supports(null)).isFalse();
 		assertThat(processor.supports(new SecurityConfig("NOT_SUPPORTED"))).isFalse();
 	}
+
 }

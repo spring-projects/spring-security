@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Fake depenency for {@link TestAuthenticationProvider}
+ *
  * @author Rob Winch
  *
  */

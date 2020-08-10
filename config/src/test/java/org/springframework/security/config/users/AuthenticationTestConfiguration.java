@@ -28,8 +28,10 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
  */
 @Configuration
 public class AuthenticationTestConfiguration {
+
 	@Bean
 	public static UserDetailsService userDetailsService() {
 		return new InMemoryUserDetailsManager(PasswordEncodedUser.user(), PasswordEncodedUser.admin());
 	}
+
 }

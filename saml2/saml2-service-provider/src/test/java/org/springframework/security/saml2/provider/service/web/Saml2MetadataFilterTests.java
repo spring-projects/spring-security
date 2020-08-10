@@ -42,18 +42,23 @@ import static org.springframework.security.saml2.provider.service.registration.T
 public class Saml2MetadataFilterTests {
 
 	RelyingPartyRegistrationRepository repository;
+
 	Saml2MetadataResolver resolver;
+
 	Saml2MetadataFilter filter;
+
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	FilterChain chain;
 
 	@Before
 	public void setup() {
 		this.repository = mock(RelyingPartyRegistrationRepository.class);
 		this.resolver = mock(Saml2MetadataResolver.class);
-		this.filter = new Saml2MetadataFilter(
-				new DefaultRelyingPartyRegistrationResolver(this.repository), this.resolver);
+		this.filter = new Saml2MetadataFilter(new DefaultRelyingPartyRegistrationResolver(this.repository),
+				this.resolver);
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 		this.chain = mock(FilterChain.class);
@@ -103,8 +108,8 @@ public class Saml2MetadataFilterTests {
 		// given
 		this.request.setPathInfo("/saml2/service-provider-metadata/validRegistration");
 		RelyingPartyRegistration validRegistration = noCredentials()
-				.assertingPartyDetails(party -> party
-						.verificationX509Credentials(c -> c.add(relyingPartyVerifyingCredential())))
+				.assertingPartyDetails(
+						party -> party.verificationX509Credentials(c -> c.add(relyingPartyVerifyingCredential())))
 				.build();
 
 		String generatedMetadata = "<xml>test</xml>";
@@ -138,7 +143,7 @@ public class Saml2MetadataFilterTests {
 
 	@Test
 	public void setRequestMatcherWhenNullThenIllegalArgument() {
-		assertThatCode(() -> this.filter.setRequestMatcher(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> this.filter.setRequestMatcher(null)).isInstanceOf(IllegalArgumentException.class);
 	}
+
 }

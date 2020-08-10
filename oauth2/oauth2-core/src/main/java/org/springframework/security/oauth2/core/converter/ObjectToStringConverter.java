@@ -36,4 +36,5 @@ final class ObjectToStringConverter implements GenericConverter {
 	public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
 		return source == null ? null : source.toString();
 	}
+
 }

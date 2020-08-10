@@ -21,7 +21,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- *
  * @author Rob Winch
  * @since 3.2
  */
@@ -33,4 +32,5 @@ public class Sec2136Tests {
 	public void configurationLoads() {
 
 	}
+
 }

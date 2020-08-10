@@ -43,15 +43,18 @@ import org.springframework.web.server.WebFilterChain;
  * @since 5.2.0
  */
 public class AnonymousAuthenticationWebFilter implements WebFilter {
+
 	private static final Log logger = LogFactory.getLog(AnonymousAuthenticationWebFilter.class);
+
 	private String key;
+
 	private Object principal;
+
 	private List<GrantedAuthority> authorities;
 
 	/**
 	 * Creates a filter with a principal named "anonymousUser" and the single authority
 	 * "ROLE_ANONYMOUS".
-	 *
 	 * @param key the key to identify tokens created by this filter
 	 */
 	public AnonymousAuthenticationWebFilter(String key) {
@@ -59,12 +62,11 @@ public class AnonymousAuthenticationWebFilter implements WebFilter {
 	}
 
 	/**
-	 * @param key         key the key to identify tokens created by this filter
-	 * @param principal   the principal which will be used to represent anonymous users
+	 * @param key key the key to identify tokens created by this filter
+	 * @param principal the principal which will be used to represent anonymous users
 	 * @param authorities the authority list for anonymous users
 	 */
-	public AnonymousAuthenticationWebFilter(String key, Object principal,
-											List<GrantedAuthority> authorities) {
+	public AnonymousAuthenticationWebFilter(String key, Object principal, List<GrantedAuthority> authorities) {
 		Assert.hasLength(key, "key cannot be null or empty");
 		Assert.notNull(principal, "Anonymous authentication principal must be set");
 		Assert.notNull(authorities, "Anonymous authorities must be set");
@@ -75,28 +77,26 @@ public class AnonymousAuthenticationWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return ReactiveSecurityContextHolder.getContext()
-				.switchIfEmpty(Mono.defer(() -> {
-						Authentication authentication = createAuthentication(exchange);
-						SecurityContext securityContext = new SecurityContextImpl(authentication);
-						if (logger.isDebugEnabled()) {
-							logger.debug("Populated SecurityContext with anonymous token: '" + authentication + "'");
-						}
-						return chain.filter(exchange)
-								.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
-								.then(Mono.empty());
-				}))
-				.flatMap(securityContext -> {
-					if (logger.isDebugEnabled()) {
-						logger.debug("SecurityContext contains anonymous token: '" + securityContext.getAuthentication() + "'");
-					}
-					return chain.filter(exchange);
-				});
+		return ReactiveSecurityContextHolder.getContext().switchIfEmpty(Mono.defer(() -> {
+			Authentication authentication = createAuthentication(exchange);
+			SecurityContext securityContext = new SecurityContextImpl(authentication);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Populated SecurityContext with anonymous token: '" + authentication + "'");
+			}
+			return chain.filter(exchange)
+					.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+					.then(Mono.empty());
+		})).flatMap(securityContext -> {
+			if (logger.isDebugEnabled()) {
+				logger.debug("SecurityContext contains anonymous token: '" + securityContext.getAuthentication() + "'");
+			}
+			return chain.filter(exchange);
+		});
 	}
 
 	protected Authentication createAuthentication(ServerWebExchange exchange) {
-		AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key,
-				principal, authorities);
+		AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key, principal, authorities);
 		return auth;
 	}
+
 }

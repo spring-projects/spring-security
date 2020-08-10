@@ -35,8 +35,7 @@ public class SavedRequestAwareWrapperTests {
 
 	private SavedRequestAwareWrapper createWrapper(MockHttpServletRequest requestToSave,
 			MockHttpServletRequest requestToWrap) {
-		DefaultSavedRequest saved = new DefaultSavedRequest(requestToSave,
-				new PortResolverImpl());
+		DefaultSavedRequest saved = new DefaultSavedRequest(requestToSave, new PortResolverImpl());
 		return new SavedRequestAwareWrapper(saved, requestToWrap);
 	}
 
@@ -57,8 +56,7 @@ public class SavedRequestAwareWrapperTests {
 	public void savedRequesthHeaderIsReturnedIfSavedRequestIsSet() {
 		MockHttpServletRequest savedRequest = new MockHttpServletRequest();
 		savedRequest.addHeader("header", "savedheader");
-		SavedRequestAwareWrapper wrapper = createWrapper(savedRequest,
-				new MockHttpServletRequest());
+		SavedRequestAwareWrapper wrapper = createWrapper(savedRequest, new MockHttpServletRequest());
 
 		assertThat(wrapper.getHeader("nonexistent")).isNull();
 		Enumeration headers = wrapper.getHeaders("nonexistent");
@@ -117,8 +115,7 @@ public class SavedRequestAwareWrapperTests {
 
 	@Test
 	public void getParameterValuesReturnsNullIfParameterIsntSet() {
-		SavedRequestAwareWrapper wrapper = createWrapper(new MockHttpServletRequest(),
-				new MockHttpServletRequest());
+		SavedRequestAwareWrapper wrapper = createWrapper(new MockHttpServletRequest(), new MockHttpServletRequest());
 		assertThat(wrapper.getParameterValues("action")).isNull();
 		assertThat(wrapper.getParameterMap().get("action")).isNull();
 	}
@@ -141,14 +138,12 @@ public class SavedRequestAwareWrapperTests {
 
 	@Test
 	public void expecteDateHeaderIsReturnedFromSavedRequest() throws Exception {
-		SimpleDateFormat formatter = new SimpleDateFormat(
-				"EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+		SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 		String nowString = FastHttpDateFormat.getCurrentDate();
 		Date now = formatter.parse(nowString);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("header", nowString);
-		SavedRequestAwareWrapper wrapper = createWrapper(request,
-				new MockHttpServletRequest());
+		SavedRequestAwareWrapper wrapper = createWrapper(request, new MockHttpServletRequest());
 		assertThat(wrapper.getDateHeader("header")).isEqualTo(now.getTime());
 
 		assertThat(wrapper.getDateHeader("nonexistent")).isEqualTo(-1L);
@@ -158,16 +153,14 @@ public class SavedRequestAwareWrapperTests {
 	public void invalidDateHeaderIsRejected() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("header", "notadate");
-		SavedRequestAwareWrapper wrapper = createWrapper(request,
-				new MockHttpServletRequest());
+		SavedRequestAwareWrapper wrapper = createWrapper(request, new MockHttpServletRequest());
 		wrapper.getDateHeader("header");
 	}
 
 	@Test
 	public void correctHttpMethodIsReturned() {
 		MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/notused");
-		SavedRequestAwareWrapper wrapper = createWrapper(request,
-				new MockHttpServletRequest("GET", "/notused"));
+		SavedRequestAwareWrapper wrapper = createWrapper(request, new MockHttpServletRequest("GET", "/notused"));
 		assertThat(wrapper.getMethod()).isEqualTo("PUT");
 	}
 
@@ -176,8 +169,7 @@ public class SavedRequestAwareWrapperTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("header", "999");
 		request.addHeader("header", "1000");
-		SavedRequestAwareWrapper wrapper = createWrapper(request,
-				new MockHttpServletRequest());
+		SavedRequestAwareWrapper wrapper = createWrapper(request, new MockHttpServletRequest());
 
 		assertThat(wrapper.getIntHeader("header")).isEqualTo(999);
 		assertThat(wrapper.getIntHeader("nonexistent")).isEqualTo(-1);

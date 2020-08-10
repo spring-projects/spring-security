@@ -39,10 +39,12 @@ import org.mockito.Mock;
  * @see CurrentDelegatingSecurityContextExecutorServiceTests
  * @see ExplicitDelegatingSecurityContextExecutorServiceTests
  */
-public abstract class AbstractDelegatingSecurityContextExecutorServiceTests extends
-		AbstractDelegatingSecurityContextExecutorTests {
+public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
+		extends AbstractDelegatingSecurityContextExecutorTests {
+
 	@Mock
 	private Future<Object> expectedFutureObject;
+
 	@Mock
 	private Object resultArg;
 
@@ -89,8 +91,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests exte
 	public void awaitTermination() throws InterruptedException {
 		boolean result = executor.awaitTermination(1, TimeUnit.SECONDS);
 		verify(delegate).awaitTermination(1, TimeUnit.SECONDS);
-		assertThat(result).isEqualTo(delegate.awaitTermination(1, TimeUnit.SECONDS))
-				.isNotNull();
+		assertThat(result).isEqualTo(delegate.awaitTermination(1, TimeUnit.SECONDS)).isNotNull();
 	}
 
 	@Test
@@ -103,8 +104,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests exte
 
 	@Test
 	public void submitRunnableWithResult() {
-		when(delegate.submit(wrappedRunnable, resultArg))
-				.thenReturn(expectedFutureObject);
+		when(delegate.submit(wrappedRunnable, resultArg)).thenReturn(expectedFutureObject);
 		Future<Object> result = executor.submit(runnable, resultArg);
 		verify(delegate).submit(wrappedRunnable, resultArg);
 		assertThat(result).isEqualTo(expectedFutureObject);
@@ -113,8 +113,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests exte
 	@Test
 	@SuppressWarnings("unchecked")
 	public void submitRunnable() {
-		when((Future<Object>) delegate.submit(wrappedRunnable)).thenReturn(
-				expectedFutureObject);
+		when((Future<Object>) delegate.submit(wrappedRunnable)).thenReturn(expectedFutureObject);
 		Future<?> result = executor.submit(runnable);
 		verify(delegate).submit(wrappedRunnable);
 		assertThat(result).isEqualTo(expectedFutureObject);
@@ -136,10 +135,8 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests exte
 	public void invokeAllTimeout() throws Exception {
 		List<Future<Object>> exectedResult = Arrays.asList(expectedFutureObject);
 		List<Callable<Object>> wrappedCallables = Arrays.asList(wrappedCallable);
-		when(delegate.invokeAll(wrappedCallables, 1, TimeUnit.SECONDS)).thenReturn(
-				exectedResult);
-		List<Future<Object>> result = executor.invokeAll(Arrays.asList(callable), 1,
-				TimeUnit.SECONDS);
+		when(delegate.invokeAll(wrappedCallables, 1, TimeUnit.SECONDS)).thenReturn(exectedResult);
+		List<Future<Object>> result = executor.invokeAll(Arrays.asList(callable), 1, TimeUnit.SECONDS);
 		verify(delegate).invokeAll(wrappedCallables, 1, TimeUnit.SECONDS);
 		assertThat(result).isEqualTo(exectedResult);
 	}
@@ -160,12 +157,12 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests exte
 	public void invokeAnyTimeout() throws Exception {
 		List<Future<Object>> exectedResult = Arrays.asList(expectedFutureObject);
 		List<Callable<Object>> wrappedCallables = Arrays.asList(wrappedCallable);
-		when(delegate.invokeAny(wrappedCallables, 1, TimeUnit.SECONDS)).thenReturn(
-				exectedResult);
+		when(delegate.invokeAny(wrappedCallables, 1, TimeUnit.SECONDS)).thenReturn(exectedResult);
 		Object result = executor.invokeAny(Arrays.asList(callable), 1, TimeUnit.SECONDS);
 		verify(delegate).invokeAny(wrappedCallables, 1, TimeUnit.SECONDS);
 		assertThat(result).isEqualTo(exectedResult);
 	}
 
 	protected abstract DelegatingSecurityContextExecutorService create();
+
 }

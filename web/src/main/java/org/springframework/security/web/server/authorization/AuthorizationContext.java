@@ -26,7 +26,9 @@ import java.util.Map;
  * @since 5.0
  */
 public class AuthorizationContext {
+
 	private final ServerWebExchange exchange;
+
 	private final Map<String, Object> variables;
 
 	public AuthorizationContext(ServerWebExchange exchange) {
@@ -45,4 +47,5 @@ public class AuthorizationContext {
 	public Map<String, Object> getVariables() {
 		return Collections.unmodifiableMap(variables);
 	}
+
 }

@@ -31,6 +31,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Luke Taylor
  */
 public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
+
 	private InMemoryXmlApplicationContext appContext;
 
 	private BusinessService target;
@@ -39,8 +40,7 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 	public void loadContext() {
 		appContext = new InMemoryXmlApplicationContext(
 				"<b:bean id='target' class='org.springframework.security.access.annotation.Jsr250BusinessServiceImpl'/>"
-						+ "<global-method-security jsr250-annotations='enabled'/>"
-						+ ConfigTestUtils.AUTH_PROVIDER_XML);
+						+ "<global-method-security jsr250-annotations='enabled'/>" + ConfigTestUtils.AUTH_PROVIDER_XML);
 		target = (BusinessService) appContext.getBean("target");
 	}
 
@@ -59,8 +59,8 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 
 	@Test
 	public void permitAllShouldBeDefaultAttribute() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
 		target.someOther(0);
@@ -68,8 +68,8 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 
 	@Test
 	public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
 		target.someUserMethod1();
@@ -77,8 +77,7 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 
 	@Test(expected = AccessDeniedException.class)
 	public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password",
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
@@ -87,10 +86,11 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 
 	@Test
 	public void hasAnyRoleAddsDefaultPrefix() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
 		target.rolesAllowedUser();
 	}
+
 }

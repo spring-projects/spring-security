@@ -42,10 +42,10 @@ abstract class OAuth2AccessTokenMixin {
 
 	@JsonCreator
 	OAuth2AccessTokenMixin(
-			@JsonProperty("tokenType") @JsonDeserialize(converter = StdConverters.AccessTokenTypeConverter.class) OAuth2AccessToken.TokenType tokenType,
-			@JsonProperty("tokenValue") String tokenValue,
-			@JsonProperty("issuedAt") Instant issuedAt,
-			@JsonProperty("expiresAt") Instant expiresAt,
-			@JsonProperty("scopes") Set<String> scopes) {
+			@JsonProperty("tokenType") @JsonDeserialize(
+					converter = StdConverters.AccessTokenTypeConverter.class) OAuth2AccessToken.TokenType tokenType,
+			@JsonProperty("tokenValue") String tokenValue, @JsonProperty("issuedAt") Instant issuedAt,
+			@JsonProperty("expiresAt") Instant expiresAt, @JsonProperty("scopes") Set<String> scopes) {
 	}
+
 }

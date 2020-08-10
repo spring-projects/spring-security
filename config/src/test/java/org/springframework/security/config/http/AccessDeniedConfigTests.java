@@ -39,15 +39,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- *
  * @author Luke Taylor
  * @author Josh Cummings
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SecurityTestExecutionListeners
 public class AccessDeniedConfigTests {
-	private static final String CONFIG_LOCATION_PREFIX =
-			"classpath:org/springframework/security/config/http/AccessDeniedConfigTests";
+
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/AccessDeniedConfigTests";
 
 	@Autowired
 	MockMvc mvc;
@@ -59,28 +58,24 @@ public class AccessDeniedConfigTests {
 	public void configureWhenAccessDeniedHandlerIsMissingLeadingSlashThenException() {
 		SpringTestContext context = this.spring.configLocations(this.xml("NoLeadingSlash"));
 
-		assertThatThrownBy(() -> context.autowire())
-				.isInstanceOf(BeanCreationException.class)
+		assertThatThrownBy(() -> context.autowire()).isInstanceOf(BeanCreationException.class)
 				.hasMessageContaining("errorPage must begin with '/'");
 	}
 
 	@Test
 	@WithMockUser
-	public void configureWhenAccessDeniedHandlerRefThenAutowire()
-		throws Exception {
+	public void configureWhenAccessDeniedHandlerRefThenAutowire() throws Exception {
 
 		this.spring.configLocations(this.xml("AccessDeniedHandler")).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(status().is(HttpStatus.GONE_410));
+		this.mvc.perform(get("/")).andExpect(status().is(HttpStatus.GONE_410));
 	}
 
 	@Test
 	public void configureWhenAccessDeniedHandlerUsesPathAndRefThenException() {
 		SpringTestContext context = this.spring.configLocations(this.xml("UsesPathAndRef"));
 
-		assertThatThrownBy(() -> context.autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class)
+		assertThatThrownBy(() -> context.autowire()).isInstanceOf(BeanDefinitionParsingException.class)
 				.hasMessageContaining("attribute error-page cannot be used together with the 'ref' attribute");
 	}
 
@@ -91,11 +86,12 @@ public class AccessDeniedConfigTests {
 	public static class GoneAccessDeniedHandler implements AccessDeniedHandler {
 
 		@Override
-		public void handle(HttpServletRequest request,
-							HttpServletResponse response,
-							AccessDeniedException accessDeniedException) {
+		public void handle(HttpServletRequest request, HttpServletResponse response,
+				AccessDeniedException accessDeniedException) {
 
 			response.setStatus(HttpStatus.GONE_410);
 		}
+
 	}
+
 }

@@ -49,4 +49,5 @@ final class UnmodifiableMapDeserializer extends JsonDeserializer<Map<?, ?>> {
 		}
 		return Collections.unmodifiableMap(result);
 	}
+
 }

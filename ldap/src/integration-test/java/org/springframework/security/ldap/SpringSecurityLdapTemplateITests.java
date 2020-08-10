@@ -45,11 +45,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
 public class SpringSecurityLdapTemplateITests {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	@Autowired
 	private DefaultSpringSecurityContextSource contextSource;
+
 	private SpringSecurityLdapTemplate template;
 
 	// ~ Methods
@@ -67,14 +69,12 @@ public class SpringSecurityLdapTemplateITests {
 
 	@Test
 	public void compareOfCorrectByteValueSucceeds() {
-		assertThat(template.compare("uid=bob,ou=people", "userPassword",
-				Utf8.encode("bobspassword"))).isTrue();
+		assertThat(template.compare("uid=bob,ou=people", "userPassword", Utf8.encode("bobspassword"))).isTrue();
 	}
 
 	@Test
 	public void compareOfWrongByteValueFails() {
-		assertThat(template.compare("uid=bob,ou=people", "userPassword",
-				Utf8.encode("wrongvalue"))).isFalse();
+		assertThat(template.compare("uid=bob,ou=people", "userPassword", Utf8.encode("wrongvalue"))).isFalse();
 	}
 
 	@Test
@@ -108,8 +108,8 @@ public class SpringSecurityLdapTemplateITests {
 	public void roleSearchReturnsCorrectNumberOfRoles() {
 		String param = "uid=ben,ou=people,dc=springframework,dc=org";
 
-		Set<String> values = template.searchForSingleAttributeValues("ou=groups",
-				"(member={0})", new String[] { param }, "ou");
+		Set<String> values = template.searchForSingleAttributeValues("ou=groups", "(member={0})",
+				new String[] { param }, "ou");
 
 		assertThat(values).as("Expected 3 results from search").hasSize(3);
 		assertThat(values.contains("developer")).isTrue();
@@ -119,14 +119,12 @@ public class SpringSecurityLdapTemplateITests {
 
 	@Test
 	public void testMultiAttributeRetrievalWithNullAttributeNames() {
-		Set<Map<String, List<String>>> values = template
-				.searchForMultipleAttributeValues("ou=people", "(uid={0})",
-						new String[] { "bob" }, null);
+		Set<Map<String, List<String>>> values = template.searchForMultipleAttributeValues("ou=people", "(uid={0})",
+				new String[] { "bob" }, null);
 		assertThat(values).hasSize(1);
 		Map<String, List<String>> record = values.iterator().next();
 		assertAttributeValue(record, "uid", "bob");
-		assertAttributeValue(record, "objectclass", "top", "person",
-				"organizationalPerson", "inetOrgPerson");
+		assertAttributeValue(record, "objectclass", "top", "person", "organizationalPerson", "inetOrgPerson");
 		assertAttributeValue(record, "cn", "Bob Hamilton");
 		assertAttributeValue(record, "sn", "Hamilton");
 		assertThat(record.containsKey("userPassword")).isFalse();
@@ -134,14 +132,12 @@ public class SpringSecurityLdapTemplateITests {
 
 	@Test
 	public void testMultiAttributeRetrievalWithZeroLengthAttributeNames() {
-		Set<Map<String, List<String>>> values = template
-				.searchForMultipleAttributeValues("ou=people", "(uid={0})",
-						new String[] { "bob" }, new String[0]);
+		Set<Map<String, List<String>>> values = template.searchForMultipleAttributeValues("ou=people", "(uid={0})",
+				new String[] { "bob" }, new String[0]);
 		assertThat(values).hasSize(1);
 		Map<String, List<String>> record = values.iterator().next();
 		assertAttributeValue(record, "uid", "bob");
-		assertAttributeValue(record, "objectclass", "top", "person",
-				"organizationalPerson", "inetOrgPerson");
+		assertAttributeValue(record, "objectclass", "top", "person", "organizationalPerson", "inetOrgPerson");
 		assertAttributeValue(record, "cn", "Bob Hamilton");
 		assertAttributeValue(record, "sn", "Hamilton");
 		assertThat(record.containsKey("userPassword")).isFalse();
@@ -149,9 +145,8 @@ public class SpringSecurityLdapTemplateITests {
 
 	@Test
 	public void testMultiAttributeRetrievalWithSpecifiedAttributeNames() {
-		Set<Map<String, List<String>>> values = template
-				.searchForMultipleAttributeValues("ou=people", "(uid={0})",
-						new String[] { "bob" }, new String[] { "uid", "cn", "sn" });
+		Set<Map<String, List<String>>> values = template.searchForMultipleAttributeValues("ou=people", "(uid={0})",
+				new String[] { "bob" }, new String[] { "uid", "cn", "sn" });
 		assertThat(values).hasSize(1);
 		Map<String, List<String>> record = values.iterator().next();
 		assertAttributeValue(record, "uid", "bob");
@@ -161,8 +156,7 @@ public class SpringSecurityLdapTemplateITests {
 		assertThat(record.containsKey("objectclass")).isFalse();
 	}
 
-	protected void assertAttributeValue(Map<String, List<String>> record,
-			String attributeName, String... values) {
+	protected void assertAttributeValue(Map<String, List<String>> record, String attributeName, String... values) {
 		assertThat(record.containsKey(attributeName)).isTrue();
 		assertThat(record.get(attributeName)).hasSize(values.length);
 		for (int i = 0; i < values.length; i++) {
@@ -174,8 +168,8 @@ public class SpringSecurityLdapTemplateITests {
 	public void testRoleSearchForMissingAttributeFailsGracefully() {
 		String param = "uid=ben,ou=people,dc=springframework,dc=org";
 
-		Set<String> values = template.searchForSingleAttributeValues("ou=groups",
-				"(member={0})", new String[] { param }, "mail");
+		Set<String> values = template.searchForSingleAttributeValues("ou=groups", "(member={0})",
+				new String[] { param }, "mail");
 
 		assertThat(values).isEmpty();
 	}
@@ -184,8 +178,8 @@ public class SpringSecurityLdapTemplateITests {
 	public void roleSearchWithEscapedCharacterSucceeds() {
 		String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
 
-		Set<String> values = template.searchForSingleAttributeValues("ou=groups",
-				"(member={0})", new String[] { param }, "cn");
+		Set<String> values = template.searchForSingleAttributeValues("ou=groups", "(member={0})",
+				new String[] { param }, "cn");
 
 		assertThat(values).hasSize(1);
 	}
@@ -205,9 +199,8 @@ public class SpringSecurityLdapTemplateITests {
 		controls.setReturningAttributes(null);
 		String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
 
-		javax.naming.NamingEnumeration<SearchResult> results = ctx.search(
-				"ou=groups,dc=springframework,dc=org", "(member={0})",
-				new String[] { param }, controls);
+		javax.naming.NamingEnumeration<SearchResult> results = ctx.search("ou=groups,dc=springframework,dc=org",
+				"(member={0})", new String[] { param }, controls);
 
 		assertThat(results.hasMore()).as("Expected a result").isTrue();
 	}

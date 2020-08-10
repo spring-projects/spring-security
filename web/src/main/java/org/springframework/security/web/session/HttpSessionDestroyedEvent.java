@@ -32,6 +32,7 @@ import java.util.*;
  * @author Rob Winch
  */
 public class HttpSessionDestroyedEvent extends SessionDestroyedEvent {
+
 	// ~ Constructors
 	// ===================================================================================================
 
@@ -67,4 +68,5 @@ public class HttpSessionDestroyedEvent extends SessionDestroyedEvent {
 	public String getId() {
 		return getSession().getId();
 	}
+
 }

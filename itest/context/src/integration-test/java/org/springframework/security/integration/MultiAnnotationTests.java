@@ -35,15 +35,17 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = { "/multi-sec-annotation-app-context.xml" })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class MultiAnnotationTests {
-	private final TestingAuthenticationToken joe_a = new TestingAuthenticationToken(
-			"joe", "pass", "ROLE_A");
-	private final TestingAuthenticationToken joe_b = new TestingAuthenticationToken(
-			"joe", "pass", "ROLE_B");
+
+	private final TestingAuthenticationToken joe_a = new TestingAuthenticationToken("joe", "pass", "ROLE_A");
+
+	private final TestingAuthenticationToken joe_b = new TestingAuthenticationToken("joe", "pass", "ROLE_B");
 
 	@Autowired
 	MultiAnnotationService service;
+
 	@Autowired
 	PreAuthorizeService preService;
+
 	@Autowired
 	SecuredService secService;
 
@@ -100,4 +102,5 @@ public class MultiAnnotationTests {
 		SecurityContextHolder.getContext().setAuthentication(joe_b);
 		secService.securedMethod();
 	}
+
 }

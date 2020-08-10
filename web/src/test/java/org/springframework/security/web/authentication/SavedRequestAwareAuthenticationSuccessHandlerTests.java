@@ -62,4 +62,5 @@ public class SavedRequestAwareAuthenticationSuccessHandlerTests {
 
 		verify(redirectStrategy).sendRedirect(request, response, redirectUrl);
 	}
+
 }

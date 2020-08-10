@@ -20,7 +20,6 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
- *
  * @author Luke Taylor
  * @since 3.0
  */

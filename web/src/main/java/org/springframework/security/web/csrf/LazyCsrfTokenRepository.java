@@ -29,6 +29,7 @@ import org.springframework.util.Assert;
  * @since 4.1
  */
 public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
+
 	/**
 	 * The {@link HttpServletRequest} attribute name that the {@link HttpServletResponse}
 	 * must be on.
@@ -65,8 +66,7 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 	 * performed immediately.
 	 */
 	@Override
-	public void saveToken(CsrfToken token, HttpServletRequest request,
-			HttpServletResponse response) {
+	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
 		if (token == null) {
 			this.delegate.saveToken(token, request, response);
 		}
@@ -86,8 +86,7 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	private HttpServletResponse getResponse(HttpServletRequest request) {
-		HttpServletResponse response = (HttpServletResponse) request
-				.getAttribute(HTTP_RESPONSE_ATTR);
+		HttpServletResponse response = (HttpServletResponse) request.getAttribute(HTTP_RESPONSE_ATTR);
 		if (response == null) {
 			throw new IllegalArgumentException(
 					"The HttpServletRequest attribute must contain an HttpServletResponse for the attribute "
@@ -97,15 +96,17 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	private static final class SaveOnAccessCsrfToken implements CsrfToken {
+
 		private transient CsrfTokenRepository tokenRepository;
+
 		private transient HttpServletRequest request;
+
 		private transient HttpServletResponse response;
 
 		private final CsrfToken delegate;
 
-		SaveOnAccessCsrfToken(CsrfTokenRepository tokenRepository,
-				HttpServletRequest request, HttpServletResponse response,
-				CsrfToken delegate) {
+		SaveOnAccessCsrfToken(CsrfTokenRepository tokenRepository, HttpServletRequest request,
+				HttpServletResponse response, CsrfToken delegate) {
 			this.tokenRepository = tokenRepository;
 			this.request = request;
 			this.response = response;
@@ -137,8 +138,7 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result
-					+ ((this.delegate == null) ? 0 : this.delegate.hashCode());
+			result = prime * result + ((this.delegate == null) ? 0 : this.delegate.hashCode());
 			return result;
 		}
 
@@ -172,8 +172,7 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 
 			synchronized (this) {
 				if (this.tokenRepository != null) {
-					this.tokenRepository.saveToken(this.delegate, this.request,
-							this.response);
+					this.tokenRepository.saveToken(this.delegate, this.request, this.response);
 					this.tokenRepository = null;
 					this.request = null;
 					this.response = null;
@@ -182,4 +181,5 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 		}
 
 	}
+
 }

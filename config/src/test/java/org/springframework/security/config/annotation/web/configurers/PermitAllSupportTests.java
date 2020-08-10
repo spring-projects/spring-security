@@ -49,18 +49,15 @@ public class PermitAllSupportTests {
 	public void performWhenUsingPermitAllExactUrlRequestMatcherThenMatchesExactUrl() throws Exception {
 		this.spring.register(PermitAllConfig.class).autowire();
 
-		this.mvc.perform(get("/app/xyz").contextPath("/app"))
-				.andExpect(status().isNotFound());
-		this.mvc.perform(get("/app/xyz?def").contextPath("/app"))
-				.andExpect(status().isFound());
-		this.mvc.perform(post("/app/abc?def").with(csrf()).contextPath("/app"))
-				.andExpect(status().isNotFound());
-		this.mvc.perform(get("/app/abc").with(csrf()).contextPath("/app"))
-				.andExpect(status().isFound());
+		this.mvc.perform(get("/app/xyz").contextPath("/app")).andExpect(status().isNotFound());
+		this.mvc.perform(get("/app/xyz?def").contextPath("/app")).andExpect(status().isFound());
+		this.mvc.perform(post("/app/abc?def").with(csrf()).contextPath("/app")).andExpect(status().isNotFound());
+		this.mvc.perform(get("/app/abc").with(csrf()).contextPath("/app")).andExpect(status().isFound());
 	}
 
 	@EnableWebSecurity
 	static class PermitAllConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -73,6 +70,7 @@ public class PermitAllSupportTests {
 					.loginProcessingUrl("/abc?def").permitAll();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -93,5 +91,7 @@ public class PermitAllSupportTests {
 					.permitAll();
 			// @formatter:on
 		}
+
 	}
+
 }

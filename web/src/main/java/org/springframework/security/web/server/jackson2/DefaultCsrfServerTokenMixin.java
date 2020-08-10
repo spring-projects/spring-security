@@ -22,8 +22,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
- * Jackson mixin class to serialize/deserialize {@link org.springframework.security.web.server.csrf.DefaultCsrfToken}
- * serialization support.
+ * Jackson mixin class to serialize/deserialize
+ * {@link org.springframework.security.web.server.csrf.DefaultCsrfToken} serialization
+ * support.
  *
  * <pre>
  * 		ObjectMapper mapper = new ObjectMapper();
@@ -39,15 +40,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 class DefaultCsrfServerTokenMixin {
 
 	/**
-	 * JsonCreator constructor needed by Jackson to create {@link org.springframework.security.web.server.csrf.DefaultCsrfToken}
-	 * object.
-	 *
-	 * @param headerName    the name of the header
+	 * JsonCreator constructor needed by Jackson to create
+	 * {@link org.springframework.security.web.server.csrf.DefaultCsrfToken} object.
+	 * @param headerName the name of the header
 	 * @param parameterName the parameter name
-	 * @param token         the CSRF token value
+	 * @param token the CSRF token value
 	 */
 	@JsonCreator
 	DefaultCsrfServerTokenMixin(@JsonProperty("headerName") String headerName,
-										@JsonProperty("parameterName") String parameterName, @JsonProperty("token") String token) {
+			@JsonProperty("parameterName") String parameterName, @JsonProperty("token") String token) {
 	}
+
 }

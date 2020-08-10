@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.springframework.core.Ordered;
 
 public class SecurityConfigurerAdapterTests {
+
 	ConcereteSecurityConfigurerAdapter adapter;
 
 	@Before
@@ -39,6 +40,7 @@ public class SecurityConfigurerAdapterTests {
 	}
 
 	static class OrderedObjectPostProcessor implements ObjectPostProcessor<String>, Ordered {
+
 		private final int order;
 
 		OrderedObjectPostProcessor(int order) {
@@ -53,5 +55,7 @@ public class SecurityConfigurerAdapterTests {
 		public String postProcess(String object) {
 			return object + " " + order;
 		}
+
 	}
+
 }

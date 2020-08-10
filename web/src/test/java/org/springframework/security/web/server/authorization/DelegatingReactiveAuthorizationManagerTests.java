@@ -41,16 +41,25 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingReactiveAuthorizationManagerTests {
+
 	@Mock
 	ServerWebExchangeMatcher match1;
+
 	@Mock
 	ServerWebExchangeMatcher match2;
-	@Mock AuthorityReactiveAuthorizationManager<AuthorizationContext> delegate1;
-	@Mock AuthorityReactiveAuthorizationManager<AuthorizationContext> delegate2;
+
+	@Mock
+	AuthorityReactiveAuthorizationManager<AuthorizationContext> delegate1;
+
+	@Mock
+	AuthorityReactiveAuthorizationManager<AuthorizationContext> delegate2;
+
 	@Mock
 	ServerWebExchange exchange;
+
 	@Mock
 	Mono<Authentication> authentication;
+
 	@Mock
 	AuthorizationDecision decision;
 
@@ -59,9 +68,8 @@ public class DelegatingReactiveAuthorizationManagerTests {
 	@Before
 	public void setup() {
 		manager = DelegatingReactiveAuthorizationManager.builder()
-			.add(new ServerWebExchangeMatcherEntry<>(match1, delegate1))
-			.add(new ServerWebExchangeMatcherEntry<>(match2, delegate2))
-			.build();
+				.add(new ServerWebExchangeMatcherEntry<>(match1, delegate1))
+				.add(new ServerWebExchangeMatcherEntry<>(match2, delegate2)).build();
 	}
 
 	@Test
@@ -84,4 +92,5 @@ public class DelegatingReactiveAuthorizationManagerTests {
 
 		verifyZeroInteractions(delegate1);
 	}
+
 }

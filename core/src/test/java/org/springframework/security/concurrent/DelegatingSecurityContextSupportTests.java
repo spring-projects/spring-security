@@ -21,13 +21,12 @@ import org.junit.Test;
 import org.springframework.security.core.context.SecurityContext;
 
 /**
- *
  * @author Rob Winch
  * @since 3.2
  *
  */
-public class DelegatingSecurityContextSupportTests extends
-		AbstractDelegatingSecurityContextTestSupport {
+public class DelegatingSecurityContextSupportTests extends AbstractDelegatingSecurityContextTestSupport {
+
 	private AbstractDelegatingSecurityContextSupport support;
 
 	@Test
@@ -60,10 +59,12 @@ public class DelegatingSecurityContextSupportTests extends
 		assertThat(support.wrap(runnable)).isSameAs(wrappedRunnable);
 	}
 
-	private static class ConcreteDelegatingSecurityContextSupport extends
-			AbstractDelegatingSecurityContextSupport {
+	private static class ConcreteDelegatingSecurityContextSupport extends AbstractDelegatingSecurityContextSupport {
+
 		ConcreteDelegatingSecurityContextSupport(SecurityContext securityContext) {
 			super(securityContext);
 		}
+
 	}
+
 }

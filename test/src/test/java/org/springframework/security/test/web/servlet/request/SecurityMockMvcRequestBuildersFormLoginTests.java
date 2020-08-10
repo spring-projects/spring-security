@@ -39,6 +39,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 
 public class SecurityMockMvcRequestBuildersFormLoginTests {
+
 	private MockServletContext servletContext;
 
 	@Before
@@ -55,16 +56,15 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 		assertThat(request.getParameter("username")).isEqualTo("user");
 		assertThat(request.getParameter("password")).isEqualTo("password");
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName()))
-				.isEqualTo(token.getToken());
+		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
 		assertThat(request.getRequestURI()).isEqualTo("/login");
 		assertThat(request.getParameter("_csrf")).isNotNull();
 	}
 
 	@Test
 	public void custom() {
-		MockHttpServletRequest request = formLogin("/login").user("username", "admin")
-				.password("password", "secret").buildRequest(this.servletContext);
+		MockHttpServletRequest request = formLogin("/login").user("username", "admin").password("password", "secret")
+				.buildRequest(this.servletContext);
 
 		CsrfToken token = (CsrfToken) request
 				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
@@ -72,8 +72,7 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 		assertThat(request.getParameter("username")).isEqualTo("admin");
 		assertThat(request.getParameter("password")).isEqualTo("secret");
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName()))
-				.isEqualTo(token.getToken());
+		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
 		assertThat(request.getRequestURI()).isEqualTo("/login");
 	}
 
@@ -88,14 +87,13 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 		assertThat(request.getParameter("username")).isEqualTo("admin");
 		assertThat(request.getParameter("password")).isEqualTo("secret");
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName()))
-				.isEqualTo(token.getToken());
+		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
 		assertThat(request.getRequestURI()).isEqualTo("/uri-login/val1/val2");
 	}
 
 	/**
-	 * spring-restdocs uses postprocessors to do its trick. It will work only if these are merged together
-	 * with our request builders. (gh-7572)
+	 * spring-restdocs uses postprocessors to do its trick. It will work only if these are
+	 * merged together with our request builders. (gh-7572)
 	 * @throws Exception
 	 */
 	@Test
@@ -103,9 +101,7 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 		RequestPostProcessor postProcessor = mock(RequestPostProcessor.class);
 		when(postProcessor.postProcessRequest(any())).thenAnswer(i -> i.getArgument(0));
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object())
-				.defaultRequest(MockMvcRequestBuilders.get("/").with(postProcessor))
-				.build();
-
+				.defaultRequest(MockMvcRequestBuilders.get("/").with(postProcessor)).build();
 
 		MvcResult mvcResult = mockMvc.perform(formLogin()).andReturn();
 		assertThat(mvcResult.getRequest().getMethod()).isEqualTo(HttpMethod.POST.name());
@@ -121,10 +117,10 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 	// gh-3920
 	@Test
 	public void usesAcceptMediaForContentNegotiation() {
-		MockHttpServletRequest request = formLogin("/login").user("username", "admin")
-				.password("password", "secret").buildRequest(this.servletContext);
+		MockHttpServletRequest request = formLogin("/login").user("username", "admin").password("password", "secret")
+				.buildRequest(this.servletContext);
 
-		assertThat(request.getHeader("Accept"))
-				.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+		assertThat(request.getHeader("Accept")).isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 	}
+
 }

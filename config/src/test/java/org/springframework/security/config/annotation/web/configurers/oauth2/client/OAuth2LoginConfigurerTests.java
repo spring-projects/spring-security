@@ -109,12 +109,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class OAuth2LoginConfigurerTests {
 
 	private static final ClientRegistration GOOGLE_CLIENT_REGISTRATION = CommonOAuth2Provider.GOOGLE
-			.getBuilder("google").clientId("clientId").clientSecret("clientSecret")
-			.build();
+			.getBuilder("google").clientId("clientId").clientSecret("clientSecret").build();
 
 	private static final ClientRegistration GITHUB_CLIENT_REGISTRATION = CommonOAuth2Provider.GITHUB
-			.getBuilder("github").clientId("clientId").clientSecret("clientSecret")
-			.build();
+			.getBuilder("github").clientId("clientId").clientSecret("clientSecret").build();
 
 	private ConfigurableApplicationContext context;
 
@@ -134,7 +132,9 @@ public class OAuth2LoginConfigurerTests {
 	MockMvc mvc;
 
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
+
 	private MockFilterChain filterChain;
 
 	@Before
@@ -159,8 +159,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
-		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -171,30 +170,27 @@ public class OAuth2LoginConfigurerTests {
 
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
-				.getAuthentication();
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-				.isInstanceOf(OAuth2UserAuthority.class).hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first().isInstanceOf(OAuth2UserAuthority.class)
+				.hasToString("ROLE_USER");
 	}
 
 	@Test
 	public void requestWhenOauth2LoginInLambdaThenAuthenticationContainsOauth2UserAuthority() throws Exception {
 		loadConfig(OAuth2LoginInLambdaConfig.class);
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
-		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 		this.request.setParameter("code", "code123");
 		this.request.setParameter("state", authorizationRequest.getState());
 
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
-				.getAuthentication();
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-				.isInstanceOf(OAuth2UserAuthority.class).hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first().isInstanceOf(OAuth2UserAuthority.class)
+				.hasToString("ROLE_USER");
 	}
 
 	// gh-6009
@@ -205,8 +201,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
-		this.authorizationRequestRepository.saveAuthorizationRequest(
-				authorizationRequest, this.request, this.response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -228,8 +223,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
-		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -240,8 +234,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
-				.getAuthentication();
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
 		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
@@ -254,8 +247,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
-		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -266,8 +258,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
-				.getAuthentication();
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
 		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
@@ -280,8 +271,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
-		this.authorizationRequestRepository.saveAuthorizationRequest(
-				authorizationRequest, this.request, this.response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -292,8 +282,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
-				.getAuthentication();
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
 		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
@@ -308,8 +297,7 @@ public class OAuth2LoginConfigurerTests {
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
 		this.request.setServletPath("/login/oauth2/google");
-		this.authorizationRequestRepository.saveAuthorizationRequest(
-				authorizationRequest, this.request, this.response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -320,24 +308,22 @@ public class OAuth2LoginConfigurerTests {
 
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
-				.getAuthentication();
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-				.isInstanceOf(OAuth2UserAuthority.class).hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first().isInstanceOf(OAuth2UserAuthority.class)
+				.hasToString("ROLE_USER");
 	}
 
 	// gh-5521
 	@Test
 	public void oauth2LoginWithCustomAuthorizationRequestParameters() throws Exception {
 		loadConfig(OAuth2LoginConfigCustomAuthorizationRequestResolver.class);
-		OAuth2AuthorizationRequestResolver resolver = this.context.getBean(
-				OAuth2LoginConfigCustomAuthorizationRequestResolver.class).resolver;
+		OAuth2AuthorizationRequestResolver resolver = this.context
+				.getBean(OAuth2LoginConfigCustomAuthorizationRequestResolver.class).resolver;
 		OAuth2AuthorizationRequest result = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri("https://accounts.google.com/authorize")
-				.clientId("client-id")
-				.state("adsfa")
-				.authorizationRequestUri("https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1")
+				.authorizationUri("https://accounts.google.com/authorize").clientId("client-id").state("adsfa")
+				.authorizationRequestUri(
+						"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1")
 				.build();
 		when(resolver.resolve(any())).thenReturn(result);
 
@@ -347,20 +333,20 @@ public class OAuth2LoginConfigurerTests {
 
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 
-		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
+		assertThat(this.response.getRedirectedUrl()).isEqualTo(
+				"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
 	}
 
 	@Test
 	public void requestWhenOauth2LoginWithCustomAuthorizationRequestParametersThenParametersInRedirectedUrl()
 			throws Exception {
 		loadConfig(OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda.class);
-		OAuth2AuthorizationRequestResolver resolver = this.context.getBean(
-				OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda.class).resolver;
+		OAuth2AuthorizationRequestResolver resolver = this.context
+				.getBean(OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda.class).resolver;
 		OAuth2AuthorizationRequest result = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri("https://accounts.google.com/authorize")
-				.clientId("client-id")
-				.state("adsfa")
-				.authorizationRequestUri("https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1")
+				.authorizationUri("https://accounts.google.com/authorize").clientId("client-id").state("adsfa")
+				.authorizationRequestUri(
+						"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1")
 				.build();
 		when(resolver.resolve(any())).thenReturn(result);
 
@@ -370,7 +356,8 @@ public class OAuth2LoginConfigurerTests {
 
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 
-		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
+		assertThat(this.response.getRedirectedUrl()).isEqualTo(
+				"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
 	}
 
 	// gh-5347
@@ -389,7 +376,8 @@ public class OAuth2LoginConfigurerTests {
 
 	// gh-5347
 	@Test
-	public void oauth2LoginWithOneClientConfiguredAndRequestFaviconNotAuthenticatedThenRedirectDefaultLoginPage() throws Exception {
+	public void oauth2LoginWithOneClientConfiguredAndRequestFaviconNotAuthenticatedThenRedirectDefaultLoginPage()
+			throws Exception {
 		loadConfig(OAuth2LoginConfig.class);
 
 		String requestUri = "/favicon.ico";
@@ -418,7 +406,8 @@ public class OAuth2LoginConfigurerTests {
 
 	// gh-6812
 	@Test
-	public void oauth2LoginWithOneClientConfiguredAndRequestXHRNotAuthenticatedThenDoesNotRedirectForAuthorization() throws Exception {
+	public void oauth2LoginWithOneClientConfiguredAndRequestXHRNotAuthenticatedThenDoesNotRedirectForAuthorization()
+			throws Exception {
 		loadConfig(OAuth2LoginConfig.class);
 
 		String requestUri = "/";
@@ -464,8 +453,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
-		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -476,11 +464,10 @@ public class OAuth2LoginConfigurerTests {
 
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
-				.getAuthentication();
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-				.isInstanceOf(OidcUserAuthority.class).hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first().isInstanceOf(OidcUserAuthority.class)
+				.hasToString("ROLE_USER");
 	}
 
 	@Test
@@ -490,8 +477,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
-		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -502,11 +488,10 @@ public class OAuth2LoginConfigurerTests {
 
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
-				.getAuthentication();
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-				.isInstanceOf(OidcUserAuthority.class).hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first().isInstanceOf(OidcUserAuthority.class)
+				.hasToString("ROLE_USER");
 	}
 
 	@Test
@@ -516,8 +501,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
-		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -528,8 +512,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
-				.getAuthentication();
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
 		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OIDC_USER");
@@ -542,8 +525,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
-		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -554,8 +536,7 @@ public class OAuth2LoginConfigurerTests {
 
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
-				.getAuthentication();
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
 		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OIDC_USER");
@@ -565,23 +546,19 @@ public class OAuth2LoginConfigurerTests {
 	public void oidcLoginCustomWithNoUniqueJwtDecoderFactory() {
 		assertThatThrownBy(() -> loadConfig(OAuth2LoginConfig.class, NoUniqueJwtDecoderFactoryConfig.class))
 				.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
-				.hasMessageContaining("No qualifying bean of type " +
-						"'org.springframework.security.oauth2.jwt.JwtDecoderFactory<org.springframework.security.oauth2.client.registration.ClientRegistration>' " +
-						"available: expected single matching bean but found 2: jwtDecoderFactory1,jwtDecoderFactory2");
+				.hasMessageContaining("No qualifying bean of type "
+						+ "'org.springframework.security.oauth2.jwt.JwtDecoderFactory<org.springframework.security.oauth2.client.registration.ClientRegistration>' "
+						+ "available: expected single matching bean but found 2: jwtDecoderFactory1,jwtDecoderFactory2");
 	}
 
 	@Test
 	public void logoutWhenUsingOidcLogoutHandlerThenRedirects() throws Exception {
 		this.spring.register(OAuth2LoginConfigWithOidcLogoutSuccessHandler.class).autowire();
 
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
-				TestOidcUsers.create(),
-				AuthorityUtils.NO_AUTHORITIES,
-				"registration-id");
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, "registration-id");
 
-		this.mvc.perform(post("/logout")
-				.with(authentication(token))
-				.with(csrf()))
+		this.mvc.perform(post("/logout").with(authentication(token)).with(csrf()))
 				.andExpect(redirectedUrl("https://logout?id_token_hint=id-token"));
 	}
 
@@ -597,22 +574,20 @@ public class OAuth2LoginConfigurerTests {
 		return this.createOAuth2AuthorizationRequest(GOOGLE_CLIENT_REGISTRATION, scopes);
 	}
 
-	private OAuth2AuthorizationRequest createOAuth2AuthorizationRequest(ClientRegistration registration, String... scopes) {
+	private OAuth2AuthorizationRequest createOAuth2AuthorizationRequest(ClientRegistration registration,
+			String... scopes) {
 		return OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
-				.clientId(registration.getClientId())
-				.state("state123")
-				.redirectUri("http://localhost")
-				.attributes(
-						Collections.singletonMap(
-								OAuth2ParameterNames.REGISTRATION_ID,
-								registration.getRegistrationId()))
-				.scope(scopes)
-				.build();
+				.clientId(registration.getClientId()).state("state123").redirectUri("http://localhost")
+				.attributes(Collections.singletonMap(OAuth2ParameterNames.REGISTRATION_ID,
+						registration.getRegistrationId()))
+				.scope(scopes).build();
 	}
 
 	@EnableWebSecurity
-	static class OAuth2LoginConfig extends CommonWebSecurityConfigurerAdapter implements ApplicationListener<AuthenticationSuccessEvent> {
+	static class OAuth2LoginConfig extends CommonWebSecurityConfigurerAdapter
+			implements ApplicationListener<AuthenticationSuccessEvent> {
+
 		static List<AuthenticationSuccessEvent> EVENTS = new ArrayList<>();
 
 		@Override
@@ -630,11 +605,13 @@ public class OAuth2LoginConfigurerTests {
 		public void onApplicationEvent(AuthenticationSuccessEvent event) {
 			EVENTS.add(event);
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class OAuth2LoginInLambdaConfig extends CommonLambdaWebSecurityConfigurerAdapter
 			implements ApplicationListener<AuthenticationSuccessEvent> {
+
 		static List<AuthenticationSuccessEvent> EVENTS = new ArrayList<>();
 
 		@Override
@@ -654,10 +631,12 @@ public class OAuth2LoginConfigurerTests {
 		public void onApplicationEvent(AuthenticationSuccessEvent event) {
 			EVENTS.add(event);
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomWithConfigurer extends CommonWebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -670,10 +649,12 @@ public class OAuth2LoginConfigurerTests {
 			// @formatter:on
 			super.configure(http);
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomWithBeanRegistration extends CommonWebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -692,10 +673,12 @@ public class OAuth2LoginConfigurerTests {
 		GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
 			return createGrantedAuthoritiesMapper();
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomUserServiceBeanRegistration extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -741,10 +724,12 @@ public class OAuth2LoginConfigurerTests {
 		OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
 			return createOidcUserService();
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class OAuth2LoginConfigLoginProcessingUrl extends CommonWebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -756,12 +741,14 @@ public class OAuth2LoginConfigurerTests {
 			// @formatter:on
 			super.configure(http);
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomAuthorizationRequestResolver extends CommonWebSecurityConfigurerAdapter {
-		private ClientRegistrationRepository clientRegistrationRepository =
-				new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION);
+
+		private ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(
+				GOOGLE_CLIENT_REGISTRATION);
 
 		OAuth2AuthorizationRequestResolver resolver = mock(OAuth2AuthorizationRequestResolver.class);
 
@@ -776,12 +763,15 @@ public class OAuth2LoginConfigurerTests {
 			// @formatter:on
 			super.configure(http);
 		}
+
 	}
 
 	@EnableWebSecurity
-	static class OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda extends CommonLambdaWebSecurityConfigurerAdapter {
-		private ClientRegistrationRepository clientRegistrationRepository =
-				new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION);
+	static class OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda
+			extends CommonLambdaWebSecurityConfigurerAdapter {
+
+		private ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(
+				GOOGLE_CLIENT_REGISTRATION);
 
 		OAuth2AuthorizationRequestResolver resolver = mock(OAuth2AuthorizationRequestResolver.class);
 
@@ -800,10 +790,12 @@ public class OAuth2LoginConfigurerTests {
 			// @formatter:on
 			super.configure(http);
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class OAuth2LoginConfigMultipleClients extends CommonWebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -815,10 +807,12 @@ public class OAuth2LoginConfigurerTests {
 			// @formatter:on
 			super.configure(http);
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomLoginPage extends CommonWebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -830,10 +824,12 @@ public class OAuth2LoginConfigurerTests {
 			// @formatter:on
 			super.configure(http);
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomLoginPageInLambda extends CommonLambdaWebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -847,10 +843,12 @@ public class OAuth2LoginConfigurerTests {
 			// @formatter:on
 			super.configure(http);
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class OAuth2LoginConfigWithOidcLogoutSuccessHandler extends CommonWebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -868,15 +866,15 @@ public class OAuth2LoginConfigurerTests {
 
 		@Bean
 		ClientRegistrationRepository clientRegistrationRepository() {
-			Map<String, Object> providerMetadata =
-					Collections.singletonMap("end_session_endpoint", "https://logout");
-			return new InMemoryClientRegistrationRepository(
-					TestClientRegistrations.clientRegistration()
-							.providerConfigurationMetadata(providerMetadata).build());
+			Map<String, Object> providerMetadata = Collections.singletonMap("end_session_endpoint", "https://logout");
+			return new InMemoryClientRegistrationRepository(TestClientRegistrations.clientRegistration()
+					.providerConfigurationMetadata(providerMetadata).build());
 		}
+
 	}
 
 	private static abstract class CommonWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -906,9 +904,11 @@ public class OAuth2LoginConfigurerTests {
 		HttpSessionOAuth2AuthorizationRequestRepository oauth2AuthorizationRequestRepository() {
 			return new HttpSessionOAuth2AuthorizationRequestRepository();
 		}
+
 	}
 
 	private static abstract class CommonLambdaWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -945,6 +945,7 @@ public class OAuth2LoginConfigurerTests {
 		HttpSessionOAuth2AuthorizationRequestRepository oauth2AuthorizationRequestRepository() {
 			return new HttpSessionOAuth2AuthorizationRequestRepository();
 		}
+
 	}
 
 	@Configuration
@@ -966,6 +967,7 @@ public class OAuth2LoginConfigurerTests {
 			when(jwtDecoder.decode(any())).thenReturn(jwt);
 			return jwtDecoder;
 		}
+
 	}
 
 	@Configuration
@@ -989,34 +991,29 @@ public class OAuth2LoginConfigurerTests {
 			if (request.getAuthorizationExchange().getAuthorizationRequest().getScopes().contains("openid")) {
 				additionalParameters.put(OidcParameterNames.ID_TOKEN, "token123");
 			}
-			return OAuth2AccessTokenResponse.withToken("accessToken123")
-						.tokenType(OAuth2AccessToken.TokenType.BEARER)
-						.additionalParameters(additionalParameters)
-						.build();
+			return OAuth2AccessTokenResponse.withToken("accessToken123").tokenType(OAuth2AccessToken.TokenType.BEARER)
+					.additionalParameters(additionalParameters).build();
 		};
 	}
 
 	private static OAuth2UserService<OAuth2UserRequest, OAuth2User> createOauth2UserService() {
 		Map<String, Object> userAttributes = Collections.singletonMap("name", "spring");
-		return request -> new DefaultOAuth2User(
-				Collections.singleton(new OAuth2UserAuthority(userAttributes)),
+		return request -> new DefaultOAuth2User(Collections.singleton(new OAuth2UserAuthority(userAttributes)),
 				userAttributes, "name");
 	}
 
 	private static OAuth2UserService<OidcUserRequest, OidcUser> createOidcUserService() {
 		OidcIdToken idToken = idToken().build();
-		return request -> new DefaultOidcUser(
-				Collections.singleton(new OidcUserAuthority(idToken)), idToken);
+		return request -> new DefaultOidcUser(Collections.singleton(new OidcUserAuthority(idToken)), idToken);
 	}
 
 	private static GrantedAuthoritiesMapper createGrantedAuthoritiesMapper() {
 		return authorities -> {
-			boolean isOidc = OidcUserAuthority.class
-					.isInstance(authorities.iterator().next());
+			boolean isOidc = OidcUserAuthority.class.isInstance(authorities.iterator().next());
 			List<GrantedAuthority> mappedAuthorities = new ArrayList<>(authorities);
-			mappedAuthorities.add(new SimpleGrantedAuthority(
-					isOidc ? "ROLE_OIDC_USER" : "ROLE_OAUTH2_USER"));
+			mappedAuthorities.add(new SimpleGrantedAuthority(isOidc ? "ROLE_OIDC_USER" : "ROLE_OAUTH2_USER"));
 			return mappedAuthorities;
 		};
 	}
+
 }

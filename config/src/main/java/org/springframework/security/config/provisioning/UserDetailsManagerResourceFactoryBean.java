@@ -28,13 +28,16 @@ import org.springframework.security.util.InMemoryResource;
 import java.util.Collection;
 
 /**
- * Constructs an {@link InMemoryUserDetailsManager} from a resource using {@link UserDetailsResourceFactoryBean}.
+ * Constructs an {@link InMemoryUserDetailsManager} from a resource using
+ * {@link UserDetailsResourceFactoryBean}.
  *
  * @author Rob Winch
  * @since 5.0
  * @see UserDetailsResourceFactoryBean
  */
-public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAware, FactoryBean<InMemoryUserDetailsManager> {
+public class UserDetailsManagerResourceFactoryBean
+		implements ResourceLoaderAware, FactoryBean<InMemoryUserDetailsManager> {
+
 	private UserDetailsResourceFactoryBean userDetails = new UserDetailsResourceFactoryBean();
 
 	@Override
@@ -54,17 +57,18 @@ public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAwar
 	}
 
 	/**
-	 * Sets the location of a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}.
-	 *
-	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
+	 * Sets the location of a Resource that is a Properties file in the format defined in
+	 * {@link UserDetailsResourceFactoryBean}.
+	 * @param resourceLocation the location of the properties file that contains the users
+	 * (i.e. "classpath:users.properties")
 	 */
 	public void setResourceLocation(String resourceLocation) {
 		this.userDetails.setResourceLocation(resourceLocation);
 	}
 
 	/**
-	 * Sets a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}.
-	 *
+	 * Sets a Resource that is a Properties file in the format defined in
+	 * {@link UserDetailsResourceFactoryBean}.
 	 * @param resource the Resource to use
 	 */
 	public void setResource(Resource resource) {
@@ -72,10 +76,11 @@ public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAwar
 	}
 
 	/**
-	 * Create a UserDetailsManagerResourceFactoryBean with the location of a Resource that is a Properties file in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}.
-	 *
-	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
+	 * Create a UserDetailsManagerResourceFactoryBean with the location of a Resource that
+	 * is a Properties file in the format defined in
+	 * {@link UserDetailsResourceFactoryBean}.
+	 * @param resourceLocation the location of the properties file that contains the users
+	 * (i.e. "classpath:users.properties")
 	 * @return the UserDetailsManagerResourceFactoryBean
 	 */
 	public static UserDetailsManagerResourceFactoryBean fromResourceLocation(String resourceLocation) {
@@ -85,9 +90,8 @@ public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAwar
 	}
 
 	/**
-	 * Create a UserDetailsManagerResourceFactoryBean with a Resource that is a Properties file in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}.
-	 *
+	 * Create a UserDetailsManagerResourceFactoryBean with a Resource that is a Properties
+	 * file in the format defined in {@link UserDetailsResourceFactoryBean}.
 	 * @param resource the Resource that is a properties file that contains the users
 	 * @return the UserDetailsManagerResourceFactoryBean
 	 */
@@ -98,10 +102,10 @@ public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAwar
 	}
 
 	/**
-	 * Create a UserDetailsManagerResourceFactoryBean with a String that is in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}.
-	 *
-	 * @param users the users in the format defined in {@link UserDetailsResourceFactoryBean}
+	 * Create a UserDetailsManagerResourceFactoryBean with a String that is in the format
+	 * defined in {@link UserDetailsResourceFactoryBean}.
+	 * @param users the users in the format defined in
+	 * {@link UserDetailsResourceFactoryBean}
 	 * @return the UserDetailsManagerResourceFactoryBean
 	 */
 	public static UserDetailsManagerResourceFactoryBean fromString(String users) {
@@ -109,4 +113,5 @@ public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAwar
 		result.setResource(new InMemoryResource(users));
 		return result;
 	}
+
 }

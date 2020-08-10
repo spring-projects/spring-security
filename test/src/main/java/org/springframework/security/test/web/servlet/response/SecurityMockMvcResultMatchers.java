@@ -46,7 +46,6 @@ public final class SecurityMockMvcResultMatchers {
 
 	/**
 	 * {@link ResultMatcher} that verifies that a specified user is authenticated.
-	 *
 	 * @return the {@link AuthenticatedMatcher} to use
 	 */
 	public static AuthenticatedMatcher authenticated() {
@@ -55,23 +54,20 @@ public final class SecurityMockMvcResultMatchers {
 
 	/**
 	 * {@link ResultMatcher} that verifies that no user is authenticated.
-	 *
 	 * @return the {@link AuthenticatedMatcher} to use
 	 */
 	public static ResultMatcher unauthenticated() {
 		return new UnAuthenticatedMatcher();
 	}
 
-	private static abstract class AuthenticationMatcher<T extends AuthenticationMatcher<T>>
-			implements ResultMatcher {
+	private static abstract class AuthenticationMatcher<T extends AuthenticationMatcher<T>> implements ResultMatcher {
 
 		protected SecurityContext load(MvcResult result) {
-			HttpRequestResponseHolder holder = new HttpRequestResponseHolder(
-					result.getRequest(), result.getResponse());
-			SecurityContextRepository repository = WebTestUtils
-					.getSecurityContextRepository(result.getRequest());
+			HttpRequestResponseHolder holder = new HttpRequestResponseHolder(result.getRequest(), result.getResponse());
+			SecurityContextRepository repository = WebTestUtils.getSecurityContextRepository(result.getRequest());
 			return repository.loadContext(holder);
 		}
+
 	}
 
 	/**
@@ -81,14 +77,18 @@ public final class SecurityMockMvcResultMatchers {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	public static final class AuthenticatedMatcher
-			extends AuthenticationMatcher<AuthenticatedMatcher> {
+	public static final class AuthenticatedMatcher extends AuthenticationMatcher<AuthenticatedMatcher> {
 
 		private SecurityContext expectedContext;
+
 		private Authentication expectedAuthentication;
+
 		private Object expectedAuthenticationPrincipal;
+
 		private String expectedAuthenticationName;
+
 		private Collection<? extends GrantedAuthority> expectedGrantedAuthorities;
+
 		private Consumer<Authentication> assertAuthentication;
 
 		@Override
@@ -104,25 +104,20 @@ public final class SecurityMockMvcResultMatchers {
 			}
 
 			if (this.expectedContext != null) {
-				assertEquals(this.expectedContext + " does not equal " + context,
-						this.expectedContext, context);
+				assertEquals(this.expectedContext + " does not equal " + context, this.expectedContext, context);
 			}
 
 			if (this.expectedAuthentication != null) {
-				assertEquals(
-						this.expectedAuthentication + " does not equal "
-								+ context.getAuthentication(),
+				assertEquals(this.expectedAuthentication + " does not equal " + context.getAuthentication(),
 						this.expectedAuthentication, context.getAuthentication());
 			}
 
 			if (this.expectedAuthenticationPrincipal != null) {
-				assertTrue("Authentication cannot be null",
-						context.getAuthentication() != null);
+				assertTrue("Authentication cannot be null", context.getAuthentication() != null);
 				assertEquals(
 						this.expectedAuthenticationPrincipal + " does not equal "
 								+ context.getAuthentication().getPrincipal(),
-						this.expectedAuthenticationPrincipal,
-						context.getAuthentication().getPrincipal());
+						this.expectedAuthenticationPrincipal, context.getAuthentication().getPrincipal());
 			}
 
 			if (this.expectedAuthenticationName != null) {
@@ -134,14 +129,10 @@ public final class SecurityMockMvcResultMatchers {
 
 			if (this.expectedGrantedAuthorities != null) {
 				assertTrue("Authentication cannot be null", auth != null);
-				Collection<? extends GrantedAuthority> authorities = auth
-						.getAuthorities();
-				assertTrue(
-						authorities + " does not contain the same authorities as "
-								+ this.expectedGrantedAuthorities,
+				Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+				assertTrue(authorities + " does not contain the same authorities as " + this.expectedGrantedAuthorities,
 						authorities.containsAll(this.expectedGrantedAuthorities));
-				assertTrue(this.expectedGrantedAuthorities
-						+ " does not contain the same authorities as " + authorities,
+				assertTrue(this.expectedGrantedAuthorities + " does not contain the same authorities as " + authorities,
 						this.expectedGrantedAuthorities.containsAll(authorities));
 			}
 		}
@@ -158,7 +149,6 @@ public final class SecurityMockMvcResultMatchers {
 
 		/**
 		 * Specifies the expected username
-		 *
 		 * @param expected the expected username
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
@@ -168,7 +158,6 @@ public final class SecurityMockMvcResultMatchers {
 
 		/**
 		 * Specifies the expected {@link SecurityContext}
-		 *
 		 * @param expected the expected {@link SecurityContext}
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
@@ -179,7 +168,6 @@ public final class SecurityMockMvcResultMatchers {
 
 		/**
 		 * Specifies the expected {@link Authentication}
-		 *
 		 * @param expected the expected {@link Authentication}
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
@@ -190,7 +178,6 @@ public final class SecurityMockMvcResultMatchers {
 
 		/**
 		 * Specifies the expected principal
-		 *
 		 * @param expected the expected principal
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
@@ -201,7 +188,6 @@ public final class SecurityMockMvcResultMatchers {
 
 		/**
 		 * Specifies the expected {@link Authentication#getName()}
-		 *
 		 * @param expected the expected {@link Authentication#getName()}
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
@@ -212,19 +198,16 @@ public final class SecurityMockMvcResultMatchers {
 
 		/**
 		 * Specifies the {@link Authentication#getAuthorities()}
-		 *
 		 * @param expected the {@link Authentication#getAuthorities()}
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
-		public AuthenticatedMatcher withAuthorities(
-				Collection<? extends GrantedAuthority> expected) {
+		public AuthenticatedMatcher withAuthorities(Collection<? extends GrantedAuthority> expected) {
 			this.expectedGrantedAuthorities = expected;
 			return this;
 		}
 
 		/**
 		 * Specifies the {@link Authentication#getAuthorities()}
-		 *
 		 * @param roles the roles. Each value is automatically prefixed with "ROLE_"
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
@@ -238,6 +221,7 @@ public final class SecurityMockMvcResultMatchers {
 
 		AuthenticatedMatcher() {
 		}
+
 	}
 
 	/**
@@ -247,8 +231,8 @@ public final class SecurityMockMvcResultMatchers {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	private static final class UnAuthenticatedMatcher
-			extends AuthenticationMatcher<UnAuthenticatedMatcher> {
+	private static final class UnAuthenticatedMatcher extends AuthenticationMatcher<UnAuthenticatedMatcher> {
+
 		private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
 		@Override
@@ -257,14 +241,15 @@ public final class SecurityMockMvcResultMatchers {
 
 			Authentication authentication = context.getAuthentication();
 			assertTrue("Expected anonymous Authentication got " + context,
-					authentication == null
-							|| this.trustResolver.isAnonymous(authentication));
+					authentication == null || this.trustResolver.isAnonymous(authentication));
 		}
 
 		private UnAuthenticatedMatcher() {
 		}
+
 	}
 
 	private SecurityMockMvcResultMatchers() {
 	}
+
 }

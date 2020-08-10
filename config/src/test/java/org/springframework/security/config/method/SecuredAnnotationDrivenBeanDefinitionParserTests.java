@@ -38,6 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Ben Alex
  */
 public class SecuredAnnotationDrivenBeanDefinitionParserTests {
+
 	private InMemoryXmlApplicationContext appContext;
 
 	private BusinessService target;
@@ -67,8 +68,8 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 
 	@Test
 	public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
 		target.someUserMethod1();
@@ -76,8 +77,8 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 
 	@Test(expected = AccessDeniedException.class)
 	public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_SOMEOTHER"));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
 		target.someAdminMethod();
@@ -97,15 +98,13 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 		}
 		catch (AuthenticationCredentialsNotFoundException expected) {
 		}
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("u", "p", "ROLE_A"));
+		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("u", "p", "ROLE_A"));
 
 		BusinessService chompedTarget = (BusinessService) serializeAndDeserialize(target);
 		chompedTarget.someAdminMethod();
 	}
 
-	private Object serializeAndDeserialize(Object o) throws IOException,
-			ClassNotFoundException {
+	private Object serializeAndDeserialize(Object o) throws IOException, ClassNotFoundException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(baos);
 		oos.writeObject(o);

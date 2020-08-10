@@ -41,12 +41,15 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultMethodSecurityExpressionHandlerTests {
+
 	private DefaultMethodSecurityExpressionHandler handler;
 
 	@Mock
 	private Authentication authentication;
+
 	@Mock
 	private MethodInvocation methodInvocation;
+
 	@Mock
 	private AuthenticationTrustResolver trustResolver;
 
@@ -71,10 +74,8 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 	public void createEvaluationContextCustomTrustResolver() {
 		handler.setTrustResolver(trustResolver);
 
-		Expression expression = handler.getExpressionParser()
-				.parseExpression("anonymous");
-		EvaluationContext context = handler.createEvaluationContext(authentication,
-				methodInvocation);
+		Expression expression = handler.getExpressionParser().parseExpression("anonymous");
+		EvaluationContext context = handler.createEvaluationContext(authentication, methodInvocation);
 		expression.getValue(context, Boolean.class);
 
 		verify(trustResolver).isAnonymous(authentication);
@@ -90,8 +91,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 
 		Expression expression = handler.getExpressionParser().parseExpression("filterObject.key eq 'key2'");
 
-		EvaluationContext context = handler.createEvaluationContext(authentication,
-				methodInvocation);
+		EvaluationContext context = handler.createEvaluationContext(authentication, methodInvocation);
 
 		Object filtered = handler.filter(map, expression, context);
 
@@ -112,8 +112,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 
 		Expression expression = handler.getExpressionParser().parseExpression("filterObject.value eq 'value3'");
 
-		EvaluationContext context = handler.createEvaluationContext(authentication,
-				methodInvocation);
+		EvaluationContext context = handler.createEvaluationContext(authentication, methodInvocation);
 
 		Object filtered = handler.filter(map, expression, context);
 
@@ -132,10 +131,10 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		map.put("key2", "value2");
 		map.put("key3", "value3");
 
-		Expression expression = handler.getExpressionParser().parseExpression("(filterObject.key eq 'key1') or (filterObject.value eq 'value2')");
+		Expression expression = handler.getExpressionParser()
+				.parseExpression("(filterObject.key eq 'key1') or (filterObject.value eq 'value2')");
 
-		EvaluationContext context = handler.createEvaluationContext(authentication,
-				methodInvocation);
+		EvaluationContext context = handler.createEvaluationContext(authentication, methodInvocation);
 
 		Object filtered = handler.filter(map, expression, context);
 
@@ -153,8 +152,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 
 		Expression expression = handler.getExpressionParser().parseExpression("filterObject ne '2'");
 
-		EvaluationContext context = handler.createEvaluationContext(authentication,
-				methodInvocation);
+		EvaluationContext context = handler.createEvaluationContext(authentication, methodInvocation);
 
 		Object filtered = handler.filter(stream, expression, context);
 
@@ -170,15 +168,17 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 
 		Expression expression = handler.getExpressionParser().parseExpression("true");
 
-		EvaluationContext context = handler.createEvaluationContext(authentication,
-				methodInvocation);
+		EvaluationContext context = handler.createEvaluationContext(authentication, methodInvocation);
 
 		((Stream) handler.filter(upstream, expression, context)).close();
 		verify(upstream).close();
 	}
 
 	private static class Foo {
-		public void bar(){
+
+		public void bar() {
 		}
+
 	}
+
 }

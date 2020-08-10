@@ -41,10 +41,13 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  *
  */
 public class HttpSecurityLogoutTests {
+
 	AnnotationConfigWebApplicationContext context;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	@Autowired
@@ -72,7 +75,8 @@ public class HttpSecurityLogoutTests {
 		SecurityContext currentContext = SecurityContextHolder.createEmptyContext();
 		currentContext.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 
-		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, currentContext);
+		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+				currentContext);
 		request.setMethod("POST");
 		request.setServletPath("/logout");
 
@@ -84,6 +88,7 @@ public class HttpSecurityLogoutTests {
 	@EnableWebSecurity
 	@Configuration
 	static class ClearAuthenticationFalseConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -100,6 +105,7 @@ public class HttpSecurityLogoutTests {
 				.inMemoryAuthentication();
 			// @formatter:on
 		}
+
 	}
 
 	public void loadConfig(Class<?>... configs) {
@@ -109,6 +115,5 @@ public class HttpSecurityLogoutTests {
 
 		context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
-
 
 }

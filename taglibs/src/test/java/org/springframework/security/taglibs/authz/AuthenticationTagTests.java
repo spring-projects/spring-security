@@ -35,13 +35,15 @@ import org.springframework.security.core.userdetails.User;
  * @author Ben Alex
  */
 public class AuthenticationTagTests {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private final MyAuthenticationTag authenticationTag = new MyAuthenticationTag();
-	private final Authentication auth = new TestingAuthenticationToken(new User(
-			"rodUserDetails", "koala", true, true, true, true,
-			AuthorityUtils.NO_AUTHORITIES), "koala", AuthorityUtils.NO_AUTHORITIES);
+
+	private final Authentication auth = new TestingAuthenticationToken(
+			new User("rodUserDetails", "koala", true, true, true, true, AuthorityUtils.NO_AUTHORITIES), "koala",
+			AuthorityUtils.NO_AUTHORITIES);
 
 	// ~ Methods
 	// ========================================================================================================
@@ -64,8 +66,7 @@ public class AuthenticationTagTests {
 	@Test
 	public void testOperationWhenPrincipalIsAString() throws JspException {
 		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("rodAsString", "koala",
-						AuthorityUtils.NO_AUTHORITIES));
+				new TestingAuthenticationToken("rodAsString", "koala", AuthorityUtils.NO_AUTHORITIES));
 
 		authenticationTag.setProperty("principal");
 		assertThat(authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
@@ -85,9 +86,8 @@ public class AuthenticationTagTests {
 
 	@Test
 	public void testOperationWhenPrincipalIsNull() throws JspException {
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken(null, "koala",
-						AuthorityUtils.NO_AUTHORITIES));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken(null, "koala", AuthorityUtils.NO_AUTHORITIES));
 
 		authenticationTag.setProperty("principal");
 		assertThat(authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
@@ -127,8 +127,7 @@ public class AuthenticationTagTests {
 
 	@Test
 	public void htmlEscapingIsUsedByDefault() throws Exception {
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("<>& ", ""));
+		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("<>& ", ""));
 		authenticationTag.setProperty("name");
 		authenticationTag.doStartTag();
 		authenticationTag.doEndTag();
@@ -137,8 +136,7 @@ public class AuthenticationTagTests {
 
 	@Test
 	public void settingHtmlEscapeToFalsePreventsEscaping() throws Exception {
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("<>& ", ""));
+		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("<>& ", ""));
 		authenticationTag.setProperty("name");
 		authenticationTag.setHtmlEscape("false");
 		authenticationTag.doStartTag();
@@ -150,6 +148,7 @@ public class AuthenticationTagTests {
 	// ==================================================================================================
 
 	private class MyAuthenticationTag extends AuthenticationTag {
+
 		String lastMessage = null;
 
 		public String getLastMessage() {
@@ -159,5 +158,7 @@ public class AuthenticationTagTests {
 		protected void writeMessage(String msg) {
 			lastMessage = msg;
 		}
+
 	}
+
 }

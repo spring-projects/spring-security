@@ -59,9 +59,9 @@ public class Issue55Tests {
 		assertThat(filter.getAuthenticationManager().authenticate(token)).isEqualTo(CustomAuthenticationManager.RESULT);
 	}
 
-
 	@EnableWebSecurity
 	static class WebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
+
 		@Component
 		public static class WebSecurityAdapter extends WebSecurityConfigurerAdapter {
 
@@ -73,19 +73,24 @@ public class Issue55Tests {
 						.anyRequest().hasRole("USER");
 				// @formatter:on
 			}
+
 		}
 
 		@Configuration
 		public static class AuthenticationManagerConfiguration {
+
 			@Bean
 			public AuthenticationManager authenticationManager() throws Exception {
 				return new CustomAuthenticationManager();
 			}
+
 		}
+
 	}
 
 	@Test
-	public void multiHttpWebSecurityConfigurerAdapterDefaultsToAutowired() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+	public void multiHttpWebSecurityConfigurerAdapterDefaultsToAutowired()
+			throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this");
 		this.spring.register(MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig.class);
 		this.spring.getContext().getBean(FilterChainProxy.class);
@@ -93,15 +98,19 @@ public class Issue55Tests {
 		FilterSecurityInterceptor filter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class, 0);
 		assertThat(filter.getAuthenticationManager().authenticate(token)).isEqualTo(CustomAuthenticationManager.RESULT);
 
-		FilterSecurityInterceptor secondFilter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class, 1);
-		assertThat(secondFilter.getAuthenticationManager().authenticate(token)).isEqualTo(CustomAuthenticationManager.RESULT);
+		FilterSecurityInterceptor secondFilter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class,
+				1);
+		assertThat(secondFilter.getAuthenticationManager().authenticate(token))
+				.isEqualTo(CustomAuthenticationManager.RESULT);
 	}
 
 	@EnableWebSecurity
 	static class MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
+
 		@Component
 		@Order(1)
 		public static class ApiWebSecurityAdapter extends WebSecurityConfigurerAdapter {
+
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
 				// @formatter:off
@@ -110,10 +119,12 @@ public class Issue55Tests {
 						.anyRequest().hasRole("USER");
 				// @formatter:on
 			}
+
 		}
 
 		@Component
 		public static class WebSecurityAdapter extends WebSecurityConfigurerAdapter {
+
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
 				// @formatter:off
@@ -122,23 +133,29 @@ public class Issue55Tests {
 						.anyRequest().hasRole("USER");
 				// @formatter:on
 			}
+
 		}
 
 		@Configuration
 		public static class AuthenticationManagerConfiguration {
+
 			@Bean
 			public AuthenticationManager authenticationManager() throws Exception {
 				return new CustomAuthenticationManager();
 			}
+
 		}
+
 	}
 
 	static class CustomAuthenticationManager implements AuthenticationManager {
+
 		static Authentication RESULT = new TestingAuthenticationToken("test", "this", "ROLE_USER");
 
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			return RESULT;
 		}
+
 	}
 
 	Filter findFilter(Class<?> filter, int index) {
@@ -154,4 +171,5 @@ public class Issue55Tests {
 	SecurityFilterChain filterChain(int index) {
 		return this.spring.getContext().getBean(FilterChainProxy.class).getFilterChains().get(index);
 	}
+
 }

@@ -37,10 +37,10 @@ public class WebTestClientWebConnection implements WebConnection {
 	private final WebTestClient webTestClient;
 
 	private final String contextPath;
+
 	private final HtmlUnitWebTestClient requestBuilder;
 
 	private WebClient webClient;
-
 
 	public WebTestClientWebConnection(WebTestClient webTestClient, WebClient webClient) {
 		this(webTestClient, webClient, "");
@@ -59,10 +59,11 @@ public class WebTestClientWebConnection implements WebConnection {
 
 	/**
 	 * Validate the supplied {@code contextPath}.
-	 * <p>If the value is not {@code null}, it must conform to
-	 * {@link javax.servlet.http.HttpServletRequest#getContextPath()} which
-	 * states that it can be an empty string and otherwise must start with
-	 * a "/" character and not end with a "/" character.
+	 * <p>
+	 * If the value is not {@code null}, it must conform to
+	 * {@link javax.servlet.http.HttpServletRequest#getContextPath()} which states that it
+	 * can be an empty string and otherwise must start with a "/" character and not end
+	 * with a "/" character.
 	 * @param contextPath the path to validate
 	 */
 	static void validateContextPath(@Nullable String contextPath) {
@@ -72,7 +73,6 @@ public class WebTestClientWebConnection implements WebConnection {
 		Assert.isTrue(contextPath.startsWith("/"), () -> "contextPath '" + contextPath + "' must start with '/'.");
 		Assert.isTrue(!contextPath.endsWith("/"), () -> "contextPath '" + contextPath + "' must not end with '/'.");
 	}
-
 
 	public void setWebClient(WebClient webClient) {
 		Assert.notNull(webClient, "WebClient must not be null");
@@ -89,5 +89,7 @@ public class WebTestClientWebConnection implements WebConnection {
 	}
 
 	@Override
-	public void close() {}
+	public void close() {
+	}
+
 }

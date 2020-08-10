@@ -34,6 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 class RSocketSecurityConfiguration {
 
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.rsocket.RSocketSecurityConfiguration.";
+
 	private static final String RSOCKET_SECURITY_BEAN_NAME = BEAN_NAME_PREFIX + "rsocketSecurity";
 
 	private ReactiveAuthenticationManager authenticationManager;
@@ -43,8 +44,7 @@ class RSocketSecurityConfiguration {
 	private PasswordEncoder passwordEncoder;
 
 	@Autowired(required = false)
-	void setAuthenticationManager(
-			ReactiveAuthenticationManager authenticationManager) {
+	void setAuthenticationManager(ReactiveAuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
 
@@ -61,8 +61,7 @@ class RSocketSecurityConfiguration {
 	@Bean(name = RSOCKET_SECURITY_BEAN_NAME)
 	@Scope("prototype")
 	public RSocketSecurity rsocketSecurity(ApplicationContext context) {
-		RSocketSecurity security = new RSocketSecurity()
-			.authenticationManager(authenticationManager());
+		RSocketSecurity security = new RSocketSecurity().authenticationManager(authenticationManager());
 		security.setApplicationContext(context);
 		return security;
 	}
@@ -72,8 +71,8 @@ class RSocketSecurityConfiguration {
 			return this.authenticationManager;
 		}
 		if (this.reactiveUserDetailsService != null) {
-			UserDetailsRepositoryReactiveAuthenticationManager manager =
-					new UserDetailsRepositoryReactiveAuthenticationManager(this.reactiveUserDetailsService);
+			UserDetailsRepositoryReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(
+					this.reactiveUserDetailsService);
 			if (this.passwordEncoder != null) {
 				manager.setPasswordEncoder(this.passwordEncoder);
 			}
@@ -81,4 +80,5 @@ class RSocketSecurityConfiguration {
 		}
 		return null;
 	}
+
 }

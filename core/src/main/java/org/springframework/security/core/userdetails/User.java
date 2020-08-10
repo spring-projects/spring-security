@@ -68,11 +68,17 @@ public class User implements UserDetails, CredentialsContainer {
 	// ~ Instance fields
 	// ================================================================================================
 	private String password;
+
 	private final String username;
+
 	private final Set<GrantedAuthority> authorities;
+
 	private final boolean accountNonExpired;
+
 	private final boolean accountNonLocked;
+
 	private final boolean credentialsNonExpired;
+
 	private final boolean enabled;
 
 	// ~ Constructors
@@ -81,15 +87,13 @@ public class User implements UserDetails, CredentialsContainer {
 	/**
 	 * Calls the more complex constructor with all boolean arguments set to {@code true}.
 	 */
-	public User(String username, String password,
-			Collection<? extends GrantedAuthority> authorities) {
+	public User(String username, String password, Collection<? extends GrantedAuthority> authorities) {
 		this(username, password, true, true, true, true, authorities);
 	}
 
 	/**
 	 * Construct the <code>User</code> with the details required by
 	 * {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider}.
-	 *
 	 * @param username the username presented to the
 	 * <code>DaoAuthenticationProvider</code>
 	 * @param password the password that should be presented to the
@@ -101,17 +105,15 @@ public class User implements UserDetails, CredentialsContainer {
 	 * @param accountNonLocked set to <code>true</code> if the account is not locked
 	 * @param authorities the authorities that should be granted to the caller if they
 	 * presented the correct username and password and the user is enabled. Not null.
-	 *
 	 * @throws IllegalArgumentException if a <code>null</code> value was passed either as
 	 * a parameter or as an element in the <code>GrantedAuthority</code> collection
 	 */
-	public User(String username, String password, boolean enabled,
-			boolean accountNonExpired, boolean credentialsNonExpired,
-			boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
+	public User(String username, String password, boolean enabled, boolean accountNonExpired,
+			boolean credentialsNonExpired, boolean accountNonLocked,
+			Collection<? extends GrantedAuthority> authorities) {
 
 		if (((username == null) || "".equals(username)) || (password == null)) {
-			throw new IllegalArgumentException(
-					"Cannot pass null or empty values to constructor");
+			throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
 		}
 
 		this.username = username;
@@ -158,25 +160,22 @@ public class User implements UserDetails, CredentialsContainer {
 		password = null;
 	}
 
-	private static SortedSet<GrantedAuthority> sortAuthorities(
-			Collection<? extends GrantedAuthority> authorities) {
+	private static SortedSet<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
 		Assert.notNull(authorities, "Cannot pass a null GrantedAuthority collection");
 		// Ensure array iteration order is predictable (as per
 		// UserDetails.getAuthorities() contract and SEC-717)
-		SortedSet<GrantedAuthority> sortedAuthorities = new TreeSet<>(
-				new AuthorityComparator());
+		SortedSet<GrantedAuthority> sortedAuthorities = new TreeSet<>(new AuthorityComparator());
 
 		for (GrantedAuthority grantedAuthority : authorities) {
-			Assert.notNull(grantedAuthority,
-					"GrantedAuthority list cannot contain any null elements");
+			Assert.notNull(grantedAuthority, "GrantedAuthority list cannot contain any null elements");
 			sortedAuthorities.add(grantedAuthority);
 		}
 
 		return sortedAuthorities;
 	}
 
-	private static class AuthorityComparator implements Comparator<GrantedAuthority>,
-			Serializable {
+	private static class AuthorityComparator implements Comparator<GrantedAuthority>, Serializable {
+
 		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 		public int compare(GrantedAuthority g1, GrantedAuthority g2) {
@@ -194,6 +193,7 @@ public class User implements UserDetails, CredentialsContainer {
 
 			return g1.getAuthority().compareTo(g2.getAuthority());
 		}
+
 	}
 
 	/**
@@ -227,8 +227,7 @@ public class User implements UserDetails, CredentialsContainer {
 		sb.append("Password: [PROTECTED]; ");
 		sb.append("Enabled: ").append(this.enabled).append("; ");
 		sb.append("AccountNonExpired: ").append(this.accountNonExpired).append("; ");
-		sb.append("credentialsNonExpired: ").append(this.credentialsNonExpired)
-				.append("; ");
+		sb.append("credentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
 		sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
 
 		if (!authorities.isEmpty()) {
@@ -253,7 +252,6 @@ public class User implements UserDetails, CredentialsContainer {
 
 	/**
 	 * Creates a UserBuilder with a specified user name
-	 *
 	 * @param username the username to use
 	 * @return the UserBuilder
 	 */
@@ -263,7 +261,6 @@ public class User implements UserDetails, CredentialsContainer {
 
 	/**
 	 * Creates a UserBuilder
-	 *
 	 * @return the UserBuilder
 	 */
 	public static UserBuilder builder() {
@@ -272,8 +269,8 @@ public class User implements UserDetails, CredentialsContainer {
 
 	/**
 	 * <p>
-	 * <b>WARNING:</b> This method is considered unsafe for production and is only intended
-	 * for sample applications.
+	 * <b>WARNING:</b> This method is considered unsafe for production and is only
+	 * intended for sample applications.
 	 * </p>
 	 * <p>
 	 * Creates a user and automatically encodes the provided password using
@@ -289,8 +286,7 @@ public class User implements UserDetails, CredentialsContainer {
 	 *     .build();
 	 * // outputs {bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG
 	 * System.out.println(user.getPassword());
-	 * </code>
-	 * </pre>
+	 * </code> </pre>
 	 *
 	 * This is not safe for production (it is intended for getting started experience)
 	 * because the password "password" is compiled into the source code and then is
@@ -300,8 +296,8 @@ public class User implements UserDetails, CredentialsContainer {
 	 * securely hashed. This means if the UserDetails password is accidentally exposed,
 	 * the password is securely stored.
 	 *
-	 * In a production setting, it is recommended to hash the password ahead of time.
-	 * For example:
+	 * In a production setting, it is recommended to hash the password ahead of time. For
+	 * example:
 	 *
 	 * <pre>
 	 * <code>
@@ -309,8 +305,7 @@ public class User implements UserDetails, CredentialsContainer {
 	 * // outputs {bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG
 	 * // remember the password that is printed out and use in the next step
 	 * System.out.println(encoder.encode("password"));
-	 * </code>
-	 * </pre>
+	 * </code> </pre>
 	 *
 	 * <pre>
 	 * <code>
@@ -318,32 +313,28 @@ public class User implements UserDetails, CredentialsContainer {
 	 *     .password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
 	 *     .roles("USER")
 	 *     .build();
-	 * </code>
-	 * </pre>
-	 *
+	 * </code> </pre>
 	 * @return a UserBuilder that automatically encodes the password with the default
 	 * PasswordEncoder
 	 * @deprecated Using this method is not considered safe for production, but is
 	 * acceptable for demos and getting started. For production purposes, ensure the
 	 * password is encoded externally. See the method Javadoc for additional details.
-	 * There are no plans to remove this support. It is deprecated to indicate
-	 * that this is considered insecure for production purposes.
+	 * There are no plans to remove this support. It is deprecated to indicate that this
+	 * is considered insecure for production purposes.
 	 */
 	@Deprecated
 	public static UserBuilder withDefaultPasswordEncoder() {
-		logger.warn("User.withDefaultPasswordEncoder() is considered unsafe for production and is only intended for sample applications.");
+		logger.warn(
+				"User.withDefaultPasswordEncoder() is considered unsafe for production and is only intended for sample applications.");
 		PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 		return builder().passwordEncoder(encoder::encode);
 	}
 
 	public static UserBuilder withUserDetails(UserDetails userDetails) {
-		return withUsername(userDetails.getUsername())
-			.password(userDetails.getPassword())
-			.accountExpired(!userDetails.isAccountNonExpired())
-			.accountLocked(!userDetails.isAccountNonLocked())
-			.authorities(userDetails.getAuthorities())
-			.credentialsExpired(!userDetails.isCredentialsNonExpired())
-			.disabled(!userDetails.isEnabled());
+		return withUsername(userDetails.getUsername()).password(userDetails.getPassword())
+				.accountExpired(!userDetails.isAccountNonExpired()).accountLocked(!userDetails.isAccountNonLocked())
+				.authorities(userDetails.getAuthorities()).credentialsExpired(!userDetails.isCredentialsNonExpired())
+				.disabled(!userDetails.isEnabled());
 	}
 
 	/**
@@ -351,13 +342,21 @@ public class User implements UserDetails, CredentialsContainer {
 	 * should provided. The remaining attributes have reasonable defaults.
 	 */
 	public static class UserBuilder {
+
 		private String username;
+
 		private String password;
+
 		private List<GrantedAuthority> authorities;
+
 		private boolean accountExpired;
+
 		private boolean accountLocked;
+
 		private boolean credentialsExpired;
+
 		private boolean disabled;
+
 		private Function<String, String> passwordEncoder = password -> password;
 
 		/**
@@ -368,7 +367,6 @@ public class User implements UserDetails, CredentialsContainer {
 
 		/**
 		 * Populates the username. This attribute is required.
-		 *
 		 * @param username the username. Cannot be null.
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional attributes for this user)
@@ -381,7 +379,6 @@ public class User implements UserDetails, CredentialsContainer {
 
 		/**
 		 * Populates the password. This attribute is required.
-		 *
 		 * @param password the password. Cannot be null.
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional attributes for this user)
@@ -393,9 +390,8 @@ public class User implements UserDetails, CredentialsContainer {
 		}
 
 		/**
-		 * Encodes the current password (if non-null) and any future passwords supplied
-		 * to {@link #password(String)}.
-		 *
+		 * Encodes the current password (if non-null) and any future passwords supplied to
+		 * {@link #password(String)}.
 		 * @param encoder the encoder to use
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional attributes for this user)
@@ -425,18 +421,16 @@ public class User implements UserDetails, CredentialsContainer {
 		 * This attribute is required, but can also be populated with
 		 * {@link #authorities(String...)}.
 		 * </p>
-		 *
 		 * @param roles the roles for this user (i.e. USER, ADMIN, etc). Cannot be null,
 		 * contain null values or start with "ROLE_"
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional attributes for this user)
 		 */
 		public UserBuilder roles(String... roles) {
-			List<GrantedAuthority> authorities = new ArrayList<>(
-					roles.length);
+			List<GrantedAuthority> authorities = new ArrayList<>(roles.length);
 			for (String role : roles) {
-				Assert.isTrue(!role.startsWith("ROLE_"), () -> role
-						+ " cannot start with ROLE_ (it is automatically added)");
+				Assert.isTrue(!role.startsWith("ROLE_"),
+						() -> role + " cannot start with ROLE_ (it is automatically added)");
 				authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
 			}
 			return authorities(authorities);
@@ -444,7 +438,6 @@ public class User implements UserDetails, CredentialsContainer {
 
 		/**
 		 * Populates the authorities. This attribute is required.
-		 *
 		 * @param authorities the authorities for this user. Cannot be null, or contain
 		 * null values
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
@@ -457,7 +450,6 @@ public class User implements UserDetails, CredentialsContainer {
 
 		/**
 		 * Populates the authorities. This attribute is required.
-		 *
 		 * @param authorities the authorities for this user. Cannot be null, or contain
 		 * null values
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
@@ -471,7 +463,6 @@ public class User implements UserDetails, CredentialsContainer {
 
 		/**
 		 * Populates the authorities. This attribute is required.
-		 *
 		 * @param authorities the authorities for this user (i.e. ROLE_USER, ROLE_ADMIN,
 		 * etc). Cannot be null, or contain null values
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
@@ -484,7 +475,6 @@ public class User implements UserDetails, CredentialsContainer {
 
 		/**
 		 * Defines if the account is expired or not. Default is false.
-		 *
 		 * @param accountExpired true if the account is expired, false otherwise
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional attributes for this user)
@@ -496,7 +486,6 @@ public class User implements UserDetails, CredentialsContainer {
 
 		/**
 		 * Defines if the account is locked or not. Default is false.
-		 *
 		 * @param accountLocked true if the account is locked, false otherwise
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional attributes for this user)
@@ -508,7 +497,6 @@ public class User implements UserDetails, CredentialsContainer {
 
 		/**
 		 * Defines if the credentials are expired or not. Default is false.
-		 *
 		 * @param credentialsExpired true if the credentials are expired, false otherwise
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional attributes for this user)
@@ -520,7 +508,6 @@ public class User implements UserDetails, CredentialsContainer {
 
 		/**
 		 * Defines if the account is disabled or not. Default is false.
-		 *
 		 * @param disabled true if the account is disabled, false otherwise
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional attributes for this user)
@@ -532,8 +519,10 @@ public class User implements UserDetails, CredentialsContainer {
 
 		public UserDetails build() {
 			String encodedPassword = this.passwordEncoder.apply(password);
-			return new User(username, encodedPassword, !disabled, !accountExpired,
-					!credentialsExpired, !accountLocked, authorities);
+			return new User(username, encodedPassword, !disabled, !accountExpired, !credentialsExpired, !accountLocked,
+					authorities);
 		}
+
 	}
+
 }

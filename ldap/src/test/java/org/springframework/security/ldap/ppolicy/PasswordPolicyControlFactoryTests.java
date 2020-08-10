@@ -42,10 +42,10 @@ public class PasswordPolicyControlFactoryTests {
 		Control control = mock(Control.class);
 
 		when(control.getID()).thenReturn(PasswordPolicyControl.OID);
-		when(control.getEncodedValue()).thenReturn(
-				PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL);
+		when(control.getEncodedValue()).thenReturn(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL);
 		Control result = ctrlFactory.getControlInstance(control);
 		assertThat(result).isNotNull();
 		assertThat(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL).isEqualTo(result.getEncodedValue());
 	}
+
 }

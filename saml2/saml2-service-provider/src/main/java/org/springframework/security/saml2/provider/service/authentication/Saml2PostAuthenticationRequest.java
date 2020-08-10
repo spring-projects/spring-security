@@ -21,19 +21,17 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.POST;
 
 /**
- * Data holder for information required to send an {@code AuthNRequest} over a POST binding
- * from the service provider to the identity provider
- * https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf (line 2031)
+ * Data holder for information required to send an {@code AuthNRequest} over a POST
+ * binding from the service provider to the identity provider
+ * https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf
+ * (line 2031)
  *
  * @see Saml2AuthenticationRequestFactory
  * @since 5.3
  */
 public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationRequest {
 
-	private Saml2PostAuthenticationRequest(
-			String samlRequest,
-			String relayState,
-			String authenticationRequestUri) {
+	private Saml2PostAuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri) {
 		super(samlRequest, relayState, authenticationRequestUri);
 	}
 
@@ -46,17 +44,16 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 	}
 
 	/**
-	 * Constructs a {@link Builder} from a {@link Saml2AuthenticationRequestContext} object.
-	 * By default the {@link Saml2PostAuthenticationRequest#getAuthenticationRequestUri()} will be set to the
-	 * {@link Saml2AuthenticationRequestContext#getDestination()} value.
-	 * @param context input providing {@code Destination}, {@code RelayState}, and {@code Issuer} objects.
+	 * Constructs a {@link Builder} from a {@link Saml2AuthenticationRequestContext}
+	 * object. By default the
+	 * {@link Saml2PostAuthenticationRequest#getAuthenticationRequestUri()} will be set to
+	 * the {@link Saml2AuthenticationRequestContext#getDestination()} value.
+	 * @param context input providing {@code Destination}, {@code RelayState}, and
+	 * {@code Issuer} objects.
 	 * @return a modifiable builder object
 	 */
 	public static Builder withAuthenticationRequestContext(Saml2AuthenticationRequestContext context) {
-		return new Builder()
-				.authenticationRequestUri(context.getDestination())
-				.relayState(context.getRelayState())
-				;
+		return new Builder().authenticationRequestUri(context.getDestination()).relayState(context.getRelayState());
 	}
 
 	/**
@@ -73,13 +70,9 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 		 * @return an immutable {@link Saml2PostAuthenticationRequest} object.
 		 */
 		public Saml2PostAuthenticationRequest build() {
-			return new Saml2PostAuthenticationRequest(
-					this.samlRequest,
-					this.relayState,
-					this.authenticationRequestUri
-			);
+			return new Saml2PostAuthenticationRequest(this.samlRequest, this.relayState, this.authenticationRequestUri);
 		}
-	}
 
+	}
 
 }

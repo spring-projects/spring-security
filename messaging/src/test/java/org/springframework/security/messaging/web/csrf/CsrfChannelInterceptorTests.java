@@ -35,6 +35,7 @@ import org.springframework.security.web.csrf.MissingCsrfTokenException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CsrfChannelInterceptorTests {
+
 	@Mock
 	MessageChannel channel;
 
@@ -125,8 +126,7 @@ public class CsrfChannelInterceptorTests {
 
 	@Test(expected = InvalidCsrfTokenException.class)
 	public void preSendInvalidToken() {
-		messageHeaders.setNativeHeader(token.getHeaderName(), token.getToken()
-				+ "invalid");
+		messageHeaders.setNativeHeader(token.getHeaderName(), token.getToken() + "invalid");
 
 		interceptor.preSend(message(), channel);
 	}
@@ -149,4 +149,5 @@ public class CsrfChannelInterceptorTests {
 		Map<String, Object> headersToCopy = messageHeaders.toMap();
 		return MessageBuilder.withPayload("hi").copyHeaders(headersToCopy).build();
 	}
+
 }

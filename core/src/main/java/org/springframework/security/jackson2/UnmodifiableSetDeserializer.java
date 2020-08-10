@@ -49,10 +49,12 @@ class UnmodifiableSetDeserializer extends JsonDeserializer<Set> {
 				for (JsonNode elementNode : arrayNode) {
 					resultSet.add(mapper.readValue(elementNode.traverse(mapper), Object.class));
 				}
-			} else {
+			}
+			else {
 				resultSet.add(mapper.readValue(node.traverse(mapper), Object.class));
 			}
 		}
 		return Collections.unmodifiableSet(resultSet);
 	}
+
 }

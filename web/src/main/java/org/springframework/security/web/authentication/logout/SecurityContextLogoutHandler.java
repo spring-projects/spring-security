@@ -41,9 +41,11 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public class SecurityContextLogoutHandler implements LogoutHandler {
+
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	private boolean invalidateHttpSession = true;
+
 	private boolean clearAuthentication = true;
 
 	// ~ Methods
@@ -51,13 +53,11 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 
 	/**
 	 * Requires the request to be passed in.
-	 *
 	 * @param request from which to obtain a HTTP session (cannot be null)
 	 * @param response not used (can be <code>null</code>)
 	 * @param authentication not used (can be <code>null</code>)
 	 */
-	public void logout(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) {
+	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		Assert.notNull(request, "HttpServletRequest required");
 		if (invalidateHttpSession) {
 			HttpSession session = request.getSession(false);
@@ -82,7 +82,6 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 	/**
 	 * Causes the {@link HttpSession} to be invalidated when this {@link LogoutHandler} is
 	 * invoked. Defaults to true.
-	 *
 	 * @param invalidateHttpSession true if you wish the session to be invalidated
 	 * (default) or false if it should not be.
 	 */
@@ -93,7 +92,6 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 	/**
 	 * If true, removes the {@link Authentication} from the {@link SecurityContext} to
 	 * prevent issues with concurrent requests.
-	 *
 	 * @param clearAuthentication true if you wish to clear the {@link Authentication}
 	 * from the {@link SecurityContext} (default) or false if the {@link Authentication}
 	 * should not be removed.
@@ -101,4 +99,5 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 	public void setClearAuthentication(boolean clearAuthentication) {
 		this.clearAuthentication = clearAuthentication;
 	}
+
 }

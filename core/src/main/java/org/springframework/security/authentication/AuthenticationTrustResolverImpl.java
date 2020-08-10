@@ -30,10 +30,12 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public class AuthenticationTrustResolverImpl implements AuthenticationTrustResolver {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private Class<? extends Authentication> anonymousClass = AnonymousAuthenticationToken.class;
+
 	private Class<? extends Authentication> rememberMeClass = RememberMeAuthenticationToken.class;
 
 	// ~ Methods
@@ -70,4 +72,5 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
 	public void setRememberMeClass(Class<? extends Authentication> rememberMeClass) {
 		this.rememberMeClass = rememberMeClass;
 	}
+
 }

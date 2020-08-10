@@ -42,35 +42,38 @@ import static org.springframework.security.oauth2.client.jackson2.JsonNodeUtils.
  * @see OAuth2AuthorizationRequestMixin
  */
 final class OAuth2AuthorizationRequestDeserializer extends JsonDeserializer<OAuth2AuthorizationRequest> {
-	private static final StdConverter<JsonNode, AuthorizationGrantType> AUTHORIZATION_GRANT_TYPE_CONVERTER =
-			new StdConverters.AuthorizationGrantTypeConverter();
+
+	private static final StdConverter<JsonNode, AuthorizationGrantType> AUTHORIZATION_GRANT_TYPE_CONVERTER = new StdConverters.AuthorizationGrantTypeConverter();
 
 	@Override
-	public OAuth2AuthorizationRequest deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+	public OAuth2AuthorizationRequest deserialize(JsonParser parser, DeserializationContext context)
+			throws IOException {
 		ObjectMapper mapper = (ObjectMapper) parser.getCodec();
 		JsonNode authorizationRequestNode = mapper.readTree(parser);
 
-		AuthorizationGrantType authorizationGrantType = AUTHORIZATION_GRANT_TYPE_CONVERTER.convert(
-				findObjectNode(authorizationRequestNode, "authorizationGrantType"));
+		AuthorizationGrantType authorizationGrantType = AUTHORIZATION_GRANT_TYPE_CONVERTER
+				.convert(findObjectNode(authorizationRequestNode, "authorizationGrantType"));
 
 		OAuth2AuthorizationRequest.Builder builder;
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationGrantType)) {
 			builder = OAuth2AuthorizationRequest.authorizationCode();
-		} else if (AuthorizationGrantType.IMPLICIT.equals(authorizationGrantType)) {
+		}
+		else if (AuthorizationGrantType.IMPLICIT.equals(authorizationGrantType)) {
 			builder = OAuth2AuthorizationRequest.implicit();
-		} else {
+		}
+		else {
 			throw new JsonParseException(parser, "Invalid authorizationGrantType");
 		}
 
-		return builder
-				.authorizationUri(findStringValue(authorizationRequestNode, "authorizationUri"))
+		return builder.authorizationUri(findStringValue(authorizationRequestNode, "authorizationUri"))
 				.clientId(findStringValue(authorizationRequestNode, "clientId"))
 				.redirectUri(findStringValue(authorizationRequestNode, "redirectUri"))
 				.scopes(findValue(authorizationRequestNode, "scopes", SET_TYPE_REFERENCE, mapper))
 				.state(findStringValue(authorizationRequestNode, "state"))
-				.additionalParameters(findValue(authorizationRequestNode, "additionalParameters", MAP_TYPE_REFERENCE, mapper))
+				.additionalParameters(
+						findValue(authorizationRequestNode, "additionalParameters", MAP_TYPE_REFERENCE, mapper))
 				.authorizationRequestUri(findStringValue(authorizationRequestNode, "authorizationRequestUri"))
-				.attributes(findValue(authorizationRequestNode, "attributes", MAP_TYPE_REFERENCE, mapper))
-				.build();
+				.attributes(findValue(authorizationRequestNode, "attributes", MAP_TYPE_REFERENCE, mapper)).build();
 	}
+
 }

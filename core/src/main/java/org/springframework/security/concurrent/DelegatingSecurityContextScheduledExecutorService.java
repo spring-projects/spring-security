@@ -31,20 +31,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Rob Winch
  * @since 3.2
  */
-public final class DelegatingSecurityContextScheduledExecutorService extends
-		DelegatingSecurityContextExecutorService implements ScheduledExecutorService {
+public final class DelegatingSecurityContextScheduledExecutorService extends DelegatingSecurityContextExecutorService
+		implements ScheduledExecutorService {
+
 	/**
 	 * Creates a new {@link DelegatingSecurityContextScheduledExecutorService} that uses
 	 * the specified {@link SecurityContext}.
-	 *
 	 * @param delegateScheduledExecutorService the {@link ScheduledExecutorService} to
 	 * delegate to. Cannot be null.
 	 * @param securityContext the {@link SecurityContext} to use for each
 	 * {@link DelegatingSecurityContextRunnable} and each
 	 * {@link DelegatingSecurityContextCallable}.
 	 */
-	public DelegatingSecurityContextScheduledExecutorService(
-			ScheduledExecutorService delegateScheduledExecutorService,
+	public DelegatingSecurityContextScheduledExecutorService(ScheduledExecutorService delegateScheduledExecutorService,
 			SecurityContext securityContext) {
 		super(delegateScheduledExecutorService, securityContext);
 	}
@@ -52,12 +51,10 @@ public final class DelegatingSecurityContextScheduledExecutorService extends
 	/**
 	 * Creates a new {@link DelegatingSecurityContextScheduledExecutorService} that uses
 	 * the current {@link SecurityContext} from the {@link SecurityContextHolder}.
-	 *
 	 * @param delegate the {@link ScheduledExecutorService} to delegate to. Cannot be
 	 * null.
 	 */
-	public DelegatingSecurityContextScheduledExecutorService(
-			ScheduledExecutorService delegate) {
+	public DelegatingSecurityContextScheduledExecutorService(ScheduledExecutorService delegate) {
 		this(delegate, null);
 	}
 
@@ -66,20 +63,17 @@ public final class DelegatingSecurityContextScheduledExecutorService extends
 		return getDelegate().schedule(command, delay, unit);
 	}
 
-	public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay,
-			TimeUnit unit) {
+	public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
 		callable = wrap(callable);
 		return getDelegate().schedule(callable, delay, unit);
 	}
 
-	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
-			long initialDelay, long period, TimeUnit unit) {
+	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
 		command = wrap(command);
 		return getDelegate().scheduleAtFixedRate(command, initialDelay, period, unit);
 	}
 
-	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
-			long initialDelay, long delay, TimeUnit unit) {
+	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
 		command = wrap(command);
 		return getDelegate().scheduleWithFixedDelay(command, initialDelay, delay, unit);
 	}
@@ -87,4 +81,5 @@ public final class DelegatingSecurityContextScheduledExecutorService extends
 	private ScheduledExecutorService getDelegate() {
 		return (ScheduledExecutorService) getDelegateExecutor();
 	}
+
 }

@@ -30,6 +30,7 @@ import org.springframework.context.ApplicationEvent;
  * @author Ben Alex
  */
 public abstract class AbstractAuthenticationEvent extends ApplicationEvent {
+
 	// ~ Constructors
 	// ===================================================================================================
 
@@ -43,10 +44,10 @@ public abstract class AbstractAuthenticationEvent extends ApplicationEvent {
 	/**
 	 * Getters for the <code>Authentication</code> request that caused the event. Also
 	 * available from <code>super.getSource()</code>.
-	 *
 	 * @return the authentication request
 	 */
 	public Authentication getAuthentication() {
 		return (Authentication) super.getSource();
 	}
+
 }

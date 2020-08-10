@@ -33,6 +33,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageExpressionConfigAttributeTests {
+
 	@Mock
 	Expression expression;
 
@@ -76,7 +77,8 @@ public class MessageExpressionConfigAttributeTests {
 	@Test
 	public void postProcessContext() {
 		SimpDestinationMessageMatcher matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
-		Message<?> message = MessageBuilder.withPayload("M").setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1").build();
+		Message<?> message = MessageBuilder.withPayload("M")
+				.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1").build();
 		EvaluationContext context = mock(EvaluationContext.class);
 
 		attribute = new MessageExpressionConfigAttribute(expression, matcher);
@@ -84,4 +86,5 @@ public class MessageExpressionConfigAttributeTests {
 
 		verify(context).setVariable("topic", "someTopic");
 	}
+
 }

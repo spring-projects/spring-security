@@ -29,16 +29,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityContextCallableProcessingInterceptorTests {
+
 	@Mock
 	private SecurityContext securityContext;
+
 	@Mock
 	private Callable<?> callable;
+
 	@Mock
 	private NativeWebRequest webRequest;
 
@@ -77,4 +79,5 @@ public class SecurityContextCallableProcessingInterceptorTests {
 		interceptor.postProcess(webRequest, callable, null);
 		assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
 	}
+
 }

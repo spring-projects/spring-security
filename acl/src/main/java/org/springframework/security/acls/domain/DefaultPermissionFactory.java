@@ -38,7 +38,9 @@ import org.springframework.util.Assert;
  * @since 2.0.3
  */
 public class DefaultPermissionFactory implements PermissionFactory {
+
 	private final Map<Integer, Permission> registeredPermissionsByInteger = new HashMap<>();
+
 	private final Map<String, Permission> registeredPermissionsByName = new HashMap<>();
 
 	/**
@@ -57,7 +59,6 @@ public class DefaultPermissionFactory implements PermissionFactory {
 
 	/**
 	 * Registers a map of named <tt>Permission</tt> instances.
-	 *
 	 * @param namedPermissions the map of <tt>Permission</tt>s, keyed by name.
 	 */
 	public DefaultPermissionFactory(Map<String, ? extends Permission> namedPermissions) {
@@ -71,7 +72,6 @@ public class DefaultPermissionFactory implements PermissionFactory {
 	 * <p>
 	 * These permissions will be registered under the name of the field. See
 	 * {@link BasePermission} for an example.
-	 *
 	 * @param clazz a {@link Permission} class with public static fields to register
 	 */
 	protected void registerPublicPermissions(Class<? extends Permission> clazz) {
@@ -130,8 +130,8 @@ public class DefaultPermissionFactory implements PermissionFactory {
 				Permission p = registeredPermissionsByInteger.get(permissionToCheck);
 
 				if (p == null) {
-					throw new IllegalStateException("Mask '" + permissionToCheck
-							+ "' does not have a corresponding static Permission");
+					throw new IllegalStateException(
+							"Mask '" + permissionToCheck + "' does not have a corresponding static Permission");
 				}
 				permission.set(p);
 			}

@@ -41,10 +41,12 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class SecureChannelProcessor implements InitializingBean, ChannelProcessor {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private ChannelEntryPoint entryPoint = new RetryWithHttpsEntryPoint();
+
 	private String secureKeyword = "REQUIRES_SECURE_CHANNEL";
 
 	// ~ Methods
@@ -57,14 +59,12 @@ public class SecureChannelProcessor implements InitializingBean, ChannelProcesso
 
 	public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
 			throws IOException, ServletException {
-		Assert.isTrue((invocation != null) && (config != null),
-				"Nulls cannot be provided");
+		Assert.isTrue((invocation != null) && (config != null), "Nulls cannot be provided");
 
 		for (ConfigAttribute attribute : config) {
 			if (supports(attribute)) {
 				if (!invocation.getHttpRequest().isSecure()) {
-					entryPoint
-							.commence(invocation.getRequest(), invocation.getResponse());
+					entryPoint.commence(invocation.getRequest(), invocation.getResponse());
 				}
 			}
 		}
@@ -90,4 +90,5 @@ public class SecureChannelProcessor implements InitializingBean, ChannelProcesso
 		return (attribute != null) && (attribute.getAttribute() != null)
 				&& attribute.getAttribute().equals(getSecureKeyword());
 	}
+
 }

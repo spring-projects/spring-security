@@ -41,14 +41,15 @@ import org.springframework.util.Assert;
  */
 public final class SecurityContextChannelInterceptor extends ChannelInterceptorAdapter
 		implements ExecutorChannelInterceptor {
-	private final SecurityContext EMPTY_CONTEXT = SecurityContextHolder
-			.createEmptyContext();
+
+	private final SecurityContext EMPTY_CONTEXT = SecurityContextHolder.createEmptyContext();
+
 	private static final ThreadLocal<Stack<SecurityContext>> ORIGINAL_CONTEXT = new ThreadLocal<>();
 
 	private final String authenticationHeaderName;
 
-	private Authentication anonymous = new AnonymousAuthenticationToken("key",
-			"anonymous", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+	private Authentication anonymous = new AnonymousAuthenticationToken("key", "anonymous",
+			AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
 	/**
 	 * Creates a new instance using the header of the name
@@ -61,13 +62,11 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 	/**
 	 * Creates a new instance that uses the specified header to obtain the
 	 * {@link Authentication}.
-	 *
 	 * @param authenticationHeaderName the header name to obtain the
 	 * {@link Authentication}. Cannot be null.
 	 */
 	public SecurityContextChannelInterceptor(String authenticationHeaderName) {
-		Assert.notNull(authenticationHeaderName,
-				"authenticationHeaderName cannot be null");
+		Assert.notNull(authenticationHeaderName, "authenticationHeaderName cannot be null");
 		this.authenticationHeaderName = authenticationHeaderName;
 	}
 
@@ -78,7 +77,6 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 	 * new AnonymousAuthenticationToken(&quot;key&quot;, &quot;anonymous&quot;,
 	 * 		AuthorityUtils.createAuthorityList(&quot;ROLE_ANONYMOUS&quot;));
 	 * </pre>
-	 *
 	 * @param authentication the Authentication used for anonymous authentication. Cannot
 	 * be null.
 	 */
@@ -94,19 +92,16 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 	}
 
 	@Override
-	public void afterSendCompletion(Message<?> message, MessageChannel channel,
-			boolean sent, Exception ex) {
+	public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
 		cleanup();
 	}
 
-	public Message<?> beforeHandle(Message<?> message, MessageChannel channel,
-			MessageHandler handler) {
+	public Message<?> beforeHandle(Message<?> message, MessageChannel channel, MessageHandler handler) {
 		setup(message);
 		return message;
 	}
 
-	public void afterMessageHandled(Message<?> message, MessageChannel channel,
-			MessageHandler handler, Exception ex) {
+	public void afterMessageHandled(Message<?> message, MessageChannel channel, MessageHandler handler, Exception ex) {
 		cleanup();
 	}
 
@@ -158,4 +153,5 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 			SecurityContextHolder.clearContext();
 		}
 	}
+
 }

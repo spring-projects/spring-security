@@ -25,12 +25,13 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 /**
- * Caches tickets using a Spring IoC defined <a
- * href="https://www.ehcache.org/">EHCACHE</a>.
+ * Caches tickets using a Spring IoC defined
+ * <a href="https://www.ehcache.org/">EHCACHE</a>.
  *
  * @author Ben Alex
  */
 public class EhCacheBasedTicketCache implements StatelessTicketCache, InitializingBean {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -52,8 +53,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 		final Element element = cache.get(serviceTicket);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Cache hit: " + (element != null) + "; service ticket: "
-					+ serviceTicket);
+			logger.debug("Cache hit: " + (element != null) + "; service ticket: " + serviceTicket);
 		}
 
 		return element == null ? null : (CasAuthenticationToken) element.getValue();
@@ -88,4 +88,5 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 	public void setCache(final Ehcache cache) {
 		this.cache = cache;
 	}
+
 }

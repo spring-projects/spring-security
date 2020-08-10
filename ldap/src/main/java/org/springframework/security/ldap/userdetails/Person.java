@@ -39,9 +39,13 @@ public class Person extends LdapUserDetailsImpl {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	private String givenName;
+
 	private String sn;
+
 	private String description;
+
 	private String telephoneNumber;
+
 	private List<String> cn = new ArrayList<>();
 
 	protected Person() {
@@ -144,5 +148,7 @@ public class Person extends LdapUserDetailsImpl {
 			// TODO: Check contents for null entries
 			return p;
 		}
+
 	}
+
 }

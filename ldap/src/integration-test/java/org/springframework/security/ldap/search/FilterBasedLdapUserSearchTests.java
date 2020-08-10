@@ -47,8 +47,7 @@ public class FilterBasedLdapUserSearchTests {
 
 	@Test
 	public void basicSearchSucceeds() throws Exception {
-		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
-				"(uid={0})", this.contextSource);
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", this.contextSource);
 		locator.setSearchSubtree(false);
 		locator.setSearchTimeLimit(0);
 		locator.setDerefLinkFlag(false);
@@ -61,8 +60,7 @@ public class FilterBasedLdapUserSearchTests {
 
 	@Test
 	public void searchForNameWithCommaSucceeds() throws Exception {
-		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
-				"(uid={0})", this.contextSource);
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", this.contextSource);
 		locator.setSearchSubtree(false);
 
 		DirContextOperations jerry = locator.searchForUser("jerry");
@@ -74,8 +72,7 @@ public class FilterBasedLdapUserSearchTests {
 	// Try some funny business with filters.
 	@Test
 	public void extraFilterPartToExcludeBob() {
-		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch(
-				"ou=people",
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
 				"(&(cn=*)(!(|(uid={0})(uid=rod)(uid=jerry)(uid=slashguy)(uid=javadude)(uid=groovydude)(uid=closuredude)(uid=scaladude))))",
 				this.contextSource);
 
@@ -86,23 +83,20 @@ public class FilterBasedLdapUserSearchTests {
 
 	@Test(expected = IncorrectResultSizeDataAccessException.class)
 	public void searchFailsOnMultipleMatches() {
-		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
-				"(cn=*)", this.contextSource);
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(cn=*)", this.contextSource);
 		locator.searchForUser("Ignored");
 	}
 
 	@Test(expected = UsernameNotFoundException.class)
 	public void searchForInvalidUserFails() {
-		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
-				"(uid={0})", this.contextSource);
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", this.contextSource);
 		locator.searchForUser("Joe");
 	}
 
 	@Test
 	public void subTreeSearchSucceeds() throws Exception {
 		// Don't set the searchBase, so search from the root.
-		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("", "(cn={0})",
-				this.contextSource);
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("", "(cn={0})", this.contextSource);
 		locator.setSearchSubtree(true);
 
 		DirContextOperations ben = locator.searchForUser("Ben Alex");
@@ -113,8 +107,8 @@ public class FilterBasedLdapUserSearchTests {
 
 	@Test
 	public void searchWithDifferentSearchBaseIsSuccessful() {
-		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch(
-				"ou=otherpeople", "(cn={0})", this.contextSource);
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=otherpeople", "(cn={0})",
+				this.contextSource);
 		DirContextOperations joe = locator.searchForUser("Joe Smeth");
 		assertThat(joe.getStringAttribute("cn")).isEqualTo("Joe Smeth");
 	}

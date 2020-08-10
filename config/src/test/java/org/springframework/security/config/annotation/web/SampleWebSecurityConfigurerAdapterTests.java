@@ -48,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class SampleWebSecurityConfigurerAdapterTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -55,7 +56,9 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	private FilterChainProxy springSecurityFilterChain;
 
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
+
 	private MockFilterChain chain;
 
 	@Before
@@ -129,10 +132,12 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	 *     </authentication-provider>
 	 *   </authentication-manager>
 	 * </code>
+	 *
 	 * @author Rob Winch
 	 */
 	@EnableWebSecurity
 	public static class HelloWorldWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
@@ -141,8 +146,8 @@ public class SampleWebSecurityConfigurerAdapterTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
-	}
 
+	}
 
 	@Test
 	public void readmeSampleWhenRequestSecureResourceThenRedirectToLogin() throws Exception {
@@ -201,11 +206,13 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	 *     <authentication-provider>
 	 *       <user-service>
 	 *         <user username="user" password="password" authorities="ROLE_USER"/>
-	 *         <user username="admin" password="password" authorities="ROLE_USER,ROLE_ADMIN"/>
+	 *         <user username="admin" password="password" authorities=
+	"ROLE_USER,ROLE_ADMIN"/>
 	 *       </user-service>
 	 *     </authentication-provider>
 	 *   </authentication-manager>
 	 * </code>
+	 *
 	 * @author Rob Winch
 	 */
 	@EnableWebSecurity
@@ -213,9 +220,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 
 		@Override
 		public void configure(WebSecurity web) {
-			web
-				.ignoring()
-					.antMatchers("/resources/**");
+			web.ignoring().antMatchers("/resources/**");
 		}
 
 		@Override
@@ -242,8 +247,8 @@ public class SampleWebSecurityConfigurerAdapterTests {
 					.withUser(PasswordEncodedUser.admin());
 			// @formatter:on
 		}
-	}
 
+	}
 
 	@Test
 	public void multiHttpSampleWhenRequestSecureResourceThenRedirectToLogin() throws Exception {
@@ -293,7 +298,8 @@ public class SampleWebSecurityConfigurerAdapterTests {
 		this.spring.register(SampleMultiHttpSecurityConfig.class).autowire();
 
 		this.request.setServletPath("/api/admin/test");
-		this.request.addHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString("user:password".getBytes()));
+		this.request.addHeader("Authorization",
+				"Basic " + Base64.getEncoder().encodeToString("user:password".getBytes()));
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
@@ -304,7 +310,8 @@ public class SampleWebSecurityConfigurerAdapterTests {
 		this.spring.register(SampleMultiHttpSecurityConfig.class).autowire();
 
 		this.request.setServletPath("/api/admin/test");
-		this.request.addHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString("admin:password".getBytes()));
+		this.request.addHeader("Authorization",
+				"Basic " + Base64.getEncoder().encodeToString("admin:password".getBytes()));
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -339,15 +346,18 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	 *     <authentication-provider>
 	 *       <user-service>
 	 *         <user username="user" password="password" authorities="ROLE_USER"/>
-	 *         <user username="admin" password="password" authorities="ROLE_USER,ROLE_ADMIN"/>
+	 *         <user username="admin" password="password" authorities=
+	"ROLE_USER,ROLE_ADMIN"/>
 	 *       </user-service>
 	 *     </authentication-provider>
 	 *   </authentication-manager>
 	 * </code>
+	 *
 	 * @author Rob Winch
 	 */
 	@EnableWebSecurity
 	public static class SampleMultiHttpSecurityConfig {
+
 		@Autowired
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
@@ -361,6 +371,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 		@Configuration
 		@Order(1)
 		public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+
 			protected void configure(HttpSecurity http) throws Exception {
 				// @formatter:off
 				http
@@ -372,15 +383,15 @@ public class SampleWebSecurityConfigurerAdapterTests {
 						.httpBasic();
 				// @formatter:on
 			}
+
 		}
 
 		@Configuration
 		public static class FormLoginWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+
 			@Override
 			public void configure(WebSecurity web) {
-				web
-					.ignoring()
-						.antMatchers("/resources/**");
+				web.ignoring().antMatchers("/resources/**");
 			}
 
 			@Override
@@ -396,6 +407,9 @@ public class SampleWebSecurityConfigurerAdapterTests {
 							.permitAll();
 				// @formatter:on
 			}
+
 		}
+
 	}
+
 }

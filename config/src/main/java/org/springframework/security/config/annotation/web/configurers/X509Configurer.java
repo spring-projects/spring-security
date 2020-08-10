@@ -53,8 +53,7 @@ import javax.servlet.http.HttpServletRequest;
  * The following shared objects are created
  *
  * <ul>
- * <li>
- * {@link AuthenticationEntryPoint} is populated with an
+ * <li>{@link AuthenticationEntryPoint} is populated with an
  * {@link Http403ForbiddenEntryPoint}</li>
  * <li>A {@link PreAuthenticatedAuthenticationProvider} is populated into
  * {@link HttpSecurity#authenticationProvider(org.springframework.security.authentication.AuthenticationProvider)}
@@ -73,11 +72,15 @@ import javax.servlet.http.HttpServletRequest;
  * @author Rob Winch
  * @since 3.2
  */
-public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractHttpConfigurer<X509Configurer<H>, H> {
+public final class X509Configurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractHttpConfigurer<X509Configurer<H>, H> {
+
 	private X509AuthenticationFilter x509AuthenticationFilter;
+
 	private X509PrincipalExtractor x509PrincipalExtractor;
+
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService;
+
 	private AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> authenticationDetailsSource;
 
 	/**
@@ -92,19 +95,16 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 	 * Allows specifying the entire {@link X509AuthenticationFilter}. If this is
 	 * specified, the properties on {@link X509Configurer} will not be populated on the
 	 * {@link X509AuthenticationFilter}.
-	 *
 	 * @param x509AuthenticationFilter the {@link X509AuthenticationFilter} to use
 	 * @return the {@link X509Configurer} for further customizations
 	 */
-	public X509Configurer<H> x509AuthenticationFilter(
-			X509AuthenticationFilter x509AuthenticationFilter) {
+	public X509Configurer<H> x509AuthenticationFilter(X509AuthenticationFilter x509AuthenticationFilter) {
 		this.x509AuthenticationFilter = x509AuthenticationFilter;
 		return this;
 	}
 
 	/**
 	 * Specifies the {@link X509PrincipalExtractor}
-	 *
 	 * @param x509PrincipalExtractor the {@link X509PrincipalExtractor} to use
 	 * @return the {@link X509Configurer} to use
 	 */
@@ -115,7 +115,6 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 
 	/**
 	 * Specifies the {@link AuthenticationDetailsSource}
-	 *
 	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} to use
 	 * @return the {@link X509Configurer} to use
 	 */
@@ -129,7 +128,6 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 	 * Shortcut for invoking
 	 * {@link #authenticationUserDetailsService(AuthenticationUserDetailsService)} with a
 	 * {@link UserDetailsByNameServiceWrapper}.
-	 *
 	 * @param userDetailsService the {@link UserDetailsService} to use
 	 * @return the {@link X509Configurer} for further customizations
 	 */
@@ -143,8 +141,8 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 	 * Specifies the {@link AuthenticationUserDetailsService} to use. If not specified,
 	 * the shared {@link UserDetailsService} will be used to create a
 	 * {@link UserDetailsByNameServiceWrapper}.
-	 *
-	 * @param authenticationUserDetailsService the {@link AuthenticationUserDetailsService} to use
+	 * @param authenticationUserDetailsService the
+	 * {@link AuthenticationUserDetailsService} to use
 	 * @return the {@link X509Configurer} for further customizations
 	 */
 	public X509Configurer<H> authenticationUserDetailsService(
@@ -157,9 +155,8 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 	 * Specifies the regex to extract the principal from the certificate. If not
 	 * specified, the default expression from {@link SubjectDnX509PrincipalExtractor} is
 	 * used.
-	 *
 	 * @param subjectPrincipalRegex the regex to extract the user principal from the
-	 *                              certificate (i.e. "CN=(.*?)(?:,|$)").
+	 * certificate (i.e. "CN=(.*?)(?:,|$)").
 	 * @return the {@link X509Configurer} for further customizations
 	 */
 	public X509Configurer<H> subjectPrincipalRegex(String subjectPrincipalRegex) {
@@ -183,8 +180,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 
 	@Override
 	public void configure(H http) {
-		X509AuthenticationFilter filter = getFilter(http
-				.getSharedObject(AuthenticationManager.class));
+		X509AuthenticationFilter filter = getFilter(http.getSharedObject(AuthenticationManager.class));
 		http.addFilter(filter);
 	}
 
@@ -196,8 +192,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 				x509AuthenticationFilter.setPrincipalExtractor(x509PrincipalExtractor);
 			}
 			if (authenticationDetailsSource != null) {
-				x509AuthenticationFilter
-						.setAuthenticationDetailsSource(authenticationDetailsSource);
+				x509AuthenticationFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
 			}
 			x509AuthenticationFilter = postProcess(x509AuthenticationFilter);
 		}

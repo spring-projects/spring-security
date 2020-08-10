@@ -21,12 +21,12 @@ package org.springframework.security.acls.model;
  * @author Ben Alex
  */
 public class ChildrenExistException extends AclDataAccessException {
+
 	// ~ Constructors
 	// ===================================================================================================
 
 	/**
 	 * Constructs an <code>ChildrenExistException</code> with the specified message.
-	 *
 	 * @param msg the detail message
 	 */
 	public ChildrenExistException(String msg) {
@@ -36,11 +36,11 @@ public class ChildrenExistException extends AclDataAccessException {
 	/**
 	 * Constructs an <code>ChildrenExistException</code> with the specified message and
 	 * root cause.
-	 *
 	 * @param msg the detail message
 	 * @param t root cause
 	 */
 	public ChildrenExistException(String msg, Throwable t) {
 		super(msg, t);
 	}
+
 }

@@ -31,11 +31,14 @@ import static org.springframework.security.saml2.provider.service.registration.T
  * Tests for {@link DefaultRelyingPartyRegistrationResolver}
  */
 public class DefaultRelyingPartyRegistrationResolverTests {
+
 	private final RelyingPartyRegistration registration = relyingPartyRegistration().build();
-	private final RelyingPartyRegistrationRepository repository =
-			new InMemoryRelyingPartyRegistrationRepository(this.registration);
-	private final DefaultRelyingPartyRegistrationResolver resolver =
-			new DefaultRelyingPartyRegistrationResolver(this.repository);
+
+	private final RelyingPartyRegistrationRepository repository = new InMemoryRelyingPartyRegistrationRepository(
+			this.registration);
+
+	private final DefaultRelyingPartyRegistrationResolver resolver = new DefaultRelyingPartyRegistrationResolver(
+			this.repository);
 
 	@Test
 	public void resolveWhenRequestContainsRegistrationIdThenResolves() {
@@ -43,8 +46,7 @@ public class DefaultRelyingPartyRegistrationResolverTests {
 		request.setPathInfo("/some/path/" + this.registration.getRegistrationId());
 		RelyingPartyRegistration registration = this.resolver.convert(request);
 		assertThat(registration).isNotNull();
-		assertThat(registration.getRegistrationId())
-				.isEqualTo(this.registration.getRegistrationId());
+		assertThat(registration.getRegistrationId()).isEqualTo(this.registration.getRegistrationId());
 		assertThat(registration.getEntityId())
 				.isEqualTo("http://localhost/saml2/service-provider-metadata/" + this.registration.getRegistrationId());
 		assertThat(registration.getAssertionConsumerServiceLocation())
@@ -71,4 +73,5 @@ public class DefaultRelyingPartyRegistrationResolverTests {
 		assertThatCode(() -> new DefaultRelyingPartyRegistrationResolver(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
+
 }

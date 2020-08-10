@@ -33,10 +33,12 @@ import java.util.Arrays;
  * @author Luke Taylor
  */
 public class InMemoryResource extends AbstractResource {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private final byte[] source;
+
 	private final String description;
 
 	// ~ Constructors
@@ -82,4 +84,5 @@ public class InMemoryResource extends AbstractResource {
 
 		return Arrays.equals(source, ((InMemoryResource) res).source);
 	}
+
 }

@@ -22,7 +22,9 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 public class RequestKey {
+
 	private final String url;
+
 	private final String method;
 
 	public RequestKey(String url) {
@@ -81,4 +83,5 @@ public class RequestKey {
 
 		return sb.toString();
 	}
+
 }

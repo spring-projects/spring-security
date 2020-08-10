@@ -22,6 +22,8 @@ package org.springframework.security.access.annotation;
  *
  */
 public class Entity {
+
 	public Entity(String someParameter) {
 	}
+
 }

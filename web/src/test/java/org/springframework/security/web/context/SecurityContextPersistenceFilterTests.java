@@ -33,8 +33,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 public class SecurityContextPersistenceFilterTests {
-	TestingAuthenticationToken testToken = new TestingAuthenticationToken("someone",
-			"passwd", "ROLE_A");
+
+	TestingAuthenticationToken testToken = new TestingAuthenticationToken("someone", "passwd", "ROLE_A");
 
 	@After
 	public void clearContext() {
@@ -61,8 +61,7 @@ public class SecurityContextPersistenceFilterTests {
 		final MockHttpServletResponse response = new MockHttpServletResponse();
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
 		SecurityContextHolder.getContext().setAuthentication(testToken);
-		doThrow(new IOException()).when(chain).doFilter(any(ServletRequest.class),
-				any(ServletResponse.class));
+		doThrow(new IOException()).when(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		try {
 			filter.doFilter(request, response, chain);
 			fail("IOException should have been thrown");
@@ -74,19 +73,16 @@ public class SecurityContextPersistenceFilterTests {
 	}
 
 	@Test
-	public void loadedContextContextIsCopiedToSecurityContextHolderAndUpdatedContextIsStored()
-			throws Exception {
+	public void loadedContextContextIsCopiedToSecurityContextHolderAndUpdatedContextIsStored() throws Exception {
 		final MockHttpServletRequest request = new MockHttpServletRequest();
 		final MockHttpServletResponse response = new MockHttpServletResponse();
-		final TestingAuthenticationToken beforeAuth = new TestingAuthenticationToken(
-				"someoneelse", "passwd", "ROLE_B");
+		final TestingAuthenticationToken beforeAuth = new TestingAuthenticationToken("someoneelse", "passwd", "ROLE_B");
 		final SecurityContext scBefore = new SecurityContextImpl();
 		final SecurityContext scExpectedAfter = new SecurityContextImpl();
 		scExpectedAfter.setAuthentication(testToken);
 		scBefore.setAuthentication(beforeAuth);
 		final SecurityContextRepository repo = mock(SecurityContextRepository.class);
-		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(
-				repo);
+		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(repo);
 
 		when(repo.loadContext(any(HttpRequestResponseHolder.class))).thenReturn(scBefore);
 
@@ -109,8 +105,7 @@ public class SecurityContextPersistenceFilterTests {
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(
 				mock(SecurityContextRepository.class));
 
-		request.setAttribute(SecurityContextPersistenceFilter.FILTER_APPLIED,
-				Boolean.TRUE);
+		request.setAttribute(SecurityContextPersistenceFilter.FILTER_APPLIED, Boolean.TRUE);
 		filter.doFilter(request, response, chain);
 		verify(chain).doFilter(request, response);
 	}
@@ -127,16 +122,15 @@ public class SecurityContextPersistenceFilterTests {
 	}
 
 	@Test
-	public void nullSecurityContextRepoDoesntSaveContextOrCreateSession()
-			throws Exception {
+	public void nullSecurityContextRepoDoesntSaveContextOrCreateSession() throws Exception {
 		final FilterChain chain = mock(FilterChain.class);
 		final MockHttpServletRequest request = new MockHttpServletRequest();
 		final MockHttpServletResponse response = new MockHttpServletResponse();
 		SecurityContextRepository repo = new NullSecurityContextRepository();
-		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(
-				repo);
+		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(repo);
 		filter.doFilter(request, response, chain);
 		assertThat(repo.containsContext(request)).isFalse();
 		assertThat(request.getSession(false)).isNull();
 	}
+
 }

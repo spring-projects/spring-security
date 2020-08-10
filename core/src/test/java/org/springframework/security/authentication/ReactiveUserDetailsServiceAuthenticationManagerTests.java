@@ -41,11 +41,17 @@ import reactor.test.StepVerifier;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ReactiveUserDetailsServiceAuthenticationManagerTests {
-	@Mock ReactiveUserDetailsService repository;
+
+	@Mock
+	ReactiveUserDetailsService repository;
+
 	@Mock
 	PasswordEncoder passwordEncoder;
+
 	UserDetailsRepositoryReactiveAuthenticationManager manager;
+
 	String username;
+
 	String password;
 
 	@Before
@@ -68,10 +74,7 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
 		Mono<Authentication> authentication = manager.authenticate(token);
 
-		StepVerifier
-			.create(authentication)
-			.expectError(BadCredentialsException.class)
-			.verify();
+		StepVerifier.create(authentication).expectError(BadCredentialsException.class).verify();
 	}
 
 	@Test
@@ -84,13 +87,11 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 		// @formatter:on
 		when(repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, this.password + "INVALID");
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username,
+				this.password + "INVALID");
 		Mono<Authentication> authentication = manager.authenticate(token);
 
-		StepVerifier
-			.create(authentication)
-			.expectError(BadCredentialsException.class)
-			.verify();
+		StepVerifier.create(authentication).expectError(BadCredentialsException.class).verify();
 	}
 
 	@Test
@@ -116,8 +117,8 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 		User user = new User(this.username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER"));
 		when(this.repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-			this.username, this.password);
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+				this.password);
 		Authentication authentication = this.manager.authenticate(token).block();
 
 		assertThat(authentication).isEqualTo(authentication);
@@ -130,14 +131,12 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 		User user = new User(this.username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER"));
 		when(this.repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-			this.username, this.password);
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+				this.password);
 
 		Mono<Authentication> authentication = this.manager.authenticate(token);
 
-		StepVerifier
-			.create(authentication)
-			.expectError(BadCredentialsException.class)
-			.verify();
+		StepVerifier.create(authentication).expectError(BadCredentialsException.class).verify();
 	}
+
 }

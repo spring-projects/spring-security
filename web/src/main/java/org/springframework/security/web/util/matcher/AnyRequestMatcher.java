@@ -26,6 +26,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @since 3.1
  */
 public final class AnyRequestMatcher implements RequestMatcher {
+
 	public static final RequestMatcher INSTANCE = new AnyRequestMatcher();
 
 	public boolean matches(HttpServletRequest request) {
@@ -51,4 +52,5 @@ public final class AnyRequestMatcher implements RequestMatcher {
 
 	private AnyRequestMatcher() {
 	}
+
 }

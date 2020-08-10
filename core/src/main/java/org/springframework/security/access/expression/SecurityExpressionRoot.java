@@ -33,10 +33,15 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * @since 3.0
  */
 public abstract class SecurityExpressionRoot implements SecurityExpressionOperations {
+
 	protected final Authentication authentication;
+
 	private AuthenticationTrustResolver trustResolver;
+
 	private RoleHierarchy roleHierarchy;
+
 	private Set<String> roles;
+
 	private String defaultRolePrefix = "ROLE_";
 
 	/** Allows "permitAll" expression */
@@ -44,11 +49,17 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 
 	/** Allows "denyAll" expression */
 	public final boolean denyAll = false;
+
 	private PermissionEvaluator permissionEvaluator;
+
 	public final String read = "read";
+
 	public final String write = "write";
+
 	public final String create = "create";
+
 	public final String delete = "delete";
+
 	public final String admin = "administration";
 
 	/**
@@ -116,8 +127,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	}
 
 	public final boolean isFullyAuthenticated() {
-		return !trustResolver.isAnonymous(authentication)
-				&& !trustResolver.isRememberMe(authentication);
+		return !trustResolver.isAnonymous(authentication) && !trustResolver.isRememberMe(authentication);
 	}
 
 	/**
@@ -148,7 +158,6 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	 * <p>
 	 * If null or empty, then no default role prefix is used.
 	 * </p>
-	 *
 	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
 	 */
 	public void setDefaultRolePrefix(String defaultRolePrefix) {
@@ -157,12 +166,10 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 
 	private Set<String> getAuthoritySet() {
 		if (roles == null) {
-			Collection<? extends GrantedAuthority> userAuthorities = authentication
-					.getAuthorities();
+			Collection<? extends GrantedAuthority> userAuthorities = authentication.getAuthorities();
 
 			if (roleHierarchy != null) {
-				userAuthorities = roleHierarchy
-						.getReachableGrantedAuthorities(userAuthorities);
+				userAuthorities = roleHierarchy.getReachableGrantedAuthorities(userAuthorities);
 			}
 
 			roles = AuthorityUtils.authorityListToSet(userAuthorities);
@@ -176,8 +183,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	}
 
 	public boolean hasPermission(Object targetId, String targetType, Object permission) {
-		return permissionEvaluator.hasPermission(authentication, (Serializable) targetId,
-				targetType, permission);
+		return permissionEvaluator.hasPermission(authentication, (Serializable) targetId, targetType, permission);
 	}
 
 	public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
@@ -187,7 +193,6 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	/**
 	 * Prefixes role with defaultRolePrefix if defaultRolePrefix is non-null and if role
 	 * does not already start with defaultRolePrefix.
-	 *
 	 * @param defaultRolePrefix
 	 * @param role
 	 * @return
@@ -204,4 +209,5 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 		}
 		return defaultRolePrefix + role;
 	}
+
 }

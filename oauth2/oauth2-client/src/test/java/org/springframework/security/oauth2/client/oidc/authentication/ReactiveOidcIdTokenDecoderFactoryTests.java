@@ -44,8 +44,7 @@ import static org.mockito.Mockito.*;
  */
 public class ReactiveOidcIdTokenDecoderFactoryTests {
 
-	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration()
-			.scope("openid");
+	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration().scope("openid");
 
 	private ReactiveOidcIdTokenDecoderFactory idTokenDecoderFactory;
 
@@ -56,7 +55,8 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 	@Test
 	public void createDefaultClaimTypeConvertersWhenCalledThenDefaultsAreCorrect() {
-		Map<String, Converter<Object, ?>> claimTypeConverters = ReactiveOidcIdTokenDecoderFactory.createDefaultClaimTypeConverters();
+		Map<String, Converter<Object, ?>> claimTypeConverters = ReactiveOidcIdTokenDecoderFactory
+				.createDefaultClaimTypeConverters();
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.ISS);
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.AUD);
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.NONCE);
@@ -97,9 +97,9 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 	public void createDecoderWhenJwsAlgorithmDefaultAndJwkSetUriEmptyThenThrowOAuth2AuthenticationException() {
 		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier " +
-						"for Client Registration: 'registration-id'. " +
-						"Check to ensure you have configured the JwkSet URI.");
+				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+						+ "for Client Registration: 'registration-id'. "
+						+ "Check to ensure you have configured the JwkSet URI.");
 	}
 
 	@Test
@@ -107,9 +107,9 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 		this.idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> SignatureAlgorithm.ES256);
 		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier " +
-						"for Client Registration: 'registration-id'. " +
-						"Check to ensure you have configured the JwkSet URI.");
+				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+						+ "for Client Registration: 'registration-id'. "
+						+ "Check to ensure you have configured the JwkSet URI.");
 	}
 
 	@Test
@@ -117,9 +117,9 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 		this.idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> MacAlgorithm.HS256);
 		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.clientSecret(null).build()))
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier " +
-						"for Client Registration: 'registration-id'. " +
-						"Check to ensure you have configured the client secret.");
+				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+						+ "for Client Registration: 'registration-id'. "
+						+ "Check to ensure you have configured the client secret.");
 	}
 
 	@Test
@@ -127,15 +127,14 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 		this.idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> null);
 		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.build()))
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier " +
-						"for Client Registration: 'registration-id'. " +
-						"Check to ensure you have configured a valid JWS Algorithm: 'null'");
+				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+						+ "for Client Registration: 'registration-id'. "
+						+ "Check to ensure you have configured a valid JWS Algorithm: 'null'");
 	}
 
 	@Test
 	public void createDecoderWhenClientRegistrationValidThenReturnDecoder() {
-		assertThat(this.idTokenDecoderFactory.createDecoder(this.registration.build()))
-				.isNotNull();
+		assertThat(this.idTokenDecoderFactory.createDecoder(this.registration.build())).isNotNull();
 	}
 
 	@Test
@@ -160,8 +159,7 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 		ClientRegistration clientRegistration = this.registration.build();
 
-		when(customJwsAlgorithmResolver.apply(same(clientRegistration)))
-				.thenReturn(MacAlgorithm.HS256);
+		when(customJwsAlgorithmResolver.apply(same(clientRegistration))).thenReturn(MacAlgorithm.HS256);
 
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 
@@ -170,7 +168,8 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 	@Test
 	public void createDecoderWhenCustomClaimTypeConverterFactorySetThenApplied() {
-		Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> customClaimTypeConverterFactory = mock(Function.class);
+		Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> customClaimTypeConverterFactory = mock(
+				Function.class);
 		this.idTokenDecoderFactory.setClaimTypeConverterFactory(customClaimTypeConverterFactory);
 
 		ClientRegistration clientRegistration = this.registration.build();
@@ -182,4 +181,5 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 		verify(customClaimTypeConverterFactory).apply(same(clientRegistration));
 	}
+
 }

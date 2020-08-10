@@ -31,10 +31,11 @@ public class RoleHierarchyVoterTests {
 		roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B");
 
 		// User has role A, role B is required
-		TestingAuthenticationToken auth = new TestingAuthenticationToken("user",
-				"password", "ROLE_A");
+		TestingAuthenticationToken auth = new TestingAuthenticationToken("user", "password", "ROLE_A");
 		RoleHierarchyVoter voter = new RoleHierarchyVoter(roleHierarchyImpl);
 
-		assertThat(voter.vote(auth, new Object(), SecurityConfig.createList("ROLE_B"))).isEqualTo(RoleHierarchyVoter.ACCESS_GRANTED);
+		assertThat(voter.vote(auth, new Object(), SecurityConfig.createList("ROLE_B")))
+				.isEqualTo(RoleHierarchyVoter.ACCESS_GRANTED);
 	}
+
 }

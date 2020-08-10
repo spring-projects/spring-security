@@ -44,4 +44,5 @@ public class SignatureAlgorithmTests {
 	public void fromWhenAlgorithmInvalidThenDoesNotResolve() {
 		assertThat(SignatureAlgorithm.from("invalid")).isNull();
 	}
+
 }

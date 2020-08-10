@@ -36,30 +36,35 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Arrays;
 
 /**
- * The default implementation of an {@link OAuth2AccessTokenResponseClient}
- * for the {@link AuthorizationGrantType#PASSWORD password} grant.
- * This implementation uses a {@link RestOperations} when requesting
- * an access token credential at the Authorization Server's Token Endpoint.
+ * The default implementation of an {@link OAuth2AccessTokenResponseClient} for the
+ * {@link AuthorizationGrantType#PASSWORD password} grant. This implementation uses a
+ * {@link RestOperations} when requesting an access token credential at the Authorization
+ * Server's Token Endpoint.
  *
  * @author Joe Grandja
  * @since 5.2
  * @see OAuth2AccessTokenResponseClient
  * @see OAuth2PasswordGrantRequest
  * @see OAuth2AccessTokenResponse
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.3.2">Section 4.3.2 Access Token Request (Resource Owner Password Credentials Grant)</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.3.3">Section 4.3.3 Access Token Response (Resource Owner Password Credentials Grant)</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.3.2">Section 4.3.2 Access Token Request
+ * (Resource Owner Password Credentials Grant)</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.3.3">Section 4.3.3 Access Token Response
+ * (Resource Owner Password Credentials Grant)</a>
  */
-public final class DefaultPasswordTokenResponseClient implements OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> {
+public final class DefaultPasswordTokenResponseClient
+		implements OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> {
+
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
-	private Converter<OAuth2PasswordGrantRequest, RequestEntity<?>> requestEntityConverter =
-			new OAuth2PasswordGrantRequestEntityConverter();
+	private Converter<OAuth2PasswordGrantRequest, RequestEntity<?>> requestEntityConverter = new OAuth2PasswordGrantRequestEntityConverter();
 
 	private RestOperations restOperations;
 
 	public DefaultPasswordTokenResponseClient() {
-		RestTemplate restTemplate = new RestTemplate(Arrays.asList(
-				new FormHttpMessageConverter(), new OAuth2AccessTokenResponseHttpMessageConverter()));
+		RestTemplate restTemplate = new RestTemplate(
+				Arrays.asList(new FormHttpMessageConverter(), new OAuth2AccessTokenResponseHttpMessageConverter()));
 		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 		this.restOperations = restTemplate;
 	}
@@ -73,9 +78,12 @@ public final class DefaultPasswordTokenResponseClient implements OAuth2AccessTok
 		ResponseEntity<OAuth2AccessTokenResponse> response;
 		try {
 			response = this.restOperations.exchange(request, OAuth2AccessTokenResponse.class);
-		} catch (RestClientException ex) {
+		}
+		catch (RestClientException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
-					"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: " + ex.getMessage(), null);
+					"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: "
+							+ ex.getMessage(),
+					null);
 			throw new OAuth2AuthorizationException(oauth2Error, ex);
 		}
 
@@ -87,38 +95,43 @@ public final class DefaultPasswordTokenResponseClient implements OAuth2AccessTok
 			// If AccessTokenResponse.scope is empty, then default to the scope
 			// originally requested by the client in the Token Request
 			tokenResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
-					.scopes(passwordGrantRequest.getClientRegistration().getScopes())
-					.build();
+					.scopes(passwordGrantRequest.getClientRegistration().getScopes()).build();
 		}
 
 		return tokenResponse;
 	}
 
 	/**
-	 * Sets the {@link Converter} used for converting the {@link OAuth2PasswordGrantRequest}
-	 * to a {@link RequestEntity} representation of the OAuth 2.0 Access Token Request.
-	 *
-	 * @param requestEntityConverter the {@link Converter} used for converting to a {@link RequestEntity} representation of the Access Token Request
+	 * Sets the {@link Converter} used for converting the
+	 * {@link OAuth2PasswordGrantRequest} to a {@link RequestEntity} representation of the
+	 * OAuth 2.0 Access Token Request.
+	 * @param requestEntityConverter the {@link Converter} used for converting to a
+	 * {@link RequestEntity} representation of the Access Token Request
 	 */
-	public void setRequestEntityConverter(Converter<OAuth2PasswordGrantRequest, RequestEntity<?>> requestEntityConverter) {
+	public void setRequestEntityConverter(
+			Converter<OAuth2PasswordGrantRequest, RequestEntity<?>> requestEntityConverter) {
 		Assert.notNull(requestEntityConverter, "requestEntityConverter cannot be null");
 		this.requestEntityConverter = requestEntityConverter;
 	}
 
 	/**
-	 * Sets the {@link RestOperations} used when requesting the OAuth 2.0 Access Token Response.
+	 * Sets the {@link RestOperations} used when requesting the OAuth 2.0 Access Token
+	 * Response.
 	 *
 	 * <p>
-	 * <b>NOTE:</b> At a minimum, the supplied {@code restOperations} must be configured with the following:
+	 * <b>NOTE:</b> At a minimum, the supplied {@code restOperations} must be configured
+	 * with the following:
 	 * <ol>
-	 *  <li>{@link HttpMessageConverter}'s - {@link FormHttpMessageConverter} and {@link OAuth2AccessTokenResponseHttpMessageConverter}</li>
-	 *  <li>{@link ResponseErrorHandler} - {@link OAuth2ErrorResponseErrorHandler}</li>
+	 * <li>{@link HttpMessageConverter}'s - {@link FormHttpMessageConverter} and
+	 * {@link OAuth2AccessTokenResponseHttpMessageConverter}</li>
+	 * <li>{@link ResponseErrorHandler} - {@link OAuth2ErrorResponseErrorHandler}</li>
 	 * </ol>
-	 *
-	 * @param restOperations the {@link RestOperations} used when requesting the Access Token Response
+	 * @param restOperations the {@link RestOperations} used when requesting the Access
+	 * Token Response
 	 */
 	public void setRestOperations(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations cannot be null");
 		this.restOperations = restOperations;
 	}
+
 }

@@ -46,6 +46,7 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class JwtAuthenticationProviderTests {
+
 	@Mock
 	Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter;
 
@@ -56,8 +57,7 @@ public class JwtAuthenticationProviderTests {
 
 	@Before
 	public void setup() {
-		this.provider =
-				new JwtAuthenticationProvider(this.jwtDecoder);
+		this.provider = new JwtAuthenticationProvider(this.jwtDecoder);
 		this.provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
 	}
 
@@ -70,8 +70,7 @@ public class JwtAuthenticationProviderTests {
 		when(this.jwtDecoder.decode("token")).thenReturn(jwt);
 		when(this.jwtAuthenticationConverter.convert(jwt)).thenReturn(new JwtAuthenticationToken(jwt));
 
-		JwtAuthenticationToken authentication =
-				(JwtAuthenticationToken) this.provider.authenticate(token);
+		JwtAuthenticationToken authentication = (JwtAuthenticationToken) this.provider.authenticate(token);
 
 		assertThat(authentication.getTokenAttributes()).containsEntry("name", "value");
 	}
@@ -93,11 +92,8 @@ public class JwtAuthenticationProviderTests {
 
 		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new BadJwtException("with \"invalid\" chars"));
 
-		assertThatCode(() -> this.provider.authenticate(token))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasFieldOrPropertyWithValue(
-						"error.description",
-						"Invalid token");
+		assertThatCode(() -> this.provider.authenticate(token)).isInstanceOf(OAuth2AuthenticationException.class)
+				.hasFieldOrPropertyWithValue("error.description", "Invalid token");
 	}
 
 	// gh-7785
@@ -107,8 +103,7 @@ public class JwtAuthenticationProviderTests {
 
 		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new JwtException("no jwk set"));
 
-		assertThatCode(() -> this.provider.authenticate(token))
-				.isInstanceOf(AuthenticationException.class)
+		assertThatCode(() -> this.provider.authenticate(token)).isInstanceOf(AuthenticationException.class)
 				.isNotInstanceOf(OAuth2AuthenticationException.class);
 	}
 
@@ -124,9 +119,8 @@ public class JwtAuthenticationProviderTests {
 		when(this.jwtDecoder.decode(token.getToken())).thenReturn(jwt);
 		when(this.jwtAuthenticationConverter.convert(jwt)).thenReturn(authentication);
 
-		assertThat(this.provider.authenticate(token))
-				.isEqualTo(authentication)
-				.hasFieldOrPropertyWithValue("details", details);
+		assertThat(this.provider.authenticate(token)).isEqualTo(authentication).hasFieldOrPropertyWithValue("details",
+				details);
 	}
 
 	@Test
@@ -139,7 +133,7 @@ public class JwtAuthenticationProviderTests {
 	}
 
 	private Predicate<? super Throwable> errorCode(String errorCode) {
-		return failed ->
-				((OAuth2AuthenticationException) failed).getError().getErrorCode() == errorCode;
+		return failed -> ((OAuth2AuthenticationException) failed).getError().getErrorCode() == errorCode;
 	}
+
 }

@@ -46,6 +46,7 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class JwtReactiveAuthenticationManagerTests {
+
 	@Mock
 	private ReactiveJwtDecoder jwtDecoder;
 
@@ -96,11 +97,8 @@ public class JwtReactiveAuthenticationManagerTests {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new BadJwtException("with \"invalid\" chars"));
 
-		assertThatCode(() -> this.manager.authenticate(token).block())
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasFieldOrPropertyWithValue(
-						"error.description",
-						"Invalid token");
+		assertThatCode(() -> this.manager.authenticate(token).block()).isInstanceOf(OAuth2AuthenticationException.class)
+				.hasFieldOrPropertyWithValue("error.description", "Invalid token");
 	}
 
 	// gh-7785
@@ -109,8 +107,7 @@ public class JwtReactiveAuthenticationManagerTests {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new JwtException("no jwk set"));
 
-		assertThatCode(() -> this.manager.authenticate(token).block())
-				.isInstanceOf(AuthenticationException.class)
+		assertThatCode(() -> this.manager.authenticate(token).block()).isInstanceOf(AuthenticationException.class)
 				.isNotInstanceOf(OAuth2AuthenticationException.class);
 	}
 
@@ -119,8 +116,7 @@ public class JwtReactiveAuthenticationManagerTests {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		when(this.jwtDecoder.decode(any())).thenReturn(Mono.error(new RuntimeException("Oops")));
 
-		assertThatCode(() -> this.manager.authenticate(token).block())
-				.isInstanceOf(RuntimeException.class);
+		assertThatCode(() -> this.manager.authenticate(token).block()).isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
@@ -132,6 +128,8 @@ public class JwtReactiveAuthenticationManagerTests {
 
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.isAuthenticated()).isTrue();
-		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsOnly("SCOPE_message:read", "SCOPE_message:write");
+		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
+				.containsOnly("SCOPE_message:read", "SCOPE_message:write");
 	}
+
 }

@@ -95,8 +95,7 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 			}
 		}
 
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContext contextBeforeChainExecution = repo.loadContext(holder);
 
 		try {
@@ -106,13 +105,11 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 
 		}
 		finally {
-			SecurityContext contextAfterChainExecution = SecurityContextHolder
-					.getContext();
+			SecurityContext contextAfterChainExecution = SecurityContextHolder.getContext();
 			// Crucial removal of SecurityContextHolder contents - do this before anything
 			// else.
 			SecurityContextHolder.clearContext();
-			repo.saveContext(contextAfterChainExecution, holder.getRequest(),
-					holder.getResponse());
+			repo.saveContext(contextAfterChainExecution, holder.getRequest(), holder.getResponse());
 			request.removeAttribute(FILTER_APPLIED);
 
 			if (debug) {
@@ -124,4 +121,5 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 	public void setForceEagerSessionCreation(boolean forceEagerSessionCreation) {
 		this.forceEagerSessionCreation = forceEagerSessionCreation;
 	}
+
 }

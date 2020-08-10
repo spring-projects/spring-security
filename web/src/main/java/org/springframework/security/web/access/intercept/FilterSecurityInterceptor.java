@@ -42,8 +42,8 @@ import org.springframework.security.web.FilterInvocation;
  * @author Ben Alex
  * @author Rob Winch
  */
-public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements
-		Filter {
+public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -53,6 +53,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	// ================================================================================================
 
 	private FilterInvocationSecurityMetadataSource securityMetadataSource;
+
 	private boolean observeOncePerRequest = true;
 
 	// ~ Methods
@@ -60,7 +61,6 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 
 	/**
 	 * Not used (we rely on IoC container lifecycle services instead)
-	 *
 	 * @param arg0 ignored
 	 *
 	 */
@@ -76,16 +76,14 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	/**
 	 * Method that is actually called by the filter chain. Simply delegates to the
 	 * {@link #invoke(FilterInvocation)} method.
-	 *
 	 * @param request the servlet request
 	 * @param response the servlet response
 	 * @param chain the filter chain
-	 *
 	 * @throws IOException if the filter chain fails
 	 * @throws ServletException if the filter chain fails
 	 */
-	public void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		FilterInvocation fi = new FilterInvocation(request, response, chain);
 		invoke(fi);
 	}
@@ -107,8 +105,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	}
 
 	public void invoke(FilterInvocation fi) throws IOException, ServletException {
-		if ((fi.getRequest() != null)
-				&& (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
+		if ((fi.getRequest() != null) && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
 				&& observeOncePerRequest) {
 			// filter already applied to this request and user wants us to observe
 			// once-per-request handling, so don't re-do security checking
@@ -139,7 +136,6 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	 * execute once-per-request. Sometimes users may wish it to execute more than once per
 	 * request, such as when JSP forwards are being used and filter security is desired on
 	 * each included fragment of the HTTP request.
-	 *
 	 * @return <code>true</code> (the default) if once-per-request is honoured, otherwise
 	 * <code>false</code> if <code>FilterSecurityInterceptor</code> will enforce
 	 * authorizations for each and every fragment of the HTTP request.
@@ -151,4 +147,5 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	public void setObserveOncePerRequest(boolean observeOncePerRequest) {
 		this.observeOncePerRequest = observeOncePerRequest;
 	}
+
 }

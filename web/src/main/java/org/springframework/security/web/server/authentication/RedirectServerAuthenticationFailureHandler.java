@@ -31,8 +31,8 @@ import java.net.URI;
  * @author Rob Winch
  * @since 5.0
  */
-public class RedirectServerAuthenticationFailureHandler
-	implements ServerAuthenticationFailureHandler {
+public class RedirectServerAuthenticationFailureHandler implements ServerAuthenticationFailureHandler {
+
 	private final URI location;
 
 	private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
@@ -56,8 +56,8 @@ public class RedirectServerAuthenticationFailureHandler
 	}
 
 	@Override
-	public Mono<Void> onAuthenticationFailure(
-		WebFilterExchange webFilterExchange, AuthenticationException exception) {
+	public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
 		return this.redirectStrategy.sendRedirect(webFilterExchange.getExchange(), this.location);
 	}
+
 }

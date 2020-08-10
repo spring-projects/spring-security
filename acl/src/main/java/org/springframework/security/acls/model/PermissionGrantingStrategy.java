@@ -27,10 +27,9 @@ import java.util.List;
 public interface PermissionGrantingStrategy {
 
 	/**
-	 * Returns true if the supplied strategy decides that the supplied {@code Acl}
-	 * grants access based on the supplied list of permissions and sids.
+	 * Returns true if the supplied strategy decides that the supplied {@code Acl} grants
+	 * access based on the supplied list of permissions and sids.
 	 */
-	boolean isGranted(Acl acl, List<Permission> permission, List<Sid> sids,
-			boolean administrativeMode);
+	boolean isGranted(Acl acl, List<Permission> permission, List<Sid> sids, boolean administrativeMode);
 
 }

@@ -44,9 +44,11 @@ class PasswordEncoderUtils {
 			return null;
 		}
 
-		return Utf8.encode(s); // need to check if Utf8.encode() runs in constant time (probably not). This may leak length of string.
+		return Utf8.encode(s); // need to check if Utf8.encode() runs in constant time
+								// (probably not). This may leak length of string.
 	}
 
 	private PasswordEncoderUtils() {
 	}
+
 }

@@ -66,4 +66,5 @@ public class SimpleGrantedAuthorityMixinTests extends AbstractMixinTests {
 		String json = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\"}";
 		mapper.readValue(json, SimpleGrantedAuthority.class);
 	}
+
 }

@@ -40,6 +40,7 @@ import java.util.Arrays;
  */
 @Configuration(proxyBeanMethods = false)
 class ReactiveMethodSecurityConfiguration implements ImportAware {
+
 	private int advisorOrder;
 
 	private GrantedAuthorityDefaults grantedAuthorityDefaults;
@@ -48,26 +49,27 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public MethodSecurityMetadataSourceAdvisor methodSecurityInterceptor(AbstractMethodSecurityMetadataSource source) {
 		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor(
-			"securityMethodInterceptor", source, "methodMetadataSource");
+				"securityMethodInterceptor", source, "methodMetadataSource");
 		advisor.setOrder(advisorOrder);
 		return advisor;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public DelegatingMethodSecurityMetadataSource methodMetadataSource(MethodSecurityExpressionHandler methodSecurityExpressionHandler) {
+	public DelegatingMethodSecurityMetadataSource methodMetadataSource(
+			MethodSecurityExpressionHandler methodSecurityExpressionHandler) {
 		ExpressionBasedAnnotationAttributeFactory attributeFactory = new ExpressionBasedAnnotationAttributeFactory(
 				methodSecurityExpressionHandler);
 		PrePostAnnotationSecurityMetadataSource prePostSource = new PrePostAnnotationSecurityMetadataSource(
-			attributeFactory);
+				attributeFactory);
 		return new DelegatingMethodSecurityMetadataSource(Arrays.asList(prePostSource));
 	}
 
 	@Bean
-	public PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source, MethodSecurityExpressionHandler handler) {
+	public PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source,
+			MethodSecurityExpressionHandler handler) {
 
-		ExpressionBasedPostInvocationAdvice postAdvice = new ExpressionBasedPostInvocationAdvice(
-				handler);
+		ExpressionBasedPostInvocationAdvice postAdvice = new ExpressionBasedPostInvocationAdvice(handler);
 		ExpressionBasedPreInvocationAdvice preAdvice = new ExpressionBasedPreInvocationAdvice();
 		preAdvice.setExpressionHandler(handler);
 
@@ -86,7 +88,8 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		this.advisorOrder = (int) importMetadata.getAnnotationAttributes(EnableReactiveMethodSecurity.class.getName()).get("order");
+		this.advisorOrder = (int) importMetadata.getAnnotationAttributes(EnableReactiveMethodSecurity.class.getName())
+				.get("order");
 	}
 
 	@Autowired(required = false)

@@ -52,6 +52,7 @@ import javax.security.auth.spi.LoginModule;
  * @author Ray Krueger
  */
 public class SecurityContextLoginModule implements LoginModule {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -61,7 +62,9 @@ public class SecurityContextLoginModule implements LoginModule {
 	// ================================================================================================
 
 	private Authentication authen;
+
 	private Subject subject;
+
 	private boolean ignoreMissingAuthentication = false;
 
 	// ~ Methods
@@ -70,10 +73,8 @@ public class SecurityContextLoginModule implements LoginModule {
 	/**
 	 * Abort the authentication process by forgetting the Spring Security
 	 * <code>Authentication</code>.
-	 *
 	 * @return true if this method succeeded, or false if this <code>LoginModule</code>
 	 * should be ignored.
-	 *
 	 * @exception LoginException if the abort fails
 	 */
 	public boolean abort() {
@@ -89,10 +90,8 @@ public class SecurityContextLoginModule implements LoginModule {
 	/**
 	 * Authenticate the <code>Subject</code> (phase two) by adding the Spring Security
 	 * <code>Authentication</code> to the <code>Subject</code>'s principals.
-	 *
 	 * @return true if this method succeeded, or false if this <code>LoginModule</code>
 	 * should be ignored.
-	 *
 	 * @exception LoginException if the commit fails
 	 */
 	public boolean commit() {
@@ -118,30 +117,25 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * code establishing the <code>LoginContext</code> likely won't provide one that
 	 * understands Spring Security. Also ignores the <code>sharedState</code> and
 	 * <code>options</code> parameters, since none are recognized.
-	 *
 	 * @param subject the <code>Subject</code> to be authenticated.
 	 * @param callbackHandler is ignored
 	 * @param sharedState is ignored
 	 * @param options are ignored
 	 */
 	@SuppressWarnings("unchecked")
-	public void initialize(Subject subject, CallbackHandler callbackHandler,
-			Map sharedState, Map options) {
+	public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
 		this.subject = subject;
 
 		if (options != null) {
-			ignoreMissingAuthentication = "true".equals(options
-					.get("ignoreMissingAuthentication"));
+			ignoreMissingAuthentication = "true".equals(options.get("ignoreMissingAuthentication"));
 		}
 	}
 
 	/**
 	 * Authenticate the <code>Subject</code> (phase one) by extracting the Spring Security
 	 * <code>Authentication</code> from the current <code>SecurityContext</code>.
-	 *
 	 * @return true if the authentication succeeded, or false if this
 	 * <code>LoginModule</code> should be ignored.
-	 *
 	 * @throws LoginException if the authentication fails
 	 */
 	public boolean login() throws LoginException {
@@ -165,10 +159,8 @@ public class SecurityContextLoginModule implements LoginModule {
 
 	/**
 	 * Log out the <code>Subject</code>.
-	 *
 	 * @return true if this method succeeded, or false if this <code>LoginModule</code>
 	 * should be ignored.
-	 *
 	 * @exception LoginException if the logout fails
 	 */
 	public boolean logout() {
@@ -181,4 +173,5 @@ public class SecurityContextLoginModule implements LoginModule {
 
 		return true;
 	}
+
 }

@@ -28,20 +28,21 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Integration tests the ACL system using ACL class id type of UUID and using an in-memory database.
+ * Integration tests the ACL system using ACL class id type of UUID and using an in-memory
+ * database.
+ *
  * @author Paul Wheeler
  */
-@ContextConfiguration(locations = {"/jdbcMutableAclServiceTestsWithAclClass-context.xml"})
+@ContextConfiguration(locations = { "/jdbcMutableAclServiceTestsWithAclClass-context.xml" })
 public class JdbcMutableAclServiceTestsWithAclClassId extends JdbcMutableAclServiceTests {
 
 	private static final String TARGET_CLASS_WITH_UUID = TargetObjectWithUUID.class.getName();
 
-	private final ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID,
-		UUID.randomUUID());
-	private final ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID,
-		UUID.randomUUID());
-	private final ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID,
-		UUID.randomUUID());
+	private final ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, UUID.randomUUID());
+
+	private final ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, UUID.randomUUID());
+
+	private final ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, UUID.randomUUID());
 
 	@Override
 	protected String getSqlClassPathResource() {
@@ -77,7 +78,8 @@ public class JdbcMutableAclServiceTestsWithAclClassId extends JdbcMutableAclServ
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, id);
 		getJdbcMutableAclService().createAcl(oid);
 
-		assertThat(getJdbcMutableAclService().readAclById(new ObjectIdentityImpl(
-			TARGET_CLASS_WITH_UUID, id))).isNotNull();
+		assertThat(getJdbcMutableAclService().readAclById(new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, id)))
+				.isNotNull();
 	}
+
 }

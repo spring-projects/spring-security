@@ -40,15 +40,25 @@ import static org.springframework.security.config.http.OAuth2ClientBeanDefinitio
  * @since 5.3
  */
 final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
+
 	private static final String ELT_AUTHORIZATION_CODE_GRANT = "authorization-code-grant";
+
 	private static final String ATT_AUTHORIZATION_REQUEST_REPOSITORY_REF = "authorization-request-repository-ref";
+
 	private static final String ATT_AUTHORIZATION_REQUEST_RESOLVER_REF = "authorization-request-resolver-ref";
+
 	private static final String ATT_ACCESS_TOKEN_RESPONSE_CLIENT_REF = "access-token-response-client-ref";
+
 	private final BeanReference requestCache;
+
 	private final BeanReference authenticationManager;
+
 	private BeanDefinition defaultAuthorizedClientRepository;
+
 	private BeanDefinition authorizationRequestRedirectFilter;
+
 	private BeanDefinition authorizationCodeGrantFilter;
+
 	private BeanDefinition authorizationCodeAuthenticationProvider;
 
 	OAuth2ClientBeanDefinitionParser(BeanReference requestCache, BeanReference authenticationManager) {
@@ -73,43 +83,41 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 
 		BeanDefinitionBuilder authorizationRequestRedirectFilterBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(OAuth2AuthorizationRequestRedirectFilter.class);
-		String authorizationRequestResolverRef = authorizationCodeGrantElt != null ?
-				authorizationCodeGrantElt.getAttribute(ATT_AUTHORIZATION_REQUEST_RESOLVER_REF) : null;
+		String authorizationRequestResolverRef = authorizationCodeGrantElt != null
+				? authorizationCodeGrantElt.getAttribute(ATT_AUTHORIZATION_REQUEST_RESOLVER_REF) : null;
 		if (!StringUtils.isEmpty(authorizationRequestResolverRef)) {
 			authorizationRequestRedirectFilterBuilder.addConstructorArgReference(authorizationRequestResolverRef);
-		} else {
+		}
+		else {
 			authorizationRequestRedirectFilterBuilder.addConstructorArgValue(clientRegistrationRepository);
 		}
 		this.authorizationRequestRedirectFilter = authorizationRequestRedirectFilterBuilder
 				.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository)
-				.addPropertyValue("requestCache", this.requestCache)
-				.getBeanDefinition();
+				.addPropertyValue("requestCache", this.requestCache).getBeanDefinition();
 
 		this.authorizationCodeGrantFilter = BeanDefinitionBuilder
 				.rootBeanDefinition(OAuth2AuthorizationCodeGrantFilter.class)
-				.addConstructorArgValue(clientRegistrationRepository)
-				.addConstructorArgValue(authorizedClientRepository)
+				.addConstructorArgValue(clientRegistrationRepository).addConstructorArgValue(authorizedClientRepository)
 				.addConstructorArgValue(this.authenticationManager)
-				.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository)
-				.getBeanDefinition();
+				.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository).getBeanDefinition();
 
 		BeanMetadataElement accessTokenResponseClient = getAccessTokenResponseClient(authorizationCodeGrantElt);
 
 		this.authorizationCodeAuthenticationProvider = BeanDefinitionBuilder
 				.rootBeanDefinition(OAuth2AuthorizationCodeAuthenticationProvider.class)
-				.addConstructorArgValue(accessTokenResponseClient)
-				.getBeanDefinition();
+				.addConstructorArgValue(accessTokenResponseClient).getBeanDefinition();
 
 		return null;
 	}
 
 	private BeanMetadataElement getAuthorizationRequestRepository(Element element) {
 		BeanMetadataElement authorizationRequestRepository;
-		String authorizationRequestRepositoryRef = element != null ?
-				element.getAttribute(ATT_AUTHORIZATION_REQUEST_REPOSITORY_REF) : null;
+		String authorizationRequestRepositoryRef = element != null
+				? element.getAttribute(ATT_AUTHORIZATION_REQUEST_REPOSITORY_REF) : null;
 		if (!StringUtils.isEmpty(authorizationRequestRepositoryRef)) {
 			authorizationRequestRepository = new RuntimeBeanReference(authorizationRequestRepositoryRef);
-		} else {
+		}
+		else {
 			authorizationRequestRepository = BeanDefinitionBuilder.rootBeanDefinition(
 					"org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository")
 					.getBeanDefinition();
@@ -119,11 +127,12 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 
 	private BeanMetadataElement getAccessTokenResponseClient(Element element) {
 		BeanMetadataElement accessTokenResponseClient;
-		String accessTokenResponseClientRef = element != null ?
-				element.getAttribute(ATT_ACCESS_TOKEN_RESPONSE_CLIENT_REF) : null;
+		String accessTokenResponseClientRef = element != null
+				? element.getAttribute(ATT_ACCESS_TOKEN_RESPONSE_CLIENT_REF) : null;
 		if (!StringUtils.isEmpty(accessTokenResponseClientRef)) {
 			accessTokenResponseClient = new RuntimeBeanReference(accessTokenResponseClientRef);
-		} else {
+		}
+		else {
 			accessTokenResponseClient = BeanDefinitionBuilder.rootBeanDefinition(
 					"org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient")
 					.getBeanDefinition();
@@ -146,4 +155,5 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 	BeanDefinition getAuthorizationCodeAuthenticationProvider() {
 		return this.authorizationCodeAuthenticationProvider;
 	}
+
 }

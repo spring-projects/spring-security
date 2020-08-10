@@ -45,31 +45,30 @@ import org.springframework.util.Assert;
  * @author Ruud Senden
  * @since 2.0
  */
-public class PreAuthenticatedGrantedAuthoritiesUserDetailsService implements
-		AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
+public class PreAuthenticatedGrantedAuthoritiesUserDetailsService
+		implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
+
 	/**
 	 * Get a UserDetails object based on the user name contained in the given token, and
 	 * the GrantedAuthorities as returned by the GrantedAuthoritiesContainer
 	 * implementation as returned by the token.getDetails() method.
 	 */
-	public final UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token)
-			throws AuthenticationException {
+	public final UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) throws AuthenticationException {
 		Assert.notNull(token.getDetails(), "token.getDetails() cannot be null");
 		Assert.isInstanceOf(GrantedAuthoritiesContainer.class, token.getDetails());
-		Collection<? extends GrantedAuthority> authorities = ((GrantedAuthoritiesContainer) token
-				.getDetails()).getGrantedAuthorities();
+		Collection<? extends GrantedAuthority> authorities = ((GrantedAuthoritiesContainer) token.getDetails())
+				.getGrantedAuthorities();
 		return createUserDetails(token, authorities);
 	}
 
 	/**
 	 * Creates the final <tt>UserDetails</tt> object. Can be overridden to customize the
 	 * contents.
-	 *
 	 * @param token the authentication request token
 	 * @param authorities the pre-authenticated authorities.
 	 */
-	protected UserDetails createUserDetails(Authentication token,
-			Collection<? extends GrantedAuthority> authorities) {
+	protected UserDetails createUserDetails(Authentication token, Collection<? extends GrantedAuthority> authorities) {
 		return new User(token.getName(), "N/A", true, true, true, true, authorities);
 	}
+
 }

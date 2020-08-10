@@ -26,6 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Mark St.Godard
  */
 public class AuthenticationSwitchUserEvent extends AbstractAuthenticationEvent {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -36,12 +37,10 @@ public class AuthenticationSwitchUserEvent extends AbstractAuthenticationEvent {
 
 	/**
 	 * Switch user context event constructor
-	 *
 	 * @param authentication The current <code>Authentication</code> object
 	 * @param targetUser The target user
 	 */
-	public AuthenticationSwitchUserEvent(Authentication authentication,
-			UserDetails targetUser) {
+	public AuthenticationSwitchUserEvent(Authentication authentication, UserDetails targetUser) {
 		super(authentication);
 		this.targetUser = targetUser;
 	}
@@ -52,4 +51,5 @@ public class AuthenticationSwitchUserEvent extends AbstractAuthenticationEvent {
 	public UserDetails getTargetUser() {
 		return targetUser;
 	}
+
 }

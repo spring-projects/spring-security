@@ -45,4 +45,5 @@ public class PersonContextMapper implements UserDetailsContextMapper {
 		Person p = (Person) user;
 		p.populateContext(ctx);
 	}
+
 }

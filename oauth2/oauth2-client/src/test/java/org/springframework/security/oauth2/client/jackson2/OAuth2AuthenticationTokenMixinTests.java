@@ -54,6 +54,7 @@ import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.N
  * @author Joe Grandja
  */
 public class OAuth2AuthenticationTokenMixinTests {
+
 	private ObjectMapper mapper;
 
 	@Before
@@ -82,8 +83,8 @@ public class OAuth2AuthenticationTokenMixinTests {
 	public void serializeWhenRequiredAttributesOnlyThenSerializes() throws Exception {
 		DefaultOidcUser principal = TestOidcUsers.create();
 		principal = new DefaultOidcUser(principal.getAuthorities(), principal.getIdToken());
-		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
-				principal, Collections.emptyList(), "registration-id");
+		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(principal, Collections.emptyList(),
+				"registration-id");
 		String expectedJson = asJson(authentication);
 		String json = this.mapper.writeValueAsString(authentication);
 		JSONAssert.assertEquals(expectedJson, json, true);
@@ -103,95 +104,72 @@ public class OAuth2AuthenticationTokenMixinTests {
 		OAuth2AuthenticationToken expectedAuthentication = TestOAuth2AuthenticationTokens.oidcAuthenticated();
 		String json = asJson(expectedAuthentication);
 		OAuth2AuthenticationToken authentication = this.mapper.readValue(json, OAuth2AuthenticationToken.class);
-		assertThat(authentication.getAuthorities())
-				.containsExactlyElementsOf(expectedAuthentication.getAuthorities());
-		assertThat(authentication.getDetails())
-				.isEqualTo(expectedAuthentication.getDetails());
-		assertThat(authentication.isAuthenticated())
-				.isEqualTo(expectedAuthentication.isAuthenticated());
+		assertThat(authentication.getAuthorities()).containsExactlyElementsOf(expectedAuthentication.getAuthorities());
+		assertThat(authentication.getDetails()).isEqualTo(expectedAuthentication.getDetails());
+		assertThat(authentication.isAuthenticated()).isEqualTo(expectedAuthentication.isAuthenticated());
 		assertThat(authentication.getAuthorizedClientRegistrationId())
 				.isEqualTo(expectedAuthentication.getAuthorizedClientRegistrationId());
 		DefaultOidcUser expectedOidcUser = (DefaultOidcUser) expectedAuthentication.getPrincipal();
 		DefaultOidcUser oidcUser = (DefaultOidcUser) authentication.getPrincipal();
 		assertThat(oidcUser.getAuthorities().containsAll(expectedOidcUser.getAuthorities())).isTrue();
-		assertThat(oidcUser.getAttributes())
-				.containsExactlyEntriesOf(expectedOidcUser.getAttributes());
-		assertThat(oidcUser.getName())
-				.isEqualTo(expectedOidcUser.getName());
+		assertThat(oidcUser.getAttributes()).containsExactlyEntriesOf(expectedOidcUser.getAttributes());
+		assertThat(oidcUser.getName()).isEqualTo(expectedOidcUser.getName());
 		OidcIdToken expectedIdToken = expectedOidcUser.getIdToken();
 		OidcIdToken idToken = oidcUser.getIdToken();
-		assertThat(idToken.getTokenValue())
-				.isEqualTo(expectedIdToken.getTokenValue());
-		assertThat(idToken.getIssuedAt())
-				.isEqualTo(expectedIdToken.getIssuedAt());
-		assertThat(idToken.getExpiresAt())
-				.isEqualTo(expectedIdToken.getExpiresAt());
-		assertThat(idToken.getClaims())
-				.containsExactlyEntriesOf(expectedIdToken.getClaims());
+		assertThat(idToken.getTokenValue()).isEqualTo(expectedIdToken.getTokenValue());
+		assertThat(idToken.getIssuedAt()).isEqualTo(expectedIdToken.getIssuedAt());
+		assertThat(idToken.getExpiresAt()).isEqualTo(expectedIdToken.getExpiresAt());
+		assertThat(idToken.getClaims()).containsExactlyEntriesOf(expectedIdToken.getClaims());
 		OidcUserInfo expectedUserInfo = expectedOidcUser.getUserInfo();
 		OidcUserInfo userInfo = oidcUser.getUserInfo();
-		assertThat(userInfo.getClaims())
-				.containsExactlyEntriesOf(expectedUserInfo.getClaims());
+		assertThat(userInfo.getClaims()).containsExactlyEntriesOf(expectedUserInfo.getClaims());
 
 		// OAuth2User
 		expectedAuthentication = TestOAuth2AuthenticationTokens.authenticated();
 		json = asJson(expectedAuthentication);
 		authentication = this.mapper.readValue(json, OAuth2AuthenticationToken.class);
-		assertThat(authentication.getAuthorities())
-				.containsExactlyElementsOf(expectedAuthentication.getAuthorities());
-		assertThat(authentication.getDetails())
-				.isEqualTo(expectedAuthentication.getDetails());
-		assertThat(authentication.isAuthenticated())
-				.isEqualTo(expectedAuthentication.isAuthenticated());
+		assertThat(authentication.getAuthorities()).containsExactlyElementsOf(expectedAuthentication.getAuthorities());
+		assertThat(authentication.getDetails()).isEqualTo(expectedAuthentication.getDetails());
+		assertThat(authentication.isAuthenticated()).isEqualTo(expectedAuthentication.isAuthenticated());
 		assertThat(authentication.getAuthorizedClientRegistrationId())
 				.isEqualTo(expectedAuthentication.getAuthorizedClientRegistrationId());
 		DefaultOAuth2User expectedOauth2User = (DefaultOAuth2User) expectedAuthentication.getPrincipal();
 		DefaultOAuth2User oauth2User = (DefaultOAuth2User) authentication.getPrincipal();
 		assertThat(oauth2User.getAuthorities().containsAll(expectedOauth2User.getAuthorities())).isTrue();
-		assertThat(oauth2User.getAttributes())
-				.containsExactlyEntriesOf(expectedOauth2User.getAttributes());
-		assertThat(oauth2User.getName())
-				.isEqualTo(expectedOauth2User.getName());
+		assertThat(oauth2User.getAttributes()).containsExactlyEntriesOf(expectedOauth2User.getAttributes());
+		assertThat(oauth2User.getName()).isEqualTo(expectedOauth2User.getName());
 	}
 
 	@Test
 	public void deserializeWhenRequiredAttributesOnlyThenDeserializes() throws Exception {
 		DefaultOidcUser expectedPrincipal = TestOidcUsers.create();
 		expectedPrincipal = new DefaultOidcUser(expectedPrincipal.getAuthorities(), expectedPrincipal.getIdToken());
-		OAuth2AuthenticationToken expectedAuthentication = new OAuth2AuthenticationToken(
-				expectedPrincipal, Collections.emptyList(), "registration-id");
+		OAuth2AuthenticationToken expectedAuthentication = new OAuth2AuthenticationToken(expectedPrincipal,
+				Collections.emptyList(), "registration-id");
 		String json = asJson(expectedAuthentication);
 		OAuth2AuthenticationToken authentication = this.mapper.readValue(json, OAuth2AuthenticationToken.class);
 		assertThat(authentication.getAuthorities()).isEmpty();
-		assertThat(authentication.getDetails())
-				.isEqualTo(expectedAuthentication.getDetails());
-		assertThat(authentication.isAuthenticated())
-				.isEqualTo(expectedAuthentication.isAuthenticated());
+		assertThat(authentication.getDetails()).isEqualTo(expectedAuthentication.getDetails());
+		assertThat(authentication.isAuthenticated()).isEqualTo(expectedAuthentication.isAuthenticated());
 		assertThat(authentication.getAuthorizedClientRegistrationId())
 				.isEqualTo(expectedAuthentication.getAuthorizedClientRegistrationId());
 		DefaultOidcUser principal = (DefaultOidcUser) authentication.getPrincipal();
 		assertThat(principal.getAuthorities().containsAll(expectedPrincipal.getAuthorities())).isTrue();
-		assertThat(principal.getAttributes())
-				.containsExactlyEntriesOf(expectedPrincipal.getAttributes());
-		assertThat(principal.getName())
-				.isEqualTo(expectedPrincipal.getName());
+		assertThat(principal.getAttributes()).containsExactlyEntriesOf(expectedPrincipal.getAttributes());
+		assertThat(principal.getName()).isEqualTo(expectedPrincipal.getName());
 		OidcIdToken expectedIdToken = expectedPrincipal.getIdToken();
 		OidcIdToken idToken = principal.getIdToken();
-		assertThat(idToken.getTokenValue())
-				.isEqualTo(expectedIdToken.getTokenValue());
-		assertThat(idToken.getIssuedAt())
-				.isEqualTo(expectedIdToken.getIssuedAt());
-		assertThat(idToken.getExpiresAt())
-				.isEqualTo(expectedIdToken.getExpiresAt());
-		assertThat(idToken.getClaims())
-				.containsExactlyEntriesOf(expectedIdToken.getClaims());
+		assertThat(idToken.getTokenValue()).isEqualTo(expectedIdToken.getTokenValue());
+		assertThat(idToken.getIssuedAt()).isEqualTo(expectedIdToken.getIssuedAt());
+		assertThat(idToken.getExpiresAt()).isEqualTo(expectedIdToken.getExpiresAt());
+		assertThat(idToken.getClaims()).containsExactlyEntriesOf(expectedIdToken.getClaims());
 		assertThat(principal.getUserInfo()).isNull();
 	}
 
 	private static String asJson(OAuth2AuthenticationToken authentication) {
-		String principalJson = authentication.getPrincipal() instanceof DefaultOidcUser ?
-				asJson((DefaultOidcUser) authentication.getPrincipal()) :
-				asJson((DefaultOAuth2User) authentication.getPrincipal());
+		String principalJson = authentication.getPrincipal() instanceof DefaultOidcUser
+				? asJson((DefaultOidcUser) authentication.getPrincipal())
+				: asJson((DefaultOAuth2User) authentication.getPrincipal());
 		// @formatter:off
 		return "{\n" +
 				"  \"@class\": \"org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken\",\n" +
@@ -236,17 +214,16 @@ public class OAuth2AuthenticationTokenMixinTests {
 		for (GrantedAuthority authority : authorities) {
 			if (authority instanceof OidcUserAuthority) {
 				oidcUserAuthority = (OidcUserAuthority) authority;
-			} else if (authority instanceof OAuth2UserAuthority) {
+			}
+			else if (authority instanceof OAuth2UserAuthority) {
 				oauth2UserAuthority = (OAuth2UserAuthority) authority;
-			} else if (authority instanceof SimpleGrantedAuthority) {
+			}
+			else if (authority instanceof SimpleGrantedAuthority) {
 				simpleAuthorities.add((SimpleGrantedAuthority) authority);
 			}
 		}
-		String authoritiesJson = oidcUserAuthority != null ?
-				asJson(oidcUserAuthority) :
-				oauth2UserAuthority != null ?
-						asJson(oauth2UserAuthority) :
-						"";
+		String authoritiesJson = oidcUserAuthority != null ? asJson(oidcUserAuthority)
+				: oauth2UserAuthority != null ? asJson(oauth2UserAuthority) : "";
 		if (!simpleAuthorities.isEmpty()) {
 			if (!StringUtils.isEmpty(authoritiesJson)) {
 				authoritiesJson += ",";
@@ -351,4 +328,5 @@ public class OAuth2AuthenticationTokenMixinTests {
 		}
 		return DecimalUtils.toBigDecimal(instant.getEpochSecond(), instant.getNano()).toString();
 	}
+
 }

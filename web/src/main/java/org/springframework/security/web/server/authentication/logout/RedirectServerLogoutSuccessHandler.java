@@ -27,10 +27,12 @@ import java.net.URI;
 
 /**
  * Performs a redirect on log out success.
+ *
  * @author Rob Winch
  * @since 5.0
  */
 public class RedirectServerLogoutSuccessHandler implements ServerLogoutSuccessHandler {
+
 	public static final String DEFAULT_LOGOUT_SUCCESS_URL = "/login?logout";
 
 	private URI logoutSuccessUrl = URI.create(DEFAULT_LOGOUT_SUCCESS_URL);
@@ -39,8 +41,7 @@ public class RedirectServerLogoutSuccessHandler implements ServerLogoutSuccessHa
 
 	@Override
 	public Mono<Void> onLogoutSuccess(WebFilterExchange exchange, Authentication authentication) {
-		return this.redirectStrategy
-			.sendRedirect(exchange.getExchange(), this.logoutSuccessUrl);
+		return this.redirectStrategy.sendRedirect(exchange.getExchange(), this.logoutSuccessUrl);
 	}
 
 	/**
@@ -51,4 +52,5 @@ public class RedirectServerLogoutSuccessHandler implements ServerLogoutSuccessHa
 		Assert.notNull(logoutSuccessUrl, "logoutSuccessUrl cannot be null");
 		this.logoutSuccessUrl = logoutSuccessUrl;
 	}
+
 }

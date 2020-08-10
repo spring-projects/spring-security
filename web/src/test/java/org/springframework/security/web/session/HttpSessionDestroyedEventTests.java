@@ -27,7 +27,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 /**
- *
  * @author Rob Winch
  *
  */
@@ -68,4 +67,5 @@ public class HttpSessionDestroyedEventTests {
 		assertThat(securityContexts).hasSize(1);
 		assertThat(securityContexts.get(0)).isSameAs(session.getAttribute("context"));
 	}
+
 }

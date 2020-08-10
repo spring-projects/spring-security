@@ -45,8 +45,7 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 	 * information (HTTP or HTTPS), so will cause problems if a redirect is being
 	 * performed to change to HTTPS, for example.
 	 */
-	public void sendRedirect(HttpServletRequest request, HttpServletResponse response,
-			String url) throws IOException {
+	public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url) throws IOException {
 		String redirectUrl = calculateRedirectUrl(request.getContextPath(), url);
 		redirectUrl = response.encodeRedirectURL(redirectUrl);
 
@@ -98,10 +97,11 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 	}
 
 	/**
-	 * Returns <tt>true</tt>, if the redirection URL should be calculated
-	 * minus the protocol and context path (defaults to <tt>false</tt>).
+	 * Returns <tt>true</tt>, if the redirection URL should be calculated minus the
+	 * protocol and context path (defaults to <tt>false</tt>).
 	 */
 	protected boolean isContextRelative() {
 		return contextRelative;
 	}
+
 }

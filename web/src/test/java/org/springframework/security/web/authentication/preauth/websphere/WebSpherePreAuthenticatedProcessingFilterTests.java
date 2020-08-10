@@ -46,16 +46,13 @@ public class WebSpherePreAuthenticatedProcessingFilterTests {
 		new WebSpherePreAuthenticatedProcessingFilter();
 		WASUsernameAndGroupsExtractor helper = mock(WASUsernameAndGroupsExtractor.class);
 		when(helper.getCurrentUserName()).thenReturn("jerry");
-		WebSpherePreAuthenticatedProcessingFilter filter = new WebSpherePreAuthenticatedProcessingFilter(
-				helper);
-		assertThat(filter.getPreAuthenticatedPrincipal(new MockHttpServletRequest())).isEqualTo(
-				"jerry");
-		assertThat(filter.getPreAuthenticatedCredentials(new MockHttpServletRequest())).isEqualTo(
-				"N/A");
+		WebSpherePreAuthenticatedProcessingFilter filter = new WebSpherePreAuthenticatedProcessingFilter(helper);
+		assertThat(filter.getPreAuthenticatedPrincipal(new MockHttpServletRequest())).isEqualTo("jerry");
+		assertThat(filter.getPreAuthenticatedCredentials(new MockHttpServletRequest())).isEqualTo("N/A");
 
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenAnswer(
-				(Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
+		when(am.authenticate(any(Authentication.class)))
+				.thenAnswer((Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
 
 		filter.setAuthenticationManager(am);
 		WebSpherePreAuthenticatedWebAuthenticationDetailsSource ads = new WebSpherePreAuthenticatedWebAuthenticationDetailsSource(
@@ -63,8 +60,7 @@ public class WebSpherePreAuthenticatedProcessingFilterTests {
 		ads.setWebSphereGroups2GrantedAuthoritiesMapper(new SimpleAttributes2GrantedAuthoritiesMapper());
 		filter.setAuthenticationDetailsSource(ads);
 
-		filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
-				mock(FilterChain.class));
+		filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(FilterChain.class));
 	}
 
 }

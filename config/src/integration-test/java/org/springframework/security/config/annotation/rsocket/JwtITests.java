@@ -62,6 +62,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration
 @RunWith(SpringRunner.class)
 public class JwtITests {
+
 	@Autowired
 	RSocketMessageHandler handler;
 
@@ -80,13 +81,9 @@ public class JwtITests {
 
 	@Before
 	public void setup() {
-		this.server = RSocketFactory.receive()
-				.frameDecoder(PayloadDecoder.ZERO_COPY)
-				.addSocketAcceptorPlugin(this.interceptor)
-				.acceptor(this.handler.responder())
-				.transport(TcpServerTransport.create("localhost", 0))
-				.start()
-				.block();
+		this.server = RSocketFactory.receive().frameDecoder(PayloadDecoder.ZERO_COPY)
+				.addSocketAcceptorPlugin(this.interceptor).acceptor(this.handler.responder())
+				.transport(TcpServerTransport.create("localhost", 0)).start().block();
 	}
 
 	@After
@@ -98,18 +95,13 @@ public class JwtITests {
 
 	@Test
 	public void routeWhenBearerThenAuthorized() {
-		BearerTokenMetadata credentials =
-				new BearerTokenMetadata("token");
+		BearerTokenMetadata credentials = new BearerTokenMetadata("token");
 		when(this.decoder.decode(any())).thenReturn(Mono.just(jwt()));
 		this.requester = requester()
 				.setupMetadata(credentials.getToken(), BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
-				.block();
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
 
-		String hiRob = this.requester.route("secure.retrieve-mono")
-				.data("rob")
-				.retrieveMono(String.class)
-				.block();
+		String hiRob = this.requester.route("secure.retrieve-mono").data("rob").retrieveMono(String.class).block();
 
 		assertThat(hiRob).isEqualTo("Hi rob");
 	}
@@ -118,35 +110,24 @@ public class JwtITests {
 	public void routeWhenAuthenticationBearerThenAuthorized() {
 		MimeType authenticationMimeType = MimeTypeUtils.parseMimeType(MESSAGE_RSOCKET_AUTHENTICATION.getString());
 
-		BearerTokenMetadata credentials =
-				new BearerTokenMetadata("token");
+		BearerTokenMetadata credentials = new BearerTokenMetadata("token");
 		when(this.decoder.decode(any())).thenReturn(Mono.just(jwt()));
-		this.requester = requester()
-				.setupMetadata(credentials, authenticationMimeType)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
-				.block();
+		this.requester = requester().setupMetadata(credentials, authenticationMimeType)
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
 
-		String hiRob = this.requester.route("secure.retrieve-mono")
-				.data("rob")
-				.retrieveMono(String.class)
-				.block();
+		String hiRob = this.requester.route("secure.retrieve-mono").data("rob").retrieveMono(String.class).block();
 
 		assertThat(hiRob).isEqualTo("Hi rob");
 	}
 
 	private Jwt jwt() {
-		return TestJwts.jwt()
-				.claim(IdTokenClaimNames.ISS, "https://issuer.example.com")
-				.claim(IdTokenClaimNames.SUB, "rob")
-				.claim(IdTokenClaimNames.AUD, Arrays.asList("client-id"))
-				.build();
+		return TestJwts.jwt().claim(IdTokenClaimNames.ISS, "https://issuer.example.com")
+				.claim(IdTokenClaimNames.SUB, "rob").claim(IdTokenClaimNames.AUD, Arrays.asList("client-id")).build();
 	}
 
 	private RSocketRequester.Builder requester() {
-		return RSocketRequester.builder()
-				.rsocketStrategies(this.handler.getRSocketStrategies());
+		return RSocketRequester.builder().rsocketStrategies(this.handler.getRSocketStrategies());
 	}
-
 
 	@Configuration
 	@EnableRSocketSecurity
@@ -166,20 +147,13 @@ public class JwtITests {
 
 		@Bean
 		public RSocketStrategies rsocketStrategies() {
-			return RSocketStrategies.builder()
-					.encoder(new BearerTokenAuthenticationEncoder())
-					.build();
+			return RSocketStrategies.builder().encoder(new BearerTokenAuthenticationEncoder()).build();
 		}
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
-			rsocket
-				.authorizePayload(authorize ->
-					authorize
-						.anyRequest().authenticated()
-						.anyExchange().permitAll()
-				)
-				.jwt(Customizer.withDefaults());
+			rsocket.authorizePayload(authorize -> authorize.anyRequest().authenticated().anyExchange().permitAll())
+					.jwt(Customizer.withDefaults());
 			return rsocket.build();
 		}
 
@@ -187,16 +161,19 @@ public class JwtITests {
 		ReactiveJwtDecoder jwtDecoder() {
 			return mock(ReactiveJwtDecoder.class);
 		}
+
 	}
 
 	@Controller
 	static class ServerController {
+
 		private List<String> payloads = new ArrayList<>();
 
 		@MessageMapping("**")
 		String connect(String payload) {
 			return "Hi " + payload;
 		}
+
 	}
 
 }

@@ -34,16 +34,19 @@ import javax.servlet.jsp.tagext.Tag;
 import java.util.*;
 
 /**
- *
  * @author Luke Taylor
  * @author Rob Winch
  * @since 3.0
  */
 @SuppressWarnings("unchecked")
 public class AccessControlListTagTests {
+
 	AccessControlListTag tag;
+
 	PermissionEvaluator pe;
+
 	MockPageContext pageContext;
+
 	Authentication bob = new TestingAuthenticationToken("bob", "bobspass", "A");
 
 	@Before
@@ -60,10 +63,8 @@ public class AccessControlListTagTests {
 		when(ctx.getBeansOfType(PermissionEvaluator.class)).thenReturn(beanMap);
 
 		MockServletContext servletCtx = new MockServletContext();
-		servletCtx.setAttribute(
-				WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
-		pageContext = new MockPageContext(servletCtx, new MockHttpServletRequest(),
-				new MockHttpServletResponse());
+		servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
+		pageContext = new MockPageContext(servletCtx, new MockHttpServletRequest(), new MockHttpServletResponse());
 		tag.setPageContext(pageContext);
 	}
 
@@ -179,4 +180,5 @@ public class AccessControlListTagTests {
 		assertThat(tag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 		assertThat((Boolean) pageContext.getAttribute("allowed")).isFalse();
 	}
+
 }

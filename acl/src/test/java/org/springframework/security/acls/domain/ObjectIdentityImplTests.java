@@ -141,8 +141,7 @@ public class ObjectIdentityImplTests {
 		assertThat(obj).isNotEqualTo("DIFFERENT_OBJECT_TYPE");
 		assertThat(obj).isNotEqualTo(new ObjectIdentityImpl(DOMAIN_CLASS, 2L));
 		assertThat(obj).isNotEqualTo(new ObjectIdentityImpl(
-						"org.springframework.security.acls.domain.ObjectIdentityImplTests$MockOtherIdDomainObject",
-				1L));
+				"org.springframework.security.acls.domain.ObjectIdentityImplTests$MockOtherIdDomainObject", 1L));
 		assertThat(new ObjectIdentityImpl(DOMAIN_CLASS, 1L)).isEqualTo(obj);
 		assertThat(new ObjectIdentityImpl(mockObj)).isEqualTo(obj);
 	}
@@ -182,6 +181,7 @@ public class ObjectIdentityImplTests {
 	// ==================================================================================================
 
 	private class MockIdDomainObject {
+
 		private Object id;
 
 		public Object getId() {
@@ -191,9 +191,11 @@ public class ObjectIdentityImplTests {
 		public void setId(Object id) {
 			this.id = id;
 		}
+
 	}
 
 	private class MockOtherIdDomainObject {
+
 		private Object id;
 
 		public Object getId() {
@@ -203,5 +205,7 @@ public class ObjectIdentityImplTests {
 		public void setId(Object id) {
 			this.id = id;
 		}
+
 	}
+
 }

@@ -32,10 +32,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Converts from a HttpServletRequest to
- * {@link UsernamePasswordAuthenticationToken} that can be authenticated. Null
- * authentication possible if there was no Authorization header with Basic
- * authentication scheme.
+ * Converts from a HttpServletRequest to {@link UsernamePasswordAuthenticationToken} that
+ * can be authenticated. Null authentication possible if there was no Authorization header
+ * with Basic authentication scheme.
  *
  * @author Sergey Bespalov
  * @since 5.2.0
@@ -97,8 +96,7 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 			decoded = Base64.getDecoder().decode(base64Token);
 		}
 		catch (IllegalArgumentException e) {
-			throw new BadCredentialsException(
-					"Failed to decode basic authentication token");
+			throw new BadCredentialsException("Failed to decode basic authentication token");
 		}
 
 		String token = new String(decoded, getCredentialsCharset(request));
@@ -108,7 +106,8 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 		if (delim == -1) {
 			throw new BadCredentialsException("Invalid basic authentication token");
 		}
-		UsernamePasswordAuthenticationToken result  = new UsernamePasswordAuthenticationToken(token.substring(0, delim), token.substring(delim + 1));
+		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(token.substring(0, delim),
+				token.substring(delim + 1));
 		result.setDetails(this.authenticationDetailsSource.buildDetails(request));
 		return result;
 	}

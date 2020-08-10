@@ -39,8 +39,7 @@ import java.time.Instant;
 abstract class OAuth2RefreshTokenMixin {
 
 	@JsonCreator
-	OAuth2RefreshTokenMixin(
-			@JsonProperty("tokenValue") String tokenValue,
-			@JsonProperty("issuedAt") Instant issuedAt) {
+	OAuth2RefreshTokenMixin(@JsonProperty("tokenValue") String tokenValue, @JsonProperty("issuedAt") Instant issuedAt) {
 	}
+
 }

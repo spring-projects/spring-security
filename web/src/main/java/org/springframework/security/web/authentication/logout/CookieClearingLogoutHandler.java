@@ -26,16 +26,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * A logout handler which clears either
- * - A defined list of cookie names, using the context path as the cookie path
- * OR
- * - A given list of Cookies
+ * A logout handler which clears either - A defined list of cookie names, using the
+ * context path as the cookie path OR - A given list of Cookies
  *
  * @author Luke Taylor
  * @author Onur Kagan Ozcan
  * @since 3.1
  */
 public final class CookieClearingLogoutHandler implements LogoutHandler {
+
 	private final List<Function<HttpServletRequest, Cookie>> cookiesToClear;
 
 	public CookieClearingLogoutHandler(String... cookiesToClear) {
@@ -52,7 +51,7 @@ public final class CookieClearingLogoutHandler implements LogoutHandler {
 			};
 			cookieList.add(f);
 		}
-		this.cookiesToClear =  cookieList;
+		this.cookiesToClear = cookieList;
 	}
 
 	/**
@@ -70,10 +69,8 @@ public final class CookieClearingLogoutHandler implements LogoutHandler {
 		this.cookiesToClear = cookieList;
 	}
 
-	public void logout(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) {
-		cookiesToClear.forEach(
-			f -> response.addCookie(f.apply(request))
-		);
+	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+		cookiesToClear.forEach(f -> response.addCookie(f.apply(request)));
 	}
+
 }

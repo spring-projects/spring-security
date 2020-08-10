@@ -43,6 +43,7 @@ import static org.mockito.Mockito.mock;
  */
 @SuppressWarnings("unchecked")
 public class ChannelDecisionManagerImplTests {
+
 	// ~ Methods
 	// ========================================================================================================
 	@Test
@@ -55,8 +56,7 @@ public class ChannelDecisionManagerImplTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage())
-					.isEqualTo("A list of ChannelProcessors is required");
+			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
 		}
 	}
 
@@ -85,8 +85,7 @@ public class ChannelDecisionManagerImplTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage())
-					.isEqualTo("A list of ChannelProcessors is required");
+			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
 		}
 	}
 
@@ -103,8 +102,7 @@ public class ChannelDecisionManagerImplTests {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 
 		List<ConfigAttribute> cad = SecurityConfig.createList("xyz");
 
@@ -123,8 +121,7 @@ public class ChannelDecisionManagerImplTests {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 
 		cdm.decide(fi, SecurityConfig.createList(new String[] { "abc", "ANY_CHANNEL" }));
 		assertThat(fi.getResponse().isCommitted()).isFalse();
@@ -143,8 +140,7 @@ public class ChannelDecisionManagerImplTests {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 
 		cdm.decide(fi, SecurityConfig.createList("SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT"));
 		assertThat(fi.getResponse().isCommitted()).isFalse();
@@ -190,8 +186,7 @@ public class ChannelDecisionManagerImplTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage())
-					.isEqualTo("A list of ChannelProcessors is required");
+			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
 		}
 	}
 
@@ -199,7 +194,9 @@ public class ChannelDecisionManagerImplTests {
 	// ==================================================================================================
 
 	private class MockChannelProcessor implements ChannelProcessor {
+
 		private String configAttribute;
+
 		private boolean failIfCalled;
 
 		MockChannelProcessor(String configAttribute, boolean failIfCalled) {
@@ -207,13 +204,11 @@ public class ChannelDecisionManagerImplTests {
 			this.failIfCalled = failIfCalled;
 		}
 
-		public void decide(FilterInvocation invocation,
-				Collection<ConfigAttribute> config) throws IOException {
+		public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config) throws IOException {
 			Iterator iter = config.iterator();
 
 			if (this.failIfCalled) {
-				fail("Should not have called this channel processor: "
-						+ this.configAttribute);
+				fail("Should not have called this channel processor: " + this.configAttribute);
 			}
 
 			while (iter.hasNext()) {
@@ -235,5 +230,7 @@ public class ChannelDecisionManagerImplTests {
 				return false;
 			}
 		}
+
 	}
+
 }

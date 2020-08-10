@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  org.springframework.security.web.server.header;
+package org.springframework.security.web.server.header;
 
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -29,6 +29,7 @@ import java.util.List;
  * @since 5.0
  */
 public class CompositeServerHttpHeadersWriter implements ServerHttpHeadersWriter {
+
 	private final List<ServerHttpHeadersWriter> writers;
 
 	public CompositeServerHttpHeadersWriter(ServerHttpHeadersWriter... writers) {
@@ -41,8 +42,7 @@ public class CompositeServerHttpHeadersWriter implements ServerHttpHeadersWriter
 
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		return Flux.fromIterable(this.writers)
-				.concatMap(w -> w.writeHttpHeaders(exchange))
-				.then();
+		return Flux.fromIterable(this.writers).concatMap(w -> w.writeHttpHeaders(exchange)).then();
 	}
+
 }

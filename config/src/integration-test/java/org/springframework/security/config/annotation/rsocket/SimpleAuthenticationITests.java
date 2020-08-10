@@ -59,6 +59,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 @ContextConfiguration
 @RunWith(SpringRunner.class)
 public class SimpleAuthenticationITests {
+
 	@Autowired
 	RSocketMessageHandler handler;
 
@@ -74,13 +75,9 @@ public class SimpleAuthenticationITests {
 
 	@Before
 	public void setup() {
-		this.server = RSocketFactory.receive()
-				.frameDecoder(PayloadDecoder.ZERO_COPY)
-				.addSocketAcceptorPlugin(this.interceptor)
-				.acceptor(this.handler.responder())
-				.transport(TcpServerTransport.create("localhost", 0))
-				.start()
-				.block();
+		this.server = RSocketFactory.receive().frameDecoder(PayloadDecoder.ZERO_COPY)
+				.addSocketAcceptorPlugin(this.interceptor).acceptor(this.handler.responder())
+				.transport(TcpServerTransport.create("localhost", 0)).start().block();
 	}
 
 	@After
@@ -92,18 +89,12 @@ public class SimpleAuthenticationITests {
 
 	@Test
 	public void retrieveMonoWhenSecureThenDenied() throws Exception {
-		this.requester = RSocketRequester.builder()
-				.rsocketStrategies(this.handler.getRSocketStrategies())
-				.connectTcp("localhost", this.server.address().getPort())
-				.block();
+		this.requester = RSocketRequester.builder().rsocketStrategies(this.handler.getRSocketStrategies())
+				.connectTcp("localhost", this.server.address().getPort()).block();
 
 		String data = "rob";
-		assertThatCode(() -> this.requester.route("secure.retrieve-mono")
-				.data(data)
-				.retrieveMono(String.class)
-				.block()
-			)
-			.isInstanceOf(ApplicationErrorException.class);
+		assertThatCode(() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block())
+				.isInstanceOf(ApplicationErrorException.class);
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -112,17 +103,12 @@ public class SimpleAuthenticationITests {
 		MimeType authenticationMimeType = MimeTypeUtils.parseMimeType(MESSAGE_RSOCKET_AUTHENTICATION.getString());
 
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("rob", "password");
-		this.requester = RSocketRequester.builder()
-				.setupMetadata(credentials, authenticationMimeType)
+		this.requester = RSocketRequester.builder().setupMetadata(credentials, authenticationMimeType)
 				.rsocketStrategies(this.handler.getRSocketStrategies())
-				.connectTcp("localhost", this.server.address().getPort())
-				.block();
+				.connectTcp("localhost", this.server.address().getPort()).block();
 		String data = "rob";
-		String hiRob = this.requester.route("secure.retrieve-mono")
-				.metadata(credentials, authenticationMimeType)
-				.data(data)
-				.retrieveMono(String.class)
-				.block();
+		String hiRob = this.requester.route("secure.retrieve-mono").metadata(credentials, authenticationMimeType)
+				.data(data).retrieveMono(String.class).block();
 
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
@@ -146,19 +132,12 @@ public class SimpleAuthenticationITests {
 
 		@Bean
 		public RSocketStrategies rsocketStrategies() {
-			return RSocketStrategies.builder()
-					.encoder(new SimpleAuthenticationEncoder())
-					.build();
+			return RSocketStrategies.builder().encoder(new SimpleAuthenticationEncoder()).build();
 		}
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
-			rsocket
-					.authorizePayload(authorize ->
-							authorize
-									.anyRequest().authenticated()
-									.anyExchange().permitAll()
-					)
+			rsocket.authorizePayload(authorize -> authorize.anyRequest().authenticated().anyExchange().permitAll())
 					.simpleAuthentication(Customizer.withDefaults());
 			return rsocket.build();
 		}
@@ -174,10 +153,12 @@ public class SimpleAuthenticationITests {
 			// @formatter:on
 			return new MapReactiveUserDetailsService(rob);
 		}
+
 	}
 
 	@Controller
 	static class ServerController {
+
 		private List<String> payloads = new ArrayList<>();
 
 		@MessageMapping("**")
@@ -189,6 +170,7 @@ public class SimpleAuthenticationITests {
 		private void add(String p) {
 			this.payloads.add(p);
 		}
+
 	}
 
 }

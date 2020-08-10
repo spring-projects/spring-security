@@ -26,13 +26,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class SecuredTests {
+
 	@Autowired
 	SecuredServiceImpl service;
 
@@ -43,13 +43,16 @@ public class SecuredTests {
 
 	@Test(expected = AccessDeniedException.class)
 	public void securedAdminRoleDenied() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
 		service.securedAdminRole();
 	}
 
 	@Test
 	public void securedAdminRoleGranted() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
 		service.securedAdminRole();
 	}
+
 }

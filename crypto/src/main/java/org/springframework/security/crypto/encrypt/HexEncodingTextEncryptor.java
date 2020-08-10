@@ -22,6 +22,7 @@ import org.springframework.security.crypto.codec.Utf8;
  * Delegates to an {@link BytesEncryptor} to encrypt text strings. Raw text strings are
  * UTF-8 encoded before being passed to the encryptor. Encrypted strings are returned
  * hex-encoded.
+ *
  * @author Keith Donald
  */
 final class HexEncodingTextEncryptor implements TextEncryptor {

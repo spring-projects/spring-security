@@ -32,6 +32,7 @@ import javax.sql.DataSource;
  * @author Ben Alex
  */
 public class DatabaseSeeder {
+
 	// ~ Constructors
 	// ===================================================================================================
 
@@ -43,4 +44,5 @@ public class DatabaseSeeder {
 		String sql = new String(FileCopyUtils.copyToByteArray(resource.getInputStream()));
 		template.execute(sql);
 	}
+
 }

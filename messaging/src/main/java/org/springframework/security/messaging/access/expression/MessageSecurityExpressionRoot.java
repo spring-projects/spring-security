@@ -33,4 +33,5 @@ public class MessageSecurityExpressionRoot extends SecurityExpressionRoot {
 		super(authentication);
 		this.message = message;
 	}
+
 }

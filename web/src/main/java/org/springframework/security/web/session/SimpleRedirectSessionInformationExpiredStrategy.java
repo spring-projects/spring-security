@@ -33,19 +33,22 @@ import org.springframework.util.Assert;
  * @since 4.2.0
  */
 public final class SimpleRedirectSessionInformationExpiredStrategy implements SessionInformationExpiredStrategy {
+
 	private final Log logger = LogFactory.getLog(getClass());
+
 	private final String destinationUrl;
+
 	private final RedirectStrategy redirectStrategy;
 
 	public SimpleRedirectSessionInformationExpiredStrategy(String invalidSessionUrl) {
 		this(invalidSessionUrl, new DefaultRedirectStrategy());
 	}
 
-	public SimpleRedirectSessionInformationExpiredStrategy(String invalidSessionUrl, RedirectStrategy redirectStrategy) {
-		Assert.isTrue(UrlUtils.isValidRedirectUrl(invalidSessionUrl),
-				"url must start with '/' or with 'http(s)'");
-		this.destinationUrl=invalidSessionUrl;
-		this.redirectStrategy=redirectStrategy;
+	public SimpleRedirectSessionInformationExpiredStrategy(String invalidSessionUrl,
+			RedirectStrategy redirectStrategy) {
+		Assert.isTrue(UrlUtils.isValidRedirectUrl(invalidSessionUrl), "url must start with '/' or with 'http(s)'");
+		this.destinationUrl = invalidSessionUrl;
+		this.redirectStrategy = redirectStrategy;
 	}
 
 	public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException {

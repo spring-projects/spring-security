@@ -24,9 +24,8 @@ import org.springframework.security.core.Authentication;
 
 public class MockAfterInvocationProvider implements AfterInvocationProvider {
 
-	public Object decide(Authentication authentication, Object object,
-			Collection<ConfigAttribute> config, Object returnedObject)
-			throws AccessDeniedException {
+	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
+			Object returnedObject) throws AccessDeniedException {
 		return returnedObject;
 	}
 

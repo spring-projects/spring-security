@@ -34,9 +34,13 @@ import static org.mockito.Mockito.when;
  * @author Josh Cummings
  */
 public class RequestMatcherDelegatingAccessDeniedHandlerTests {
+
 	private RequestMatcherDelegatingAccessDeniedHandler delegator;
+
 	private LinkedHashMap<RequestMatcher, AccessDeniedHandler> deniedHandlers;
+
 	private AccessDeniedHandler accessDeniedHandler;
+
 	private HttpServletRequest request;
 
 	@Before
@@ -97,4 +101,5 @@ public class RequestMatcherDelegatingAccessDeniedHandlerTests {
 		verify(firstHandler, never()).handle(this.request, null, null);
 		verify(this.accessDeniedHandler, never()).handle(this.request, null, null);
 	}
+
 }

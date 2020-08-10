@@ -39,6 +39,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 public class SecurityMockMvcRequestPostProcessorsDigestTests {
 
 	private DigestAuthenticationFilter filter;
+
 	private MockHttpServletRequest request;
 
 	private String username;
@@ -56,8 +57,8 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 		entryPoint.setKey("key");
 		entryPoint.setRealmName("Spring Security");
 		filter = new DigestAuthenticationFilter();
-		filter.setUserDetailsService(username -> new User(username, password, AuthorityUtils
-				.createAuthorityList("ROLE_USER")));
+		filter.setUserDetailsService(
+				username -> new User(username, password, AuthorityUtils.createAuthorityList("ROLE_USER")));
 		filter.setAuthenticationEntryPoint(entryPoint);
 		filter.afterPropertiesSet();
 	}
@@ -69,8 +70,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 
 	@Test
 	public void digestWithFilter() throws Exception {
-		MockHttpServletRequest postProcessedRequest = digest()
-				.postProcessRequest(request);
+		MockHttpServletRequest postProcessedRequest = digest().postProcessRequest(request);
 
 		assertThat(extractUser()).isEqualTo("user");
 	}
@@ -78,8 +78,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	@Test
 	public void digestWithFilterCustomUsername() throws Exception {
 		String username = "admin";
-		MockHttpServletRequest postProcessedRequest = digest(username)
-				.postProcessRequest(request);
+		MockHttpServletRequest postProcessedRequest = digest(username).postProcessRequest(request);
 
 		assertThat(extractUser()).isEqualTo(username);
 	}
@@ -88,8 +87,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	public void digestWithFilterCustomPassword() throws Exception {
 		String username = "custom";
 		password = "secret";
-		MockHttpServletRequest postProcessedRequest = digest(username).password(password)
-				.postProcessRequest(request);
+		MockHttpServletRequest postProcessedRequest = digest(username).password(password).postProcessRequest(request);
 
 		assertThat(extractUser()).isEqualTo(username);
 	}
@@ -98,8 +96,8 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	public void digestWithFilterCustomRealm() throws Exception {
 		String username = "admin";
 		entryPoint.setRealmName("Custom");
-		MockHttpServletRequest postProcessedRequest = digest(username).realm(
-				entryPoint.getRealmName()).postProcessRequest(request);
+		MockHttpServletRequest postProcessedRequest = digest(username).realm(entryPoint.getRealmName())
+				.postProcessRequest(request);
 
 		assertThat(extractUser()).isEqualTo(username);
 	}
@@ -107,8 +105,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	@Test
 	public void digestWithFilterFails() throws Exception {
 		String username = "admin";
-		MockHttpServletRequest postProcessedRequest = digest(username).realm("Invalid")
-				.postProcessRequest(request);
+		MockHttpServletRequest postProcessedRequest = digest(username).realm("Invalid").postProcessRequest(request);
 
 		assertThat(extractUser()).isNull();
 	}
@@ -117,11 +114,11 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain() {
 			@Override
 			public void doFilter(ServletRequest request, ServletResponse response) {
-				Authentication authentication = SecurityContextHolder.getContext()
-						.getAuthentication();
+				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 				username = authentication == null ? null : authentication.getName();
 			}
 		});
 		return username;
 	}
+
 }

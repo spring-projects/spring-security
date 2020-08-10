@@ -70,13 +70,11 @@ public class DefaultWebSecurityExpressionHandlerTests {
 		appContext.registerBeanDefinition("role", bean);
 		handler.setApplicationContext(appContext);
 
-		EvaluationContext ctx = handler.createEvaluationContext(
-				mock(Authentication.class), mock(FilterInvocation.class));
+		EvaluationContext ctx = handler.createEvaluationContext(mock(Authentication.class),
+				mock(FilterInvocation.class));
 		ExpressionParser parser = handler.getExpressionParser();
-		assertThat(parser.parseExpression("@role.getAttribute() == 'ROLE_A'").getValue(
-				ctx, Boolean.class)).isTrue();
-		assertThat(parser.parseExpression("@role.attribute == 'ROLE_A'").getValue(ctx,
-				Boolean.class)).isTrue();
+		assertThat(parser.parseExpression("@role.getAttribute() == 'ROLE_A'").getValue(ctx, Boolean.class)).isTrue();
+		assertThat(parser.parseExpression("@role.attribute == 'ROLE_A'").getValue(ctx, Boolean.class)).isTrue();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -88,10 +86,8 @@ public class DefaultWebSecurityExpressionHandlerTests {
 	public void createEvaluationContextCustomTrustResolver() {
 		handler.setTrustResolver(trustResolver);
 
-		Expression expression = handler.getExpressionParser().parseExpression(
-				"anonymous");
-		EvaluationContext context = handler.createEvaluationContext(authentication,
-				invocation);
+		Expression expression = handler.getExpressionParser().parseExpression("anonymous");
+		EvaluationContext context = handler.createEvaluationContext(authentication, invocation);
 		assertThat(expression.getValue(context, Boolean.class)).isFalse();
 
 		verify(trustResolver).isAnonymous(authentication);

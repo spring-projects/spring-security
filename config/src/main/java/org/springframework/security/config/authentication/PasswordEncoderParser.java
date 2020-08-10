@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package org.springframework.security.config.authentication;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +36,9 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  */
 public class PasswordEncoderParser {
+
 	static final String ATT_REF = "ref";
+
 	public static final String ATT_HASH = "hash";
 	static final String ATT_BASE_64 = "base64";
 	static final String OPT_HASH_BCRYPT = "bcrypt";
@@ -76,20 +79,18 @@ public class PasswordEncoderParser {
 		}
 		else {
 			passwordEncoder = createPasswordEncoderBeanDefinition(hash, useBase64);
-			((RootBeanDefinition) passwordEncoder).setSource(parserContext
-					.extractSource(element));
+			((RootBeanDefinition) passwordEncoder).setSource(parserContext.extractSource(element));
 		}
 	}
 
-	public static BeanDefinition createPasswordEncoderBeanDefinition(String hash,
-			boolean useBase64) {
+	public static BeanDefinition createPasswordEncoderBeanDefinition(String hash, boolean useBase64) {
 		Class<?> beanClass = ENCODER_CLASSES.get(hash);
-		BeanDefinitionBuilder beanBldr = BeanDefinitionBuilder
-				.rootBeanDefinition(beanClass);
+		BeanDefinitionBuilder beanBldr = BeanDefinitionBuilder.rootBeanDefinition(beanClass);
 		return beanBldr.getBeanDefinition();
 	}
 
 	public BeanMetadataElement getPasswordEncoder() {
 		return passwordEncoder;
 	}
+
 }

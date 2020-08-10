@@ -49,8 +49,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	}
 
 	private ConfigAttribute[] findAttributes(String methodName) throws Exception {
-		return this.mds.findAttributes(this.a.getClass().getMethod(methodName), null)
-				.toArray(new ConfigAttribute[0]);
+		return this.mds.findAttributes(this.a.getClass().getMethod(methodName), null).toArray(new ConfigAttribute[0]);
 	}
 
 	@Test
@@ -64,8 +63,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	public void permitAllMethodHasPermitAllAttribute() throws Exception {
 		ConfigAttribute[] accessAttributes = findAttributes("permitAllMethod");
 		assertThat(accessAttributes).hasSize(1);
-		assertThat(accessAttributes[0].toString())
-				.isEqualTo("javax.annotation.security.PermitAll");
+		assertThat(accessAttributes[0].toString()).isEqualTo("javax.annotation.security.PermitAll");
 	}
 
 	@Test
@@ -77,15 +75,15 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 
 	@Test
 	public void classRoleIsAppliedToNoRoleMethod() throws Exception {
-		Collection<ConfigAttribute> accessAttributes = this.mds.findAttributes(
-				this.userAllowed.getClass().getMethod("noRoleMethod"), null);
+		Collection<ConfigAttribute> accessAttributes = this.mds
+				.findAttributes(this.userAllowed.getClass().getMethod("noRoleMethod"), null);
 		assertThat(accessAttributes).isNull();
 	}
 
 	@Test
 	public void methodRoleOverridesClassRole() throws Exception {
-		Collection<ConfigAttribute> accessAttributes = this.mds.findAttributes(
-				this.userAllowed.getClass().getMethod("adminMethod"), null);
+		Collection<ConfigAttribute> accessAttributes = this.mds
+				.findAttributes(this.userAllowed.getClass().getMethod("adminMethod"), null);
 		assertThat(accessAttributes).hasSize(1);
 		assertThat(accessAttributes.toArray()[0].toString()).isEqualTo("ROLE_ADMIN");
 	}
@@ -130,26 +128,21 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	 * Class-level annotations only affect the class they annotate and their members, that
 	 * is, its methods and fields. They never affect a member declared by a superclass,
 	 * even if it is not hidden or overridden by the class in question.
-	 *
 	 * @throws Exception
 	 */
 	@Test
-	public void classLevelAnnotationsOnlyAffectTheClassTheyAnnotateAndTheirMembers()
-			throws Exception {
+	public void classLevelAnnotationsOnlyAffectTheClassTheyAnnotateAndTheirMembers() throws Exception {
 		Child target = new Child();
-		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
-				"notOverriden");
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "notOverriden");
 
 		Collection<ConfigAttribute> accessAttributes = this.mds.getAttributes(mi);
 		assertThat(accessAttributes).isNull();
 	}
 
 	@Test
-	public void classLevelAnnotationsOnlyAffectTheClassTheyAnnotateAndTheirMembersOverriden()
-			throws Exception {
+	public void classLevelAnnotationsOnlyAffectTheClassTheyAnnotateAndTheirMembersOverriden() throws Exception {
 		Child target = new Child();
-		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
-				"overriden");
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "overriden");
 
 		Collection<ConfigAttribute> accessAttributes = this.mds.getAttributes(mi);
 		assertThat(accessAttributes).hasSize(1);
@@ -159,8 +152,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	@Test
 	public void classLevelAnnotationsImpactMemberLevel() throws Exception {
 		Child target = new Child();
-		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
-				"defaults");
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "defaults");
 
 		Collection<ConfigAttribute> accessAttributes = this.mds.getAttributes(mi);
 		assertThat(accessAttributes).hasSize(1);
@@ -168,11 +160,9 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	}
 
 	@Test
-	public void classLevelAnnotationsIgnoredByExplicitMemberAnnotation()
-			throws Exception {
+	public void classLevelAnnotationsIgnoredByExplicitMemberAnnotation() throws Exception {
 		Child target = new Child();
-		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
-				"explicitMethod");
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "explicitMethod");
 
 		Collection<ConfigAttribute> accessAttributes = this.mds.getAttributes(mi);
 		assertThat(accessAttributes).hasSize(1);
@@ -182,14 +172,12 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	/**
 	 * The interfaces implemented by a class never contribute annotations to the class
 	 * itself or any of its members.
-	 *
 	 * @throws Exception
 	 */
 	@Test
 	public void interfacesNeverContributeAnnotationsMethodLevel() throws Exception {
 		Parent target = new Parent();
-		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
-				"interfaceMethod");
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "interfaceMethod");
 
 		Collection<ConfigAttribute> accessAttributes = this.mds.getAttributes(mi);
 		assertThat(accessAttributes).isEmpty();
@@ -198,8 +186,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	@Test
 	public void interfacesNeverContributeAnnotationsClassLevel() throws Exception {
 		Parent target = new Parent();
-		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
-				"notOverriden");
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "notOverriden");
 
 		Collection<ConfigAttribute> accessAttributes = this.mds.getAttributes(mi);
 		assertThat(accessAttributes).isEmpty();
@@ -208,8 +195,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	@Test
 	public void annotationsOnOverriddenMemberIgnored() throws Exception {
 		Child target = new Child();
-		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
-				"overridenIgnored");
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "overridenIgnored");
 
 		Collection<ConfigAttribute> accessAttributes = this.mds.getAttributes(mi);
 		assertThat(accessAttributes).hasSize(1);
@@ -235,6 +221,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 		@PermitAll
 		public void permitAllMethod() {
 		}
+
 	}
 
 	@RolesAllowed("USER")
@@ -246,6 +233,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 		@RolesAllowed("ADMIN")
 		public void adminMethod() {
 		}
+
 	}
 
 	// JSR-250 Spec
@@ -255,6 +243,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 
 		@RolesAllowed("INTERFACEMETHOD")
 		void interfaceMethod();
+
 	}
 
 	static class Parent implements IParent {
@@ -271,6 +260,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 		@RolesAllowed("OVERRIDENIGNORED")
 		public void overridenIgnored() {
 		}
+
 	}
 
 	@RolesAllowed("DERIVED")
@@ -290,5 +280,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 		@RolesAllowed("EXPLICIT")
 		public void explicitMethod() {
 		}
+
 	}
+
 }

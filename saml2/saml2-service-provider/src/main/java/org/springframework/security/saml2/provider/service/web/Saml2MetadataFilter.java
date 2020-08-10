@@ -42,6 +42,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public final class Saml2MetadataFilter extends OncePerRequestFilter {
 
 	private final Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationConverter;
+
 	private final Saml2MetadataResolver saml2MetadataResolver;
 
 	private RequestMatcher requestMatcher = new AntPathRequestMatcher(
@@ -65,8 +66,7 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		RelyingPartyRegistration relyingPartyRegistration =
-				this.relyingPartyRegistrationConverter.convert(request);
+		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationConverter.convert(request);
 		if (relyingPartyRegistration == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
@@ -88,13 +88,13 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * Set the {@link RequestMatcher} that determines whether this filter should
-	 * handle the incoming {@link HttpServletRequest}
-	 *
+	 * Set the {@link RequestMatcher} that determines whether this filter should handle
+	 * the incoming {@link HttpServletRequest}
 	 * @param requestMatcher
 	 */
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
 		this.requestMatcher = requestMatcher;
 	}
+
 }

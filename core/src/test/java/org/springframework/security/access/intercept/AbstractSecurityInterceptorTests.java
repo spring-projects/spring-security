@@ -31,6 +31,7 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * @author Ben Alex
  */
 public class AbstractSecurityInterceptorTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -61,6 +62,7 @@ public class AbstractSecurityInterceptorTests {
 	// ==================================================================================================
 
 	private class MockSecurityInterceptorReturnsNull extends AbstractSecurityInterceptor {
+
 		private SecurityMetadataSource securityMetadataSource;
 
 		public Class<?> getSecureObjectClass() {
@@ -71,14 +73,14 @@ public class AbstractSecurityInterceptorTests {
 			return securityMetadataSource;
 		}
 
-		public void setSecurityMetadataSource(
-				SecurityMetadataSource securityMetadataSource) {
+		public void setSecurityMetadataSource(SecurityMetadataSource securityMetadataSource) {
 			this.securityMetadataSource = securityMetadataSource;
 		}
+
 	}
 
-	private class MockSecurityInterceptorWhichOnlySupportsStrings extends
-			AbstractSecurityInterceptor {
+	private class MockSecurityInterceptorWhichOnlySupportsStrings extends AbstractSecurityInterceptor {
+
 		private SecurityMetadataSource securityMetadataSource;
 
 		public Class<?> getSecureObjectClass() {
@@ -89,9 +91,10 @@ public class AbstractSecurityInterceptorTests {
 			return securityMetadataSource;
 		}
 
-		public void setSecurityMetadataSource(
-				SecurityMetadataSource securityMetadataSource) {
+		public void setSecurityMetadataSource(SecurityMetadataSource securityMetadataSource) {
 			this.securityMetadataSource = securityMetadataSource;
 		}
+
 	}
+
 }

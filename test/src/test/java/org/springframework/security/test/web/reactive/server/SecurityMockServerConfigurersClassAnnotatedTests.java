@@ -42,21 +42,15 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 @RunWith(SpringRunner.class)
 @SecurityTestExecutionListeners
 public class SecurityMockServerConfigurersClassAnnotatedTests extends AbstractMockServerConfigurersTests {
-	WebTestClient client = WebTestClient
-		.bindToController(controller)
-		.webFilter(new SecurityContextServerWebExchangeWebFilter())
-		.apply(springSecurity())
-		.configureClient()
-		.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-		.build();
+
+	WebTestClient client = WebTestClient.bindToController(controller)
+			.webFilter(new SecurityContextServerWebExchangeWebFilter()).apply(springSecurity()).configureClient()
+			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
 
 	@Test
 	public void wheMockUserWhenClassAnnotatedThenSuccess() {
-		client
-			.get()
-			.exchange()
-			.expectStatus().isOk()
-			.expectBody(String.class).consumeWith( response -> assertThat(response.getResponseBody()).contains("\"username\":\"user\""));
+		client.get().exchange().expectStatus().isOk().expectBody(String.class)
+				.consumeWith(response -> assertThat(response.getResponseBody()).contains("\"username\":\"user\""));
 
 		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
 		controller.assertPrincipalIsEqualTo(authentication);
@@ -65,11 +59,8 @@ public class SecurityMockServerConfigurersClassAnnotatedTests extends AbstractMo
 	@Test
 	@WithMockUser("method-user")
 	public void withMockUserWhenClassAndMethodAnnotationThenMethodOverrides() {
-		client
-			.get()
-			.exchange()
-			.expectStatus().isOk()
-			.expectBody(String.class).consumeWith( response -> assertThat(response.getResponseBody()).contains("\"username\":\"method-user\""));
+		client.get().exchange().expectStatus().isOk().expectBody(String.class).consumeWith(
+				response -> assertThat(response.getResponseBody()).contains("\"username\":\"method-user\""));
 
 		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
 		controller.assertPrincipalIsEqualTo(authentication);
@@ -77,14 +68,12 @@ public class SecurityMockServerConfigurersClassAnnotatedTests extends AbstractMo
 
 	@Test
 	public void withMockUserWhenMutateWithThenMustateWithOverrides() {
-		client
-			.mutateWith(mockUser("mutateWith-mockUser"))
-			.get()
-			.exchange()
-			.expectStatus().isOk()
-			.expectBody(String.class).consumeWith( response -> assertThat(response.getResponseBody()).contains("\"username\":\"mutateWith-mockUser\""));
+		client.mutateWith(mockUser("mutateWith-mockUser")).get().exchange().expectStatus().isOk()
+				.expectBody(String.class).consumeWith(response -> assertThat(response.getResponseBody())
+						.contains("\"username\":\"mutateWith-mockUser\""));
 
 		Principal principal = controller.removePrincipal();
 		assertPrincipalCreatedFromUserDetails(principal, userBuilder.username("mutateWith-mockUser").build());
 	}
+
 }

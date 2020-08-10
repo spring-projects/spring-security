@@ -51,9 +51,8 @@ public class AnonymousAuthenticationFilterTests {
 	// ~ Methods
 	// ========================================================================================================
 
-	private void executeFilterInContainerSimulator(FilterConfig filterConfig,
-			Filter filter, ServletRequest request, ServletResponse response,
-			FilterChain filterChain) throws ServletException, IOException {
+	private void executeFilterInContainerSimulator(FilterConfig filterConfig, Filter filter, ServletRequest request,
+			ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		filter.doFilter(request, response, filterChain);
 	}
 
@@ -76,36 +75,32 @@ public class AnonymousAuthenticationFilterTests {
 	@Test
 	public void testOperationWhenAuthenticationExistsInContextHolder() throws Exception {
 		// Put an Authentication object into the SecurityContextHolder
-		Authentication originalAuth = new TestingAuthenticationToken("user", "password",
-				"ROLE_A");
+		Authentication originalAuth = new TestingAuthenticationToken("user", "password", "ROLE_A");
 		SecurityContextHolder.getContext().setAuthentication(originalAuth);
 
-		AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter(
-				"qwerty", "anonymousUsername",
+		AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter("qwerty", "anonymousUsername",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
 		// Test
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("x");
-		executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request,
-				new MockHttpServletResponse(), new MockFilterChain(true));
+		executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
+				new MockFilterChain(true));
 
 		// Ensure filter didn't change our original object
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(originalAuth);
 	}
 
 	@Test
-	public void testOperationWhenNoAuthenticationInSecurityContextHolder()
-			throws Exception {
-		AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter(
-				"qwerty", "anonymousUsername",
+	public void testOperationWhenNoAuthenticationInSecurityContextHolder() throws Exception {
+		AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter("qwerty", "anonymousUsername",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 		filter.afterPropertiesSet();
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("x");
-		executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request,
-				new MockHttpServletResponse(), new MockFilterChain(true));
+		executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
+				new MockFilterChain(true));
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(auth.getPrincipal()).isEqualTo("anonymousUsername");
@@ -118,6 +113,7 @@ public class AnonymousAuthenticationFilterTests {
 	// ==================================================================================================
 
 	private class MockFilterChain implements FilterChain {
+
 		private boolean expectToProceed;
 
 		MockFilterChain(boolean expectToProceed) {
@@ -129,5 +125,7 @@ public class AnonymousAuthenticationFilterTests {
 				fail("Did not expect filter chain to proceed");
 			}
 		}
+
 	}
+
 }

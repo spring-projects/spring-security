@@ -41,6 +41,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author Marten Deinum
  */
 public class SpringCacheBasedAclCacheTests {
+
 	private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
 
 	private static CacheManager cacheManager;
@@ -76,16 +77,14 @@ public class SpringCacheBasedAclCacheTests {
 		Map realCache = (Map) cache.getNativeCache();
 		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
-				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority(
-						"ROLE_AUDITING"), new SimpleGrantedAuthority("ROLE_GENERAL"));
+				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
+				new SimpleGrantedAuthority("ROLE_GENERAL"));
 		AuditLogger auditLogger = new ConsoleAuditLogger();
 
-		PermissionGrantingStrategy permissionGrantingStrategy = new DefaultPermissionGrantingStrategy(
-				auditLogger);
-		SpringCacheBasedAclCache myCache = new SpringCacheBasedAclCache(cache,
-				permissionGrantingStrategy, aclAuthorizationStrategy);
-		MutableAcl acl = new AclImpl(identity, 1L, aclAuthorizationStrategy,
-				auditLogger);
+		PermissionGrantingStrategy permissionGrantingStrategy = new DefaultPermissionGrantingStrategy(auditLogger);
+		SpringCacheBasedAclCache myCache = new SpringCacheBasedAclCache(cache, permissionGrantingStrategy,
+				aclAuthorizationStrategy);
+		MutableAcl acl = new AclImpl(identity, 1L, aclAuthorizationStrategy, auditLogger);
 
 		assertThat(realCache).isEmpty();
 		myCache.putInCache(acl);
@@ -96,8 +95,7 @@ public class SpringCacheBasedAclCacheTests {
 
 		// Put another object in cache
 		ObjectIdentity identity2 = new ObjectIdentityImpl(TARGET_CLASS, 101L);
-		MutableAcl acl2 = new AclImpl(identity2, 2L,
-				aclAuthorizationStrategy, new ConsoleAuditLogger());
+		MutableAcl acl2 = new AclImpl(identity2, 2L, aclAuthorizationStrategy, new ConsoleAuditLogger());
 
 		myCache.putInCache(acl2);
 
@@ -123,28 +121,23 @@ public class SpringCacheBasedAclCacheTests {
 		Cache cache = getCache();
 		Map realCache = (Map) cache.getNativeCache();
 
-		Authentication auth = new TestingAuthenticationToken("user", "password",
-				"ROLE_GENERAL");
+		Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_GENERAL");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
 		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 1L);
-		ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS,
-				2L);
+		ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS, 2L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
-				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority(
-						"ROLE_AUDITING"), new SimpleGrantedAuthority("ROLE_GENERAL"));
+				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
+				new SimpleGrantedAuthority("ROLE_GENERAL"));
 		AuditLogger auditLogger = new ConsoleAuditLogger();
 
-		PermissionGrantingStrategy permissionGrantingStrategy = new DefaultPermissionGrantingStrategy(
-				auditLogger);
-		SpringCacheBasedAclCache myCache = new SpringCacheBasedAclCache(cache,
-				permissionGrantingStrategy, aclAuthorizationStrategy);
+		PermissionGrantingStrategy permissionGrantingStrategy = new DefaultPermissionGrantingStrategy(auditLogger);
+		SpringCacheBasedAclCache myCache = new SpringCacheBasedAclCache(cache, permissionGrantingStrategy,
+				aclAuthorizationStrategy);
 
-		MutableAcl acl = new AclImpl(identity, 1L, aclAuthorizationStrategy,
-				auditLogger);
-		MutableAcl parentAcl = new AclImpl(identityParent, 2L,
-				aclAuthorizationStrategy, auditLogger);
+		MutableAcl acl = new AclImpl(identity, 1L, aclAuthorizationStrategy, auditLogger);
+		MutableAcl parentAcl = new AclImpl(identityParent, 2L, aclAuthorizationStrategy, auditLogger);
 
 		acl.setParent(parentAcl);
 
@@ -156,16 +149,14 @@ public class SpringCacheBasedAclCacheTests {
 		AclImpl aclFromCache = (AclImpl) myCache.getFromCache(1L);
 		assertThat(aclFromCache).isEqualTo(acl);
 		// SEC-951 check transient fields are set on parent
-		assertThat(FieldUtils.getFieldValue(aclFromCache.getParentAcl(),
-				"aclAuthorizationStrategy")).isNotNull();
-		assertThat(FieldUtils.getFieldValue(aclFromCache.getParentAcl(),
-				"permissionGrantingStrategy")).isNotNull();
+		assertThat(FieldUtils.getFieldValue(aclFromCache.getParentAcl(), "aclAuthorizationStrategy")).isNotNull();
+		assertThat(FieldUtils.getFieldValue(aclFromCache.getParentAcl(), "permissionGrantingStrategy")).isNotNull();
 		assertThat(myCache.getFromCache(identity)).isEqualTo(acl);
 		assertThat(FieldUtils.getFieldValue(aclFromCache, "aclAuthorizationStrategy")).isNotNull();
 		AclImpl parentAclFromCache = (AclImpl) myCache.getFromCache(2L);
 		assertThat(parentAclFromCache).isEqualTo(parentAcl);
-		assertThat(FieldUtils.getFieldValue(parentAclFromCache,
-				"aclAuthorizationStrategy")).isNotNull();
+		assertThat(FieldUtils.getFieldValue(parentAclFromCache, "aclAuthorizationStrategy")).isNotNull();
 		assertThat(myCache.getFromCache(identityParent)).isEqualTo(parentAcl);
 	}
+
 }

@@ -63,4 +63,5 @@ public class CookieMixinTests extends AbstractMixinTests {
 		assertThat(cookie.getDomain()).isEqualTo("");
 		assertThat(cookie.isHttpOnly()).isEqualTo(false);
 	}
+
 }

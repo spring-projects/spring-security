@@ -48,15 +48,19 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public class AuthenticationManagerBuilder
-		extends
-		AbstractConfiguredSecurityBuilder<AuthenticationManager, AuthenticationManagerBuilder>
+		extends AbstractConfiguredSecurityBuilder<AuthenticationManager, AuthenticationManagerBuilder>
 		implements ProviderManagerBuilder<AuthenticationManagerBuilder> {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private AuthenticationManager parentAuthenticationManager;
+
 	private List<AuthenticationProvider> authenticationProviders = new ArrayList<>();
+
 	private UserDetailsService defaultUserDetailsService;
+
 	private Boolean eraseCredentials;
+
 	private AuthenticationEventPublisher eventPublisher;
 
 	/**
@@ -71,18 +75,15 @@ public class AuthenticationManagerBuilder
 	 * Allows providing a parent {@link AuthenticationManager} that will be tried if this
 	 * {@link AuthenticationManager} was unable to attempt to authenticate the provided
 	 * {@link Authentication}.
-	 *
 	 * @param authenticationManager the {@link AuthenticationManager} that should be used
 	 * if the current {@link AuthenticationManager} was unable to attempt to authenticate
 	 * the provided {@link Authentication}.
 	 * @return the {@link AuthenticationManagerBuilder} for further adding types of
 	 * authentication
 	 */
-	public AuthenticationManagerBuilder parentAuthenticationManager(
-			AuthenticationManager authenticationManager) {
+	public AuthenticationManagerBuilder parentAuthenticationManager(AuthenticationManager authenticationManager) {
 		if (authenticationManager instanceof ProviderManager) {
-			eraseCredentials(((ProviderManager) authenticationManager)
-					.isEraseCredentialsAfterAuthentication());
+			eraseCredentials(((ProviderManager) authenticationManager).isEraseCredentialsAfterAuthentication());
 		}
 		this.parentAuthenticationManager = authenticationManager;
 		return this;
@@ -90,20 +91,16 @@ public class AuthenticationManagerBuilder
 
 	/**
 	 * Sets the {@link AuthenticationEventPublisher}
-	 *
 	 * @param eventPublisher the {@link AuthenticationEventPublisher} to use
 	 * @return the {@link AuthenticationManagerBuilder} for further customizations
 	 */
-	public AuthenticationManagerBuilder authenticationEventPublisher(
-			AuthenticationEventPublisher eventPublisher) {
+	public AuthenticationManagerBuilder authenticationEventPublisher(AuthenticationEventPublisher eventPublisher) {
 		Assert.notNull(eventPublisher, "AuthenticationEventPublisher cannot be null");
 		this.eventPublisher = eventPublisher;
 		return this;
 	}
 
 	/**
-	 *
-	 *
 	 * @param eraseCredentials true if {@link AuthenticationManager} should clear the
 	 * credentials from the {@link Authentication} object after authenticating
 	 * @return the {@link AuthenticationManagerBuilder} for further customizations
@@ -124,7 +121,6 @@ public class AuthenticationManagerBuilder
 	 * {@link UserDetailsService}'s may override this {@link UserDetailsService} as the
 	 * default.
 	 * </p>
-	 *
 	 * @return a {@link InMemoryUserDetailsManagerConfigurer} to allow customization of
 	 * the in memory authentication
 	 * @throws Exception if an error occurs when adding the in memory authentication
@@ -141,8 +137,8 @@ public class AuthenticationManagerBuilder
 	 *
 	 * <p>
 	 * When using with a persistent data store, it is best to add users external of
-	 * configuration using something like <a href="https://flywaydb.org/">Flyway</a> or <a
-	 * href="https://www.liquibase.org/">Liquibase</a> to create the schema and adding
+	 * configuration using something like <a href="https://flywaydb.org/">Flyway</a> or
+	 * <a href="https://www.liquibase.org/">Liquibase</a> to create the schema and adding
 	 * users to ensure these steps are only done once and that the optimal SQL is used.
 	 * </p>
 	 *
@@ -154,13 +150,11 @@ public class AuthenticationManagerBuilder
 	 * "https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#user-schema"
 	 * >User Schema</a> section of the reference for the default schema.
 	 * </p>
-	 *
 	 * @return a {@link JdbcUserDetailsManagerConfigurer} to allow customization of the
 	 * JDBC authentication
 	 * @throws Exception if an error occurs when adding the JDBC authentication
 	 */
-	public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication()
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
 		return apply(new JdbcUserDetailsManagerConfigurer<>());
 	}
 
@@ -175,7 +169,6 @@ public class AuthenticationManagerBuilder
 	 * {@link UserDetailsService}'s may override this {@link UserDetailsService} as the
 	 * default.
 	 * </p>
-	 *
 	 * @return a {@link DaoAuthenticationConfigurer} to allow customization of the DAO
 	 * authentication
 	 * @throws Exception if an error occurs when adding the {@link UserDetailsService}
@@ -184,8 +177,7 @@ public class AuthenticationManagerBuilder
 	public <T extends UserDetailsService> DaoAuthenticationConfigurer<AuthenticationManagerBuilder, T> userDetailsService(
 			T userDetailsService) throws Exception {
 		this.defaultUserDetailsService = userDetailsService;
-		return apply(new DaoAuthenticationConfigurer<>(
-				userDetailsService));
+		return apply(new DaoAuthenticationConfigurer<>(userDetailsService));
 	}
 
 	/**
@@ -196,13 +188,11 @@ public class AuthenticationManagerBuilder
 	 * <p>
 	 * This method <b>does NOT</b> ensure that a {@link UserDetailsService} is available
 	 * for the {@link #getDefaultUserDetailsService()} method.
-	 *
 	 * @return a {@link LdapAuthenticationProviderConfigurer} to allow customization of
 	 * the LDAP authentication
 	 * @throws Exception if an error occurs when adding the LDAP authentication
 	 */
-	public LdapAuthenticationProviderConfigurer<AuthenticationManagerBuilder> ldapAuthentication()
-			throws Exception {
+	public LdapAuthenticationProviderConfigurer<AuthenticationManagerBuilder> ldapAuthentication() throws Exception {
 		return apply(new LdapAuthenticationProviderConfigurer<>());
 	}
 
@@ -216,13 +206,12 @@ public class AuthenticationManagerBuilder
 	 * This method <b>does NOT</b> ensure that the {@link UserDetailsService} is available
 	 * for the {@link #getDefaultUserDetailsService()} method.
 	 *
-	 * Note that an {@link Exception} might be thrown if an error occurs when adding the {@link AuthenticationProvider}.
-	 *
+	 * Note that an {@link Exception} might be thrown if an error occurs when adding the
+	 * {@link AuthenticationProvider}.
 	 * @return a {@link AuthenticationManagerBuilder} to allow further authentication to
 	 * be provided to the {@link AuthenticationManagerBuilder}
 	 */
-	public AuthenticationManagerBuilder authenticationProvider(
-			AuthenticationProvider authenticationProvider) {
+	public AuthenticationManagerBuilder authenticationProvider(AuthenticationProvider authenticationProvider) {
 		this.authenticationProviders.add(authenticationProvider);
 		return this;
 	}
@@ -233,8 +222,7 @@ public class AuthenticationManagerBuilder
 			logger.debug("No authenticationProviders and no parentAuthenticationManager defined. Returning null.");
 			return null;
 		}
-		ProviderManager providerManager = new ProviderManager(authenticationProviders,
-				parentAuthenticationManager);
+		ProviderManager providerManager = new ProviderManager(authenticationProviders, parentAuthenticationManager);
 		if (eraseCredentials != null) {
 			providerManager.setEraseCredentialsAfterAuthentication(eraseCredentials);
 		}
@@ -257,8 +245,8 @@ public class AuthenticationManagerBuilder
 	 * {@link SecurityConfigurer} that is last could check this method and provide a
 	 * default configuration in the {@link SecurityConfigurer#configure(SecurityBuilder)}
 	 * method.
-	 *
-	 * @return true, if {@link AuthenticationManagerBuilder} is configured, otherwise false
+	 * @return true, if {@link AuthenticationManagerBuilder} is configured, otherwise
+	 * false
 	 */
 	public boolean isConfigured() {
 		return !authenticationProviders.isEmpty() || parentAuthenticationManager != null;
@@ -267,7 +255,6 @@ public class AuthenticationManagerBuilder
 	/**
 	 * Gets the default {@link UserDetailsService} for the
 	 * {@link AuthenticationManagerBuilder}. The result may be null in some circumstances.
-	 *
 	 * @return the default {@link UserDetailsService} for the
 	 * {@link AuthenticationManagerBuilder}
 	 */
@@ -278,7 +265,6 @@ public class AuthenticationManagerBuilder
 	/**
 	 * Captures the {@link UserDetailsService} from any {@link UserDetailsAwareConfigurer}
 	 * .
-	 *
 	 * @param configurer the {@link UserDetailsAwareConfigurer} to capture the
 	 * {@link UserDetailsService} from.
 	 * @return the {@link UserDetailsAwareConfigurer} for further customizations
@@ -289,4 +275,5 @@ public class AuthenticationManagerBuilder
 		this.defaultUserDetailsService = configurer.getUserDetailsService();
 		return super.apply(configurer);
 	}
+
 }

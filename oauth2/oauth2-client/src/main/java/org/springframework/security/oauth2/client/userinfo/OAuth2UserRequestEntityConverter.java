@@ -33,8 +33,8 @@ import java.util.Collections;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 /**
- * A {@link Converter} that converts the provided {@link OAuth2UserRequest}
- * to a {@link RequestEntity} representation of a request for the UserInfo Endpoint.
+ * A {@link Converter} that converts the provided {@link OAuth2UserRequest} to a
+ * {@link RequestEntity} representation of a request for the UserInfo Endpoint.
  *
  * @author Joe Grandja
  * @since 5.1
@@ -43,11 +43,12 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
  * @see RequestEntity
  */
 public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserRequest, RequestEntity<?>> {
-	private static final MediaType DEFAULT_CONTENT_TYPE = MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+
+	private static final MediaType DEFAULT_CONTENT_TYPE = MediaType
+			.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 
 	/**
 	 * Returns the {@link RequestEntity} used for the UserInfo Request.
-	 *
 	 * @param userRequest the user request
 	 * @return the {@link RequestEntity} used for the UserInfo Request
 	 */
@@ -56,14 +57,14 @@ public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserReq
 		ClientRegistration clientRegistration = userRequest.getClientRegistration();
 
 		HttpMethod httpMethod = HttpMethod.GET;
-		if (AuthenticationMethod.FORM.equals(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())) {
+		if (AuthenticationMethod.FORM
+				.equals(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())) {
 			httpMethod = HttpMethod.POST;
 		}
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())
-				.build()
-				.toUri();
+		URI uri = UriComponentsBuilder
+				.fromUriString(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri()).build().toUri();
 
 		RequestEntity<?> request;
 		if (HttpMethod.POST.equals(httpMethod)) {
@@ -71,11 +72,13 @@ public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserReq
 			MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
 			formParameters.add(OAuth2ParameterNames.ACCESS_TOKEN, userRequest.getAccessToken().getTokenValue());
 			request = new RequestEntity<>(formParameters, headers, httpMethod, uri);
-		} else {
+		}
+		else {
 			headers.setBearerAuth(userRequest.getAccessToken().getTokenValue());
 			request = new RequestEntity<>(headers, httpMethod, uri);
 		}
 
 		return request;
 	}
+
 }

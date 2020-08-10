@@ -32,14 +32,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LdapAuthorityTests {
 
 	public static final String DN = "cn=filip,ou=Users,dc=test,dc=com";
+
 	LdapAuthority authority;
 
 	@Before
 	public void setUp() {
 		Map<String, List<String>> attributes = new HashMap<>();
 		attributes.put(SpringSecurityLdapTemplate.DN_KEY, Arrays.asList(DN));
-		attributes.put("mail",
-				Arrays.asList("filip@ldap.test.org", "filip@ldap.test2.org"));
+		attributes.put("mail", Arrays.asList("filip@ldap.test.org", "filip@ldap.test2.org"));
 		authority = new LdapAuthority("testRole", DN, attributes);
 	}
 
@@ -66,4 +66,5 @@ public class LdapAuthorityTests {
 		assertThat(authority.getAuthority()).isNotNull();
 		assertThat(authority.getAuthority()).isEqualTo("testRole");
 	}
+
 }

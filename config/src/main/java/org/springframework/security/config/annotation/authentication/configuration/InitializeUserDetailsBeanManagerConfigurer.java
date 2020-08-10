@@ -33,8 +33,7 @@ import org.springframework.security.core.userdetails.UserDetailsPasswordService;
  * @since 4.1
  */
 @Order(InitializeUserDetailsBeanManagerConfigurer.DEFAULT_ORDER)
-class InitializeUserDetailsBeanManagerConfigurer
-		extends GlobalAuthenticationConfigurerAdapter {
+class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationConfigurerAdapter {
 
 	static final int DEFAULT_ORDER = Ordered.LOWEST_PRECEDENCE - 5000;
 
@@ -52,15 +51,14 @@ class InitializeUserDetailsBeanManagerConfigurer
 		auth.apply(new InitializeUserDetailsManagerConfigurer());
 	}
 
-	class InitializeUserDetailsManagerConfigurer
-			extends GlobalAuthenticationConfigurerAdapter {
+	class InitializeUserDetailsManagerConfigurer extends GlobalAuthenticationConfigurerAdapter {
+
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) throws Exception {
 			if (auth.isConfigured()) {
 				return;
 			}
-			UserDetailsService userDetailsService = getBeanOrNull(
-					UserDetailsService.class);
+			UserDetailsService userDetailsService = getBeanOrNull(UserDetailsService.class);
 			if (userDetailsService == null) {
 				return;
 			}
@@ -82,17 +80,18 @@ class InitializeUserDetailsBeanManagerConfigurer
 		}
 
 		/**
-		 * @return a bean of the requested class if there's just a single registered component, null otherwise.
+		 * @return a bean of the requested class if there's just a single registered
+		 * component, null otherwise.
 		 */
 		private <T> T getBeanOrNull(Class<T> type) {
-			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context
-					.getBeanNamesForType(type);
+			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanNamesForType(type);
 			if (beanNames.length != 1) {
 				return null;
 			}
 
-			return InitializeUserDetailsBeanManagerConfigurer.this.context
-					.getBean(beanNames[0], type);
+			return InitializeUserDetailsBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
 		}
+
 	}
+
 }

@@ -77,21 +77,23 @@ public class Sec2758Tests {
 
 		this.spring.register(SecurityConfig.class).autowire();
 
-		assertThatCode(() -> service.doJsr250())
-			.doesNotThrowAnyException();
+		assertThatCode(() -> service.doJsr250()).doesNotThrowAnyException();
 
-		assertThatCode(() -> service.doPreAuthorize())
-			.doesNotThrowAnyException();
+		assertThatCode(() -> service.doPreAuthorize()).doesNotThrowAnyException();
 	}
 
 	@EnableWebSecurity
-	@EnableGlobalMethodSecurity(prePostEnabled=true, jsr250Enabled = true)
+	@EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
 	static class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		@RestController
 		static class RootController {
+
 			@GetMapping("/")
-			public String ok() { return "ok"; }
+			public String ok() {
+				return "ok";
+			}
+
 		}
 
 		@Override
@@ -116,11 +118,15 @@ public class Sec2758Tests {
 	}
 
 	static class Service {
+
 		@PreAuthorize("hasRole('CUSTOM')")
-		public void doPreAuthorize() {}
+		public void doPreAuthorize() {
+		}
 
 		@RolesAllowed("CUSTOM")
-		public void doJsr250() {}
+		public void doJsr250() {
+		}
+
 	}
 
 	static class DefaultRolesPrefixPostProcessor implements BeanPostProcessor, PriorityOrdered {
@@ -148,5 +154,7 @@ public class Sec2758Tests {
 		public int getOrder() {
 			return PriorityOrdered.HIGHEST_PRECEDENCE;
 		}
+
 	}
+
 }

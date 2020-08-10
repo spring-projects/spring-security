@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public class DelegatingServerLogoutHandler implements ServerLogoutHandler {
+
 	private final List<ServerLogoutHandler> delegates = new ArrayList<>();
 
 	public DelegatingServerLogoutHandler(ServerLogoutHandler... delegates) {
@@ -49,8 +50,8 @@ public class DelegatingServerLogoutHandler implements ServerLogoutHandler {
 
 	@Override
 	public Mono<Void> logout(WebFilterExchange exchange, Authentication authentication) {
-		return Flux.fromIterable(this.delegates)
-			.concatMap(delegate -> delegate.logout(exchange, authentication))
-			.then();
+		return Flux.fromIterable(this.delegates).concatMap(delegate -> delegate.logout(exchange, authentication))
+				.then();
 	}
+
 }

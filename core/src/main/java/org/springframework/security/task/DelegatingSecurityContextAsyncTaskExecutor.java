@@ -31,33 +31,30 @@ import org.springframework.security.core.context.SecurityContext;
  * @author Rob Winch
  * @since 3.2
  */
-public class DelegatingSecurityContextAsyncTaskExecutor extends
-		DelegatingSecurityContextTaskExecutor implements AsyncTaskExecutor {
+public class DelegatingSecurityContextAsyncTaskExecutor extends DelegatingSecurityContextTaskExecutor
+		implements AsyncTaskExecutor {
 
 	/**
 	 * Creates a new {@link DelegatingSecurityContextAsyncTaskExecutor} that uses the
 	 * specified {@link SecurityContext}.
-	 *
 	 * @param delegateAsyncTaskExecutor the {@link AsyncTaskExecutor} to delegate to.
 	 * Cannot be null.
 	 * @param securityContext the {@link SecurityContext} to use for each
 	 * {@link DelegatingSecurityContextRunnable} and
 	 * {@link DelegatingSecurityContextCallable}
 	 */
-	public DelegatingSecurityContextAsyncTaskExecutor(
-			AsyncTaskExecutor delegateAsyncTaskExecutor, SecurityContext securityContext) {
+	public DelegatingSecurityContextAsyncTaskExecutor(AsyncTaskExecutor delegateAsyncTaskExecutor,
+			SecurityContext securityContext) {
 		super(delegateAsyncTaskExecutor, securityContext);
 	}
 
 	/**
 	 * Creates a new {@link DelegatingSecurityContextAsyncTaskExecutor} that uses the
 	 * current {@link SecurityContext}.
-	 *
 	 * @param delegateAsyncTaskExecutor the {@link AsyncTaskExecutor} to delegate to.
 	 * Cannot be null.
 	 */
-	public DelegatingSecurityContextAsyncTaskExecutor(
-			AsyncTaskExecutor delegateAsyncTaskExecutor) {
+	public DelegatingSecurityContextAsyncTaskExecutor(AsyncTaskExecutor delegateAsyncTaskExecutor) {
 		this(delegateAsyncTaskExecutor, null);
 	}
 
@@ -79,4 +76,5 @@ public class DelegatingSecurityContextAsyncTaskExecutor extends
 	private AsyncTaskExecutor getDelegate() {
 		return (AsyncTaskExecutor) getDelegateExecutor();
 	}
+
 }

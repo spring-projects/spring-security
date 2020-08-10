@@ -44,4 +44,5 @@ public class NullStatelessTicketCacheTests extends AbstractStatelessTicketCacheT
 		cache.putTicketInCache(token);
 		assertThat(cache.getByTicketId((String) token.getCredentials())).isNull();
 	}
+
 }

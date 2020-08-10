@@ -43,13 +43,13 @@ import org.springframework.web.socket.config.annotation.AbstractWebSocketMessage
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
-
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
+
 	AnnotationConfigWebApplicationContext context;
 
 	TestingAuthenticationToken messageUser;
@@ -76,8 +76,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 	public void securityMappings() {
 		loadConfig(WebSocketSecurityConfig.class);
 
-		clientInboundChannel().send(
-				message("/user/queue/errors", SimpMessageType.SUBSCRIBE));
+		clientInboundChannel().send(message("/user/queue/errors", SimpMessageType.SUBSCRIBE));
 
 		try {
 			clientInboundChannel().send(message("/denyAll", SimpMessageType.MESSAGE));
@@ -124,11 +123,11 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 		public void authentication(@AuthenticationPrincipal String un) {
 			// ... do something ...
 		}
+
 	}
 
 	@Configuration
-	static class WebSocketSecurityConfig extends
-			AbstractSecurityWebSocketMessageBrokerConfigurer {
+	static class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
 		@Override
 		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
@@ -138,12 +137,12 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 					// <2>
 					.simpDestMatchers("/app/**").hasRole("USER")
 					// <3>
-					.simpSubscribeDestMatchers("/user/**", "/topic/friends/*")
-					.hasRole("USER") // <4>
+					.simpSubscribeDestMatchers("/user/**", "/topic/friends/*").hasRole("USER") // <4>
 					.simpTypeMatchers(MESSAGE, SUBSCRIBE).denyAll() // <5>
 					.anyMessage().denyAll(); // <6>
 
 		}
+
 	}
 
 	@Configuration
@@ -164,13 +163,17 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 		public MyController myController() {
 			return new MyController();
 		}
+
 	}
 
 	@Configuration
 	static class SyncExecutorConfig {
+
 		@Bean
 		public static SyncExecutorSubscribableChannelPostProcessor postProcessor() {
 			return new SyncExecutorSubscribableChannelPostProcessor();
 		}
+
 	}
+
 }

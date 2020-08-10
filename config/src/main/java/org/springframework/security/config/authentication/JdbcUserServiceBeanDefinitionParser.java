@@ -25,8 +25,8 @@ import org.w3c.dom.Element;
 /**
  * @author Luke Taylor
  */
-public class JdbcUserServiceBeanDefinitionParser extends
-		AbstractUserDetailsServiceBeanDefinitionParser {
+public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
+
 	static final String ATT_DATA_SOURCE = "data-source-ref";
 	static final String ATT_USERS_BY_USERNAME_QUERY = "users-by-username-query";
 	static final String ATT_AUTHORITIES_BY_USERNAME_QUERY = "authorities-by-username-query";
@@ -37,16 +37,14 @@ public class JdbcUserServiceBeanDefinitionParser extends
 		return "org.springframework.security.provisioning.JdbcUserDetailsManager";
 	}
 
-	protected void doParse(Element element, ParserContext parserContext,
-			BeanDefinitionBuilder builder) {
+	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		String dataSource = element.getAttribute(ATT_DATA_SOURCE);
 
 		if (dataSource != null) {
 			builder.addPropertyReference("dataSource", dataSource);
 		}
 		else {
-			parserContext.getReaderContext().error(
-					ATT_DATA_SOURCE + " is required for " + Elements.JDBC_USER_SERVICE,
+			parserContext.getReaderContext().error(ATT_DATA_SOURCE + " is required for " + Elements.JDBC_USER_SERVICE,
 					parserContext.extractSource(element));
 		}
 
@@ -69,8 +67,8 @@ public class JdbcUserServiceBeanDefinitionParser extends
 
 		if (StringUtils.hasText(groupAuthoritiesQuery)) {
 			builder.addPropertyValue("enableGroups", Boolean.TRUE);
-			builder.addPropertyValue("groupAuthoritiesByUsernameQuery",
-					groupAuthoritiesQuery);
+			builder.addPropertyValue("groupAuthoritiesByUsernameQuery", groupAuthoritiesQuery);
 		}
 	}
+
 }

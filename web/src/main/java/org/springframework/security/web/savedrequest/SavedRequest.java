@@ -51,4 +51,5 @@ public interface SavedRequest extends java.io.Serializable {
 	String[] getParameterValues(String name);
 
 	Map<String, String[]> getParameterMap();
+
 }

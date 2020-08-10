@@ -41,10 +41,12 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class InsecureChannelProcessor implements InitializingBean, ChannelProcessor {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private ChannelEntryPoint entryPoint = new RetryWithHttpEntryPoint();
+
 	private String insecureKeyword = "REQUIRES_INSECURE_CHANNEL";
 
 	// ~ Methods
@@ -64,8 +66,7 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
 		for (ConfigAttribute attribute : config) {
 			if (supports(attribute)) {
 				if (invocation.getHttpRequest().isSecure()) {
-					entryPoint
-							.commence(invocation.getRequest(), invocation.getResponse());
+					entryPoint.commence(invocation.getRequest(), invocation.getResponse());
 				}
 			}
 		}
@@ -91,4 +92,5 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
 		return (attribute != null) && (attribute.getAttribute() != null)
 				&& attribute.getAttribute().equals(getInsecureKeyword());
 	}
+
 }

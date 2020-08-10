@@ -44,8 +44,7 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 	}
 
 	@Override
-	public DirContext getContext(String principal, String credentials)
-			throws PasswordPolicyException {
+	public DirContext getContext(String principal, String credentials) throws PasswordPolicyException {
 		if (principal.equals(userDn)) {
 			return super.getContext(principal, credentials);
 		}
@@ -53,8 +52,7 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 		final boolean debug = logger.isDebugEnabled();
 
 		if (debug) {
-			logger.debug("Binding as '" + userDn + "', prior to reconnect as user '"
-					+ principal + "'");
+			logger.debug("Binding as '" + userDn + "', prior to reconnect as user '" + principal + "'");
 		}
 
 		// First bind as manager user before rebinding as the specific principal.
@@ -68,8 +66,7 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 			ctx.reconnect(rctls);
 		}
 		catch (javax.naming.NamingException ne) {
-			PasswordPolicyResponseControl ctrl = PasswordPolicyControlExtractor
-					.extractControl(ctx);
+			PasswordPolicyResponseControl ctrl = PasswordPolicyControlExtractor.extractControl(ctx);
 			if (debug) {
 				logger.debug("Failed to obtain context", ne);
 				logger.debug("Password policy response: " + ctrl);
@@ -87,8 +84,7 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 		}
 
 		if (debug) {
-			logger.debug("PPolicy control returned: "
-					+ PasswordPolicyControlExtractor.extractControl(ctx));
+			logger.debug("PPolicy control returned: " + PasswordPolicyControlExtractor.extractControl(ctx));
 		}
 
 		return ctx;
@@ -99,9 +95,9 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 	protected Hashtable getAuthenticatedEnv(String principal, String credentials) {
 		Hashtable env = super.getAuthenticatedEnv(principal, credentials);
 
-		env.put(LdapContext.CONTROL_FACTORIES,
-				PasswordPolicyControlFactory.class.getName());
+		env.put(LdapContext.CONTROL_FACTORIES, PasswordPolicyControlFactory.class.getName());
 
 		return env;
 	}
+
 }

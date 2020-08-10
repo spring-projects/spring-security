@@ -37,4 +37,5 @@ public class ChangeSessionIdAuthenticationStrategyTests {
 		new ChangeSessionIdAuthenticationStrategy().applySessionFixation(request);
 		assertThat(request.getSession().getId()).isNotEqualTo(id);
 	}
+
 }

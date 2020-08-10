@@ -35,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  */
 public class PortMapperConfigurerTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -45,8 +46,7 @@ public class PortMapperConfigurerTests {
 	public void requestWhenPortMapperTwiceInvokedThenDoesNotOverride() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverride.class).autowire();
 
-		this.mockMvc.perform(get("http://localhost:543"))
-			.andExpect(redirectedUrl("https://localhost:123"));
+		this.mockMvc.perform(get("http://localhost:543")).andExpect(redirectedUrl("https://localhost:123"));
 	}
 
 	@EnableWebSecurity
@@ -65,18 +65,19 @@ public class PortMapperConfigurerTests {
 				.portMapper();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenPortMapperHttpMapsToInLambdaThenRedirectsToHttpsPort() throws Exception {
 		this.spring.register(HttpMapsToInLambdaConfig.class).autowire();
 
-		this.mockMvc.perform(get("http://localhost:543"))
-				.andExpect(redirectedUrl("https://localhost:123"));
+		this.mockMvc.perform(get("http://localhost:543")).andExpect(redirectedUrl("https://localhost:123"));
 	}
 
 	@EnableWebSecurity
 	static class HttpMapsToInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -91,18 +92,19 @@ public class PortMapperConfigurerTests {
 				);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenCustomPortMapperInLambdaThenRedirectsToHttpsPort() throws Exception {
 		this.spring.register(CustomPortMapperInLambdaConfig.class).autowire();
 
-		this.mockMvc.perform(get("http://localhost:543"))
-				.andExpect(redirectedUrl("https://localhost:123"));
+		this.mockMvc.perform(get("http://localhost:543")).andExpect(redirectedUrl("https://localhost:123"));
 	}
 
 	@EnableWebSecurity
 	static class CustomPortMapperInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			PortMapperImpl customPortMapper = new PortMapperImpl();
@@ -119,5 +121,7 @@ public class PortMapperConfigurerTests {
 				);
 			// @formatter:on
 		}
+
 	}
+
 }

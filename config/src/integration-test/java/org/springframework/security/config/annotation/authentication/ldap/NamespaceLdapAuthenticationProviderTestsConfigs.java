@@ -27,8 +27,10 @@ import org.springframework.security.ldap.userdetails.PersonContextMapper;
  *
  */
 public class NamespaceLdapAuthenticationProviderTestsConfigs {
+
 	@EnableWebSecurity
 	static class LdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -37,11 +39,12 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 					.userDnPatterns("uid={0},ou=people"); // ldap-server@user-dn-pattern
 			// @formatter:on
 		}
+
 	}
 
 	@EnableWebSecurity
-	static class CustomLdapAuthenticationProviderConfig extends
-			WebSecurityConfigurerAdapter {
+	static class CustomLdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -65,10 +68,12 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 						;
 			// @formatter:on
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class CustomAuthoritiesPopulatorConfig extends WebSecurityConfigurerAdapter {
+
 		static LdapAuthoritiesPopulator LAP;
 
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -79,10 +84,12 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 					.ldapAuthoritiesPopulator(LAP);
 			// @formatter:on
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class PasswordCompareLdapConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -94,5 +101,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 						.passwordAttribute("userPassword"); // ldap-authentication-provider/password-compare@password-attribute
 			// @formatter:on
 		}
+
 	}
+
 }

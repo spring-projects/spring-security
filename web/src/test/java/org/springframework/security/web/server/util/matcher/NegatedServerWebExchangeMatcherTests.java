@@ -33,8 +33,10 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class NegatedServerWebExchangeMatcherTests {
+
 	@Mock
 	ServerWebExchange exchange;
+
 	@Mock
 	ServerWebExchangeMatcher matcher1;
 
@@ -68,4 +70,5 @@ public class NegatedServerWebExchangeMatcherTests {
 
 		verify(matcher1).matches(exchange);
 	}
+
 }

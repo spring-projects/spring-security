@@ -38,23 +38,26 @@ import reactor.core.publisher.Mono;
  */
 public class BasicAuthenticationPayloadExchangeConverter implements PayloadExchangeAuthenticationConverter {
 
-	private MimeType metadataMimetype = MimeTypeUtils.parseMimeType(
-			WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+	private MimeType metadataMimetype = MimeTypeUtils
+			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 
 	private MetadataExtractor metadataExtractor = createDefaultExtractor();
 
 	@Override
 	public Mono<Authentication> convert(PayloadExchange exchange) {
-		return Mono.fromCallable(() -> this.metadataExtractor
-				.extract(exchange.getPayload(), this.metadataMimetype))
-				.flatMap(metadata -> Mono.justOrEmpty(metadata.get(UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE.toString())))
+		return Mono.fromCallable(() -> this.metadataExtractor.extract(exchange.getPayload(), this.metadataMimetype))
+				.flatMap(metadata -> Mono
+						.justOrEmpty(metadata.get(UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE.toString())))
 				.cast(UsernamePasswordMetadata.class)
-				.map(credentials -> new UsernamePasswordAuthenticationToken(credentials.getUsername(), credentials.getPassword()));
+				.map(credentials -> new UsernamePasswordAuthenticationToken(credentials.getUsername(),
+						credentials.getPassword()));
 	}
 
 	private static MetadataExtractor createDefaultExtractor() {
 		DefaultMetadataExtractor result = new DefaultMetadataExtractor(new BasicAuthenticationDecoder());
-		result.metadataToExtract(UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE, UsernamePasswordMetadata.class, (String) null);
+		result.metadataToExtract(UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE,
+				UsernamePasswordMetadata.class, (String) null);
 		return result;
 	}
+
 }

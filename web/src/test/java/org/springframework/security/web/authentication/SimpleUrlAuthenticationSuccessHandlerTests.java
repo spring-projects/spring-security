@@ -24,10 +24,10 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 
 /**
- *
  * @author Luke Taylor
  */
 public class SimpleUrlAuthenticationSuccessHandlerTests {
+
 	@Test
 	public void defaultTargetUrlIsUsedIfNoOtherInformationSet() throws Exception {
 		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler();
@@ -43,8 +43,7 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 	// SEC-1428
 	@Test
 	public void redirectIsNotPerformedIfResponseIsCommitted() throws Exception {
-		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler(
-				"/target");
+		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler("/target");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		response.setCommitted(true);
@@ -58,8 +57,7 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 	 */
 	@Test
 	public void targetUrlParameterIsUsedIfPresentAndParameterNameIsSet() throws Exception {
-		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler(
-				"/defaultTarget");
+		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler("/defaultTarget");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		request.setParameter("targetUrl", "/target");
@@ -76,8 +74,7 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 
 	@Test
 	public void refererIsUsedIfUseRefererIsSet() throws Exception {
-		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler(
-				"/defaultTarget");
+		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler("/defaultTarget");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ash.setUseReferer(true);
@@ -91,8 +88,7 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 	 * SEC-297 fix.
 	 */
 	@Test
-	public void absoluteDefaultTargetUrlDoesNotHaveContextPathPrepended()
-			throws Exception {
+	public void absoluteDefaultTargetUrlDoesNotHaveContextPathPrepended() throws Exception {
 		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler();
 		ash.setDefaultTargetUrl("https://monkeymachine.co.uk/");
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -129,4 +125,5 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 		catch (IllegalArgumentException success) {
 		}
 	}
+
 }

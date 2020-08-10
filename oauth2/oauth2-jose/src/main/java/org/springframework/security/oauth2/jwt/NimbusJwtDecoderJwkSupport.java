@@ -28,38 +28,43 @@ import java.util.Map;
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 
 /**
- * An implementation of a {@link JwtDecoder} that "decodes" a
- * JSON Web Token (JWT) and additionally verifies it's digital signature if the JWT is a
- * JSON Web Signature (JWS). The public key used for verification is obtained from the
- * JSON Web Key (JWK) Set {@code URL} supplied via the constructor.
+ * An implementation of a {@link JwtDecoder} that "decodes" a JSON Web Token (JWT) and
+ * additionally verifies it's digital signature if the JWT is a JSON Web Signature (JWS).
+ * The public key used for verification is obtained from the JSON Web Key (JWK) Set
+ * {@code URL} supplied via the constructor.
  *
  * <p>
  * <b>NOTE:</b> This implementation uses the Nimbus JOSE + JWT SDK internally.
  *
  * @deprecated Use {@link NimbusJwtDecoder} or {@link JwtDecoders} instead
- *
  * @author Joe Grandja
  * @author Josh Cummings
  * @since 5.0
  * @see JwtDecoder
  * @see NimbusJwtDecoder
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token (JWT)</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515">JSON Web Signature (JWS)</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key (JWK)</a>
- * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus JOSE + JWT SDK</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token
+ * (JWT)</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515">JSON Web Signature
+ * (JWS)</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key
+ * (JWK)</a>
+ * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus
+ * JOSE + JWT SDK</a>
  */
 @Deprecated
 public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
+
 	private NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder jwtDecoderBuilder;
+
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
-	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter =
-			MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
+
+	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
+			.withDefaults(Collections.emptyMap());
 
 	private NimbusJwtDecoder delegate;
 
 	/**
 	 * Constructs a {@code NimbusJwtDecoderJwkSupport} using the provided parameters.
-	 *
 	 * @param jwkSetUrl the JSON Web Key (JWK) Set {@code URL}
 	 */
 	public NimbusJwtDecoderJwkSupport(String jwkSetUrl) {
@@ -68,9 +73,9 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 
 	/**
 	 * Constructs a {@code NimbusJwtDecoderJwkSupport} using the provided parameters.
-	 *
 	 * @param jwkSetUrl the JSON Web Key (JWK) Set {@code URL}
-	 * @param jwsAlgorithm the JSON Web Algorithm (JWA) used for verifying the digital signatures
+	 * @param jwsAlgorithm the JSON Web Algorithm (JWA) used for verifying the digital
+	 * signatures
 	 */
 	public NimbusJwtDecoderJwkSupport(String jwkSetUrl, String jwsAlgorithm) {
 		Assert.hasText(jwkSetUrl, "jwkSetUrl cannot be empty");
@@ -94,7 +99,6 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 
 	/**
 	 * Use this {@link Jwt} Validator
-	 *
 	 * @param jwtValidator - the Jwt Validator to use
 	 */
 	public void setJwtValidator(OAuth2TokenValidator<Jwt> jwtValidator) {
@@ -105,7 +109,6 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 
 	/**
 	 * Use the following {@link Converter} for manipulating the JWT's claim set
-	 *
 	 * @param claimSetConverter the {@link Converter} to use
 	 */
 	public void setClaimSetConverter(Converter<Map<String, Object>, Map<String, Object>> claimSetConverter) {
@@ -118,11 +121,13 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 	 * Sets the {@link RestOperations} used when requesting the JSON Web Key (JWK) Set.
 	 *
 	 * @since 5.1
-	 * @param restOperations the {@link RestOperations} used when requesting the JSON Web Key (JWK) Set
+	 * @param restOperations the {@link RestOperations} used when requesting the JSON Web
+	 * Key (JWK) Set
 	 */
 	public void setRestOperations(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations cannot be null");
 		this.jwtDecoderBuilder = this.jwtDecoderBuilder.restOperations(restOperations);
 		this.delegate = makeDelegate();
 	}
+
 }

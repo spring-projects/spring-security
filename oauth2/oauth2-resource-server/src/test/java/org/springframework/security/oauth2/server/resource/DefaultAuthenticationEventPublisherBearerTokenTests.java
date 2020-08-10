@@ -36,6 +36,7 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
  * {@see DefaultAuthenticationEventPublisher}
  */
 public class DefaultAuthenticationEventPublisherBearerTokenTests {
+
 	DefaultAuthenticationEventPublisher publisher;
 
 	@Test
@@ -46,7 +47,7 @@ public class DefaultAuthenticationEventPublisherBearerTokenTests {
 		this.publisher = new DefaultAuthenticationEventPublisher(appPublisher);
 		this.publisher.publishAuthenticationFailure(new InvalidBearerTokenException("invalid"), authentication);
 		this.publisher.publishAuthenticationFailure(new InvalidBearerTokenException("invalid", cause), authentication);
-		verify(appPublisher, times(2)).publishEvent(
-				isA(AuthenticationFailureBadCredentialsEvent.class));
+		verify(appPublisher, times(2)).publishEvent(isA(AuthenticationFailureBadCredentialsEvent.class));
 	}
+
 }

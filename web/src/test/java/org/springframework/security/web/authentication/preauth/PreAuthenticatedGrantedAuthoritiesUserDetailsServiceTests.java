@@ -26,7 +26,6 @@ import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- *
  * @author TSARDD
  * @since 18-okt-2007
  */
@@ -35,8 +34,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetUserDetailsInvalidType() {
 		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
-		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(
-				"dummy", "dummy");
+		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("dummy", "dummy");
 		token.setDetails(new Object());
 		svc.loadUserDetails(token);
 	}
@@ -44,8 +42,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetUserDetailsNoDetails() {
 		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
-		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(
-				"dummy", "dummy");
+		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("dummy", "dummy");
 		token.setDetails(null);
 		svc.loadUserDetails(token);
 	}
@@ -62,11 +59,9 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 		testGetUserDetails(userName, AuthorityUtils.createAuthorityList("Role1", "Role2"));
 	}
 
-	private void testGetUserDetails(final String userName,
-			final List<GrantedAuthority> gas) {
+	private void testGetUserDetails(final String userName, final List<GrantedAuthority> gas) {
 		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
-		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(
-				userName, "dummy");
+		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(userName, "dummy");
 		token.setDetails((GrantedAuthoritiesContainer) () -> gas);
 		UserDetails ud = svc.loadUserDetails(token);
 		assertThat(ud.isAccountNonExpired()).isTrue();
@@ -79,8 +74,9 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 		// PreAuthenticatedGrantedAuthoritiesUserDetailsService
 		// assertThat(password).isEqualTo(ud.getPassword());
 
-		assertThat(gas.containsAll(ud.getAuthorities())
-						&& ud.getAuthorities().containsAll(gas)).withFailMessage("GrantedAuthority collections do not match; result: "+ ud.getAuthorities() + ", expected: " + gas).isTrue();
+		assertThat(gas.containsAll(ud.getAuthorities()) && ud.getAuthorities().containsAll(gas)).withFailMessage(
+				"GrantedAuthority collections do not match; result: " + ud.getAuthorities() + ", expected: " + gas)
+				.isTrue();
 	}
 
 }

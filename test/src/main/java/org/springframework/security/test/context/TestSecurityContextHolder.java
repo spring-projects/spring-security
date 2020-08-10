@@ -46,7 +46,8 @@ import org.springframework.util.Assert;
  * </li>
  * <li>The test is ran. When used with {@link MockMvc} it is typically used with
  * {@link SecurityMockMvcRequestPostProcessors#testSecurityContext()}. Which ensures the
- * {@link SecurityContext} from {@link TestSecurityContextHolder} is properly populated.</li>
+ * {@link SecurityContext} from {@link TestSecurityContextHolder} is properly
+ * populated.</li>
  * <li>After the test is executed, the {@link TestSecurityContextHolder} and the
  * {@link SecurityContextHolder} are cleared out</li>
  * </ul>
@@ -71,7 +72,6 @@ public final class TestSecurityContextHolder {
 
 	/**
 	 * Gets the {@link SecurityContext} from {@link TestSecurityContextHolder}.
-	 *
 	 * @return the {@link SecurityContext} from {@link TestSecurityContextHolder}.
 	 */
 	public static SecurityContext getContext() {
@@ -97,10 +97,9 @@ public final class TestSecurityContextHolder {
 	}
 
 	/**
-	 * Creates a new {@link SecurityContext} with the given {@link Authentication}.
-	 * The {@link SecurityContext} is set on {@link TestSecurityContextHolder} and
+	 * Creates a new {@link SecurityContext} with the given {@link Authentication}. The
+	 * {@link SecurityContext} is set on {@link TestSecurityContextHolder} and
 	 * {@link SecurityContextHolder}.
-	 *
 	 * @param authentication the {@link Authentication} to use
 	 * @since 5.1.1
 	 */
@@ -114,7 +113,6 @@ public final class TestSecurityContextHolder {
 	/**
 	 * Gets the default {@link SecurityContext} by delegating to the
 	 * {@link SecurityContextHolder}
-	 *
 	 * @return the default {@link SecurityContext}
 	 */
 	private static SecurityContext getDefaultContext() {
@@ -123,4 +121,5 @@ public final class TestSecurityContextHolder {
 
 	private TestSecurityContextHolder() {
 	}
+
 }

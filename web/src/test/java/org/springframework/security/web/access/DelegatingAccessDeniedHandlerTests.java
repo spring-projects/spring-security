@@ -36,14 +36,19 @@ import org.springframework.security.web.csrf.MissingCsrfTokenException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingAccessDeniedHandlerTests {
+
 	@Mock
 	private AccessDeniedHandler handler1;
+
 	@Mock
 	private AccessDeniedHandler handler2;
+
 	@Mock
 	private AccessDeniedHandler handler3;
+
 	@Mock
 	private HttpServletRequest request;
+
 	@Mock
 	private HttpServletResponse response;
 
@@ -64,8 +69,8 @@ public class DelegatingAccessDeniedHandlerTests {
 		AccessDeniedException accessDeniedException = new AccessDeniedException("");
 		handler.handle(request, response, accessDeniedException);
 
-		verify(handler1, never()).handle(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AccessDeniedException.class));
+		verify(handler1, never()).handle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(AccessDeniedException.class));
 		verify(handler3).handle(request, response, accessDeniedException);
 	}
 
@@ -78,10 +83,11 @@ public class DelegatingAccessDeniedHandlerTests {
 		AccessDeniedException accessDeniedException = new MissingCsrfTokenException("123");
 		handler.handle(request, response, accessDeniedException);
 
-		verify(handler1, never()).handle(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AccessDeniedException.class));
+		verify(handler1, never()).handle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(AccessDeniedException.class));
 		verify(handler2).handle(request, response, accessDeniedException);
-		verify(handler3, never()).handle(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AccessDeniedException.class));
+		verify(handler3, never()).handle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(AccessDeniedException.class));
 	}
+
 }

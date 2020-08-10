@@ -19,13 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 
-
 /**
- *
  * @author Rob Winch
  */
 @Configuration
 public class BaseAuthenticationConfig {
+
 	@Autowired
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		// @formatter:off
@@ -35,4 +34,5 @@ public class BaseAuthenticationConfig {
 				.withUser("admin").password("password").roles("USER", "ADMIN");
 		// @formatter:on
 	}
+
 }

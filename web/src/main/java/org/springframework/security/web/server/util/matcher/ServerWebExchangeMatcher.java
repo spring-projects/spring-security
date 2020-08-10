@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * An interface for determining if a {@link ServerWebExchangeMatcher} matches.
+ *
  * @author Rob Winch
  * @since 5.0
  */
@@ -39,7 +40,9 @@ public interface ServerWebExchangeMatcher {
 	 * The result of matching
 	 */
 	class MatchResult {
+
 		private final boolean match;
+
 		private final Map<String, Object> variables;
 
 		private MatchResult(boolean match, Map<String, Object> variables) {
@@ -69,7 +72,8 @@ public interface ServerWebExchangeMatcher {
 
 		/**
 		 *
-		 * Creates an instance of {@link MatchResult} that is a match with the specified variables
+		 * Creates an instance of {@link MatchResult} that is a match with the specified
+		 * variables
 		 * @param variables
 		 * @return
 		 */
@@ -84,5 +88,7 @@ public interface ServerWebExchangeMatcher {
 		public static Mono<MatchResult> notMatch() {
 			return Mono.just(new MatchResult(false, Collections.emptyMap()));
 		}
+
 	}
+
 }

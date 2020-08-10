@@ -33,9 +33,11 @@ import org.w3c.dom.Element;
  * @since 4.1.1
  */
 public class CorsBeanDefinitionParser {
+
 	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
 
 	private static final String ATT_SOURCE = "configuration-source-ref";
+
 	private static final String ATT_REF = "ref";
 
 	public BeanMetadataElement parse(Element element, ParserContext parserContext) {
@@ -64,12 +66,12 @@ public class CorsBeanDefinitionParser {
 			return new RuntimeBeanReference(configurationSourceRef);
 		}
 
-		boolean mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR,
-				getClass().getClassLoader());
+		boolean mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR, getClass().getClassLoader());
 		if (!mvcPresent) {
 			return null;
 		}
 
 		return new RootBeanDefinition(HandlerMappingIntrospectorFactoryBean.class);
 	}
+
 }

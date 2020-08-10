@@ -15,7 +15,6 @@
  */
 package org.springframework.security.core.userdetails;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
@@ -27,6 +26,7 @@ import org.junit.Test;
 import reactor.core.publisher.Mono;
 
 public class MapReactiveUserDetailsServiceTests {
+
 	// @formatter:off
 	private static final UserDetails USER_DETAILS = User.withUsername("user")
 			.password("password")
@@ -86,4 +86,5 @@ public class MapReactiveUserDetailsServiceTests {
 		users.updatePassword(USER_DETAILS, "new").block();
 		assertThat(users.findByUsername(USER_DETAILS.getUsername()).block().getPassword()).isEqualTo("new");
 	}
+
 }

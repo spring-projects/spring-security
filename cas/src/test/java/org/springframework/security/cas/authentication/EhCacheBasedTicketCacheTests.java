@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author Ben Alex
  */
 public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTests {
+
 	private static CacheManager cacheManager;
 
 	// ~ Methods
@@ -87,4 +88,5 @@ public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTe
 		cache.setCache(myCache);
 		assertThat(cache.getCache()).isEqualTo(myCache);
 	}
+
 }

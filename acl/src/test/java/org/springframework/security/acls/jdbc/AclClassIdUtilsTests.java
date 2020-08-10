@@ -15,7 +15,6 @@
  */
 package org.springframework.security.acls.jdbc;
 
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,17 +33,21 @@ import static org.mockito.BDDMockito.given;
 
 /**
  * Tests for {@link AclClassIdUtils}.
+ *
  * @author paulwheeler
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AclClassIdUtilsTests {
 
 	private static final Long DEFAULT_IDENTIFIER = 999L;
+
 	private static final BigInteger BIGINT_IDENTIFIER = new BigInteger("999");
+
 	private static final String DEFAULT_IDENTIFIER_AS_STRING = DEFAULT_IDENTIFIER.toString();
 
 	@Mock
 	private ResultSet resultSet;
+
 	@Mock
 	private ConversionService conversionService;
 
@@ -172,4 +175,5 @@ public class AclClassIdUtilsTests {
 		// when
 		aclClassIdUtils.setConversionService(null);
 	}
+
 }

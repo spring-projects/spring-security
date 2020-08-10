@@ -32,8 +32,7 @@ public class DefaultSavedRequestTests {
 	public void headersAreCaseInsensitive() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("USER-aGenT", "Mozilla");
-		DefaultSavedRequest saved = new DefaultSavedRequest(request,
-				new MockPortResolver(8080, 8443));
+		DefaultSavedRequest saved = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443));
 		assertThat(saved.getHeaderValues("user-agent").get(0)).isEqualTo("Mozilla");
 	}
 
@@ -42,8 +41,7 @@ public class DefaultSavedRequestTests {
 	public void discardsIfNoneMatchHeader() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("If-None-Match", "somehashvalue");
-		DefaultSavedRequest saved = new DefaultSavedRequest(request,
-				new MockPortResolver(8080, 8443));
+		DefaultSavedRequest saved = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443));
 		assertThat(saved.getHeaderValues("if-none-match").isEmpty()).isTrue();
 	}
 
@@ -53,9 +51,9 @@ public class DefaultSavedRequestTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter("AnotHerTest", "Hi dad");
 		request.addParameter("thisisatest", "Hi mom");
-		DefaultSavedRequest saved = new DefaultSavedRequest(request,
-				new MockPortResolver(8080, 8443));
+		DefaultSavedRequest saved = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443));
 		assertThat(saved.getParameterValues("thisisatest")[0]).isEqualTo("Hi mom");
 		assertThat(saved.getParameterValues("anothertest")).isNull();
 	}
+
 }

@@ -53,12 +53,12 @@ public class NamespaceJdbcUserServiceTests {
 	public void jdbcUserService() throws Exception {
 		this.spring.register(DataSourceConfig.class, JdbcUserServiceConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withUsername("user"));
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
 	}
 
 	@EnableWebSecurity
 	static class JdbcUserServiceConfig extends WebSecurityConfigurerAdapter {
+
 		@Autowired
 		private DataSource dataSource;
 
@@ -71,27 +71,30 @@ public class NamespaceJdbcUserServiceTests {
 					.dataSource(this.dataSource); // jdbc-user-service@data-source-ref
 			// @formatter:on
 		}
+
 	}
 
 	@Configuration
 	static class DataSourceConfig {
+
 		@Bean
 		public DataSource dataSource() {
 			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
 			return builder.setType(EmbeddedDatabaseType.HSQL).build();
 		}
+
 	}
 
 	@Test
 	public void jdbcUserServiceCustom() throws Exception {
 		this.spring.register(CustomDataSourceConfig.class, CustomJdbcUserServiceSampleConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withUsername("user").withRoles("DBA", "USER"));
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user").withRoles("DBA", "USER"));
 	}
 
 	@EnableWebSecurity
 	static class CustomJdbcUserServiceSampleConfig extends WebSecurityConfigurerAdapter {
+
 		@Autowired
 		private DataSource dataSource;
 
@@ -129,16 +132,22 @@ public class NamespaceJdbcUserServiceTests {
 			@Override
 			public void removeUserFromCache(String username) {
 			}
+
 		}
+
 	}
+
 	@Configuration
 	static class CustomDataSourceConfig {
+
 		@Bean
 		public DataSource dataSource() {
 			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
-				// simulate that the DB already has the schema loaded and users in it
-				.addScript("CustomJdbcUserServiceSampleConfig.sql");
+					// simulate that the DB already has the schema loaded and users in it
+					.addScript("CustomJdbcUserServiceSampleConfig.sql");
 			return builder.setType(EmbeddedDatabaseType.HSQL).build();
 		}
+
 	}
+
 }

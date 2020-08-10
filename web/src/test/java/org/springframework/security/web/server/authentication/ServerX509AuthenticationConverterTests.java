@@ -90,5 +90,7 @@ public class ServerX509AuthenticationConverterTests {
 		public X509Certificate[] getPeerCertificates() {
 			return this.peerCertificates;
 		}
+
 	}
+
 }

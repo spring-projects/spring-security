@@ -29,7 +29,7 @@ public class CsrfInputTag extends AbstractCsrfTag {
 
 	@Override
 	public String handleToken(CsrfToken token) {
-		return "<input type=\"hidden\" name=\"" + token.getParameterName()
-				+ "\" value=\"" + token.getToken() + "\" />";
+		return "<input type=\"hidden\" name=\"" + token.getParameterName() + "\" value=\"" + token.getToken() + "\" />";
 	}
+
 }

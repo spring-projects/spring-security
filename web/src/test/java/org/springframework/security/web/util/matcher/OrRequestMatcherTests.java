@@ -32,12 +32,12 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class OrRequestMatcherTests {
+
 	@Mock
 	private RequestMatcher delegate;
 
@@ -76,7 +76,7 @@ public class OrRequestMatcherTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyList() {
-		new OrRequestMatcher(Collections.<RequestMatcher> emptyList());
+		new OrRequestMatcher(Collections.<RequestMatcher>emptyList());
 	}
 
 	@Test
@@ -119,4 +119,5 @@ public class OrRequestMatcherTests {
 
 		assertThat(matcher.matches(request)).isTrue();
 	}
+
 }

@@ -55,4 +55,5 @@ public class ForwardAuthenticaionSuccessHandlerTests {
 
 		assertThat(response.getForwardedUrl()).isEqualTo("/forwardUrl");
 	}
+
 }

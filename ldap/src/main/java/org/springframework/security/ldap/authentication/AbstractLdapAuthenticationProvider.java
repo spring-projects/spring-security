@@ -46,16 +46,19 @@ import org.springframework.util.StringUtils;
  * @author Luke Taylor
  * @since 3.1
  */
-public abstract class AbstractLdapAuthenticationProvider
-		implements AuthenticationProvider, MessageSourceAware {
+public abstract class AbstractLdapAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
+
 	protected final Log logger = LogFactory.getLog(getClass());
+
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
 	private boolean useAuthenticationRequestCredentials = true;
+
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+
 	protected UserDetailsContextMapper userDetailsContextMapper = new LdapUserDetailsMapper();
 
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
 				() -> this.messages.getMessage("LdapAuthenticationProvider.onlySupports",
 						"Only UsernamePasswordAuthenticationToken is supported"));
@@ -70,50 +73,44 @@ public abstract class AbstractLdapAuthenticationProvider
 		}
 
 		if (!StringUtils.hasLength(username)) {
-			throw new BadCredentialsException(this.messages.getMessage(
-					"LdapAuthenticationProvider.emptyUsername", "Empty Username"));
+			throw new BadCredentialsException(
+					this.messages.getMessage("LdapAuthenticationProvider.emptyUsername", "Empty Username"));
 		}
 
 		if (!StringUtils.hasLength(password)) {
-			throw new BadCredentialsException(this.messages.getMessage(
-					"AbstractLdapAuthenticationProvider.emptyPassword",
-					"Empty Password"));
+			throw new BadCredentialsException(
+					this.messages.getMessage("AbstractLdapAuthenticationProvider.emptyPassword", "Empty Password"));
 		}
 
 		Assert.notNull(password, "Null password was supplied in authentication token");
 
 		DirContextOperations userData = doAuthentication(userToken);
 
-		UserDetails user = this.userDetailsContextMapper.mapUserFromContext(userData,
-				authentication.getName(),
-				loadUserAuthorities(userData, authentication.getName(),
-						(String) authentication.getCredentials()));
+		UserDetails user = this.userDetailsContextMapper.mapUserFromContext(userData, authentication.getName(),
+				loadUserAuthorities(userData, authentication.getName(), (String) authentication.getCredentials()));
 
 		return createSuccessfulAuthentication(userToken, user);
 	}
 
-	protected abstract DirContextOperations doAuthentication(
-			UsernamePasswordAuthenticationToken auth);
+	protected abstract DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth);
 
-	protected abstract Collection<? extends GrantedAuthority> loadUserAuthorities(
-			DirContextOperations userData, String username, String password);
+	protected abstract Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData,
+			String username, String password);
 
 	/**
 	 * Creates the final {@code Authentication} object which will be returned from the
 	 * {@code authenticate} method.
-	 *
 	 * @param authentication the original authentication request token
 	 * @param user the <tt>UserDetails</tt> instance returned by the configured
 	 * <tt>UserDetailsContextMapper</tt>.
 	 * @return the Authentication object for the fully authenticated user.
 	 */
-	protected Authentication createSuccessfulAuthentication(
-			UsernamePasswordAuthenticationToken authentication, UserDetails user) {
-		Object password = this.useAuthenticationRequestCredentials
-				? authentication.getCredentials() : user.getPassword();
+	protected Authentication createSuccessfulAuthentication(UsernamePasswordAuthenticationToken authentication,
+			UserDetails user) {
+		Object password = this.useAuthenticationRequestCredentials ? authentication.getCredentials()
+				: user.getPassword();
 
-		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(
-				user, password,
+		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(user, password,
 				this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
 		result.setDetails(authentication.getDetails());
 
@@ -130,11 +127,9 @@ public abstract class AbstractLdapAuthenticationProvider
 	 * obtained from the UserDetails object created by the configured
 	 * {@code UserDetailsContextMapper}. Often it will not be possible to read the
 	 * password from the directory, so defaults to true.
-	 *
 	 * @param useAuthenticationRequestCredentials
 	 */
-	public void setUseAuthenticationRequestCredentials(
-			boolean useAuthenticationRequestCredentials) {
+	public void setUseAuthenticationRequestCredentials(boolean useAuthenticationRequestCredentials) {
 		this.useAuthenticationRequestCredentials = useAuthenticationRequestCredentials;
 	}
 
@@ -151,14 +146,11 @@ public abstract class AbstractLdapAuthenticationProvider
 	 * will be stored as the principal in the <tt>Authentication</tt> returned by the
 	 * {@link #createSuccessfulAuthentication(org.springframework.security.authentication.UsernamePasswordAuthenticationToken, org.springframework.security.core.userdetails.UserDetails)}
 	 * method.
-	 *
 	 * @param userDetailsContextMapper the strategy instance. If not set, defaults to a
 	 * simple <tt>LdapUserDetailsMapper</tt>.
 	 */
-	public void setUserDetailsContextMapper(
-			UserDetailsContextMapper userDetailsContextMapper) {
-		Assert.notNull(userDetailsContextMapper,
-				"UserDetailsContextMapper must not be null");
+	public void setUserDetailsContextMapper(UserDetailsContextMapper userDetailsContextMapper) {
+		Assert.notNull(userDetailsContextMapper, "UserDetailsContextMapper must not be null");
 		this.userDetailsContextMapper = userDetailsContextMapper;
 	}
 
@@ -169,4 +161,5 @@ public abstract class AbstractLdapAuthenticationProvider
 	protected UserDetailsContextMapper getUserDetailsContextMapper() {
 		return this.userDetailsContextMapper;
 	}
+
 }

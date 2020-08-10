@@ -81,6 +81,7 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
+
 	@Mock
 	private ReactiveOAuth2UserService<OidcUserRequest, OidcUser> userService;
 
@@ -90,62 +91,59 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	@Mock
 	private ReactiveJwtDecoder jwtDecoder;
 
-	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration()
-			.scope("openid");
+	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration().scope("openid");
 
-	private OAuth2AuthorizationResponse.Builder authorizationResponseBldr = OAuth2AuthorizationResponse
-			.success("code")
+	private OAuth2AuthorizationResponse.Builder authorizationResponseBldr = OAuth2AuthorizationResponse.success("code")
 			.state("state");
 
 	private OidcIdToken idToken = TestOidcIdTokens.idToken().build();
 
 	private OidcAuthorizationCodeReactiveAuthenticationManager manager;
 
-	private StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
+	private StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(
+			Base64.getUrlEncoder().withoutPadding(), 96);
 
 	private String nonceHash;
 
 	@Before
 	public void setup() {
-		this.manager = new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService);
+		this.manager = new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient,
+				this.userService);
 	}
 
 	@Test
 	public void constructorWhenNullAccessTokenResponseClientThenIllegalArgumentException() {
 		this.accessTokenResponseClient = null;
-		assertThatThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient,
+				this.userService)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorWhenNullUserServiceThenIllegalArgumentException() {
 		this.userService = null;
-		assertThatThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient,
+				this.userService)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void setJwtDecoderFactoryWhenNullThenIllegalArgumentException() {
-		assertThatThrownBy(() -> this.manager.setJwtDecoderFactory(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> this.manager.setJwtDecoderFactory(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void setAuthoritiesMapperWhenAuthoritiesMapperIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.manager.setAuthoritiesMapper(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> this.manager.setAuthoritiesMapper(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void authenticateWhenNoSubscriptionThenDoesNothing() {
-		// we didn't do anything because it should cause a ClassCastException (as verified below)
+		// we didn't do anything because it should cause a ClassCastException (as verified
+		// below)
 		TestingAuthenticationToken token = new TestingAuthenticationToken("a", "b");
 
-		assertThatCode(()-> this.manager.authenticate(token))
-				.doesNotThrowAnyException();
+		assertThatCode(() -> this.manager.authenticate(token)).doesNotThrowAnyException();
 
-		assertThatThrownBy(() -> this.manager.authenticate(token).block())
-				.isInstanceOf(Throwable.class);
+		assertThatThrownBy(() -> this.manager.authenticate(token).block()).isInstanceOf(Throwable.class);
 	}
 
 	@Test
@@ -156,9 +154,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticationWhenErrorThenOAuth2AuthenticationException() {
-		this.authorizationResponseBldr = OAuth2AuthorizationResponse
-				.error("error")
-				.state("state");
+		this.authorizationResponseBldr = OAuth2AuthorizationResponse.error("error").state("state");
 		assertThatThrownBy(() -> this.manager.authenticate(loginToken()).block())
 				.isInstanceOf(OAuth2AuthenticationException.class);
 	}
@@ -173,8 +169,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenIdTokenValidationErrorThenOAuth2AuthenticationException() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(
+						Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
 				.build();
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 
@@ -189,8 +185,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenIdTokenInvalidNonceThenOAuth2AuthenticationException() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(
+						Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
 				.build();
 
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
@@ -207,15 +203,15 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 
 		assertThatThrownBy(() -> this.manager.authenticate(authorizationCodeAuthentication).block())
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("[invalid_nonce]");
+				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("[invalid_nonce]");
 	}
 
 	@Test
 	public void authenticationWhenOAuth2UserNotFoundThenEmpty() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ."))
+				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN,
+						"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ."))
 				.build();
 
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
@@ -237,8 +233,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticationWhenOAuth2UserFoundThenSuccess() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(
+						Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
 				.build();
 
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
@@ -256,7 +252,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 
-		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(authorizationCodeAuthentication).block();
+		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager
+				.authenticate(authorizationCodeAuthentication).block();
 
 		assertThat(result.getPrincipal()).isEqualTo(user);
 		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
@@ -267,9 +264,9 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	public void authenticationWhenRefreshTokenThenRefreshTokenInAuthorizedClient() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
-				.refreshToken("refresh-token")
-				.build();
+				.additionalParameters(
+						Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
+				.refreshToken("refresh-token").build();
 
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
 
@@ -286,7 +283,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 
-		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(authorizationCodeAuthentication).block();
+		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager
+				.authenticate(authorizationCodeAuthentication).block();
 
 		assertThat(result.getPrincipal()).isEqualTo(user);
 		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
@@ -303,9 +301,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.additionalParameters(additionalParameters)
-				.build();
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(additionalParameters).build();
 
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
 
@@ -333,8 +329,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	public void authenticateWhenAuthoritiesMapperSetThenReturnMappedAuthorities() {
 		ClientRegistration clientRegistration = this.registration.build();
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(
+						Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
 				.build();
 
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
@@ -346,7 +342,6 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
 		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 
-
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
 		ArgumentCaptor<OidcUserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OidcUserRequest.class);
@@ -354,8 +349,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 
 		List<GrantedAuthority> mappedAuthorities = AuthorityUtils.createAuthorityList("ROLE_OIDC_USER");
 		GrantedAuthoritiesMapper authoritiesMapper = mock(GrantedAuthoritiesMapper.class);
-		when(authoritiesMapper.mapAuthorities(anyCollection())).thenAnswer(
-				(Answer<List<GrantedAuthority>>) invocation -> mappedAuthorities);
+		when(authoritiesMapper.mapAuthorities(anyCollection()))
+				.thenAnswer((Answer<List<GrantedAuthority>>) invocation -> mappedAuthorities);
 		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 		this.manager.setAuthoritiesMapper(authoritiesMapper);
@@ -374,22 +369,19 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 			this.nonceHash = createHash(nonce);
 			attributes.put(OidcParameterNames.NONCE, nonce);
 			additionalParameters.put(OidcParameterNames.NONCE, this.nonceHash);
-		} catch (NoSuchAlgorithmException e) { }
-		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest
-				.authorizationCode()
-				.state("state")
+		}
+		catch (NoSuchAlgorithmException e) {
+		}
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode().state("state")
 				.clientId(clientRegistration.getClientId())
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(clientRegistration.getRedirectUri())
-				.scopes(clientRegistration.getScopes())
-				.additionalParameters(additionalParameters)
-				.attributes(attributes)
-				.build();
+				.redirectUri(clientRegistration.getRedirectUri()).scopes(clientRegistration.getScopes())
+				.additionalParameters(additionalParameters).attributes(attributes).build();
 		OAuth2AuthorizationResponse authorizationResponse = this.authorizationResponseBldr
-				.redirectUri(clientRegistration.getRedirectUri())
-				.build();
+				.redirectUri(clientRegistration.getRedirectUri()).build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
 		return new OAuth2AuthorizationCodeAuthenticationToken(clientRegistration, authorizationExchange);
 	}
+
 }

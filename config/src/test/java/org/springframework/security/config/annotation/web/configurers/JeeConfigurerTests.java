@@ -76,6 +76,7 @@ public class JeeConfigurerTests {
 
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
 		static ObjectPostProcessor<Object> objectPostProcessor;
 
 		@Override
@@ -90,13 +91,16 @@ public class JeeConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
 		}
+
 	}
 
 	@Test
@@ -105,18 +109,16 @@ public class JeeConfigurerTests {
 		Principal user = mock(Principal.class);
 		when(user.getName()).thenReturn("user");
 
-		this.mvc.perform(get("/")
-				.principal(user)
-				.with(request -> {
-					request.addUserRole("ROLE_ADMIN");
-					request.addUserRole("ROLE_USER");
-					return request;
-				}))
-				.andExpect(authenticated().withRoles("USER"));
+		this.mvc.perform(get("/").principal(user).with(request -> {
+			request.addUserRole("ROLE_ADMIN");
+			request.addUserRole("ROLE_USER");
+			return request;
+		})).andExpect(authenticated().withRoles("USER"));
 	}
 
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -127,6 +129,7 @@ public class JeeConfigurerTests {
 				.jee();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -135,18 +138,16 @@ public class JeeConfigurerTests {
 		Principal user = mock(Principal.class);
 		when(user.getName()).thenReturn("user");
 
-		this.mvc.perform(get("/")
-				.principal(user)
-				.with(request -> {
-					request.addUserRole("ROLE_ADMIN");
-					request.addUserRole("ROLE_USER");
-					return request;
-				}))
-				.andExpect(authenticated().withRoles("USER"));
+		this.mvc.perform(get("/").principal(user).with(request -> {
+			request.addUserRole("ROLE_ADMIN");
+			request.addUserRole("ROLE_USER");
+			return request;
+		})).andExpect(authenticated().withRoles("USER"));
 	}
 
 	@EnableWebSecurity
 	public static class JeeMappableRolesConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -161,6 +162,7 @@ public class JeeConfigurerTests {
 				);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -169,14 +171,11 @@ public class JeeConfigurerTests {
 		Principal user = mock(Principal.class);
 		when(user.getName()).thenReturn("user");
 
-		this.mvc.perform(get("/")
-				.principal(user)
-				.with(request -> {
-					request.addUserRole("ROLE_ADMIN");
-					request.addUserRole("ROLE_USER");
-					return request;
-				}))
-				.andExpect(authenticated().withAuthorities(AuthorityUtils.createAuthorityList("ROLE_USER")));
+		this.mvc.perform(get("/").principal(user).with(request -> {
+			request.addUserRole("ROLE_ADMIN");
+			request.addUserRole("ROLE_USER");
+			return request;
+		})).andExpect(authenticated().withAuthorities(AuthorityUtils.createAuthorityList("ROLE_USER")));
 	}
 
 	@EnableWebSecurity
@@ -196,6 +195,7 @@ public class JeeConfigurerTests {
 				);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -209,20 +209,18 @@ public class JeeConfigurerTests {
 		when(JeeCustomAuthenticatedUserDetailsServiceConfig.authenticationUserDetailsService.loadUserDetails(any()))
 				.thenReturn(userDetails);
 
-		this.mvc.perform(get("/")
-				.principal(user)
-				.with(request -> {
-					request.addUserRole("ROLE_ADMIN");
-					request.addUserRole("ROLE_USER");
-					return request;
-				}))
-				.andExpect(authenticated().withRoles("USER"));
+		this.mvc.perform(get("/").principal(user).with(request -> {
+			request.addUserRole("ROLE_ADMIN");
+			request.addUserRole("ROLE_USER");
+			return request;
+		})).andExpect(authenticated().withRoles("USER"));
 	}
 
 	@EnableWebSecurity
 	public static class JeeCustomAuthenticatedUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
-		static AuthenticationUserDetailsService authenticationUserDetailsService =
-				mock(AuthenticationUserDetailsService.class);
+
+		static AuthenticationUserDetailsService authenticationUserDetailsService = mock(
+				AuthenticationUserDetailsService.class);
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -238,5 +236,7 @@ public class JeeConfigurerTests {
 				);
 			// @formatter:on
 		}
+
 	}
+
 }

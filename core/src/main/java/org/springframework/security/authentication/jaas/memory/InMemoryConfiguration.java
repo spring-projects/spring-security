@@ -35,10 +35,12 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public class InMemoryConfiguration extends Configuration {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private final AppConfigurationEntry[] defaultConfiguration;
+
 	private final Map<String, AppConfigurationEntry[]> mappedConfigurations;
 
 	// ~ Constructors
@@ -47,24 +49,20 @@ public class InMemoryConfiguration extends Configuration {
 	/**
 	 * Creates a new instance with only a defaultConfiguration. Any configuration name
 	 * will result in defaultConfiguration being returned.
-	 *
 	 * @param defaultConfiguration The result for any calls to
 	 * {@link #getAppConfigurationEntry(String)}. Can be <code>null</code>.
 	 */
 	public InMemoryConfiguration(AppConfigurationEntry[] defaultConfiguration) {
-		this(Collections.<String, AppConfigurationEntry[]>emptyMap(),
-				defaultConfiguration);
+		this(Collections.<String, AppConfigurationEntry[]>emptyMap(), defaultConfiguration);
 	}
 
 	/**
 	 * Creates a new instance with a mapping of login context name to an array of
 	 * {@link AppConfigurationEntry}s.
-	 *
 	 * @param mappedConfigurations each key represents a login context name and each value
 	 * is an Array of {@link AppConfigurationEntry}s that should be used.
 	 */
-	public InMemoryConfiguration(
-			Map<String, AppConfigurationEntry[]> mappedConfigurations) {
+	public InMemoryConfiguration(Map<String, AppConfigurationEntry[]> mappedConfigurations) {
 		this(mappedConfigurations, null);
 	}
 
@@ -72,14 +70,12 @@ public class InMemoryConfiguration extends Configuration {
 	 * Creates a new instance with a mapping of login context name to an array of
 	 * {@link AppConfigurationEntry}s along with a default configuration that will be used
 	 * if no mapping is found for the given login context name.
-	 *
 	 * @param mappedConfigurations each key represents a login context name and each value
 	 * is an Array of {@link AppConfigurationEntry}s that should be used.
 	 * @param defaultConfiguration The result for any calls to
 	 * {@link #getAppConfigurationEntry(String)}. Can be <code>null</code>.
 	 */
-	public InMemoryConfiguration(
-			Map<String, AppConfigurationEntry[]> mappedConfigurations,
+	public InMemoryConfiguration(Map<String, AppConfigurationEntry[]> mappedConfigurations,
 			AppConfigurationEntry[] defaultConfiguration) {
 		Assert.notNull(mappedConfigurations, "mappedConfigurations cannot be null.");
 		this.mappedConfigurations = mappedConfigurations;
@@ -101,4 +97,5 @@ public class InMemoryConfiguration extends Configuration {
 	@Override
 	public void refresh() {
 	}
+
 }

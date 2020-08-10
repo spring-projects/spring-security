@@ -34,7 +34,6 @@ abstract class AbstractDelegatingSecurityContextSupport {
 	/**
 	 * Creates a new {@link AbstractDelegatingSecurityContextSupport} that uses the
 	 * specified {@link SecurityContext}.
-	 *
 	 * @param securityContext the {@link SecurityContext} to use for each
 	 * {@link DelegatingSecurityContextRunnable} and each
 	 * {@link DelegatingSecurityContextCallable} or null to default to the current
@@ -51,4 +50,5 @@ abstract class AbstractDelegatingSecurityContextSupport {
 	protected final <T> Callable<T> wrap(Callable<T> delegate) {
 		return DelegatingSecurityContextCallable.create(delegate, securityContext);
 	}
+
 }

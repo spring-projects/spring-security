@@ -33,12 +33,11 @@ import org.springframework.security.access.prepost.PreInvocationAuthorizationAdv
 import org.springframework.security.core.Authentication;
 import org.springframework.util.ClassUtils;
 
-public class PythonInterpreterPreInvocationAdvice implements
-		PreInvocationAuthorizationAdvice {
+public class PythonInterpreterPreInvocationAdvice implements PreInvocationAuthorizationAdvice {
+
 	private final ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
-	public boolean before(Authentication authentication, MethodInvocation mi,
-			PreInvocationAttribute preAttr) {
+	public boolean before(Authentication authentication, MethodInvocation mi, PreInvocationAttribute preAttr) {
 		PythonInterpreterPreInvocationAttribute pythonAttr = (PythonInterpreterPreInvocationAttribute) preAttr;
 		String script = pythonAttr.getScript();
 
@@ -46,8 +45,7 @@ public class PythonInterpreterPreInvocationAdvice implements
 		python.set("authentication", authentication);
 		python.set("args", createArgumentMap(mi));
 		python.set("method", mi.getMethod().getName());
-		Resource scriptResource = new PathMatchingResourcePatternResolver()
-				.getResource(script);
+		Resource scriptResource = new PathMatchingResourcePatternResolver().getResource(script);
 
 		try {
 			python.execfile(scriptResource.getInputStream());
@@ -68,8 +66,7 @@ public class PythonInterpreterPreInvocationAdvice implements
 	private Map<String, Object> createArgumentMap(MethodInvocation mi) {
 		Object[] args = mi.getArguments();
 		Object targetObject = mi.getThis();
-		Method method = ClassUtils.getMostSpecificMethod(mi.getMethod(),
-				targetObject.getClass());
+		Method method = ClassUtils.getMostSpecificMethod(mi.getMethod(), targetObject.getClass());
 		String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
 
 		Map<String, Object> argMap = new HashMap<>();
@@ -79,4 +76,5 @@ public class PythonInterpreterPreInvocationAdvice implements
 
 		return argMap;
 	}
+
 }

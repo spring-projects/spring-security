@@ -26,4 +26,6 @@ import org.springframework.security.access.annotation.Secured;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Secured("ROLE_ADMIN")
-public @interface  SecuredAdminRole { }
+public @interface SecuredAdminRole {
+
+}

@@ -53,12 +53,10 @@ public class CacheControlServerHttpHeadersWriter implements ServerHttpHeadersWri
 	/**
 	 * The delegate to write all the cache control related headers
 	 */
-	private static final ServerHttpHeadersWriter CACHE_HEADERS = StaticServerHttpHeadersWriter
-		.builder()
+	private static final ServerHttpHeadersWriter CACHE_HEADERS = StaticServerHttpHeadersWriter.builder()
 			.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
-			.header(HttpHeaders.PRAGMA,  CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
-			.header(HttpHeaders.EXPIRES,  CacheControlServerHttpHeadersWriter.EXPIRES_VALUE)
-			.build();
+			.header(HttpHeaders.PRAGMA, CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
+			.header(HttpHeaders.EXPIRES, CacheControlServerHttpHeadersWriter.EXPIRES_VALUE).build();
 
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {

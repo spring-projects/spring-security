@@ -23,15 +23,20 @@ import org.springframework.util.FileCopyUtils;
 
 /**
  * Helper class to initialize the database for BasicLookupStrategyTests.
+ *
  * @author Andrei Stefan
  * @author Paul Wheeler
  */
 public class BasicLookupStrategyTestsDbHelper {
+
 	private static final String ACL_SCHEMA_SQL_FILE = "createAclSchema.sql";
+
 	private static final String ACL_SCHEMA_SQL_FILE_WITH_ACL_CLASS_ID = "createAclSchemaWithAclClassIdType.sql";
 
 	private SingleConnectionDataSource dataSource;
+
 	private JdbcTemplate jdbcTemplate;
+
 	private boolean withAclClassIdType;
 
 	public BasicLookupStrategyTestsDbHelper() {
@@ -48,7 +53,8 @@ public class BasicLookupStrategyTestsDbHelper {
 		if (!withAclClassIdType) {
 			connectionUrl = "jdbc:hsqldb:mem:lookupstrategytest";
 			sqlClassPathResource = ACL_SCHEMA_SQL_FILE;
-		} else {
+		}
+		else {
 			connectionUrl = "jdbc:hsqldb:mem:lookupstrategytestWithAclClassIdType";
 			sqlClassPathResource = ACL_SCHEMA_SQL_FILE_WITH_ACL_CLASS_ID;
 
@@ -69,4 +75,5 @@ public class BasicLookupStrategyTestsDbHelper {
 	public SingleConnectionDataSource getDataSource() {
 		return dataSource;
 	}
+
 }

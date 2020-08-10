@@ -47,14 +47,15 @@ import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getB
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getMarshallerFactory;
 
 /**
- * Resolves the SAML 2.0 Relying Party Metadata for a given {@link RelyingPartyRegistration}
- * using the OpenSAML API.
+ * Resolves the SAML 2.0 Relying Party Metadata for a given
+ * {@link RelyingPartyRegistration} using the OpenSAML API.
  *
  * @author Jakub Kubrynski
  * @author Josh Cummings
  * @since 5.4
  */
 public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
+
 	static {
 		OpenSamlInitializationService.initialize();
 	}
@@ -62,8 +63,8 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	private final EntityDescriptorMarshaller entityDescriptorMarshaller;
 
 	public OpenSamlMetadataResolver() {
-		this.entityDescriptorMarshaller = (EntityDescriptorMarshaller)
-				getMarshallerFactory().getMarshaller(EntityDescriptor.DEFAULT_ELEMENT_NAME);
+		this.entityDescriptorMarshaller = (EntityDescriptorMarshaller) getMarshallerFactory()
+				.getMarshaller(EntityDescriptor.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.entityDescriptorMarshaller, "entityDescriptorMarshaller cannot be null");
 	}
 
@@ -85,10 +86,10 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		SPSSODescriptor spSsoDescriptor = build(SPSSODescriptor.DEFAULT_ELEMENT_NAME);
 		spSsoDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
 		spSsoDescriptor.setWantAssertionsSigned(true);
-		spSsoDescriptor.getKeyDescriptors().addAll(buildKeys(
-				registration.getSigningX509Credentials(), UsageType.SIGNING));
-		spSsoDescriptor.getKeyDescriptors().addAll(buildKeys(
-				registration.getDecryptionX509Credentials(), UsageType.ENCRYPTION));
+		spSsoDescriptor.getKeyDescriptors()
+				.addAll(buildKeys(registration.getSigningX509Credentials(), UsageType.SIGNING));
+		spSsoDescriptor.getKeyDescriptors()
+				.addAll(buildKeys(registration.getDecryptionX509Credentials(), UsageType.ENCRYPTION));
 		spSsoDescriptor.getAssertionConsumerServices().add(buildAssertionConsumerService(registration));
 		return spSsoDescriptor;
 	}
@@ -110,7 +111,8 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 
 		try {
 			x509Certificate.setValue(new String(Base64.getEncoder().encode(certificate.getEncoded())));
-		} catch (CertificateEncodingException e) {
+		}
+		catch (CertificateEncodingException e) {
 			throw new Saml2Exception("Cannot encode certificate " + certificate.toString());
 		}
 
@@ -139,13 +141,14 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		return (T) builder.buildObject(elementName);
 	}
 
-
 	private String serialize(EntityDescriptor entityDescriptor) {
 		try {
 			Element element = this.entityDescriptorMarshaller.marshall(entityDescriptor);
 			return SerializeSupport.prettyPrintXML(element);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new Saml2Exception(e);
 		}
 	}
+
 }

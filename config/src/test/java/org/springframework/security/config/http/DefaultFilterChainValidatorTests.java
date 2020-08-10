@@ -44,17 +44,21 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 /**
- *
  * @author Rob Winch
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultFilterChainValidatorTests {
+
 	private DefaultFilterChainValidator validator;
+
 	private FilterChainProxy fcp;
+
 	@Mock
 	private Log logger;
+
 	@Mock
 	private DefaultFilterInvocationSecurityMetadataSource metadataSource;
+
 	@Mock
 	private AccessDecisionManager accessDecisionManager;
 
@@ -66,12 +70,10 @@ public class DefaultFilterChainValidatorTests {
 		fsi = new FilterSecurityInterceptor();
 		fsi.setAccessDecisionManager(accessDecisionManager);
 		fsi.setSecurityMetadataSource(metadataSource);
-		AuthenticationEntryPoint authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint(
-				"/login");
-		ExceptionTranslationFilter etf = new ExceptionTranslationFilter(
-				authenticationEntryPoint);
-		DefaultSecurityFilterChain securityChain = new DefaultSecurityFilterChain(
-				AnyRequestMatcher.INSTANCE, aaf, etf, fsi);
+		AuthenticationEntryPoint authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint("/login");
+		ExceptionTranslationFilter etf = new ExceptionTranslationFilter(authenticationEntryPoint);
+		DefaultSecurityFilterChain securityChain = new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE, aaf, etf,
+				fsi);
 		fcp = new FilterChainProxy(securityChain);
 		validator = new DefaultFilterChainValidator();
 
@@ -82,24 +84,25 @@ public class DefaultFilterChainValidatorTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void validateCheckLoginPageIsntProtectedThrowsIllegalArgumentException() {
-		IllegalArgumentException toBeThrown = new IllegalArgumentException(
-				"failed to eval expression");
-		doThrow(toBeThrown).when(accessDecisionManager).decide(any(Authentication.class),
-				anyObject(), any(Collection.class));
+		IllegalArgumentException toBeThrown = new IllegalArgumentException("failed to eval expression");
+		doThrow(toBeThrown).when(accessDecisionManager).decide(any(Authentication.class), anyObject(),
+				any(Collection.class));
 		validator.validate(fcp);
-		verify(logger)
-				.info("Unable to check access to the login page to determine if anonymous access is allowed. This might be an error, but can happen under normal circumstances.",
-						toBeThrown);
+		verify(logger).info(
+				"Unable to check access to the login page to determine if anonymous access is allowed. This might be an error, but can happen under normal circumstances.",
+				toBeThrown);
 	}
 
 	// SEC-1957
 	@Test
 	public void validateCustomMetadataSource() {
-		FilterInvocationSecurityMetadataSource customMetaDataSource = mock(FilterInvocationSecurityMetadataSource.class);
+		FilterInvocationSecurityMetadataSource customMetaDataSource = mock(
+				FilterInvocationSecurityMetadataSource.class);
 		fsi.setSecurityMetadataSource(customMetaDataSource);
 
 		validator.validate(fcp);
 
 		verify(customMetaDataSource).getAttributes(any());
 	}
+
 }

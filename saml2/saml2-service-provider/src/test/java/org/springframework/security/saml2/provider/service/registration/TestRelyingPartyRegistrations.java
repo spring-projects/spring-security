@@ -33,40 +33,32 @@ public class TestRelyingPartyRegistrations {
 
 		String rpEntityId = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
 		Saml2X509Credential signingCredential = relyingPartySigningCredential();
-		String assertionConsumerServiceLocation = "{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
+		String assertionConsumerServiceLocation = "{baseUrl}"
+				+ Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
 
 		String apEntityId = "https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php";
 		Saml2X509Credential verificationCertificate = relyingPartyVerifyingCredential();
 		String singleSignOnServiceLocation = "https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php";
 
-		return RelyingPartyRegistration.withRegistrationId(registrationId)
-				.entityId(rpEntityId)
+		return RelyingPartyRegistration.withRegistrationId(registrationId).entityId(rpEntityId)
 				.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
 				.credentials(c -> c.add(signingCredential))
-				.providerDetails(c -> c
-						.entityId(apEntityId)
-						.webSsoUrl(singleSignOnServiceLocation))
-						.credentials(c -> c.add(verificationCertificate));
+				.providerDetails(c -> c.entityId(apEntityId).webSsoUrl(singleSignOnServiceLocation))
+				.credentials(c -> c.add(verificationCertificate));
 	}
 
 	public static RelyingPartyRegistration.Builder noCredentials() {
-		return RelyingPartyRegistration.withRegistrationId("registration-id")
-				.entityId("rp-entity-id")
-				.assertionConsumerServiceLocation("https://rp.example.org/acs")
-				.assertingPartyDetails(party -> party
-						.entityId("ap-entity-id")
-						.singleSignOnServiceLocation("https://ap.example.org/sso")
-				);
+		return RelyingPartyRegistration.withRegistrationId("registration-id").entityId("rp-entity-id")
+				.assertionConsumerServiceLocation("https://rp.example.org/acs").assertingPartyDetails(party -> party
+						.entityId("ap-entity-id").singleSignOnServiceLocation("https://ap.example.org/sso"));
 	}
 
 	public static RelyingPartyRegistration.Builder full() {
 		return noCredentials()
 				.signingX509Credentials(c -> c.add(TestSaml2X509Credentials.relyingPartySigningCredential()))
 				.decryptionX509Credentials(c -> c.add(TestSaml2X509Credentials.relyingPartyDecryptingCredential()))
-				.assertingPartyDetails(party -> party
-					.verificationX509Credentials(c -> c.add(
-							TestSaml2X509Credentials.relyingPartyVerifyingCredential())
-					)
-				);
+				.assertingPartyDetails(party -> party.verificationX509Credentials(
+						c -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())));
 	}
+
 }

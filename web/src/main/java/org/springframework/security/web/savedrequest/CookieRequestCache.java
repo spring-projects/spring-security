@@ -33,9 +33,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Base64;
 import java.util.HashMap;
 
-
 /**
- * An Implementation of {@code RequestCache} which saves the original request URI in a cookie.
+ * An Implementation of {@code RequestCache} which saves the original request URI in a
+ * cookie.
  *
  * @author Zeeshan Adnan
  * @since 5.4
@@ -43,9 +43,11 @@ import java.util.HashMap;
 public class CookieRequestCache implements RequestCache {
 
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
+
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	private static final String COOKIE_NAME = "REDIRECT_URI";
+
 	private static final int COOKIE_MAX_AGE = -1;
 
 	@Override
@@ -59,7 +61,8 @@ public class CookieRequestCache implements RequestCache {
 			savedCookie.setHttpOnly(true);
 
 			response.addCookie(savedCookie);
-		} else {
+		}
+		else {
 			logger.debug("Request not saved as configured RequestMatcher did not match");
 		}
 	}
@@ -76,7 +79,8 @@ public class CookieRequestCache implements RequestCache {
 			if (port == -1) {
 				if ("https".equalsIgnoreCase(uriComponents.getScheme())) {
 					port = 443;
-				} else {
+				}
+				else {
 					port = 80;
 				}
 			}
@@ -85,17 +89,13 @@ public class CookieRequestCache implements RequestCache {
 
 			if (!queryParams.isEmpty()) {
 				final HashMap<String, String[]> parameters = new HashMap<>(queryParams.size());
-				queryParams.forEach((key, value) -> parameters.put(key, value.toArray(new String[]{})));
+				queryParams.forEach((key, value) -> parameters.put(key, value.toArray(new String[] {})));
 				builder.setParameters(parameters);
 			}
 
-			return builder.setScheme(uriComponents.getScheme())
-					.setServerName(uriComponents.getHost())
-					.setRequestURI(uriComponents.getPath())
-					.setQueryString(uriComponents.getQuery())
-					.setServerPort(port)
-					.setMethod(request.getMethod())
-					.build();
+			return builder.setScheme(uriComponents.getScheme()).setServerName(uriComponents.getHost())
+					.setRequestURI(uriComponents.getPath()).setQueryString(uriComponents.getQuery()).setServerPort(port)
+					.setMethod(request.getMethod()).build();
 		}
 		return null;
 	}
@@ -106,7 +106,8 @@ public class CookieRequestCache implements RequestCache {
 		if (!this.matchesSavedRequest(request, saved)) {
 			this.logger.debug("saved request doesn't match");
 			return null;
-		} else {
+		}
+		else {
 			this.removeRequest(request, response);
 			return new SavedRequestAwareWrapper(saved, request);
 		}
@@ -141,7 +142,8 @@ public class CookieRequestCache implements RequestCache {
 	private boolean matchesSavedRequest(HttpServletRequest request, SavedRequest savedRequest) {
 		if (savedRequest == null) {
 			return false;
-		} else {
+		}
+		else {
 			String currentUrl = UrlUtils.buildFullRequestUrl(request);
 			return savedRequest.getRedirectUrl().equals(currentUrl);
 		}
@@ -152,9 +154,8 @@ public class CookieRequestCache implements RequestCache {
 	 * request will be cached by the {@code saveRequest} method.
 	 * <p>
 	 * If set, only matching requests will be cached.
-	 *
 	 * @param requestMatcher a request matching strategy which defines which requests
-	 *                       should be cached.
+	 * should be cached.
 	 */
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher should not be null");

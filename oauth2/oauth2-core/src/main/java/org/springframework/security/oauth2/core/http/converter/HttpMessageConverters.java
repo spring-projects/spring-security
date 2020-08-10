@@ -29,14 +29,17 @@ import org.springframework.util.ClassUtils;
  * @since 5.1
  */
 final class HttpMessageConverters {
+
 	private static final boolean jackson2Present;
+
 	private static final boolean gsonPresent;
+
 	private static final boolean jsonbPresent;
 
 	static {
 		ClassLoader classLoader = HttpMessageConverters.class.getClassLoader();
-		jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader) &&
-				ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
+		jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader)
+				&& ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
 		gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
 		jsonbPresent = ClassUtils.isPresent("javax.json.bind.Jsonb", classLoader);
 	}
@@ -44,11 +47,14 @@ final class HttpMessageConverters {
 	static GenericHttpMessageConverter<Object> getJsonMessageConverter() {
 		if (jackson2Present) {
 			return new MappingJackson2HttpMessageConverter();
-		} else if (gsonPresent) {
+		}
+		else if (gsonPresent) {
 			return new GsonHttpMessageConverter();
-		} else if (jsonbPresent) {
+		}
+		else if (jsonbPresent) {
 			return new JsonbHttpMessageConverter();
 		}
 		return null;
 	}
+
 }

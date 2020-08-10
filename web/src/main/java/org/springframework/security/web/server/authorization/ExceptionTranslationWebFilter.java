@@ -28,23 +28,21 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
 /**
- *
  * @author Rob Winch
  * @since 5.0
  */
 public class ExceptionTranslationWebFilter implements WebFilter {
+
 	private ServerAuthenticationEntryPoint authenticationEntryPoint = new HttpBasicServerAuthenticationEntryPoint();
 
-	private ServerAccessDeniedHandler accessDeniedHandler = new HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN);
+	private ServerAccessDeniedHandler accessDeniedHandler = new HttpStatusServerAccessDeniedHandler(
+			HttpStatus.FORBIDDEN);
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return chain.filter(exchange)
-			.onErrorResume(AccessDeniedException.class, denied -> exchange.getPrincipal()
-				.switchIfEmpty( commenceAuthentication(exchange, denied))
-				.flatMap( principal -> this.accessDeniedHandler
-					.handle(exchange, denied))
-			);
+		return chain.filter(exchange).onErrorResume(AccessDeniedException.class,
+				denied -> exchange.getPrincipal().switchIfEmpty(commenceAuthentication(exchange, denied))
+						.flatMap(principal -> this.accessDeniedHandler.handle(exchange, denied)));
 	}
 
 	/**
@@ -62,15 +60,15 @@ public class ExceptionTranslationWebFilter implements WebFilter {
 	 * @param authenticationEntryPoint the authentication entry point to use. Default is
 	 * {@link HttpBasicServerAuthenticationEntryPoint}
 	 */
-	public void setAuthenticationEntryPoint(
-		ServerAuthenticationEntryPoint authenticationEntryPoint) {
+	public void setAuthenticationEntryPoint(ServerAuthenticationEntryPoint authenticationEntryPoint) {
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
 	private <T> Mono<T> commenceAuthentication(ServerWebExchange exchange, AccessDeniedException denied) {
-		return this.authenticationEntryPoint.commence(exchange, new AuthenticationCredentialsNotFoundException("Not Authenticated", denied))
-			.then(Mono.empty());
+		return this.authenticationEntryPoint
+				.commence(exchange, new AuthenticationCredentialsNotFoundException("Not Authenticated", denied))
+				.then(Mono.empty());
 	}
-}
 
+}

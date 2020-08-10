@@ -42,4 +42,5 @@ public class AuthorityUtilsTests {
 		assertThat(authorities.contains("ROLE_A")).isTrue();
 		assertThat(authorities.contains("ROLE_D")).isTrue();
 	}
+
 }

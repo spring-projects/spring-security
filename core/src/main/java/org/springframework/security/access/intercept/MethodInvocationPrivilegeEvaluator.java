@@ -43,11 +43,11 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	protected static final Log logger = LogFactory
-			.getLog(MethodInvocationPrivilegeEvaluator.class);
+	protected static final Log logger = LogFactory.getLog(MethodInvocationPrivilegeEvaluator.class);
 
 	// ~ Instance fields
 	// ================================================================================================
@@ -63,11 +63,9 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 
 	public boolean isAllowed(MethodInvocation mi, Authentication authentication) {
 		Assert.notNull(mi, "MethodInvocation required");
-		Assert.notNull(mi.getMethod(),
-				"MethodInvocation must provide a non-null getMethod()");
+		Assert.notNull(mi.getMethod(), "MethodInvocation must provide a non-null getMethod()");
 
-		Collection<ConfigAttribute> attrs = securityInterceptor
-				.obtainSecurityMetadataSource().getAttributes(mi);
+		Collection<ConfigAttribute> attrs = securityInterceptor.obtainSecurityMetadataSource().getAttributes(mi);
 
 		if (attrs == null) {
 			if (securityInterceptor.isRejectPublicInvocations()) {
@@ -82,13 +80,11 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 		}
 
 		try {
-			securityInterceptor.getAccessDecisionManager().decide(authentication, mi,
-					attrs);
+			securityInterceptor.getAccessDecisionManager().decide(authentication, mi, attrs);
 		}
 		catch (AccessDeniedException unauthorized) {
 			if (logger.isDebugEnabled()) {
-				logger.debug(mi.toString() + " denied for " + authentication.toString(),
-						unauthorized);
+				logger.debug(mi.toString() + " denied for " + authentication.toString(), unauthorized);
 			}
 
 			return false;
@@ -99,11 +95,11 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 
 	public void setSecurityInterceptor(AbstractSecurityInterceptor securityInterceptor) {
 		Assert.notNull(securityInterceptor, "AbstractSecurityInterceptor cannot be null");
-		Assert.isTrue(
-				MethodInvocation.class.equals(securityInterceptor.getSecureObjectClass()),
+		Assert.isTrue(MethodInvocation.class.equals(securityInterceptor.getSecureObjectClass()),
 				"AbstractSecurityInterceptor does not support MethodInvocations");
 		Assert.notNull(securityInterceptor.getAccessDecisionManager(),
 				"AbstractSecurityInterceptor must provide a non-null AccessDecisionManager");
 		this.securityInterceptor = securityInterceptor;
 	}
+
 }

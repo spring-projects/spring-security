@@ -26,7 +26,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  * value with {@link AuthenticationManagerBuilder}.
  *
  * @author Rob Winch
- *
  * @param <B> the type of the {@link ProviderManagerBuilder}
  * @param <U> the type of {@link UserDetailsService}
  */
@@ -38,4 +37,5 @@ public abstract class UserDetailsAwareConfigurer<B extends ProviderManagerBuilde
 	 * @return the {@link UserDetailsService} or null if it is not available
 	 */
 	public abstract U getUserDetailsService();
+
 }

@@ -38,6 +38,7 @@ import org.mockito.Mock;
  */
 public abstract class AbstractDelegatingSecurityContextScheduledExecutorServiceTests
 		extends AbstractDelegatingSecurityContextExecutorServiceTests {
+
 	@Mock
 	private ScheduledFuture<Object> expectedResult;
 
@@ -51,9 +52,8 @@ public abstract class AbstractDelegatingSecurityContextScheduledExecutorServiceT
 	@Test
 	@SuppressWarnings("unchecked")
 	public void scheduleRunnable() {
-		when(
-				(ScheduledFuture<Object>) delegate.schedule(wrappedRunnable, 1,
-						TimeUnit.SECONDS)).thenReturn(expectedResult);
+		when((ScheduledFuture<Object>) delegate.schedule(wrappedRunnable, 1, TimeUnit.SECONDS))
+				.thenReturn(expectedResult);
 		ScheduledFuture<?> result = executor.schedule(runnable, 1, TimeUnit.SECONDS);
 		assertThat(result).isEqualTo(expectedResult);
 		verify(delegate).schedule(wrappedRunnable, 1, TimeUnit.SECONDS);
@@ -61,9 +61,7 @@ public abstract class AbstractDelegatingSecurityContextScheduledExecutorServiceT
 
 	@Test
 	public void scheduleCallable() {
-		when(
-				delegate.schedule(wrappedCallable, 1,
-						TimeUnit.SECONDS)).thenReturn(expectedResult);
+		when(delegate.schedule(wrappedCallable, 1, TimeUnit.SECONDS)).thenReturn(expectedResult);
 		ScheduledFuture<Object> result = executor.schedule(callable, 1, TimeUnit.SECONDS);
 		assertThat(result).isEqualTo(expectedResult);
 		verify(delegate).schedule(wrappedCallable, 1, TimeUnit.SECONDS);
@@ -72,11 +70,9 @@ public abstract class AbstractDelegatingSecurityContextScheduledExecutorServiceT
 	@Test
 	@SuppressWarnings("unchecked")
 	public void scheduleAtFixedRate() {
-		when(
-				(ScheduledFuture<Object>) delegate.scheduleAtFixedRate(wrappedRunnable,
-						1, 2, TimeUnit.SECONDS)).thenReturn(expectedResult);
-		ScheduledFuture<?> result = executor.scheduleAtFixedRate(runnable, 1, 2,
-				TimeUnit.SECONDS);
+		when((ScheduledFuture<Object>) delegate.scheduleAtFixedRate(wrappedRunnable, 1, 2, TimeUnit.SECONDS))
+				.thenReturn(expectedResult);
+		ScheduledFuture<?> result = executor.scheduleAtFixedRate(runnable, 1, 2, TimeUnit.SECONDS);
 		assertThat(result).isEqualTo(expectedResult);
 		verify(delegate).scheduleAtFixedRate(wrappedRunnable, 1, 2, TimeUnit.SECONDS);
 	}
@@ -84,16 +80,14 @@ public abstract class AbstractDelegatingSecurityContextScheduledExecutorServiceT
 	@Test
 	@SuppressWarnings("unchecked")
 	public void scheduleWithFixedDelay() {
-		when(
-				(ScheduledFuture<Object>) delegate.scheduleWithFixedDelay(
-						wrappedRunnable, 1, 2, TimeUnit.SECONDS)).thenReturn(
-				expectedResult);
-		ScheduledFuture<?> result = executor.scheduleWithFixedDelay(runnable, 1, 2,
-				TimeUnit.SECONDS);
+		when((ScheduledFuture<Object>) delegate.scheduleWithFixedDelay(wrappedRunnable, 1, 2, TimeUnit.SECONDS))
+				.thenReturn(expectedResult);
+		ScheduledFuture<?> result = executor.scheduleWithFixedDelay(runnable, 1, 2, TimeUnit.SECONDS);
 		assertThat(result).isEqualTo(expectedResult);
 		verify(delegate).scheduleWithFixedDelay(wrappedRunnable, 1, 2, TimeUnit.SECONDS);
 	}
 
 	@Override
 	protected abstract DelegatingSecurityContextScheduledExecutorService create();
+
 }

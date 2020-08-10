@@ -55,15 +55,24 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 	// ================================================================================================
 
 	private String dn;
+
 	private String password;
+
 	private String username;
+
 	private Collection<GrantedAuthority> authorities = AuthorityUtils.NO_AUTHORITIES;
+
 	private boolean accountNonExpired = true;
+
 	private boolean accountNonLocked = true;
+
 	private boolean credentialsNonExpired = true;
+
 	private boolean enabled = true;
+
 	// PPolicy data
 	private int timeBeforeExpiration = Integer.MAX_VALUE;
+
 	private int graceLoginsRemaining = Integer.MAX_VALUE;
 
 	// ~ Constructors
@@ -152,8 +161,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 		sb.append("Password: [PROTECTED]; ");
 		sb.append("Enabled: ").append(this.enabled).append("; ");
 		sb.append("AccountNonExpired: ").append(this.accountNonExpired).append("; ");
-		sb.append("CredentialsNonExpired: ").append(this.credentialsNonExpired)
-				.append("; ");
+		sb.append("CredentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
 		sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
 
 		if (this.getAuthorities() != null && !this.getAuthorities().isEmpty()) {
@@ -185,7 +193,9 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 	 * Variation of essence pattern. Used to create mutable intermediate object
 	 */
 	public static class Essence {
+
 		protected LdapUserDetailsImpl instance = createTarget();
+
 		private List<GrantedAuthority> mutableAuthorities = new ArrayList<>();
 
 		public Essence() {
@@ -230,8 +240,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 		}
 
 		public LdapUserDetails createUserDetails() {
-			Assert.notNull(instance,
-					"Essence can only be used to create a single instance");
+			Assert.notNull(instance, "Essence can only be used to create a single instance");
 			Assert.notNull(instance.username, "username must not be null");
 			Assert.notNull(instance.getDn(), "Distinguished name must not be null");
 
@@ -292,5 +301,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 		public void setGraceLoginsRemaining(int graceLoginsRemaining) {
 			instance.graceLoginsRemaining = graceLoginsRemaining;
 		}
+
 	}
+
 }

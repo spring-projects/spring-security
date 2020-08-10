@@ -34,16 +34,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApacheDSEmbeddedLdifTests {
 
 	private static final String LDAP_ROOT = "ou=ssattributes,dc=springframework,dc=org";
+
 	private static final int LDAP_PORT = 52389;
 
 	private ApacheDSContainer server;
+
 	private SpringSecurityLdapTemplate ldapTemplate;
 
 	@Before
 	public void setUp() throws Exception {
 		// TODO: InMemoryXmlApplicationContext would be useful here, but it is not visible
-		this.server = new ApacheDSContainer(LDAP_ROOT,
-				"classpath:test-server-custom-attribute-types.ldif");
+		this.server = new ApacheDSContainer(LDAP_ROOT, "classpath:test-server-custom-attribute-types.ldif");
 		this.server.setPort(LDAP_PORT);
 		this.server.afterPropertiesSet();
 
@@ -68,10 +69,10 @@ public class ApacheDSEmbeddedLdifTests {
 	@Ignore // Not fixed yet
 	@Test // SEC-2387
 	public void customAttributeTypesShouldBeProperlyCreatedWhenLoadedFromLdif() {
-		assertThat(this.ldapTemplate.compare("uid=objectWithCustomAttribute1", "uid",
-				"objectWithCustomAttribute1")).isTrue();
-		assertThat(this.ldapTemplate.compare("uid=objectWithCustomAttribute1",
-				"customAttribute", "I am custom")).isTrue();
+		assertThat(this.ldapTemplate.compare("uid=objectWithCustomAttribute1", "uid", "objectWithCustomAttribute1"))
+				.isTrue();
+		assertThat(this.ldapTemplate.compare("uid=objectWithCustomAttribute1", "customAttribute", "I am custom"))
+				.isTrue();
 	}
 
 }

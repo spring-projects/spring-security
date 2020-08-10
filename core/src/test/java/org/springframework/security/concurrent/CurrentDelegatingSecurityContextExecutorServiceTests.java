@@ -25,8 +25,8 @@ import org.junit.Before;
  * @since 3.2
  *
  */
-public class CurrentDelegatingSecurityContextExecutorServiceTests extends
-		AbstractDelegatingSecurityContextExecutorServiceTests {
+public class CurrentDelegatingSecurityContextExecutorServiceTests
+		extends AbstractDelegatingSecurityContextExecutorServiceTests {
 
 	@Before
 	public void setUp() throws Exception {
@@ -37,4 +37,5 @@ public class CurrentDelegatingSecurityContextExecutorServiceTests extends
 	protected DelegatingSecurityContextExecutorService create() {
 		return new DelegatingSecurityContextExecutorService(delegate);
 	}
+
 }

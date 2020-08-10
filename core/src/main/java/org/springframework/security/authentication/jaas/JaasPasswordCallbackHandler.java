@@ -24,17 +24,18 @@ import javax.security.auth.callback.PasswordCallback;
 /**
  * The most basic Callbacks to be handled when using a LoginContext from JAAS, are the
  * NameCallback and PasswordCallback. Spring Security provides the
- * JaasPasswordCallbackHandler specifically tailored to handling the PasswordCallback. <br>
+ * JaasPasswordCallbackHandler specifically tailored to handling the PasswordCallback.
+ * <br>
  *
  * @author Ray Krueger
- *
- * @see <a
- * href="https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
- * @see <a
- * href="https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/PasswordCallback.html">
+ * @see <a href=
+ * "https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
+ * @see <a href=
+ * "https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/PasswordCallback.html">
  * PasswordCallback</a>
  */
 public class JaasPasswordCallbackHandler implements JaasAuthenticationCallbackHandler {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -42,7 +43,6 @@ public class JaasPasswordCallbackHandler implements JaasAuthenticationCallbackHa
 	 * If the callback passed to the 'handle' method is an instance of PasswordCallback,
 	 * the JaasPasswordCallbackHandler will call,
 	 * callback.setPassword(authentication.getCredentials().toString()).
-	 *
 	 * @param callback
 	 * @param auth
 	 *
@@ -53,4 +53,5 @@ public class JaasPasswordCallbackHandler implements JaasAuthenticationCallbackHa
 			pc.setPassword(auth.getCredentials().toString().toCharArray());
 		}
 	}
+
 }

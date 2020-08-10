@@ -35,6 +35,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingRequestMatcherHeaderWriterTests {
+
 	@Mock
 	private RequestMatcher matcher;
 
@@ -81,4 +82,5 @@ public class DelegatingRequestMatcherHeaderWriterTests {
 
 		verify(delegate, times(0)).writeHeaders(request, response);
 	}
+
 }

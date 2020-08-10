@@ -27,9 +27,11 @@ import java.util.stream.Stream;
  * @author Josh Cummings
  */
 public class SpringSecurityXsdParser {
+
 	private XmlNode rootElement;
 
 	private Set<String> attrElmts = new LinkedHashSet<>();
+
 	private Map<String, Element> elementNameToElement = new HashMap<>();
 
 	public SpringSecurityXsdParser(XmlNode rootElement) {
@@ -38,7 +40,6 @@ public class SpringSecurityXsdParser {
 
 	/**
 	 * Returns a map of the element name to the {@link Element}.
-	 *
 	 * @return
 	 */
 	public Map<String, Element> parse() {
@@ -48,7 +49,6 @@ public class SpringSecurityXsdParser {
 
 	/**
 	 * Creates a Map of the name to an Element object of all the children of element.
-	 *
 	 * @param node
 	 * @return
 	 */
@@ -59,7 +59,8 @@ public class SpringSecurityXsdParser {
 			if ("element".equals(child.simpleName())) {
 				Element e = elmt(child);
 				elementNameToElement.put(e.getName(), e);
-			} else {
+			}
+			else {
 				elementNameToElement.putAll(elements(child));
 			}
 		});
@@ -69,7 +70,6 @@ public class SpringSecurityXsdParser {
 
 	/**
 	 * Any children that are attribute will be returned as an Attribute object.
-	 *
 	 * @param element
 	 * @return a collection of Attribute objects that are children of element.
 	 */
@@ -79,8 +79,10 @@ public class SpringSecurityXsdParser {
 			String name = c.simpleName();
 			if ("attribute".equals(name)) {
 				attrs.add(attr(c));
-			} else if ("element".equals(name)) {
-			} else {
+			}
+			else if ("element".equals(name)) {
+			}
+			else {
 				attrs.addAll(attrs(c));
 			}
 		});
@@ -89,8 +91,8 @@ public class SpringSecurityXsdParser {
 	}
 
 	/**
-	 * Any children will be searched for an attributeGroup, each of its children will be returned as an Attribute
-	 *
+	 * Any children will be searched for an attributeGroup, each of its children will be
+	 * returned as an Attribute
 	 * @param element
 	 * @return
 	 */
@@ -100,15 +102,18 @@ public class SpringSecurityXsdParser {
 		element.children().forEach(c -> {
 			if ("element".equals(c.simpleName())) {
 
-			} else if ("attributeGroup".equals(c.simpleName())) {
+			}
+			else if ("attributeGroup".equals(c.simpleName())) {
 				if (c.attribute("name") != null) {
 					attrgrp.addAll(attrgrp(c));
-				} else {
+				}
+				else {
 					String name = c.attribute("ref").split(":")[1];
 					XmlNode attrGrp = findNode(element, name);
 					attrgrp.addAll(attrgrp(attrGrp));
 				}
-			} else {
+			}
+			else {
 				attrgrp.addAll(attrgrps(c));
 			}
 		});
@@ -122,22 +127,20 @@ public class SpringSecurityXsdParser {
 			root = root.parent().get();
 		}
 
-		return expand(root)
-				.filter(node -> name.equals(node.attribute("name")))
-				.findFirst().orElseThrow(IllegalArgumentException::new);
+		return expand(root).filter(node -> name.equals(node.attribute("name"))).findFirst()
+				.orElseThrow(IllegalArgumentException::new);
 	}
 
 	private Stream<XmlNode> expand(XmlNode root) {
-		return Stream.concat(
-				Stream.of(root),
-				root.children().flatMap(this::expand));
+		return Stream.concat(Stream.of(root), root.children().flatMap(this::expand));
 	}
 
 	/**
-	 * Processes an individual attributeGroup by obtaining all the attributes and then looking for more attributeGroup elements and prcessing them.
-	 *
+	 * Processes an individual attributeGroup by obtaining all the attributes and then
+	 * looking for more attributeGroup elements and prcessing them.
 	 * @param e
-	 * @return all the attributes for a specific attributeGroup and any child attributeGroups
+	 * @return all the attributes for a specific attributeGroup and any child
+	 * attributeGroups
 	 */
 	private Collection<Attribute> attrgrp(XmlNode e) {
 		Collection<Attribute> attrs = attrs(e);
@@ -147,20 +150,16 @@ public class SpringSecurityXsdParser {
 
 	/**
 	 * Obtains the description for a specific element
-	 *
 	 * @param element
 	 * @return
 	 */
 	private String desc(XmlNode element) {
-		return element.child("annotation")
-				.flatMap(annotation -> annotation.child("documentation"))
-				.map(documentation -> documentation.text())
-				.orElse(null);
+		return element.child("annotation").flatMap(annotation -> annotation.child("documentation"))
+				.map(documentation -> documentation.text()).orElse(null);
 	}
 
 	/**
 	 * Given an element creates an attribute from it.
-	 *
 	 * @param n
 	 * @return
 	 */
@@ -169,8 +168,8 @@ public class SpringSecurityXsdParser {
 	}
 
 	/**
-	 * Given an element creates an Element out of it by collecting all its attributes and child elements.
-	 *
+	 * Given an element creates an Element out of it by collecting all its attributes and
+	 * child elements.
 	 * @param n
 	 * @return
 	 */
@@ -178,7 +177,8 @@ public class SpringSecurityXsdParser {
 		String name = n.attribute("ref");
 		if (StringUtils.isEmpty(name)) {
 			name = n.attribute("name");
-		} else {
+		}
+		else {
 			name = name.split(":")[1];
 			n = findNode(n, name);
 		}
@@ -195,8 +195,7 @@ public class SpringSecurityXsdParser {
 		e.setAttrs(attrs(n));
 		e.getAttrs().addAll(attrgrps(n));
 		e.getAttrs().forEach(attr -> attr.setElmt(e));
-		e.getChildElmts().values().forEach(element ->
-				element.getParentElmts().put(e.getName(), e));
+		e.getChildElmts().values().forEach(element -> element.getParentElmts().put(e.getName(), e));
 
 		String subGrpName = n.attribute("substitutionGroup");
 		if (!StringUtils.isEmpty(subGrpName)) {
@@ -208,4 +207,5 @@ public class SpringSecurityXsdParser {
 
 		return e;
 	}
+
 }

@@ -27,13 +27,16 @@ import reactor.core.publisher.Mono;
 
 /**
  * Matches if any of the provided {@link ServerWebExchangeMatcher} match
+ *
  * @author Rob Winch
  * @author Mathieu Ouellet
  * @since 5.0
  * @see AndServerWebExchangeMatcher
  */
 public class OrServerWebExchangeMatcher implements ServerWebExchangeMatcher {
+
 	private static final Log logger = LogFactory.getLog(OrServerWebExchangeMatcher.class);
+
 	private final List<ServerWebExchangeMatcher> matchers;
 
 	public OrServerWebExchangeMatcher(List<ServerWebExchangeMatcher> matchers) {
@@ -41,37 +44,33 @@ public class OrServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 		this.matchers = matchers;
 	}
 
-
 	public OrServerWebExchangeMatcher(ServerWebExchangeMatcher... matchers) {
 		this(Arrays.asList(matchers));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher#matches(org.springframework.web.server.ServerWebExchange)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher#
+	 * matches(org.springframework.web.server.ServerWebExchange)
 	 */
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
-		return Flux.fromIterable(matchers)
-			.doOnNext(it -> {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Trying to match using " + it);
-				}
-			})
-			.flatMap(m -> m.matches(exchange))
-			.filter(MatchResult::isMatch)
-			.next()
-			.switchIfEmpty(MatchResult.notMatch())
-			.doOnNext(it -> {
-				if (logger.isDebugEnabled()) {
-					logger.debug(it.isMatch() ? "matched" : "No matches found");
-				}
-			});
+		return Flux.fromIterable(matchers).doOnNext(it -> {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Trying to match using " + it);
+			}
+		}).flatMap(m -> m.matches(exchange)).filter(MatchResult::isMatch).next().switchIfEmpty(MatchResult.notMatch())
+				.doOnNext(it -> {
+					if (logger.isDebugEnabled()) {
+						logger.debug(it.isMatch() ? "matched" : "No matches found");
+					}
+				});
 	}
 
 	@Override
 	public String toString() {
-		return "OrServerWebExchangeMatcher{" +
-				"matchers=" + matchers +
-				'}';
+		return "OrServerWebExchangeMatcher{" + "matchers=" + matchers + '}';
 	}
+
 }

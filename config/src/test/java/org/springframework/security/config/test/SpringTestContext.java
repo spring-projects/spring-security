@@ -48,6 +48,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
  * @since 5.0
  */
 public class SpringTestContext implements Closeable {
+
 	private Object test;
 
 	private ConfigurableWebApplicationContext context;
@@ -62,7 +63,9 @@ public class SpringTestContext implements Closeable {
 	public void close() {
 		try {
 			this.context.close();
-		} catch(Exception e) {}
+		}
+		catch (Exception e) {
+		}
 	}
 
 	public SpringTestContext context(ConfigurableWebApplicationContext context) {
@@ -79,8 +82,7 @@ public class SpringTestContext implements Closeable {
 
 	public SpringTestContext testConfigLocations(String... configLocations) {
 		GenericXmlWebContextLoader loader = new GenericXmlWebContextLoader();
-		String[] locations = loader.processLocations(this.test.getClass(),
-			configLocations);
+		String[] locations = loader.processLocations(this.test.getClass(), configLocations);
 		return configLocations(locations);
 	}
 
@@ -100,8 +102,8 @@ public class SpringTestContext implements Closeable {
 	public SpringTestContext mockMvcAfterSpringSecurityOk() {
 		return addFilter(new OncePerRequestFilter() {
 			@Override
-			protected void doFilterInternal(HttpServletRequest request,
-				HttpServletResponse response, FilterChain filterChain) {
+			protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+					FilterChain filterChain) {
 				response.setStatus(HttpServletResponse.SC_OK);
 			}
 		});
@@ -127,11 +129,9 @@ public class SpringTestContext implements Closeable {
 		this.context.refresh();
 
 		if (this.context.containsBean(SPRING_SECURITY_FILTER_CHAIN)) {
-			MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.context)
-				.apply(springSecurity())
-				.apply(new AddFilter()).build();
-			this.context.getBeanFactory()
-				.registerResolvableDependency(MockMvc.class, mockMvc);
+			MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity())
+					.apply(new AddFilter()).build();
+			this.context.getBeanFactory().registerResolvableDependency(MockMvc.class, mockMvc);
 		}
 
 		AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
@@ -140,10 +140,13 @@ public class SpringTestContext implements Closeable {
 	}
 
 	private class AddFilter implements MockMvcConfigurer {
-		public RequestPostProcessor beforeMockMvcCreated(
-			ConfigurableMockMvcBuilder<?> builder, WebApplicationContext context) {
+
+		public RequestPostProcessor beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder,
+				WebApplicationContext context) {
 			builder.addFilters(SpringTestContext.this.filters.toArray(new Filter[0]));
 			return null;
 		}
+
 	}
+
 }

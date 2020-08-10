@@ -69,4 +69,5 @@ public class StaticHeadersWriter implements HeaderWriter {
 	public String toString() {
 		return getClass().getName() + " [headers=" + headers + "]";
 	}
+
 }

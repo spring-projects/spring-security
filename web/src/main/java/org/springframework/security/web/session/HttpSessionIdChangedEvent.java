@@ -21,13 +21,15 @@ import org.springframework.security.core.session.SessionIdChangedEvent;
 import javax.servlet.http.HttpSession;
 
 /**
- * Published by the {@link HttpSessionEventPublisher} when an {@link HttpSession} ID
- * is changed.
+ * Published by the {@link HttpSessionEventPublisher} when an {@link HttpSession} ID is
+ * changed.
  *
  * @since 5.4
  */
 public class HttpSessionIdChangedEvent extends SessionIdChangedEvent {
+
 	private final String oldSessionId;
+
 	private final String newSessionId;
 
 	public HttpSessionIdChangedEvent(HttpSession session, String oldSessionId) {
@@ -45,4 +47,5 @@ public class HttpSessionIdChangedEvent extends SessionIdChangedEvent {
 	public String getNewSessionId() {
 		return newSessionId;
 	}
+
 }

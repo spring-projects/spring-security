@@ -34,4 +34,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public void setUserRepository(UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
+
 }

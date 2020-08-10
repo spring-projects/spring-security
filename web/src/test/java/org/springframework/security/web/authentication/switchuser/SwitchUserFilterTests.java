@@ -60,15 +60,15 @@ import static org.mockito.Mockito.verify;
  * @author Luke Taylor
  */
 public class SwitchUserFilterTests {
-	private final static List<GrantedAuthority> ROLES_12 = AuthorityUtils
-			.createAuthorityList("ROLE_ONE", "ROLE_TWO");
+
+	private final static List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
+
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
 	public void authenticateCurrentUser() {
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-				"dano", "hawaii50");
+		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 	}
 
@@ -210,8 +210,7 @@ public class SwitchUserFilterTests {
 	public void attemptSwitchToUnknownUserFails() {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY,
-				"user-that-doesnt-exist");
+		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "user-that-doesnt-exist");
 
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setUserDetailsService(new MockUserDetailsService());
@@ -247,8 +246,7 @@ public class SwitchUserFilterTests {
 	public void switchToLockedAccountCausesRedirectToSwitchFailureUrl() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/login/impersonate");
-		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY,
-				"mcgarrett");
+		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "mcgarrett");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setTargetUrl("/target");
@@ -312,15 +310,15 @@ public class SwitchUserFilterTests {
 	@Test
 	public void exitUserJackLordToDanoSucceeds() throws Exception {
 		// original user
-		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken(
-				"dano", "hawaii50", ROLES_12);
+		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("dano", "hawaii50",
+				ROLES_12);
 
 		// set current user (Admin)
 		List<GrantedAuthority> adminAuths = new ArrayList<>();
 		adminAuths.addAll(ROLES_12);
 		adminAuths.add(new SwitchUserGrantedAuthority("PREVIOUS_ADMINISTRATOR", source));
-		UsernamePasswordAuthenticationToken admin = new UsernamePasswordAuthenticationToken(
-				"jacklord", "hawaii50", adminAuths);
+		UsernamePasswordAuthenticationToken admin = new UsernamePasswordAuthenticationToken("jacklord", "hawaii50",
+				adminAuths);
 
 		SecurityContextHolder.getContext().setAuthentication(admin);
 
@@ -331,8 +329,7 @@ public class SwitchUserFilterTests {
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setUserDetailsService(new MockUserDetailsService());
 		filter.setExitUserUrl("/logout/impersonate");
-		filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler(
-				"/webapp/someOtherUrl"));
+		filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/webapp/someOtherUrl"));
 
 		// run 'exit'
 		FilterChain chain = mock(FilterChain.class);
@@ -342,8 +339,7 @@ public class SwitchUserFilterTests {
 		verify(chain, never()).doFilter(request, response);
 
 		// check current user, should be back to original user (dano)
-		Authentication targetAuth = SecurityContextHolder.getContext()
-				.getAuthentication();
+		Authentication targetAuth = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(targetAuth).isNotNull();
 		assertThat(targetAuth.getPrincipal()).isEqualTo("dano");
 	}
@@ -373,14 +369,12 @@ public class SwitchUserFilterTests {
 	public void redirectToTargetUrlIsCorrect() throws Exception {
 		MockHttpServletRequest request = createMockSwitchRequest();
 		request.setContextPath("/webapp");
-		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY,
-				"jacklord");
+		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 		request.setRequestURI("/webapp/login/impersonate");
 
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setSwitchUserUrl("/login/impersonate");
-		filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler(
-				"/someOtherUrl"));
+		filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/someOtherUrl"));
 		filter.setUserDetailsService(new MockUserDetailsService());
 
 		FilterChain chain = mock(FilterChain.class);
@@ -395,14 +389,12 @@ public class SwitchUserFilterTests {
 	@Test
 	public void redirectOmitsContextPathIfUseRelativeContextSet() throws Exception {
 		// set current user
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-				"dano", "hawaii50");
+		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
 		MockHttpServletRequest request = createMockSwitchRequest();
 		request.setContextPath("/webapp");
-		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY,
-				"jacklord");
+		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 		request.setRequestURI("/webapp/login/impersonate");
 
 		SwitchUserFilter filter = new SwitchUserFilter();
@@ -428,16 +420,14 @@ public class SwitchUserFilterTests {
 	@Test
 	public void testSwitchRequestFromDanoToJackLord() throws Exception {
 		// set current user
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-				"dano", "hawaii50");
+		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
 		// http request
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/webapp/login/impersonate");
 		request.setContextPath("/webapp");
-		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY,
-				"jacklord");
+		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 
 		// http response
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -446,8 +436,7 @@ public class SwitchUserFilterTests {
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setUserDetailsService(new MockUserDetailsService());
 		filter.setSwitchUserUrl("/login/impersonate");
-		filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler(
-				"/webapp/someOtherUrl"));
+		filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/webapp/someOtherUrl"));
 
 		FilterChain chain = mock(FilterChain.class);
 
@@ -456,8 +445,7 @@ public class SwitchUserFilterTests {
 		verify(chain, never()).doFilter(request, response);
 
 		// check current user
-		Authentication targetAuth = SecurityContextHolder.getContext()
-				.getAuthentication();
+		Authentication targetAuth = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(targetAuth).isNotNull();
 		assertThat(targetAuth.getPrincipal() instanceof UserDetails).isTrue();
 		assertThat(((User) targetAuth.getPrincipal()).getUsername()).isEqualTo("jacklord");
@@ -465,13 +453,11 @@ public class SwitchUserFilterTests {
 
 	@Test
 	public void modificationOfAuthoritiesWorks() {
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-				"dano", "hawaii50");
+		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY,
-				"jacklord");
+		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setUserDetailsService(new MockUserDetailsService());
@@ -484,16 +470,15 @@ public class SwitchUserFilterTests {
 		Authentication result = filter.attemptSwitchUser(request);
 		assertThat(result != null).isTrue();
 		assertThat(result.getAuthorities()).hasSize(2);
-		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities())).contains(
-				"ROLE_NEW");
+		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities())).contains("ROLE_NEW");
 	}
 
 	// SEC-1763
 	@Test
 	public void nestedSwitchesAreNotAllowed() {
 		// original user
-		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken(
-				"orig", "hawaii50", ROLES_12);
+		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("orig", "hawaii50",
+				ROLES_12);
 		SecurityContextHolder.getContext().setAuthentication(source);
 		SecurityContextHolder.getContext().setAuthentication(switchToUser("jacklord"));
 		Authentication switched = switchToUser("dano");
@@ -525,8 +510,8 @@ public class SwitchUserFilterTests {
 		String switchAuthorityRole = "PREVIOUS_ADMINISTRATOR";
 
 		// original user
-		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken(
-				"orig", "hawaii50", ROLES_12);
+		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("orig", "hawaii50",
+				ROLES_12);
 		SecurityContextHolder.getContext().setAuthentication(source);
 		SecurityContextHolder.getContext().setAuthentication(switchToUser("jacklord"));
 		Authentication switched = switchToUserWithAuthorityRole("dano", switchAuthorityRole);
@@ -566,10 +551,10 @@ public class SwitchUserFilterTests {
 	// ==================================================================================================
 
 	private class MockUserDetailsService implements UserDetailsService {
+
 		private String password = "hawaii50";
 
-		public UserDetails loadUserByUsername(String username)
-				throws UsernameNotFoundException {
+		public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 			// jacklord, dano (active)
 			// mcgarrett (disabled)
 			// wofat (account expired)
@@ -590,5 +575,7 @@ public class SwitchUserFilterTests {
 				throw new UsernameNotFoundException("Could not find: " + username);
 			}
 		}
+
 	}
+
 }

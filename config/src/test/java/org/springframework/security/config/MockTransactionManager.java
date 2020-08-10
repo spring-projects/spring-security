@@ -26,8 +26,8 @@ import org.springframework.transaction.TransactionStatus;
  * @author Luke Taylor
  */
 public class MockTransactionManager implements PlatformTransactionManager {
-	public TransactionStatus getTransaction(TransactionDefinition definition)
-			throws TransactionException {
+
+	public TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException {
 		return mock(TransactionStatus.class);
 	}
 
@@ -36,4 +36,5 @@ public class MockTransactionManager implements PlatformTransactionManager {
 
 	public void rollback(TransactionStatus status) throws TransactionException {
 	}
+
 }

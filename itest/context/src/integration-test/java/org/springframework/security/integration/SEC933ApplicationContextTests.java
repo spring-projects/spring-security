@@ -35,4 +35,5 @@ public class SEC933ApplicationContextTests {
 	public void testSimpleApplicationContextBootstrap() {
 		assertThat(userDetailsService).isNotNull();
 	}
+
 }

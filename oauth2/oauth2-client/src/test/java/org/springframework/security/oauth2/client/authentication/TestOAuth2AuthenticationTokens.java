@@ -38,4 +38,5 @@ public class TestOAuth2AuthenticationTokens {
 		String registrationId = "registration-id";
 		return new OAuth2AuthenticationToken(principal, principal.getAuthorities(), registrationId);
 	}
+
 }

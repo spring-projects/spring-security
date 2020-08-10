@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -49,14 +48,12 @@ public class NamespaceHttpPortMappingsTests {
 	public void portMappingWhenRequestRequiresChannelThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlWithPortMapperConfig.class).autowire();
 
-		this.mvc.perform(get("http://localhost:9080/login"))
-				.andExpect(redirectedUrl("https://localhost:9443/login"));
+		this.mvc.perform(get("http://localhost:9080/login")).andExpect(redirectedUrl("https://localhost:9443/login"));
 
 		this.mvc.perform(get("http://localhost:9080/secured/a"))
 				.andExpect(redirectedUrl("https://localhost:9443/secured/a"));
 
-		this.mvc.perform(get("https://localhost:9443/user"))
-				.andExpect(redirectedUrl("http://localhost:9080/user"));
+		this.mvc.perform(get("https://localhost:9443/user")).andExpect(redirectedUrl("http://localhost:9080/user"));
 	}
 
 	@EnableWebSecurity
@@ -86,5 +83,7 @@ public class NamespaceHttpPortMappingsTests {
 					.withUser("admin").password("password").roles("USER", "ADMIN");
 			// @formatter:on
 		}
+
 	}
+
 }

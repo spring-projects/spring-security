@@ -35,7 +35,6 @@ public abstract class Sha512DigestUtils {
 
 	/**
 	 * Returns an SHA digest.
-	 *
 	 * @return An SHA digest instance.
 	 * @throws RuntimeException when a {@link java.security.NoSuchAlgorithmException} is
 	 * caught.
@@ -51,7 +50,6 @@ public abstract class Sha512DigestUtils {
 
 	/**
 	 * Calculates the SHA digest and returns the value as a <code>byte[]</code>.
-	 *
 	 * @param data Data to digest
 	 * @return SHA digest
 	 */
@@ -61,7 +59,6 @@ public abstract class Sha512DigestUtils {
 
 	/**
 	 * Calculates the SHA digest and returns the value as a <code>byte[]</code>.
-	 *
 	 * @param data Data to digest
 	 * @return SHA digest
 	 */
@@ -71,7 +68,6 @@ public abstract class Sha512DigestUtils {
 
 	/**
 	 * Calculates the SHA digest and returns the value as a hex string.
-	 *
 	 * @param data Data to digest
 	 * @return SHA digest as a hex string
 	 */
@@ -81,7 +77,6 @@ public abstract class Sha512DigestUtils {
 
 	/**
 	 * Calculates the SHA digest and returns the value as a hex string.
-	 *
 	 * @param data Data to digest
 	 * @return SHA digest as a hex string
 	 */

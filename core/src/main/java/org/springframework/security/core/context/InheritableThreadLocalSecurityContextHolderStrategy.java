@@ -23,11 +23,10 @@ import org.springframework.util.Assert;
  * {@link org.springframework.security.core.context.SecurityContextHolderStrategy}.
  *
  * @author Ben Alex
- *
  * @see java.lang.ThreadLocal
  */
-final class InheritableThreadLocalSecurityContextHolderStrategy implements
-		SecurityContextHolderStrategy {
+final class InheritableThreadLocalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -59,4 +58,5 @@ final class InheritableThreadLocalSecurityContextHolderStrategy implements
 	public SecurityContext createEmptyContext() {
 		return new SecurityContextImpl();
 	}
+
 }

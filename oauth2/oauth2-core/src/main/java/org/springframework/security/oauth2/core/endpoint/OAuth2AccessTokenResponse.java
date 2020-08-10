@@ -33,11 +33,15 @@ import java.util.Set;
  * @since 5.0
  * @see OAuth2AccessToken
  * @see OAuth2RefreshToken
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-5.1">Section 5.1 Access Token Response</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-5.1">Section
+ * 5.1 Access Token Response</a>
  */
 public final class OAuth2AccessTokenResponse {
+
 	private OAuth2AccessToken accessToken;
+
 	private OAuth2RefreshToken refreshToken;
+
 	private Map<String, Object> additionalParameters;
 
 	private OAuth2AccessTokenResponse() {
@@ -45,7 +49,6 @@ public final class OAuth2AccessTokenResponse {
 
 	/**
 	 * Returns the {@link OAuth2AccessToken Access Token}.
-	 *
 	 * @return the {@link OAuth2AccessToken}
 	 */
 	public OAuth2AccessToken getAccessToken() {
@@ -64,8 +67,8 @@ public final class OAuth2AccessTokenResponse {
 
 	/**
 	 * Returns the additional parameters returned in the response.
-	 *
-	 * @return a {@code Map} of the additional parameters returned in the response, may be empty.
+	 * @return a {@code Map} of the additional parameters returned in the response, may be
+	 * empty.
 	 */
 	public Map<String, Object> getAdditionalParameters() {
 		return this.additionalParameters;
@@ -73,7 +76,6 @@ public final class OAuth2AccessTokenResponse {
 
 	/**
 	 * Returns a new {@link Builder}, initialized with the provided access token value.
-	 *
 	 * @param tokenValue the value of the access token
 	 * @return the {@link Builder}
 	 */
@@ -83,7 +85,6 @@ public final class OAuth2AccessTokenResponse {
 
 	/**
 	 * Returns a new {@link Builder}, initialized with the provided response.
-	 *
 	 * @param response the response to initialize the builder with
 	 * @return the {@link Builder}
 	 */
@@ -95,13 +96,21 @@ public final class OAuth2AccessTokenResponse {
 	 * A builder for {@link OAuth2AccessTokenResponse}.
 	 */
 	public static class Builder {
+
 		private String tokenValue;
+
 		private OAuth2AccessToken.TokenType tokenType;
+
 		private Instant issuedAt;
+
 		private Instant expiresAt;
+
 		private long expiresIn;
+
 		private Set<String> scopes;
+
 		private String refreshToken;
+
 		private Map<String, Object> additionalParameters;
 
 		private Builder(OAuth2AccessTokenResponse response) {
@@ -111,8 +120,7 @@ public final class OAuth2AccessTokenResponse {
 			this.issuedAt = accessToken.getIssuedAt();
 			this.expiresAt = accessToken.getExpiresAt();
 			this.scopes = accessToken.getScopes();
-			this.refreshToken = response.getRefreshToken() == null ?
-					null : response.getRefreshToken().getTokenValue();
+			this.refreshToken = response.getRefreshToken() == null ? null : response.getRefreshToken().getTokenValue();
 			this.additionalParameters = response.getAdditionalParameters();
 		}
 
@@ -122,7 +130,6 @@ public final class OAuth2AccessTokenResponse {
 
 		/**
 		 * Sets the {@link OAuth2AccessToken.TokenType token type}.
-		 *
 		 * @param tokenType the type of token issued
 		 * @return the {@link Builder}
 		 */
@@ -133,7 +140,6 @@ public final class OAuth2AccessTokenResponse {
 
 		/**
 		 * Sets the lifetime (in seconds) of the access token.
-		 *
 		 * @param expiresIn the lifetime of the access token, in seconds.
 		 * @return the {@link Builder}
 		 */
@@ -145,7 +151,6 @@ public final class OAuth2AccessTokenResponse {
 
 		/**
 		 * Sets the scope(s) associated to the access token.
-		 *
 		 * @param scopes the scope(s) associated to the access token.
 		 * @return the {@link Builder}
 		 */
@@ -156,7 +161,6 @@ public final class OAuth2AccessTokenResponse {
 
 		/**
 		 * Sets the refresh token associated to the access token.
-		 *
 		 * @param refreshToken the refresh token associated to the access token.
 		 * @return the {@link Builder}
 		 */
@@ -167,7 +171,6 @@ public final class OAuth2AccessTokenResponse {
 
 		/**
 		 * Sets the additional parameters returned in the response.
-		 *
 		 * @param additionalParameters the additional parameters returned in the response
 		 * @return the {@link Builder}
 		 */
@@ -178,7 +181,6 @@ public final class OAuth2AccessTokenResponse {
 
 		/**
 		 * Builds a new {@link OAuth2AccessTokenResponse}.
-		 *
 		 * @return a {@link OAuth2AccessTokenResponse}
 		 */
 		public OAuth2AccessTokenResponse build() {
@@ -186,13 +188,14 @@ public final class OAuth2AccessTokenResponse {
 			Instant expiresAt = getExpiresAt();
 
 			OAuth2AccessTokenResponse accessTokenResponse = new OAuth2AccessTokenResponse();
-			accessTokenResponse.accessToken = new OAuth2AccessToken(
-				this.tokenType, this.tokenValue, issuedAt, expiresAt, this.scopes);
+			accessTokenResponse.accessToken = new OAuth2AccessToken(this.tokenType, this.tokenValue, issuedAt,
+					expiresAt, this.scopes);
 			if (StringUtils.hasText(this.refreshToken)) {
 				accessTokenResponse.refreshToken = new OAuth2RefreshToken(this.refreshToken, issuedAt);
 			}
-			accessTokenResponse.additionalParameters = Collections.unmodifiableMap(
-				CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap() : this.additionalParameters);
+			accessTokenResponse.additionalParameters = Collections
+					.unmodifiableMap(CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap()
+							: this.additionalParameters);
 			return accessTokenResponse;
 		}
 
@@ -204,19 +207,21 @@ public final class OAuth2AccessTokenResponse {
 		}
 
 		/**
-		 * expires_in is RECOMMENDED, as per spec https://tools.ietf.org/html/rfc6749#section-5.1
-		 * Therefore, expires_in may not be returned in the Access Token response which would result in the default value of 0.
-		 * For these instances, default the expiresAt to +1 second from issuedAt time.
+		 * expires_in is RECOMMENDED, as per spec
+		 * https://tools.ietf.org/html/rfc6749#section-5.1 Therefore, expires_in may not
+		 * be returned in the Access Token response which would result in the default
+		 * value of 0. For these instances, default the expiresAt to +1 second from
+		 * issuedAt time.
 		 * @return
 		 */
 		private Instant getExpiresAt() {
 			if (this.expiresAt == null) {
 				Instant issuedAt = getIssuedAt();
-				this.expiresAt = this.expiresIn > 0 ?
-								issuedAt.plusSeconds(this.expiresIn) :
-								issuedAt.plusSeconds(1);
+				this.expiresAt = this.expiresIn > 0 ? issuedAt.plusSeconds(this.expiresIn) : issuedAt.plusSeconds(1);
 			}
 			return this.expiresAt;
 		}
+
 	}
+
 }

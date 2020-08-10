@@ -47,17 +47,20 @@ public class WebTestClientBuilder {
 		return WebTestClient.bindToController(controller).webFilter(webFilters).configureClient();
 	}
 
-	public static Builder bindToControllerAndWebFilters(Class<?> controller, SecurityWebFilterChain securityWebFilterChain) {
+	public static Builder bindToControllerAndWebFilters(Class<?> controller,
+			SecurityWebFilterChain securityWebFilterChain) {
 		return bindToControllerAndWebFilters(controller, new WebFilterChainProxy(securityWebFilterChain));
 	}
 
 	@RestController
 	public static class Http200RestController {
+
 		@RequestMapping("/**")
 		@ResponseStatus(HttpStatus.OK)
 		public String ok() {
 			return "ok";
 		}
+
 	}
 
 }

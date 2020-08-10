@@ -30,7 +30,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 public class HstsHeaderWriterTests {
+
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
 
 	private HstsHeaderWriter writer;
@@ -54,8 +56,7 @@ public class HstsHeaderWriterTests {
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
-				"max-age=15768000");
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=15768000");
 	}
 
 	@Test
@@ -66,8 +67,7 @@ public class HstsHeaderWriterTests {
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
-				"max-age=15768000");
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=15768000");
 	}
 
 	@Test
@@ -77,8 +77,7 @@ public class HstsHeaderWriterTests {
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
-				"max-age=15768000 ; includeSubDomains");
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=15768000 ; includeSubDomains");
 	}
 
 	@Test
@@ -88,8 +87,7 @@ public class HstsHeaderWriterTests {
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
-				"max-age=31536000");
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=31536000");
 	}
 
 	@Test
@@ -97,8 +95,7 @@ public class HstsHeaderWriterTests {
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
-				"max-age=31536000 ; includeSubDomains");
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=31536000 ; includeSubDomains");
 	}
 
 	@Test
@@ -108,8 +105,7 @@ public class HstsHeaderWriterTests {
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
-				"max-age=31536000");
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=31536000");
 	}
 
 	@Test
@@ -119,8 +115,7 @@ public class HstsHeaderWriterTests {
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
-				"max-age=1 ; includeSubDomains");
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=1 ; includeSubDomains");
 	}
 
 	@Test
@@ -140,8 +135,7 @@ public class HstsHeaderWriterTests {
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
-				"max-age=31536000 ; includeSubDomains");
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=31536000 ; includeSubDomains");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -161,4 +155,5 @@ public class HstsHeaderWriterTests {
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(HSTS_HEADER_NAME)).isSameAs(value);
 	}
+
 }

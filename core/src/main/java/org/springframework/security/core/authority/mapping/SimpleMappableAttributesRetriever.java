@@ -27,6 +27,7 @@ import java.util.Set;
  * @since 2.0
  */
 public class SimpleMappableAttributesRetriever implements MappableAttributesRetriever {
+
 	private Set<String> mappableAttributes = null;
 
 	/*

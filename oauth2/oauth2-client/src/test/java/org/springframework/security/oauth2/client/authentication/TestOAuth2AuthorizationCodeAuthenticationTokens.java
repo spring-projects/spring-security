@@ -44,4 +44,5 @@ public class TestOAuth2AuthorizationCodeAuthenticationTokens {
 		OAuth2RefreshToken refreshToken = TestOAuth2RefreshTokens.refreshToken();
 		return new OAuth2AuthorizationCodeAuthenticationToken(registration, exchange, accessToken, refreshToken);
 	}
+
 }

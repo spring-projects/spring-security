@@ -40,7 +40,6 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
  * methods have reasonable defaults.
  *
  * @param <B> the type of the {@link ProviderManagerBuilder} that is being configured
- *
  * @author Rob Winch
  * @since 3.2
  */
@@ -61,9 +60,9 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 
 	/**
 	 * Populates the {@link DataSource} to be used. This is the only required attribute.
-	 *
 	 * @param dataSource the {@link DataSource} to be used. Cannot be null.
-	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional customizations
+	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
+	 * customizations
 	 */
 	public JdbcUserDetailsManagerConfigurer<B> dataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
@@ -94,7 +93,6 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 * <code>
 	 *     select username,authority from authorities where username = ?
 	 * </code>
-	 *
 	 * @param query The query to use for selecting the username, authority by username.
 	 * Must contain a single parameter for the username.
 	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
@@ -116,7 +114,6 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 *     where
 	 *         gm.username = ? and g.id = ga.group_id and g.id = gm.group_id
 	 * </code>
-	 *
 	 * @param query The query to use for selecting the authorities by group. Must contain
 	 * a single parameter for the username.
 	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
@@ -132,9 +129,9 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	/**
 	 * A non-empty string prefix that will be added to role strings loaded from persistent
 	 * storage (default is "").
-	 *
 	 * @param rolePrefix
-	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional customizations
+	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
+	 * customizations
 	 */
 	public JdbcUserDetailsManagerConfigurer<B> rolePrefix(String rolePrefix) {
 		getUserDetailsService().setRolePrefix(rolePrefix);
@@ -143,7 +140,6 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 
 	/**
 	 * Defines the {@link UserCache} to use
-	 *
 	 * @param userCache the {@link UserCache} to use
 	 * @return the {@link JdbcUserDetailsManagerConfigurer} for further customizations
 	 */
@@ -167,13 +163,11 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 
 	/**
 	 * Populates the default schema that allows users and authorities to be stored.
-	 *
 	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
 	 * customizations
 	 */
 	public JdbcUserDetailsManagerConfigurer<B> withDefaultSchema() {
-		this.initScripts.add(new ClassPathResource(
-				"org/springframework/security/core/userdetails/jdbc/users.ddl"));
+		this.initScripts.add(new ClassPathResource("org/springframework/security/core/userdetails/jdbc/users.ddl"));
 		return this;
 	}
 
@@ -189,4 +183,5 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 		dsi.setDataSource(dataSource);
 		return dsi;
 	}
+
 }

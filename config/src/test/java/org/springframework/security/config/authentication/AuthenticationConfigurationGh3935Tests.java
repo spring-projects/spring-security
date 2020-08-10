@@ -48,10 +48,13 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class AuthenticationConfigurationGh3935Tests {
+
 	@Autowired
 	FilterChainProxy springSecurityFilterChain;
+
 	@Autowired
 	UserDetailsService uds;
+
 	@Autowired
 	BootGlobalAuthenticationConfigurationAdapter adapter;
 
@@ -70,8 +73,8 @@ public class AuthenticationConfigurationGh3935Tests {
 		AuthenticationManager authenticationManager = this.adapter.authenticationManager;
 		assertThat(authenticationManager).isNotNull();
 
-		Authentication auth = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(username, password));
+		Authentication auth = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
 		verify(this.uds).loadUserByUsername(username);
 		assertThat(auth.getPrincipal()).isEqualTo(PasswordEncodedUser.user());
@@ -79,10 +82,11 @@ public class AuthenticationConfigurationGh3935Tests {
 
 	@EnableWebSecurity
 	static class WebSecurity extends WebSecurityConfigurerAdapter {
+
 	}
 
-	static class BootGlobalAuthenticationConfigurationAdapter
-			extends GlobalAuthenticationConfigurerAdapter {
+	static class BootGlobalAuthenticationConfigurationAdapter extends GlobalAuthenticationConfigurerAdapter {
+
 		private final ApplicationContext context;
 
 		private AuthenticationManager authenticationManager;
@@ -94,17 +98,17 @@ public class AuthenticationConfigurationGh3935Tests {
 
 		@Override
 		public void init(AuthenticationManagerBuilder auth) throws Exception {
-			AuthenticationConfiguration configuration = this.context
-					.getBean(AuthenticationConfiguration.class);
+			AuthenticationConfiguration configuration = this.context.getBean(AuthenticationConfiguration.class);
 			this.authenticationManager = configuration.getAuthenticationManager();
 		}
+
 	}
 
 	@Configuration
 	static class AutoConfig {
+
 		@Bean
-		static BootGlobalAuthenticationConfigurationAdapter adapter(
-				ApplicationContext context) {
+		static BootGlobalAuthenticationConfigurationAdapter adapter(ApplicationContext context) {
 			return new BootGlobalAuthenticationConfigurationAdapter(context);
 		}
 
@@ -112,5 +116,7 @@ public class AuthenticationConfigurationGh3935Tests {
 		public UserDetailsService userDetailsService() {
 			return mock(UserDetailsService.class);
 		}
+
 	}
+
 }

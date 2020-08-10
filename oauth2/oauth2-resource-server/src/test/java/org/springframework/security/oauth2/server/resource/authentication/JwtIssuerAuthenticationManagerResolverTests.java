@@ -48,13 +48,14 @@ import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
  * Tests for {@link JwtIssuerAuthenticationManagerResolver}
  */
 public class JwtIssuerAuthenticationManagerResolverTests {
-	private static final String DEFAULT_RESPONSE_TEMPLATE = "{\n"
-			+ "    \"issuer\": \"%s\", \n"
-			+ "    \"jwks_uri\": \"%s/.well-known/jwks.json\" \n"
-			+ "}";
+
+	private static final String DEFAULT_RESPONSE_TEMPLATE = "{\n" + "    \"issuer\": \"%s\", \n"
+			+ "    \"jwks_uri\": \"%s/.well-known/jwks.json\" \n" + "}";
 
 	private String jwt = jwt("iss", "trusted");
+
 	private String evil = jwt("iss", "\"");
+
 	private String noIssuer = jwt("sub", "sub");
 
 	@Test
@@ -62,51 +63,45 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.start();
 			String issuer = server.url("").toString();
-			server.enqueue(new MockResponse()
-					.setResponseCode(200)
-					.setHeader("Content-Type", "application/json")
+			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
 					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
 			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
 					new Payload(new JSONObject(Collections.singletonMap(ISS, issuer))));
 			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
 
-			JwtIssuerAuthenticationManagerResolver authenticationManagerResolver =
-					new JwtIssuerAuthenticationManagerResolver(issuer);
+			JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+					issuer);
 			MockHttpServletRequest request = new MockHttpServletRequest();
 			request.addHeader("Authorization", "Bearer " + jws.serialize());
 
-			AuthenticationManager authenticationManager =
-					authenticationManagerResolver.resolve(request);
+			AuthenticationManager authenticationManager = authenticationManagerResolver.resolve(request);
 			assertThat(authenticationManager).isNotNull();
 
-			AuthenticationManager cachedAuthenticationManager =
-					authenticationManagerResolver.resolve(request);
+			AuthenticationManager cachedAuthenticationManager = authenticationManagerResolver.resolve(request);
 			assertThat(authenticationManager).isSameAs(cachedAuthenticationManager);
 		}
 	}
 
 	@Test
 	public void resolveWhenUsingUntrustedIssuerThenException() {
-		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver =
-				new JwtIssuerAuthenticationManagerResolver("other", "issuers");
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+				"other", "issuers");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + this.jwt);
 
 		assertThatCode(() -> authenticationManagerResolver.resolve(request))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("Invalid issuer");
+				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");
 	}
 
 	@Test
 	public void resolveWhenUsingCustomIssuerAuthenticationManagerResolverThenUses() {
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
-		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver =
-				new JwtIssuerAuthenticationManagerResolver(issuer -> authenticationManager);
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+				issuer -> authenticationManager);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + this.jwt);
 
-		assertThat(authenticationManagerResolver.resolve(request))
-				.isSameAs(authenticationManager);
+		assertThat(authenticationManagerResolver.resolve(request)).isSameAs(authenticationManager);
 	}
 
 	@Test
@@ -115,54 +110,48 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 		request.addHeader("Authorization", "Bearer " + this.jwt);
 
 		Map<String, AuthenticationManager> authenticationManagers = new HashMap<>();
-		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver =
-				new JwtIssuerAuthenticationManagerResolver(authenticationManagers::get);
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+				authenticationManagers::get);
 		assertThatCode(() -> authenticationManagerResolver.resolve(request))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("Invalid issuer");
+				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");
 
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 		authenticationManagers.put("trusted", authenticationManager);
-		assertThat(authenticationManagerResolver.resolve(request))
-				.isSameAs(authenticationManager);
+		assertThat(authenticationManagerResolver.resolve(request)).isSameAs(authenticationManager);
 
 		authenticationManagers.clear();
 		assertThatCode(() -> authenticationManagerResolver.resolve(request))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("Invalid issuer");
+				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");
 	}
 
 	@Test
 	public void resolveWhenBearerTokenMalformedThenException() {
-		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver =
-				new JwtIssuerAuthenticationManagerResolver("trusted");
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+				"trusted");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer jwt");
 		assertThatCode(() -> authenticationManagerResolver.resolve(request))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageNotContaining("Invalid issuer");
+				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageNotContaining("Invalid issuer");
 	}
 
 	@Test
 	public void resolveWhenBearerTokenNoIssuerThenException() {
-		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver =
-				new JwtIssuerAuthenticationManagerResolver("trusted");
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+				"trusted");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + this.noIssuer);
 		assertThatCode(() -> authenticationManagerResolver.resolve(request))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("Missing issuer");
+				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Missing issuer");
 	}
 
 	@Test
 	public void resolveWhenBearerTokenEvilThenGenericException() {
-		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver =
-				new JwtIssuerAuthenticationManagerResolver("trusted");
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+				"trusted");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + this.evil);
 		assertThatCode(() -> authenticationManagerResolver.resolve(request))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("Invalid issuer");
+				.isInstanceOf(OAuth2AuthenticationException.class).hasMessage("Invalid issuer");
 	}
 
 	@Test
@@ -183,4 +172,5 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 		PlainJWT jwt = new PlainJWT(new JWTClaimsSet.Builder().claim(claim, value).build());
 		return jwt.serialize();
 	}
+
 }

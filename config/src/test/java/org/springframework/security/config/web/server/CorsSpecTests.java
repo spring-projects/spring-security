@@ -46,8 +46,10 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CorsSpecTests {
+
 	@Mock
 	private CorsConfigurationSource source;
+
 	@Mock
 	private ApplicationContext context;
 
@@ -59,8 +61,7 @@ public class CorsSpecTests {
 
 	@Before
 	public void setup() {
-		this.http = new TestingServerHttpSecurity()
-				.applicationContext(this.context);
+		this.http = new TestingServerHttpSecurity().applicationContext(this.context);
 		CorsConfiguration value = new CorsConfiguration();
 		value.setAllowedOrigins(Arrays.asList("*"));
 		when(this.source.getCorsConfiguration(any())).thenReturn(value);
@@ -84,7 +85,8 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenCorsConfigurationSourceBeanThenAccessControlAllowOriginAndSecurityHeaders() {
-		when(this.context.getBeanNamesForType(any(ResolvableType.class))).thenReturn(new String[] {"source"}, new String[0]);
+		when(this.context.getBeanNamesForType(any(ResolvableType.class))).thenReturn(new String[] { "source" },
+				new String[0]);
 		when(this.context.getBean("source")).thenReturn(this.source);
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");
@@ -100,17 +102,13 @@ public class CorsSpecTests {
 
 	private void assertHeaders() {
 		WebTestClient client = buildClient();
-		FluxExchangeResult<String> response = client.get()
-			.uri("https://example.com/")
-			.headers(h -> h.setOrigin("https://origin.example.com"))
-			.exchange()
-			.returnResult(String.class);
+		FluxExchangeResult<String> response = client.get().uri("https://example.com/")
+				.headers(h -> h.setOrigin("https://origin.example.com")).exchange().returnResult(String.class);
 
 		Map<String, List<String>> responseHeaders = response.getResponseHeaders();
 
 		if (!this.expectedHeaders.isEmpty()) {
-			assertThat(responseHeaders).describedAs(response.toString())
-					.containsAllEntriesOf(this.expectedHeaders);
+			assertThat(responseHeaders).describedAs(response.toString()).containsAllEntriesOf(this.expectedHeaders);
 		}
 		if (!this.headerNamesNotPresent.isEmpty()) {
 			assertThat(responseHeaders.keySet()).doesNotContainAnyElementsOf(this.headerNamesNotPresent);
@@ -118,8 +116,7 @@ public class CorsSpecTests {
 	}
 
 	private WebTestClient buildClient() {
-		return WebTestClientBuilder
-				.bindToWebFilters(this.http.build())
-				.build();
+		return WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
 	}
+
 }

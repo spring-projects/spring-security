@@ -33,6 +33,7 @@ import org.junit.Test;
  * @author Luke Taylor
  */
 public class SpringSecurityAuthenticationSourceTests {
+
 	@Before
 	@After
 	public void clearContext() {
@@ -51,16 +52,14 @@ public class SpringSecurityAuthenticationSourceTests {
 		AuthenticationSource source = new SpringSecurityAuthenticationSource();
 
 		SecurityContextHolder.getContext().setAuthentication(
-				new AnonymousAuthenticationToken("key", "anonUser", AuthorityUtils
-						.createAuthorityList("ignored")));
+				new AnonymousAuthenticationToken("key", "anonUser", AuthorityUtils.createAuthorityList("ignored")));
 		assertThat(source.getPrincipal()).isEqualTo("");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void getPrincipalRejectsNonLdapUserDetailsObject() {
 		AuthenticationSource source = new SpringSecurityAuthenticationSource();
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken(new Object(), "password"));
+		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(new Object(), "password"));
 
 		source.getPrincipal();
 	}
@@ -68,8 +67,7 @@ public class SpringSecurityAuthenticationSourceTests {
 	@Test
 	public void expectedCredentialsAreReturned() {
 		AuthenticationSource source = new SpringSecurityAuthenticationSource();
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken(new Object(), "password"));
+		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(new Object(), "password"));
 
 		assertThat(source.getCredentials()).isEqualTo("password");
 	}
@@ -80,9 +78,10 @@ public class SpringSecurityAuthenticationSourceTests {
 		user.setUsername("joe");
 		user.setDn(new DistinguishedName("uid=joe,ou=users"));
 		AuthenticationSource source = new SpringSecurityAuthenticationSource();
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken(user.createUserDetails(), null));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken(user.createUserDetails(), null));
 
 		assertThat(source.getPrincipal()).isEqualTo("uid=joe,ou=users");
 	}
+
 }

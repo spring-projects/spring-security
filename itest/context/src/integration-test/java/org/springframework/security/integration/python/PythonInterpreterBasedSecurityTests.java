@@ -32,11 +32,12 @@ public class PythonInterpreterBasedSecurityTests {
 
 	@Test
 	public void serviceMethod() {
-		SecurityContextHolder.getContext().setAuthentication(
-				new UsernamePasswordAuthenticationToken("bob", "bobspassword"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new UsernamePasswordAuthenticationToken("bob", "bobspassword"));
 
 		// for (int i=0; i < 1000; i++) {
 		service.someMethod();
 		// }
 	}
+
 }

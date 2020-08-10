@@ -85,4 +85,5 @@ public class XFrameOptionsServerHttpHeadersWriterTests {
 	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {
 		return MockServerWebExchange.from(request.build());
 	}
+
 }

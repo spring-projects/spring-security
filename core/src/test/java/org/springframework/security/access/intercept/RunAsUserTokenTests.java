@@ -33,8 +33,7 @@ public class RunAsUserTokenTests {
 	@Test
 	public void testAuthenticationSetting() {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
-				UsernamePasswordAuthenticationToken.class);
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
 		assertThat(token.isAuthenticated()).isTrue();
 		token.setAuthenticated(false);
 		assertThat(!token.isAuthenticated()).isTrue();
@@ -43,13 +42,11 @@ public class RunAsUserTokenTests {
 	@Test
 	public void testGetters() {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
-				UsernamePasswordAuthenticationToken.class);
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
 		assertThat("Test").isEqualTo(token.getPrincipal());
 		assertThat("Password").isEqualTo(token.getCredentials());
 		assertThat("my_password".hashCode()).isEqualTo(token.getKeyHash());
-		assertThat(UsernamePasswordAuthenticationToken.class).isEqualTo(
-				token.getOriginalAuthentication());
+		assertThat(UsernamePasswordAuthenticationToken.class).isEqualTo(token.getOriginalAuthentication());
 	}
 
 	@Test
@@ -68,10 +65,10 @@ public class RunAsUserTokenTests {
 	@Test
 	public void testToString() {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
-				UsernamePasswordAuthenticationToken.class);
-		assertThat(token.toString().lastIndexOf("Original Class: "
-				+ UsernamePasswordAuthenticationToken.class.getName().toString()) != -1).isTrue();
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
+		assertThat(token.toString()
+				.lastIndexOf("Original Class: " + UsernamePasswordAuthenticationToken.class.getName().toString()) != -1)
+						.isTrue();
 	}
 
 	// SEC-1792
@@ -81,4 +78,5 @@ public class RunAsUserTokenTests {
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), null);
 		assertThat(token.toString().lastIndexOf("Original Class: null") != -1).isTrue();
 	}
+
 }

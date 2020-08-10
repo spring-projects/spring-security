@@ -41,20 +41,19 @@ import org.springframework.dao.DataRetrievalFailureException;
  * <tt>graceLoginsRemaining</tt>.
  * <p>
  *
- *
  * @author Stefan Zoerner
  * @author Luke Taylor
- *
  * @see org.springframework.security.ldap.ppolicy.PasswordPolicyControl
- * @see <a href="https://www.ibm.com/developerworks/tivoli/library/t-ldap-controls/">Stefan
- * Zoerner's IBM developerworks article on LDAP controls.</a>
+ * @see <a href=
+ * "https://www.ibm.com/developerworks/tivoli/library/t-ldap-controls/">Stefan Zoerner's
+ * IBM developerworks article on LDAP controls.</a>
  */
 public class PasswordPolicyResponseControl extends PasswordPolicyControl {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	private static final Log logger = LogFactory
-			.getLog(PasswordPolicyResponseControl.class);
+	private static final Log logger = LogFactory.getLog(PasswordPolicyResponseControl.class);
 
 	// ~ Instance fields
 	// ================================================================================================
@@ -64,6 +63,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	private PasswordPolicyErrorStatus errorStatus;
 
 	private int graceLoginsRemaining = Integer.MAX_VALUE;
+
 	private int timeBeforeExpiration = Integer.MAX_VALUE;
 
 	// ~ Constructors
@@ -116,7 +116,6 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
 	/**
 	 * Returns the graceLoginsRemaining.
-	 *
 	 * @return Returns the graceLoginsRemaining.
 	 */
 	public int getGraceLoginsRemaining() {
@@ -125,7 +124,6 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
 	/**
 	 * Returns the timeBeforeExpiration.
-	 *
 	 * @return Returns the time before expiration in seconds
 	 */
 	public int getTimeBeforeExpiration() {
@@ -134,7 +132,6 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
 	/**
 	 * Checks whether an error is present.
-	 *
 	 * @return true, if an error is present
 	 */
 	public boolean hasError() {
@@ -143,12 +140,10 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
 	/**
 	 * Checks whether a warning is present.
-	 *
 	 * @return true, if a warning is present
 	 */
 	public boolean hasWarning() {
-		return (this.graceLoginsRemaining != Integer.MAX_VALUE)
-				|| (this.timeBeforeExpiration != Integer.MAX_VALUE);
+		return (this.graceLoginsRemaining != Integer.MAX_VALUE) || (this.timeBeforeExpiration != Integer.MAX_VALUE);
 	}
 
 	public boolean isExpired() {
@@ -165,7 +160,6 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
 	/**
 	 * Determines whether an account locked error has been returned.
-	 *
 	 * @return true if the account is locked.
 	 */
 	public boolean isLocked() {
@@ -175,7 +169,6 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	/**
 	 * Create a textual representation containing error and warning messages, if any are
 	 * present.
-	 *
 	 * @return error and warning messages
 	 */
 	@Override
@@ -187,13 +180,11 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 		}
 
 		if (this.graceLoginsRemaining != Integer.MAX_VALUE) {
-			sb.append(", warning: ").append(this.graceLoginsRemaining)
-					.append(" grace logins remain");
+			sb.append(", warning: ").append(this.graceLoginsRemaining).append(" grace logins remain");
 		}
 
 		if (this.timeBeforeExpiration != Integer.MAX_VALUE) {
-			sb.append(", warning: time before expiration is ")
-					.append(this.timeBeforeExpiration);
+			sb.append(", warning: time before expiration is ").append(this.timeBeforeExpiration);
 		}
 
 		if (!hasError() && !hasWarning()) {
@@ -207,7 +198,9 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	// ===============================================================================================
 
 	private interface PPolicyDecoder {
+
 		void decode() throws IOException;
+
 	}
 
 	// ~ Inner Classes
@@ -217,19 +210,16 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	 * Decoder based on Netscape ldapsdk library
 	 */
 	private class NetscapeDecoder implements PPolicyDecoder {
+
 		public void decode() throws IOException {
 			int[] bread = { 0 };
-			BERSequence seq = (BERSequence) BERElement
-					.getElement(new SpecificTagDecoder(),
-							new ByteArrayInputStream(
-									PasswordPolicyResponseControl.this.encodedValue),
-							bread);
+			BERSequence seq = (BERSequence) BERElement.getElement(new SpecificTagDecoder(),
+					new ByteArrayInputStream(PasswordPolicyResponseControl.this.encodedValue), bread);
 
 			int size = seq.size();
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("PasswordPolicyResponse, ASN.1 sequence has " + size
-						+ " elements");
+				logger.debug("PasswordPolicyResponse, ASN.1 sequence has " + size + " elements");
 			}
 
 			for (int i = 0; i < seq.size(); i++) {
@@ -252,20 +242,20 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 				}
 				else if (tag == 1) {
 					BERIntegral error = (BERIntegral) elt.getValue();
-					PasswordPolicyResponseControl.this.errorStatus = PasswordPolicyErrorStatus
-							.values()[error.getValue()];
+					PasswordPolicyResponseControl.this.errorStatus = PasswordPolicyErrorStatus.values()[error
+							.getValue()];
 				}
 			}
 		}
 
 		class SpecificTagDecoder extends BERTagDecoder {
+
 			/** Allows us to remember which of the two options we're decoding */
 			private Boolean inChoice = null;
 
 			@Override
-			public BERElement getElement(BERTagDecoder decoder, int tag,
-					InputStream stream, int[] bytesRead, boolean[] implicit)
-							throws IOException {
+			public BERElement getElement(BERTagDecoder decoder, int tag, InputStream stream, int[] bytesRead,
+					boolean[] implicit) throws IOException {
 				tag &= 0x1F;
 				implicit[0] = false;
 
@@ -278,8 +268,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 						BERElement.readLengthOctets(stream, bytesRead);
 
 						int[] componentLength = new int[1];
-						BERElement choice = new BERChoice(decoder, stream,
-								componentLength);
+						BERElement choice = new BERChoice(decoder, stream, componentLength);
 						bytesRead[0] += componentLength[0];
 
 						// inChoice = null;
@@ -312,7 +301,9 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 			private void setInChoice(boolean inChoice) {
 				this.inChoice = inChoice;
 			}
+
 		}
+
 	}
 
 	/** Decoder based on the OpenLDAP/Novell JLDAP library */
@@ -377,4 +368,5 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	// }
 	// }
 	// }
+
 }

@@ -44,8 +44,9 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class RoutePayloadExchangeMatcherTests {
-	static final MimeType COMPOSITE_METADATA = MimeTypeUtils.parseMimeType(
-			WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+
+	static final MimeType COMPOSITE_METADATA = MimeTypeUtils
+			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 
 	@Mock
 	private MetadataExtractor metadataExtractor;
@@ -69,14 +70,13 @@ public class RoutePayloadExchangeMatcherTests {
 	public void setup() {
 		this.pattern = "a.b";
 		this.matcher = new RoutePayloadExchangeMatcher(this.metadataExtractor, this.routeMatcher, this.pattern);
-		this.exchange = new DefaultPayloadExchange(PayloadExchangeType.REQUEST_CHANNEL, this.payload, COMPOSITE_METADATA,
-				MediaType.APPLICATION_JSON);
+		this.exchange = new DefaultPayloadExchange(PayloadExchangeType.REQUEST_CHANNEL, this.payload,
+				COMPOSITE_METADATA, MediaType.APPLICATION_JSON);
 	}
 
 	@Test
 	public void matchesWhenNoRouteThenNotMatch() {
-		when(this.metadataExtractor.extract(any(), any()))
-				.thenReturn(Collections.emptyMap());
+		when(this.metadataExtractor.extract(any(), any())).thenReturn(Collections.emptyMap());
 		PayloadExchangeMatcher.MatchResult result = this.matcher.matches(this.exchange).block();
 		assertThat(result.isMatch()).isFalse();
 	}
@@ -113,4 +113,5 @@ public class RoutePayloadExchangeMatcherTests {
 		assertThat(result.isMatch()).isTrue();
 		assertThat(result.getVariables()).containsAllEntriesOf(variables);
 	}
+
 }

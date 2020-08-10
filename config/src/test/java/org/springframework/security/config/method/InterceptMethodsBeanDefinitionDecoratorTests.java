@@ -42,14 +42,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:org/springframework/security/config/method-security.xml")
-public class InterceptMethodsBeanDefinitionDecoratorTests implements
-		ApplicationContextAware {
+public class InterceptMethodsBeanDefinitionDecoratorTests implements ApplicationContextAware {
+
 	@Autowired
 	@Qualifier("target")
 	private TestBusinessBean target;
+
 	@Autowired
 	@Qualifier("transactionalTarget")
 	private TestBusinessBean transactionalTarget;
+
 	private ApplicationContext appContext;
 
 	@BeforeClass
@@ -67,8 +69,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements
 	public void targetDoesntLoseApplicationListenerInterface() {
 		assertThat(appContext.getBeansOfType(ApplicationListener.class)).hasSize(1);
 		assertThat(appContext.getBeanNamesForType(ApplicationListener.class)).hasSize(1);
-		appContext.publishEvent(new AuthenticationSuccessEvent(
-				new TestingAuthenticationToken("user", "")));
+		appContext.publishEvent(new AuthenticationSuccessEvent(new TestingAuthenticationToken("user", "")));
 
 		assertThat(target).isInstanceOf(ApplicationListener.class);
 	}
@@ -85,8 +86,8 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements
 
 	@Test
 	public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
 		target.doSomething();
@@ -94,8 +95,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements
 
 	@Test(expected = AccessDeniedException.class)
 	public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password",
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
@@ -107,8 +107,8 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements
 		transactionalTarget.doSomething();
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.appContext = applicationContext;
 	}
+
 }

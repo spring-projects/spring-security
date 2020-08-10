@@ -26,8 +26,11 @@ import org.springframework.util.Assert;
  * @since 2.0.1
  */
 public class DefaultToken implements Token {
+
 	private final String key;
+
 	private final long keyCreationTime;
+
 	private final String extendedInformation;
 
 	public DefaultToken(String key, long keyCreationTime, String extendedInformation) {
@@ -57,8 +60,7 @@ public class DefaultToken implements Token {
 	public boolean equals(Object obj) {
 		if (obj != null && obj instanceof DefaultToken) {
 			DefaultToken rhs = (DefaultToken) obj;
-			return this.key.equals(rhs.key)
-					&& this.keyCreationTime == rhs.keyCreationTime
+			return this.key.equals(rhs.key) && this.keyCreationTime == rhs.keyCreationTime
 					&& this.extendedInformation.equals(rhs.extendedInformation);
 		}
 		return false;
@@ -75,8 +77,8 @@ public class DefaultToken implements Token {
 
 	@Override
 	public String toString() {
-		return "DefaultToken[key=" + key + "; creation=" + new Date(keyCreationTime)
-				+ "; extended=" + extendedInformation + "]";
+		return "DefaultToken[key=" + key + "; creation=" + new Date(keyCreationTime) + "; extended="
+				+ extendedInformation + "]";
 	}
 
 }

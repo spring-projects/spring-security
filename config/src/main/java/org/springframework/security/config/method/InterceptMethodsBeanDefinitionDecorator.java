@@ -42,30 +42,31 @@ import java.util.*;
  *
  */
 public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDecorator {
+
 	private final BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
 
-	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition,
-			ParserContext parserContext) {
+	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
 		MethodConfigUtils.registerDefaultMethodAccessManagerIfNecessary(parserContext);
 
 		return delegate.decorate(node, definition, parserContext);
 	}
+
 }
 
 /**
  * This is the real class which does the work. We need access to the ParserContext in
  * order to do bean registration.
  */
-class InternalInterceptMethodsBeanDefinitionDecorator extends
-		AbstractInterceptorDrivenBeanDefinitionDecorator {
+class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractInterceptorDrivenBeanDefinitionDecorator {
+
 	static final String ATT_METHOD = "method";
 	static final String ATT_ACCESS = "access";
+
 	private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
 
 	protected BeanDefinition createInterceptorDefinition(Node node) {
 		Element interceptMethodsElt = (Element) node;
-		BeanDefinitionBuilder interceptor = BeanDefinitionBuilder
-				.rootBeanDefinition(MethodSecurityInterceptor.class);
+		BeanDefinitionBuilder interceptor = BeanDefinitionBuilder.rootBeanDefinition(MethodSecurityInterceptor.class);
 
 		// Default to autowiring to pick up after invocation mgr
 		interceptor.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
@@ -76,26 +77,21 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends
 			accessManagerId = BeanIds.METHOD_ACCESS_MANAGER;
 		}
 
-		interceptor.addPropertyValue("accessDecisionManager", new RuntimeBeanReference(
-				accessManagerId));
-		interceptor.addPropertyValue("authenticationManager", new RuntimeBeanReference(
-				BeanIds.AUTHENTICATION_MANAGER));
+		interceptor.addPropertyValue("accessDecisionManager", new RuntimeBeanReference(accessManagerId));
+		interceptor.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
 
 		// Lookup parent bean information
 
 		String parentBeanClass = ((Element) node.getParentNode()).getAttribute("class");
 
 		// Parse the included methods
-		List<Element> methods = DomUtils.getChildElementsByTagName(interceptMethodsElt,
-				Elements.PROTECT);
+		List<Element> methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);
 		Map<String, BeanDefinition> mappings = new ManagedMap<>();
 
 		for (Element protectmethodElt : methods) {
-			BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder
-					.rootBeanDefinition(SecurityConfig.class);
+			BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder.rootBeanDefinition(SecurityConfig.class);
 			attributeBuilder.setFactoryMethod("createListFromCommaDelimitedString");
-			attributeBuilder.addConstructorArgValue(protectmethodElt
-					.getAttribute(ATT_ACCESS));
+			attributeBuilder.addConstructorArgValue(protectmethodElt.getAttribute(ATT_ACCESS));
 
 			// Support inference of class names
 			String methodName = protectmethodElt.getAttribute(ATT_METHOD);
@@ -109,11 +105,11 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends
 			mappings.put(methodName, attributeBuilder.getBeanDefinition());
 		}
 
-		BeanDefinition metadataSource = new RootBeanDefinition(
-				MapBasedMethodSecurityMetadataSource.class);
+		BeanDefinition metadataSource = new RootBeanDefinition(MapBasedMethodSecurityMetadataSource.class);
 		metadataSource.getConstructorArgumentValues().addGenericArgumentValue(mappings);
 		interceptor.addPropertyValue("securityMetadataSource", metadataSource);
 
 		return interceptor.getBeanDefinition();
 	}
+
 }

@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
 
 /**
- *
  * @author Luke Taylor
  */
 public class UrlUtilsTests {

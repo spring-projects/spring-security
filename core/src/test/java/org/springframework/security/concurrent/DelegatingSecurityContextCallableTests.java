@@ -36,16 +36,18 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- *
  * @author Rob Winch
  * @since 3.2
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingSecurityContextCallableTests {
+
 	@Mock
 	private Callable<Object> delegate;
+
 	@Mock
 	private SecurityContext securityContext;
+
 	@Mock
 	private Object callableResult;
 
@@ -100,8 +102,7 @@ public class DelegatingSecurityContextCallableTests {
 
 	@Test
 	public void call() throws Exception {
-		callable = new DelegatingSecurityContextCallable<>(delegate,
-				securityContext);
+		callable = new DelegatingSecurityContextCallable<>(delegate, securityContext);
 		assertWrapped(callable);
 	}
 
@@ -119,8 +120,7 @@ public class DelegatingSecurityContextCallableTests {
 	public void callOnSameThread() throws Exception {
 		originalSecurityContext = securityContext;
 		SecurityContextHolder.setContext(originalSecurityContext);
-		callable = new DelegatingSecurityContextCallable<>(delegate,
-				securityContext);
+		callable = new DelegatingSecurityContextCallable<>(delegate, securityContext);
 		assertWrapped(callable.call());
 	}
 
@@ -156,8 +156,7 @@ public class DelegatingSecurityContextCallableTests {
 	// SEC-2682
 	@Test
 	public void toStringDelegates() {
-		callable = new DelegatingSecurityContextCallable<>(delegate,
-				securityContext);
+		callable = new DelegatingSecurityContextCallable<>(delegate, securityContext);
 		assertThat(callable.toString()).isEqualTo(delegate.toString());
 	}
 
@@ -168,7 +167,7 @@ public class DelegatingSecurityContextCallableTests {
 
 	private void assertWrapped(Object callableResult) throws Exception {
 		verify(delegate).call();
-		assertThat(SecurityContextHolder.getContext()).isEqualTo(
-				originalSecurityContext);
+		assertThat(SecurityContextHolder.getContext()).isEqualTo(originalSecurityContext);
 	}
+
 }

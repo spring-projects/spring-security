@@ -34,8 +34,7 @@ public class ExceptionMappingAuthenticationFailureHandlerTests {
 		ExceptionMappingAuthenticationFailureHandler fh = new ExceptionMappingAuthenticationFailureHandler();
 		fh.setDefaultFailureUrl("/failed");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		fh.onAuthenticationFailure(new MockHttpServletRequest(), response,
-				new BadCredentialsException(""));
+		fh.onAuthenticationFailure(new MockHttpServletRequest(), response, new BadCredentialsException(""));
 
 		assertThat(response.getRedirectedUrl()).isEqualTo("/failed");
 	}
@@ -44,14 +43,11 @@ public class ExceptionMappingAuthenticationFailureHandlerTests {
 	public void exceptionMapIsUsedIfMappingExists() throws Exception {
 		ExceptionMappingAuthenticationFailureHandler fh = new ExceptionMappingAuthenticationFailureHandler();
 		HashMap<String, String> mapping = new HashMap<>();
-		mapping.put(
-				"org.springframework.security.authentication.BadCredentialsException",
-				"/badcreds");
+		mapping.put("org.springframework.security.authentication.BadCredentialsException", "/badcreds");
 		fh.setExceptionMappings(mapping);
 		fh.setDefaultFailureUrl("/failed");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		fh.onAuthenticationFailure(new MockHttpServletRequest(), response,
-				new BadCredentialsException(""));
+		fh.onAuthenticationFailure(new MockHttpServletRequest(), response, new BadCredentialsException(""));
 
 		assertThat(response.getRedirectedUrl()).isEqualTo("/badcreds");
 	}

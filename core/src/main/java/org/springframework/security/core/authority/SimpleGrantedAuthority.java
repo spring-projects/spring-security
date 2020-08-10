@@ -66,4 +66,5 @@ public final class SimpleGrantedAuthority implements GrantedAuthority {
 	public String toString() {
 		return this.role;
 	}
+
 }

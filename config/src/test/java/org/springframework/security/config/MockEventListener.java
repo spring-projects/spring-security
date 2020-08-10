@@ -26,8 +26,8 @@ import java.util.List;
  * @author Rob Winch
  * @since 5.0.2
  */
-public class MockEventListener<T extends ApplicationEvent>
-	implements ApplicationListener<T> {
+public class MockEventListener<T extends ApplicationEvent> implements ApplicationListener<T> {
+
 	private List<T> events = new ArrayList<>();
 
 	public void onApplicationEvent(T event) {
@@ -37,4 +37,5 @@ public class MockEventListener<T extends ApplicationEvent>
 	public List<T> getEvents() {
 		return this.events;
 	}
+
 }

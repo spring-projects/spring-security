@@ -33,10 +33,12 @@ import static org.mockito.Mockito.verify;
  * @author Gabriel Lavoie
  */
 public class FirewalledResponseTests {
+
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
 
 	private HttpServletResponse response;
+
 	private FirewalledResponse fwResponse;
 
 	@Before
@@ -105,6 +107,7 @@ public class FirewalledResponseTests {
 
 		verify(response).addCookie(cookie);
 	}
+
 	@Test
 	public void addCookieWhenNullThenDelegateInvoked() {
 		fwResponse.addCookie(null);
@@ -186,4 +189,5 @@ public class FirewalledResponseTests {
 		catch (IllegalArgumentException expected) {
 		}
 	}
+
 }

@@ -68,4 +68,5 @@ final class Digester {
 			throw new IllegalStateException("No such hashing algorithm", e);
 		}
 	}
+
 }

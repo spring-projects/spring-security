@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
  * @since 5.1.1
  */
 public class ReactiveJwtAuthenticationConverterAdapter implements Converter<Jwt, Mono<AbstractAuthenticationToken>> {
+
 	private final Converter<Jwt, AbstractAuthenticationToken> delegate;
 
 	public ReactiveJwtAuthenticationConverterAdapter(Converter<Jwt, AbstractAuthenticationToken> delegate) {
@@ -40,4 +41,5 @@ public class ReactiveJwtAuthenticationConverterAdapter implements Converter<Jwt,
 	public final Mono<AbstractAuthenticationToken> convert(Jwt jwt) {
 		return Mono.just(jwt).map(this.delegate::convert);
 	}
+
 }

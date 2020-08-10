@@ -30,10 +30,12 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class HttpBasicServerAuthenticationEntryPoint
-	implements ServerAuthenticationEntryPoint {
+public class HttpBasicServerAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
+
 	private static final String WWW_AUTHENTICATE = "WWW-Authenticate";
+
 	private static final String DEFAULT_REALM = "Realm";
+
 	private static String WWW_AUTHENTICATE_FORMAT = "Basic realm=\"%s\"";
 
 	private String headerValue = createHeaderValue(DEFAULT_REALM);
@@ -59,4 +61,5 @@ public class HttpBasicServerAuthenticationEntryPoint
 		Assert.notNull(realm, "realm cannot be null");
 		return String.format(WWW_AUTHENTICATE_FORMAT, realm);
 	}
+
 }

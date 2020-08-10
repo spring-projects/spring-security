@@ -27,6 +27,7 @@ import java.util.*;
  * @author Luke Taylor
  */
 public interface GrantedAuthoritiesMapper {
-	Collection<? extends GrantedAuthority> mapAuthorities(
-			Collection<? extends GrantedAuthority> authorities);
+
+	Collection<? extends GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> authorities);
+
 }

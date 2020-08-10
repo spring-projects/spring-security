@@ -100,7 +100,8 @@ public class ConcurrentSessionFilterTests {
 
 		// Setup our test fixture and registry to want this session to be expired
 
-		SimpleRedirectSessionInformationExpiredStrategy expiredSessionStrategy = new SimpleRedirectSessionInformationExpiredStrategy("/expired.jsp");
+		SimpleRedirectSessionInformationExpiredStrategy expiredSessionStrategy = new SimpleRedirectSessionInformationExpiredStrategy(
+				"/expired.jsp");
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry, expiredSessionStrategy);
 		filter.setLogoutHandlers(new LogoutHandler[] { new SecurityContextLogoutHandler() });
 		filter.afterPropertiesSet();
@@ -131,7 +132,8 @@ public class ConcurrentSessionFilterTests {
 		filter.doFilter(request, response, fc);
 		verifyZeroInteractions(fc);
 
-		assertThat(response.getContentAsString()).isEqualTo("This session has been expired (possibly due to multiple concurrent logins being "
+		assertThat(response.getContentAsString())
+				.isEqualTo("This session has been expired (possibly due to multiple concurrent logins being "
 						+ "attempted as the same user).");
 	}
 
@@ -153,7 +155,8 @@ public class ConcurrentSessionFilterTests {
 		// Setup our test fixture
 		SessionRegistry registry = new SessionRegistryImpl();
 		registry.registerNewSession(session.getId(), "principal");
-		SimpleRedirectSessionInformationExpiredStrategy expiredSessionStrategy = new SimpleRedirectSessionInformationExpiredStrategy("/expired.jsp");
+		SimpleRedirectSessionInformationExpiredStrategy expiredSessionStrategy = new SimpleRedirectSessionInformationExpiredStrategy(
+				"/expired.jsp");
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry, expiredSessionStrategy);
 
 		Date lastRequest = registry.getSessionInformation(session.getId()).getLastRequest();
@@ -173,14 +176,13 @@ public class ConcurrentSessionFilterTests {
 
 		RedirectStrategy redirect = mock(RedirectStrategy.class);
 		SessionRegistry registry = mock(SessionRegistry.class);
-		SessionInformation information = new SessionInformation("user", "sessionId", new Date(System.currentTimeMillis() - 1000));
+		SessionInformation information = new SessionInformation("user", "sessionId",
+				new Date(System.currentTimeMillis() - 1000));
 		information.expireNow();
 		when(registry.getSessionInformation(anyString())).thenReturn(information);
 
-
 		String expiredUrl = "/expired";
-		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry,
-				expiredUrl);
+		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry, expiredUrl);
 		filter.setRedirectStrategy(redirect);
 
 		MockFilterChain chain = new MockFilterChain();
@@ -199,10 +201,8 @@ public class ConcurrentSessionFilterTests {
 		RedirectStrategy redirect = mock(RedirectStrategy.class);
 		SessionRegistry registry = mock(SessionRegistry.class);
 
-
 		String expiredUrl = "/expired";
-		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry,
-				expiredUrl);
+		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry, expiredUrl);
 		filter.setRedirectStrategy(redirect);
 
 		MockFilterChain chain = new MockFilterChain();
@@ -221,14 +221,13 @@ public class ConcurrentSessionFilterTests {
 
 		RedirectStrategy redirect = mock(RedirectStrategy.class);
 		SessionRegistry registry = mock(SessionRegistry.class);
-		SessionInformation information = new SessionInformation("user", "sessionId", new Date(System.currentTimeMillis() - 1000));
+		SessionInformation information = new SessionInformation("user", "sessionId",
+				new Date(System.currentTimeMillis() - 1000));
 		information.expireNow();
 		when(registry.getSessionInformation(anyString())).thenReturn(information);
 
-
 		String expiredUrl = "/expired";
-		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry,
-				expiredUrl);
+		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry, expiredUrl);
 		filter.setRedirectStrategy(redirect);
 
 		filter.doFilter(request, response, new MockFilterChain());
@@ -245,22 +244,24 @@ public class ConcurrentSessionFilterTests {
 
 		RedirectStrategy redirect = mock(RedirectStrategy.class);
 		SessionRegistry registry = mock(SessionRegistry.class);
-		SessionInformation information = new SessionInformation("user", "sessionId", new Date(System.currentTimeMillis() - 1000));
+		SessionInformation information = new SessionInformation("user", "sessionId",
+				new Date(System.currentTimeMillis() - 1000));
 		information.expireNow();
 		when(registry.getSessionInformation(anyString())).thenReturn(information);
 
-
 		final String expiredUrl = "/expired";
-		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry,
-				expiredUrl + "will-be-overrridden") {
-					/* (non-Javadoc)
-					 * @see org.springframework.security.web.session.ConcurrentSessionFilter#determineExpiredUrl(javax.servlet.http.HttpServletRequest, org.springframework.security.core.session.SessionInformation)
-					 */
-					@Override
-					protected String determineExpiredUrl(HttpServletRequest request,
-							SessionInformation info) {
-						return expiredUrl;
-					}
+		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry, expiredUrl + "will-be-overrridden") {
+			/*
+			 * (non-Javadoc)
+			 *
+			 * @see org.springframework.security.web.session.ConcurrentSessionFilter#
+			 * determineExpiredUrl(javax.servlet.http.HttpServletRequest,
+			 * org.springframework.security.core.session.SessionInformation)
+			 */
+			@Override
+			protected String determineExpiredUrl(HttpServletRequest request, SessionInformation info) {
+				return expiredUrl;
+			}
 
 		};
 		filter.setRedirectStrategy(redirect);
@@ -278,10 +279,10 @@ public class ConcurrentSessionFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		SessionRegistry registry = mock(SessionRegistry.class);
-		SessionInformation information = new SessionInformation("user", "sessionId", new Date(System.currentTimeMillis() - 1000));
+		SessionInformation information = new SessionInformation("user", "sessionId",
+				new Date(System.currentTimeMillis() - 1000));
 		information.expireNow();
 		when(registry.getSessionInformation(anyString())).thenReturn(information);
-
 
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry);
 
@@ -300,13 +301,13 @@ public class ConcurrentSessionFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		SessionRegistry registry = mock(SessionRegistry.class);
-		SessionInformation information = new SessionInformation("user", "sessionId", new Date(System.currentTimeMillis() - 1000));
+		SessionInformation information = new SessionInformation("user", "sessionId",
+				new Date(System.currentTimeMillis() - 1000));
 		information.expireNow();
 		when(registry.getSessionInformation(anyString())).thenReturn(information);
 
-
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry);
-		filter.setLogoutHandlers(new LogoutHandler[] { handler } );
+		filter.setLogoutHandlers(new LogoutHandler[] { handler });
 
 		filter.doFilter(request, response, new MockFilterChain());
 
@@ -326,4 +327,5 @@ public class ConcurrentSessionFilterTests {
 
 		filter.setLogoutHandlers(new LogoutHandler[0]);
 	}
+
 }

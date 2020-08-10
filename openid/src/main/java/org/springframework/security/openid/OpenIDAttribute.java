@@ -28,15 +28,20 @@ import org.springframework.util.Assert;
  * are returned during the authentication process.
  *
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  * @author Luke Taylor
  * @since 3.0
  */
 public class OpenIDAttribute implements Serializable {
+
 	private final String name;
+
 	private final String typeIdentifier;
+
 	private boolean required = false;
+
 	private int count = 1;
 
 	private final List<String> values;
@@ -96,8 +101,7 @@ public class OpenIDAttribute implements Serializable {
 	 * The values obtained from an attribute exchange.
 	 */
 	public List<String> getValues() {
-		Assert.notNull(values,
-				"Cannot read values from an authentication request attribute");
+		Assert.notNull(values, "Cannot read values from an authentication request attribute");
 		return values;
 	}
 
@@ -112,4 +116,5 @@ public class OpenIDAttribute implements Serializable {
 		result.append("]");
 		return result.toString();
 	}
+
 }

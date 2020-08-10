@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.springframework.util.StringUtils;
 
 /**
- *
  * @author TSARDD
  * @since 18-okt-2007
  */
@@ -35,10 +34,8 @@ public class SimpleMappableRolesRetrieverTests {
 		SimpleMappableAttributesRetriever r = new SimpleMappableAttributesRetriever();
 		r.setMappableAttributes(roles);
 		Set<String> result = r.getMappableAttributes();
-		assertThat(
-				roles.containsAll(result) && result.containsAll(roles)).withFailMessage(
-						"Role collections do not match; result: " + result
-								+ ", expected: " + roles).isTrue();
+		assertThat(roles.containsAll(result) && result.containsAll(roles))
+				.withFailMessage("Role collections do not match; result: " + result + ", expected: " + roles).isTrue();
 	}
 
 }

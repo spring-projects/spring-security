@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.2
  */
 public class ClaimConversionServiceTests {
+
 	private final ConversionService conversionService = ClaimConversionService.getSharedInstance();
 
 	@Test
@@ -104,7 +105,8 @@ public class ClaimConversionServiceTests {
 		Instant instant = Instant.now();
 		assertThat(this.conversionService.convert(String.valueOf(instant.getEpochSecond()), Instant.class))
 				.isEqualTo(instant.truncatedTo(ChronoUnit.SECONDS));
-		assertThat(this.conversionService.convert(String.valueOf(instant.toString()), Instant.class)).isEqualTo(instant);
+		assertThat(this.conversionService.convert(String.valueOf(instant.toString()), Instant.class))
+				.isEqualTo(instant);
 	}
 
 	@Test
@@ -179,8 +181,7 @@ public class ClaimConversionServiceTests {
 	@Test
 	public void convertListStringWhenNotConvertibleThenReturnSingletonList() {
 		String string = "not-convertible-list";
-		assertThat(this.conversionService.convert(string, List.class))
-				.isEqualTo(Collections.singletonList(string));
+		assertThat(this.conversionService.convert(string, List.class)).isEqualTo(Collections.singletonList(string));
 	}
 
 	@Test
@@ -224,4 +225,5 @@ public class ClaimConversionServiceTests {
 		List<String> notConvertibleList = Lists.list("1", "2", "3", "4");
 		assertThat(this.conversionService.convert(notConvertibleList, Map.class)).isNull();
 	}
+
 }

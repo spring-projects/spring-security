@@ -32,7 +32,6 @@ public class RememberMeAuthenticationException extends AuthenticationException {
 	/**
 	 * Constructs a {@code RememberMeAuthenticationException} with the specified message
 	 * and root cause.
-	 *
 	 * @param msg the detail message
 	 * @param t the root cause
 	 */
@@ -43,10 +42,10 @@ public class RememberMeAuthenticationException extends AuthenticationException {
 	/**
 	 * Constructs an {@code RememberMeAuthenticationException} with the specified message
 	 * and no root cause.
-	 *
 	 * @param msg the detail message
 	 */
 	public RememberMeAuthenticationException(String msg) {
 		super(msg);
 	}
+
 }

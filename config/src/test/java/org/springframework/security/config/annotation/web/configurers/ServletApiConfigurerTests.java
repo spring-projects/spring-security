@@ -77,6 +77,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Onur Kagan Ozcan
  */
 public class ServletApiConfigurerTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -93,6 +94,7 @@ public class ServletApiConfigurerTests {
 
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
 		@Override
@@ -107,13 +109,16 @@ public class ServletApiConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
 		}
+
 	}
 
 	// SEC-2215
@@ -128,8 +133,7 @@ public class ServletApiConfigurerTests {
 	public void configureWhenUsingDefaultsThenAuthenticationEntryPointIsLogin() throws Exception {
 		this.spring.register(ServletApiConfig.class).autowire();
 
-		this.mvc.perform(formLogin())
-				.andExpect(status().isFound());
+		this.mvc.perform(formLogin()).andExpect(status().isFound());
 	}
 
 	// SEC-2926
@@ -137,13 +141,14 @@ public class ServletApiConfigurerTests {
 	public void configureWhenUsingDefaultsThenRolePrefixIsSet() throws Exception {
 		this.spring.register(ServletApiConfig.class, AdminController.class).autowire();
 
-		this.mvc.perform(get("/admin")
-				.with(authentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"))))
+		this.mvc.perform(
+				get("/admin").with(authentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"))))
 				.andExpect(status().isOk());
 	}
 
 	@EnableWebSecurity
 	static class ServletApiConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
@@ -157,6 +162,7 @@ public class ServletApiConfigurerTests {
 		public AuthenticationManager customAuthenticationManager() throws Exception {
 			return super.authenticationManagerBean();
 		}
+
 	}
 
 	@Test
@@ -165,13 +171,13 @@ public class ServletApiConfigurerTests {
 
 		this.mvc.perform(get("/"));
 
-		verify(CustomEntryPointConfig.ENTRYPOINT)
-				.commence(any(HttpServletRequest.class),
-						any(HttpServletResponse.class), any(AuthenticationException.class));
+		verify(CustomEntryPointConfig.ENTRYPOINT).commence(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(AuthenticationException.class));
 	}
 
 	@EnableWebSecurity
 	static class CustomEntryPointConfig extends WebSecurityConfigurerAdapter {
+
 		static AuthenticationEntryPoint ENTRYPOINT = spy(AuthenticationEntryPoint.class);
 
 		@Override
@@ -196,23 +202,24 @@ public class ServletApiConfigurerTests {
 					.withUser("user").password("password").roles("USER");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void servletApiWhenInvokedTwiceThenUsesOriginalRole() throws Exception {
 		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class, AdminController.class).autowire();
 
-		this.mvc.perform(get("/admin")
-				.with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
+		this.mvc.perform(
+				get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
 				.andExpect(status().isOk());
 
-		this.mvc.perform(get("/admin")
-				.with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
+		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
 				.andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity
 	static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -223,6 +230,7 @@ public class ServletApiConfigurerTests {
 				.servletApi();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -236,6 +244,7 @@ public class ServletApiConfigurerTests {
 
 	@EnableWebSecurity
 	static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
+
 		static AuthenticationTrustResolver TR = spy(AuthenticationTrustResolver.class);
 
 		@Override
@@ -245,19 +254,20 @@ public class ServletApiConfigurerTests {
 				.setSharedObject(AuthenticationTrustResolver.class, TR);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenServletApiWithDefaultsInLambdaThenUsesDefaultRolePrefix() throws Exception {
 		this.spring.register(ServletApiWithDefaultsInLambdaConfig.class, AdminController.class).autowire();
 
-		this.mvc.perform(get("/admin")
-				.with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
+		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
 				.andExpect(status().isOk());
 	}
 
 	@EnableWebSecurity
 	static class ServletApiWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -265,23 +275,24 @@ public class ServletApiConfigurerTests {
 				.servletApi(withDefaults());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenRolePrefixInLambdaThenUsesCustomRolePrefix() throws Exception {
 		this.spring.register(RolePrefixInLambdaConfig.class, AdminController.class).autowire();
 
-		this.mvc.perform(get("/admin")
-				.with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
+		this.mvc.perform(
+				get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
 				.andExpect(status().isOk());
 
-		this.mvc.perform(get("/admin")
-				.with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
+		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
 				.andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity
 	static class RolePrefixInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -292,16 +303,19 @@ public class ServletApiConfigurerTests {
 				);
 			// @formatter:on
 		}
+
 	}
 
 	@RestController
 	static class AdminController {
+
 		@GetMapping("/admin")
 		public void admin(HttpServletRequest request) {
 			if (!request.isUserInRole("ADMIN")) {
 				throw new AccessDeniedException("This resource is only available to admins");
 			}
 		}
+
 	}
 
 	@Test
@@ -325,6 +339,7 @@ public class ServletApiConfigurerTests {
 
 	@EnableWebSecurity
 	static class ServletApiWithLogoutConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -333,22 +348,21 @@ public class ServletApiConfigurerTests {
 				.logout();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void logoutServletApiWhenCsrfDisabled() throws Exception {
 		ConfigurableWebApplicationContext context = this.spring.register(CsrfDisabledConfig.class).getContext();
-		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context)
-				.apply(springSecurity())
-				.build();
-		MvcResult mvcResult = mockMvc.perform(get("/"))
-				.andReturn();
+		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+		MvcResult mvcResult = mockMvc.perform(get("/")).andReturn();
 		assertThat(mvcResult.getRequest().getSession(false)).isNull();
 	}
 
 	@Configuration
 	@EnableWebSecurity
 	static class CsrfDisabledConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -359,20 +373,20 @@ public class ServletApiConfigurerTests {
 
 		@RestController
 		static class LogoutController {
+
 			@GetMapping("/")
 			String logout(HttpServletRequest request) throws ServletException {
 				request.getSession().setAttribute("foo", "bar");
 				request.logout();
 				return "logout";
 			}
+
 		}
+
 	}
 
 	private <T extends Filter> T getFilter(Class<T> filterClass) {
-		return (T) getFilters().stream()
-				.filter(filterClass::isInstance)
-				.findFirst()
-				.orElse(null);
+		return (T) getFilters().stream().filter(filterClass::isInstance).findFirst().orElse(null);
 	}
 
 	private List<Filter> getFilters() {
@@ -383,7 +397,8 @@ public class ServletApiConfigurerTests {
 	private <T> T getFieldValue(Object target, String fieldName) {
 		try {
 			return (T) FieldUtils.getFieldValue(target, fieldName);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

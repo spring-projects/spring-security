@@ -31,12 +31,13 @@ import java.util.Map;
 public class LdapAuthority implements GrantedAuthority {
 
 	private String dn;
+
 	private String role;
+
 	private Map<String, List<String>> attributes;
 
 	/**
 	 * Constructs an LdapAuthority that has a role and a DN but no other attributes
-	 *
 	 * @param role
 	 * @param dn
 	 */
@@ -46,7 +47,6 @@ public class LdapAuthority implements GrantedAuthority {
 
 	/**
 	 * Constructs an LdapAuthority with the given role, DN and other LDAP attributes
-	 *
 	 * @param role
 	 * @param dn
 	 * @param attributes
@@ -62,7 +62,6 @@ public class LdapAuthority implements GrantedAuthority {
 
 	/**
 	 * Returns the LDAP attributes
-	 *
 	 * @return the LDAP attributes, map can be null
 	 */
 	public Map<String, List<String>> getAttributes() {
@@ -71,7 +70,6 @@ public class LdapAuthority implements GrantedAuthority {
 
 	/**
 	 * Returns the DN for this LDAP authority
-	 *
 	 * @return
 	 */
 	public String getDn() {
@@ -80,7 +78,6 @@ public class LdapAuthority implements GrantedAuthority {
 
 	/**
 	 * Returns the values for a specific attribute
-	 *
 	 * @param name the attribute name
 	 * @return a String array, never null but may be zero length
 	 */
@@ -97,7 +94,6 @@ public class LdapAuthority implements GrantedAuthority {
 
 	/**
 	 * Returns the first attribute value for a specified attribute
-	 *
 	 * @param name
 	 * @return the first attribute value for a specified attribute, may be null
 	 */
@@ -151,4 +147,5 @@ public class LdapAuthority implements GrantedAuthority {
 	public String toString() {
 		return "LdapAuthority{" + "dn='" + dn + '\'' + ", role='" + role + '\'' + '}';
 	}
+
 }

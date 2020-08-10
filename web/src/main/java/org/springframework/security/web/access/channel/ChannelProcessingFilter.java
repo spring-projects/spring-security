@@ -89,6 +89,7 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 	// ================================================================================================
 
 	private ChannelDecisionManager channelDecisionManager;
+
 	private FilterInvocationSecurityMetadataSource securityMetadataSource;
 
 	// ~ Methods
@@ -96,18 +97,15 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 
 	@Override
 	public void afterPropertiesSet() {
-		Assert.notNull(this.securityMetadataSource,
-				"securityMetadataSource must be specified");
-		Assert.notNull(this.channelDecisionManager,
-				"channelDecisionManager must be specified");
+		Assert.notNull(this.securityMetadataSource, "securityMetadataSource must be specified");
+		Assert.notNull(this.channelDecisionManager, "channelDecisionManager must be specified");
 
-		Collection<ConfigAttribute> attrDefs = this.securityMetadataSource
-				.getAllConfigAttributes();
+		Collection<ConfigAttribute> attrDefs = this.securityMetadataSource.getAllConfigAttributes();
 
 		if (attrDefs == null) {
 			if (this.logger.isWarnEnabled()) {
-				this.logger
-						.warn("Could not validate configuration attributes as the FilterInvocationSecurityMetadataSource did "
+				this.logger.warn(
+						"Could not validate configuration attributes as the FilterInvocationSecurityMetadataSource did "
 								+ "not return any attributes");
 			}
 
@@ -128,8 +126,7 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 			}
 		}
 		else {
-			throw new IllegalArgumentException(
-					"Unsupported configuration attributes: " + unsupportedAttributes);
+			throw new IllegalArgumentException("Unsupported configuration attributes: " + unsupportedAttributes);
 		}
 	}
 
@@ -143,8 +140,7 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 
 		if (attr != null) {
 			if (this.logger.isDebugEnabled()) {
-				this.logger.debug(
-						"Request: " + fi.toString() + "; ConfigAttributes: " + attr);
+				this.logger.debug("Request: " + fi.toString() + "; ConfigAttributes: " + attr);
 			}
 
 			this.channelDecisionManager.decide(fi, attr);
@@ -173,4 +169,5 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 			FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource) {
 		this.securityMetadataSource = filterInvocationSecurityMetadataSource;
 	}
+
 }

@@ -31,16 +31,16 @@ import static org.springframework.security.web.header.writers.ClearSiteDataHeade
 import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.STORAGE;
 
 /**
- *
  * @author Rafiullah Hamedy
  * @author Josh Cummings
- *
  * @see {@link ClearSiteDataHeaderWriter}
  */
 public class ClearSiteDataHeaderWriterTests {
+
 	private static final String HEADER_NAME = "Clear-Site-Data";
 
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
 
 	@Rule
@@ -80,11 +80,12 @@ public class ClearSiteDataHeaderWriterTests {
 
 	@Test
 	public void writeHeaderWhenRequestIsSecureThenHeaderValueMatchesPassedSources() {
-		ClearSiteDataHeaderWriter headerWriter =
-				new ClearSiteDataHeaderWriter(CACHE, COOKIES, STORAGE, EXECUTION_CONTEXTS);
+		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter(CACHE, COOKIES, STORAGE,
+				EXECUTION_CONTEXTS);
 		headerWriter.writeHeaders(this.request, this.response);
 
 		assertThat(this.response.getHeader(HEADER_NAME))
 				.isEqualTo("\"cache\", \"cookies\", \"storage\", \"executionContexts\"");
 	}
+
 }

@@ -34,7 +34,9 @@ import org.springframework.util.Assert;
  * @since 5.2
  */
 final class SingleKeyJWSKeySelector<C extends SecurityContext> implements JWSKeySelector<C> {
+
 	private final List<Key> keySet;
+
 	private final JWSAlgorithm expectedJwsAlgorithm;
 
 	SingleKeyJWSKeySelector(JWSAlgorithm expectedJwsAlgorithm, Key key) {
@@ -51,4 +53,5 @@ final class SingleKeyJWSKeySelector<C extends SecurityContext> implements JWSKey
 		}
 		return this.keySet;
 	}
+
 }

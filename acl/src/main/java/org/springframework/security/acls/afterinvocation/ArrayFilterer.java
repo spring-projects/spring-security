@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Paulo Neves
  */
 class ArrayFilterer<T> implements Filterer<T> {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -41,6 +42,7 @@ class ArrayFilterer<T> implements Filterer<T> {
 	// ================================================================================================
 
 	private final Set<T> removeList;
+
 	private final T[] list;
 
 	// ~ Constructors
@@ -67,8 +69,7 @@ class ArrayFilterer<T> implements Filterer<T> {
 		// Recreate an array of same type and filter the removed objects.
 		int originalSize = list.length;
 		int sizeOfResultingList = originalSize - removeList.size();
-		T[] filtered = (T[]) Array.newInstance(list.getClass().getComponentType(),
-				sizeOfResultingList);
+		T[] filtered = (T[]) Array.newInstance(list.getClass().getComponentType(), sizeOfResultingList);
 
 		for (int i = 0, j = 0; i < list.length; i++) {
 			T object = list[i];
@@ -80,8 +81,8 @@ class ArrayFilterer<T> implements Filterer<T> {
 		}
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Original array contained " + originalSize
-					+ " elements; now contains " + sizeOfResultingList + " elements");
+			logger.debug("Original array contained " + originalSize + " elements; now contains " + sizeOfResultingList
+					+ " elements");
 		}
 
 		return filtered;
@@ -119,4 +120,5 @@ class ArrayFilterer<T> implements Filterer<T> {
 	public void remove(T object) {
 		removeList.add(object);
 	}
+
 }

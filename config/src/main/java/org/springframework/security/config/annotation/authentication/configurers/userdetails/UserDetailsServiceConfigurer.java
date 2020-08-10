@@ -25,7 +25,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  *
  * @author Rob Winch
  * @since 3.2
- *
  * @param <B> the type of the {@link ProviderManagerBuilder}
  * @param <C> the {@link UserDetailsServiceConfigurer} (or this)
  * @param <U> the type of UserDetailsService being used to allow for returning the
@@ -55,4 +54,5 @@ public class UserDetailsServiceConfigurer<B extends ProviderManagerBuilder<B>, C
 	 */
 	protected void initUserDetailsService() throws Exception {
 	}
+
 }

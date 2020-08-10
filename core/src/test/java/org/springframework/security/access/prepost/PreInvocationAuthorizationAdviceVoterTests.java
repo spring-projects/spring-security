@@ -28,8 +28,10 @@ import org.springframework.security.access.intercept.aspectj.MethodInvocationAda
 
 @RunWith(MockitoJUnitRunner.class)
 public class PreInvocationAuthorizationAdviceVoterTests {
+
 	@Mock
 	private PreInvocationAuthorizationAdvice authorizationAdvice;
+
 	private PreInvocationAuthorizationAdviceVoter voter;
 
 	@Before
@@ -52,4 +54,5 @@ public class PreInvocationAuthorizationAdviceVoterTests {
 	public void supportsMethodInvocationAdapter() {
 		assertThat(voter.supports(MethodInvocationAdapter.class)).isTrue();
 	}
+
 }

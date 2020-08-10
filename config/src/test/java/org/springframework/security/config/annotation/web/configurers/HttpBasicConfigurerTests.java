@@ -62,12 +62,12 @@ public class HttpBasicConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnBasicAuthenticationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(BasicAuthenticationFilter.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(BasicAuthenticationFilter.class));
 	}
 
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
 		@Override
@@ -82,26 +82,29 @@ public class HttpBasicConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
 		}
+
 	}
 
 	@Test
 	public void httpBasicWhenUsingDefaultsInLambdaThenResponseIncludesBasicChallenge() throws Exception {
 		this.spring.register(DefaultsLambdaEntryPointConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(status().isUnauthorized())
+		this.mvc.perform(get("/")).andExpect(status().isUnauthorized())
 				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
 	}
 
 	@EnableWebSecurity
 	static class DefaultsLambdaEntryPointConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -121,20 +124,21 @@ public class HttpBasicConfigurerTests {
 				.inMemoryAuthentication();
 			// @formatter:on
 		}
+
 	}
 
-	//SEC-2198
+	// SEC-2198
 	@Test
 	public void httpBasicWhenUsingDefaultsThenResponseIncludesBasicChallenge() throws Exception {
 		this.spring.register(DefaultsEntryPointConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(status().isUnauthorized())
+		this.mvc.perform(get("/")).andExpect(status().isUnauthorized())
 				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
 	}
 
 	@EnableWebSecurity
 	static class DefaultsEntryPointConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -153,6 +157,7 @@ public class HttpBasicConfigurerTests {
 				.inMemoryAuthentication();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -161,14 +166,13 @@ public class HttpBasicConfigurerTests {
 
 		this.mvc.perform(get("/"));
 
-		verify(CustomAuthenticationEntryPointConfig.ENTRY_POINT)
-				.commence(any(HttpServletRequest.class),
-						any(HttpServletResponse.class),
-						any(AuthenticationException.class));
+		verify(CustomAuthenticationEntryPointConfig.ENTRY_POINT).commence(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(AuthenticationException.class));
 	}
 
 	@EnableWebSecurity
 	static class CustomAuthenticationEntryPointConfig extends WebSecurityConfigurerAdapter {
+
 		static AuthenticationEntryPoint ENTRY_POINT = mock(AuthenticationEntryPoint.class);
 
 		@Override
@@ -190,6 +194,7 @@ public class HttpBasicConfigurerTests {
 				.inMemoryAuthentication();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -198,14 +203,13 @@ public class HttpBasicConfigurerTests {
 
 		this.mvc.perform(get("/"));
 
-		verify(DuplicateDoesNotOverrideConfig.ENTRY_POINT)
-				.commence(any(HttpServletRequest.class),
-						any(HttpServletResponse.class),
-						any(AuthenticationException.class));
+		verify(DuplicateDoesNotOverrideConfig.ENTRY_POINT).commence(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(AuthenticationException.class));
 	}
 
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+
 		static AuthenticationEntryPoint ENTRY_POINT = mock(AuthenticationEntryPoint.class);
 
 		@Override
@@ -229,16 +233,15 @@ public class HttpBasicConfigurerTests {
 				.inMemoryAuthentication();
 			// @formatter:on
 		}
+
 	}
 
-	//SEC-3019
+	// SEC-3019
 	@Test
 	public void httpBasicWhenRememberMeConfiguredThenSetsRememberMeCookie() throws Exception {
 		this.spring.register(BasicUsesRememberMeConfig.class).autowire();
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "password"))
-				.param("remember-me", "true"))
+		this.mvc.perform(get("/").with(httpBasic("user", "password")).param("remember-me", "true"))
 				.andExpect(cookie().exists("remember-me"));
 	}
 
@@ -259,7 +262,7 @@ public class HttpBasicConfigurerTests {
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
-					// @formatter:off
+			// @formatter:off
 					User.withDefaultPasswordEncoder()
 							.username("user")
 							.password("password")
@@ -268,5 +271,7 @@ public class HttpBasicConfigurerTests {
 					// @formatter:on
 			);
 		}
+
 	}
+
 }

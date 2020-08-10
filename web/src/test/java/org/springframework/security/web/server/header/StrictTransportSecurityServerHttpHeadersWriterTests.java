@@ -31,6 +31,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @since 5.0
  */
 public class StrictTransportSecurityServerHttpHeadersWriterTests {
+
 	StrictTransportSecurityServerHttpHeadersWriter hsts = new StrictTransportSecurityServerHttpHeadersWriter();
 
 	ServerWebExchange exchange;
@@ -97,4 +98,5 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {
 		return MockServerWebExchange.from(request.build());
 	}
+
 }

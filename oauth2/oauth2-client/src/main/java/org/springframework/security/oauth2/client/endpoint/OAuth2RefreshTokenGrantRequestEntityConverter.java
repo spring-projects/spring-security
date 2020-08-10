@@ -32,8 +32,8 @@ import java.net.URI;
 
 /**
  * A {@link Converter} that converts the provided {@link OAuth2RefreshTokenGrantRequest}
- * to a {@link RequestEntity} representation of an OAuth 2.0 Access Token Request
- * for the Refresh Token Grant.
+ * to a {@link RequestEntity} representation of an OAuth 2.0 Access Token Request for the
+ * Refresh Token Grant.
  *
  * @author Joe Grandja
  * @since 5.2
@@ -41,11 +41,11 @@ import java.net.URI;
  * @see OAuth2RefreshTokenGrantRequest
  * @see RequestEntity
  */
-public class OAuth2RefreshTokenGrantRequestEntityConverter implements Converter<OAuth2RefreshTokenGrantRequest, RequestEntity<?>> {
+public class OAuth2RefreshTokenGrantRequestEntityConverter
+		implements Converter<OAuth2RefreshTokenGrantRequest, RequestEntity<?>> {
 
 	/**
 	 * Returns the {@link RequestEntity} used for the Access Token Request.
-	 *
 	 * @param refreshTokenGrantRequest the refresh token grant request
 	 * @return the {@link RequestEntity} used for the Access Token Request
 	 */
@@ -55,18 +55,18 @@ public class OAuth2RefreshTokenGrantRequestEntityConverter implements Converter<
 
 		HttpHeaders headers = OAuth2AuthorizationGrantRequestEntityUtils.getTokenRequestHeaders(clientRegistration);
 		MultiValueMap<String, String> formParameters = buildFormParameters(refreshTokenGrantRequest);
-		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri())
-				.build()
+		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri()).build()
 				.toUri();
 
 		return new RequestEntity<>(formParameters, headers, HttpMethod.POST, uri);
 	}
 
 	/**
-	 * Returns a {@link MultiValueMap} of the form parameters used for the Access Token Request body.
-	 *
+	 * Returns a {@link MultiValueMap} of the form parameters used for the Access Token
+	 * Request body.
 	 * @param refreshTokenGrantRequest the refresh token grant request
-	 * @return a {@link MultiValueMap} of the form parameters used for the Access Token Request body
+	 * @return a {@link MultiValueMap} of the form parameters used for the Access Token
+	 * Request body
 	 */
 	private MultiValueMap<String, String> buildFormParameters(OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
 		ClientRegistration clientRegistration = refreshTokenGrantRequest.getClientRegistration();
@@ -86,4 +86,5 @@ public class OAuth2RefreshTokenGrantRequestEntityConverter implements Converter<
 
 		return formParameters;
 	}
+
 }

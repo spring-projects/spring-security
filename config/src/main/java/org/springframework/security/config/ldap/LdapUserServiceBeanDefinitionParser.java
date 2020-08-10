@@ -32,17 +32,24 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  * @since 2.0
  */
-public class LdapUserServiceBeanDefinitionParser extends
-		AbstractUserDetailsServiceBeanDefinitionParser {
+public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
+
 	public static final String ATT_SERVER = "server-ref";
+
 	public static final String ATT_USER_SEARCH_FILTER = "user-search-filter";
+
 	public static final String ATT_USER_SEARCH_BASE = "user-search-base";
+
 	public static final String DEF_USER_SEARCH_BASE = "";
 
 	public static final String ATT_GROUP_SEARCH_FILTER = "group-search-filter";
+
 	public static final String ATT_GROUP_SEARCH_BASE = "group-search-base";
+
 	public static final String ATT_GROUP_ROLE_ATTRIBUTE = "group-role-attribute";
+
 	public static final String DEF_GROUP_SEARCH_FILTER = "(uniqueMember={0})";
+
 	public static final String DEF_GROUP_SEARCH_BASE = "";
 
 	static final String ATT_ROLE_PREFIX = "role-prefix";
@@ -52,28 +59,29 @@ public class LdapUserServiceBeanDefinitionParser extends
 	static final String OPT_INETORGPERSON = "inetOrgPerson";
 
 	public static final String LDAP_SEARCH_CLASS = "org.springframework.security.ldap.search.FilterBasedLdapUserSearch";
+
 	public static final String PERSON_MAPPER_CLASS = "org.springframework.security.ldap.userdetails.PersonContextMapper";
+
 	public static final String INET_ORG_PERSON_MAPPER_CLASS = "org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper";
+
 	public static final String LDAP_USER_MAPPER_CLASS = "org.springframework.security.ldap.userdetails.LdapUserDetailsMapper";
+
 	public static final String LDAP_AUTHORITIES_POPULATOR_CLASS = "org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator";
 
 	protected String getBeanClassName(Element element) {
 		return "org.springframework.security.ldap.userdetails.LdapUserDetailsService";
 	}
 
-	protected void doParse(Element elt, ParserContext parserContext,
-			BeanDefinitionBuilder builder) {
+	protected void doParse(Element elt, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
 		if (!StringUtils.hasText(elt.getAttribute(ATT_USER_SEARCH_FILTER))) {
-			parserContext.getReaderContext().error("User search filter must be supplied",
-					elt);
+			parserContext.getReaderContext().error("User search filter must be supplied", elt);
 		}
 
 		builder.addConstructorArgValue(parseSearchBean(elt, parserContext));
 		builder.getRawBeanDefinition().setSource(parserContext.extractSource(elt));
 		builder.addConstructorArgValue(parseAuthoritiesPopulator(elt, parserContext));
-		builder.addPropertyValue("userDetailsMapper",
-				parseUserDetailsClassOrUserMapperRef(elt, parserContext));
+		builder.addPropertyValue("userDetailsMapper", parseUserDetailsClassOrUserMapperRef(elt, parserContext));
 	}
 
 	static RootBeanDefinition parseSearchBean(Element elt, ParserContext parserContext) {
@@ -83,9 +91,8 @@ public class LdapUserServiceBeanDefinitionParser extends
 
 		if (StringUtils.hasText(userSearchBase)) {
 			if (!StringUtils.hasText(userSearchFilter)) {
-				parserContext.getReaderContext().error(
-						ATT_USER_SEARCH_BASE + " cannot be used without a "
-								+ ATT_USER_SEARCH_FILTER, source);
+				parserContext.getReaderContext()
+						.error(ATT_USER_SEARCH_BASE + " cannot be used without a " + ATT_USER_SEARCH_FILTER, source);
 			}
 		}
 		else {
@@ -96,8 +103,7 @@ public class LdapUserServiceBeanDefinitionParser extends
 			return null;
 		}
 
-		BeanDefinitionBuilder searchBuilder = BeanDefinitionBuilder
-				.rootBeanDefinition(LDAP_SEARCH_CLASS);
+		BeanDefinitionBuilder searchBuilder = BeanDefinitionBuilder.rootBeanDefinition(LDAP_SEARCH_CLASS);
 		searchBuilder.getRawBeanDefinition().setSource(source);
 		searchBuilder.addConstructorArgValue(userSearchBase);
 		searchBuilder.addConstructorArgValue(userSearchFilter);
@@ -106,8 +112,7 @@ public class LdapUserServiceBeanDefinitionParser extends
 		return (RootBeanDefinition) searchBuilder.getBeanDefinition();
 	}
 
-	static RuntimeBeanReference parseServerReference(Element elt,
-			ParserContext parserContext) {
+	static RuntimeBeanReference parseServerReference(Element elt, ParserContext parserContext) {
 		String server = elt.getAttribute(ATT_SERVER);
 		boolean requiresDefaultName = false;
 
@@ -123,36 +128,27 @@ public class LdapUserServiceBeanDefinitionParser extends
 		return contextSource;
 	}
 
-	private static void registerPostProcessorIfNecessary(BeanDefinitionRegistry registry,
-			boolean defaultNameRequired) {
-		if (registry
-				.containsBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR)) {
+	private static void registerPostProcessorIfNecessary(BeanDefinitionRegistry registry, boolean defaultNameRequired) {
+		if (registry.containsBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR)) {
 			if (defaultNameRequired) {
-				BeanDefinition bd = registry
-						.getBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR);
-				bd.getPropertyValues().addPropertyValue("defaultNameRequired",
-						defaultNameRequired);
+				BeanDefinition bd = registry.getBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR);
+				bd.getPropertyValues().addPropertyValue("defaultNameRequired", defaultNameRequired);
 			}
 			return;
 		}
 
-		BeanDefinitionBuilder bdb = BeanDefinitionBuilder
-				.rootBeanDefinition(ContextSourceSettingPostProcessor.class);
+		BeanDefinitionBuilder bdb = BeanDefinitionBuilder.rootBeanDefinition(ContextSourceSettingPostProcessor.class);
 		bdb.addPropertyValue("defaultNameRequired", defaultNameRequired);
-		registry.registerBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR,
-				bdb.getBeanDefinition());
+		registry.registerBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR, bdb.getBeanDefinition());
 	}
 
-	static BeanMetadataElement parseUserDetailsClassOrUserMapperRef(Element elt,
-			ParserContext parserContext) {
+	static BeanMetadataElement parseUserDetailsClassOrUserMapperRef(Element elt, ParserContext parserContext) {
 		String userDetailsClass = elt.getAttribute(ATT_USER_CLASS);
 		String userMapperRef = elt.getAttribute(ATT_USER_CONTEXT_MAPPER_REF);
 
 		if (StringUtils.hasText(userDetailsClass) && StringUtils.hasText(userMapperRef)) {
-			parserContext.getReaderContext().error(
-					"Attributes " + ATT_USER_CLASS + " and "
-							+ ATT_USER_CONTEXT_MAPPER_REF + " cannot be used together.",
-					parserContext.extractSource(elt));
+			parserContext.getReaderContext().error("Attributes " + ATT_USER_CLASS + " and "
+					+ ATT_USER_CONTEXT_MAPPER_REF + " cannot be used together.", parserContext.extractSource(elt));
 		}
 
 		if (StringUtils.hasText(userMapperRef)) {
@@ -176,8 +172,7 @@ public class LdapUserServiceBeanDefinitionParser extends
 		return mapper;
 	}
 
-	static RootBeanDefinition parseAuthoritiesPopulator(Element elt,
-			ParserContext parserContext) {
+	static RootBeanDefinition parseAuthoritiesPopulator(Element elt, ParserContext parserContext) {
 		String groupSearchFilter = elt.getAttribute(ATT_GROUP_SEARCH_FILTER);
 		String groupSearchBase = elt.getAttribute(ATT_GROUP_SEARCH_BASE);
 		String groupRoleAttribute = elt.getAttribute(ATT_GROUP_ROLE_ATTRIBUTE);
@@ -191,8 +186,7 @@ public class LdapUserServiceBeanDefinitionParser extends
 			groupSearchBase = DEF_GROUP_SEARCH_BASE;
 		}
 
-		BeanDefinitionBuilder populator = BeanDefinitionBuilder
-				.rootBeanDefinition(LDAP_AUTHORITIES_POPULATOR_CLASS);
+		BeanDefinitionBuilder populator = BeanDefinitionBuilder.rootBeanDefinition(LDAP_AUTHORITIES_POPULATOR_CLASS);
 		populator.getRawBeanDefinition().setSource(parserContext.extractSource(elt));
 		populator.addConstructorArgValue(parseServerReference(elt, parserContext));
 		populator.addConstructorArgValue(groupSearchBase);
@@ -212,4 +206,5 @@ public class LdapUserServiceBeanDefinitionParser extends
 
 		return (RootBeanDefinition) populator.getBeanDefinition();
 	}
+
 }

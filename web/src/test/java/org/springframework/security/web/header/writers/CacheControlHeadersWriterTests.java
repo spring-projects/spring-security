@@ -15,7 +15,6 @@
  */
 package org.springframework.security.web.header.writers;
 
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,12 +54,10 @@ public class CacheControlHeadersWriterTests {
 		this.writer.writeHeaders(this.request, this.response);
 
 		assertThat(this.response.getHeaderNames().size()).isEqualTo(3);
-		assertThat(this.response.getHeaderValues("Cache-Control")).containsOnly(
-				"no-cache, no-store, max-age=0, must-revalidate");
-		assertThat(this.response.getHeaderValues("Pragma"))
-				.containsOnly("no-cache");
-		assertThat(this.response.getHeaderValues("Expires"))
-				.containsOnly("0");
+		assertThat(this.response.getHeaderValues("Cache-Control"))
+				.containsOnly("no-cache, no-store, max-age=0, must-revalidate");
+		assertThat(this.response.getHeaderValues("Pragma")).containsOnly("no-cache");
+		assertThat(this.response.getHeaderValues("Expires")).containsOnly("0");
 	}
 
 	// gh-2953
@@ -71,8 +68,7 @@ public class CacheControlHeadersWriterTests {
 		this.writer.writeHeaders(this.request, this.response);
 
 		assertThat(this.response.getHeaderNames()).hasSize(1);
-		assertThat(this.response.getHeaderValues("Cache-Control"))
-				.containsOnly("max-age: 123");
+		assertThat(this.response.getHeaderValues("Cache-Control")).containsOnly("max-age: 123");
 		assertThat(this.response.getHeaderValue("Pragma")).isNull();
 		assertThat(this.response.getHeaderValue("Expires")).isNull();
 	}
@@ -110,4 +106,5 @@ public class CacheControlHeadersWriterTests {
 
 		assertThat(this.response.getHeaderNames()).isEmpty();
 	}
+
 }

@@ -36,7 +36,9 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  */
 class PortMappingsBeanDefinitionParser implements BeanDefinitionParser {
+
 	public static final String ATT_HTTP_PORT = "http";
+
 	public static final String ATT_HTTPS_PORT = "https";
 
 	@SuppressWarnings("unchecked")
@@ -45,11 +47,9 @@ class PortMappingsBeanDefinitionParser implements BeanDefinitionParser {
 		portMapper.setSource(parserContext.extractSource(element));
 
 		if (element != null) {
-			List<Element> mappingElts = DomUtils.getChildElementsByTagName(element,
-					Elements.PORT_MAPPING);
+			List<Element> mappingElts = DomUtils.getChildElementsByTagName(element, Elements.PORT_MAPPING);
 			if (mappingElts.isEmpty()) {
-				parserContext.getReaderContext().error(
-						"No port-mapping child elements specified", element);
+				parserContext.getReaderContext().error("No port-mapping child elements specified", element);
 			}
 
 			Map mappings = new ManagedMap();
@@ -59,13 +59,11 @@ class PortMappingsBeanDefinitionParser implements BeanDefinitionParser {
 				String httpsPort = elt.getAttribute(ATT_HTTPS_PORT);
 
 				if (!StringUtils.hasText(httpPort)) {
-					parserContext.getReaderContext().error(
-							"No http port supplied in port mapping", elt);
+					parserContext.getReaderContext().error("No http port supplied in port mapping", elt);
 				}
 
 				if (!StringUtils.hasText(httpsPort)) {
-					parserContext.getReaderContext().error(
-							"No https port supplied in port mapping", elt);
+					parserContext.getReaderContext().error("No https port supplied in port mapping", elt);
 				}
 
 				mappings.put(httpPort, httpsPort);
@@ -76,4 +74,5 @@ class PortMappingsBeanDefinitionParser implements BeanDefinitionParser {
 
 		return portMapper;
 	}
+
 }

@@ -161,5 +161,5 @@ public class SCryptPasswordEncoderTests {
 	public void upgradeEncodingWhenInvalidInputThenException() {
 		new SCryptPasswordEncoder().upgradeEncoding("not-a-scrypt-password");
 	}
-}
 
+}

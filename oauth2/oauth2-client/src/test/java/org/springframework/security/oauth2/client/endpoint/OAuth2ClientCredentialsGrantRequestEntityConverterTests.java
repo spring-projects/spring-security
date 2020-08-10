@@ -36,19 +36,18 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
  * @author Joe Grandja
  */
 public class OAuth2ClientCredentialsGrantRequestEntityConverterTests {
+
 	private OAuth2ClientCredentialsGrantRequestEntityConverter converter = new OAuth2ClientCredentialsGrantRequestEntityConverter();
+
 	private OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest;
 
 	@Before
 	public void setup() {
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("registration-1")
-				.clientId("client-1")
-				.clientSecret("secret")
+				.clientId("client-1").clientSecret("secret")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-				.scope("read", "write")
-				.tokenUri("https://provider.com/oauth2/token")
-				.build();
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).scope("read", "write")
+				.tokenUri("https://provider.com/oauth2/token").build();
 		this.clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(clientRegistration);
 	}
 
@@ -60,18 +59,19 @@ public class OAuth2ClientCredentialsGrantRequestEntityConverterTests {
 		ClientRegistration clientRegistration = this.clientCredentialsGrantRequest.getClientRegistration();
 
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
-		assertThat(requestEntity.getUrl().toASCIIString()).isEqualTo(
-				clientRegistration.getProviderDetails().getTokenUri());
+		assertThat(requestEntity.getUrl().toASCIIString())
+				.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
 
 		HttpHeaders headers = requestEntity.getHeaders();
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
-		assertThat(headers.getContentType()).isEqualTo(
-				MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
+		assertThat(headers.getContentType())
+				.isEqualTo(MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
 
 		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
-		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE)).isEqualTo(
-				AuthorizationGrantType.CLIENT_CREDENTIALS.getValue());
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE))
+				.isEqualTo(AuthorizationGrantType.CLIENT_CREDENTIALS.getValue());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).isEqualTo("read write");
 	}
+
 }

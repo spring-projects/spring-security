@@ -42,8 +42,8 @@ import org.springframework.util.ClassUtils;
  * @author Ben Alex
  * @since 2.0
  */
-public class MapBasedMethodSecurityMetadataSource extends
-		AbstractFallbackMethodSecurityMetadataSource implements BeanClassLoaderAware {
+public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource
+		implements BeanClassLoaderAware {
 
 	// ~ Instance fields
 	// ================================================================================================
@@ -65,8 +65,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 	 * Creates the <tt>MapBasedMethodSecurityMetadataSource</tt> from a
 	 * @param methodMap map of method names to <tt>ConfigAttribute</tt>s.
 	 */
-	public MapBasedMethodSecurityMetadataSource(
-			Map<String, List<ConfigAttribute>> methodMap) {
+	public MapBasedMethodSecurityMetadataSource(Map<String, List<ConfigAttribute>> methodMap) {
 		for (Map.Entry<String, List<ConfigAttribute>> entry : methodMap.entrySet()) {
 			addSecureMethod(entry.getKey(), entry.getValue());
 		}
@@ -85,8 +84,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 	 * applicable.
 	 */
 	@Override
-	protected Collection<ConfigAttribute> findAttributes(Method method,
-			Class<?> targetClass) {
+	protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
 		if (targetClass == null) {
 			return null;
 		}
@@ -94,8 +92,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 		return findAttributesSpecifiedAgainst(method, targetClass);
 	}
 
-	private List<ConfigAttribute> findAttributesSpecifiedAgainst(Method method,
-			Class<?> clazz) {
+	private List<ConfigAttribute> findAttributesSpecifiedAgainst(Method method, Class<?> clazz) {
 		RegisteredMethod registeredMethod = new RegisteredMethod(method, clazz);
 		if (methodMap.containsKey(registeredMethod)) {
 			return methodMap.get(registeredMethod);
@@ -110,7 +107,6 @@ public class MapBasedMethodSecurityMetadataSource extends
 	/**
 	 * Add configuration attributes for a secure method. Method names can end or start
 	 * with <code>*</code> for matching multiple methods.
-	 *
 	 * @param name type and method name, separated by a dot
 	 * @param attr the security attributes associated with the method
 	 */
@@ -118,8 +114,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 		int lastDotIndex = name.lastIndexOf(".");
 
 		if (lastDotIndex == -1) {
-			throw new IllegalArgumentException("'" + name
-					+ "' is not a valid method name: format is FQN.methodName");
+			throw new IllegalArgumentException("'" + name + "' is not a valid method name: format is FQN.methodName");
 		}
 
 		String methodName = name.substring(lastDotIndex + 1);
@@ -134,19 +129,16 @@ public class MapBasedMethodSecurityMetadataSource extends
 	/**
 	 * Add configuration attributes for a secure method. Mapped method names can end or
 	 * start with <code>*</code> for matching multiple methods.
-	 *
 	 * @param javaType target interface or class the security configuration attribute
 	 * applies to
 	 * @param mappedName mapped method name, which the javaType has declared or inherited
 	 * @param attr required authorities associated with the method
 	 */
-	public void addSecureMethod(Class<?> javaType, String mappedName,
-			List<ConfigAttribute> attr) {
+	public void addSecureMethod(Class<?> javaType, String mappedName, List<ConfigAttribute> attr) {
 		String name = javaType.getName() + '.' + mappedName;
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Request to add secure method [" + name + "] with attributes ["
-					+ attr + "]");
+			logger.debug("Request to add secure method [" + name + "] with attributes [" + attr + "]");
 		}
 
 		Method[] methods = javaType.getMethods();
@@ -159,8 +151,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 		}
 
 		if (matchingMethods.isEmpty()) {
-			throw new IllegalArgumentException("Couldn't find method '" + mappedName
-					+ "' on '" + javaType + "'");
+			throw new IllegalArgumentException("Couldn't find method '" + mappedName + "' on '" + javaType + "'");
 		}
 
 		// register all matching methods
@@ -168,24 +159,20 @@ public class MapBasedMethodSecurityMetadataSource extends
 			RegisteredMethod registeredMethod = new RegisteredMethod(method, javaType);
 			String regMethodName = this.nameMap.get(registeredMethod);
 
-			if ((regMethodName == null)
-					|| (!regMethodName.equals(name) && (regMethodName.length() <= name
-							.length()))) {
+			if ((regMethodName == null) || (!regMethodName.equals(name) && (regMethodName.length() <= name.length()))) {
 				// no already registered method name, or more specific
 				// method name specification now -> (re-)register method
 				if (regMethodName != null) {
-					logger.debug("Replacing attributes for secure method [" + method
-							+ "]: current name [" + name + "] is more specific than ["
-							+ regMethodName + "]");
+					logger.debug("Replacing attributes for secure method [" + method + "]: current name [" + name
+							+ "] is more specific than [" + regMethodName + "]");
 				}
 
 				this.nameMap.put(registeredMethod, name);
 				addSecureMethod(registeredMethod, attr);
 			}
 			else {
-				logger.debug("Keeping attributes for secure method [" + method
-						+ "]: current name [" + name + "] is not more specific than ["
-						+ regMethodName + "]");
+				logger.debug("Keeping attributes for secure method [" + method + "]: current name [" + name
+						+ "] is not more specific than [" + regMethodName + "]");
 			}
 		}
 	}
@@ -199,14 +186,11 @@ public class MapBasedMethodSecurityMetadataSource extends
 	 * <p>
 	 * This method should only be called during initialization of the {@code BeanFactory}.
 	 */
-	public void addSecureMethod(Class<?> javaType, Method method,
-			List<ConfigAttribute> attr) {
+	public void addSecureMethod(Class<?> javaType, Method method, List<ConfigAttribute> attr) {
 		RegisteredMethod key = new RegisteredMethod(method, javaType);
 
 		if (methodMap.containsKey(key)) {
-			logger.debug("Method [" + method
-					+ "] is already registered with attributes [" + methodMap.get(key)
-					+ "]");
+			logger.debug("Method [" + method + "] is already registered with attributes [" + methodMap.get(key) + "]");
 			return;
 		}
 
@@ -215,7 +199,6 @@ public class MapBasedMethodSecurityMetadataSource extends
 
 	/**
 	 * Add configuration attributes for a secure method.
-	 *
 	 * @param method the method to be secured
 	 * @param attr required authorities associated with the method
 	 */
@@ -223,15 +206,13 @@ public class MapBasedMethodSecurityMetadataSource extends
 		Assert.notNull(method, "RegisteredMethod required");
 		Assert.notNull(attr, "Configuration attribute required");
 		if (logger.isInfoEnabled()) {
-			logger.info("Adding secure method [" + method + "] with attributes [" + attr
-					+ "]");
+			logger.info("Adding secure method [" + method + "] with attributes [" + attr + "]");
 		}
 		this.methodMap.put(method, attr);
 	}
 
 	/**
 	 * Obtains the configuration attributes explicitly defined against this bean.
-	 *
 	 * @return the attributes explicitly defined against this bean
 	 */
 	@Override
@@ -248,17 +229,13 @@ public class MapBasedMethodSecurityMetadataSource extends
 	/**
 	 * Return if the given method name matches the mapped name. The default implementation
 	 * checks for "xxx" and "xxx" matches.
-	 *
 	 * @param methodName the method name of the class
 	 * @param mappedName the name in the descriptor
-	 *
 	 * @return if the names match
 	 */
 	private boolean isMatch(String methodName, String mappedName) {
-		return (mappedName.endsWith("*") && methodName.startsWith(mappedName.substring(0,
-				mappedName.length() - 1)))
-				|| (mappedName.startsWith("*") && methodName.endsWith(mappedName
-						.substring(1, mappedName.length())));
+		return (mappedName.endsWith("*") && methodName.startsWith(mappedName.substring(0, mappedName.length() - 1)))
+				|| (mappedName.startsWith("*") && methodName.endsWith(mappedName.substring(1, mappedName.length())));
 	}
 
 	@Override
@@ -284,7 +261,9 @@ public class MapBasedMethodSecurityMetadataSource extends
 	 * we're invoking against and the Method will provide details of the declared class.
 	 */
 	private static class RegisteredMethod {
+
 		private final Method method;
+
 		private final Class<?> registeredJavaType;
 
 		RegisteredMethod(Method method, Class<?> registeredJavaType) {
@@ -301,8 +280,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 			}
 			if (obj != null && obj instanceof RegisteredMethod) {
 				RegisteredMethod rhs = (RegisteredMethod) obj;
-				return method.equals(rhs.method)
-						&& registeredJavaType.equals(rhs.registeredJavaType);
+				return method.equals(rhs.method) && registeredJavaType.equals(rhs.registeredJavaType);
 			}
 			return false;
 		}
@@ -314,9 +292,9 @@ public class MapBasedMethodSecurityMetadataSource extends
 
 		@Override
 		public String toString() {
-			return "RegisteredMethod[" + registeredJavaType.getName() + "; " + method
-					+ "]";
+			return "RegisteredMethod[" + registeredJavaType.getName() + "; " + method + "]";
 		}
+
 	}
 
 }

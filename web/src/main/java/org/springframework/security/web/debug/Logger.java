@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
  * @since 3.1
  */
 final class Logger {
+
 	private static final Log logger = LogFactory.getLog("Spring Security Debugger");
 
 	public void info(String message) {
@@ -53,4 +54,5 @@ final class Logger {
 
 		logger.info(output.toString());
 	}
+
 }

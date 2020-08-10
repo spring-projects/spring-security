@@ -38,14 +38,13 @@ import java.util.Collection;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
-@JsonIgnoreProperties(value = {"attributes"}, ignoreUnknown = true)
+@JsonIgnoreProperties(value = { "attributes" }, ignoreUnknown = true)
 abstract class DefaultOidcUserMixin {
 
 	@JsonCreator
-	DefaultOidcUserMixin(
-			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
-			@JsonProperty("idToken") OidcIdToken idToken,
-			@JsonProperty("userInfo") OidcUserInfo userInfo,
+	DefaultOidcUserMixin(@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
+			@JsonProperty("idToken") OidcIdToken idToken, @JsonProperty("userInfo") OidcUserInfo userInfo,
 			@JsonProperty("nameAttributeKey") String nameAttributeKey) {
 	}
+
 }

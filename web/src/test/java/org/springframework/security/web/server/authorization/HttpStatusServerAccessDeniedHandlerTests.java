@@ -36,9 +36,12 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class HttpStatusServerAccessDeniedHandlerTests {
+
 	@Mock
 	private ServerWebExchange exchange;
+
 	private HttpStatus httpStatus = HttpStatus.FORBIDDEN;
+
 	private HttpStatusServerAccessDeniedHandler handler = new HttpStatusServerAccessDeniedHandler(this.httpStatus);
 
 	private AccessDeniedException exception = new AccessDeniedException("Forbidden");
@@ -74,4 +77,5 @@ public class HttpStatusServerAccessDeniedHandlerTests {
 
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(this.httpStatus);
 	}
+
 }

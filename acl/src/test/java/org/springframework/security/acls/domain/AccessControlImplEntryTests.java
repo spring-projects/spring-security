@@ -39,8 +39,8 @@ public class AccessControlImplEntryTests {
 	public void testConstructorRequiredFields() {
 		// Check Acl field is present
 		try {
-			new AccessControlEntryImpl(null, null, new PrincipalSid("johndoe"),
-					BasePermission.ADMINISTRATION, true, true, true);
+			new AccessControlEntryImpl(null, null, new PrincipalSid("johndoe"), BasePermission.ADMINISTRATION, true,
+					true, true);
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
@@ -48,8 +48,7 @@ public class AccessControlImplEntryTests {
 
 		// Check Sid field is present
 		try {
-			new AccessControlEntryImpl(null, mock(Acl.class), null,
-					BasePermission.ADMINISTRATION, true, true, true);
+			new AccessControlEntryImpl(null, mock(Acl.class), null, BasePermission.ADMINISTRATION, true, true, true);
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
@@ -57,8 +56,7 @@ public class AccessControlImplEntryTests {
 
 		// Check Permission field is present
 		try {
-			new AccessControlEntryImpl(null, mock(Acl.class),
-					new PrincipalSid("johndoe"), null, true, true, true);
+			new AccessControlEntryImpl(null, mock(Acl.class), new PrincipalSid("johndoe"), null, true, true, true);
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
@@ -71,8 +69,8 @@ public class AccessControlImplEntryTests {
 		Sid sid = new PrincipalSid("johndoe");
 
 		// Create a sample entry
-		AccessControlEntry ace = new AccessControlEntryImpl(1L, mockAcl,
-				sid, BasePermission.ADMINISTRATION, true, true, true);
+		AccessControlEntry ace = new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.ADMINISTRATION, true, true,
+				true);
 
 		// and check every get() method
 		assertThat(ace.getId()).isEqualTo(1L);
@@ -92,26 +90,26 @@ public class AccessControlImplEntryTests {
 		when(mockAcl.getObjectIdentity()).thenReturn(oid);
 		Sid sid = new PrincipalSid("johndoe");
 
-		AccessControlEntry ace = new AccessControlEntryImpl(1L, mockAcl,
-				sid, BasePermission.ADMINISTRATION, true, true, true);
+		AccessControlEntry ace = new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.ADMINISTRATION, true, true,
+				true);
 
 		assertThat(ace).isNotNull();
 		assertThat(ace).isNotEqualTo(100L);
 		assertThat(ace).isEqualTo(ace);
-		assertThat(ace).isEqualTo(new AccessControlEntryImpl(1L, mockAcl, sid,
+		assertThat(ace).isEqualTo(
+				new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.ADMINISTRATION, true, true, true));
+		assertThat(ace).isNotEqualTo(
+				new AccessControlEntryImpl(2L, mockAcl, sid, BasePermission.ADMINISTRATION, true, true, true));
+		assertThat(ace).isNotEqualTo(new AccessControlEntryImpl(1L, mockAcl, new PrincipalSid("scott"),
 				BasePermission.ADMINISTRATION, true, true, true));
-		assertThat(ace).isNotEqualTo(new AccessControlEntryImpl(2L, mockAcl, sid,
-				BasePermission.ADMINISTRATION, true, true, true));
-		assertThat(ace).isNotEqualTo(new AccessControlEntryImpl(1L, mockAcl,
-				new PrincipalSid("scott"), BasePermission.ADMINISTRATION, true, true,
-				true));
-		assertThat(ace).isNotEqualTo(new AccessControlEntryImpl(1L, mockAcl, sid,
-				BasePermission.WRITE, true, true, true));
-		assertThat(ace).isNotEqualTo(new AccessControlEntryImpl(1L, mockAcl, sid,
-				BasePermission.ADMINISTRATION, false, true, true));
-		assertThat(ace).isNotEqualTo(new AccessControlEntryImpl(1L, mockAcl, sid,
-				BasePermission.ADMINISTRATION, true, false, true));
-		assertThat(ace).isNotEqualTo(new AccessControlEntryImpl(1L, mockAcl, sid,
-				BasePermission.ADMINISTRATION, true, true, false));
+		assertThat(ace)
+				.isNotEqualTo(new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.WRITE, true, true, true));
+		assertThat(ace).isNotEqualTo(
+				new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.ADMINISTRATION, false, true, true));
+		assertThat(ace).isNotEqualTo(
+				new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.ADMINISTRATION, true, false, true));
+		assertThat(ace).isNotEqualTo(
+				new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.ADMINISTRATION, true, true, false));
 	}
+
 }

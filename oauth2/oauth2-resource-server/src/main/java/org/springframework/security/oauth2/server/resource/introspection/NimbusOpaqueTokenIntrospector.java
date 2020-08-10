@@ -55,23 +55,25 @@ import static org.springframework.security.oauth2.server.resource.introspection.
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SCOPE;
 
 /**
- * A Nimbus implementation of {@link OpaqueTokenIntrospector} that verifies and introspects
- * a token using the configured
- * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection Endpoint</a>.
+ * A Nimbus implementation of {@link OpaqueTokenIntrospector} that verifies and
+ * introspects a token using the configured
+ * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection
+ * Endpoint</a>.
  *
  * @author Josh Cummings
  * @author MD Sayem Ahmed
  * @since 5.2
  */
 public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
+
 	private Converter<String, RequestEntity<?>> requestEntityConverter;
+
 	private RestOperations restOperations;
 
 	private final String authorityPrefix = "SCOPE_";
 
 	/**
 	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
-	 *
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param clientId The client id authorized to introspect
 	 * @param clientSecret The client's secret
@@ -90,9 +92,8 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	/**
 	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
 	 *
-	 * The given {@link RestOperations} should perform its own client authentication against the
-	 * introspection endpoint.
-	 *
+	 * The given {@link RestOperations} should perform its own client authentication
+	 * against the introspection endpoint.
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param restOperations The client for performing the introspection request
 	 */
@@ -139,7 +140,8 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		TokenIntrospectionResponse introspectionResponse = parseNimbusResponse(httpResponse);
 		TokenIntrospectionSuccessResponse introspectionSuccessResponse = castToNimbusSuccess(introspectionResponse);
 
-		// relying solely on the authorization server to validate this token (not checking 'exp', for example)
+		// relying solely on the authorization server to validate this token (not checking
+		// 'exp', for example)
 		if (!introspectionSuccessResponse.isActive()) {
 			throw new BadOpaqueTokenException("Provided token isn't active");
 		}
@@ -148,11 +150,10 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	}
 
 	/**
-	 * Sets the {@link Converter} used for converting the OAuth 2.0 access token to a {@link RequestEntity}
-	 * representation of the OAuth 2.0 token introspection request.
-	 *
-	 * @param requestEntityConverter the {@link Converter} used for converting to a {@link RequestEntity} representation
-	 *                               of the token introspection request
+	 * Sets the {@link Converter} used for converting the OAuth 2.0 access token to a
+	 * {@link RequestEntity} representation of the OAuth 2.0 token introspection request.
+	 * @param requestEntityConverter the {@link Converter} used for converting to a
+	 * {@link RequestEntity} representation of the token introspection request
 	 */
 	public void setRequestEntityConverter(Converter<String, RequestEntity<?>> requestEntityConverter) {
 		Assert.notNull(requestEntityConverter, "requestEntityConverter cannot be null");
@@ -163,7 +164,8 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	private ResponseEntity<String> makeRequest(RequestEntity<?> requestEntity) {
 		try {
 			return this.restOperations.exchange(requestEntity, String.class);
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			throw new OAuth2IntrospectionException(ex.getMessage(), ex);
 		}
 	}
@@ -174,8 +176,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		response.setContent(responseEntity.getBody());
 
 		if (response.getStatusCode() != HTTPResponse.SC_OK) {
-			throw new OAuth2IntrospectionException(
-					"Introspection endpoint responded with " + response.getStatusCode());
+			throw new OAuth2IntrospectionException("Introspection endpoint responded with " + response.getStatusCode());
 		}
 		return response;
 	}
@@ -183,7 +184,8 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	private TokenIntrospectionResponse parseNimbusResponse(HTTPResponse response) {
 		try {
 			return TokenIntrospectionResponse.parse(response);
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			throw new OAuth2IntrospectionException(ex.getMessage(), ex);
 		}
 	}
@@ -237,8 +239,10 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	private URL issuer(String uri) {
 		try {
 			return new URL(uri);
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			throw new OAuth2IntrospectionException("Invalid " + ISSUER + " value: " + uri);
 		}
 	}
+
 }

@@ -22,11 +22,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * time.
  *
  * @param <O> the type of Object that is being built
- *
  * @author Rob Winch
  *
  */
 public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
+
 	private AtomicBoolean building = new AtomicBoolean();
 
 	private O object;
@@ -47,7 +47,6 @@ public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
 	/**
 	 * Gets the object that was built. If it has not been built yet an Exception is
 	 * thrown.
-	 *
 	 * @return the Object that was built
 	 */
 	public final O getObject() {
@@ -59,10 +58,9 @@ public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
 
 	/**
 	 * Subclasses should implement this to perform the build.
-	 *
 	 * @return the object that should be returned by {@link #build()}.
-	 *
 	 * @throws Exception if an error occurs
 	 */
 	protected abstract O doBuild() throws Exception;
+
 }

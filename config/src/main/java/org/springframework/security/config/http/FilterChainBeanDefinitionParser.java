@@ -32,6 +32,7 @@ import java.util.*;
  * @author Luke Taylor
  */
 public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {
+
 	private static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
 
 	public BeanDefinition parse(Element elt, ParserContext pc) {
@@ -40,8 +41,7 @@ public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {
 		String requestMatcher = elt.getAttribute(ATT_REQUEST_MATCHER_REF);
 		String filters = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS);
 
-		BeanDefinitionBuilder builder = BeanDefinitionBuilder
-				.rootBeanDefinition(DefaultSecurityFilterChain.class);
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(DefaultSecurityFilterChain.class);
 
 		if (StringUtils.hasText(path)) {
 			Assert.isTrue(!StringUtils.hasText(requestMatcher), "");
@@ -57,8 +57,7 @@ public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		else {
 			String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");
-			ManagedList<RuntimeBeanReference> filterChain = new ManagedList<>(
-					filterBeanNames.length);
+			ManagedList<RuntimeBeanReference> filterChain = new ManagedList<>(filterBeanNames.length);
 
 			for (String name : filterBeanNames) {
 				filterChain.add(new RuntimeBeanReference(name));
@@ -69,4 +68,5 @@ public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {
 
 		return builder.getBeanDefinition();
 	}
+
 }

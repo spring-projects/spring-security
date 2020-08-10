@@ -100,8 +100,8 @@ public class PayloadSocketAcceptorTests {
 
 	@Test
 	public void acceptWhenDataMimeTypeNullThenException() {
-		assertThatCode(() -> this.acceptor.accept(this.setupPayload, this.rSocket)
-				.block()).isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> this.acceptor.accept(this.setupPayload, this.rSocket).block())
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -132,8 +132,8 @@ public class PayloadSocketAcceptorTests {
 
 		PayloadExchange exchange = captureExchange();
 
-		assertThat(exchange.getMetadataMimeType()
-				.toString()).isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+		assertThat(exchange.getMetadataMimeType().toString())
+				.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
 
@@ -148,18 +148,19 @@ public class PayloadSocketAcceptorTests {
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
 
-
 	@Test
 	// gh-8654
 	public void acceptWhenDelegateAcceptRequiresReactiveSecurityContext() {
 		when(this.setupPayload.metadataMimeType()).thenReturn(MediaType.TEXT_PLAIN_VALUE);
 		when(this.setupPayload.dataMimeType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
-		SecurityContext expectedSecurityContext = new SecurityContextImpl(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-		CaptureSecurityContextSocketAcceptor captureSecurityContext = new CaptureSecurityContextSocketAcceptor(this.rSocket);
+		SecurityContext expectedSecurityContext = new SecurityContextImpl(
+				new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+		CaptureSecurityContextSocketAcceptor captureSecurityContext = new CaptureSecurityContextSocketAcceptor(
+				this.rSocket);
 		PayloadInterceptor authenticateInterceptor = (exchange, chain) -> {
-			Context withSecurityContext = ReactiveSecurityContextHolder.withSecurityContext(Mono.just(expectedSecurityContext));
-			return chain.next(exchange)
-				.subscriberContext(withSecurityContext);
+			Context withSecurityContext = ReactiveSecurityContextHolder
+					.withSecurityContext(Mono.just(expectedSecurityContext));
+			return chain.next(exchange).subscriberContext(withSecurityContext);
 		};
 		List<PayloadInterceptor> interceptors = Arrays.asList(authenticateInterceptor);
 		this.acceptor = new PayloadSocketAcceptor(captureSecurityContext, interceptors);
@@ -181,9 +182,9 @@ public class PayloadSocketAcceptorTests {
 
 		result.fireAndForget(this.payload).block();
 
-		ArgumentCaptor<PayloadExchange> exchangeArg =
-				ArgumentCaptor.forClass(PayloadExchange.class);
+		ArgumentCaptor<PayloadExchange> exchangeArg = ArgumentCaptor.forClass(PayloadExchange.class);
 		verify(this.interceptor, times(2)).intercept(exchangeArg.capture(), any());
 		return exchangeArg.getValue();
 	}
+
 }

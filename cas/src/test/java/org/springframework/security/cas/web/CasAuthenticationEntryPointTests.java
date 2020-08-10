@@ -59,8 +59,7 @@ public class CasAuthenticationEntryPointTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo(
-					"serviceProperties must be specified");
+			assertThat(expected.getMessage()).isEqualTo("serviceProperties must be specified");
 		}
 	}
 
@@ -92,9 +91,9 @@ public class CasAuthenticationEntryPointTests {
 		ep.afterPropertiesSet();
 		ep.commence(request, response, null);
 
-		assertThat("https://cas/login?service=" + URLEncoder.encode(
-				"https://mycompany.com/bigWebApp/login/cas", "UTF-8")).isEqualTo(
-						response.getRedirectedUrl());
+		assertThat(
+				"https://cas/login?service=" + URLEncoder.encode("https://mycompany.com/bigWebApp/login/cas", "UTF-8"))
+						.isEqualTo(response.getRedirectedUrl());
 	}
 
 	@Test
@@ -115,7 +114,8 @@ public class CasAuthenticationEntryPointTests {
 		ep.afterPropertiesSet();
 		ep.commence(request, response, null);
 		assertThat("https://cas/login?service="
-				+ URLEncoder.encode("https://mycompany.com/bigWebApp/login/cas", "UTF-8")
-				+ "&renew=true").isEqualTo(response.getRedirectedUrl());
+				+ URLEncoder.encode("https://mycompany.com/bigWebApp/login/cas", "UTF-8") + "&renew=true")
+						.isEqualTo(response.getRedirectedUrl());
 	}
+
 }

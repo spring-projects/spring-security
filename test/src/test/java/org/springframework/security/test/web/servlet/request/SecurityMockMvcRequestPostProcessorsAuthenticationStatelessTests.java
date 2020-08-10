@@ -92,10 +92,14 @@ public class SecurityMockMvcRequestPostProcessorsAuthenticationStatelessTests {
 
 		@RestController
 		static class Controller {
+
 			@RequestMapping
 			public String hello() {
 				return "Hello";
 			}
+
 		}
+
 	}
+
 }

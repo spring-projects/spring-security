@@ -85,12 +85,13 @@ public class SessionManagementConfigurerTests {
 
 		this.mvc.perform(get("/"));
 
-		verify(SessionManagementRequestCacheConfig.REQUEST_CACHE)
-				.getMatchingRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(SessionManagementRequestCacheConfig.REQUEST_CACHE).getMatchingRequest(any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
 	}
 
 	@EnableWebSecurity
 	static class SessionManagementRequestCacheConfig extends WebSecurityConfigurerAdapter {
+
 		static RequestCache REQUEST_CACHE;
 
 		@Override
@@ -104,25 +105,25 @@ public class SessionManagementConfigurerTests {
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void sessionManagementWhenConfiguredThenDoesNotOverrideSecurityContextRepository() throws Exception {
 		SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO = mock(SecurityContextRepository.class);
-		when(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO.loadContext(any(HttpRequestResponseHolder.class)))
-				.thenReturn(mock(SecurityContext.class));
+		when(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
+				.loadContext(any(HttpRequestResponseHolder.class))).thenReturn(mock(SecurityContext.class));
 		this.spring.register(SessionManagementSecurityContextRepositoryConfig.class).autowire();
 
 		this.mvc.perform(get("/"));
 
-		verify(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO).saveContext(
-				any(SecurityContext.class),
-				any(HttpServletRequest.class),
-				any(HttpServletResponse.class));
+		verify(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO)
+				.saveContext(any(SecurityContext.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@EnableWebSecurity
 	static class SessionManagementSecurityContextRepositoryConfig extends WebSecurityConfigurerAdapter {
+
 		static SecurityContextRepository SECURITY_CONTEXT_REPO;
 
 		@Override
@@ -136,14 +137,14 @@ public class SessionManagementConfigurerTests {
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void sessionManagementWhenInvokedTwiceThenUsesOriginalSessionCreationPolicy() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverride.class).autowire();
 
-		MvcResult mvcResult = this.mvc.perform(get("/"))
-				.andReturn();
+		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
 		HttpSession session = mvcResult.getRequest().getSession(false);
 
 		assertThat(session).isNull();
@@ -151,6 +152,7 @@ public class SessionManagementConfigurerTests {
 
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -161,6 +163,7 @@ public class SessionManagementConfigurerTests {
 				.sessionManagement();
 			// @formatter:on
 		}
+
 	}
 
 	// SEC-2137
@@ -171,17 +174,15 @@ public class SessionManagementConfigurerTests {
 		MockHttpSession session = new MockHttpSession();
 		String sessionId = session.getId();
 
-		MvcResult mvcResult = this.mvc.perform(get("/")
-				.with(httpBasic("user", "password"))
-				.session(session))
-				.andExpect(status().isNotFound())
-				.andReturn();
+		MvcResult mvcResult = this.mvc.perform(get("/").with(httpBasic("user", "password")).session(session))
+				.andExpect(status().isNotFound()).andReturn();
 
 		assertThat(mvcResult.getRequest().getSession().getId()).isEqualTo(sessionId);
 	}
 
 	@EnableWebSecurity
 	static class DisableSessionFixationEnableConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -202,6 +203,7 @@ public class SessionManagementConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -212,12 +214,9 @@ public class SessionManagementConfigurerTests {
 		String givenSessionId = givenSession.getId();
 		givenSession.setAttribute("name", "value");
 
-		MockHttpSession resultingSession = (MockHttpSession)
-				this.mvc.perform(get("/auth")
-						.session(givenSession)
-						.with(httpBasic("user", "password")))
-						.andExpect(status().isNotFound())
-						.andReturn().getRequest().getSession(false);
+		MockHttpSession resultingSession = (MockHttpSession) this.mvc
+				.perform(get("/auth").session(givenSession).with(httpBasic("user", "password")))
+				.andExpect(status().isNotFound()).andReturn().getRequest().getSession(false);
 
 		assertThat(givenSessionId).isNotEqualTo(resultingSession.getId());
 		assertThat(resultingSession.getAttribute("name")).isNull();
@@ -225,6 +224,7 @@ public class SessionManagementConfigurerTests {
 
 	@EnableWebSecurity
 	static class SFPNewSessionInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -247,47 +247,36 @@ public class SessionManagementConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void loginWhenUserLoggedInAndMaxSessionsIsOneThenLoginPrevented() throws Exception {
 		this.spring.register(ConcurrencyControlConfig.class).autowire();
 
-		this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password"));
+		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"));
 
-		this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?error"));
+		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
+				.andExpect(status().isFound()).andExpect(redirectedUrl("/login?error"));
 	}
 
 	@Test
 	public void loginWhenUserSessionExpiredAndMaxSessionsIsOneThenLoggedIn() throws Exception {
 		this.spring.register(ConcurrencyControlConfig.class).autowire();
 
-		MvcResult mvcResult = this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password"))
+		MvcResult mvcResult = this.mvc
+				.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
 				.andReturn();
 		HttpSession authenticatedSession = mvcResult.getRequest().getSession();
 		this.spring.getContext().publishEvent(new HttpSessionDestroyedEvent(authenticatedSession));
 
-		this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/"));
+		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
+				.andExpect(status().isFound()).andExpect(redirectedUrl("/"));
 	}
 
 	@EnableWebSecurity
 	static class ConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -308,27 +297,22 @@ public class SessionManagementConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void loginWhenUserLoggedInAndMaxSessionsOneInLambdaThenLoginPrevented() throws Exception {
 		this.spring.register(ConcurrencyControlInLambdaConfig.class).autowire();
 
-		this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password"));
+		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"));
 
-		this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?error"));
+		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
+				.andExpect(status().isFound()).andExpect(redirectedUrl("/login?error"));
 	}
 
 	@EnableWebSecurity
 	static class ConcurrencyControlInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -353,14 +337,14 @@ public class SessionManagementConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenSessionCreationPolicyStateLessInLambdaThenNoSessionCreated() throws Exception {
 		this.spring.register(SessionCreationPolicyStateLessInLambdaConfig.class).autowire();
 
-		MvcResult mvcResult = this.mvc.perform(get("/"))
-				.andReturn();
+		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
 		HttpSession session = mvcResult.getRequest().getSession(false);
 
 		assertThat(session).isNull();
@@ -368,6 +352,7 @@ public class SessionManagementConfigurerTests {
 
 	@EnableWebSecurity
 	static class SessionCreationPolicyStateLessInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -378,6 +363,7 @@ public class SessionManagementConfigurerTests {
 				);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -385,8 +371,7 @@ public class SessionManagementConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(SessionManagementFilter.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(SessionManagementFilter.class));
 	}
 
 	@Test
@@ -394,8 +379,7 @@ public class SessionManagementConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(ConcurrentSessionFilter.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ConcurrentSessionFilter.class));
 	}
 
 	@Test
@@ -436,6 +420,7 @@ public class SessionManagementConfigurerTests {
 
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
 		static ObjectPostProcessor<Object> objectPostProcessor;
 
 		@Override
@@ -451,13 +436,16 @@ public class SessionManagementConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
 		}
+
 	}
 
 	@Test
@@ -467,14 +455,14 @@ public class SessionManagementConfigurerTests {
 		when(SharedTrustResolverConfig.TR.isAnonymous(any())).thenReturn(false);
 		this.spring.register(SharedTrustResolverConfig.class).autowire();
 
-		MvcResult mvcResult = this.mvc.perform(get("/"))
-				.andReturn();
+		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
 
 		assertThat(mvcResult.getRequest().getSession(false)).isNotNull();
 	}
 
 	@EnableWebSecurity
 	static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
+
 		static AuthenticationTrustResolver TR;
 
 		@Override
@@ -484,6 +472,7 @@ public class SessionManagementConfigurerTests {
 				.setSharedObject(AuthenticationTrustResolver.class, TR);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -494,8 +483,7 @@ public class SessionManagementConfigurerTests {
 		MockHttpSession session = new MockHttpSession(this.spring.getContext().getServletContext());
 		this.mvc.perform(get("/").session(session));
 
-		verify(SessionRegistryOneBeanConfig.SESSION_REGISTRY)
-				.getSessionInformation(session.getId());
+		verify(SessionRegistryOneBeanConfig.SESSION_REGISTRY).getSessionInformation(session.getId());
 	}
 
 	@Test
@@ -513,6 +501,7 @@ public class SessionManagementConfigurerTests {
 
 	@EnableWebSecurity
 	static class SessionRegistryOneBeanConfig extends WebSecurityConfigurerAdapter {
+
 		private static SessionRegistry SESSION_REGISTRY;
 
 		@Override
@@ -528,10 +517,12 @@ public class SessionManagementConfigurerTests {
 		public SessionRegistry sessionRegistry() {
 			return SESSION_REGISTRY;
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class SessionRegistryTwoBeansConfig extends WebSecurityConfigurerAdapter {
+
 		private static SessionRegistry SESSION_REGISTRY_ONE;
 
 		private static SessionRegistry SESSION_REGISTRY_TWO;
@@ -554,5 +545,7 @@ public class SessionManagementConfigurerTests {
 		public SessionRegistry sessionRegistryTwo() {
 			return SESSION_REGISTRY_TWO;
 		}
+
 	}
+
 }

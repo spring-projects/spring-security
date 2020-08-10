@@ -49,6 +49,7 @@ import java.util.*;
  */
 @SuppressWarnings("unchecked")
 public class CasAuthenticationProviderTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -99,10 +100,8 @@ public class CasAuthenticationProviderTests {
 		CasAuthenticationToken casResult = (CasAuthenticationToken) result;
 		assertThat(casResult.getPrincipal()).isEqualTo(makeUserDetailsFromAuthoritiesPopulator());
 		assertThat(casResult.getCredentials()).isEqualTo("ST-123");
-		assertThat(casResult.getAuthorities()).contains(
-				new SimpleGrantedAuthority("ROLE_A"));
-		assertThat(casResult.getAuthorities()).contains(
-				new SimpleGrantedAuthority("ROLE_B"));
+		assertThat(casResult.getAuthorities()).contains(new SimpleGrantedAuthority("ROLE_A"));
+		assertThat(casResult.getAuthorities()).contains(new SimpleGrantedAuthority("ROLE_B"));
 		assertThat(casResult.getKeyHash()).isEqualTo(cap.getKey().hashCode());
 		assertThat(casResult.getDetails()).isEqualTo("details");
 
@@ -159,8 +158,7 @@ public class CasAuthenticationProviderTests {
 		ServiceAuthenticationDetails details = mock(ServiceAuthenticationDetails.class);
 		when(details.getServiceUrl()).thenReturn(serviceUrl);
 		TicketValidator validator = mock(TicketValidator.class);
-		when(validator.validate(any(String.class), any(String.class))).thenReturn(
-				new AssertionImpl("rod"));
+		when(validator.validate(any(String.class), any(String.class))).thenReturn(new AssertionImpl("rod"));
 
 		ServiceProperties serviceProperties = makeServiceProperties();
 		serviceProperties.setAuthenticateAllArtifacts(true);
@@ -186,8 +184,7 @@ public class CasAuthenticationProviderTests {
 		ServiceAuthenticationDetails details = mock(ServiceAuthenticationDetails.class);
 		when(details.getServiceUrl()).thenReturn(serviceUrl);
 		TicketValidator validator = mock(TicketValidator.class);
-		when(validator.validate(any(String.class), any(String.class))).thenReturn(
-				new AssertionImpl("rod"));
+		when(validator.validate(any(String.class), any(String.class))).thenReturn(new AssertionImpl("rod"));
 
 		ServiceProperties serviceProperties = makeServiceProperties();
 		serviceProperties.setAuthenticateAllArtifacts(true);
@@ -271,8 +268,7 @@ public class CasAuthenticationProviderTests {
 		cap.setServiceProperties(makeServiceProperties());
 		cap.afterPropertiesSet();
 
-		CasAuthenticationToken token = new CasAuthenticationToken("WRONG_KEY",
-				makeUserDetails(), "credentials",
+		CasAuthenticationToken token = new CasAuthenticationToken("WRONG_KEY", makeUserDetails(), "credentials",
 				AuthorityUtils.createAuthorityList("XX"), makeUserDetails(), assertion);
 
 		cap.authenticate(token);
@@ -347,8 +343,7 @@ public class CasAuthenticationProviderTests {
 		cap.setServiceProperties(makeServiceProperties());
 		cap.afterPropertiesSet();
 
-		TestingAuthenticationToken token = new TestingAuthenticationToken("user",
-				"password", "ROLE_A");
+		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password", "ROLE_A");
 		assertThat(cap.supports(TestingAuthenticationToken.class)).isFalse();
 
 		// Try it anyway
@@ -356,8 +351,7 @@ public class CasAuthenticationProviderTests {
 	}
 
 	@Test
-	public void ignoresUsernamePasswordAuthenticationTokensWithoutCasIdentifiersAsPrincipal()
-			throws Exception {
+	public void ignoresUsernamePasswordAuthenticationTokensWithoutCasIdentifiersAsPrincipal() throws Exception {
 		CasAuthenticationProvider cap = new CasAuthenticationProvider();
 		cap.setAuthenticationUserDetailsService(new MockAuthoritiesPopulator());
 		cap.setKey("qwerty");
@@ -366,9 +360,8 @@ public class CasAuthenticationProviderTests {
 		cap.setServiceProperties(makeServiceProperties());
 		cap.afterPropertiesSet();
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"some_normal_user", "password",
-				AuthorityUtils.createAuthorityList("ROLE_A"));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("some_normal_user",
+				"password", AuthorityUtils.createAuthorityList("ROLE_A"));
 		assertThat(cap.authenticate(token)).isNull();
 	}
 
@@ -384,13 +377,14 @@ public class CasAuthenticationProviderTests {
 
 	private class MockAuthoritiesPopulator implements AuthenticationUserDetailsService {
 
-		public UserDetails loadUserDetails(final Authentication token)
-				throws UsernameNotFoundException {
+		public UserDetails loadUserDetails(final Authentication token) throws UsernameNotFoundException {
 			return makeUserDetailsFromAuthoritiesPopulator();
 		}
+
 	}
 
 	private class MockStatelessTicketCache implements StatelessTicketCache {
+
 		private Map<String, CasAuthenticationToken> cache = new HashMap<>();
 
 		public CasAuthenticationToken getByTicketId(String serviceTicket) {
@@ -408,9 +402,11 @@ public class CasAuthenticationProviderTests {
 		public void removeTicketFromCache(String serviceTicket) {
 			throw new UnsupportedOperationException("mock method not implemented");
 		}
+
 	}
 
 	private class MockTicketValidator implements TicketValidator {
+
 		private boolean returnTicket;
 
 		MockTicketValidator(boolean returnTicket) {
@@ -423,5 +419,7 @@ public class CasAuthenticationProviderTests {
 			}
 			throw new BadCredentialsException("As requested from mock");
 		}
+
 	}
+
 }

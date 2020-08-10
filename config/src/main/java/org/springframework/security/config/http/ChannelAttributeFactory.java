@@ -30,8 +30,11 @@ import org.springframework.security.web.access.channel.ChannelDecisionManagerImp
  * @since 3.0
  */
 public class ChannelAttributeFactory {
+
 	private static final String OPT_REQUIRES_HTTP = "http";
+
 	private static final String OPT_REQUIRES_HTTPS = "https";
+
 	private static final String OPT_ANY_CHANNEL = "any";
 
 	public static List<ConfigAttribute> createChannelAttributes(String requiredChannel) {
@@ -47,10 +50,10 @@ public class ChannelAttributeFactory {
 			channelConfigAttribute = ChannelDecisionManagerImpl.ANY_CHANNEL;
 		}
 		else {
-			throw new BeanCreationException("Unknown channel attribute "
-					+ requiredChannel);
+			throw new BeanCreationException("Unknown channel attribute " + requiredChannel);
 		}
 
 		return SecurityConfig.createList(channelConfigAttribute);
 	}
+
 }

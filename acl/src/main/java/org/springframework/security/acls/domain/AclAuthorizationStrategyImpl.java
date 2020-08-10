@@ -45,12 +45,16 @@ import java.util.Set;
  * @author Ben Alex
  */
 public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private final GrantedAuthority gaGeneralChanges;
+
 	private final GrantedAuthority gaModifyAuditing;
+
 	private final GrantedAuthority gaTakeOwnership;
+
 	private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
 
 	// ~ Constructors
@@ -59,7 +63,6 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 	/**
 	 * Constructor. The only mandatory parameter relates to the system-wide
 	 * {@link GrantedAuthority} instances that can be held to always permit ACL changes.
-	 *
 	 * @param auths the <code>GrantedAuthority</code>s that have special permissions
 	 * (index 0 is the authority needed to change ownership, index 1 is the authority
 	 * needed to modify auditing details, index 2 is the authority needed to change other
@@ -86,14 +89,11 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 	public void securityCheck(Acl acl, int changeType) {
 		if ((SecurityContextHolder.getContext() == null)
 				|| (SecurityContextHolder.getContext().getAuthentication() == null)
-				|| !SecurityContextHolder.getContext().getAuthentication()
-						.isAuthenticated()) {
-			throw new AccessDeniedException(
-					"Authenticated principal required to operate with ACLs");
+				|| !SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
+			throw new AccessDeniedException("Authenticated principal required to operate with ACLs");
 		}
 
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		// Check if authorized by virtue of ACL ownership
 		Sid currentUser = createCurrentUser(authentication);
@@ -138,7 +138,6 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 
 	/**
 	 * Creates a principal-like sid from the authentication information.
-	 *
 	 * @param authentication the authentication information that can provide principal and
 	 * thus the sid's id will be dependant on the value inside
 	 * @return a sid with the ID taken from the authentication information
@@ -151,4 +150,5 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 		Assert.notNull(sidRetrievalStrategy, "SidRetrievalStrategy required");
 		this.sidRetrievalStrategy = sidRetrievalStrategy;
 	}
+
 }

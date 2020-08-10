@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class InteractiveAuthenticationSuccessEvent extends AbstractAuthenticationEvent {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -42,8 +43,7 @@ public class InteractiveAuthenticationSuccessEvent extends AbstractAuthenticatio
 	// ~ Constructors
 	// ===================================================================================================
 
-	public InteractiveAuthenticationSuccessEvent(Authentication authentication,
-			Class<?> generatedBy) {
+	public InteractiveAuthenticationSuccessEvent(Authentication authentication, Class<?> generatedBy) {
 		super(authentication);
 		Assert.notNull(generatedBy, "generatedBy cannot be null");
 		this.generatedBy = generatedBy;
@@ -55,10 +55,10 @@ public class InteractiveAuthenticationSuccessEvent extends AbstractAuthenticatio
 	/**
 	 * Getter for the <code>Class</code> that generated this event. This can be useful for
 	 * generating additional logging information.
-	 *
 	 * @return the class
 	 */
 	public Class<?> getGeneratedBy() {
 		return generatedBy;
 	}
+
 }

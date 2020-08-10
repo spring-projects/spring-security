@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.1
  */
 public class CookieServerCsrfTokenRepositoryTests {
+
 	private MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/someUri"));
 
 	private CookieServerCsrfTokenRepository csrfTokenRepository = new CookieServerCsrfTokenRepository();
@@ -86,10 +87,7 @@ public class CookieServerCsrfTokenRepositoryTests {
 	public void saveTokenWhenNoSubscriptionThenNotWritten() {
 		this.csrfTokenRepository.saveToken(this.exchange, createToken());
 
-		assertThat(this.exchange
-				.getResponse()
-				.getCookies()
-				.getFirst(this.expectedCookieName)).isNull();
+		assertThat(this.exchange.getResponse().getCookies().getFirst(this.expectedCookieName)).isNull();
 	}
 
 	@Test
@@ -190,8 +188,7 @@ public class CookieServerCsrfTokenRepositoryTests {
 
 	private void loadAndAssertExpectedValues() {
 		MockServerHttpRequest.BodyBuilder request = MockServerHttpRequest.post("/someUri")
-				.cookie(new HttpCookie(this.expectedCookieName,
-						this.expectedCookieValue));
+				.cookie(new HttpCookie(this.expectedCookieName, this.expectedCookieValue));
 		this.exchange = MockServerWebExchange.from(request);
 
 		CsrfToken csrfToken = this.csrfTokenRepository.loadToken(this.exchange).block();
@@ -215,10 +212,7 @@ public class CookieServerCsrfTokenRepositoryTests {
 
 		this.csrfTokenRepository.saveToken(this.exchange, token).block();
 
-		ResponseCookie cookie =  this.exchange
-				.getResponse()
-				.getCookies()
-				.getFirst(this.expectedCookieName);
+		ResponseCookie cookie = this.exchange.getResponse().getCookies().getFirst(this.expectedCookieName);
 
 		assertThat(cookie).isNotNull();
 		assertThat(cookie.getMaxAge()).isEqualTo(this.expectedMaxAge);
@@ -239,13 +233,12 @@ public class CookieServerCsrfTokenRepositoryTests {
 		assertThat(csrfToken.getToken()).isNotBlank();
 	}
 
-
 	private CsrfToken createToken() {
-		return createToken(this.expectedHeaderName,
-			this.expectedParameterName, this.expectedCookieValue);
+		return createToken(this.expectedHeaderName, this.expectedParameterName, this.expectedCookieValue);
 	}
 
 	private static CsrfToken createToken(String headerName, String parameterName, String tokenValue) {
 		return new DefaultCsrfToken(headerName, parameterName, tokenValue);
 	}
+
 }

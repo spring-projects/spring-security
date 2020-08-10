@@ -33,4 +33,5 @@ public class HelloWorldMessageService implements MessageService {
 	public String getJsrMessage() {
 		return "Hello JSR";
 	}
+
 }

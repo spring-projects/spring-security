@@ -30,11 +30,14 @@ import java.util.List;
  * @author Ben Alex
  */
 public class TestingAuthenticationToken extends AbstractAuthenticationToken {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private static final long serialVersionUID = 1L;
+
 	private final Object credentials;
+
 	private final Object principal;
 
 	// ~ Constructors
@@ -46,13 +49,11 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 		this.credentials = credentials;
 	}
 
-	public TestingAuthenticationToken(Object principal, Object credentials,
-			String... authorities) {
+	public TestingAuthenticationToken(Object principal, Object credentials, String... authorities) {
 		this(principal, credentials, AuthorityUtils.createAuthorityList(authorities));
 	}
 
-	public TestingAuthenticationToken(Object principal, Object credentials,
-			List<GrantedAuthority> authorities) {
+	public TestingAuthenticationToken(Object principal, Object credentials, List<GrantedAuthority> authorities) {
 		super(authorities);
 		this.principal = principal;
 		this.credentials = credentials;
@@ -69,4 +70,5 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 	public Object getPrincipal() {
 		return this.principal;
 	}
+
 }

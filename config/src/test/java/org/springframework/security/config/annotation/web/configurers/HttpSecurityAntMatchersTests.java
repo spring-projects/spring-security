@@ -40,10 +40,13 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  *
  */
 public class HttpSecurityAntMatchersTests {
+
 	AnnotationConfigWebApplicationContext context;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	@Autowired
@@ -77,6 +80,7 @@ public class HttpSecurityAntMatchersTests {
 	@EnableWebSecurity
 	@Configuration
 	static class AntMatchersNoPatternsConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -95,6 +99,7 @@ public class HttpSecurityAntMatchersTests {
 				.inMemoryAuthentication();
 			// @formatter:on
 		}
+
 	}
 
 	// SEC-3135
@@ -111,6 +116,7 @@ public class HttpSecurityAntMatchersTests {
 	@EnableWebSecurity
 	@Configuration
 	static class AntMatchersEmptyPatternsConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -130,6 +136,7 @@ public class HttpSecurityAntMatchersTests {
 				.inMemoryAuthentication();
 			// @formatter:on
 		}
+
 	}
 
 	public void loadConfig(Class<?>... configs) {
@@ -139,6 +146,5 @@ public class HttpSecurityAntMatchersTests {
 
 		context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
-
 
 }

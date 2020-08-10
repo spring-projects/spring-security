@@ -40,56 +40,54 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
  * @author Joe Grandja
  */
 public class OAuth2UserRequestEntityConverterTests {
+
 	private OAuth2UserRequestEntityConverter converter = new OAuth2UserRequestEntityConverter();
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void convertWhenAuthenticationMethodHeaderThenGetRequest() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-		OAuth2UserRequest userRequest = new OAuth2UserRequest(
-				clientRegistration, this.createAccessToken());
+		OAuth2UserRequest userRequest = new OAuth2UserRequest(clientRegistration, this.createAccessToken());
 
 		RequestEntity<?> requestEntity = this.converter.convert(userRequest);
 
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.GET);
-		assertThat(requestEntity.getUrl().toASCIIString()).isEqualTo(
-				clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
+		assertThat(requestEntity.getUrl().toASCIIString())
+				.isEqualTo(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
 
 		HttpHeaders headers = requestEntity.getHeaders();
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON);
-		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo(
-				"Bearer " + userRequest.getAccessToken().getTokenValue());
+		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION))
+				.isEqualTo("Bearer " + userRequest.getAccessToken().getTokenValue());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void convertWhenAuthenticationMethodFormThenPostRequest() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
-				.build();
-		OAuth2UserRequest userRequest = new OAuth2UserRequest(
-				clientRegistration, this.createAccessToken());
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).build();
+		OAuth2UserRequest userRequest = new OAuth2UserRequest(clientRegistration, this.createAccessToken());
 
 		RequestEntity<?> requestEntity = this.converter.convert(userRequest);
 
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
-		assertThat(requestEntity.getUrl().toASCIIString()).isEqualTo(
-				clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
+		assertThat(requestEntity.getUrl().toASCIIString())
+				.isEqualTo(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
 
 		HttpHeaders headers = requestEntity.getHeaders();
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON);
-		assertThat(headers.getContentType()).isEqualTo(
-				MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
+		assertThat(headers.getContentType())
+				.isEqualTo(MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 
 		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
-		assertThat(formParameters.getFirst(OAuth2ParameterNames.ACCESS_TOKEN)).isEqualTo(
-				userRequest.getAccessToken().getTokenValue());
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.ACCESS_TOKEN))
+				.isEqualTo(userRequest.getAccessToken().getTokenValue());
 	}
 
 	private OAuth2AccessToken createAccessToken() {
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(
-				OAuth2AccessToken.TokenType.BEARER, "access-token-1234", Instant.now(),
-				Instant.now().plusSeconds(3600), new LinkedHashSet<>(Arrays.asList("read", "write")));
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token-1234",
+				Instant.now(), Instant.now().plusSeconds(3600), new LinkedHashSet<>(Arrays.asList("read", "write")));
 		return accessToken;
 	}
+
 }

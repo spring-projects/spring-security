@@ -28,4 +28,5 @@ public class AlreadyBuiltException extends IllegalStateException {
 	}
 
 	private static final long serialVersionUID = -5891004752785553015L;
+
 }

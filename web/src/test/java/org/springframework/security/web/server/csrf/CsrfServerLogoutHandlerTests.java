@@ -38,6 +38,7 @@ import reactor.core.publisher.Mono;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CsrfServerLogoutHandlerTests {
+
 	@Mock
 	private ServerCsrfTokenRepository csrfTokenRepository;
 
@@ -60,18 +61,16 @@ public class CsrfServerLogoutHandlerTests {
 
 	@Test
 	public void constructorNullCsrfTokenRepository() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new CsrfServerLogoutHandler(null))
-				.withMessage("csrfTokenRepository cannot be null")
-				.withNoCause();
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new CsrfServerLogoutHandler(null))
+				.withMessage("csrfTokenRepository cannot be null").withNoCause();
 	}
 
 	@Test
 	public void logoutRemovesCsrfToken() {
-		this.handler.logout(
-				this.filterExchange,
-				new TestingAuthenticationToken("user", "password", "ROLE_USER")).block();
+		this.handler.logout(this.filterExchange, new TestingAuthenticationToken("user", "password", "ROLE_USER"))
+				.block();
 
 		verify(this.csrfTokenRepository).saveToken(this.exchange, null);
 	}
+
 }

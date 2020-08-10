@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.namespace.QName;
@@ -81,16 +82,21 @@ import org.springframework.security.saml2.core.Saml2X509Credential;
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
 
 final class TestOpenSamlObjects {
+
 	static {
 		OpenSamlInitializationService.initialize();
 	}
 
 	private static String USERNAME = "test@saml.user";
+
 	private static String DESTINATION = "https://localhost/login/saml2/sso/idp-alias";
+
 	private static String RELYING_PARTY_ENTITY_ID = "https://localhost/saml2/service-provider-metadata/idp-alias";
+
 	private static String ASSERTING_PARTY_ENTITY_ID = "https://some.idp.test/saml2/idp";
-	private static SecretKey SECRET_KEY =
-			new SecretKeySpec(Base64.getDecoder().decode("shOnwNMoCv88HKMEa91+FlYoD5RNvzMTAL5LGxZKIFk="), "AES");
+
+	private static SecretKey SECRET_KEY = new SecretKeySpec(
+			Base64.getDecoder().decode("shOnwNMoCv88HKMEa91+FlYoD5RNvzMTAL5LGxZKIFk="), "AES");
 
 	static Response response() {
 		return response(DESTINATION, ASSERTING_PARTY_ENTITY_ID);
@@ -98,7 +104,7 @@ final class TestOpenSamlObjects {
 
 	static Response response(String destination, String issuerEntityId) {
 		Response response = build(Response.DEFAULT_ELEMENT_NAME);
-		response.setID("R"+UUID.randomUUID().toString());
+		response.setID("R" + UUID.randomUUID().toString());
 		response.setIssueInstant(DateTime.now());
 		response.setVersion(SAMLVersion.VERSION_20);
 		response.setID("_" + UUID.randomUUID().toString());
@@ -111,14 +117,9 @@ final class TestOpenSamlObjects {
 		return assertion(USERNAME, ASSERTING_PARTY_ENTITY_ID, RELYING_PARTY_ENTITY_ID, DESTINATION);
 	}
 
-	static Assertion assertion(
-			String username,
-			String issuerEntityId,
-			String recipientEntityId,
-			String recipientUri
-	) {
+	static Assertion assertion(String username, String issuerEntityId, String recipientEntityId, String recipientUri) {
 		Assertion assertion = build(Assertion.DEFAULT_ELEMENT_NAME);
-		assertion.setID("A"+ UUID.randomUUID().toString());
+		assertion.setID("A" + UUID.randomUUID().toString());
 		assertion.setIssueInstant(DateTime.now());
 		assertion.setVersion(SAMLVersion.VERSION_20);
 		assertion.setIssueInstant(DateTime.now());
@@ -134,7 +135,6 @@ final class TestOpenSamlObjects {
 		assertion.getSubject().getSubjectConfirmations().add(subjectConfirmation);
 		return assertion;
 	}
-
 
 	static Issuer issuer(String entityId) {
 		Issuer issuer = build(Issuer.DEFAULT_ELEMENT_NAME);
@@ -184,7 +184,8 @@ final class TestOpenSamlObjects {
 		return cred;
 	}
 
-	static Credential getSigningCredential(org.springframework.security.saml2.credentials.Saml2X509Credential credential, String entityId) {
+	static Credential getSigningCredential(
+			org.springframework.security.saml2.credentials.Saml2X509Credential credential, String entityId) {
 		BasicCredential cred = getBasicCredential(credential);
 		cred.setEntityId(entityId);
 		cred.setUsageType(UsageType.SIGNING);
@@ -192,17 +193,12 @@ final class TestOpenSamlObjects {
 	}
 
 	static BasicCredential getBasicCredential(Saml2X509Credential credential) {
-		return CredentialSupport.getSimpleCredential(
-				credential.getCertificate(),
-				credential.getPrivateKey()
-		);
+		return CredentialSupport.getSimpleCredential(credential.getCertificate(), credential.getPrivateKey());
 	}
 
-	static BasicCredential getBasicCredential(org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
-		return CredentialSupport.getSimpleCredential(
-				credential.getCertificate(),
-				credential.getPrivateKey()
-		);
+	static BasicCredential getBasicCredential(
+			org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
+		return CredentialSupport.getSimpleCredential(credential.getCertificate(), credential.getPrivateKey());
 	}
 
 	static <T extends SignableSAMLObject> T signed(T signable, Saml2X509Credential credential, String entityId) {
@@ -214,14 +210,16 @@ final class TestOpenSamlObjects {
 		parameters.setSignatureCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 		try {
 			SignatureSupport.signObject(signable, parameters);
-		} catch (MarshallingException | SignatureException | SecurityException e) {
+		}
+		catch (MarshallingException | SignatureException | SecurityException e) {
 			throw new Saml2Exception(e);
 		}
 
 		return signable;
 	}
 
-	static <T extends SignableSAMLObject> T signed(T signable, org.springframework.security.saml2.credentials.Saml2X509Credential credential, String entityId) {
+	static <T extends SignableSAMLObject> T signed(T signable,
+			org.springframework.security.saml2.credentials.Saml2X509Credential credential, String entityId) {
 		SignatureSigningParameters parameters = new SignatureSigningParameters();
 		Credential signingCredential = getSigningCredential(credential, entityId);
 		parameters.setSigningCredential(signingCredential);
@@ -230,7 +228,8 @@ final class TestOpenSamlObjects {
 		parameters.setSignatureCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 		try {
 			SignatureSupport.signObject(signable, parameters);
-		} catch (MarshallingException | SignatureException | SecurityException e) {
+		}
+		catch (MarshallingException | SignatureException | SecurityException e) {
 			throw new Saml2Exception(e);
 		}
 
@@ -248,7 +247,8 @@ final class TestOpenSamlObjects {
 		}
 	}
 
-	static EncryptedAssertion encrypted(Assertion assertion, org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
+	static EncryptedAssertion encrypted(Assertion assertion,
+			org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
 		X509Certificate certificate = credential.getCertificate();
 		Encrypter encrypter = getEncrypter(certificate);
 		try {
@@ -270,7 +270,8 @@ final class TestOpenSamlObjects {
 		}
 	}
 
-	static EncryptedID encrypted(NameID nameId, org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
+	static EncryptedID encrypted(NameID nameId,
+			org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
 		X509Certificate certificate = credential.getCertificate();
 		Encrypter encrypter = getEncrypter(certificate);
 		try {
@@ -347,14 +348,16 @@ final class TestOpenSamlObjects {
 
 		Attribute registeredAttr = attributeBuilder.buildObject();
 		registeredAttr.setName("registered");
-		XSBoolean registered = new XSBooleanBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSBoolean.TYPE_NAME);
+		XSBoolean registered = new XSBooleanBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME,
+				XSBoolean.TYPE_NAME);
 		registered.setValue(new XSBooleanValue(true, false));
 		registeredAttr.getAttributeValues().add(registered);
 		attrStmt2.getAttributes().add(registeredAttr);
 
 		Attribute registeredDateAttr = attributeBuilder.buildObject();
 		registeredDateAttr.setName("registeredDate");
-		XSDateTime registeredDate = new XSDateTimeBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSDateTime.TYPE_NAME);
+		XSDateTime registeredDate = new XSDateTimeBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME,
+				XSDateTime.TYPE_NAME);
 		registeredDate.setValue(DateTime.parse("1970-01-01T00:00:00Z"));
 		registeredDateAttr.getAttributeValues().add(registeredDate);
 		attrStmt2.getAttributes().add(registeredDateAttr);
@@ -367,4 +370,5 @@ final class TestOpenSamlObjects {
 	static <T extends XMLObject> T build(QName qName) {
 		return (T) getBuilderFactory().getBuilder(qName).buildObject(qName);
 	}
+
 }

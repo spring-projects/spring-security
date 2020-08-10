@@ -26,11 +26,11 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.test.SpringTestRule;
 
 /**
- *
  * @author Rob Winch
  *
  */
 public class EnableGlobalAuthenticationTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -52,6 +52,7 @@ public class EnableGlobalAuthenticationTests {
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			auth.inMemoryAuthentication().withUser("user").password("password").roles("USER");
 		}
+
 	}
 
 	@Test
@@ -66,6 +67,7 @@ public class EnableGlobalAuthenticationTests {
 
 	@EnableGlobalAuthentication
 	static class BeanProxyEnabledByDefaultConfig {
+
 		@Bean
 		public Child child() {
 			return new Child();
@@ -75,6 +77,7 @@ public class EnableGlobalAuthenticationTests {
 		public Parent parent() {
 			return new Parent(child());
 		}
+
 	}
 
 	@Test
@@ -90,6 +93,7 @@ public class EnableGlobalAuthenticationTests {
 	@Configuration(proxyBeanMethods = false)
 	@EnableGlobalAuthentication
 	static class BeanProxyDisabledConfig {
+
 		@Bean
 		public Child child() {
 			return new Child();
@@ -99,9 +103,11 @@ public class EnableGlobalAuthenticationTests {
 		public Parent parent() {
 			return new Parent(child());
 		}
+
 	}
 
 	static class Parent {
+
 		private Child child;
 
 		Parent(Child child) {
@@ -111,10 +117,14 @@ public class EnableGlobalAuthenticationTests {
 		public Child getChild() {
 			return child;
 		}
+
 	}
 
 	static class Child {
+
 		Child() {
 		}
+
 	}
+
 }

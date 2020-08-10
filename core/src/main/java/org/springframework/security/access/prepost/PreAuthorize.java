@@ -34,9 +34,11 @@ import java.lang.annotation.Target;
 @Inherited
 @Documented
 public @interface PreAuthorize {
+
 	/**
 	 * @return the Spring-EL expression to be evaluated before invoking the protected
 	 * method
 	 */
 	String value();
+
 }

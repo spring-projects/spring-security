@@ -48,6 +48,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * @see #obtainSubject(ServletRequest)
  */
 public class JaasApiIntegrationFilter extends GenericFilterBean {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -73,14 +74,14 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 	 * <code>Subject</code> obtained.
 	 * </p>
 	 */
-	public final void doFilter(final ServletRequest request,
-			final ServletResponse response, final FilterChain chain)
+	public final void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
 			throws ServletException, IOException {
 
 		Subject subject = obtainSubject(request);
 		if (subject == null && createEmptySubject) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("Subject returned was null and createEmtpySubject is true; creating new empty subject to run as.");
+				logger.debug(
+						"Subject returned was null and createEmtpySubject is true; creating new empty subject to run as.");
 			}
 			subject = new Subject();
 		}
@@ -118,17 +119,14 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 	 * <code>JaasAuthenticationToken</code> and is authenticated, the <code>Subject</code>
 	 * is returned from it. Otherwise, <code>null</code> is returned.
 	 * </p>
-	 *
 	 * @param request the current <code>ServletRequest</code>
 	 * @return the Subject to run as or <code>null</code> if no <code>Subject</code> is
 	 * available.
 	 */
 	protected Subject obtainSubject(ServletRequest request) {
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (logger.isDebugEnabled()) {
-			logger.debug("Attempting to obtainSubject using authentication : "
-					+ authentication);
+			logger.debug("Attempting to obtainSubject using authentication : " + authentication);
 		}
 		if (authentication == null) {
 			return null;
@@ -152,10 +150,10 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 	 * {@link #obtainSubject(ServletRequest)} returns <code>null</code>, an empty,
 	 * writeable <code>Subject</code> is created instead. Otherwise no
 	 * <code>Subject</code> is used. The default is <code>false</code>.
-	 *
 	 * @param createEmptySubject the new value
 	 */
 	public final void setCreateEmptySubject(boolean createEmptySubject) {
 		this.createEmptySubject = createEmptySubject;
 	}
+
 }

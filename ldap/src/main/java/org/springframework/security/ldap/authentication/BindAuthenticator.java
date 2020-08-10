@@ -39,10 +39,10 @@ import javax.naming.directory.DirContext;
  * An authenticator which binds as a user.
  *
  * @author Luke Taylor
- *
  * @see AbstractLdapAuthenticator
  */
 public class BindAuthenticator extends AbstractLdapAuthenticator {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -54,7 +54,6 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 	/**
 	 * Create an initialized instance using the {@link BaseLdapPathContextSource}
 	 * provided.
-	 *
 	 * @param contextSource the BaseLdapPathContextSource instance against which bind
 	 * operations will be performed.
 	 *
@@ -76,8 +75,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
 		if (!StringUtils.hasLength(password)) {
 			logger.debug("Rejecting empty password for user " + username);
-			throw new BadCredentialsException(messages.getMessage(
-					"BindAuthenticator.emptyPassword", "Empty Password"));
+			throw new BadCredentialsException(messages.getMessage("BindAuthenticator.emptyPassword", "Empty Password"));
 		}
 
 		// If DN patterns are configured, try authenticating with them directly
@@ -93,25 +91,22 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 		// with the returned DN.
 		if (user == null && getUserSearch() != null) {
 			DirContextOperations userFromSearch = getUserSearch().searchForUser(username);
-			user = bindWithDn(userFromSearch.getDn().toString(), username, password,
-					userFromSearch.getAttributes());
+			user = bindWithDn(userFromSearch.getDn().toString(), username, password, userFromSearch.getAttributes());
 		}
 
 		if (user == null) {
-			throw new BadCredentialsException(messages.getMessage(
-					"BindAuthenticator.badCredentials", "Bad credentials"));
+			throw new BadCredentialsException(
+					messages.getMessage("BindAuthenticator.badCredentials", "Bad credentials"));
 		}
 
 		return user;
 	}
 
-	private DirContextOperations bindWithDn(String userDnStr, String username,
-			String password) {
+	private DirContextOperations bindWithDn(String userDnStr, String username, String password) {
 		return bindWithDn(userDnStr, username, password, null);
 	}
 
-	private DirContextOperations bindWithDn(String userDnStr, String username,
-			String password, Attributes attrs) {
+	private DirContextOperations bindWithDn(String userDnStr, String username, String password, Attributes attrs) {
 		BaseLdapPathContextSource ctxSource = (BaseLdapPathContextSource) getContextSource();
 		DistinguishedName userDn = new DistinguishedName(userDnStr);
 		DistinguishedName fullDn = new DistinguishedName(userDn);
@@ -123,16 +118,14 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 		try {
 			ctx = getContextSource().getContext(fullDn.toString(), password);
 			// Check for password policy control
-			PasswordPolicyControl ppolicy = PasswordPolicyControlExtractor
-					.extractControl(ctx);
+			PasswordPolicyControl ppolicy = PasswordPolicyControlExtractor.extractControl(ctx);
 
 			logger.debug("Retrieving attributes...");
-			if (attrs == null || attrs.size()==0) {
+			if (attrs == null || attrs.size() == 0) {
 				attrs = ctx.getAttributes(userDn, getUserAttributes());
 			}
 
-			DirContextAdapter result = new DirContextAdapter(attrs, userDn,
-					ctxSource.getBaseLdapPath());
+			DirContextAdapter result = new DirContextAdapter(attrs, userDn, ctxSource.getBaseLdapPath());
 
 			if (ppolicy != null) {
 				result.setAttributeValue(ppolicy.getID(), ppolicy);
@@ -172,4 +165,5 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 			logger.debug("Failed to bind as " + userDn + ": " + cause);
 		}
 	}
+
 }

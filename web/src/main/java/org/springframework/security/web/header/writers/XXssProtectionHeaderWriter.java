@@ -30,6 +30,7 @@ import org.springframework.security.web.header.HeaderWriter;
  * @since 3.2
  */
 public final class XXssProtectionHeaderWriter implements HeaderWriter {
+
 	private static final String XSS_PROTECTION_HEADER = "X-XSS-Protection";
 
 	private boolean enabled;
@@ -73,7 +74,6 @@ public final class XXssProtectionHeaderWriter implements HeaderWriter {
 	 * <pre>
 	 * X-XSS-Protection: 0
 	 * </pre>
-	 *
 	 * @param enabled the new value
 	 */
 	public void setEnabled(boolean enabled) {
@@ -87,13 +87,11 @@ public final class XXssProtectionHeaderWriter implements HeaderWriter {
 	/**
 	 * If false, will not specify the mode as blocked. In this instance, any content will
 	 * be attempted to be fixed. If true, the content will be replaced with "#".
-	 *
 	 * @param block the new value
 	 */
 	public void setBlock(boolean block) {
 		if (!enabled && block) {
-			throw new IllegalArgumentException(
-					"Cannot set block to true with enabled false");
+			throw new IllegalArgumentException("Cannot set block to true with enabled false");
 		}
 		this.block = block;
 		updateHeaderValue();
@@ -114,4 +112,5 @@ public final class XXssProtectionHeaderWriter implements HeaderWriter {
 	public String toString() {
 		return getClass().getName() + " [headerValue=" + headerValue + "]";
 	}
+
 }

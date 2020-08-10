@@ -29,9 +29,11 @@ import java.util.Set;
  * @since 5.3
  */
 abstract class JsonNodeUtils {
-	static final TypeReference<Set<String>> SET_TYPE_REFERENCE = new TypeReference<Set<String>>() {};
-	static final TypeReference<Map<String, Object>> MAP_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {};
 
+	static final TypeReference<Set<String>> SET_TYPE_REFERENCE = new TypeReference<Set<String>>() {
+	};
+	static final TypeReference<Map<String, Object>> MAP_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {
+	};
 
 	static String findStringValue(JsonNode jsonNode, String fieldName) {
 		if (jsonNode == null) {
@@ -44,7 +46,8 @@ abstract class JsonNodeUtils {
 		return null;
 	}
 
-	static <T> T findValue(JsonNode jsonNode, String fieldName, TypeReference<T> valueTypeReference, ObjectMapper mapper) {
+	static <T> T findValue(JsonNode jsonNode, String fieldName, TypeReference<T> valueTypeReference,
+			ObjectMapper mapper) {
 		if (jsonNode == null) {
 			return null;
 		}
@@ -65,4 +68,5 @@ abstract class JsonNodeUtils {
 		}
 		return null;
 	}
+
 }

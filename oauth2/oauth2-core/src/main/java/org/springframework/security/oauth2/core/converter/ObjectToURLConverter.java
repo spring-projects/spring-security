@@ -44,9 +44,11 @@ final class ObjectToURLConverter implements GenericConverter {
 		}
 		try {
 			return new URI(source.toString()).toURL();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			// Ignore
 		}
 		return null;
 	}
+
 }

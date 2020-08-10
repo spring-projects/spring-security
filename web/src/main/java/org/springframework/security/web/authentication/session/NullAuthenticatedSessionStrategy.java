@@ -21,14 +21,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 
 /**
- *
  * @author Luke Taylor
  * @since 3.0
  */
-public final class NullAuthenticatedSessionStrategy implements
-		SessionAuthenticationStrategy {
+public final class NullAuthenticatedSessionStrategy implements SessionAuthenticationStrategy {
 
-	public void onAuthentication(Authentication authentication,
-			HttpServletRequest request, HttpServletResponse response) {
+	public void onAuthentication(Authentication authentication, HttpServletRequest request,
+			HttpServletResponse response) {
 	}
+
 }

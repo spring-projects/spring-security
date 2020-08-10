@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
  * @author Luke Taylor
  */
 public final class Utf8 {
+
 	private static final Charset CHARSET = StandardCharsets.UTF_8;
 
 	/**
@@ -58,4 +59,5 @@ public final class Utf8 {
 			throw new IllegalArgumentException("Decoding failed", e);
 		}
 	}
+
 }

@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.provisioning;
 
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +33,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
  */
 @RunWith(SpringRunner.class)
 public class UserDetailsManagerResourceFactoryBeanPropertiesResourceITests {
+
 	@Autowired
 	UserDetailsManager users;
 
@@ -44,9 +44,12 @@ public class UserDetailsManagerResourceFactoryBeanPropertiesResourceITests {
 
 	@Configuration
 	static class Config {
+
 		@Bean
 		public UserDetailsManagerResourceFactoryBean userDetailsService() {
 			return UserDetailsManagerResourceFactoryBean.fromResource(new InMemoryResource("user=password,ROLE_USER"));
 		}
+
 	}
+
 }

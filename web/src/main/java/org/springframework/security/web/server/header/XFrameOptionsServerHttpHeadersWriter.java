@@ -21,10 +21,12 @@ import reactor.core.publisher.Mono;
 
 /**
  * {@code ServerHttpHeadersWriter} implementation for the X-Frame-Options headers.
+ *
  * @author Rob Winch
  * @since 5.0
  */
 public class XFrameOptionsServerHttpHeadersWriter implements ServerHttpHeadersWriter {
+
 	public static final String X_FRAME_OPTIONS = "X-Frame-Options";
 
 	private ServerHttpHeadersWriter delegate = createDelegate(Mode.DENY);
@@ -41,13 +43,12 @@ public class XFrameOptionsServerHttpHeadersWriter implements ServerHttpHeadersWr
 	}
 
 	/**
-	 * Sets the X-Frame-Options mode. There is no support for ALLOW-FROM because
-	 * not <a href=
+	 * Sets the X-Frame-Options mode. There is no support for ALLOW-FROM because not
+	 * <a href=
 	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options">all
 	 * browsers support it</a>. Consider using X-Frame-Options with
 	 * Content-Security-Policy <a href=
 	 * "https://w3c.github.io/webappsec/specs/content-security-policy/#directive-frame-ancestors">frame-ancestors</a>.
-	 *
 	 * @param mode
 	 */
 	public void setMode(Mode mode) {
@@ -55,8 +56,7 @@ public class XFrameOptionsServerHttpHeadersWriter implements ServerHttpHeadersWr
 	}
 
 	/**
-	 * The X-Frame-Options values. There is no support for ALLOW-FROM because
-	 * not <a href=
+	 * The X-Frame-Options values. There is no support for ALLOW-FROM because not <a href=
 	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options">all
 	 * browsers support it</a>. Consider using X-Frame-Options with
 	 * Content-Security-Policy <a href=
@@ -66,21 +66,21 @@ public class XFrameOptionsServerHttpHeadersWriter implements ServerHttpHeadersWr
 	 * @since 5.0
 	 */
 	public enum Mode {
+
 		/**
-		 * A browser receiving content with this header field MUST NOT display
-		 * this content in any frame.
+		 * A browser receiving content with this header field MUST NOT display this
+		 * content in any frame.
 		 */
 		DENY,
 		/**
-		 * A browser receiving content with this header field MUST NOT display
-		 * this content in any frame from a page of different origin than the
-		 * content itself.
+		 * A browser receiving content with this header field MUST NOT display this
+		 * content in any frame from a page of different origin than the content itself.
 		 *
-		 * If a browser or plugin cannot reliably determine whether or not the
-		 * origin of the content and the frame are the same, this MUST be
-		 * treated as "DENY".
+		 * If a browser or plugin cannot reliably determine whether or not the origin of
+		 * the content and the frame are the same, this MUST be treated as "DENY".
 		 */
 		SAMEORIGIN
+
 	}
 
 	private static ServerHttpHeadersWriter createDelegate(Mode mode) {
@@ -89,4 +89,5 @@ public class XFrameOptionsServerHttpHeadersWriter implements ServerHttpHeadersWr
 		// @formatter:on
 
 	}
+
 }

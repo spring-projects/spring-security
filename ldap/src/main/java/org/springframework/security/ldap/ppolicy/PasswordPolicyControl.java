@@ -28,10 +28,10 @@ import javax.naming.ldap.Control;
  *
  * @author Stefan Zoerner
  * @author Luke Taylor
- *
  * @see PasswordPolicyResponseControl
  */
 public class PasswordPolicyControl implements Control {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -55,7 +55,6 @@ public class PasswordPolicyControl implements Control {
 
 	/**
 	 * Creates a (request) control.
-	 *
 	 * @param critical indicates whether the control is critical for the client
 	 */
 	public PasswordPolicyControl(boolean critical) {
@@ -68,7 +67,6 @@ public class PasswordPolicyControl implements Control {
 	/**
 	 * Retrieves the ASN.1 BER encoded value of the LDAP control. The request value for
 	 * this control is always empty.
-	 *
 	 * @return always null
 	 */
 	public byte[] getEncodedValue() {
@@ -88,4 +86,5 @@ public class PasswordPolicyControl implements Control {
 	public boolean isCritical() {
 		return critical;
 	}
+
 }

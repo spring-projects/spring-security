@@ -32,12 +32,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
 
 /**
- * Custom deserializer for {@link PreAuthenticatedAuthenticationToken}. At the time of deserialization
- * it will invoke suitable constructor depending on the value of <b>authenticated</b> property.
- * It will ensure that the token's state must not change.
+ * Custom deserializer for {@link PreAuthenticatedAuthenticationToken}. At the time of
+ * deserialization it will invoke suitable constructor depending on the value of
+ * <b>authenticated</b> property. It will ensure that the token's state must not change.
  * <p>
- * This deserializer is already registered with {@link PreAuthenticatedAuthenticationTokenMixin} but
- * you can also registered it with your own mixin class.
+ * This deserializer is already registered with
+ * {@link PreAuthenticatedAuthenticationTokenMixin} but you can also registered it with
+ * your own mixin class.
  *
  * @author Jitendra Singh
  * @see PreAuthenticatedAuthenticationTokenMixin
@@ -46,7 +47,8 @@ import com.fasterxml.jackson.databind.node.MissingNode;
 class PreAuthenticatedAuthenticationTokenDeserializer extends JsonDeserializer<PreAuthenticatedAuthenticationToken> {
 
 	/**
-	 * This method construct {@link PreAuthenticatedAuthenticationToken} object from serialized json.
+	 * This method construct {@link PreAuthenticatedAuthenticationToken} object from
+	 * serialized json.
 	 * @param jp the JsonParser
 	 * @param ctxt the DeserializationContext
 	 * @return the user
@@ -54,7 +56,8 @@ class PreAuthenticatedAuthenticationTokenDeserializer extends JsonDeserializer<P
 	 * @throws JsonProcessingException if an error during JSON processing occurs
 	 */
 	@Override
-	public PreAuthenticatedAuthenticationToken deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+	public PreAuthenticatedAuthenticationToken deserialize(JsonParser jp, DeserializationContext ctxt)
+			throws IOException, JsonProcessingException {
 		PreAuthenticatedAuthenticationToken token = null;
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode jsonNode = mapper.readTree(jp);
@@ -63,16 +66,18 @@ class PreAuthenticatedAuthenticationTokenDeserializer extends JsonDeserializer<P
 		Object principal = null;
 		if (principalNode.isObject()) {
 			principal = mapper.readValue(principalNode.traverse(mapper), Object.class);
-		} else {
+		}
+		else {
 			principal = principalNode.asText();
 		}
 		Object credentials = readJsonNode(jsonNode, "credentials").asText();
-		List<GrantedAuthority> authorities = mapper.readValue(
-				readJsonNode(jsonNode, "authorities").traverse(mapper), new TypeReference<List<GrantedAuthority>>() {
-		});
+		List<GrantedAuthority> authorities = mapper.readValue(readJsonNode(jsonNode, "authorities").traverse(mapper),
+				new TypeReference<List<GrantedAuthority>>() {
+				});
 		if (authenticated) {
 			token = new PreAuthenticatedAuthenticationToken(principal, credentials, authorities);
-		} else {
+		}
+		else {
 			token = new PreAuthenticatedAuthenticationToken(principal, credentials);
 		}
 		token.setDetails(readJsonNode(jsonNode, "details"));
@@ -82,4 +87,5 @@ class PreAuthenticatedAuthenticationTokenDeserializer extends JsonDeserializer<P
 	private JsonNode readJsonNode(JsonNode jsonNode, String field) {
 		return jsonNode.has(field) ? jsonNode.get(field) : MissingNode.getInstance();
 	}
+
 }

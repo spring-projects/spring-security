@@ -27,12 +27,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
 /**
- * Caches <code>User</code> objects using a Spring IoC defined <A
- * HREF="https://www.ehcache.org/">EHCACHE</a>.
+ * Caches <code>User</code> objects using a Spring IoC defined
+ * <A HREF="https://www.ehcache.org/">EHCACHE</a>.
  *
  * @author Ben Alex
  */
 public class EhCacheBasedUserCache implements UserCache, InitializingBean {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -94,4 +95,5 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 	public void setCache(Ehcache cache) {
 		this.cache = cache;
 	}
+
 }

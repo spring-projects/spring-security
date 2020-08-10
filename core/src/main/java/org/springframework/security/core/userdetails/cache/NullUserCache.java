@@ -25,6 +25,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Ben Alex
  */
 public class NullUserCache implements UserCache {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -37,4 +38,5 @@ public class NullUserCache implements UserCache {
 
 	public void removeUserFromCache(String username) {
 	}
+
 }

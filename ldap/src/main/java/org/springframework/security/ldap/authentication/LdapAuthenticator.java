@@ -26,19 +26,19 @@ import org.springframework.ldap.core.DirContextOperations;
  * the information for that user from the directory.
  *
  * @author Luke Taylor
- *
  * @see org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator
  * @see org.springframework.security.ldap.authentication.UserDetailsServiceLdapAuthoritiesPopulator
  */
 public interface LdapAuthenticator {
+
 	// ~ Methods
 	// ========================================================================================================
 
 	/**
 	 * Authenticates as a user and obtains additional user information from the directory.
-	 *
 	 * @param authentication
 	 * @return the details of the successfully authenticated user.
 	 */
 	DirContextOperations authenticate(Authentication authentication);
+
 }

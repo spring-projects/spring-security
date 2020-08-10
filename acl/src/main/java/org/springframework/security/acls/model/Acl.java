@@ -63,7 +63,6 @@ public interface Acl extends Serializable {
 	 * subset of <tt>Sid</tt>s. The caller is responsible for correctly handling the
 	 * result if only a subset of <tt>Sid</tt>s is represented.
 	 * </p>
-	 *
 	 * @return the list of entries represented by the <tt>Acl</tt>, or <tt>null</tt> if
 	 * there are no entries presently associated with this <tt>Acl</tt>.
 	 */
@@ -72,7 +71,6 @@ public interface Acl extends Serializable {
 	/**
 	 * Obtains the domain object this <tt>Acl</tt> provides entries for. This is immutable
 	 * once an <tt>Acl</tt> is created.
-	 *
 	 * @return the object identity (never <tt>null</tt>)
 	 */
 	ObjectIdentity getObjectIdentity();
@@ -80,7 +78,6 @@ public interface Acl extends Serializable {
 	/**
 	 * Determines the owner of the <tt>Acl</tt>. The meaning of ownership varies by
 	 * implementation and is unspecified.
-	 *
 	 * @return the owner (may be <tt>null</tt> if the implementation does not use
 	 * ownership concepts)
 	 */
@@ -102,7 +99,6 @@ public interface Acl extends Serializable {
 	 * subset of <tt>Sid</tt>s. The caller is responsible for correctly handling the
 	 * result if only a subset of <tt>Sid</tt>s is represented.
 	 * </p>
-	 *
 	 * @return the parent <tt>Acl</tt> (may be <tt>null</tt> if this <tt>Acl</tt> does not
 	 * have a parent)
 	 */
@@ -118,7 +114,6 @@ public interface Acl extends Serializable {
 	 * parent for navigation purposes. Thus, this method denotes whether or not the
 	 * navigation relationship also extends to the actual inheritance of entries.
 	 * </p>
-	 *
 	 * @return <tt>true</tt> if parent ACL entries inherit into the current <tt>Acl</tt>
 	 */
 	boolean isEntriesInheriting();
@@ -158,7 +153,6 @@ public interface Acl extends Serializable {
 	 * authorization decision for a {@link Sid} that was never loaded in this <tt>Acl</tt>
 	 * .
 	 * </p>
-	 *
 	 * @param permission the permission or permissions required (at least one entry
 	 * required)
 	 * @param sids the security identities held by the principal (at least one entry
@@ -166,17 +160,15 @@ public interface Acl extends Serializable {
 	 * @param administrativeMode if <tt>true</tt> denotes the query is for administrative
 	 * purposes and no logging or auditing (if supported by the implementation) should be
 	 * undertaken
-	 *
 	 * @return <tt>true</tt> if authorization is granted
-	 *
 	 * @throws NotFoundException MUST be thrown if an implementation cannot make an
 	 * authoritative authorization decision, usually because there is no ACL information
 	 * for this particular permission and/or SID
 	 * @throws UnloadedSidException thrown if the <tt>Acl</tt> does not have details for
 	 * one or more of the <tt>Sid</tt>s passed as arguments
 	 */
-	boolean isGranted(List<Permission> permission, List<Sid> sids,
-			boolean administrativeMode) throws NotFoundException, UnloadedSidException;
+	boolean isGranted(List<Permission> permission, List<Sid> sids, boolean administrativeMode)
+			throws NotFoundException, UnloadedSidException;
 
 	/**
 	 * For efficiency reasons an <tt>Acl</tt> may be loaded and <em>not</em> contain
@@ -191,12 +183,11 @@ public interface Acl extends Serializable {
 	 * all <tt>Sid</tt>s. This method denotes whether or not the specified <tt>Sid</tt>s
 	 * have been loaded or not.
 	 * </p>
-	 *
 	 * @param sids one or more security identities the caller is interest in knowing
 	 * whether this <tt>Sid</tt> supports
-	 *
 	 * @return <tt>true</tt> if every passed <tt>Sid</tt> is represented by this
 	 * <tt>Acl</tt> instance
 	 */
 	boolean isSidLoaded(List<Sid> sids);
+
 }

@@ -37,6 +37,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class BearerTokenServerAccessDeniedHandlerTests {
+
 	private BearerTokenServerAccessDeniedHandler accessDeniedHandler;
 
 	@Before
@@ -55,8 +56,7 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 		this.accessDeniedHandler.handle(exchange, null).block();
 
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate")).isEqualTo(
-				Arrays.asList("Bearer"));
+		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate")).isEqualTo(Arrays.asList("Bearer"));
 	}
 
 	@Test
@@ -71,8 +71,8 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 		this.accessDeniedHandler.handle(exchange, null).block();
 
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate")).isEqualTo(
-				Arrays.asList("Bearer realm=\"test\""));
+		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate"))
+				.isEqualTo(Arrays.asList("Bearer realm=\"test\""));
 	}
 
 	@Test
@@ -86,16 +86,15 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 		this.accessDeniedHandler.handle(exchange, null).block();
 
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate")).isEqualTo(
-				Arrays.asList("Bearer error=\"insufficient_scope\", " +
-				"error_description=\"The request requires higher privileges than provided by the access token.\", " +
-				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\""));
+		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate"))
+				.isEqualTo(Arrays.asList("Bearer error=\"insufficient_scope\", "
+						+ "error_description=\"The request requires higher privileges than provided by the access token.\", "
+						+ "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\""));
 	}
 
 	@Test
 	public void setRealmNameWhenNullRealmNameThenNoExceptionThrown() {
-		assertThatCode(() -> this.accessDeniedHandler.setRealmName(null))
-				.doesNotThrowAnyException();
+		assertThatCode(() -> this.accessDeniedHandler.setRealmName(null)).doesNotThrowAnyException();
 	}
 
 	static class TestingOAuth2TokenAuthenticationToken
@@ -114,9 +113,13 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 		}
 
 		static class TestingOAuth2Token extends AbstractOAuth2Token {
+
 			TestingOAuth2Token(String tokenValue) {
 				super(tokenValue);
 			}
+
 		}
+
 	}
+
 }

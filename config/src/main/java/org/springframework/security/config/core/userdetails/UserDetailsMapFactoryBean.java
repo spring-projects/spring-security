@@ -34,7 +34,8 @@ import java.util.Map;
  * username=password[,enabled|disabled],roles...
  * </code>
  * <p>
- * The enabled and disabled properties are optional with enabled being the default. For example:
+ * The enabled and disabled properties are optional with enabled being the default. For
+ * example:
  * <p>
  * <code>
  * user=password,ROLE_USER
@@ -46,6 +47,7 @@ import java.util.Map;
  * @since 5.0
  */
 public class UserDetailsMapFactoryBean implements FactoryBean<Collection<UserDetails>> {
+
 	private final Map<String, String> userProperties;
 
 	public UserDetailsMapFactoryBean(Map<String, String> userProperties) {
@@ -64,8 +66,8 @@ public class UserDetailsMapFactoryBean implements FactoryBean<Collection<UserDet
 			editor.setAsText(property);
 			UserAttribute attr = (UserAttribute) editor.getValue();
 			if (attr == null) {
-				throw new IllegalStateException("The entry with username '" + name
-					+ "' and value '" + property + "' could not be converted to a UserDetails.");
+				throw new IllegalStateException("The entry with username '" + name + "' and value '" + property
+						+ "' could not be converted to a UserDetails.");
 			}
 			// @formatter:off
 			UserDetails user = User.withUsername(name)
@@ -75,11 +77,13 @@ public class UserDetailsMapFactoryBean implements FactoryBean<Collection<UserDet
 				.build();
 			users.add(user);
 			// @formatter:on
-		} return users;
+		}
+		return users;
 	}
 
 	@Override
 	public Class<?> getObjectType() {
 		return Collection.class;
 	}
+
 }

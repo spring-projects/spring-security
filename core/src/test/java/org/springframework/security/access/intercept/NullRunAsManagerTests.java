@@ -27,6 +27,7 @@ import org.springframework.security.access.SecurityConfig;
  * @author Ben Alex
  */
 public class NullRunAsManagerTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -47,4 +48,5 @@ public class NullRunAsManagerTests {
 		NullRunAsManager runAs = new NullRunAsManager();
 		assertThat(runAs.supports(new SecurityConfig("X"))).isFalse();
 	}
+
 }

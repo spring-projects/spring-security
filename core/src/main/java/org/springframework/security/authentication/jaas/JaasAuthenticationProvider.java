@@ -84,8 +84,8 @@ import org.springframework.util.Assert;
  *
  * <p>
  * When using JAAS login modules as the authentication source, sometimes the <a href=
- * "https://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html" >
- * LoginContext</a> will require <i>CallbackHandler</i>s. The JaasAuthenticationProvider
+ * "https://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html"
+ * > LoginContext</a> will require <i>CallbackHandler</i>s. The JaasAuthenticationProvider
  * uses an internal <a href=
  * "https://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/callback/CallbackHandler.html"
  * >CallbackHandler </a> to wrap the {@link JaasAuthenticationCallbackHandler}s configured
@@ -138,6 +138,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvider {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -148,6 +149,7 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 	// ================================================================================================
 
 	private Resource loginConfig;
+
 	private boolean refreshConfigurationOnStartup = true;
 
 	// ~ Methods
@@ -157,10 +159,8 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 	public void afterPropertiesSet() throws Exception {
 		// the superclass is not called because it does additional checks that are
 		// non-passive
-		Assert.hasLength(getLoginContextName(),
-				() -> "loginContextName must be set on " + getClass());
-		Assert.notNull(this.loginConfig,
-				() -> "loginConfig must be set on " + getClass());
+		Assert.hasLength(getLoginContextName(), () -> "loginContextName must be set on " + getClass());
+		Assert.notNull(this.loginConfig, () -> "loginConfig must be set on " + getClass());
 		configureJaas(this.loginConfig);
 
 		Assert.notNull(Configuration.getConfiguration(),
@@ -171,16 +171,13 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 	}
 
 	@Override
-	protected LoginContext createLoginContext(CallbackHandler handler)
-			throws LoginException {
+	protected LoginContext createLoginContext(CallbackHandler handler) throws LoginException {
 		return new LoginContext(getLoginContextName(), handler);
 	}
 
 	/**
 	 * Hook method for configuring Jaas.
-	 *
 	 * @param loginConfig URL to Jaas login configuration
-	 *
 	 * @throws IOException if there is a problem reading the config resource.
 	 */
 	protected void configureJaas(Resource loginConfig) throws IOException {
@@ -227,8 +224,7 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 		String loginConfigPath;
 
 		try {
-			loginConfigPath = this.loginConfig.getFile().getAbsolutePath()
-					.replace(File.separatorChar, '/');
+			loginConfigPath = this.loginConfig.getFile().getAbsolutePath().replace(File.separatorChar, '/');
 
 			if (!loginConfigPath.startsWith("/")) {
 				loginConfigPath = "/" + loginConfigPath;
@@ -245,16 +241,13 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 	/**
 	 * Publishes the {@link JaasAuthenticationFailedEvent}. Can be overridden by
 	 * subclasses for different functionality
-	 *
 	 * @param token The authentication token being processed
 	 * @param ase The excetion that caused the authentication failure
 	 */
 	@Override
-	protected void publishFailureEvent(UsernamePasswordAuthenticationToken token,
-			AuthenticationException ase) {
+	protected void publishFailureEvent(UsernamePasswordAuthenticationToken token, AuthenticationException ase) {
 		// exists for passivity (the superclass does a null check before publishing)
-		getApplicationEventPublisher()
-				.publishEvent(new JaasAuthenticationFailedEvent(token, ase));
+		getApplicationEventPublisher().publishEvent(new JaasAuthenticationFailedEvent(token, ase));
 	}
 
 	public Resource getLoginConfig() {
@@ -263,7 +256,6 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 
 	/**
 	 * Set the JAAS login configuration file.
-	 *
 	 * @param loginConfig
 	 *
 	 * @see <a href=
@@ -279,11 +271,11 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 	 * {@code #configureJaas(Resource) } method. Defaults to {@code true}.
 	 *
 	 * @see <a href="https://jira.springsource.org/browse/SEC-1320">SEC-1320</a>
-	 *
 	 * @param refresh set to {@code false} to disable reloading of the configuration. May
 	 * be useful in some environments.
 	 */
 	public void setRefreshConfigurationOnStartup(boolean refresh) {
 		this.refreshConfigurationOnStartup = refresh;
 	}
+
 }

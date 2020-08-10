@@ -40,7 +40,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Joe Grandja
  */
 public class OAuth2AuthorizationRequestMixinTests {
+
 	private ObjectMapper mapper;
+
 	private OAuth2AuthorizationRequest.Builder authorizationRequestBuilder;
 
 	@Before
@@ -51,8 +53,7 @@ public class OAuth2AuthorizationRequestMixinTests {
 		Map<String, Object> additionalParameters = new LinkedHashMap<>();
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
-		this.authorizationRequestBuilder = TestOAuth2AuthorizationRequests.request()
-				.scope("read", "write")
+		this.authorizationRequestBuilder = TestOAuth2AuthorizationRequests.request().scope("read", "write")
 				.additionalParameters(additionalParameters);
 	}
 
@@ -66,13 +67,8 @@ public class OAuth2AuthorizationRequestMixinTests {
 
 	@Test
 	public void serializeWhenRequiredAttributesOnlyThenSerializes() throws Exception {
-		OAuth2AuthorizationRequest authorizationRequest =
-				this.authorizationRequestBuilder
-						.scopes(null)
-						.state(null)
-						.additionalParameters(Map::clear)
-						.attributes(Map::clear)
-						.build();
+		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestBuilder.scopes(null).state(null)
+				.additionalParameters(Map::clear).attributes(Map::clear).build();
 		String expectedJson = asJson(authorizationRequest);
 		String json = this.mapper.writeValueAsString(authorizationRequest);
 		JSONAssert.assertEquals(expectedJson, json, true);
@@ -92,18 +88,12 @@ public class OAuth2AuthorizationRequestMixinTests {
 		OAuth2AuthorizationRequest authorizationRequest = this.mapper.readValue(json, OAuth2AuthorizationRequest.class);
 		assertThat(authorizationRequest.getAuthorizationUri())
 				.isEqualTo(expectedAuthorizationRequest.getAuthorizationUri());
-		assertThat(authorizationRequest.getGrantType())
-				.isEqualTo(expectedAuthorizationRequest.getGrantType());
-		assertThat(authorizationRequest.getResponseType())
-				.isEqualTo(expectedAuthorizationRequest.getResponseType());
-		assertThat(authorizationRequest.getClientId())
-				.isEqualTo(expectedAuthorizationRequest.getClientId());
-		assertThat(authorizationRequest.getRedirectUri())
-				.isEqualTo(expectedAuthorizationRequest.getRedirectUri());
-		assertThat(authorizationRequest.getScopes())
-				.isEqualTo(expectedAuthorizationRequest.getScopes());
-		assertThat(authorizationRequest.getState())
-				.isEqualTo(expectedAuthorizationRequest.getState());
+		assertThat(authorizationRequest.getGrantType()).isEqualTo(expectedAuthorizationRequest.getGrantType());
+		assertThat(authorizationRequest.getResponseType()).isEqualTo(expectedAuthorizationRequest.getResponseType());
+		assertThat(authorizationRequest.getClientId()).isEqualTo(expectedAuthorizationRequest.getClientId());
+		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(expectedAuthorizationRequest.getRedirectUri());
+		assertThat(authorizationRequest.getScopes()).isEqualTo(expectedAuthorizationRequest.getScopes());
+		assertThat(authorizationRequest.getState()).isEqualTo(expectedAuthorizationRequest.getState());
 		assertThat(authorizationRequest.getAdditionalParameters())
 				.containsExactlyEntriesOf(expectedAuthorizationRequest.getAdditionalParameters());
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
@@ -114,25 +104,16 @@ public class OAuth2AuthorizationRequestMixinTests {
 
 	@Test
 	public void deserializeWhenRequiredAttributesOnlyThenDeserializes() throws Exception {
-		OAuth2AuthorizationRequest expectedAuthorizationRequest =
-				this.authorizationRequestBuilder
-						.scopes(null)
-						.state(null)
-						.additionalParameters(Map::clear)
-						.attributes(Map::clear)
-						.build();
+		OAuth2AuthorizationRequest expectedAuthorizationRequest = this.authorizationRequestBuilder.scopes(null)
+				.state(null).additionalParameters(Map::clear).attributes(Map::clear).build();
 		String json = asJson(expectedAuthorizationRequest);
 		OAuth2AuthorizationRequest authorizationRequest = this.mapper.readValue(json, OAuth2AuthorizationRequest.class);
 		assertThat(authorizationRequest.getAuthorizationUri())
 				.isEqualTo(expectedAuthorizationRequest.getAuthorizationUri());
-		assertThat(authorizationRequest.getGrantType())
-				.isEqualTo(expectedAuthorizationRequest.getGrantType());
-		assertThat(authorizationRequest.getResponseType())
-				.isEqualTo(expectedAuthorizationRequest.getResponseType());
-		assertThat(authorizationRequest.getClientId())
-				.isEqualTo(expectedAuthorizationRequest.getClientId());
-		assertThat(authorizationRequest.getRedirectUri())
-				.isEqualTo(expectedAuthorizationRequest.getRedirectUri());
+		assertThat(authorizationRequest.getGrantType()).isEqualTo(expectedAuthorizationRequest.getGrantType());
+		assertThat(authorizationRequest.getResponseType()).isEqualTo(expectedAuthorizationRequest.getResponseType());
+		assertThat(authorizationRequest.getClientId()).isEqualTo(expectedAuthorizationRequest.getClientId());
+		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(expectedAuthorizationRequest.getRedirectUri());
 		assertThat(authorizationRequest.getScopes()).isEmpty();
 		assertThat(authorizationRequest.getState()).isNull();
 		assertThat(authorizationRequest.getAdditionalParameters()).isEmpty();
@@ -146,8 +127,7 @@ public class OAuth2AuthorizationRequestMixinTests {
 		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestBuilder.build();
 		String json = asJson(authorizationRequest).replace("authorization_code", "client_credentials");
 		assertThatThrownBy(() -> this.mapper.readValue(json, OAuth2AuthorizationRequest.class))
-				.isInstanceOf(JsonParseException.class)
-				.hasMessageContaining("Invalid authorizationGrantType");
+				.isInstanceOf(JsonParseException.class).hasMessageContaining("Invalid authorizationGrantType");
 	}
 
 	private static String asJson(OAuth2AuthorizationRequest authorizationRequest) {
@@ -194,4 +174,5 @@ public class OAuth2AuthorizationRequestMixinTests {
 				"}";
 		// @formatter:on
 	}
+
 }

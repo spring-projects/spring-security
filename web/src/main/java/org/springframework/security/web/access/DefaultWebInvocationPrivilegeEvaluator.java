@@ -34,13 +34,12 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.0
  */
-public class DefaultWebInvocationPrivilegeEvaluator implements
-		WebInvocationPrivilegeEvaluator {
+public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	protected static final Log logger = LogFactory
-			.getLog(DefaultWebInvocationPrivilegeEvaluator.class);
+	protected static final Log logger = LogFactory.getLog(DefaultWebInvocationPrivilegeEvaluator.class);
 
 	// ~ Instance fields
 	// ================================================================================================
@@ -50,11 +49,9 @@ public class DefaultWebInvocationPrivilegeEvaluator implements
 	// ~ Constructors
 	// ===================================================================================================
 
-	public DefaultWebInvocationPrivilegeEvaluator(
-			AbstractSecurityInterceptor securityInterceptor) {
+	public DefaultWebInvocationPrivilegeEvaluator(AbstractSecurityInterceptor securityInterceptor) {
 		Assert.notNull(securityInterceptor, "SecurityInterceptor cannot be null");
-		Assert.isTrue(
-				FilterInvocation.class.equals(securityInterceptor.getSecureObjectClass()),
+		Assert.isTrue(FilterInvocation.class.equals(securityInterceptor.getSecureObjectClass()),
 				"AbstractSecurityInterceptor does not support FilterInvocations");
 		Assert.notNull(securityInterceptor.getAccessDecisionManager(),
 				"AbstractSecurityInterceptor must provide a non-null AccessDecisionManager");
@@ -68,7 +65,6 @@ public class DefaultWebInvocationPrivilegeEvaluator implements
 	/**
 	 * Determines whether the user represented by the supplied <tt>Authentication</tt>
 	 * object is allowed to invoke the supplied URI.
-	 *
 	 * @param uri the URI excluding the context path (a default context path setting will
 	 * be used)
 	 */
@@ -85,7 +81,6 @@ public class DefaultWebInvocationPrivilegeEvaluator implements
 	 * metadata applies to a given request URI, so generally the <code>contextPath</code>
 	 * is unimportant unless you are using a custom
 	 * <code>FilterInvocationSecurityMetadataSource</code>.
-	 *
 	 * @param uri the URI excluding the context path
 	 * @param contextPath the context path (may be null, in which case a default value
 	 * will be used).
@@ -94,13 +89,11 @@ public class DefaultWebInvocationPrivilegeEvaluator implements
 	 * be used in evaluation whether access should be granted.
 	 * @return true if access is allowed, false if denied
 	 */
-	public boolean isAllowed(String contextPath, String uri, String method,
-			Authentication authentication) {
+	public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
 		Assert.notNull(uri, "uri parameter is required");
 
 		FilterInvocation fi = new FilterInvocation(contextPath, uri, method);
-		Collection<ConfigAttribute> attrs = securityInterceptor
-				.obtainSecurityMetadataSource().getAttributes(fi);
+		Collection<ConfigAttribute> attrs = securityInterceptor.obtainSecurityMetadataSource().getAttributes(fi);
 
 		if (attrs == null) {
 			if (securityInterceptor.isRejectPublicInvocations()) {
@@ -115,13 +108,11 @@ public class DefaultWebInvocationPrivilegeEvaluator implements
 		}
 
 		try {
-			securityInterceptor.getAccessDecisionManager().decide(authentication, fi,
-					attrs);
+			securityInterceptor.getAccessDecisionManager().decide(authentication, fi, attrs);
 		}
 		catch (AccessDeniedException unauthorized) {
 			if (logger.isDebugEnabled()) {
-				logger.debug(fi.toString() + " denied for " + authentication.toString(),
-						unauthorized);
+				logger.debug(fi.toString() + " denied for " + authentication.toString(), unauthorized);
 			}
 
 			return false;
@@ -129,4 +120,5 @@ public class DefaultWebInvocationPrivilegeEvaluator implements
 
 		return true;
 	}
+
 }

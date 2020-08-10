@@ -31,6 +31,7 @@ import java.util.Map;
 public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPrincipal, Serializable {
 
 	private final String name;
+
 	private final Map<String, List<Object>> attributes;
 
 	public DefaultSaml2AuthenticatedPrincipal(String name, Map<String, List<Object>> attributes) {
@@ -50,4 +51,5 @@ public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPri
 	public Map<String, List<Object>> getAttributes() {
 		return this.attributes;
 	}
+
 }

@@ -47,17 +47,19 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  */
 public final class PasswordComparisonAuthenticator extends AbstractLdapAuthenticator {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	private static final Log logger = LogFactory
-			.getLog(PasswordComparisonAuthenticator.class);
+	private static final Log logger = LogFactory.getLog(PasswordComparisonAuthenticator.class);
 
 	// ~ Instance fields
 	// ================================================================================================
 
 	private PasswordEncoder passwordEncoder = new LdapShaPasswordEncoder(KeyGenerators.shared(0));
+
 	private String passwordAttributeName = "userPassword";
+
 	private boolean usePasswordAttrCompare = false;
 
 	// ~ Constructors
@@ -79,8 +81,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 		String username = authentication.getName();
 		String password = (String) authentication.getCredentials();
 
-		SpringSecurityLdapTemplate ldapTemplate = new SpringSecurityLdapTemplate(
-				getContextSource());
+		SpringSecurityLdapTemplate ldapTemplate = new SpringSecurityLdapTemplate(getContextSource());
 
 		for (String userDn : getUserDns(username)) {
 			try {
@@ -102,8 +103,8 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 		}
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Performing LDAP compare of password attribute '"
-					+ passwordAttributeName + "' for user '" + user.getDn() + "'");
+			logger.debug("Performing LDAP compare of password attribute '" + passwordAttributeName + "' for user '"
+					+ user.getDn() + "'");
 		}
 
 		if (usePasswordAttrCompare && isPasswordAttrCompare(user, password)) {
@@ -112,8 +113,8 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 		else if (isLdapPasswordCompare(user, ldapTemplate, password)) {
 			return user;
 		}
-		throw new BadCredentialsException(messages.getMessage(
-				"PasswordComparisonAuthenticator.badCredentials", "Bad credentials"));
+		throw new BadCredentialsException(
+				messages.getMessage("PasswordComparisonAuthenticator.badCredentials", "Bad credentials"));
 	}
 
 	private boolean isPasswordAttrCompare(DirContextOperations user, String password) {
@@ -132,17 +133,15 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 		return String.valueOf(passwordAttrValue);
 	}
 
-	private boolean isLdapPasswordCompare(DirContextOperations user,
-			SpringSecurityLdapTemplate ldapTemplate, String password) {
+	private boolean isLdapPasswordCompare(DirContextOperations user, SpringSecurityLdapTemplate ldapTemplate,
+			String password) {
 		String encodedPassword = passwordEncoder.encode(password);
 		byte[] passwordBytes = Utf8.encode(encodedPassword);
-		return ldapTemplate.compare(user.getDn().toString(), passwordAttributeName,
-				passwordBytes);
+		return ldapTemplate.compare(user.getDn().toString(), passwordAttributeName, passwordBytes);
 	}
 
 	public void setPasswordAttributeName(String passwordAttribute) {
-		Assert.hasLength(passwordAttribute,
-				"passwordAttributeName must not be empty or null");
+		Assert.hasLength(passwordAttribute, "passwordAttributeName must not be empty or null");
 		this.passwordAttributeName = passwordAttribute;
 	}
 
@@ -155,4 +154,5 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 		this.passwordEncoder = passwordEncoder;
 		setUsePasswordAttrCompare(true);
 	}
+
 }

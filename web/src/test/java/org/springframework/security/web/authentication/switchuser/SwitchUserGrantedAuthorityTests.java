@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
 
 /**
- *
  * @author Clement Ng
  *
  */
@@ -32,8 +31,7 @@ public class SwitchUserGrantedAuthorityTests {
 	@Test
 	public void authorityWithNullRoleFailsAssertion() {
 		assertThatThrownBy(() -> new SwitchUserGrantedAuthority(null, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("role cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage("role cannot be null");
 	}
 
 	/**
@@ -41,7 +39,7 @@ public class SwitchUserGrantedAuthorityTests {
 	@Test
 	public void authorityWithNullSourceFailsAssertion() {
 		assertThatThrownBy(() -> new SwitchUserGrantedAuthority("role", null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("source cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage("source cannot be null");
 	}
+
 }

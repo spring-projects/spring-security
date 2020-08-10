@@ -40,12 +40,17 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PathMatcherServerWebExchangeMatcherTests {
+
 	@Mock
 	PathPattern pattern;
+
 	@Mock
 	PathPattern.PathMatchInfo pathMatchInfo;
+
 	MockServerWebExchange exchange;
+
 	PathPatternParserServerWebExchangeMatcher matcher;
+
 	String path;
 
 	@Before
@@ -105,4 +110,5 @@ public class PathMatcherServerWebExchangeMatcherTests {
 
 		verifyZeroInteractions(pattern);
 	}
+
 }

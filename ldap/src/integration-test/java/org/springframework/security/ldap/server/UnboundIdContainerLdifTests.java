@@ -59,6 +59,7 @@ public class UnboundIdContainerLdifTests {
 
 	@Configuration
 	static class CustomLdifConfig {
+
 		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath:test-server.ldif");
 
@@ -70,14 +71,15 @@ public class UnboundIdContainerLdifTests {
 
 		@Bean
 		ContextSource contextSource(UnboundIdContainer container) {
-			return new DefaultSpringSecurityContextSource("ldap://127.0.0.1:"
-					+ container.getPort() + "/dc=springframework,dc=org");
+			return new DefaultSpringSecurityContextSource(
+					"ldap://127.0.0.1:" + container.getPort() + "/dc=springframework,dc=org");
 		}
 
 		@PreDestroy
 		void shutdown() {
 			this.container.stop();
 		}
+
 	}
 
 	@Test
@@ -93,6 +95,7 @@ public class UnboundIdContainerLdifTests {
 
 	@Configuration
 	static class WildcardLdifConfig {
+
 		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath*:test-server.ldif");
 
@@ -104,14 +107,15 @@ public class UnboundIdContainerLdifTests {
 
 		@Bean
 		ContextSource contextSource(UnboundIdContainer container) {
-			return new DefaultSpringSecurityContextSource("ldap://127.0.0.1:"
-					+ container.getPort() + "/dc=springframework,dc=org");
+			return new DefaultSpringSecurityContextSource(
+					"ldap://127.0.0.1:" + container.getPort() + "/dc=springframework,dc=org");
 		}
 
 		@PreDestroy
 		void shutdown() {
 			this.container.stop();
 		}
+
 	}
 
 	@Test
@@ -119,7 +123,8 @@ public class UnboundIdContainerLdifTests {
 		try {
 			appCtx = new AnnotationConfigApplicationContext(MalformedLdifConfig.class);
 			failBecauseExceptionWasNotThrown(IllegalStateException.class);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
 			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
 		}
@@ -127,6 +132,7 @@ public class UnboundIdContainerLdifTests {
 
 	@Configuration
 	static class MalformedLdifConfig {
+
 		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath:test-server-malformed.txt");
 
@@ -140,6 +146,7 @@ public class UnboundIdContainerLdifTests {
 		void shutdown() {
 			this.container.stop();
 		}
+
 	}
 
 	@Test
@@ -147,7 +154,8 @@ public class UnboundIdContainerLdifTests {
 		try {
 			appCtx = new AnnotationConfigApplicationContext(MissingLdifConfig.class);
 			failBecauseExceptionWasNotThrown(IllegalStateException.class);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
 			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:does-not-exist.ldif");
 		}
@@ -155,6 +163,7 @@ public class UnboundIdContainerLdifTests {
 
 	@Configuration
 	static class MissingLdifConfig {
+
 		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath:does-not-exist.ldif");
 
@@ -168,6 +177,7 @@ public class UnboundIdContainerLdifTests {
 		void shutdown() {
 			this.container.stop();
 		}
+
 	}
 
 	@Test
@@ -177,6 +187,7 @@ public class UnboundIdContainerLdifTests {
 
 	@Configuration
 	static class WildcardNoLdifConfig {
+
 		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath*:*.test.ldif");
 
@@ -190,5 +201,7 @@ public class UnboundIdContainerLdifTests {
 		void shutdown() {
 			this.container.stop();
 		}
+
 	}
+
 }

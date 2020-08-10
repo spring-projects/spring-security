@@ -40,32 +40,38 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-
 /**
  * @author Rob Winch
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticationPrincipalArgumentResolverTests {
+
 	@Mock
 	ServerWebExchange exchange;
+
 	@Mock
 	BindingContext bindingContext;
+
 	@Mock
 	Authentication authentication;
+
 	@Mock
 	BeanResolver beanResolver;
 
 	ResolvableMethod authenticationPrincipal = ResolvableMethod.on(getClass()).named("authenticationPrincipal").build();
+
 	ResolvableMethod spel = ResolvableMethod.on(getClass()).named("spel").build();
+
 	ResolvableMethod meta = ResolvableMethod.on(getClass()).named("meta").build();
+
 	ResolvableMethod bean = ResolvableMethod.on(getClass()).named("bean").build();
 
 	AuthenticationPrincipalArgumentResolver resolver;
 
 	@Before
 	public void setup() {
-		resolver =  new AuthenticationPrincipalArgumentResolver(new ReactiveAdapterRegistry());
+		resolver = new AuthenticationPrincipalArgumentResolver(new ReactiveAdapterRegistry());
 		this.resolver.setBeanResolver(this.beanResolver);
 	}
 
@@ -113,7 +119,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	@Test
 	public void resolveArgumentWhenMonoIsAuthenticationAndNoGenericThenObtainsPrincipal() {
-		MethodParameter parameter = ResolvableMethod.on(getClass()).named("authenticationPrincipalNoGeneric").build().arg(Mono.class);
+		MethodParameter parameter = ResolvableMethod.on(getClass()).named("authenticationPrincipalNoGeneric").build()
+				.arg(Mono.class);
 		when(authentication.getPrincipal()).thenReturn("user");
 
 		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange)
@@ -160,7 +167,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	@Test
 	public void resolveArgumentWhenErrorOnInvalidTypeImplicit() {
-		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenImplicit").build().arg(Integer.class);
+		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenImplicit").build()
+				.arg(Integer.class);
 		when(authentication.getPrincipal()).thenReturn("user");
 
 		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange)
@@ -171,7 +179,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	@Test
 	public void resolveArgumentWhenErrorOnInvalidTypeExplicitFalse() {
-		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenExplicitFalse").build().arg(Integer.class);
+		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenExplicitFalse").build()
+				.arg(Integer.class);
 		when(authentication.getPrincipal()).thenReturn("user");
 
 		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange)
@@ -182,7 +191,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	@Test
 	public void resolveArgumentWhenErrorOnInvalidTypeExplicitTrue() {
-		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenExplicitTrue").build().arg(Integer.class);
+		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenExplicitTrue").build()
+				.arg(Integer.class);
 		when(authentication.getPrincipal()).thenReturn("user");
 
 		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange)
@@ -191,29 +201,41 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		assertThatThrownBy(() -> argument.block()).isInstanceOf(ClassCastException.class);
 	}
 
-	void authenticationPrincipal(@AuthenticationPrincipal String principal, @AuthenticationPrincipal Mono<String> monoPrincipal) {}
+	void authenticationPrincipal(@AuthenticationPrincipal String principal,
+			@AuthenticationPrincipal Mono<String> monoPrincipal) {
+	}
 
-	void authenticationPrincipalNoGeneric(@AuthenticationPrincipal Mono monoPrincipal) {}
+	void authenticationPrincipalNoGeneric(@AuthenticationPrincipal Mono monoPrincipal) {
+	}
 
-	void spel(@AuthenticationPrincipal(expression = "id") Long id) {}
+	void spel(@AuthenticationPrincipal(expression = "id") Long id) {
+	}
 
-	void bean(@AuthenticationPrincipal(expression = "@beanName.methodName(#this)") Long id) {}
+	void bean(@AuthenticationPrincipal(expression = "@beanName.methodName(#this)") Long id) {
+	}
 
-	void meta(@CurrentUser String principal) {}
+	void meta(@CurrentUser String principal) {
+	}
 
-	void errorOnInvalidTypeWhenImplicit(@AuthenticationPrincipal Integer implicit) {}
+	void errorOnInvalidTypeWhenImplicit(@AuthenticationPrincipal Integer implicit) {
+	}
 
-	void errorOnInvalidTypeWhenExplicitFalse(@AuthenticationPrincipal(errorOnInvalidType = false) Integer implicit) {}
+	void errorOnInvalidTypeWhenExplicitFalse(@AuthenticationPrincipal(errorOnInvalidType = false) Integer implicit) {
+	}
 
-	void errorOnInvalidTypeWhenExplicitTrue(@AuthenticationPrincipal(errorOnInvalidType = true) Integer implicit) {}
+	void errorOnInvalidTypeWhenExplicitTrue(@AuthenticationPrincipal(errorOnInvalidType = true) Integer implicit) {
+	}
 
 	static class Bean {
+
 		public Long methodName(MyUser user) {
 			return user.getId();
 		}
+
 	}
 
 	static class MyUser {
+
 		private final Long id;
 
 		MyUser(Long id) {
@@ -223,11 +245,15 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		public Long getId() {
 			return id;
 		}
+
 	}
 
 	@Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
 	@AuthenticationPrincipal
-	public @interface CurrentUser {}
+	public @interface CurrentUser {
+
+	}
+
 }

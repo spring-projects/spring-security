@@ -34,19 +34,17 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  */
 public abstract class AuthorityUtils {
+
 	public static final List<GrantedAuthority> NO_AUTHORITIES = Collections.emptyList();
 
 	/**
 	 * Creates a array of GrantedAuthority objects from a comma-separated string
 	 * representation (e.g. "ROLE_A, ROLE_B, ROLE_C").
-	 *
 	 * @param authorityString the comma-separated string
 	 * @return the authorities created by tokenizing the string
 	 */
-	public static List<GrantedAuthority> commaSeparatedStringToAuthorityList(
-			String authorityString) {
-		return createAuthorityList(StringUtils
-				.tokenizeToStringArray(authorityString, ","));
+	public static List<GrantedAuthority> commaSeparatedStringToAuthorityList(String authorityString) {
+		return createAuthorityList(StringUtils.tokenizeToStringArray(authorityString, ","));
 	}
 
 	/**
@@ -54,8 +52,7 @@ public abstract class AuthorityUtils {
 	 * @return a Set of the Strings obtained from each call to
 	 * GrantedAuthority.getAuthority()
 	 */
-	public static Set<String> authorityListToSet(
-			Collection<? extends GrantedAuthority> userAuthorities) {
+	public static Set<String> authorityListToSet(Collection<? extends GrantedAuthority> userAuthorities) {
 		Assert.notNull(userAuthorities, "userAuthorities cannot be null");
 		Set<String> set = new HashSet<>(userAuthorities.size());
 
@@ -68,7 +65,6 @@ public abstract class AuthorityUtils {
 
 	/**
 	 * Converts authorities into a List of GrantedAuthority objects.
-	 *
 	 * @param authorities the authorities to convert
 	 * @return a List of GrantedAuthority objects
 	 */
@@ -81,4 +77,5 @@ public abstract class AuthorityUtils {
 
 		return grantedAuthorities;
 	}
+
 }

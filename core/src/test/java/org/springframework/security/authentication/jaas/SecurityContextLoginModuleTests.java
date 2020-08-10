@@ -39,14 +39,16 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Ray Krueger
  */
 public class SecurityContextLoginModuleTests {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private SecurityContextLoginModule module = null;
-	private Subject subject = new Subject(false, new HashSet<>(),
-			new HashSet<>(), new HashSet<>());
-	private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-			"principal", "credentials");
+
+	private Subject subject = new Subject(false, new HashSet<>(), new HashSet<>(), new HashSet<>());
+
+	private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("principal",
+			"credentials");
 
 	// ~ Methods
 	// ========================================================================================================
@@ -66,8 +68,7 @@ public class SecurityContextLoginModuleTests {
 
 	@Test
 	public void testAbort() throws Exception {
-		assertThat(this.module.abort()).as("Should return false, no auth is set")
-				.isFalse();
+		assertThat(this.module.abort()).as("Should return false, no auth is set").isFalse();
 		SecurityContextHolder.getContext().setAuthentication(this.auth);
 		this.module.login();
 		this.module.commit();
@@ -87,11 +88,8 @@ public class SecurityContextLoginModuleTests {
 	@Test
 	public void testLoginSuccess() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(this.auth);
-		assertThat(this.module.login())
-				.as("Login should succeed, there is an authentication set").isTrue();
-		assertThat(this.module.commit())
-				.withFailMessage(
-						"The authentication is not null, this should return true")
+		assertThat(this.module.login()).as("Login should succeed, there is an authentication set").isTrue();
+		assertThat(this.module.commit()).withFailMessage("The authentication is not null, this should return true")
 				.isTrue();
 		assertThat(this.subject.getPrincipals().contains(this.auth))
 				.withFailMessage("Principals should contain the authentication").isTrue();
@@ -102,13 +100,10 @@ public class SecurityContextLoginModuleTests {
 		SecurityContextHolder.getContext().setAuthentication(this.auth);
 		this.module.login();
 		assertThat(this.module.logout()).as("Should return true as it succeeds").isTrue();
-		assertThat(this.module.getAuthentication()).as("Authentication should be null")
-				.isNull();
+		assertThat(this.module.getAuthentication()).as("Authentication should be null").isNull();
 
 		assertThat(this.subject.getPrincipals().contains(this.auth))
-				.withFailMessage(
-						"Principals should not contain the authentication after logout")
-				.isFalse();
+				.withFailMessage("Principals should not contain the authentication after logout").isFalse();
 	}
 
 	@Test
@@ -131,12 +126,12 @@ public class SecurityContextLoginModuleTests {
 
 		this.module.initialize(this.subject, null, null, options);
 		SecurityContextHolder.getContext().setAuthentication(null);
-		assertThat(this.module.login()).as("Should return false and ask to be ignored")
-				.isFalse();
+		assertThat(this.module.login()).as("Should return false and ask to be ignored").isFalse();
 	}
 
 	@Test
 	public void testNullLogout() throws Exception {
 		assertThat(this.module.logout()).isFalse();
 	}
+
 }

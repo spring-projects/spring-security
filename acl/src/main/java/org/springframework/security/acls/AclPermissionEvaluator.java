@@ -51,9 +51,13 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final AclService aclService;
+
 	private ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
+
 	private ObjectIdentityGenerator objectIdentityGenerator = new ObjectIdentityRetrievalStrategyImpl();
+
 	private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
+
 	private PermissionFactory permissionFactory = new DefaultPermissionFactory();
 
 	public AclPermissionEvaluator(AclService aclService) {
@@ -65,28 +69,24 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 	 * the ACL configuration. If the domain object is null, returns false (this can always
 	 * be overridden using a null check in the expression itself).
 	 */
-	public boolean hasPermission(Authentication authentication, Object domainObject,
-			Object permission) {
+	public boolean hasPermission(Authentication authentication, Object domainObject, Object permission) {
 		if (domainObject == null) {
 			return false;
 		}
 
-		ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy
-				.getObjectIdentity(domainObject);
+		ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
 
 		return checkPermission(authentication, objectIdentity, permission);
 	}
 
-	public boolean hasPermission(Authentication authentication, Serializable targetId,
-			String targetType, Object permission) {
-		ObjectIdentity objectIdentity = objectIdentityGenerator.createObjectIdentity(
-				targetId, targetType);
-
-		return checkPermission(authentication, objectIdentity, permission);
-	}
-
-	private boolean checkPermission(Authentication authentication, ObjectIdentity oid,
+	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
 			Object permission) {
+		ObjectIdentity objectIdentity = objectIdentityGenerator.createObjectIdentity(targetId, targetType);
+
+		return checkPermission(authentication, objectIdentity, permission);
+	}
+
+	private boolean checkPermission(Authentication authentication, ObjectIdentity oid, Object permission) {
 		// Obtain the SIDs applicable to the principal
 		List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
 		List<Permission> requiredPermission = resolvePermission(permission);
@@ -94,8 +94,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 		final boolean debug = logger.isDebugEnabled();
 
 		if (debug) {
-			logger.debug("Checking permission '" + permission + "' for object '" + oid
-					+ "'");
+			logger.debug("Checking permission '" + permission + "' for object '" + oid + "'");
 		}
 
 		try {
@@ -157,8 +156,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 		throw new IllegalArgumentException("Unsupported permission: " + permission);
 	}
 
-	public void setObjectIdentityRetrievalStrategy(
-			ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
+	public void setObjectIdentityRetrievalStrategy(ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
 		this.objectIdentityRetrievalStrategy = objectIdentityRetrievalStrategy;
 	}
 
@@ -173,4 +171,5 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 	public void setPermissionFactory(PermissionFactory permissionFactory) {
 		this.permissionFactory = permissionFactory;
 	}
+
 }

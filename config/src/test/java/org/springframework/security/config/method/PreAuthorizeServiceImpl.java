@@ -22,9 +22,11 @@ package org.springframework.security.config.method;
 public class PreAuthorizeServiceImpl {
 
 	@PreAuthorizeAdminRole
-	public void preAuthorizeAdminRole() {}
+	public void preAuthorizeAdminRole() {
+	}
 
 	@ContactPermission
-	public void contactPermission(Contact contact) {}
+	public void contactPermission(Contact contact) {
+	}
 
 }

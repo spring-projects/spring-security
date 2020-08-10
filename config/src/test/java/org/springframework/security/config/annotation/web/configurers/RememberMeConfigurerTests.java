@@ -80,17 +80,13 @@ public class RememberMeConfigurerTests {
 	public void postWhenNoUserDetailsServiceThenException() {
 		this.spring.register(NullUserDetailsConfig.class).autowire();
 
-		assertThatThrownBy(() ->
-				mvc.perform(post("/login")
-						.param("username", "user")
-						.param("password", "password")
-						.param("remember-me", "true")
-						.with(csrf())))
-				.hasMessageContaining("UserDetailsService is required");
+		assertThatThrownBy(() -> mvc.perform(post("/login").param("username", "user").param("password", "password")
+				.param("remember-me", "true").with(csrf()))).hasMessageContaining("UserDetailsService is required");
 	}
 
 	@EnableWebSecurity
 	static class NullUserDetailsConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -113,18 +109,19 @@ public class RememberMeConfigurerTests {
 				.authenticationProvider(provider);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnRememberMeAuthenticationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(RememberMeAuthenticationFilter.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(RememberMeAuthenticationFilter.class));
 	}
 
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
 		@Override
@@ -148,13 +145,16 @@ public class RememberMeConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
 		}
+
 	}
 
 	@Test
@@ -163,15 +163,14 @@ public class RememberMeConfigurerTests {
 				.thenReturn(new User("user", "password", Collections.emptyList()));
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
 
-		this.mvc.perform(get("/")
-				.with(httpBasic("user", "password"))
-				.param("remember-me", "true"));
+		this.mvc.perform(get("/").with(httpBasic("user", "password")).param("remember-me", "true"));
 
 		verify(DuplicateDoesNotOverrideConfig.userDetailsService).loadUserByUsername("user");
 	}
 
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+
 		static UserDetailsService userDetailsService = mock(UserDetailsService.class);
 
 		@Override
@@ -190,7 +189,7 @@ public class RememberMeConfigurerTests {
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
-					// @formatter:off
+			// @formatter:off
 					User.withDefaultPasswordEncoder()
 							.username("user")
 							.password("password")
@@ -199,81 +198,56 @@ public class RememberMeConfigurerTests {
 					// @formatter:on
 			);
 		}
+
 	}
 
 	@Test
 	public void loginWhenRememberMeTrueThenRespondsWithRememberMeCookie() throws Exception {
 		this.spring.register(RememberMeConfig.class).autowire();
 
-		this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password")
-				.param("remember-me", "true"))
-				.andExpect(cookie().exists("remember-me"));
+		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password")
+				.param("remember-me", "true")).andExpect(cookie().exists("remember-me"));
 	}
 
 	@Test
 	public void getWhenRememberMeCookieThenAuthenticationIsRememberMeAuthenticationToken() throws Exception {
 		this.spring.register(RememberMeConfig.class).autowire();
 
-		MvcResult mvcResult = this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password")
-				.param("remember-me", "true"))
-				.andReturn();
+		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
+				.param("password", "password").param("remember-me", "true")).andReturn();
 		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
 
-		this.mvc.perform(get("/abc")
-				.cookie(rememberMeCookie))
-				.andExpect(authenticated().withAuthentication(auth ->
-						assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class)));
+		this.mvc.perform(get("/abc").cookie(rememberMeCookie)).andExpect(authenticated()
+				.withAuthentication(auth -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class)));
 	}
 
 	@Test
 	public void logoutWhenRememberMeCookieThenAuthenticationIsRememberMeCookieExpired() throws Exception {
 		this.spring.register(RememberMeConfig.class).autowire();
 
-		MvcResult mvcResult = this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password")
-				.param("remember-me", "true"))
-				.andReturn();
+		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
+				.param("password", "password").param("remember-me", "true")).andReturn();
 		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
 		HttpSession session = mvcResult.getRequest().getSession();
 
-		this.mvc.perform(post("/logout")
-				.with(csrf())
-				.cookie(rememberMeCookie)
-				.session((MockHttpSession) session))
-				.andExpect(redirectedUrl("/login?logout"))
-				.andExpect(cookie().maxAge("remember-me", 0));
+		this.mvc.perform(post("/logout").with(csrf()).cookie(rememberMeCookie).session((MockHttpSession) session))
+				.andExpect(redirectedUrl("/login?logout")).andExpect(cookie().maxAge("remember-me", 0));
 	}
 
 	@Test
 	public void getWhenRememberMeCookieAndLoggedOutThenRedirectsToLogin() throws Exception {
 		this.spring.register(RememberMeConfig.class).autowire();
 
-		MvcResult loginMvcResult = this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password")
-				.param("remember-me", "true"))
-				.andReturn();
+		MvcResult loginMvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
+				.param("password", "password").param("remember-me", "true")).andReturn();
 		Cookie rememberMeCookie = loginMvcResult.getResponse().getCookie("remember-me");
 		HttpSession session = loginMvcResult.getRequest().getSession();
-		MvcResult logoutMvcResult = this.mvc.perform(post("/logout")
-				.with(csrf())
-				.cookie(rememberMeCookie)
-				.session((MockHttpSession) session))
+		MvcResult logoutMvcResult = this.mvc
+				.perform(post("/logout").with(csrf()).cookie(rememberMeCookie).session((MockHttpSession) session))
 				.andReturn();
 		Cookie expiredRememberMeCookie = logoutMvcResult.getResponse().getCookie("remember-me");
 
-		this.mvc.perform(get("/abc")
-				.with(csrf())
-				.cookie(expiredRememberMeCookie))
+		this.mvc.perform(get("/abc").with(csrf()).cookie(expiredRememberMeCookie))
 				.andExpect(redirectedUrl("http://localhost/login"));
 	}
 
@@ -301,19 +275,15 @@ public class RememberMeConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
-	}
 
+	}
 
 	@Test
 	public void loginWhenRememberMeConfiguredInLambdaThenRespondsWithRememberMeCookie() throws Exception {
 		this.spring.register(RememberMeInLambdaConfig.class).autowire();
 
-		this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password")
-				.param("remember-me", "true"))
-				.andExpect(cookie().exists("remember-me"));
+		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password")
+				.param("remember-me", "true")).andExpect(cookie().exists("remember-me"));
 	}
 
 	@EnableWebSecurity
@@ -340,23 +310,21 @@ public class RememberMeConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void loginWhenRememberMeTrueAndCookieDomainThenRememberMeCookieHasDomain() throws Exception {
 		this.spring.register(RememberMeCookieDomainConfig.class).autowire();
 
-		this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password")
-				.param("remember-me", "true"))
-				.andExpect(cookie().exists("remember-me"))
+		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password")
+				.param("remember-me", "true")).andExpect(cookie().exists("remember-me"))
 				.andExpect(cookie().domain("remember-me", "spring.io"));
 	}
 
 	@EnableWebSecurity
 	static class RememberMeCookieDomainConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -378,23 +346,21 @@ public class RememberMeConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void loginWhenRememberMeTrueAndCookieDomainInLambdaThenRememberMeCookieHasDomain() throws Exception {
 		this.spring.register(RememberMeCookieDomainInLambdaConfig.class).autowire();
 
-		this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password")
-				.param("remember-me", "true"))
-				.andExpect(cookie().exists("remember-me"))
+		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password")
+				.param("remember-me", "true")).andExpect(cookie().exists("remember-me"))
 				.andExpect(cookie().domain("remember-me", "spring.io"));
 	}
 
 	@EnableWebSecurity
 	static class RememberMeCookieDomainInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -418,18 +384,19 @@ public class RememberMeConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void configureWhenRememberMeCookieNameAndRememberMeServicesThenException() {
 		assertThatThrownBy(() -> this.spring.register(RememberMeCookieNameAndRememberMeServicesConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasRootCauseInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("Can not set rememberMeCookieName and custom rememberMeServices.");
 	}
 
 	@EnableWebSecurity
 	static class RememberMeCookieNameAndRememberMeServicesConfig extends WebSecurityConfigurerAdapter {
+
 		static RememberMeServices REMEMBER_ME = mock(RememberMeServices.class);
 
 		protected void configure(HttpSecurity http) throws Exception {
@@ -455,25 +422,19 @@ public class RememberMeConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
-	public void getWhenRememberMeCookieAndNoKeyConfiguredThenKeyFromRememberMeServicesIsUsed()
-			throws Exception {
+	public void getWhenRememberMeCookieAndNoKeyConfiguredThenKeyFromRememberMeServicesIsUsed() throws Exception {
 		this.spring.register(FallbackRememberMeKeyConfig.class).autowire();
 
-		MvcResult mvcResult = this.mvc.perform(post("/login")
-				.with(csrf())
-				.param("username", "user")
-				.param("password", "password")
-				.param("remember-me", "true"))
-				.andReturn();
+		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
+				.param("password", "password").param("remember-me", "true")).andReturn();
 		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
 
-		this.mvc.perform(get("/abc")
-				.cookie(rememberMeCookie))
-				.andExpect(authenticated().withAuthentication(auth ->
-						assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class)));
+		this.mvc.perform(get("/abc").cookie(rememberMeCookie)).andExpect(authenticated()
+				.withAuthentication(auth -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class)));
 	}
 
 	@EnableWebSecurity
@@ -487,5 +448,7 @@ public class RememberMeConfigurerTests {
 					.rememberMeServices(new TokenBasedRememberMeServices("key", userDetailsService()));
 			// @formatter:on
 		}
+
 	}
+
 }

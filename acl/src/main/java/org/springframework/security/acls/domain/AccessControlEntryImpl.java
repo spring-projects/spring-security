@@ -30,25 +30,30 @@ import java.io.Serializable;
  *
  * @author Ben Alex
  */
-public class AccessControlEntryImpl implements AccessControlEntry,
-		AuditableAccessControlEntry {
+public class AccessControlEntryImpl implements AccessControlEntry, AuditableAccessControlEntry {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private final Acl acl;
+
 	private Permission permission;
+
 	private final Serializable id;
+
 	private final Sid sid;
+
 	private boolean auditFailure = false;
+
 	private boolean auditSuccess = false;
+
 	private final boolean granting;
 
 	// ~ Constructors
 	// ===================================================================================================
 
-	public AccessControlEntryImpl(Serializable id, Acl acl, Sid sid,
-			Permission permission, boolean granting, boolean auditSuccess,
-			boolean auditFailure) {
+	public AccessControlEntryImpl(Serializable id, Acl acl, Sid sid, Permission permission, boolean granting,
+			boolean auditSuccess, boolean auditFailure) {
 		Assert.notNull(acl, "Acl required");
 		Assert.notNull(sid, "Sid required");
 		Assert.notNull(permission, "Permission required");
@@ -93,8 +98,7 @@ public class AccessControlEntryImpl implements AccessControlEntry,
 			}
 			else {
 				// Both this.acl.objectIdentity and rhs.acl.objectIdentity are non-null
-				if (!this.acl.getObjectIdentity()
-						.equals(rhs.getAcl().getObjectIdentity())) {
+				if (!this.acl.getObjectIdentity().equals(rhs.getAcl().getObjectIdentity())) {
 					return false;
 				}
 			}
@@ -118,10 +122,8 @@ public class AccessControlEntryImpl implements AccessControlEntry,
 			}
 		}
 
-		if ((this.auditFailure != rhs.isAuditFailure())
-				|| (this.auditSuccess != rhs.isAuditSuccess())
-				|| (this.granting != rhs.isGranting())
-				|| !this.permission.equals(rhs.getPermission())
+		if ((this.auditFailure != rhs.isAuditFailure()) || (this.auditSuccess != rhs.isAuditSuccess())
+				|| (this.granting != rhs.isGranting()) || !this.permission.equals(rhs.getPermission())
 				|| !this.sid.equals(rhs.getSid())) {
 			return false;
 		}
@@ -202,4 +204,5 @@ public class AccessControlEntryImpl implements AccessControlEntry,
 
 		return sb.toString();
 	}
+
 }

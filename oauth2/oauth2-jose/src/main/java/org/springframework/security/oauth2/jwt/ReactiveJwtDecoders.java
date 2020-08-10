@@ -23,10 +23,11 @@ import org.springframework.util.Assert;
 import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withJwkSetUri;
 
 /**
- * Allows creating a {@link ReactiveJwtDecoder} from an
- * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig">OpenID Provider Configuration</a> or
- * <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server Metadata Request</a> based on provided
- * issuer and method invoked.
+ * Allows creating a {@link ReactiveJwtDecoder} from an <a href=
+ * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig">OpenID
+ * Provider Configuration</a> or
+ * <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server Metadata
+ * Request</a> based on provided issuer and method invoked.
  *
  * @author Josh Cummings
  * @since 5.1
@@ -34,68 +35,70 @@ import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.w
 public final class ReactiveJwtDecoders {
 
 	/**
-	 * Creates a {@link ReactiveJwtDecoder} using the provided
-	 * <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> by making an
-	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID Provider
-	 * Configuration Request</a> and using the values in the
-	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
+	 * Creates a {@link ReactiveJwtDecoder} using the provided <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * by making an <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID
+	 * Provider Configuration Request</a> and using the values in the <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
 	 * Provider Configuration Response</a> to initialize the {@link ReactiveJwtDecoder}.
-	 *
-	 * @param oidcIssuerLocation the <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
-	 * @return a {@link ReactiveJwtDecoder} that was initialized by the OpenID Provider Configuration.
+	 * @param oidcIssuerLocation the <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @return a {@link ReactiveJwtDecoder} that was initialized by the OpenID Provider
+	 * Configuration.
 	 */
 	public static ReactiveJwtDecoder fromOidcIssuerLocation(String oidcIssuerLocation) {
 		Assert.hasText(oidcIssuerLocation, "oidcIssuerLocation cannot be empty");
-		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils.getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
+		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
+				.getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
 		return withProviderConfiguration(configuration, oidcIssuerLocation);
 	}
 
 	/**
-	 * Creates a {@link ReactiveJwtDecoder} using the provided
-	 * <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> by querying
-	 * three different discovery endpoints serially, using the values in the first successful response to
-	 * initialize. If an endpoint returns anything other than a 200 or a 4xx, the method will exit without
-	 * attempting subsequent endpoints.
+	 * Creates a {@link ReactiveJwtDecoder} using the provided <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * by querying three different discovery endpoints serially, using the values in the
+	 * first successful response to initialize. If an endpoint returns anything other than
+	 * a 200 or a 4xx, the method will exit without attempting subsequent endpoints.
 	 *
-	 * The three endpoints are computed as follows, given that the {@code issuer} is composed of a {@code host}
-	 * and a {@code path}:
+	 * The three endpoints are computed as follows, given that the {@code issuer} is
+	 * composed of a {@code host} and a {@code path}:
 	 *
 	 * <ol>
-	 * 	<li>
-	 * 	   {@code host/.well-known/openid-configuration/path}, as defined in
-	 * 	   <a href="https://tools.ietf.org/html/rfc8414#section-5">RFC 8414's Compatibility Notes</a>.
-	 *  </li>
-	 *  <li>
-	 *      {@code issuer/.well-known/openid-configuration}, as defined in
-	 *  	<a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">
-	 * 	    OpenID Provider Configuration</a>.
-	 *  </li>
-	 *  <li>
-	 *      {@code host/.well-known/oauth-authorization-server/path}, as defined in
-	 *  	<a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server Metadata Request</a>.
-	 *  </li>
+	 * <li>{@code host/.well-known/openid-configuration/path}, as defined in
+	 * <a href="https://tools.ietf.org/html/rfc8414#section-5">RFC 8414's Compatibility
+	 * Notes</a>.</li>
+	 * <li>{@code issuer/.well-known/openid-configuration}, as defined in <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">
+	 * OpenID Provider Configuration</a>.</li>
+	 * <li>{@code host/.well-known/oauth-authorization-server/path}, as defined in
+	 * <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server
+	 * Metadata Request</a>.</li>
 	 * </ol>
 	 *
 	 * Note that the second endpoint is the equivalent of calling
 	 * {@link ReactiveJwtDecoders#fromOidcIssuerLocation(String)}
-	 *
-	 * @param issuer the <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
-	 * @return a {@link ReactiveJwtDecoder} that was initialized by one of the described endpoints
+	 * @param issuer the <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @return a {@link ReactiveJwtDecoder} that was initialized by one of the described
+	 * endpoints
 	 */
 	public static ReactiveJwtDecoder fromIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
-		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils.getConfigurationForIssuerLocation(issuer);
+		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
+				.getConfigurationForIssuerLocation(issuer);
 		return withProviderConfiguration(configuration, issuer);
 	}
 
 	/**
-	 * Build {@link ReactiveJwtDecoder} from
-	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID Provider
-	 * Configuration Response</a> and <a href="https://tools.ietf.org/html/rfc8414#section-3.2">Authorization Server Metadata
-	 * Response</a>.
-	 *
+	 * Build {@link ReactiveJwtDecoder} from <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
+	 * Provider Configuration Response</a> and
+	 * <a href="https://tools.ietf.org/html/rfc8414#section-3.2">Authorization Server
+	 * Metadata Response</a>.
 	 * @param configuration the configuration values
-	 * @param issuer the <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @param issuer the <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
 	 * @return {@link ReactiveJwtDecoder}
 	 */
 	private static ReactiveJwtDecoder withProviderConfiguration(Map<String, Object> configuration, String issuer) {
@@ -107,5 +110,7 @@ public final class ReactiveJwtDecoders {
 		return jwtDecoder;
 	}
 
-	private ReactiveJwtDecoders() {}
+	private ReactiveJwtDecoders() {
+	}
+
 }

@@ -40,10 +40,13 @@ import org.springframework.security.web.context.SecurityContextRepository;
 
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(WebTestUtils.class)
-@PowerMockIgnore({"javax.security.auth.*", "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*"})
+@PowerMockIgnore({ "javax.security.auth.*", "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*",
+		"javax.xml.parsers.*" })
 public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
+
 	@Mock
 	private SecurityContext context;
+
 	@Mock
 	private SecurityContextRepository repository;
 
@@ -66,8 +69,7 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 
 		testSecurityContext().postProcessRequest(request);
 
-		verify(repository).saveContext(eq(context), eq(request),
-				any(HttpServletResponse.class));
+		verify(repository).saveContext(eq(context), eq(request), any(HttpServletResponse.class));
 	}
 
 	// Ensure it does not fail if TestSecurityContextHolder is not initialized
@@ -83,4 +85,5 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 		spy(WebTestUtils.class);
 		when(WebTestUtils.getSecurityContextRepository(request)).thenReturn(repository);
 	}
+
 }

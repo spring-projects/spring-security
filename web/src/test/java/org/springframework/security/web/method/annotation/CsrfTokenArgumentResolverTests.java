@@ -35,18 +35,20 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CsrfTokenArgumentResolverTests {
+
 	@Mock
 	private ModelAndViewContainer mavContainer;
+
 	@Mock
 	private WebDataBinderFactory binderFactory;
 
 	private MockHttpServletRequest request;
+
 	private NativeWebRequest webRequest;
 
 	private CsrfToken token;
@@ -73,18 +75,14 @@ public class CsrfTokenArgumentResolverTests {
 
 	@Test
 	public void resolveArgumentNotFound() throws Exception {
-		assertThat(
-				resolver.resolveArgument(token(), mavContainer, webRequest, binderFactory))
-				.isNull();
+		assertThat(resolver.resolveArgument(token(), mavContainer, webRequest, binderFactory)).isNull();
 	}
 
 	@Test
 	public void resolveArgumentFound() throws Exception {
 		request.setAttribute(CsrfToken.class.getName(), token);
 
-		assertThat(
-				resolver.resolveArgument(token(), mavContainer, webRequest, binderFactory))
-				.isSameAs(token);
+		assertThat(resolver.resolveArgument(token(), mavContainer, webRequest, binderFactory)).isSameAs(token);
 	}
 
 	private MethodParameter noToken() {
@@ -96,17 +94,18 @@ public class CsrfTokenArgumentResolverTests {
 	}
 
 	private MethodParameter getMethodParameter(String methodName, Class<?>... paramTypes) {
-		Method method = ReflectionUtils.findMethod(TestController.class, methodName,
-				paramTypes);
+		Method method = ReflectionUtils.findMethod(TestController.class, methodName, paramTypes);
 		return new MethodParameter(method, 0);
 	}
 
 	public static class TestController {
+
 		public void noToken(String user) {
 		}
 
 		public void token(CsrfToken token) {
 		}
+
 	}
 
 }

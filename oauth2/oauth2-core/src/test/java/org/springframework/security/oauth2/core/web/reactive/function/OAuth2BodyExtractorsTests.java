@@ -93,8 +93,7 @@ public class OAuth2BodyExtractorsTests {
 
 		Mono<OAuth2AccessTokenResponse> result = extractor.extract(response, this.context);
 
-		assertThatCode(result::block)
-				.isInstanceOf(OAuth2AuthorizationException.class)
+		assertThatCode(result::block).isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining("An error occurred parsing the Access Token response");
 	}
 
@@ -107,8 +106,7 @@ public class OAuth2BodyExtractorsTests {
 
 		Mono<OAuth2AccessTokenResponse> result = extractor.extract(response, this.context);
 
-		assertThatCode(result::block)
-				.isInstanceOf(OAuth2AuthorizationException.class)
+		assertThatCode(result::block).isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining("Empty OAuth 2.0 Access Token Response");
 	}
 
@@ -119,13 +117,10 @@ public class OAuth2BodyExtractorsTests {
 
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-		response.setBody("{\n"
-			+ "       \"access_token\":\"2YotnFZFEjr1zCsicMWpAA\",\n"
-			+ "       \"token_type\":\"Bearer\",\n"
-			+ "       \"expires_in\":3600,\n"
-			+ "       \"refresh_token\":\"tGzv3JOkF0XG5Qx2TlKWIA\",\n"
-			+ "       \"example_parameter\":\"example_value\"\n"
-			+ "     }");
+		response.setBody(
+				"{\n" + "       \"access_token\":\"2YotnFZFEjr1zCsicMWpAA\",\n" + "       \"token_type\":\"Bearer\",\n"
+						+ "       \"expires_in\":3600,\n" + "       \"refresh_token\":\"tGzv3JOkF0XG5Qx2TlKWIA\",\n"
+						+ "       \"example_parameter\":\"example_value\"\n" + "     }");
 
 		Instant now = Instant.now();
 		OAuth2AccessTokenResponse result = extractor.extract(response, this.context).block();
@@ -137,7 +132,6 @@ public class OAuth2BodyExtractorsTests {
 		assertThat(result.getAdditionalParameters()).containsEntry("example_parameter", "example_value");
 	}
 
-
 	@Test
 	// gh-6087
 	public void oauth2AccessTokenResponseWhenMultipleAttributeTypesThenCreated() {
@@ -146,14 +140,10 @@ public class OAuth2BodyExtractorsTests {
 
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-		response.setBody("{\n"
-				+ "       \"access_token\":\"2YotnFZFEjr1zCsicMWpAA\",\n"
-				+ "       \"token_type\":\"Bearer\",\n"
-				+ "       \"expires_in\":3600,\n"
-				+ "       \"refresh_token\":\"tGzv3JOkF0XG5Qx2TlKWIA\",\n"
-				+ "       \"subjson\":{}, \n"
-				+ "		  \"list\":[]  \n"
-				+ "     }");
+		response.setBody(
+				"{\n" + "       \"access_token\":\"2YotnFZFEjr1zCsicMWpAA\",\n" + "       \"token_type\":\"Bearer\",\n"
+						+ "       \"expires_in\":3600,\n" + "       \"refresh_token\":\"tGzv3JOkF0XG5Qx2TlKWIA\",\n"
+						+ "       \"subjson\":{}, \n" + "		  \"list\":[]  \n" + "     }");
 
 		Instant now = Instant.now();
 		OAuth2AccessTokenResponse result = extractor.extract(response, this.context).block();
@@ -165,4 +155,5 @@ public class OAuth2BodyExtractorsTests {
 		assertThat(result.getAdditionalParameters().get("subjson")).isInstanceOfAny(Map.class);
 		assertThat(result.getAdditionalParameters().get("list")).isInstanceOfAny(List.class);
 	}
+
 }

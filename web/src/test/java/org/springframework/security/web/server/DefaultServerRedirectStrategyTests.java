@@ -42,8 +42,7 @@ public class DefaultServerRedirectStrategyTests {
 
 	private URI location = URI.create("/login");
 
-	private DefaultServerRedirectStrategy strategy =
-		new DefaultServerRedirectStrategy();
+	private DefaultServerRedirectStrategy strategy = new DefaultServerRedirectStrategy();
 
 	@Test(expected = IllegalArgumentException.class)
 	public void sendRedirectWhenLocationNullThenException() {
@@ -68,8 +67,7 @@ public class DefaultServerRedirectStrategyTests {
 
 		this.strategy.sendRedirect(this.exchange, this.location).block();
 
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.FOUND);
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location.getPath());
 	}
 
@@ -80,7 +78,8 @@ public class DefaultServerRedirectStrategyTests {
 		this.strategy.sendRedirect(this.exchange, this.location).block();
 
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
-		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath("/context" + this.location.getPath());
+		assertThat(this.exchange.getResponse().getHeaders().getLocation())
+				.hasPath("/context" + this.location.getPath());
 	}
 
 	@Test
@@ -125,4 +124,5 @@ public class DefaultServerRedirectStrategyTests {
 	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {
 		return MockServerWebExchange.from(request.build());
 	}
+
 }
