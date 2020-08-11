@@ -10,13 +10,25 @@ A working example can be found in {gh-samples-url}/boot/oauth2webclient-webflux[
 
 After configuring Spring Security for <<webflux-oauth2-login,OAuth2 Login>> or as an <<webflux-oauth2-client,OAuth2 Client>>, an `OAuth2AuthorizedClient` can be resolved using the following:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/explicit")
 Mono<String> explicit(@RegisteredOAuth2AuthorizedClient("client-id") OAuth2AuthorizedClient authorizedClient) {
 	// ...
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/explicit")
+fun explicit(@RegisteredOAuth2AuthorizedClient("client-id") authorizedClient: OAuth2AuthorizedClient?): Mono<String> {
+    // ...
+}
+----
+====
 
 This integrates into Spring Security to provide the following features:
 
@@ -28,12 +40,24 @@ This integrates into Spring Security to provide the following features:
 If the user authenticated using `oauth2Login()`, then the `client-id` is optional.
 For example, the following would work:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/implicit")
 Mono<String> implicit(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
 	// ...
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/implicit")
+fun implicit(@RegisteredOAuth2AuthorizedClient authorizedClient: OAuth2AuthorizedClient?): Mono<String> {
+    // ...
+}
+----
+====
 
 This is convenient if the user always authenticates with OAuth2 Login and an access token from the same authorization server is needed.
