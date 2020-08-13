@@ -15,7 +15,11 @@
  */
 package org.springframework.security.config.annotation.rsocket;
 
-import io.rsocket.RSocketFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import io.rsocket.core.RSocketServer;
 import io.rsocket.frame.decoder.PayloadDecoder;
 import io.rsocket.transport.netty.server.CloseableChannel;
 import io.rsocket.transport.netty.server.TcpServerTransport;
@@ -23,6 +27,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,11 +50,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
-import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static io.rsocket.metadata.WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,12 +81,13 @@ public class JwtITests {
 
 	@Before
 	public void setup() {
-		this.server = RSocketFactory.receive()
-				.frameDecoder(PayloadDecoder.ZERO_COPY)
-				.addSocketAcceptorPlugin(this.interceptor)
+		this.server = RSocketServer.create()
+				.payloadDecoder(PayloadDecoder.ZERO_COPY)
+				.interceptors((registry) -> {
+					registry.forSocketAcceptor(this.interceptor);
+				})
 				.acceptor(this.handler.responder())
-				.transport(TcpServerTransport.create("localhost", 0))
-				.start()
+				.bind(TcpServerTransport.create("localhost", 0))
 				.block();
 	}
 

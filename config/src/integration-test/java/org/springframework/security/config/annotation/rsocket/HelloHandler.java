@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.rsocket;
 
-import io.rsocket.AbstractRSocket;
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
@@ -28,7 +27,7 @@ public class HelloHandler implements SocketAcceptor {
 	@Override
 	public Mono<RSocket> accept(ConnectionSetupPayload setup, RSocket sendingSocket) {
 		return Mono.just(
-				new AbstractRSocket() {
+				new RSocket() {
 					@Override
 					public Mono<Payload> requestResponse(Payload payload) {
 						String data = payload.getDataUtf8();
