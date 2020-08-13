@@ -20,3 +20,5 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
       - name: Build with Gradle
         run: ./gradlew clean build --continue
+
+# test
