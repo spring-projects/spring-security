@@ -69,7 +69,7 @@ public class AccessControlListTag extends TagSupport {
 
 	// ~ Methods
 	// ========================================================================================================
-
+	@Override
 	public int doStartTag() throws JspException {
 		if ((null == hasPermission) || "".equals(hasPermission)) {
 			return skipBody();
@@ -116,6 +116,7 @@ public class AccessControlListTag extends TagSupport {
 				parsedPermission = Integer.parseInt(permissionToParse);
 			}
 			catch (NumberFormatException notBitMask) {
+				logger.error("Failed to parse permissions.", notBitMask);
 			}
 			parsedPermissions.add(parsedPermission);
 		}
