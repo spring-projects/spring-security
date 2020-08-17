@@ -34,7 +34,6 @@ import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -239,7 +238,6 @@ public final class ClientRegistrations {
 
 		return ClientRegistration.withRegistrationId(name)
 				.userNameAttributeName(IdTokenClaimNames.SUB)
-				.scope(OidcScopes.OPENID) // default to "openid" which must be supported
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.clientAuthenticationMethod(method)
 				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
