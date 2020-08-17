@@ -36,4 +36,6 @@ Later the `SecurityContextPersistenceFilter` saves the `SecurityContext` to the 
 If remember me is not configured, this is a no-op.
 // FIXME: link to rememberme
 * `ApplicationEventPublisher` publishes an `InteractiveAuthenticationSuccessEvent`.
+* `AuthenticationSuccessHandler` is invoked.
+// FIXME: link to AuthenticationSuccessHandler
 
