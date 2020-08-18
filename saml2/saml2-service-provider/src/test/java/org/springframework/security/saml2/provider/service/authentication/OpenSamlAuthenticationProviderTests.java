@@ -19,7 +19,6 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.StringReader;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,8 +27,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.hamcrest.BaseMatcher;
@@ -51,9 +48,7 @@ import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.OneTimeUse;
 import org.opensaml.saml.saml2.core.Response;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
@@ -74,7 +69,6 @@ import static org.mockito.Mockito.when;
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getMarshallerFactory;
 import static org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS;
-import static org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters.SIGNATURE_REQUIRED;
 import static org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_ASSERTION;
 import static org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_SIGNATURE;
 import static org.springframework.security.saml2.core.Saml2ResponseValidatorResult.success;
@@ -351,13 +345,22 @@ public class OpenSamlAuthenticationProviderTests {
 	}
 
 	@Test
+	public void createDefaultAssertionValidatorWhenAssertionThenValidates() {
+		Response response = signedResponseWithOneAssertion();
+		Assertion assertion = response.getAssertions().get(0);
+		OpenSamlAuthenticationProvider.AssertionToken assertionToken =
+				new OpenSamlAuthenticationProvider.AssertionToken(assertion, token());
+		assertThat(
+				createDefaultAssertionValidator().convert(assertionToken)
+				.hasErrors()).isFalse();
+	}
+
+	@Test
 	public void authenticateWhenDelegatingToDefaultAssertionValidatorThenUses() {
 		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-		provider.setAssertionValidator(assertionToken -> {
-			ValidationContext context = new ValidationContext();
-			return createDefaultAssertionValidator(context).convert(assertionToken)
-					.concat(new Saml2Error("wrong error", "wrong error"));
-		});
+		provider.setAssertionValidator(assertionToken ->
+			createDefaultAssertionValidator(token -> new ValidationContext()).convert(assertionToken)
+					.concat(new Saml2Error("wrong error", "wrong error")));
 		Response response = response();
 		Assertion assertion = assertion();
 		OneTimeUse oneTimeUse = build(OneTimeUse.DEFAULT_ELEMENT_NAME);
@@ -375,12 +378,9 @@ public class OpenSamlAuthenticationProviderTests {
 		Converter<OpenSamlAuthenticationProvider.AssertionToken, Saml2ResponseValidatorResult> validator =
 				mock(Converter.class);
 		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-		provider.setAssertionValidator(assertionToken -> {
-			ValidationContext context = new ValidationContext(
-					Collections.singletonMap(SC_VALID_RECIPIENTS, singleton(DESTINATION)));
-			return createDefaultAssertionValidator(context).convert(assertionToken)
-					.concat(validator.convert(assertionToken));
-		});
+		provider.setAssertionValidator(assertionToken ->
+			createDefaultAssertionValidator().convert(assertionToken)
+					.concat(validator.convert(assertionToken)));
 		Response response = response();
 		Assertion assertion = assertion();
 		response.getAssertions().add(assertion);
@@ -410,18 +410,19 @@ public class OpenSamlAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenValidationContextCustomizedThenUsers() {
 		Map<String, Object> parameters = new HashMap<>();
-		parameters.put(SC_VALID_RECIPIENTS, singleton(DESTINATION));
-		parameters.put(SIGNATURE_REQUIRED, false);
+		parameters.put(SC_VALID_RECIPIENTS, singleton("blah"));
 		ValidationContext context = mock(ValidationContext.class);
 		when(context.getStaticParameters()).thenReturn(parameters);
 		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-		provider.setAssertionValidator(assertionToken -> createDefaultAssertionValidator(context).convert(assertionToken));
+		provider.setAssertionValidator(createDefaultAssertionValidator(assertionToken -> context));
 		Response response = response();
 		Assertion assertion = assertion();
 		response.getAssertions().add(assertion);
 		signed(response, assertingPartySigningCredential(), ASSERTING_PARTY_ENTITY_ID);
 		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
-		provider.authenticate(token);
+		assertThatThrownBy(() -> provider.authenticate(token))
+				.isInstanceOf(Saml2AuthenticationException.class)
+				.hasMessageContaining("Invalid assertion");
 		verify(context, atLeastOnce()).getStaticParameters();
 	}
 
@@ -504,6 +505,10 @@ public class OpenSamlAuthenticationProviderTests {
 
 			}
 		};
+	}
+
+	private Saml2AuthenticationToken token() {
+		return token(response(), relyingPartyVerifyingCredential());
 	}
 
 	private Saml2AuthenticationToken token(Response response, Saml2X509Credential... credentials) {

@@ -19,7 +19,10 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -45,6 +48,7 @@ import org.opensaml.core.xml.schema.impl.XSStringBuilder;
 import org.opensaml.core.xml.schema.impl.XSURIBuilder;
 import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.common.assertion.ValidationContext;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -79,6 +83,7 @@ import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
+import static org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS;
 import static org.springframework.security.saml2.core.TestSaml2X509Credentials.assertingPartySigningCredential;
 
 final class TestOpenSamlObjects {
@@ -369,6 +374,12 @@ final class TestOpenSamlObjects {
 		attributeStatements.add(attrStmt2);
 
 		return attributeStatements;
+	}
+
+	static ValidationContext validationContext() {
+		Map<String, Object> params = new HashMap<>();
+		params.put(SC_VALID_RECIPIENTS, Collections.singleton(DESTINATION));
+		return new ValidationContext(params);
 	}
 
 	static <T extends XMLObject> T build(QName qName) {

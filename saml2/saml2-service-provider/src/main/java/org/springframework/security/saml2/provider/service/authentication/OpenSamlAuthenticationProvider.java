@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.xml.namespace.QName;
 
@@ -196,10 +197,23 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 						this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion)));
 			};
 
-	private Converter<AssertionToken, Saml2ResponseValidatorResult> assertionValidator = assertionToken -> {
-		ValidationContext context = createValidationContext(assertionToken);
-		return createDefaultAssertionValidator(context).convert(assertionToken);
-	};
+	private Converter<AssertionToken, Saml2ResponseValidatorResult> assertionSignatureValidator =
+			createDefaultAssertionValidator(INVALID_SIGNATURE,
+					assertionToken -> {
+						SignatureTrustEngine engine = this.signatureTrustEngineConverter.convert(assertionToken.token);
+						return SAML20AssertionValidators.createSignatureValidator(engine);
+					},
+					assertionToken ->
+						new ValidationContext(Collections.singletonMap(SIGNATURE_REQUIRED, false))
+					);
+
+	private Converter<AssertionToken, Saml2ResponseValidatorResult> assertionValidator =
+			createDefaultAssertionValidator(INVALID_ASSERTION,
+					assertionToken -> SAML20AssertionValidators.attributeValidator,
+					assertionToken -> createValidationContext(
+							assertionToken,
+							params -> params.put(CLOCK_SKEW, this.responseTimeValidationSkew.toMillis())
+					));
 
 	private Converter<Saml2AuthenticationToken, SignatureTrustEngine> signatureTrustEngineConverter =
 			new SignatureTrustEngineConverter();
@@ -220,33 +234,39 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	 * Set the {@link Converter} to use for validating each {@link Assertion} in the SAML 2.0 Response.
 	 *
 	 * You can still invoke the default validator by delgating to
-	 * {@link #createDefaultAssertionValidator(ValidationContext)}, like so:
+	 * {@link #createDefaultAssertionValidator}, like so:
 	 *
 	 * <pre>
 	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
 	 *  provider.setAssertionValidator(assertionToken -> {
-	 *		ValidationContext context = // ... build using authentication token
-	 *		Saml2ResponseValidatorResult result = createDefaultAssertionValidator(context)
+	 *		Saml2ResponseValidatorResult result = createDefaultAssertionValidator()
 	 *			.convert(assertionToken)
-	 *		return result.concat(myCustomValiator.convert(assertionToken));
+	 *		return result.concat(myCustomValidator.convert(assertionToken));
 	 *  });
 	 * </pre>
-	 *
-	 * Consider taking a look at {@link #createValidationContext(AssertionToken)} to see how it
-	 * constructs a {@link ValidationContext}.
 	 *
 	 * You can also use this method to configure the provider to use a different
 	 * {@link ValidationContext} from the default, like so:
 	 *
 	 * <pre>
 	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-	 *	ValidationContext context = // ...
-	 *	provider.setAssertionValidator(createDefaultAssertionValidator(context));
+	 *	provider.setAssertionValidator(
+	 *		createDefaultAssertionValidator(assertionToken -> {
+	 *			Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();
+	 *			params.put(CLOCK_SKEW, 2 * 60 * 1000);
+	 *			// other parameters
+	 *			return new ValidationContext(params);
+	 *		}));
 	 * </pre>
+	 *
+	 * Consider taking a look at {@link #createValidationContext} to see how it
+	 * constructs a {@link ValidationContext}.
 	 *
 	 * It is not necessary to delegate to the default validator. You can safely replace it
 	 * entirely with your own. Note that signature verification is performed as a separate
 	 * step from this validator.
+	 *
+	 * This method takes precedence over {@link #setResponseTimeValidationSkew}.
 	 *
 	 * @param assertionValidator
 	 * @since 5.4
@@ -314,9 +334,43 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	 * Sets the duration for how much time skew an assertion may tolerate during
 	 * timestamp, NotOnOrBefore and NotOnOrAfter, validation.
 	 * @param responseTimeValidationSkew duration for skew tolerance
+	 * @deprecated Use {@link #setAssertionValidator(Converter)} instead
 	 */
 	public void setResponseTimeValidationSkew(Duration responseTimeValidationSkew) {
 		this.responseTimeValidationSkew = responseTimeValidationSkew;
+	}
+
+
+	/**
+	 * Construct a default strategy for validating each SAML 2.0 Assertion and
+	 * associated {@link Authentication} token
+	 *
+	 * @return the default assertion validator strategy
+	 * @since 5.4
+	 */
+	public static Converter<AssertionToken, Saml2ResponseValidatorResult>
+			createDefaultAssertionValidator() {
+
+		return createDefaultAssertionValidator(INVALID_ASSERTION,
+				assertionToken -> SAML20AssertionValidators.attributeValidator,
+				assertionToken -> createValidationContext(assertionToken, params -> {}));
+	}
+
+	/**
+	 * Construct a default strategy for validating each SAML 2.0 Assertion and
+	 * associated {@link Authentication} token
+	 *
+	 * @return the default assertion validator strategy
+	 * @param contextConverter the conversion strategy to use to generate a {@link ValidationContext}
+	 * for each assertion being validated
+	 * @since 5.4
+	 */
+	public static Converter<AssertionToken, Saml2ResponseValidatorResult>
+			createDefaultAssertionValidator(Converter<AssertionToken, ValidationContext> contextConverter) {
+
+		return createDefaultAssertionValidator(INVALID_ASSERTION,
+				assertionToken -> SAML20AssertionValidators.attributeValidator,
+				contextConverter);
 	}
 
 	/**
@@ -501,19 +555,13 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			logger.debug("Validating " + assertions.size() + " assertions");
 		}
 
-		ValidationContext signatureContext = new ValidationContext
-				(Collections.singletonMap(SIGNATURE_REQUIRED, false)); // check already performed
-		SignatureTrustEngine engine = this.signatureTrustEngineConverter.convert(token);
-		Converter<AssertionToken, Saml2ResponseValidatorResult> signatureValidator =
-				createDefaultAssertionValidator(INVALID_SIGNATURE,
-						SAML20AssertionValidators.createSignatureValidator(engine), signatureContext);
 		for (Assertion assertion : assertions) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Validating assertion " + assertion.getID());
 			}
 			AssertionToken assertionToken = new AssertionToken(assertion, token);
 			result = result
-					.concat(signatureValidator.convert(assertionToken))
+					.concat(this.assertionSignatureValidator.convert(assertionToken))
 					.concat(this.assertionValidator.convert(assertionToken));
 		}
 
@@ -613,18 +661,15 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		}
 	}
 
-	public static Converter<AssertionToken, Saml2ResponseValidatorResult>
-			createDefaultAssertionValidator(ValidationContext context) {
-
-		return createDefaultAssertionValidator(INVALID_ASSERTION,
-				SAML20AssertionValidators.createAttributeValidator(), context);
-	}
-
-	private static Converter<AssertionToken, Saml2ResponseValidatorResult>
-			createDefaultAssertionValidator(String errorCode, SAML20AssertionValidator validator, ValidationContext context) {
+	private static Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionValidator(
+			String errorCode,
+			Converter<AssertionToken, SAML20AssertionValidator> validatorConverter,
+			Converter<AssertionToken, ValidationContext> contextConverter) {
 
 		return assertionToken -> {
 			Assertion assertion = assertionToken.assertion;
+			SAML20AssertionValidator validator = validatorConverter.convert(assertionToken);
+			ValidationContext context = contextConverter.convert(assertionToken);
 			try {
 				ValidationResult result = validator.validate(assertion, context);
 				if (result == ValidationResult.VALID) {
@@ -643,13 +688,14 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		};
 	}
 
-	private ValidationContext createValidationContext(AssertionToken assertionToken) {
+	private static ValidationContext createValidationContext(
+			AssertionToken assertionToken, Consumer<Map<String, Object>> paramsConsumer) {
 		String audience = assertionToken.token.getRelyingPartyRegistration().getEntityId();
 		String recipient = assertionToken.token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
 		Map<String, Object> params = new HashMap<>();
-		params.put(CLOCK_SKEW, OpenSamlAuthenticationProvider.this.responseTimeValidationSkew.toMillis());
 		params.put(COND_VALID_AUDIENCES, singleton(audience));
 		params.put(SC_VALID_RECIPIENTS, singleton(recipient));
+		paramsConsumer.accept(params);
 		return new ValidationContext(params);
 	}
 
@@ -687,15 +733,14 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			});
 		}
 
-		static SAML20AssertionValidator createAttributeValidator() {
-			return new SAML20AssertionValidator(conditions, subjects, statements, null, null) {
+		private static final SAML20AssertionValidator attributeValidator =
+			new SAML20AssertionValidator(conditions, subjects, statements, null, null) {
 				@Nonnull
 				@Override
 				protected ValidationResult validateSignature(Assertion token, ValidationContext context) {
 					return ValidationResult.VALID;
 				}
 			};
-		}
 
 		static SAML20AssertionValidator createSignatureValidator(SignatureTrustEngine engine) {
 			return new SAML20AssertionValidator(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
@@ -792,7 +837,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		private final Saml2AuthenticationToken token;
 		private final Assertion assertion;
 
-		private AssertionToken(Assertion assertion, Saml2AuthenticationToken token) {
+		AssertionToken(Assertion assertion, Saml2AuthenticationToken token) {
 			this.token = token;
 			this.assertion = assertion;
 		}
