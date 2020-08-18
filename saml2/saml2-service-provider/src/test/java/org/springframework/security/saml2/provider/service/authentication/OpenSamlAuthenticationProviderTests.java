@@ -41,13 +41,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.opensaml.core.xml.XMLObject;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.common.assertion.ValidationContext;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeStatement;
-import org.opensaml.saml.saml2.core.AttributeValue;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
@@ -255,29 +253,6 @@ public class OpenSamlAuthenticationProviderTests {
 
 		assertThat((String) principal.getFirstAttribute("name")).isEqualTo("John Doe");
 		assertThat(principal.getAttributes()).isEqualTo(expected);
-	}
-
-	@Test
-	public void authenticateWhenAttributeValueMarshallerConfiguredThenUses() throws Exception {
-		Response response = response();
-		Assertion assertion = assertion();
-		List<AttributeStatement> attributes = attributeStatements();
-		assertion.getAttributeStatements().addAll(attributes);
-		signed(assertion, assertingPartySigningCredential(), RELYING_PARTY_ENTITY_ID);
-		response.getAssertions().add(assertion);
-		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
-
-		Element attributeElement = element("<element>value</element>");
-		Marshaller marshaller = mock(Marshaller.class);
-		when(marshaller.marshall(any(XMLObject.class))).thenReturn(attributeElement);
-
-		try {
-			XMLObjectProviderRegistrySupport.getMarshallerFactory().registerMarshaller(AttributeValue.DEFAULT_ELEMENT_NAME, marshaller);
-			this.provider.authenticate(token);
-			verify(marshaller, atLeastOnce()).marshall(any(XMLObject.class));
-		} finally {
-			XMLObjectProviderRegistrySupport.getMarshallerFactory().deregisterMarshaller(AttributeValue.DEFAULT_ELEMENT_NAME);
-		}
 	}
 
 	@Test
@@ -503,12 +478,5 @@ public class OpenSamlAuthenticationProviderTests {
 	private Saml2AuthenticationToken token(String payload, Saml2X509Credential... credentials) {
 		return new Saml2AuthenticationToken(payload,
 				DESTINATION, ASSERTING_PARTY_ENTITY_ID, RELYING_PARTY_ENTITY_ID, Arrays.asList(credentials));
-	}
-
-	private static Element element(String xml) throws Exception {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		Document doc = builder.parse(new InputSource(new StringReader(xml)));
-		return doc.getDocumentElement();
 	}
 }

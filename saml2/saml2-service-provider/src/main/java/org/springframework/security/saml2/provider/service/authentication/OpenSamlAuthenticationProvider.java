@@ -34,7 +34,6 @@ import javax.xml.namespace.QName;
 
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.xml.ParserPool;
-import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
@@ -42,8 +41,6 @@ import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
-import org.opensaml.core.xml.io.Marshaller;
-import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.XSBoolean;
 import org.opensaml.core.xml.schema.XSBooleanValue;
@@ -520,7 +517,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 
 	private Object getXmlObjectValue(XMLObject xmlObject) {
 		if (xmlObject instanceof XSAny) {
-			return getXSAnyObjectValue((XSAny) xmlObject);
+			return ((XSAny) xmlObject).getTextContent();
 		}
 		if (xmlObject instanceof XSString) {
 			return ((XSString) xmlObject).getValue();
@@ -540,19 +537,6 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			return dateTime != null ? Instant.ofEpochMilli(dateTime.getMillis()) : null;
 		}
 		return null;
-	}
-
-	private Object getXSAnyObjectValue(XSAny xsAny) {
-		Marshaller marshaller = this.registry.getMarshallerFactory().getMarshaller(xsAny);
-		if (marshaller != null) {
-			try {
-				Element element = marshaller.marshall(xsAny);
-				return SerializeSupport.nodeToString(element);
-			} catch (MarshallingException e) {
-				throw new Saml2Exception(e);
-			}
-		}
-		return xsAny.getTextContent();
 	}
 
 	private static class SignatureTrustEngineConverter implements Converter<Saml2AuthenticationToken, SignatureTrustEngine> {

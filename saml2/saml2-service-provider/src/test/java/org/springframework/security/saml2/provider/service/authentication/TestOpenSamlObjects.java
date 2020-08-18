@@ -312,7 +312,8 @@ final class TestOpenSamlObjects {
 
 		Attribute emailAttr = attributeBuilder.buildObject();
 		emailAttr.setName("email");
-		XSAny email1 = new XSAnyBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME);
+		XSAny email1 = new XSAnyBuilder()
+				.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSAny.TYPE_NAME); // gh-8864
 		email1.setTextContent("john.doe@example.com");
 		emailAttr.getAttributeValues().add(email1);
 		XSAny email2 = new XSAnyBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME);
