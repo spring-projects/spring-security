@@ -77,17 +77,20 @@ import static org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParamete
 import static org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters.SIGNATURE_REQUIRED;
 import static org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_ASSERTION;
 import static org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_SIGNATURE;
+import static org.springframework.security.saml2.core.Saml2ResponseValidatorResult.success;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartyEncryptingCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartyPrivateCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartySigningCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyDecryptingCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
 import static org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider.createDefaultAssertionValidator;
+import static org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider.createDefaultResponseAuthenticationConverter;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.assertion;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.attributeStatements;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.encrypted;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.response;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.signed;
+import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.signedResponseWithOneAssertion;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
@@ -103,6 +106,10 @@ public class OpenSamlAuthenticationProviderTests {
 	private static String ASSERTING_PARTY_ENTITY_ID = "https://some.idp.test/saml2/idp";
 
 	private OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+	private Saml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal
+			("name", Collections.emptyMap());
+	private Saml2Authentication authentication = new Saml2Authentication
+			(this.principal, "response", Collections.emptyList());
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -380,7 +387,7 @@ public class OpenSamlAuthenticationProviderTests {
 		signed(response, assertingPartySigningCredential(), ASSERTING_PARTY_ENTITY_ID);
 		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
 		when(validator.convert(any(OpenSamlAuthenticationProvider.AssertionToken.class)))
-			.thenReturn(Saml2ResponseValidatorResult.success());
+			.thenReturn(success());
 		provider.authenticate(token);
 		verify(validator).convert(any(OpenSamlAuthenticationProvider.AssertionToken.class));
 	}
@@ -388,7 +395,7 @@ public class OpenSamlAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenDefaultConditionValidatorNotUsedThenSignatureStillChecked() {
 		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-		provider.setAssertionValidator(assertionToken -> Saml2ResponseValidatorResult.success());
+		provider.setAssertionValidator(assertionToken -> success());
 		Response response = response();
 		Assertion assertion = assertion();
 		signed(assertion, relyingPartyDecryptingCredential(), RELYING_PARTY_ENTITY_ID); // broken signature
@@ -421,6 +428,35 @@ public class OpenSamlAuthenticationProviderTests {
 	@Test
 	public void setAssertionValidatorWhenNullThenIllegalArgument() {
 		assertThatCode(() -> this.provider.setAssertionValidator(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void createDefaultResponseAuthenticationConverterWhenResponseThenConverts() {
+		Response response = signedResponseWithOneAssertion();
+		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
+		OpenSamlAuthenticationProvider.ResponseToken responseToken =
+				new OpenSamlAuthenticationProvider.ResponseToken(response, token);
+		Saml2Authentication authentication = createDefaultResponseAuthenticationConverter()
+				.convert(responseToken);
+		assertThat(authentication.getName()).isEqualTo("test@saml.user");
+	}
+
+	@Test
+	public void authenticateWhenResponseAuthenticationConverterConfiguredThenUses() {
+		Converter<OpenSamlAuthenticationProvider.ResponseToken, Saml2Authentication> authenticationConverter =
+				mock(Converter.class);
+		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+		provider.setResponseAuthenticationConverter(authenticationConverter);
+		Response response = signedResponseWithOneAssertion();
+		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
+		provider.authenticate(token);
+		verify(authenticationConverter).convert(any());
+	}
+
+	@Test
+	public void setResponseAuthenticationConverterWhenNullThenIllegalArgument() {
+		assertThatCode(() -> this.provider.setResponseAuthenticationConverter(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 

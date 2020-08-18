@@ -28,7 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.xml.namespace.QName;
 
@@ -185,8 +184,10 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	private GrantedAuthoritiesMapper authoritiesMapper = (a -> a);
 	private Duration responseTimeValidationSkew = Duration.ofMinutes(5);
 
-	private Function<Saml2AuthenticationToken, Converter<Response, AbstractAuthenticationToken>> authenticationConverter =
-			token -> response -> {
+	private Converter<ResponseToken, ? extends AbstractAuthenticationToken> responseAuthenticationConverter =
+			responseToken -> {
+				Response response = responseToken.response;
+				Saml2AuthenticationToken token = responseToken.token;
 				Assertion assertion = CollectionUtils.firstElement(response.getAssertions());
 				String username = assertion.getSubject().getNameID().getValue();
 				Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
@@ -256,10 +257,41 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	}
 
 	/**
+	 * Set the {@link Converter} to use for converting a validated {@link Response} into
+	 * an {@link AbstractAuthenticationToken}.
+	 *
+	 * You can delegate to the default behavior by calling {@link #createDefaultResponseAuthenticationConverter()}
+	 * like so:
+	 *
+	 * <pre>
+	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+	 * 	Converter&lt;ResponseToken, Saml2Authentication&gt; authenticationConverter =
+	 * 			createDefaultResponseAuthenticationConverter();
+	 *	provider.setResponseAuthenticationConverter(responseToken -> {
+	 *		Saml2Authentication authentication = authenticationConverter.convert(responseToken);
+	 *		User user = myUserRepository.findByUsername(authentication.getName());
+	 *		return new MyAuthentication(authentication, user);
+	 *	});
+	 * </pre>
+	 *
+	 * This method takes precedence over {@link #setAuthoritiesExtractor(Converter)} and
+	 * {@link #setAuthoritiesMapper(GrantedAuthoritiesMapper)}.
+	 *
+	 * @param responseAuthenticationConverter the {@link Converter} to use
+	 * @since 5.4
+	 */
+	public void setResponseAuthenticationConverter(
+			Converter<ResponseToken, ? extends AbstractAuthenticationToken> responseAuthenticationConverter) {
+		Assert.notNull(responseAuthenticationConverter, "responseAuthenticationConverter cannot be null");
+		this.responseAuthenticationConverter = responseAuthenticationConverter;
+	}
+
+	/**
 	 * Sets the {@link Converter} used for extracting assertion attributes that
 	 * can be mapped to authorities.
 	 * @param authoritiesExtractor the {@code Converter} used for mapping the
 	 *                             assertion attributes to authorities
+	 * @deprecated Use {@link #setResponseAuthenticationConverter(Converter)} instead
 	 */
 	public void setAuthoritiesExtractor(Converter<Assertion, Collection<? extends GrantedAuthority>> authoritiesExtractor) {
 		Assert.notNull(authoritiesExtractor, "authoritiesExtractor cannot be null");
@@ -271,6 +303,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	 * to a new set of authorities which will be associated to the {@link Saml2Authentication}.
 	 * Note: This implementation is only retrieving
 	 * @param authoritiesMapper the {@link GrantedAuthoritiesMapper} used for mapping the user's authorities
+	 * @deprecated Use {@link #setResponseAuthenticationConverter(Converter)} instead
 	 */
 	public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		notNull(authoritiesMapper, "authoritiesMapper cannot be null");
@@ -287,6 +320,27 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	}
 
 	/**
+	 * Construct a default strategy for converting a SAML 2.0 Response and {@link Authentication}
+	 * token into a {@link Saml2Authentication}
+	 *
+	 * @return the default response authentication converter strategy
+	 * @since 5.4
+	 */
+	public static Converter<ResponseToken, Saml2Authentication>
+			createDefaultResponseAuthenticationConverter() {
+		return responseToken -> {
+			Saml2AuthenticationToken token = responseToken.token;
+			Response response = responseToken.response;
+			Assertion assertion = CollectionUtils.firstElement(response.getAssertions());
+			String username = assertion.getSubject().getNameID().getValue();
+			Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
+			return new Saml2Authentication(
+					new DefaultSaml2AuthenticatedPrincipal(username, attributes), token.getSaml2Response(),
+					Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+		};
+	}
+
+	/**
 	 * @param authentication the authentication request object, must be of type
 	 *                       {@link Saml2AuthenticationToken}
 	 *
@@ -300,7 +354,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			String serializedResponse = token.getSaml2Response();
 			Response response = parse(serializedResponse);
 			process(token, response);
-			return this.authenticationConverter.apply(token).convert(response);
+			return this.responseAuthenticationConverter.convert(new ResponseToken(response, token));
 		} catch (Saml2AuthenticationException e) {
 			throw e;
 		} catch (Exception e) {
@@ -496,7 +550,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		}
 	}
 
-	private Map<String, List<Object>> getAssertionAttributes(Assertion assertion) {
+	private static Map<String, List<Object>> getAssertionAttributes(Assertion assertion) {
 		Map<String, List<Object>> attributeMap = new LinkedHashMap<>();
 		for (AttributeStatement attributeStatement : assertion.getAttributeStatements()) {
 			for (Attribute attribute : attributeStatement.getAttributes()) {
@@ -515,7 +569,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		return attributeMap;
 	}
 
-	private Object getXmlObjectValue(XMLObject xmlObject) {
+	private static Object getXmlObjectValue(XMLObject xmlObject) {
 		if (xmlObject instanceof XSAny) {
 			return ((XSAny) xmlObject).getTextContent();
 		}
@@ -704,6 +758,29 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			throws Saml2AuthenticationException {
 
 		return new Saml2AuthenticationException(validationError(code, description), cause);
+	}
+
+	/**
+	 * A tuple containing an OpenSAML {@link Response} and its associated authentication token.
+	 *
+	 * @since 5.4
+	 */
+	public static class ResponseToken {
+		private final Saml2AuthenticationToken token;
+		private final Response response;
+
+		ResponseToken(Response response, Saml2AuthenticationToken token) {
+			this.token = token;
+			this.response = response;
+		}
+
+		public Response getResponse() {
+			return this.response;
+		}
+
+		public Saml2AuthenticationToken getToken() {
+			return this.token;
+		}
 	}
 
 	/**

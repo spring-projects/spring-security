@@ -79,6 +79,7 @@ import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
+import static org.springframework.security.saml2.core.TestSaml2X509Credentials.assertingPartySigningCredential;
 
 final class TestOpenSamlObjects {
 	static {
@@ -105,6 +106,12 @@ final class TestOpenSamlObjects {
 		response.setDestination(destination);
 		response.setIssuer(issuer(issuerEntityId));
 		return response;
+	}
+
+	static Response signedResponseWithOneAssertion() {
+		Response response = response();
+		response.getAssertions().add(assertion());
+		return signed(response, assertingPartySigningCredential(), RELYING_PARTY_ENTITY_ID);
 	}
 
 	static Assertion assertion() {
@@ -134,7 +141,6 @@ final class TestOpenSamlObjects {
 		assertion.getSubject().getSubjectConfirmations().add(subjectConfirmation);
 		return assertion;
 	}
-
 
 	static Issuer issuer(String entityId) {
 		Issuer issuer = build(Issuer.DEFAULT_ELEMENT_NAME);
