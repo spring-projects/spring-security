@@ -45,12 +45,9 @@ import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.common.assertion.ValidationContext;
-import org.opensaml.saml.common.assertion.ValidationResult;
-import org.opensaml.saml.saml2.assertion.impl.OneTimeUseConditionValidator;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.AttributeValue;
-import org.opensaml.saml.saml2.core.Condition;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
@@ -60,13 +57,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.Saml2Error;
+import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -76,11 +77,14 @@ import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getB
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getMarshallerFactory;
 import static org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS;
 import static org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters.SIGNATURE_REQUIRED;
+import static org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_ASSERTION;
+import static org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_SIGNATURE;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartyEncryptingCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartyPrivateCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartySigningCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyDecryptingCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
+import static org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider.createDefaultAssertionValidator;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.assertion;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.attributeStatements;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.encrypted;
@@ -365,10 +369,13 @@ public class OpenSamlAuthenticationProviderTests {
 	}
 
 	@Test
-	public void authenticateWhenConditionValidatorsCustomizedThenUses() throws Exception {
-		OneTimeUseConditionValidator validator = mock(OneTimeUseConditionValidator.class);
+	public void authenticateWhenDelegatingToDefaultAssertionValidatorThenUses() {
 		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-		provider.setConditionValidators(Collections.singleton(validator));
+		provider.setAssertionValidator(assertionToken -> {
+			ValidationContext context = new ValidationContext();
+			return createDefaultAssertionValidator(context).convert(assertionToken)
+					.concat(new Saml2Error("wrong error", "wrong error"));
+		});
 		Response response = response();
 		Assertion assertion = assertion();
 		OneTimeUse oneTimeUse = build(OneTimeUse.DEFAULT_ELEMENT_NAME);
@@ -376,11 +383,46 @@ public class OpenSamlAuthenticationProviderTests {
 		response.getAssertions().add(assertion);
 		signed(response, assertingPartySigningCredential(), ASSERTING_PARTY_ENTITY_ID);
 		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
-		when(validator.getServicedCondition()).thenReturn(OneTimeUse.DEFAULT_ELEMENT_NAME);
-		when(validator.validate(any(Condition.class), any(Assertion.class), any(ValidationContext.class)))
-				.thenReturn(ValidationResult.VALID);
+		assertThatThrownBy(() -> provider.authenticate(token))
+				.isInstanceOf(Saml2AuthenticationException.class)
+				.hasFieldOrPropertyWithValue("error.errorCode", INVALID_ASSERTION);
+	}
+
+	@Test
+	public void authenticateWhenCustomAssertionValidatorThenUses() {
+		Converter<OpenSamlAuthenticationProvider.AssertionToken, Saml2ResponseValidatorResult> validator =
+				mock(Converter.class);
+		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+		provider.setAssertionValidator(assertionToken -> {
+			ValidationContext context = new ValidationContext(
+					Collections.singletonMap(SC_VALID_RECIPIENTS, singleton(DESTINATION)));
+			return createDefaultAssertionValidator(context).convert(assertionToken)
+					.concat(validator.convert(assertionToken));
+		});
+		Response response = response();
+		Assertion assertion = assertion();
+		response.getAssertions().add(assertion);
+		signed(response, assertingPartySigningCredential(), ASSERTING_PARTY_ENTITY_ID);
+		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
+		when(validator.convert(any(OpenSamlAuthenticationProvider.AssertionToken.class)))
+			.thenReturn(Saml2ResponseValidatorResult.success());
 		provider.authenticate(token);
-		verify(validator).validate(any(Condition.class), any(Assertion.class), any(ValidationContext.class));
+		verify(validator).convert(any(OpenSamlAuthenticationProvider.AssertionToken.class));
+	}
+
+	@Test
+	public void authenticateWhenDefaultConditionValidatorNotUsedThenSignatureStillChecked() {
+		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+		provider.setAssertionValidator(assertionToken -> Saml2ResponseValidatorResult.success());
+		Response response = response();
+		Assertion assertion = assertion();
+		signed(assertion, relyingPartyDecryptingCredential(), RELYING_PARTY_ENTITY_ID); // broken signature
+		response.getAssertions().add(assertion);
+		signed(response, assertingPartySigningCredential(), ASSERTING_PARTY_ENTITY_ID);
+		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
+		assertThatThrownBy(() -> provider.authenticate(token))
+				.isInstanceOf(Saml2AuthenticationException.class)
+				.hasFieldOrPropertyWithValue("error.errorCode", INVALID_SIGNATURE);
 	}
 
 	@Test
@@ -391,7 +433,7 @@ public class OpenSamlAuthenticationProviderTests {
 		ValidationContext context = mock(ValidationContext.class);
 		when(context.getStaticParameters()).thenReturn(parameters);
 		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-		provider.setValidationContextConverter(tuple -> context);
+		provider.setAssertionValidator(assertionToken -> createDefaultAssertionValidator(context).convert(assertionToken));
 		Response response = response();
 		Assertion assertion = assertion();
 		response.getAssertions().add(assertion);
@@ -402,17 +444,8 @@ public class OpenSamlAuthenticationProviderTests {
 	}
 
 	@Test
-	public void setValidationContextConverterWhenNullThenIllegalArgument() {
-		assertThatCode(() -> this.provider.setValidationContextConverter(null))
-				.isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
-	public void setConditionValidatorsWhenNullOrEmptyThenIllegalArgument() {
-		assertThatCode(() -> this.provider.setConditionValidators(null))
-				.isInstanceOf(IllegalArgumentException.class);
-
-		assertThatCode(() -> this.provider.setConditionValidators(Collections.emptyList()))
+	public void setAssertionValidatorWhenNullThenIllegalArgument() {
+		assertThatCode(() -> this.provider.setAssertionValidator(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 

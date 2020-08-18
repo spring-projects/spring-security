@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
+import javax.xml.namespace.QName;
 
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.xml.ParserPool;
@@ -61,11 +62,14 @@ import org.opensaml.saml.saml2.assertion.StatementValidator;
 import org.opensaml.saml.saml2.assertion.SubjectConfirmationValidator;
 import org.opensaml.saml.saml2.assertion.impl.AudienceRestrictionConditionValidator;
 import org.opensaml.saml.saml2.assertion.impl.BearerSubjectConfirmationValidator;
+import org.opensaml.saml.saml2.assertion.impl.DelegationRestrictionConditionValidator;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.Condition;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.NameID;
+import org.opensaml.saml.saml2.core.OneTimeUse;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.impl.ResponseUnmarshaller;
@@ -106,6 +110,7 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
+import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -126,6 +131,8 @@ import static org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_IS
 import static org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_SIGNATURE;
 import static org.springframework.security.saml2.core.Saml2ErrorCodes.MALFORMED_RESPONSE_DATA;
 import static org.springframework.security.saml2.core.Saml2ErrorCodes.SUBJECT_NOT_FOUND;
+import static org.springframework.security.saml2.core.Saml2ResponseValidatorResult.failure;
+import static org.springframework.security.saml2.core.Saml2ResponseValidatorResult.success;
 import static org.springframework.util.Assert.notNull;
 
 /**
@@ -191,15 +198,15 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 						this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion)));
 			};
 
+	private Converter<AssertionToken, Saml2ResponseValidatorResult> assertionValidator = assertionToken -> {
+		ValidationContext context = createValidationContext(assertionToken);
+		return createDefaultAssertionValidator(context).convert(assertionToken);
+	};
+
 	private Converter<Saml2AuthenticationToken, SignatureTrustEngine> signatureTrustEngineConverter =
 			new SignatureTrustEngineConverter();
-	private Converter<Tuple, SAML20AssertionValidator> assertionValidatorConverter =
-			new SAML20AssertionValidatorConverter();
-	private Collection<ConditionValidator> conditionValidators =
-			Collections.singleton(new AudienceRestrictionConditionValidator());
-	private Converter<Tuple, ValidationContext> validationContextConverter =
-			new ValidationContextConverter();
 	private Converter<Saml2AuthenticationToken, Decrypter> decrypterConverter = new DecrypterConverter();
+
 
 	/**
 	 * Creates an {@link OpenSamlAuthenticationProvider}
@@ -212,30 +219,43 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	}
 
 	/**
-	 * Set the the collection of {@link ConditionValidator}s used when validating an assertion.
+	 * Set the {@link Converter} to use for validating each {@link Assertion} in the SAML 2.0 Response.
 	 *
-	 * @param conditionValidators the collection of validators to use
+	 * You can still invoke the default validator by delgating to
+	 * {@link #createDefaultAssertionValidator(ValidationContext)}, like so:
+	 *
+	 * <pre>
+	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+	 *  provider.setAssertionValidator(assertionToken -> {
+	 *		ValidationContext context = // ... build using authentication token
+	 *		Saml2ResponseValidatorResult result = createDefaultAssertionValidator(context)
+	 *			.convert(assertionToken)
+	 *		return result.concat(myCustomValiator.convert(assertionToken));
+	 *  });
+	 * </pre>
+	 *
+	 * Consider taking a look at {@link #createValidationContext(AssertionToken)} to see how it
+	 * constructs a {@link ValidationContext}.
+	 *
+	 * You can also use this method to configure the provider to use a different
+	 * {@link ValidationContext} from the default, like so:
+	 *
+	 * <pre>
+	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+	 *	ValidationContext context = // ...
+	 *	provider.setAssertionValidator(createDefaultAssertionValidator(context));
+	 * </pre>
+	 *
+	 * It is not necessary to delegate to the default validator. You can safely replace it
+	 * entirely with your own. Note that signature verification is performed as a separate
+	 * step from this validator.
+	 *
+	 * @param assertionValidator
 	 * @since 5.4
 	 */
-	public void setConditionValidators(
-			Collection<ConditionValidator> conditionValidators) {
-
-		Assert.notEmpty(conditionValidators, "conditionValidators cannot be empty");
-		this.conditionValidators = conditionValidators;
-	}
-
-	/**
-	 * Set the strategy for retrieving the {@link ValidationContext} used when
-	 * validating an assertion.
-	 *
-	 * @param validationContextConverter the strategy to use
-	 * @since 5.4
-	 */
-	public void setValidationContextConverter(
-			Converter<Tuple, ValidationContext> validationContextConverter) {
-
-		Assert.notNull(validationContextConverter, "validationContextConverter cannot be empty");
-		this.validationContextConverter = validationContextConverter;
+	public void setAssertionValidator(Converter<AssertionToken, Saml2ResponseValidatorResult> assertionValidator) {
+		Assert.notNull(assertionValidator, "assertionValidator cannot be null");
+		this.assertionValidator = assertionValidator;
 	}
 
 	/**
@@ -322,7 +342,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		}
 
 		boolean responseSigned = response.isSigned();
-		Map<String, Saml2AuthenticationException> validationExceptions = validateResponse(token, response);
+		Saml2ResponseValidatorResult result = validateResponse(token, response);
 
 		Decrypter decrypter = this.decrypterConverter.convert(token);
 		List<Assertion> assertions = decryptAssertions(decrypter, response);
@@ -330,37 +350,37 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			throw authException(INVALID_SIGNATURE, "Either the response or one of the assertions is unsigned. " +
 					"Please either sign the response or all of the assertions.");
 		}
-		validationExceptions.putAll(validateAssertions(token, response));
+		result = result.concat(validateAssertions(token, response));
 
 		Assertion firstAssertion = CollectionUtils.firstElement(response.getAssertions());
 		NameID nameId = decryptPrincipal(decrypter, firstAssertion);
 		if (nameId == null || nameId.getValue() == null) {
-			validationExceptions.put(SUBJECT_NOT_FOUND, authException(SUBJECT_NOT_FOUND,
-					"Assertion [" + firstAssertion.getID() + "] is missing a subject"));
+			Saml2Error error = new Saml2Error(SUBJECT_NOT_FOUND,
+					"Assertion [" + firstAssertion.getID() + "] is missing a subject");
+			result = result.concat(error);
 		}
 
-		if (validationExceptions.isEmpty()) {
+		if (result.hasErrors()) {
+			Collection<Saml2Error> errors = result.getErrors();
+			if (logger.isTraceEnabled()) {
+				logger.debug("Found " + errors.size() + " validation errors in SAML response [" + response.getID() + "]: " +
+						errors);
+			} else if (logger.isDebugEnabled()) {
+				logger.debug("Found " + errors.size() + " validation errors in SAML response [" + response.getID() + "]");
+			}
+			Saml2Error first = errors.iterator().next();
+			throw authException(first.getErrorCode(), first.getDescription());
+		} else {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Successfully processed SAML Response [" + response.getID() + "]");
 			}
-		} else {
-			if (logger.isTraceEnabled()) {
-				logger.debug("Found " + validationExceptions.size() + " validation errors in SAML response [" + response.getID() + "]: " +
-						validationExceptions.values());
-			} else if (logger.isDebugEnabled()) {
-				logger.debug("Found " + validationExceptions.size() + " validation errors in SAML response [" + response.getID() + "]");
-			}
-		}
-
-		if (!validationExceptions.isEmpty()) {
-			throw validationExceptions.values().iterator().next();
 		}
 	}
 
-	private Map<String, Saml2AuthenticationException> validateResponse
+	private Saml2ResponseValidatorResult validateResponse
 			(Saml2AuthenticationToken token, Response response) {
 
-		Map<String, Saml2AuthenticationException> validationExceptions = new HashMap<>();
+		Collection<Saml2Error> errors = new ArrayList<>();
 		String issuer = response.getIssuer().getValue();
 
 		if (response.isSigned()) {
@@ -368,8 +388,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			try {
 				profileValidator.validate(response.getSignature());
 			} catch (Exception e) {
-				validationExceptions.put(INVALID_SIGNATURE, authException(INVALID_SIGNATURE,
-						"Invalid signature for SAML Response [" + response.getID() + "]: ", e));
+				errors.add(new Saml2Error(INVALID_SIGNATURE,
+						"Invalid signature for SAML Response [" + response.getID() + "]: "));
 			}
 
 			try {
@@ -378,12 +398,12 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 				criteriaSet.add(new EvaluableProtocolRoleDescriptorCriterion(new ProtocolCriterion(SAMLConstants.SAML20P_NS)));
 				criteriaSet.add(new EvaluableUsageCredentialCriterion(new UsageCriterion(UsageType.SIGNING)));
 				if (!this.signatureTrustEngineConverter.convert(token).validate(response.getSignature(), criteriaSet)) {
-					validationExceptions.put(INVALID_SIGNATURE, authException(INVALID_SIGNATURE,
+					errors.add(new Saml2Error(INVALID_SIGNATURE,
 							"Invalid signature for SAML Response [" + response.getID() + "]"));
 				}
 			} catch (Exception e) {
-				validationExceptions.put(INVALID_SIGNATURE, authException(INVALID_SIGNATURE,
-						"Invalid signature for SAML Response [" + response.getID() + "]: ", e));
+				errors.add(new Saml2Error(INVALID_SIGNATURE,
+						"Invalid signature for SAML Response [" + response.getID() + "]: "));
 			}
 		}
 
@@ -391,16 +411,16 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		String location = token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
 		if (StringUtils.hasText(destination) && !destination.equals(location)) {
 			String message = "Invalid destination [" + destination + "] for SAML response [" + response.getID() + "]";
-			validationExceptions.put(INVALID_DESTINATION, authException(INVALID_DESTINATION, message));
+			errors.add(new Saml2Error(INVALID_DESTINATION, message));
 		}
 
 		String assertingPartyEntityId = token.getRelyingPartyRegistration().getAssertingPartyDetails().getEntityId();
 		if (!StringUtils.hasText(issuer) || !issuer.equals(assertingPartyEntityId)) {
 			String message = String.format("Invalid issuer [%s] for SAML response [%s]", issuer, response.getID());
-			validationExceptions.put(INVALID_ISSUER, authException(INVALID_ISSUER, message));
+			errors.add(new Saml2Error(INVALID_ISSUER, message));
 		}
 
-		return validationExceptions;
+		return failure(errors);
 	}
 
 	private List<Assertion> decryptAssertions
@@ -418,41 +438,35 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		return response.getAssertions();
 	}
 
-	private Map<String, Saml2AuthenticationException> validateAssertions
+	private Saml2ResponseValidatorResult validateAssertions
 			(Saml2AuthenticationToken token, Response response) {
 		List<Assertion> assertions = response.getAssertions();
 		if (assertions.isEmpty()) {
 			throw authException(MALFORMED_RESPONSE_DATA, "No assertions found in response.");
 		}
 
-		Map<String, Saml2AuthenticationException> validationExceptions = new LinkedHashMap<>();
+		Saml2ResponseValidatorResult result = success();
 		if (logger.isDebugEnabled()) {
 			logger.debug("Validating " + assertions.size() + " assertions");
 		}
 
-		Tuple tuple = new Tuple(token, response);
-		SAML20AssertionValidator validator = this.assertionValidatorConverter.convert(tuple);
-		ValidationContext context = this.validationContextConverter.convert(tuple);
+		ValidationContext signatureContext = new ValidationContext
+				(Collections.singletonMap(SIGNATURE_REQUIRED, false)); // check already performed
+		SignatureTrustEngine engine = this.signatureTrustEngineConverter.convert(token);
+		Converter<AssertionToken, Saml2ResponseValidatorResult> signatureValidator =
+				createDefaultAssertionValidator(INVALID_SIGNATURE,
+						SAML20AssertionValidators.createSignatureValidator(engine), signatureContext);
 		for (Assertion assertion : assertions) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Validating assertion " + assertion.getID());
 			}
-			try {
-				if (validator.validate(assertion, context) != ValidationResult.VALID) {
-					String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s",
-							assertion.getID(), ((Response) assertion.getParent()).getID(),
-							context.getValidationFailureMessage());
-					validationExceptions.put(INVALID_ASSERTION, authException(INVALID_ASSERTION, message));
-				}
-			} catch (Exception e) {
-				String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s",
-						assertion.getID(), ((Response) assertion.getParent()).getID(),
-						e.getMessage());
-				validationExceptions.put(INVALID_ASSERTION, authException(INVALID_ASSERTION, message, e));
-			}
+			AssertionToken assertionToken = new AssertionToken(assertion, token);
+			result = result
+					.concat(signatureValidator.convert(assertionToken))
+					.concat(this.assertionValidator.convert(assertionToken));
 		}
 
-		return validationExceptions;
+		return result;
 	}
 
 	private boolean isSigned(boolean responseSigned, List<Assertion> assertions) {
@@ -561,45 +575,111 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		}
 	}
 
-	private class ValidationContextConverter implements Converter<Tuple, ValidationContext> {
+	public static Converter<AssertionToken, Saml2ResponseValidatorResult>
+			createDefaultAssertionValidator(ValidationContext context) {
 
-		@Override
-		public ValidationContext convert(Tuple tuple) {
-			String audience = tuple.authentication.getRelyingPartyRegistration().getEntityId();
-			String recipient = tuple.authentication.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
-			Map<String, Object> params = new HashMap<>();
-			params.put(CLOCK_SKEW, OpenSamlAuthenticationProvider.this.responseTimeValidationSkew.toMillis());
-			params.put(COND_VALID_AUDIENCES, singleton(audience));
-			params.put(SC_VALID_RECIPIENTS, singleton(recipient));
-			params.put(SIGNATURE_REQUIRED, false); // this verification is performed earlier
-			return new ValidationContext(params);
-		}
+		return createDefaultAssertionValidator(INVALID_ASSERTION,
+				SAML20AssertionValidators.createAttributeValidator(), context);
 	}
 
-	private class SAML20AssertionValidatorConverter implements Converter<Tuple, SAML20AssertionValidator> {
-		private final Collection<SubjectConfirmationValidator> subjects = new ArrayList<>();
-		private final Collection<StatementValidator> statements = new ArrayList<>();
-		private final SignaturePrevalidator validator = new SAMLSignatureProfileValidator();
+	private static Converter<AssertionToken, Saml2ResponseValidatorResult>
+			createDefaultAssertionValidator(String errorCode, SAML20AssertionValidator validator, ValidationContext context) {
 
-		SAML20AssertionValidatorConverter() {
-			this.subjects.add(new BearerSubjectConfirmationValidator() {
+		return assertionToken -> {
+			Assertion assertion = assertionToken.assertion;
+			try {
+				ValidationResult result = validator.validate(assertion, context);
+				if (result == ValidationResult.VALID) {
+					return success();
+				}
+			} catch (Exception e) {
+				String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s",
+						assertion.getID(), ((Response) assertion.getParent()).getID(),
+						e.getMessage());
+				return failure(new Saml2Error(errorCode, message));
+			}
+			String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s",
+					assertion.getID(), ((Response) assertion.getParent()).getID(),
+					context.getValidationFailureMessage());
+			return failure(new Saml2Error(errorCode, message));
+		};
+	}
+
+	private ValidationContext createValidationContext(AssertionToken assertionToken) {
+		String audience = assertionToken.token.getRelyingPartyRegistration().getEntityId();
+		String recipient = assertionToken.token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
+		Map<String, Object> params = new HashMap<>();
+		params.put(CLOCK_SKEW, OpenSamlAuthenticationProvider.this.responseTimeValidationSkew.toMillis());
+		params.put(COND_VALID_AUDIENCES, singleton(audience));
+		params.put(SC_VALID_RECIPIENTS, singleton(recipient));
+		return new ValidationContext(params);
+	}
+
+	private static class SAML20AssertionValidators {
+		private static final Collection<ConditionValidator> conditions = new ArrayList<>();
+		private static final Collection<SubjectConfirmationValidator> subjects = new ArrayList<>();
+		private static final Collection<StatementValidator> statements = new ArrayList<>();
+		private static final SignaturePrevalidator validator = new SAMLSignatureProfileValidator();
+
+		static {
+			conditions.add(new AudienceRestrictionConditionValidator());
+			conditions.add(new DelegationRestrictionConditionValidator());
+			conditions.add(new ConditionValidator() {
+				@Nonnull
+				@Override
+				public QName getServicedCondition() {
+					return OneTimeUse.DEFAULT_ELEMENT_NAME;
+				}
+
+				@Nonnull
+				@Override
+				public ValidationResult validate(Condition condition, Assertion assertion, ValidationContext context) {
+					// applications should validate their own OneTimeUse conditions
+					return ValidationResult.VALID;
+				}
+			});
+			subjects.add(new BearerSubjectConfirmationValidator() {
 				@Nonnull
 				@Override
 				protected ValidationResult validateAddress(@Nonnull SubjectConfirmation confirmation,
 						@Nonnull Assertion assertion, @Nonnull ValidationContext context) {
-					// skipping address validation - gh-7514
+					// applications should validate their own addresses - gh-7514
 					return ValidationResult.VALID;
 				}
 			});
 		}
 
-		@Override
-		public SAML20AssertionValidator convert(Tuple tuple) {
-			Collection<ConditionValidator> conditions =
-					OpenSamlAuthenticationProvider.this.conditionValidators;
-			return new SAML20AssertionValidator(conditions, this.subjects, this.statements,
-					OpenSamlAuthenticationProvider.this.signatureTrustEngineConverter.convert(tuple.authentication),
-					this.validator);
+		static SAML20AssertionValidator createAttributeValidator() {
+			return new SAML20AssertionValidator(conditions, subjects, statements, null, null) {
+				@Nonnull
+				@Override
+				protected ValidationResult validateSignature(Assertion token, ValidationContext context) {
+					return ValidationResult.VALID;
+				}
+			};
+		}
+
+		static SAML20AssertionValidator createSignatureValidator(SignatureTrustEngine engine) {
+			return new SAML20AssertionValidator(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+					engine, validator) {
+				@Nonnull
+				@Override
+				protected ValidationResult validateConditions(Assertion assertion, ValidationContext context) {
+					return ValidationResult.VALID;
+				}
+
+				@Nonnull
+				@Override
+				protected ValidationResult validateSubjectConfirmation(Assertion assertion, ValidationContext context) {
+					return ValidationResult.VALID;
+				}
+
+				@Nonnull
+				@Override
+				protected ValidationResult validateStatements(Assertion assertion, ValidationContext context) {
+					return ValidationResult.VALID;
+				}
+			};
 		}
 	}
 
@@ -643,25 +723,25 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	}
 
 	/**
-	 * A tuple containing the authentication token and the associated OpenSAML {@link Response}.
+	 * A tuple containing an OpenSAML {@link Assertion} and its associated authentication token.
 	 *
 	 * @since 5.4
 	 */
-	public static class Tuple {
-		private final Saml2AuthenticationToken authentication;
-		private final Response response;
+	public static class AssertionToken {
+		private final Saml2AuthenticationToken token;
+		private final Assertion assertion;
 
-		private Tuple(Saml2AuthenticationToken authentication, Response response) {
-			this.authentication = authentication;
-			this.response = response;
+		private AssertionToken(Assertion assertion, Saml2AuthenticationToken token) {
+			this.token = token;
+			this.assertion = assertion;
 		}
 
-		public Saml2AuthenticationToken getAuthentication() {
-			return this.authentication;
+		public Assertion getAssertion() {
+			return this.assertion;
 		}
 
-		public Response getResponse() {
-			return this.response;
+		public Saml2AuthenticationToken getToken() {
+			return this.token;
 		}
 	}
 }

@@ -242,7 +242,7 @@ public class Saml2LoginIntegrationTests {
 		sendResponse(response, "/login?error")
 				.andExpect(
 						saml2AuthenticationExceptionMatcher(
-								"invalid_assertion",
+								"invalid_signature",
 								containsString("Invalid assertion [assertion] for SAML response")
 						)
 				);
@@ -288,9 +288,9 @@ public class Saml2LoginIntegrationTests {
 				.andExpect(unauthenticated())
 				.andExpect(
 						saml2AuthenticationExceptionMatcher(
-								"invalid_issuer",
+								"invalid_signature",
 								containsString(
-										"Invalid issuer"
+										"Invalid signature"
 								)
 						)
 				);
