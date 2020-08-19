@@ -28,7 +28,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.springframework.security.saml2.core.Saml2X509Credential;
-import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 import org.springframework.util.Assert;
 
 /**
@@ -716,7 +715,7 @@ public class RelyingPartyRegistration {
 		private String entityId = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
 		private Collection<Saml2X509Credential> signingX509Credentials = new HashSet<>();
 		private Collection<Saml2X509Credential> decryptionX509Credentials = new HashSet<>();
-		private String assertionConsumerServiceLocation = "{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
+		private String assertionConsumerServiceLocation = "{baseUrl}/login/saml2/sso/{registrationId}";
 		private Saml2MessageBinding assertionConsumerServiceBinding = Saml2MessageBinding.POST;
 		private ProviderDetails.Builder providerDetails = new ProviderDetails.Builder();
 		private Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials = new HashSet<>();
