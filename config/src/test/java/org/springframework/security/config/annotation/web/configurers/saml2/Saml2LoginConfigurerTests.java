@@ -35,6 +35,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -89,6 +90,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.saml2.core.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
+import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.authnRequest;
 import static org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationRequestContexts.authenticationRequestContext;
 import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.noCredentials;
 import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.relyingPartyRegistration;
@@ -176,8 +178,8 @@ public class Saml2LoginConfigurerTests {
 	}
 
 	@Test
-	public void authenticationRequestWhenAuthnRequestConsumerResolverThenUses() throws Exception {
-		this.spring.register(CustomAuthnRequestConsumerResolver.class).autowire();
+	public void authenticationRequestWhenAuthnRequestContextConverterThenUses() throws Exception {
+		this.spring.register(CustomAuthenticationRequestContextConverterResolver.class).autowire();
 
 		MvcResult result = this.mvc.perform(get("/saml2/authenticate/registration-id"))
 				.andReturn();
@@ -315,7 +317,7 @@ public class Saml2LoginConfigurerTests {
 
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
-	static class CustomAuthnRequestConsumerResolver extends WebSecurityConfigurerAdapter {
+	static class CustomAuthenticationRequestContextConverterResolver extends WebSecurityConfigurerAdapter {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -330,8 +332,12 @@ public class Saml2LoginConfigurerTests {
 		Saml2AuthenticationRequestFactory authenticationRequestFactory() {
 			OpenSamlAuthenticationRequestFactory authenticationRequestFactory =
 					new OpenSamlAuthenticationRequestFactory();
-			authenticationRequestFactory.setAuthnRequestConsumerResolver(
-					context -> authnRequest -> authnRequest.setForceAuthn(true));
+			authenticationRequestFactory.setAuthenticationRequestContextConverter(
+					context -> {
+						AuthnRequest authnRequest = authnRequest();
+						authnRequest.setForceAuthn(true);
+						return authnRequest;
+					});
 			return authenticationRequestFactory;
 		}
 	}

@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.joda.time.DateTime;
@@ -88,8 +86,8 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 				return context.getRelyingPartyRegistration().getAssertionConsumerServiceBinding().getUrn();
 			};
 
-	private Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver
-			= context -> authnRequest -> {};
+	private Converter<Saml2AuthenticationRequestContext, AuthnRequest> authenticationRequestContextConverter
+			= this::createAuthnRequest;
 
 	/**
 	 * Creates an {@link OpenSamlAuthenticationRequestFactory}
@@ -124,7 +122,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	 */
 	@Override
 	public Saml2PostAuthenticationRequest createPostAuthenticationRequest(Saml2AuthenticationRequestContext context) {
-		AuthnRequest authnRequest = createAuthnRequest(context);
+		AuthnRequest authnRequest = this.authenticationRequestContextConverter.convert(context);
 		String xml = context.getRelyingPartyRegistration().getAssertingPartyDetails().getWantAuthnRequestsSigned() ?
 			serialize(sign(authnRequest, context.getRelyingPartyRegistration())) :
 			serialize(authnRequest);
@@ -139,7 +137,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	 */
 	@Override
 	public Saml2RedirectAuthenticationRequest createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext context) {
-		AuthnRequest authnRequest = createAuthnRequest(context);
+		AuthnRequest authnRequest = this.authenticationRequestContextConverter.convert(context);
 		String xml = serialize(authnRequest);
 		Builder result = Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context);
 		String deflatedAndEncoded = samlEncode(samlDeflate(xml));
@@ -168,11 +166,9 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	}
 
 	private AuthnRequest createAuthnRequest(Saml2AuthenticationRequestContext context) {
-		AuthnRequest authnRequest = createAuthnRequest(context.getIssuer(),
+		return createAuthnRequest(context.getIssuer(),
 				context.getDestination(), context.getAssertionConsumerServiceUrl(),
 				this.protocolBindingResolver.convert(context));
-		this.authnRequestConsumerResolver.apply(context).accept(authnRequest);
-		return authnRequest;
 	}
 
 	private AuthnRequest createAuthnRequest
@@ -194,13 +190,13 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	/**
 	 * Set the {@link AuthnRequest} post-processor resolver
 	 *
-	 * @param authnRequestConsumerResolver
+	 * @param authenticationRequestContextConverter
 	 * @since 5.4
 	 */
-	public void setAuthnRequestConsumerResolver(
-			Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver) {
-		Assert.notNull(authnRequestConsumerResolver, "authnRequestConsumerResolver cannot be null");
-		this.authnRequestConsumerResolver = authnRequestConsumerResolver;
+	public void setAuthenticationRequestContextConverter(
+			Converter<Saml2AuthenticationRequestContext, AuthnRequest> authenticationRequestContextConverter) {
+		Assert.notNull(authenticationRequestContextConverter, "authenticationRequestContextConverter cannot be null");
+		this.authenticationRequestContextConverter = authenticationRequestContextConverter;
 	}
 
 	/**

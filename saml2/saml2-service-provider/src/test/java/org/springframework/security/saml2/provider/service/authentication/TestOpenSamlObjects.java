@@ -53,6 +53,7 @@ import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.AttributeValue;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Conditions;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedID;
@@ -86,7 +87,7 @@ import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getB
 import static org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS;
 import static org.springframework.security.saml2.core.TestSaml2X509Credentials.assertingPartySigningCredential;
 
-final class TestOpenSamlObjects {
+public final class TestOpenSamlObjects {
 	static {
 		OpenSamlInitializationService.initialize();
 	}
@@ -186,6 +187,16 @@ final class TestOpenSamlObjects {
 		conditions.setNotBefore(DateTime.now().minus(Duration.millis(5 * 60 * 1000)));
 		conditions.setNotOnOrAfter(DateTime.now().plus(Duration.millis(5 * 60 * 1000)));
 		return conditions;
+	}
+
+	public static AuthnRequest authnRequest() {
+		Issuer issuer = build(Issuer.DEFAULT_ELEMENT_NAME);
+		issuer.setValue(ASSERTING_PARTY_ENTITY_ID);
+		AuthnRequest authnRequest = build(AuthnRequest.DEFAULT_ELEMENT_NAME);
+		authnRequest.setIssuer(issuer);
+		authnRequest.setDestination(ASSERTING_PARTY_ENTITY_ID + "/SSO.saml2");
+		authnRequest.setAssertionConsumerServiceURL(DESTINATION);
+		return authnRequest;
 	}
 
 	static Credential getSigningCredential(Saml2X509Credential credential, String entityId) {
