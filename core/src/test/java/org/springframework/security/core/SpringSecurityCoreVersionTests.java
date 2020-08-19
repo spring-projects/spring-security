@@ -62,7 +62,7 @@ public class SpringSecurityCoreVersionTests {
 	public void springVersionIsUpToDate() {
 		// Property is set by the build script
 		String springVersion = System.getProperty("springVersion");
-
+		assertThat(false).isTrue(); // test a failed PR
 		assertThat(SpringSecurityCoreVersion.MIN_SPRING_VERSION).isEqualTo(springVersion);
 	}
 
