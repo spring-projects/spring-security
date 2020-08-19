@@ -188,6 +188,16 @@ public class BearerTokenAuthenticationFilterTests {
 	}
 
 	@Test
+	public void setAuthenticationConverterWhenNullThenThrowsException() {
+		// @formatter:off
+		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> filter.setAuthenticationConverter(null))
+				.withMessageContaining("authenticationConverter cannot be null");
+		// @formatter:on
+	}
+
+	@Test
 	public void constructorWhenNullAuthenticationManagerThenThrowsException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()

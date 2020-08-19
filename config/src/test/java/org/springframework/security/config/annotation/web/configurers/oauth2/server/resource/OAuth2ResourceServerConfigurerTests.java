@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.PreDestroy;
+import javax.servlet.http.HttpServletRequest;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -108,7 +109,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.TestJwts;
+import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver;
@@ -718,6 +721,72 @@ public class OAuth2ResourceServerConfigurerTests {
 		ApplicationContext context = this.spring.context(new GenericWebApplicationContext()).getContext();
 		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
 		assertThat(oauth2.getBearerTokenResolver()).isInstanceOf(DefaultBearerTokenResolver.class);
+	}
+
+	@Test
+	public void getBearerTokenAuthenticationConverterWhenDuplicateConverterBeansAndAnotherOnTheDslThenTheDslOneIsUsed() {
+		BearerTokenAuthenticationConverter converterBean = new BearerTokenAuthenticationConverter();
+		BearerTokenAuthenticationConverter converter = new BearerTokenAuthenticationConverter();
+		GenericWebApplicationContext context = new GenericWebApplicationContext();
+		context.registerBean("converterOne", BearerTokenAuthenticationConverter.class, () -> converterBean);
+		context.registerBean("converterTwo", BearerTokenAuthenticationConverter.class, () -> converterBean);
+		this.spring.context(context).autowire();
+		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
+		oauth2.bearerTokenAuthenticationConverter(converter);
+		assertThat(oauth2.getBearerTokenAuthenticationConverter()).isEqualTo(converter);
+	}
+
+	@Test
+	public void getBearerTokenAuthenticationConverterWhenDuplicateConverterBeansThenWiringException() {
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> this.spring
+				.register(MultipleBearerTokenAuthenticationConverterBeansConfig.class, JwtDecoderConfig.class)
+				.autowire()).withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class);
+	}
+
+	@Test
+	public void getBearerTokenAuthenticationConverterWhenConverterBeanAndAnotherOnTheDslThenTheDslOneIsUsed() {
+		BearerTokenAuthenticationConverter converter = new BearerTokenAuthenticationConverter();
+		BearerTokenAuthenticationConverter converterBean = new BearerTokenAuthenticationConverter();
+		GenericWebApplicationContext context = new GenericWebApplicationContext();
+		context.registerBean(BearerTokenAuthenticationConverter.class, () -> converterBean);
+		this.spring.context(context).autowire();
+		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
+		oauth2.bearerTokenAuthenticationConverter(converter);
+		assertThat(oauth2.getBearerTokenAuthenticationConverter()).isEqualTo(converter);
+	}
+
+	@Test
+	public void getBearerTokenAuthenticationConverterWhenNoConverterSpecifiedThenTheDefaultIsUsed() {
+		ApplicationContext context = this.spring.context(new GenericWebApplicationContext()).getContext();
+		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
+		assertThat(oauth2.getBearerTokenAuthenticationConverter())
+				.isInstanceOf(BearerTokenAuthenticationConverter.class);
+	}
+
+	@Test
+	public void getBearerTokenAuthenticationConverterWhenConverterBeanRegisteredThenBeanIsUsed() {
+		BearerTokenAuthenticationConverter converterBean = new BearerTokenAuthenticationConverter();
+		GenericWebApplicationContext context = new GenericWebApplicationContext();
+		context.registerBean(BearerTokenAuthenticationConverter.class, () -> converterBean);
+		this.spring.context(context).autowire();
+		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
+		assertThat(oauth2.getBearerTokenAuthenticationConverter()).isEqualTo(converterBean);
+
+	}
+
+	@Test
+	public void getBearerTokenAuthenticationConverterWhenOnlyResolverBeanRegisteredThenUseTheResolver() {
+		HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+		BearerTokenResolver resolverBean = (request) -> "bearer customToken";
+		GenericWebApplicationContext context = new GenericWebApplicationContext();
+		context.registerBean(BearerTokenResolver.class, () -> resolverBean);
+		this.spring.context(context).autowire();
+		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
+		BearerTokenAuthenticationToken bearerTokenAuthenticationToken = (BearerTokenAuthenticationToken) oauth2
+				.getBearerTokenAuthenticationConverter().convert(servletRequest);
+		String token = bearerTokenAuthenticationToken.getToken();
+		assertThat(token).isEqualTo("bearer customToken");
+
 	}
 
 	@Test
@@ -1867,6 +1936,32 @@ public class OAuth2ResourceServerConfigurerTests {
 			DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
 			resolver.setAllowFormEncodedBodyParameter(true);
 			return resolver;
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class MultipleBearerTokenAuthenticationConverterBeansConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2ResourceServer()
+					.jwt();
+			// @formatter:on
+		}
+
+		@Bean
+		BearerTokenAuthenticationConverter converterOne() {
+			BearerTokenAuthenticationConverter converter = new BearerTokenAuthenticationConverter();
+			return converter;
+		}
+
+		@Bean
+		BearerTokenAuthenticationConverter converterTwo() {
+			BearerTokenAuthenticationConverter converter = new BearerTokenAuthenticationConverter();
+			return converter;
 		}
 
 	}
