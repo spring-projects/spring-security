@@ -70,22 +70,29 @@ public class JwtAuthenticationConverterTests {
 
 	@Test
 	public void whenSettingNullPrincipalClaimName() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.jwtAuthenticationConverter.setPrincipalClaimName(null))
 				.withMessage("principalClaimName cannot be empty");
+		// @formatter:on
 	}
 
 	@Test
 	public void whenSettingEmptyPrincipalClaimName() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.jwtAuthenticationConverter.setPrincipalClaimName(""))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.jwtAuthenticationConverter.setPrincipalClaimName(""))
 				.withMessage("principalClaimName cannot be empty");
+		// @formatter:on
 	}
 
 	@Test
 	public void whenSettingBlankPrincipalClaimName() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.jwtAuthenticationConverter.setPrincipalClaimName(" "))
 				.withMessage("principalClaimName cannot be empty");
+		// @formatter:on
 	}
 
 	@Test

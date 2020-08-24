@@ -90,25 +90,39 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 
 	@Override
 	public Mono<OAuth2AuthenticatedPrincipal> introspect(String token) {
-		return Mono.just(token).flatMap(this::makeRequest).flatMap(this::adaptToNimbusResponse)
-				.map(this::parseNimbusResponse).map(this::castToNimbusSuccess)
-				.doOnNext((response) -> validate(token, response)).map(this::convertClaimsSet)
+		// @formatter:off
+		return Mono.just(token)
+				.flatMap(this::makeRequest)
+				.flatMap(this::adaptToNimbusResponse)
+				.map(this::parseNimbusResponse)
+				.map(this::castToNimbusSuccess)
+				.doOnNext((response) -> validate(token, response))
+				.map(this::convertClaimsSet)
 				.onErrorMap((e) -> !(e instanceof OAuth2IntrospectionException), this::onError);
+		// @formatter:on
 	}
 
 	private Mono<ClientResponse> makeRequest(String token) {
-		return this.webClient.post().uri(this.introspectionUri)
+		// @formatter:off
+		return this.webClient.post()
+				.uri(this.introspectionUri)
 				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_UTF8_VALUE)
-				.body(BodyInserters.fromFormData("token", token)).exchange();
+				.body(BodyInserters.fromFormData("token", token))
+				.exchange();
+		// @formatter:on
 	}
 
 	private Mono<HTTPResponse> adaptToNimbusResponse(ClientResponse responseEntity) {
 		HTTPResponse response = new HTTPResponse(responseEntity.rawStatusCode());
 		response.setHeader(HttpHeaders.CONTENT_TYPE, responseEntity.headers().contentType().get().toString());
 		if (response.getStatusCode() != HTTPResponse.SC_OK) {
-			return responseEntity.bodyToFlux(DataBuffer.class).map(DataBufferUtils::release)
+			// @formatter:off
+			return responseEntity.bodyToFlux(DataBuffer.class)
+					.map(DataBufferUtils::release)
 					.then(Mono.error(new OAuth2IntrospectionException(
-							"Introspection endpoint responded with " + response.getStatusCode())));
+							"Introspection endpoint responded with " + response.getStatusCode()))
+					);
+			// @formatter:on
 		}
 		return responseEntity.bodyToMono(String.class).doOnNext(response::setContent).map((body) -> response);
 	}

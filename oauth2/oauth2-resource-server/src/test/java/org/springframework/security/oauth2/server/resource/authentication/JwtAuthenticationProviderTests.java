@@ -76,18 +76,22 @@ public class JwtAuthenticationProviderTests {
 	public void authenticateWhenJwtDecodeFailsThenRespondsWithInvalidToken() {
 		BearerTokenAuthenticationToken token = this.authentication();
 		given(this.jwtDecoder.decode("token")).willThrow(BadJwtException.class);
+		// @formatter:off
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> this.provider.authenticate(token))
 				.matches(errorCode(BearerTokenErrorCodes.INVALID_TOKEN));
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenDecoderThrowsIncompatibleErrorMessageThenWrapsWithGenericOne() {
 		BearerTokenAuthenticationToken token = this.authentication();
 		given(this.jwtDecoder.decode(token.getToken())).willThrow(new BadJwtException("with \"invalid\" chars"));
+		// @formatter:off
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> this.provider.authenticate(token))
 				.satisfies((ex) -> assertThat(ex).hasFieldOrPropertyWithValue("error.description", "Invalid token"));
+		// @formatter:on
 	}
 
 	// gh-7785
@@ -95,8 +99,11 @@ public class JwtAuthenticationProviderTests {
 	public void authenticateWhenDecoderFailsGenericallyThenThrowsGenericException() {
 		BearerTokenAuthenticationToken token = this.authentication();
 		given(this.jwtDecoder.decode(token.getToken())).willThrow(new JwtException("no jwk set"));
-		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> this.provider.authenticate(token))
+		// @formatter:off
+		assertThatExceptionOfType(AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
 				.isNotInstanceOf(OAuth2AuthenticationException.class);
+		// @formatter:on
 	}
 
 	@Test
@@ -108,8 +115,11 @@ public class JwtAuthenticationProviderTests {
 		JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt);
 		given(this.jwtDecoder.decode(token.getToken())).willReturn(jwt);
 		given(this.jwtAuthenticationConverter.convert(jwt)).willReturn(authentication);
-		assertThat(this.provider.authenticate(token)).isEqualTo(authentication).hasFieldOrPropertyWithValue("details",
+		// @formatter:off
+		assertThat(this.provider.authenticate(token))
+				.isEqualTo(authentication).hasFieldOrPropertyWithValue("details",
 				details);
+		// @formatter:on
 	}
 
 	@Test

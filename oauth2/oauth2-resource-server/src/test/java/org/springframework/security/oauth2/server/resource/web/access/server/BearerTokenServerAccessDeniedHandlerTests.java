@@ -77,10 +77,12 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 		given(exchange.getResponse()).willReturn(new MockServerHttpResponse());
 		this.accessDeniedHandler.handle(exchange, null).block();
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+		// @formatter:off
 		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate"))
 				.isEqualTo(Arrays.asList("Bearer error=\"insufficient_scope\", "
 						+ "error_description=\"The request requires higher privileges than provided by the access token.\", "
 						+ "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\""));
+		// @formatter:on
 	}
 
 	@Test

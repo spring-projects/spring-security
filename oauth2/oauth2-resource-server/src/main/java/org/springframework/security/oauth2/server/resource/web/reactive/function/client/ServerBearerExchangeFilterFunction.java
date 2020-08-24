@@ -53,21 +53,35 @@ public final class ServerBearerExchangeFilterFunction implements ExchangeFilterF
 
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-		return oauth2Token().map((token) -> bearer(request, token)).defaultIfEmpty(request).flatMap(next::exchange);
+		// @formatter:off
+		return oauth2Token().map((token) -> bearer(request, token))
+				.defaultIfEmpty(request)
+				.flatMap(next::exchange);
+		// @formatter:on
 	}
 
 	private Mono<AbstractOAuth2Token> oauth2Token() {
+		// @formatter:off
 		return currentAuthentication()
 				.filter((authentication) -> authentication.getCredentials() instanceof AbstractOAuth2Token)
-				.map(Authentication::getCredentials).cast(AbstractOAuth2Token.class);
+				.map(Authentication::getCredentials)
+				.cast(AbstractOAuth2Token.class);
+		// @formatter:on
 	}
 
 	private Mono<Authentication> currentAuthentication() {
-		return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication);
+		// @formatter:off
+		return ReactiveSecurityContextHolder.getContext()
+				.map(SecurityContext::getAuthentication);
+		// @formatter:on
 	}
 
 	private ClientRequest bearer(ClientRequest request, AbstractOAuth2Token token) {
-		return ClientRequest.from(request).headers((headers) -> headers.setBearerAuth(token.getTokenValue())).build();
+		// @formatter:off
+		return ClientRequest.from(request)
+				.headers((headers) -> headers.setBearerAuth(token.getTokenValue()))
+				.build();
+		// @formatter:on
 	}
 
 }

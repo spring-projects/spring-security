@@ -75,19 +75,28 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
-		return Mono.justOrEmpty(authentication).filter(BearerTokenAuthenticationToken.class::isInstance)
-				.cast(BearerTokenAuthenticationToken.class).map(BearerTokenAuthenticationToken::getToken)
-				.flatMap(this::authenticate).cast(Authentication.class);
+		// @formatter:off
+		return Mono.justOrEmpty(authentication)
+				.filter(BearerTokenAuthenticationToken.class::isInstance)
+				.cast(BearerTokenAuthenticationToken.class)
+				.map(BearerTokenAuthenticationToken::getToken)
+				.flatMap(this::authenticate)
+				.cast(Authentication.class);
+		// @formatter:on
 	}
 
 	private Mono<BearerTokenAuthentication> authenticate(String token) {
-		return this.introspector.introspect(token).map((principal) -> {
-			Instant iat = principal.getAttribute(OAuth2IntrospectionClaimNames.ISSUED_AT);
-			Instant exp = principal.getAttribute(OAuth2IntrospectionClaimNames.EXPIRES_AT);
-			// construct token
-			OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
-			return new BearerTokenAuthentication(principal, accessToken, principal.getAuthorities());
-		}).onErrorMap(OAuth2IntrospectionException.class, this::onError);
+		// @formatter:off
+		return this.introspector.introspect(token)
+				.map((principal) -> {
+					Instant iat = principal.getAttribute(OAuth2IntrospectionClaimNames.ISSUED_AT);
+					Instant exp = principal.getAttribute(OAuth2IntrospectionClaimNames.EXPIRES_AT);
+					// construct token
+					OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
+					return new BearerTokenAuthentication(principal, accessToken, principal.getAuthorities());
+				})
+				.onErrorMap(OAuth2IntrospectionException.class, this::onError);
+		// @formatter:on
 	}
 
 	private AuthenticationException onError(OAuth2IntrospectionException ex) {

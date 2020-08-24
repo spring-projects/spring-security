@@ -37,7 +37,12 @@ public class JwtBearerTokenAuthenticationConverterTests {
 
 	@Test
 	public void convertWhenJwtThenBearerTokenAuthentication() {
-		Jwt jwt = Jwt.withTokenValue("token-value").claim("claim", "value").header("header", "value").build();
+		// @formatter:off
+		Jwt jwt = Jwt.withTokenValue("token-value")
+				.claim("claim", "value")
+				.header("header", "value")
+				.build();
+		// @formatter:on
 		AbstractAuthenticationToken token = this.converter.convert(jwt);
 		assertThat(token).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication bearerToken = (BearerTokenAuthentication) token;
@@ -48,8 +53,12 @@ public class JwtBearerTokenAuthenticationConverterTests {
 
 	@Test
 	public void convertWhenJwtWithScopeAttributeThenBearerTokenAuthentication() {
-		Jwt jwt = Jwt.withTokenValue("token-value").claim("scope", "message:read message:write")
-				.header("header", "value").build();
+		// @formatter:off
+		Jwt jwt = Jwt.withTokenValue("token-value")
+				.claim("scope", "message:read message:write")
+				.header("header", "value")
+				.build();
+		// @formatter:on
 		AbstractAuthenticationToken token = this.converter.convert(jwt);
 		assertThat(token).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication bearerToken = (BearerTokenAuthentication) token;
@@ -59,8 +68,12 @@ public class JwtBearerTokenAuthenticationConverterTests {
 
 	@Test
 	public void convertWhenJwtWithScpAttributeThenBearerTokenAuthentication() {
-		Jwt jwt = Jwt.withTokenValue("token-value").claim("scp", Arrays.asList("message:read", "message:write"))
-				.header("header", "value").build();
+		// @formatter:off
+		Jwt jwt = Jwt.withTokenValue("token-value")
+				.claim("scp", Arrays.asList("message:read", "message:write"))
+				.header("header", "value")
+				.build();
+		// @formatter:on
 		AbstractAuthenticationToken token = this.converter.convert(jwt);
 		assertThat(token).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication bearerToken = (BearerTokenAuthentication) token;

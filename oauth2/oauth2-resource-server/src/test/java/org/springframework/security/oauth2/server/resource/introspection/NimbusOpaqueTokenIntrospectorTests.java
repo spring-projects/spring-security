@@ -62,31 +62,62 @@ public class NimbusOpaqueTokenIntrospectorTests {
 
 	private static final String CLIENT_SECRET = "secret";
 
-	private static final String ACTIVE_RESPONSE = "{\n" + "      \"active\": true,\n"
-			+ "      \"client_id\": \"l238j323ds-23ij4\",\n" + "      \"username\": \"jdoe\",\n"
-			+ "      \"scope\": \"read write dolphin\",\n" + "      \"sub\": \"Z5O3upPC88QrAjx00dis\",\n"
-			+ "      \"aud\": \"https://protected.example.net/resource\",\n"
-			+ "      \"iss\": \"https://server.example.com/\",\n" + "      \"exp\": 1419356238,\n"
-			+ "      \"iat\": 1419350238,\n" + "      \"extension_field\": \"twenty-seven\"\n" + "     }";
-
-	private static final String INACTIVE_RESPONSE = "{\n" + "      \"active\": false\n" + "     }";
-
-	private static final String INVALID_RESPONSE = "{\n" + "      \"client_id\": \"l238j323ds-23ij4\",\n"
-			+ "      \"username\": \"jdoe\",\n" + "      \"scope\": \"read write dolphin\",\n"
+	// @formatter:off
+	private static final String ACTIVE_RESPONSE = "{\n"
+			+ "      \"active\": true,\n"
+			+ "      \"client_id\": \"l238j323ds-23ij4\",\n"
+			+ "      \"username\": \"jdoe\",\n"
+			+ "      \"scope\": \"read write dolphin\",\n"
 			+ "      \"sub\": \"Z5O3upPC88QrAjx00dis\",\n"
 			+ "      \"aud\": \"https://protected.example.net/resource\",\n"
-			+ "      \"iss\": \"https://server.example.com/\",\n" + "      \"exp\": 1419356238,\n"
-			+ "      \"iat\": 1419350238,\n" + "      \"extension_field\": \"twenty-seven\"\n" + "     }";
+			+ "      \"iss\": \"https://server.example.com/\",\n"
+			+ "      \"exp\": 1419356238,\n"
+			+ "      \"iat\": 1419350238,\n"
+			+ "      \"extension_field\": \"twenty-seven\"\n"
+			+ "     }";
+	// @formatter:on
 
-	private static final String MALFORMED_ISSUER_RESPONSE = "{\n" + "     \"active\" : \"true\",\n"
-			+ "     \"iss\" : \"badissuer\"\n" + "    }";
+	// @formatter:off
+	private static final String INACTIVE_RESPONSE = "{\n"
+			+ "      \"active\": false\n"
+			+ "     }";
+	// @formatter:on
 
-	private static final String MALFORMED_SCOPE_RESPONSE = "{\n" + "      \"active\": true,\n"
-			+ "      \"client_id\": \"l238j323ds-23ij4\",\n" + "      \"username\": \"jdoe\",\n"
-			+ "      \"scope\": [ \"read\", \"write\", \"dolphin\" ],\n" + "      \"sub\": \"Z5O3upPC88QrAjx00dis\",\n"
+	// @formatter:off
+	private static final String INVALID_RESPONSE = "{\n"
+			+ "      \"client_id\": \"l238j323ds-23ij4\",\n"
+			+ "      \"username\": \"jdoe\",\n"
+			+ "      \"scope\": \"read write dolphin\",\n"
+			+ "      \"sub\": \"Z5O3upPC88QrAjx00dis\",\n"
 			+ "      \"aud\": \"https://protected.example.net/resource\",\n"
-			+ "      \"iss\": \"https://server.example.com/\",\n" + "      \"exp\": 1419356238,\n"
-			+ "      \"iat\": 1419350238,\n" + "      \"extension_field\": \"twenty-seven\"\n" + "     }";
+			+ "      \"iss\": \"https://server.example.com/\",\n"
+			+ "      \"exp\": 1419356238,\n"
+			+ "      \"iat\": 1419350238,\n"
+			+ "      \"extension_field\": \"twenty-seven\"\n"
+			+ "     }";
+	// @formatter:on
+
+	// @formatter:off
+	private static final String MALFORMED_ISSUER_RESPONSE = "{\n"
+			+ "     \"active\" : \"true\",\n"
+			+ "     \"iss\" : \"badissuer\"\n"
+			+ "    }";
+	// @formatter:on
+
+	// @formatter:off
+	private static final String MALFORMED_SCOPE_RESPONSE = "{\n"
+			+ "      \"active\": true,\n"
+			+ "      \"client_id\": \"l238j323ds-23ij4\",\n"
+			+ "      \"username\": \"jdoe\",\n"
+			+ "      \"scope\": [ \"read\", \"write\", \"dolphin\" ],\n"
+			+ "      \"sub\": \"Z5O3upPC88QrAjx00dis\",\n"
+			+ "      \"aud\": \"https://protected.example.net/resource\",\n"
+			+ "      \"iss\": \"https://server.example.com/\",\n"
+			+ "      \"exp\": 1419356238,\n"
+			+ "      \"iat\": 1419350238,\n"
+			+ "      \"extension_field\": \"twenty-seven\"\n"
+			+ "     }";
+	// @formatter:on
 
 	private static final ResponseEntity<String> ACTIVE = response(ACTIVE_RESPONSE);
 
@@ -106,7 +137,10 @@ public class NimbusOpaqueTokenIntrospectorTests {
 			OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(introspectUri, CLIENT_ID,
 					CLIENT_SECRET);
 			OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token");
-			assertThat(authority.getAttributes()).isNotNull().containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
+			// @formatter:off
+			assertThat(authority.getAttributes())
+					.isNotNull()
+					.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
 					.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE,
 							Arrays.asList("https://protected.example.net/resource"))
 					.containsEntry(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
@@ -116,6 +150,7 @@ public class NimbusOpaqueTokenIntrospectorTests {
 					.containsEntry(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis")
 					.containsEntry(OAuth2IntrospectionClaimNames.USERNAME, "jdoe")
 					.containsEntry("extension_field", "twenty-seven");
+			// @formatter:on
 		}
 	}
 
@@ -137,8 +172,11 @@ public class NimbusOpaqueTokenIntrospectorTests {
 		OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL,
 				restOperations);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willReturn(INACTIVE);
+		// @formatter:off
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token")).withMessage("Provided token isn't active");
+				.isThrownBy(() -> introspectionClient.introspect("token"))
+				.withMessage("Provided token isn't active");
+		// @formatter:on
 	}
 
 	@Test
@@ -153,11 +191,15 @@ public class NimbusOpaqueTokenIntrospectorTests {
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.willReturn(response(new JSONObject(introspectedValues).toJSONString()));
 		OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token");
-		assertThat(authority.getAttributes()).isNotNull().containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
+		// @formatter:off
+		assertThat(authority.getAttributes())
+				.isNotNull()
+				.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
 				.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE, Arrays.asList("aud"))
 				.containsEntry(OAuth2IntrospectionClaimNames.NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
 				.doesNotContainKey(OAuth2IntrospectionClaimNames.CLIENT_ID)
 				.doesNotContainKey(OAuth2IntrospectionClaimNames.SCOPE);
+		// @formatter:on
 	}
 
 	@Test
@@ -167,8 +209,11 @@ public class NimbusOpaqueTokenIntrospectorTests {
 				restOperations);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.willThrow(new IllegalStateException("server was unresponsive"));
+		// @formatter:off
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token")).withMessage("server was unresponsive");
+				.isThrownBy(() -> introspectionClient.introspect("token"))
+				.withMessage("server was unresponsive");
+		// @formatter:on
 	}
 
 	@Test
@@ -274,8 +319,12 @@ public class NimbusOpaqueTokenIntrospectorTests {
 			@Override
 			public MockResponse dispatch(RecordedRequest request) {
 				String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-				return Optional.ofNullable(authorization).filter((a) -> isAuthorized(authorization, username, password))
-						.map((a) -> ok(response)).orElse(unauthorized());
+				// @formatter:off
+				return Optional.ofNullable(authorization)
+						.filter((a) -> isAuthorized(authorization, username, password))
+						.map((a) -> ok(response))
+						.orElse(unauthorized());
+				// @formatter:on
 			}
 		};
 	}
@@ -286,8 +335,10 @@ public class NimbusOpaqueTokenIntrospectorTests {
 	}
 
 	private static MockResponse ok(String response) {
-		return new MockResponse().setBody(response).setHeader(HttpHeaders.CONTENT_TYPE,
-				MediaType.APPLICATION_JSON_VALUE);
+		// @formatter:off
+		return new MockResponse().setBody(response)
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+		// @formatter:on
 	}
 
 	private static MockResponse unauthorized() {

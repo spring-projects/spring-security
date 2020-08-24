@@ -122,9 +122,13 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 */
 	@Override
 	public Mono<ReactiveAuthenticationManager> resolve(ServerWebExchange exchange) {
+		// @formatter:off
 		return this.issuerConverter.convert(exchange)
-				.flatMap((issuer) -> this.issuerAuthenticationManagerResolver.resolve(issuer)
-						.switchIfEmpty(Mono.error(() -> new InvalidBearerTokenException("Invalid issuer " + issuer))));
+				.flatMap((issuer) -> this.issuerAuthenticationManagerResolver
+						.resolve(issuer)
+						.switchIfEmpty(Mono.error(() -> new InvalidBearerTokenException("Invalid issuer " + issuer)))
+				);
+		// @formatter:on
 	}
 
 	private static class JwtClaimIssuerConverter implements Converter<ServerWebExchange, Mono<String>> {
@@ -166,10 +170,13 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 			if (!this.trustedIssuer.test(issuer)) {
 				return Mono.empty();
 			}
+			// @formatter:off
 			return this.authenticationManagers.computeIfAbsent(issuer,
-					(k) -> Mono.<ReactiveAuthenticationManager>fromCallable(
-							() -> new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k)))
-							.subscribeOn(Schedulers.boundedElastic()).cache());
+					(k) -> Mono.<ReactiveAuthenticationManager>fromCallable(() -> new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k)))
+							.subscribeOn(Schedulers.boundedElastic())
+							.cache()
+			);
+			// @formatter:on
 		}
 
 	}

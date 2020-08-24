@@ -58,7 +58,10 @@ public class OpaqueTokenAuthenticationProviderTests {
 		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token"));
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2IntrospectionAuthenticatedPrincipal.class);
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
-		assertThat(attributes).isNotNull().containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
+		// @formatter:off
+		assertThat(attributes)
+				.isNotNull()
+				.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
 				.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE,
 						Arrays.asList("https://protected.example.net/resource"))
 				.containsEntry(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
@@ -69,8 +72,11 @@ public class OpaqueTokenAuthenticationProviderTests {
 				.containsEntry(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis")
 				.containsEntry(OAuth2IntrospectionClaimNames.USERNAME, "jdoe")
 				.containsEntry("extension_field", "twenty-seven");
-		assertThat(result.getAuthorities()).extracting("authority").containsExactly("SCOPE_read", "SCOPE_write",
+		assertThat(result.getAuthorities())
+				.extracting("authority")
+				.containsExactly("SCOPE_read", "SCOPE_write",
 				"SCOPE_dolphin");
+		// @formatter:on
 	}
 
 	@Test
@@ -83,7 +89,11 @@ public class OpaqueTokenAuthenticationProviderTests {
 		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token"));
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2AuthenticatedPrincipal.class);
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
-		assertThat(attributes).isNotNull().doesNotContainKey(OAuth2IntrospectionClaimNames.SCOPE);
+		// @formatter:off
+		assertThat(attributes)
+				.isNotNull()
+				.doesNotContainKey(OAuth2IntrospectionClaimNames.SCOPE);
+		// @formatter:on
 		assertThat(result.getAuthorities()).isEmpty();
 	}
 
@@ -98,7 +108,10 @@ public class OpaqueTokenAuthenticationProviderTests {
 
 	@Test
 	public void constructorWhenIntrospectionClientIsNullThenIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new OpaqueTokenAuthenticationProvider(null));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OpaqueTokenAuthenticationProvider(null));
+		// @formatter:on
 	}
 
 }

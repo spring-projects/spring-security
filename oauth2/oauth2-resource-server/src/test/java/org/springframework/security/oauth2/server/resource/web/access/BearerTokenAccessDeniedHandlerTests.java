@@ -77,9 +77,12 @@ public class BearerTokenAccessDeniedHandlerTests {
 		request.setUserPrincipal(token);
 		this.accessDeniedHandler.handle(request, response, null);
 		assertThat(response.getStatus()).isEqualTo(403);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\", "
-				+ "error_description=\"The request requires higher privileges than provided by the access token.\", "
-				+ "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
+		// @formatter:off
+		assertThat(response.getHeader("WWW-Authenticate"))
+				.isEqualTo("Bearer error=\"insufficient_scope\", "
+						+ "error_description=\"The request requires higher privileges than provided by the access token.\", "
+						+ "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
+		// @formatter:on
 	}
 
 	@Test

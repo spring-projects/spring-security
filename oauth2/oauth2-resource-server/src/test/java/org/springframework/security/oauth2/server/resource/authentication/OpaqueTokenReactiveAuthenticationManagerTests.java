@@ -59,7 +59,10 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token")).block();
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2IntrospectionAuthenticatedPrincipal.class);
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
-		assertThat(attributes).isNotNull().containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
+		// @formatter:off
+		assertThat(attributes)
+				.isNotNull()
+				.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
 				.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE,
 						Arrays.asList("https://protected.example.net/resource"))
 				.containsEntry(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
@@ -70,8 +73,11 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 				.containsEntry(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis")
 				.containsEntry(OAuth2IntrospectionClaimNames.USERNAME, "jdoe")
 				.containsEntry("extension_field", "twenty-seven");
-		assertThat(result.getAuthorities()).extracting("authority").containsExactly("SCOPE_read", "SCOPE_write",
+		assertThat(result.getAuthorities())
+				.extracting("authority")
+				.containsExactly("SCOPE_read", "SCOPE_write",
 				"SCOPE_dolphin");
+		// @formatter:on
 	}
 
 	@Test
@@ -100,7 +106,10 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 
 	@Test
 	public void constructorWhenIntrospectionClientIsNullThenIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new OpaqueTokenReactiveAuthenticationManager(null));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OpaqueTokenReactiveAuthenticationManager(null));
+		// @formatter:on
 	}
 
 }

@@ -84,20 +84,28 @@ public class BearerTokenAuthenticationTests {
 	@Test
 	public void getNameWhenTokenHasUsernameThenReturnsUsernameAttribute() {
 		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(this.principal, this.token, null);
+		// @formatter:off
 		assertThat(authenticated.getName())
 				.isEqualTo(this.principal.getAttribute(OAuth2IntrospectionClaimNames.SUBJECT));
+		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenTokenIsNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new BearerTokenAuthentication(this.principal, null, null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new BearerTokenAuthentication(this.principal, null, null))
 				.withMessageContaining("token cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenCredentialIsNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new BearerTokenAuthentication(null, this.token, null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new BearerTokenAuthentication(null, this.token, null))
 				.withMessageContaining("principal cannot be null");
+		// @formatter:on
 	}
 
 	@Test

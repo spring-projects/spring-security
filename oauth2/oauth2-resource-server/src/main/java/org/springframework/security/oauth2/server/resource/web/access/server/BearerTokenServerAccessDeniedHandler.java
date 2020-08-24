@@ -59,9 +59,13 @@ public class BearerTokenServerAccessDeniedHandler implements ServerAccessDeniedH
 		if (this.realmName != null) {
 			parameters.put("realm", this.realmName);
 		}
-		return exchange.getPrincipal().filter(AbstractOAuth2TokenAuthenticationToken.class::isInstance)
-				.map((token) -> errorMessageParameters(parameters)).switchIfEmpty(Mono.just(parameters))
+		// @formatter:off
+		return exchange.getPrincipal()
+				.filter(AbstractOAuth2TokenAuthenticationToken.class::isInstance)
+				.map((token) -> errorMessageParameters(parameters))
+				.switchIfEmpty(Mono.just(parameters))
 				.flatMap((params) -> respond(exchange, params));
+		// @formatter:on
 	}
 
 	/**

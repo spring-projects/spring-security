@@ -51,8 +51,11 @@ public class ReactiveJwtGrantedAuthoritiesConverterAdapterTests {
 
 	@Test
 	public void whenConstructingWithInvalidConverter() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new ReactiveJwtGrantedAuthoritiesConverterAdapter(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new ReactiveJwtGrantedAuthoritiesConverterAdapter(null))
 				.withMessage("grantedAuthoritiesConverter cannot be null");
+		// @formatter:on
 	}
 
 }

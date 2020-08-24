@@ -58,13 +58,20 @@ public class JwtReactiveAuthenticationManagerTests {
 	@Before
 	public void setup() {
 		this.manager = new JwtReactiveAuthenticationManager(this.jwtDecoder);
-		this.jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
+		// @formatter:off
+		this.jwt = TestJwts.jwt()
+				.claim("scope", "message:read message:write")
+				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenJwtDecoderNullThenIllegalArgumentException() {
 		this.jwtDecoder = null;
-		assertThatIllegalArgumentException().isThrownBy(() -> new JwtReactiveAuthenticationManager(this.jwtDecoder));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtReactiveAuthenticationManager(this.jwtDecoder));
+		// @formatter:on
 	}
 
 	@Test
@@ -93,9 +100,13 @@ public class JwtReactiveAuthenticationManagerTests {
 	public void authenticateWhenDecoderThrowsIncompatibleErrorMessageThenWrapsWithGenericOne() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		given(this.jwtDecoder.decode(token.getToken())).willThrow(new BadJwtException("with \"invalid\" chars"));
+		// @formatter:off
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> this.manager.authenticate(token).block())
-				.satisfies((ex) -> assertThat(ex).hasFieldOrPropertyWithValue("error.description", "Invalid token"));
+				.satisfies((ex) -> assertThat(ex)
+						.hasFieldOrPropertyWithValue("error.description", "Invalid token")
+				);
+		// @formatter:on
 	}
 
 	// gh-7785
@@ -103,16 +114,21 @@ public class JwtReactiveAuthenticationManagerTests {
 	public void authenticateWhenDecoderFailsGenericallyThenThrowsGenericException() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		given(this.jwtDecoder.decode(token.getToken())).willThrow(new JwtException("no jwk set"));
+		// @formatter:off
 		assertThatExceptionOfType(AuthenticationException.class)
 				.isThrownBy(() -> this.manager.authenticate(token).block())
 				.isNotInstanceOf(OAuth2AuthenticationException.class);
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenNotJwtExceptionThenPropagates() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		given(this.jwtDecoder.decode(any())).willReturn(Mono.error(new RuntimeException("Oops")));
-		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> this.manager.authenticate(token).block());
+		// @formatter:off
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> this.manager.authenticate(token).block());
+		// @formatter:on
 	}
 
 	@Test
@@ -122,8 +138,11 @@ public class JwtReactiveAuthenticationManagerTests {
 		Authentication authentication = this.manager.authenticate(token).block();
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.isAuthenticated()).isTrue();
-		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
+		// @formatter:off
+		assertThat(authentication.getAuthorities())
+				.extracting(GrantedAuthority::getAuthority)
 				.containsOnly("SCOPE_message:read", "SCOPE_message:write");
+		// @formatter:on
 	}
 
 }

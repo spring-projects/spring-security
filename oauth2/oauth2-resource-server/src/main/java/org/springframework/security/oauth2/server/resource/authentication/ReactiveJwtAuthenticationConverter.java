@@ -39,8 +39,11 @@ public final class ReactiveJwtAuthenticationConverter implements Converter<Jwt, 
 
 	@Override
 	public Mono<AbstractAuthenticationToken> convert(Jwt jwt) {
-		return this.jwtGrantedAuthoritiesConverter.convert(jwt).collectList()
+		// @formatter:off
+		return this.jwtGrantedAuthoritiesConverter.convert(jwt)
+				.collectList()
 				.map((authorities) -> new JwtAuthenticationToken(jwt, authorities));
+		// @formatter:on
 	}
 
 	/**

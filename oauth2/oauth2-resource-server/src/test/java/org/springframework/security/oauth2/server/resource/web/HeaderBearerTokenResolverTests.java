@@ -38,14 +38,20 @@ public class HeaderBearerTokenResolverTests {
 
 	@Test
 	public void constructorWhenHeaderNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new HeaderBearerTokenResolver(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new HeaderBearerTokenResolver(null))
 				.withMessage("header cannot be empty");
+		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenHeaderEmptyThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new HeaderBearerTokenResolver(""))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new HeaderBearerTokenResolver(""))
 				.withMessage("header cannot be empty");
+		// @formatter:on
 	}
 
 	@Test
