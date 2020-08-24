@@ -84,8 +84,15 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 	public String encode(CharSequence rawPassword) {
 		byte[] salt = this.saltGenerator.generateKey();
 		byte[] hash = new byte[this.hashLength];
-		Argon2Parameters params = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id).withSalt(salt)
-				.withParallelism(this.parallelism).withMemoryAsKB(this.memory).withIterations(this.iterations).build();
+		// @formatter:off
+		Argon2Parameters params = new Argon2Parameters
+				.Builder(Argon2Parameters.ARGON2_id)
+				.withSalt(salt)
+				.withParallelism(this.parallelism)
+				.withMemoryAsKB(this.memory)
+				.withIterations(this.iterations)
+				.build();
+		// @formatter:on
 		Argon2BytesGenerator generator = new Argon2BytesGenerator();
 		generator.init(params);
 		generator.generateBytes(rawPassword.toString().toCharArray(), hash);
