@@ -79,7 +79,11 @@ public class ReactiveAuthenticationManagerAdapterTests {
 	public void authenticateWhenBadCredentialsThenError() {
 		given(this.delegate.authenticate(any())).willThrow(new BadCredentialsException("Failed"));
 		Mono<Authentication> result = this.manager.authenticate(this.authentication);
-		StepVerifier.create(result).expectError(BadCredentialsException.class).verify();
+		// @formatter:off
+		StepVerifier.create(result)
+				.expectError(BadCredentialsException.class)
+				.verify();
+		// @formatter:on
 	}
 
 }

@@ -91,11 +91,16 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 	public Mono<Authentication> authenticate(Authentication authentication) {
 		String username = authentication.getName();
 		String presentedPassword = (String) authentication.getCredentials();
-		return retrieveUser(username).doOnNext(this.preAuthenticationChecks::check).publishOn(this.scheduler)
+		// @formatter:off
+		return retrieveUser(username)
+				.doOnNext(this.preAuthenticationChecks::check)
+				.publishOn(this.scheduler)
 				.filter((userDetails) -> this.passwordEncoder.matches(presentedPassword, userDetails.getPassword()))
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new BadCredentialsException("Invalid Credentials"))))
 				.flatMap((userDetails) -> upgradeEncodingIfNecessary(userDetails, presentedPassword))
-				.doOnNext(this.postAuthenticationChecks::check).map(this::createUsernamePasswordAuthenticationToken);
+				.doOnNext(this.postAuthenticationChecks::check)
+				.map(this::createUsernamePasswordAuthenticationToken);
+		// @formatter:on
 	}
 
 	private Mono<UserDetails> upgradeEncodingIfNecessary(UserDetails userDetails, String presentedPassword) {

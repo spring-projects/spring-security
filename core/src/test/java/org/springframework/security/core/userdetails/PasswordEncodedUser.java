@@ -45,7 +45,11 @@ public class PasswordEncodedUser {
 	}
 
 	public static User.UserBuilder withUserDetails(UserDetails userDetails) {
-		return User.withUserDetails(userDetails).passwordEncoder(passwordEncoder());
+		// @formatter:off
+		return User
+				.withUserDetails(userDetails)
+				.passwordEncoder(passwordEncoder());
+		// @formatter:on
 	}
 
 	private static Function<String, String> passwordEncoder() {

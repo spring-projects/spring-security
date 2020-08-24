@@ -82,10 +82,13 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 		Class<?> targetClass = invocation.getThis().getClass();
 		Collection<ConfigAttribute> attributes = this.attributeSource.getAttributes(method, targetClass);
 		PreInvocationAttribute preAttr = findPreInvocationAttribute(attributes);
+		// @formatter:off
 		Mono<Authentication> toInvoke = ReactiveSecurityContextHolder.getContext()
-				.map(SecurityContext::getAuthentication).defaultIfEmpty(this.anonymous)
+				.map(SecurityContext::getAuthentication)
+				.defaultIfEmpty(this.anonymous)
 				.filter((auth) -> this.preInvocationAdvice.before(auth, invocation, preAttr))
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Denied"))));
+		// @formatter:on
 		PostInvocationAttribute attr = findPostInvocationAttribute(attributes);
 		if (Mono.class.isAssignableFrom(returnType)) {
 			return toInvoke.flatMap((auth) -> PrePostAdviceReactiveMethodInterceptor.<Mono<?>>proceed(invocation)

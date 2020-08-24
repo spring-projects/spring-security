@@ -58,7 +58,11 @@ public class AuthorityReactiveAuthorizationManagerTests {
 	@Test
 	public void checkWhenHasAuthorityAndErrorThenError() {
 		Mono<AuthorizationDecision> result = this.manager.check(Mono.error(new RuntimeException("ooops")), null);
-		StepVerifier.create(result).expectError().verify();
+		// @formatter:off
+		StepVerifier.create(result)
+				.expectError()
+				.verify();
+		// @formatter:on
 	}
 
 	@Test

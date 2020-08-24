@@ -74,7 +74,11 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
 				this.password);
 		Mono<Authentication> authentication = this.manager.authenticate(token);
-		StepVerifier.create(authentication).expectError(BadCredentialsException.class).verify();
+		// @formatter:off
+		StepVerifier.create(authentication)
+				.expectError(BadCredentialsException.class)
+				.verify();
+		// @formatter:on
 	}
 
 	@Test
@@ -89,7 +93,11 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
 				this.password + "INVALID");
 		Mono<Authentication> authentication = this.manager.authenticate(token);
-		StepVerifier.create(authentication).expectError(BadCredentialsException.class).verify();
+		// @formatter:off
+		StepVerifier.create(authentication)
+				.expectError(BadCredentialsException.class)
+				.verify();
+		// @formatter:on
 	}
 
 	@Test
@@ -128,7 +136,11 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
 				this.password);
 		Mono<Authentication> authentication = this.manager.authenticate(token);
-		StepVerifier.create(authentication).expectError(BadCredentialsException.class).verify();
+		// @formatter:off
+		StepVerifier.create(authentication)
+				.expectError(BadCredentialsException.class)
+				.verify();
+		// @formatter:on
 	}
 
 }

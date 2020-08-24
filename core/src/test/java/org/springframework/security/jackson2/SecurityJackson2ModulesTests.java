@@ -51,8 +51,11 @@ public class SecurityJackson2ModulesTests {
 	@Test
 	public void readValueWhenNotAllowedOrMappedThenThrowsException() {
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-		assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.mapper.readValue(content, Object.class))
+		// @formatter:off
+		assertThatExceptionOfType(Exception.class)
+				.isThrownBy(() -> this.mapper.readValue(content, Object.class))
 				.withStackTraceContaining("allowlist");
+		// @formatter:on
 	}
 
 	@Test

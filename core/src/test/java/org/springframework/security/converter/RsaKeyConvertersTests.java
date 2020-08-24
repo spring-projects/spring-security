@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 public class RsaKeyConvertersTests {
 
+	// @formatter:off
 	private static final String PKCS8_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----\n"
 			+ "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCMk7CKSTfu3QoV\n"
 			+ "HoPVXxwZO+qweztd36cVWYqGOZinrOR2crWFu50AgR2CsdIH0+cqo7F4Vx7/3O8i\n"
@@ -60,9 +61,12 @@ public class RsaKeyConvertersTests {
 			+ "OHjxffBM0hH+fySx8m53gFfr2BpaqDX5f6ZGBlly1SlsWZ4CchCVsc71nshipi7I\n"
 			+ "k8HL9F5/OpQdDNprJ5RMBNfkWE65Nrcsb1e6oPkCgYAxwgdiSOtNg8PjDVDmAhwT\n"
 			+ "Mxj0Dtwi2fAqQ76RVrrXpNp3uCOIAu4CfruIb5llcJ3uak0ZbnWri32AxSgk80y3\n"
-			+ "EWiRX/WEDu5znejF+5O3pI02atWWcnxifEKGGlxwkcMbQdA67MlrJLFaSnnGpNXo\n" + "yPfcul058SOqhafIZQMEKQ==\n"
+			+ "EWiRX/WEDu5znejF+5O3pI02atWWcnxifEKGGlxwkcMbQdA67MlrJLFaSnnGpNXo\n"
+			+ "yPfcul058SOqhafIZQMEKQ==\n"
 			+ "-----END PRIVATE KEY-----";
+	// @formatter:on
 
+	// @formatter:off
 	private static final String PKCS1_PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----\n"
 			+ "MIICWwIBAAKBgQDdlatRjRjogo3WojgGHFHYLugdUWAY9iR3fy4arWNA1KoS8kVw\n"
 			+ "33cJibXr8bvwUAUparCwlvdbH6dvEOfou0/gCFQsHUfQrSDv+MuSUMAe8jzKE4qW\n"
@@ -76,13 +80,18 @@ public class RsaKeyConvertersTests {
 			+ "6Z8KWrfYzJoI/Q9FuBo6rKwl4BFoToD7WIUS+hpkagwWiz+6zLoX1dbOZwJACmH5\n"
 			+ "fSSjAkLRi54PKJ8TFUeOP15h9sQzydI8zJU+upvDEKZsZc/UhT/SySDOxQ4G/523\n"
 			+ "Y0sz/OZtSWcol/UMgQJALesy++GdvoIDLfJX5GBQpuFgFenRiRDabxrE9MNUZ2aP\n"
-			+ "FaFp+DyAe+b4nDwuJaW2LURbr8AEZga7oQj0uYxcYw==\n" + "-----END RSA PRIVATE KEY-----";
+			+ "FaFp+DyAe+b4nDwuJaW2LURbr8AEZga7oQj0uYxcYw==\n"
+			+ "-----END RSA PRIVATE KEY-----";
+	// @formatter:on
 
+	// @formatter:off
 	private static final String X509_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----\n"
 			+ "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDdlatRjRjogo3WojgGHFHYLugd\n"
 			+ "UWAY9iR3fy4arWNA1KoS8kVw33cJibXr8bvwUAUparCwlvdbH6dvEOfou0/gCFQs\n"
-			+ "HUfQrSDv+MuSUMAe8jzKE4qW+jK+xQU9a03GUnKHkkle+Q0pX/g6jXZ7r1/xAK5D\n" + "o2kQ+X5xK9cipRgEKwIDAQAB\n"
+			+ "HUfQrSDv+MuSUMAe8jzKE4qW+jK+xQU9a03GUnKHkkle+Q0pX/g6jXZ7r1/xAK5D\n"
+			+ "o2kQ+X5xK9cipRgEKwIDAQAB\n"
 			+ "-----END PUBLIC KEY-----";
+	// @formatter:on
 
 	private static final String MALFORMED_X509_KEY = "malformed";
 

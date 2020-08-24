@@ -173,7 +173,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	 */
 	@Override
 	protected List<UserDetails> loadUsersByUsername(String username) {
-		return getJdbcTemplate().query(getUsersByUsernameQuery(), new String[] { username }, this::mapToUser);
+		return getJdbcTemplate().query(getUsersByUsernameQuery(), this::mapToUser, username);
 	}
 
 	private UserDetails mapToUser(ResultSet rs, int rowNum) throws SQLException {

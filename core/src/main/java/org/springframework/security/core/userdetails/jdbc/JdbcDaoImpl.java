@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContextException;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
@@ -109,15 +110,23 @@ import org.springframework.util.Assert;
  */
 public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, MessageSourceAware {
 
-	public static final String DEF_USERS_BY_USERNAME_QUERY = "select username,password,enabled " + "from users "
+	// @formatter:off
+	public static final String DEF_USERS_BY_USERNAME_QUERY = "select username,password,enabled "
+			+ "from users "
 			+ "where username = ?";
+	// @formatter:on
 
-	public static final String DEF_AUTHORITIES_BY_USERNAME_QUERY = "select username,authority " + "from authorities "
+	// @formatter:off
+	public static final String DEF_AUTHORITIES_BY_USERNAME_QUERY = "select username,authority "
+			+ "from authorities "
 			+ "where username = ?";
+	// @formatter:on
 
+	// @formatter:off
 	public static final String DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY = "select g.id, g.group_name, ga.authority "
-			+ "from groups g, group_members gm, group_authorities ga " + "where gm.username = ? "
-			+ "and g.id = ga.group_id " + "and g.id = gm.group_id";
+			+ "from groups g, group_members gm, group_authorities ga "
+			+ "where gm.username = ? " + "and g.id = ga.group_id " + "and g.id = gm.group_id";
+	// @formatter:on
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
@@ -199,12 +208,15 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	 * objects. There should normally only be one matching user.
 	 */
 	protected List<UserDetails> loadUsersByUsername(String username) {
-		return getJdbcTemplate().query(this.usersByUsernameQuery, new String[] { username }, (rs, rowNum) -> {
+		// @formatter:off
+		RowMapper<UserDetails> mapper = (rs, rowNum) -> {
 			String username1 = rs.getString(1);
 			String password = rs.getString(2);
 			boolean enabled = rs.getBoolean(3);
 			return new User(username1, password, enabled, true, true, true, AuthorityUtils.NO_AUTHORITIES);
-		});
+		};
+		// @formatter:on
+		return getJdbcTemplate().query(this.usersByUsernameQuery, mapper, username);
 	}
 
 	/**

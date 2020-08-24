@@ -41,8 +41,11 @@ public final class ReactiveSecurityContextHolder {
 	 * @return the {@code Mono<SecurityContext>}
 	 */
 	public static Mono<SecurityContext> getContext() {
-		return Mono.subscriberContext().filter(ReactiveSecurityContextHolder::hasSecurityContext)
+		// @formatter:off
+		return Mono.subscriberContext()
+				.filter(ReactiveSecurityContextHolder::hasSecurityContext)
 				.flatMap(ReactiveSecurityContextHolder::getSecurityContext);
+		// @formatter:on
 	}
 
 	private static boolean hasSecurityContext(Context context) {

@@ -301,10 +301,15 @@ public class User implements UserDetails, CredentialsContainer {
 	}
 
 	public static UserBuilder withUserDetails(UserDetails userDetails) {
-		return withUsername(userDetails.getUsername()).password(userDetails.getPassword())
-				.accountExpired(!userDetails.isAccountNonExpired()).accountLocked(!userDetails.isAccountNonLocked())
-				.authorities(userDetails.getAuthorities()).credentialsExpired(!userDetails.isCredentialsNonExpired())
+		// @formatter:off
+		return withUsername(userDetails.getUsername())
+				.password(userDetails.getPassword())
+				.accountExpired(!userDetails.isAccountNonExpired())
+				.accountLocked(!userDetails.isAccountNonLocked())
+				.authorities(userDetails.getAuthorities())
+				.credentialsExpired(!userDetails.isCredentialsNonExpired())
 				.disabled(!userDetails.isEnabled());
+		// @formatter:on
 	}
 
 	private static class AuthorityComparator implements Comparator<GrantedAuthority>, Serializable {
