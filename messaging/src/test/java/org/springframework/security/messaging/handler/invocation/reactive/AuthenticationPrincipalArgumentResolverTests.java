@@ -54,9 +54,12 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenAuthenticationPrincipalThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
+		// @formatter:off
 		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver
 				.resolveArgument(arg0("authenticationPrincipalOnMonoUserDetails"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.block();
+		// @formatter:on
 		assertThat(result.block()).isEqualTo(authentication.getPrincipal());
 	}
 
@@ -72,9 +75,12 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenMonoAndAuthenticationPrincipalThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
+		// @formatter:off
 		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver
 				.resolveArgument(arg0("currentUserOnMonoUserDetails"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.block();
+		// @formatter:on
 		assertThat(result.block()).isEqualTo(authentication.getPrincipal());
 	}
 
@@ -85,9 +91,12 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenExpressionThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
+		// @formatter:off
 		Mono<String> result = (Mono<String>) this.resolver
 				.resolveArgument(arg0("authenticationPrincipalExpression"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.block();
+		// @formatter:on
 		assertThat(result.block()).isEqualTo(authentication.getName());
 	}
 

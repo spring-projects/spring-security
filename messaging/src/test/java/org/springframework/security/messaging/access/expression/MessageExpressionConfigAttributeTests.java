@@ -80,8 +80,11 @@ public class MessageExpressionConfigAttributeTests {
 	@Test
 	public void postProcessContext() {
 		SimpDestinationMessageMatcher matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
+		// @formatter:off
 		Message<?> message = MessageBuilder.withPayload("M")
-				.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1").build();
+				.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1")
+				.build();
+		// @formatter:on
 		EvaluationContext context = mock(EvaluationContext.class);
 		this.attribute = new MessageExpressionConfigAttribute(this.expression, matcher);
 		this.attribute.postProcess(context, message);

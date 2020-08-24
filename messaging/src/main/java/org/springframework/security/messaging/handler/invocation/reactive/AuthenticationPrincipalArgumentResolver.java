@@ -125,11 +125,15 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
 	@Override
 	public Mono<Object> resolveArgument(MethodParameter parameter, Message<?> message) {
 		ReactiveAdapter adapter = this.adapterRegistry.getAdapter(parameter.getParameterType());
-		return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication).flatMap((a) -> {
-			Object p = resolvePrincipal(parameter, a.getPrincipal());
-			Mono<Object> principal = Mono.justOrEmpty(p);
-			return (adapter != null) ? Mono.just(adapter.fromPublisher(principal)) : principal;
-		});
+		// @formatter:off
+		return ReactiveSecurityContextHolder.getContext()
+				.map(SecurityContext::getAuthentication)
+				.flatMap((a) -> {
+					Object p = resolvePrincipal(parameter, a.getPrincipal());
+					Mono<Object> principal = Mono.justOrEmpty(p);
+					return (adapter != null) ? Mono.just(adapter.fromPublisher(principal)) : principal;
+				});
+		// @formatter:on
 	}
 
 	private Object resolvePrincipal(MethodParameter parameter, Object principal) {
