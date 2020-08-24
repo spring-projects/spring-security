@@ -126,9 +126,14 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 		}
 		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
 		HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
-		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(clientRegistrationId)
-				.principal(principal).attribute(HttpServletRequest.class.getName(), servletRequest)
-				.attribute(HttpServletResponse.class.getName(), servletResponse).build();
+		// @formatter:off
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+				.withClientRegistrationId(clientRegistrationId)
+				.principal(principal)
+				.attribute(HttpServletRequest.class.getName(), servletRequest)
+				.attribute(HttpServletResponse.class.getName(), servletResponse)
+				.build();
+		// @formatter:on
 		return this.authorizedClientManager.authorize(authorizeRequest);
 	}
 
@@ -176,11 +181,16 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 
 	private void updateDefaultAuthorizedClientManager(
 			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
+		// @formatter:off
 		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
-				.authorizationCode().refreshToken()
-				.clientCredentials(
-						(configurer) -> configurer.accessTokenResponseClient(clientCredentialsTokenResponseClient))
-				.password().build();
+				.authorizationCode()
+				.refreshToken()
+				.clientCredentials((configurer) ->
+						configurer.accessTokenResponseClient(clientCredentialsTokenResponseClient)
+				)
+				.password()
+				.build();
+		// @formatter:on
 		((DefaultOAuth2AuthorizedClientManager) this.authorizedClientManager)
 				.setAuthorizedClientProvider(authorizedClientProvider);
 	}

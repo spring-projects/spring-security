@@ -126,8 +126,11 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	}
 
 	private Mono<Authentication> currentAuthentication() {
-		return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
+		// @formatter:off
+		return ReactiveSecurityContextHolder.getContext()
+				.map(SecurityContext::getAuthentication)
 				.defaultIfEmpty(ANONYMOUS_USER_TOKEN);
+		// @formatter:on
 	}
 
 	private Mono<String> clientRegistrationId(Mono<Authentication> authentication) {
@@ -137,8 +140,11 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	}
 
 	private Mono<ServerWebExchange> currentServerWebExchange() {
-		return Mono.subscriberContext().filter((c) -> c.hasKey(ServerWebExchange.class))
+		// @formatter:off
+		return Mono.subscriberContext()
+				.filter((c) -> c.hasKey(ServerWebExchange.class))
 				.map((c) -> c.get(ServerWebExchange.class));
+		// @formatter:on
 	}
 
 }

@@ -75,8 +75,11 @@ public class InMemoryReactiveClientRegistrationRepositoryTests {
 
 	@Test
 	public void findByRegistrationIdWhenValidIdThenFound() {
+		// @formatter:off
 		StepVerifier.create(this.repository.findByRegistrationId(this.registration.getRegistrationId()))
-				.expectNext(this.registration).verifyComplete();
+				.expectNext(this.registration)
+				.verifyComplete();
+		// @formatter:on
 	}
 
 	@Test

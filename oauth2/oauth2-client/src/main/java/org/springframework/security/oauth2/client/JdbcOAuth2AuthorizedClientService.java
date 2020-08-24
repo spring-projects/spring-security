@@ -64,26 +64,42 @@ import org.springframework.util.StringUtils;
  */
 public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClientService {
 
-	private static final String COLUMN_NAMES = "client_registration_id, " + "principal_name, " + "access_token_type, "
-			+ "access_token_value, " + "access_token_issued_at, " + "access_token_expires_at, "
-			+ "access_token_scopes, " + "refresh_token_value, " + "refresh_token_issued_at";
+	// @formatter:off
+	private static final String COLUMN_NAMES = "client_registration_id, "
+			+ "principal_name, "
+			+ "access_token_type, "
+			+ "access_token_value, "
+			+ "access_token_issued_at, "
+			+ "access_token_expires_at, "
+			+ "access_token_scopes, "
+			+ "refresh_token_value, "
+			+ "refresh_token_issued_at";
+	// @formatter:on
 
 	private static final String TABLE_NAME = "oauth2_authorized_client";
 
 	private static final String PK_FILTER = "client_registration_id = ? AND principal_name = ?";
 
-	private static final String LOAD_AUTHORIZED_CLIENT_SQL = "SELECT " + COLUMN_NAMES + " FROM " + TABLE_NAME
+	// @formatter:off
+	private static final String LOAD_AUTHORIZED_CLIENT_SQL = "SELECT " + COLUMN_NAMES
+			+ " FROM " + TABLE_NAME
 			+ " WHERE " + PK_FILTER;
+	// @formatter:on
 
-	private static final String SAVE_AUTHORIZED_CLIENT_SQL = "INSERT INTO " + TABLE_NAME + " (" + COLUMN_NAMES
-			+ ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	// @formatter:off
+	private static final String SAVE_AUTHORIZED_CLIENT_SQL = "INSERT INTO " + TABLE_NAME
+			+ " (" + COLUMN_NAMES + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	// @formatter:on
 
 	private static final String REMOVE_AUTHORIZED_CLIENT_SQL = "DELETE FROM " + TABLE_NAME + " WHERE " + PK_FILTER;
 
+	// @formatter:off
 	private static final String UPDATE_AUTHORIZED_CLIENT_SQL = "UPDATE " + TABLE_NAME
 			+ " SET access_token_type = ?, access_token_value = ?, access_token_issued_at = ?,"
 			+ " access_token_expires_at = ?, access_token_scopes = ?,"
-			+ " refresh_token_value = ?, refresh_token_issued_at = ?" + " WHERE " + PK_FILTER;
+			+ " refresh_token_value = ?, refresh_token_issued_at = ?"
+			+ " WHERE " + PK_FILTER;
+	// @formatter:on
 
 	protected final JdbcOperations jdbcOperations;
 

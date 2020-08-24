@@ -61,9 +61,11 @@ public class OAuth2LoginAuthenticationWebFilter extends AuthenticationWebFilter 
 		OAuth2AuthenticationToken result = new OAuth2AuthenticationToken(authenticationResult.getPrincipal(),
 				authenticationResult.getAuthorities(),
 				authenticationResult.getClientRegistration().getRegistrationId());
+		// @formatter:off
 		return this.authorizedClientRepository
 				.saveAuthorizedClient(authorizedClient, authenticationResult, webFilterExchange.getExchange())
 				.then(super.onAuthenticationSuccess(result, webFilterExchange));
+		// @formatter:on
 	}
 
 }

@@ -44,8 +44,12 @@ public class OAuth2PasswordGrantRequestEntityConverterTests {
 
 	@Before
 	public void setup() {
+		// @formatter:off
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD).scope("read", "write").build();
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.scope("read", "write")
+				.build();
+		// @formatter:on
 		this.passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, "user1", "password");
 	}
 

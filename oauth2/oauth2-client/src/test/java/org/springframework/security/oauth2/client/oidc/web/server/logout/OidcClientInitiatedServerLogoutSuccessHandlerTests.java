@@ -51,9 +51,12 @@ import static org.mockito.Mockito.mock;
  */
 public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 
-	ClientRegistration registration = TestClientRegistrations.clientRegistration()
+	// @formatter:off
+	ClientRegistration registration = TestClientRegistrations
+			.clientRegistration()
 			.providerConfigurationMetadata(Collections.singletonMap("end_session_endpoint", "https://endpoint"))
 			.build();
+	// @formatter:on
 
 	ReactiveClientRegistrationRepository repository = new InMemoryReactiveClientRegistrationRepository(
 			this.registration);

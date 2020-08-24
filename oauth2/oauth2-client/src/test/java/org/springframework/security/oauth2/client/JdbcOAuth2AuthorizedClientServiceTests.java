@@ -104,9 +104,11 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void constructorWhenJdbcOperationsIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new JdbcOAuth2AuthorizedClientService(null, this.clientRegistrationRepository))
 				.withMessage("jdbcOperations cannot be null");
+		// @formatter:on
 	}
 
 	@Test
@@ -118,31 +120,39 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void setAuthorizedClientRowMapperWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientService.setAuthorizedClientRowMapper(null))
 				.withMessage("authorizedClientRowMapper cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void setAuthorizedClientParametersMapperWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientService.setAuthorizedClientParametersMapper(null))
 				.withMessage("authorizedClientParametersMapper cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(null, "principalName"))
 				.withMessage("clientRegistrationId cannot be empty");
+		// @formatter:on
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientService
 						.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), null))
 				.withMessage("principalName cannot be empty");
+		// @formatter:on
 	}
 
 	@Test
@@ -351,8 +361,14 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 	}
 
 	private static EmbeddedDatabase createDb(String schema) {
-		return new EmbeddedDatabaseBuilder().generateUniqueName(true).setType(EmbeddedDatabaseType.HSQL)
-				.setScriptEncoding("UTF-8").addScript(schema).build();
+		// @formatter:off
+		return new EmbeddedDatabaseBuilder()
+				.generateUniqueName(true)
+				.setType(EmbeddedDatabaseType.HSQL)
+				.setScriptEncoding("UTF-8")
+				.addScript(schema)
+				.build();
+		// @formatter:on
 	}
 
 	private static Authentication createPrincipal() {

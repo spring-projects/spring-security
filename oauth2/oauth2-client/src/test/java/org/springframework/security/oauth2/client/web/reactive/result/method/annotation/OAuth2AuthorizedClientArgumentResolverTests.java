@@ -80,8 +80,14 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	@Before
 	public void setUp() {
+		// @formatter:off
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
-				.builder().authorizationCode().refreshToken().clientCredentials().build();
+				.builder()
+				.authorizationCode()
+				.refreshToken()
+				.clientCredentials()
+				.build();
+		// @formatter:on
 		DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);

@@ -191,24 +191,31 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 					null);
 			return Mono.error(new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString()));
 		}
+		// @formatter:off
 		return createOidcToken(clientRegistration, accessTokenResponse)
 				.doOnNext((idToken) -> validateNonce(authorizationCodeAuthentication, idToken))
 				.map((idToken) -> new OidcUserRequest(clientRegistration, accessToken, idToken, additionalParameters))
-				.flatMap(this.userService::loadUser).map((oauth2User) -> {
+				.flatMap(this.userService::loadUser)
+				.map((oauth2User) -> {
 					Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper
 							.mapAuthorities(oauth2User.getAuthorities());
 					return new OAuth2LoginAuthenticationToken(authorizationCodeAuthentication.getClientRegistration(),
 							authorizationCodeAuthentication.getAuthorizationExchange(), oauth2User, mappedAuthorities,
 							accessToken, accessTokenResponse.getRefreshToken());
 				});
+		// @formatter:on
 	}
 
 	private Mono<OidcIdToken> createOidcToken(ClientRegistration clientRegistration,
 			OAuth2AccessTokenResponse accessTokenResponse) {
 		ReactiveJwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(clientRegistration);
 		String rawIdToken = (String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN);
-		return jwtDecoder.decode(rawIdToken).map(
-				(jwt) -> new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims()));
+		// @formatter:off
+		return jwtDecoder.decode(rawIdToken)
+				.map((jwt) ->
+						new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims())
+				);
+		// @formatter:on
 	}
 
 	private static Mono<OidcIdToken> validateNonce(

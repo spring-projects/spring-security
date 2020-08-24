@@ -80,10 +80,16 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 
 	@Test
 	public void buildWhenAuthorizationCodeProviderThenProviderAuthorizes() {
+		// @formatter:off
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
-				.builder().authorizationCode().build();
+				.builder()
+				.authorizationCode()
+				.build();
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withClientRegistration(this.clientRegistrationBuilder.build()).principal(this.principal).build();
+				.withClientRegistration(this.clientRegistrationBuilder.build())
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThatExceptionOfType(ClientAuthorizationRequiredException.class)
 				.isThrownBy(() -> authorizedClientProvider.authorize(authorizationContext).block());
 	}
@@ -93,12 +99,20 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
 				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		// @formatter:off
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
-				.builder().refreshToken().build();
+				.builder()
+				.refreshToken()
+				.build();
+		// @formatter:on
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistrationBuilder.build(),
 				this.principal.getName(), expiredAccessToken(), TestOAuth2RefreshTokens.refreshToken());
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(authorizedClient).principal(this.principal).build();
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		OAuth2AuthorizedClient reauthorizedClient = authorizedClientProvider.authorize(authorizationContext).block();
 		assertThat(reauthorizedClient).isNotNull();
 		assertThat(this.server.getRequestCount()).isEqualTo(1);
@@ -112,12 +126,17 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
 				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		// @formatter:off
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
-				.builder().clientCredentials().build();
+				.builder()
+				.clientCredentials()
+				.build();
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withClientRegistration(this.clientRegistrationBuilder
 						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).build())
-				.principal(this.principal).build();
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		OAuth2AuthorizedClient authorizedClient = authorizedClientProvider.authorize(authorizationContext).block();
 		assertThat(authorizedClient).isNotNull();
 		assertThat(this.server.getRequestCount()).isEqualTo(1);
@@ -133,12 +152,17 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
 				.builder().password().build();
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withClientRegistration(
 						this.clientRegistrationBuilder.authorizationGrantType(AuthorizationGrantType.PASSWORD).build())
-				.principal(this.principal).attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
-				.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password").build();
-		OAuth2AuthorizedClient authorizedClient = authorizedClientProvider.authorize(authorizationContext).block();
+				.principal(this.principal)
+				.attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
+				.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
+				.build();
+		OAuth2AuthorizedClient authorizedClient = authorizedClientProvider.authorize(authorizationContext)
+				.block();
+		// @formatter:on
 		assertThat(authorizedClient).isNotNull();
 		assertThat(this.server.getRequestCount()).isEqualTo(1);
 		RecordedRequest recordedRequest = this.server.takeRequest();
@@ -156,8 +180,12 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
 				.builder().authorizationCode().refreshToken().clientCredentials().password().build();
 		// authorization_code
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationCodeContext = OAuth2AuthorizationContext
-				.withClientRegistration(this.clientRegistrationBuilder.build()).principal(this.principal).build();
+				.withClientRegistration(this.clientRegistrationBuilder.build())
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThatExceptionOfType(ClientAuthorizationRequiredException.class)
 				.isThrownBy(() -> authorizedClientProvider.authorize(authorizationCodeContext).block());
 		// refresh_token
@@ -172,10 +200,13 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 		String formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters).contains("grant_type=refresh_token");
 		// client_credentials
+		// @formatter:off
 		OAuth2AuthorizationContext clientCredentialsContext = OAuth2AuthorizationContext
 				.withClientRegistration(this.clientRegistrationBuilder
 						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).build())
-				.principal(this.principal).build();
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		authorizedClient = authorizedClientProvider.authorize(clientCredentialsContext).block();
 		assertThat(authorizedClient).isNotNull();
 		assertThat(this.server.getRequestCount()).isEqualTo(2);
@@ -183,11 +214,15 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 		formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters).contains("grant_type=client_credentials");
 		// password
+		// @formatter:off
 		OAuth2AuthorizationContext passwordContext = OAuth2AuthorizationContext
 				.withClientRegistration(
 						this.clientRegistrationBuilder.authorizationGrantType(AuthorizationGrantType.PASSWORD).build())
-				.principal(this.principal).attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
-				.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password").build();
+				.principal(this.principal)
+				.attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
+				.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
+				.build();
+		// @formatter:on
 		authorizedClient = authorizedClientProvider.authorize(passwordContext).block();
 		assertThat(authorizedClient).isNotNull();
 		assertThat(this.server.getRequestCount()).isEqualTo(3);
@@ -200,10 +235,16 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 	public void buildWhenCustomProviderThenProviderCalled() {
 		ReactiveOAuth2AuthorizedClientProvider customProvider = mock(ReactiveOAuth2AuthorizedClientProvider.class);
 		given(customProvider.authorize(any())).willReturn(Mono.empty());
+		// @formatter:off
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
-				.builder().provider(customProvider).build();
+				.builder()
+				.provider(customProvider)
+				.build();
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withClientRegistration(this.clientRegistrationBuilder.build()).principal(this.principal).build();
+				.withClientRegistration(this.clientRegistrationBuilder.build())
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		authorizedClientProvider.authorize(authorizationContext).block();
 		verify(customProvider).authorize(any(OAuth2AuthorizationContext.class));
 	}

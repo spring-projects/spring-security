@@ -301,8 +301,12 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 			MockServerHttpRequest authorizationRequest, ClientRegistration registration) {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, registration.getRegistrationId());
-		return TestOAuth2AuthorizationRequests.request().attributes(attributes)
-				.redirectUri(authorizationRequest.getURI().toString()).build();
+		// @formatter:off
+		return TestOAuth2AuthorizationRequests.request()
+				.attributes(attributes)
+				.redirectUri(authorizationRequest.getURI().toString())
+				.build();
+		// @formatter:on
 	}
 
 	private static MockServerHttpRequest createAuthorizationRequest(String requestUri) {

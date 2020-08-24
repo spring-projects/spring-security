@@ -60,12 +60,22 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		String tokenUri = this.server.url("/oauth2/token").toString();
-		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1").clientId("client-1")
-				.clientSecret("secret").clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+		// @formatter:off
+		this.clientRegistration = ClientRegistration
+				.withRegistrationId("registration-1")
+				.clientId("client-1")
+				.clientSecret("secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUri("https://client.com/callback/client-1").scope("read", "write")
-				.authorizationUri("https://provider.com/oauth2/authorize").tokenUri(tokenUri)
-				.userInfoUri("https://provider.com/user").userNameAttributeName("id").clientName("client-1").build();
+				.redirectUri("https://client.com/callback/client-1")
+				.scope("read", "write")
+				.authorizationUri("https://provider.com/oauth2/authorize")
+				.tokenUri(tokenUri)
+				.userInfoUri("https://provider.com/user")
+				.userNameAttributeName("id")
+				.clientName("client-1")
+				.build();
+		// @formatter:on
 	}
 
 	@After
@@ -90,11 +100,17 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseThenReturnAccessTokenResponse() throws Exception {
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read write\",\n" + "   \"refresh_token\": \"refresh-token-1234\",\n"
-				+ "   \"custom_parameter_1\": \"custom-value-1\",\n" + "   \"custom_parameter_2\": \"custom-value-2\"\n"
-				+ "}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "	\"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"read write\",\n"
+			+ "   \"refresh_token\": \"refresh-token-1234\",\n"
+			+ "   \"custom_parameter_1\": \"custom-value-1\",\n"
+			+ "   \"custom_parameter_2\": \"custom-value-2\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
@@ -121,8 +137,11 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenClientAuthenticationBasicThenAuthorizationHeaderIsSent() throws Exception {
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\"\n"
+			+ "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest());
 		RecordedRequest recordedRequest = this.server.takeRequest();
@@ -131,8 +150,13 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenClientAuthenticationPostThenFormParametersAreSent() throws Exception {
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		ClientRegistration clientRegistration = this.from(this.clientRegistration)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.POST).build();
@@ -146,8 +170,13 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"not-bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"not-bearer\",\n"
+			+ "   \"expires_in\": \"3600\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
@@ -158,7 +187,11 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndMissingTokenTypeParameterThenThrowOAuth2AuthorizationException() {
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\"\n" + "}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
@@ -169,9 +202,15 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseIncludesScopeThenAccessTokenHasResponseScope() {
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
-				+ "   \"refresh_token\": \"refresh-token-1234\",\n" + "   \"scope\": \"read\"\n" + "}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"refresh_token\": \"refresh-token-1234\",\n"
+			+ "   \"scope\": \"read\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
 				.getTokenResponse(this.authorizationCodeGrantRequest());
@@ -180,9 +219,14 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenAccessTokenHasDefaultScope() {
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
-				+ "   \"refresh_token\": \"refresh-token-1234\"\n" + "}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"refresh_token\": \"refresh-token-1234\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
 				.getTokenResponse(this.authorizationCodeGrantRequest());
@@ -201,12 +245,17 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenMalformedResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read write\",\n" + "   \"refresh_token\": \"refresh-token-1234\",\n"
-				+ "   \"custom_parameter_1\": \"custom-value-1\",\n"
-				+ "   \"custom_parameter_2\": \"custom-value-2\"\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"read write\",\n"
+			+ "   \"refresh_token\": \"refresh-token-1234\",\n"
+			+ "   \"custom_parameter_1\": \"custom-value-1\",\n"
+			+ "   \"custom_parameter_2\": \"custom-value-2\"\n";
 		// "}\n"; // Make the JSON invalid/malformed
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
@@ -253,17 +302,21 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 	}
 
 	private ClientRegistration.Builder from(ClientRegistration registration) {
+		// @formatter:off
 		return ClientRegistration.withRegistrationId(registration.getRegistrationId())
-				.clientId(registration.getClientId()).clientSecret(registration.getClientSecret())
+				.clientId(registration.getClientId())
+				.clientSecret(registration.getClientSecret())
 				.clientAuthenticationMethod(registration.getClientAuthenticationMethod())
 				.authorizationGrantType(registration.getAuthorizationGrantType())
-				.redirectUri(registration.getRedirectUri()).scope(registration.getScopes())
+				.redirectUri(registration.getRedirectUri())
+				.scope(registration.getScopes())
 				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
 				.tokenUri(registration.getProviderDetails().getTokenUri())
 				.userInfoUri(registration.getProviderDetails().getUserInfoEndpoint().getUri())
 				.userNameAttributeName(
 						registration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName())
 				.clientName(registration.getClientName());
+		// @formatter:on
 	}
 
 }

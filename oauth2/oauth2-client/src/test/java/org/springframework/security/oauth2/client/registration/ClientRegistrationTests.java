@@ -72,21 +72,42 @@ public class ClientRegistrationTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationGrantTypeIsNullThenThrowIllegalArgumentException() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC).authorizationGrantType(null)
-				.redirectUri(REDIRECT_URI).scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI)
-				.tokenUri(TOKEN_URI).userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI)
-				.clientName(CLIENT_NAME).build();
+		// @formatter:off
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(null)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenAuthorizationCodeGrantAllAttributesProvidedThenAllAttributesAreSet() {
-		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
-				.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI).issuerUri(ISSUER_URI)
-				.providerConfigurationMetadata(PROVIDER_CONFIGURATION_METADATA).clientName(CLIENT_NAME).build();
+		// @formatter:off
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.issuerUri(ISSUER_URI)
+				.providerConfigurationMetadata(PROVIDER_CONFIGURATION_METADATA)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
@@ -107,172 +128,308 @@ public class ClientRegistrationTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationCodeGrantRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		ClientRegistration.withRegistrationId(null).clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+		// @formatter:off
+		ClientRegistration.withRegistrationId(null)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI).clientName(CLIENT_NAME)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
 				.build();
+		// @formatter:on
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationCodeGrantClientIdIsNullThenThrowIllegalArgumentException() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(null).clientSecret(CLIENT_SECRET)
+		// @formatter:off
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(null)
+				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI).clientName(CLIENT_NAME)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
 				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenAuthorizationCodeGrantClientSecretIsNullThenDefaultToEmpty() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).clientSecret(null).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI).clientName(CLIENT_NAME)
+				.clientId(CLIENT_ID)
+				.clientSecret(null)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
 				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getClientSecret()).isEqualTo("");
 	}
 
 	@Test
 	public void buildWhenAuthorizationCodeGrantClientAuthenticationMethodNotProvidedThenDefaultToBasic() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI).clientName(CLIENT_NAME)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
 				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 	}
 
 	@Test
 	public void buildWhenAuthorizationCodeGrantClientAuthenticationMethodNotProvidedAndClientSecretNullThenDefaultToNone() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).clientSecret(null)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI).clientName(CLIENT_NAME)
+				.clientId(CLIENT_ID)
+				.clientSecret(null)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
 				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.NONE);
 	}
 
 	@Test
 	public void buildWhenAuthorizationCodeGrantClientAuthenticationMethodNotProvidedAndClientSecretBlankThenDefaultToNone() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).clientSecret(" ").authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUri(REDIRECT_URI).scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI)
-				.tokenUri(TOKEN_URI).userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI)
-				.clientName(CLIENT_NAME).build();
+				.clientId(CLIENT_ID)
+				.clientSecret(" ")
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.NONE);
 		assertThat(clientRegistration.getClientSecret()).isEqualTo("");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationCodeGrantRedirectUriIsNullThenThrowIllegalArgumentException() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+		// @formatter:off
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(null)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI).clientName(CLIENT_NAME)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(null)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
 				.build();
+		// @formatter:on
 	}
 
 	// gh-5494
 	@Test
 	public void buildWhenAuthorizationCodeGrantScopeIsNullThenScopeNotRequired() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+		// @formatter:off
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope((String[]) null).authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI).clientName(CLIENT_NAME)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope((String[]) null)
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
 				.build();
+		// @formatter:on
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationCodeGrantAuthorizationUriIsNullThenThrowIllegalArgumentException() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+		// @formatter:off
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(null).tokenUri(TOKEN_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI).clientName(CLIENT_NAME)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(null)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
 				.build();
+		// @formatter:on
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationCodeGrantTokenUriIsNullThenThrowIllegalArgumentException() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+		// @formatter:off
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI).tokenUri(null)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI).clientName(CLIENT_NAME)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(null)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
 				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenAuthorizationCodeGrantClientNameNotProvidedThenDefaultToRegistrationId() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).jwkSetUri(JWK_SET_URI).build();
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getClientName()).isEqualTo(clientRegistration.getRegistrationId());
 	}
 
 	@Test
 	public void buildWhenAuthorizationCodeGrantScopeDoesNotContainOpenidThenJwkSetUriNotRequired() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+		// @formatter:off
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope("scope1").authorizationUri(AUTHORIZATION_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).tokenUri(TOKEN_URI).clientName(CLIENT_NAME)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope("scope1")
+				.authorizationUri(AUTHORIZATION_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.tokenUri(TOKEN_URI)
+				.clientName(CLIENT_NAME)
 				.build();
+		// @formatter:on
 	}
 
 	// gh-5494
 	@Test
 	public void buildWhenAuthorizationCodeGrantScopeIsNullThenJwkSetUriNotRequired() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+		// @formatter:off
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI).clientName(CLIENT_NAME).build();
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenAuthorizationCodeGrantProviderConfigurationMetadataIsNullThenDefaultToEmpty() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER).providerConfigurationMetadata(null)
-				.jwkSetUri(JWK_SET_URI).clientName(CLIENT_NAME).build();
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+				.providerConfigurationMetadata(null)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata()).isNotNull();
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata()).isEmpty();
 	}
 
 	@Test
 	public void buildWhenAuthorizationCodeGrantProviderConfigurationMetadataEmptyThenIsEmpty() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
 				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
-				.providerConfigurationMetadata(Collections.emptyMap()).jwkSetUri(JWK_SET_URI).clientName(CLIENT_NAME)
+				.providerConfigurationMetadata(Collections.emptyMap())
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
 				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata()).isNotNull();
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata()).isEmpty();
 	}
 
 	@Test
 	public void buildWhenImplicitGrantAllAttributesProvidedThenAllAttributesAreSet() {
-		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
-				.authorizationGrantType(AuthorizationGrantType.IMPLICIT).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).clientName(CLIENT_NAME).build();
+		// @formatter:off
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.IMPLICIT);
@@ -286,72 +443,129 @@ public class ClientRegistrationTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenImplicitGrantRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		ClientRegistration.withRegistrationId(null).clientId(CLIENT_ID)
-				.authorizationGrantType(AuthorizationGrantType.IMPLICIT).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).clientName(CLIENT_NAME).build();
+		// @formatter:off
+		ClientRegistration.withRegistrationId(null)
+				.clientId(CLIENT_ID)
+				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenImplicitGrantClientIdIsNullThenThrowIllegalArgumentException() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(null)
-				.authorizationGrantType(AuthorizationGrantType.IMPLICIT).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).clientName(CLIENT_NAME).build();
+		// @formatter:off
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(null)
+				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenImplicitGrantRedirectUriIsNullThenThrowIllegalArgumentException() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
-				.authorizationGrantType(AuthorizationGrantType.IMPLICIT).redirectUri(null)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).clientName(CLIENT_NAME).build();
+		// @formatter:off
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
+				.redirectUri(null)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 	}
 
 	// gh-5494
 	@Test
 	public void buildWhenImplicitGrantScopeIsNullThenScopeNotRequired() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
-				.authorizationGrantType(AuthorizationGrantType.IMPLICIT).redirectUri(REDIRECT_URI)
-				.scope((String[]) null).authorizationUri(AUTHORIZATION_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).clientName(CLIENT_NAME).build();
+		// @formatter:off
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
+				.redirectUri(REDIRECT_URI)
+				.scope((String[]) null)
+				.authorizationUri(AUTHORIZATION_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenImplicitGrantAuthorizationUriIsNullThenThrowIllegalArgumentException() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
-				.authorizationGrantType(AuthorizationGrantType.IMPLICIT).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(null)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).clientName(CLIENT_NAME).build();
+		// @formatter:off
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(null)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenImplicitGrantClientNameNotProvidedThenDefaultToRegistrationId() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).authorizationGrantType(AuthorizationGrantType.IMPLICIT).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI)
-				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).build();
+				.clientId(CLIENT_ID)
+				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getClientName()).isEqualTo(clientRegistration.getRegistrationId());
 	}
 
 	@Test
 	public void buildWhenOverrideRegistrationIdThenOverridden() {
 		String overriddenId = "override";
+		// @formatter:off
 		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.registrationId(overriddenId).clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+				.registrationId(overriddenId)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri(REDIRECT_URI)
-				.scope(SCOPES.toArray(new String[0])).authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI)
-				.jwkSetUri(JWK_SET_URI).clientName(CLIENT_NAME).build();
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 		assertThat(registration.getRegistrationId()).isEqualTo(overriddenId);
 	}
 
 	@Test
 	public void buildWhenClientCredentialsGrantAllAttributesProvidedThenAllAttributesAreSet() {
-		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
-				.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).scope(SCOPES.toArray(new String[0]))
-				.tokenUri(TOKEN_URI).clientName(CLIENT_NAME).build();
+		// @formatter:off
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.scope(SCOPES.toArray(new String[0]))
+				.tokenUri(TOKEN_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
@@ -379,17 +593,28 @@ public class ClientRegistrationTests {
 
 	@Test
 	public void buildWhenClientCredentialsGrantClientSecretIsNullThenDefaultToEmpty() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).clientSecret(null).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(TOKEN_URI).build();
+				.clientId(CLIENT_ID)
+				.clientSecret(null)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.tokenUri(TOKEN_URI)
+				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getClientSecret()).isEqualTo("");
 	}
 
 	@Test
 	public void buildWhenClientCredentialsGrantClientAuthenticationMethodNotProvidedThenDefaultToBasic() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(TOKEN_URI).build();
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.tokenUri(TOKEN_URI)
+				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 	}
 
@@ -416,10 +641,17 @@ public class ClientRegistrationTests {
 
 	@Test
 	public void buildWhenPasswordGrantAllAttributesProvidedThenAllAttributesAreSet() {
-		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
-				.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD).scope(SCOPES.toArray(new String[0]))
-				.tokenUri(TOKEN_URI).clientName(CLIENT_NAME).build();
+		// @formatter:off
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.scope(SCOPES.toArray(new String[0]))
+				.tokenUri(TOKEN_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
@@ -432,50 +664,91 @@ public class ClientRegistrationTests {
 
 	@Test
 	public void buildWhenPasswordGrantRegistrationIdIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> ClientRegistration.withRegistrationId(null).clientId(CLIENT_ID)
-						.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-						.authorizationGrantType(AuthorizationGrantType.PASSWORD).tokenUri(TOKEN_URI).build());
+				.isThrownBy(() -> ClientRegistration.withRegistrationId(null)
+						.clientId(CLIENT_ID)
+						.clientSecret(CLIENT_SECRET)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+						.tokenUri(TOKEN_URI)
+						.build()
+				);
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenPasswordGrantClientIdIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(null).clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD).tokenUri(TOKEN_URI).build());
+		// @formatter:off
+		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistration
+				.withRegistrationId(REGISTRATION_ID)
+				.clientId(null)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.tokenUri(TOKEN_URI)
+				.build()
+		);
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenPasswordGrantClientSecretIsNullThenDefaultToEmpty() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).clientSecret(null).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD).tokenUri(TOKEN_URI).build();
+				.clientId(CLIENT_ID)
+				.clientSecret(null)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.tokenUri(TOKEN_URI)
+				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getClientSecret()).isEqualTo("");
 	}
 
 	@Test
 	public void buildWhenPasswordGrantClientAuthenticationMethodNotProvidedThenDefaultToBasic() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).clientSecret(CLIENT_SECRET).authorizationGrantType(AuthorizationGrantType.PASSWORD)
-				.tokenUri(TOKEN_URI).build();
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.tokenUri(TOKEN_URI)
+				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 	}
 
 	@Test
 	public void buildWhenPasswordGrantTokenUriIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
-						.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-						.authorizationGrantType(AuthorizationGrantType.PASSWORD).tokenUri(null).build());
+				.isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID)
+						.clientId(CLIENT_ID)
+						.clientSecret(CLIENT_SECRET)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+						.tokenUri(null)
+						.build()
+				);
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenCustomGrantAllAttributesProvidedThenAllAttributesAreSet() {
 		AuthorizationGrantType customGrantType = new AuthorizationGrantType("CUSTOM");
-		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
-				.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(customGrantType).scope(SCOPES.toArray(new String[0])).tokenUri(TOKEN_URI)
-				.clientName(CLIENT_NAME).build();
+		// @formatter:off
+		ClientRegistration registration = ClientRegistration
+				.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(customGrantType)
+				.scope(SCOPES.toArray(new String[0]))
+				.tokenUri(TOKEN_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
 		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
@@ -532,9 +805,13 @@ public class ClientRegistrationTests {
 	@Test
 	public void buildWhenClientRegistrationValuesOverriddenThenPropagated() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		// @formatter:off
 		ClientRegistration updated = ClientRegistration.withClientRegistration(clientRegistration)
-				.clientSecret("a-new-secret").scope("a-new-scope")
-				.providerConfigurationMetadata(Collections.singletonMap("a-new-config", "a-new-value")).build();
+				.clientSecret("a-new-secret")
+				.scope("a-new-scope")
+				.providerConfigurationMetadata(Collections.singletonMap("a-new-config", "a-new-value"))
+				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getClientSecret()).isNotEqualTo(updated.getClientSecret());
 		assertThat(updated.getClientSecret()).isEqualTo("a-new-secret");
 		assertThat(clientRegistration.getScopes()).doesNotContain("a-new-scope");
@@ -549,10 +826,16 @@ public class ClientRegistrationTests {
 	@Test
 	public void buildWhenCustomClientAuthenticationMethodProvidedThenSet() {
 		ClientAuthenticationMethod clientAuthenticationMethod = new ClientAuthenticationMethod("tls_client_auth");
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.clientAuthenticationMethod(clientAuthenticationMethod).redirectUri(REDIRECT_URI)
-				.authorizationUri(AUTHORIZATION_URI).tokenUri(TOKEN_URI).build();
+				.clientId(CLIENT_ID)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.clientAuthenticationMethod(clientAuthenticationMethod)
+				.redirectUri(REDIRECT_URI)
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.build();
+		// @formatter:on
 		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(clientAuthenticationMethod);
 	}
 

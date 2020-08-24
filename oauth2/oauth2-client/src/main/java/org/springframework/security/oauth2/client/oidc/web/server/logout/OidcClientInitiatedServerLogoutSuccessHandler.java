@@ -72,11 +72,14 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 
 	@Override
 	public Mono<Void> onLogoutSuccess(WebFilterExchange exchange, Authentication authentication) {
-		return Mono.just(authentication).filter(OAuth2AuthenticationToken.class::isInstance)
+		// @formatter:off
+		return Mono.just(authentication)
+				.filter(OAuth2AuthenticationToken.class::isInstance)
 				.filter((token) -> authentication.getPrincipal() instanceof OidcUser)
 				.map(OAuth2AuthenticationToken.class::cast)
 				.map(OAuth2AuthenticationToken::getAuthorizedClientRegistrationId)
-				.flatMap(this.clientRegistrationRepository::findByRegistrationId).flatMap((clientRegistration) -> {
+				.flatMap(this.clientRegistrationRepository::findByRegistrationId)
+				.flatMap((clientRegistration) -> {
 					URI endSessionEndpoint = endSessionEndpoint(clientRegistration);
 					if (endSessionEndpoint == null) {
 						return Mono.empty();
@@ -86,8 +89,10 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 					return Mono.just(endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri));
 				})
 				.switchIfEmpty(
-						this.serverLogoutSuccessHandler.onLogoutSuccess(exchange, authentication).then(Mono.empty()))
+						this.serverLogoutSuccessHandler.onLogoutSuccess(exchange, authentication).then(Mono.empty())
+				)
 				.flatMap((endpointUri) -> this.redirectStrategy.sendRedirect(exchange.getExchange(), endpointUri));
+		// @formatter:on
 	}
 
 	private URI endSessionEndpoint(ClientRegistration clientRegistration) {
@@ -118,10 +123,16 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 		if (this.postLogoutRedirectUri == null) {
 			return null;
 		}
+		// @formatter:off
 		UriComponents uriComponents = UriComponentsBuilder.fromUri(request.getURI())
-				.replacePath(request.getPath().contextPath().value()).replaceQuery(null).fragment(null).build();
+				.replacePath(request.getPath().contextPath().value())
+				.replaceQuery(null)
+				.fragment(null)
+				.build();
 		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
-				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString())).toUri();
+				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
+				.toUri();
+		// @formatter:on
 	}
 
 	/**

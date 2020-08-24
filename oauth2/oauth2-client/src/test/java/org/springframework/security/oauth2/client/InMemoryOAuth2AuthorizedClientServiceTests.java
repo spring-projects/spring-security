@@ -67,9 +67,11 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void constructorWhenAuthorizedClientsIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new InMemoryOAuth2AuthorizedClientService(this.clientRegistrationRepository, null))
 				.withMessage("authorizedClients cannot be empty");
+		// @formatter:on
 	}
 
 	@Test

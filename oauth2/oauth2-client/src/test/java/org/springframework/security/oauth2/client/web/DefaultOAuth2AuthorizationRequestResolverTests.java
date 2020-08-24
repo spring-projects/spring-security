@@ -72,11 +72,18 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		this.registration1 = TestClientRegistrations.clientRegistration().build();
 		this.registration2 = TestClientRegistrations.clientRegistration2().build();
 		this.fineRedirectUriTemplateRegistration = fineRedirectUriTemplateClientRegistration().build();
+		// @formatter:off
 		this.pkceRegistration = TestClientRegistrations.clientRegistration()
-				.registrationId("pkce-client-registration-id").clientId("pkce-client-id")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.NONE).clientSecret(null).build();
-		this.oidcRegistration = TestClientRegistrations.clientRegistration().registrationId("oidc-registration-id")
-				.scope(OidcScopes.OPENID).build();
+				.registrationId("pkce-client-registration-id")
+				.clientId("pkce-client-id")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+				.clientSecret(null)
+				.build();
+		this.oidcRegistration = TestClientRegistrations.clientRegistration()
+				.registrationId("oidc-registration-id")
+				.scope(OidcScopes.OPENID)
+				.build();
+		// @formatter:on
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1,
 				this.registration2, this.fineRedirectUriTemplateRegistration, this.pkceRegistration,
 				this.oidcRegistration);
@@ -134,8 +141,11 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				+ "-invalid";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
-		assertThatIllegalArgumentException().isThrownBy(() -> this.resolver.resolve(request)).withMessage(
-				"Invalid Client Registration with Id: " + clientRegistration.getRegistrationId() + "-invalid");
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.resolver.resolve(request))
+				.withMessage("Invalid Client Registration with Id: " + clientRegistration.getRegistrationId() + "-invalid");
+		// @formatter:on
 	}
 
 	@Test
@@ -483,14 +493,20 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 	}
 
 	private static ClientRegistration.Builder fineRedirectUriTemplateClientRegistration() {
+		// @formatter:off
 		return ClientRegistration.withRegistrationId("fine-redirect-uri-template-client-registration")
 				.redirectUri("{baseScheme}://{baseHost}{basePort}{basePath}/{action}/oauth2/code/{registrationId}")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).scope("read:user")
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.scope("read:user")
 				.authorizationUri("https://example.com/login/oauth/authorize")
-				.tokenUri("https://example.com/login/oauth/access_token").userInfoUri("https://api.example.com/user")
-				.userNameAttributeName("id").clientName("Fine Redirect Uri Template Client")
-				.clientId("fine-redirect-uri-template-client").clientSecret("client-secret");
+				.tokenUri("https://example.com/login/oauth/access_token")
+				.userInfoUri("https://api.example.com/user")
+				.userNameAttributeName("id")
+				.clientName("Fine Redirect Uri Template Client")
+				.clientId("fine-redirect-uri-template-client")
+				.clientSecret("client-secret");
+		// @formatter:on
 	}
 
 }

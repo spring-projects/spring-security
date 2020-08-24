@@ -59,13 +59,21 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 	OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token", Instant.now(),
 			Instant.now().plus(Duration.ofDays(1)));
 
+	// @formatter:off
 	private ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(this.clientRegistrationId)
 			.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).scope("read:user")
+			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+			.scope("read:user")
 			.authorizationUri("https://github.com/login/oauth/authorize")
-			.tokenUri("https://github.com/login/oauth/access_token").userInfoUri("https://api.github.com/user")
-			.userNameAttributeName("id").clientName("GitHub").clientId("clientId").clientSecret("clientSecret").build();
+			.tokenUri("https://github.com/login/oauth/access_token")
+			.userInfoUri("https://api.github.com/user")
+			.userNameAttributeName("id")
+			.clientName("GitHub")
+			.clientId("clientId")
+			.clientSecret("clientSecret")
+			.build();
+	// @formatter:on
 
 	@Before
 	public void setup() {
@@ -83,29 +91,37 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationIdNullThenIllegalArgumentException() {
 		this.clientRegistrationId = null;
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:on
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationIdEmptyThenIllegalArgumentException() {
 		this.clientRegistrationId = "";
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:on
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenPrincipalNameNullThenIllegalArgumentException() {
 		this.principalName = null;
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:on
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenPrincipalNameEmptyThenIllegalArgumentException() {
 		this.principalName = "";
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:on
 	}
 
 	@Test
@@ -132,17 +148,23 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 				.willReturn(Mono.just(this.clientRegistration));
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principalName, this.accessToken);
+		// @formatter:off
 		Mono<OAuth2AuthorizedClient> saveAndLoad = this.authorizedClientService
 				.saveAuthorizedClient(authorizedClient, this.principal)
 				.then(this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
-		StepVerifier.create(saveAndLoad).expectNext(authorizedClient).verifyComplete();
+		StepVerifier.create(saveAndLoad)
+				.expectNext(authorizedClient)
+				.verifyComplete();
+		// @formatter:on
 	}
 
 	@Test
 	public void saveAuthorizedClientWhenAuthorizedClientNullThenIllegalArgumentException() {
 		OAuth2AuthorizedClient authorizedClient = null;
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(authorizedClient, this.principal));
+		// @formatter:on
 	}
 
 	@Test
@@ -150,36 +172,46 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principalName, this.accessToken);
 		this.principal = null;
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(authorizedClient, this.principal));
+		// @formatter:on
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenClientRegistrationIdNullThenIllegalArgumentException() {
 		this.clientRegistrationId = null;
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:on
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenClientRegistrationIdEmptyThenIllegalArgumentException() {
 		this.clientRegistrationId = "";
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:on
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenPrincipalNameNullThenIllegalArgumentException() {
 		this.principalName = null;
-		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientService
-				.removeAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.removeAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:on
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenPrincipalNameEmptyThenIllegalArgumentException() {
 		this.principalName = "";
-		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientService
-				.removeAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.removeAuthorizedClient(this.clientRegistrationId, this.principalName));
+		// @formatter:on
 	}
 
 	@Test
@@ -188,10 +220,14 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 				.willReturn(Mono.empty());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principalName, this.accessToken);
-		Mono<Void> saveAndDeleteAndLoad = this.authorizedClientService
-				.saveAuthorizedClient(authorizedClient, this.principal).then(this.authorizedClientService
-						.removeAuthorizedClient(this.clientRegistrationId, this.principalName));
-		StepVerifier.create(saveAndDeleteAndLoad).verifyComplete();
+		// @formatter:off
+		Mono<Void> saveAndDeleteAndLoad = this.authorizedClientService.saveAuthorizedClient(authorizedClient, this.principal)
+				.then(this.authorizedClientService
+						.removeAuthorizedClient(this.clientRegistrationId, this.principalName)
+				);
+		StepVerifier.create(saveAndDeleteAndLoad)
+				.verifyComplete();
+		// @formatter:on
 	}
 
 	@Test
@@ -200,12 +236,14 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 				.willReturn(Mono.just(this.clientRegistration));
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principalName, this.accessToken);
-		Mono<OAuth2AuthorizedClient> saveAndDeleteAndLoad = this.authorizedClientService
-				.saveAuthorizedClient(authorizedClient, this.principal)
+		// @formatter:off
+		Mono<OAuth2AuthorizedClient> saveAndDeleteAndLoad = this.authorizedClientService.saveAuthorizedClient(authorizedClient, this.principal)
 				.then(this.authorizedClientService.removeAuthorizedClient(this.clientRegistrationId,
 						this.principalName))
 				.then(this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
-		StepVerifier.create(saveAndDeleteAndLoad).verifyComplete();
+		StepVerifier.create(saveAndDeleteAndLoad)
+				.verifyComplete();
+		// @formatter:on
 	}
 
 }

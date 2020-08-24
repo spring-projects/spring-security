@@ -124,7 +124,11 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticationWhenErrorThenOAuth2AuthenticationException() {
-		this.authorizationResponseBldr = OAuth2AuthorizationResponse.error("error").state("state");
+		// @formatter:off
+		this.authorizationResponseBldr = OAuth2AuthorizationResponse
+				.error("error")
+				.state("state");
+		// @formatter:on
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
 	}

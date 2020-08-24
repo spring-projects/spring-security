@@ -81,9 +81,12 @@ public final class InMemoryReactiveOAuth2AuthorizedClientService implements Reac
 	public Mono<Void> removeAuthorizedClient(String clientRegistrationId, String principalName) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
+		// @formatter:off
 		return this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
 				.map((clientRegistration) -> new OAuth2AuthorizedClientId(clientRegistrationId, principalName))
-				.doOnNext(this.authorizedClients::remove).then(Mono.empty());
+				.doOnNext(this.authorizedClients::remove)
+				.then(Mono.empty());
+		// @formatter:on
 	}
 
 }

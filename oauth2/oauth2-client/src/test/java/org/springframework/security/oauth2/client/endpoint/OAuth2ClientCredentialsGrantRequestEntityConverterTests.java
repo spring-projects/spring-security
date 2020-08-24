@@ -44,11 +44,16 @@ public class OAuth2ClientCredentialsGrantRequestEntityConverterTests {
 
 	@Before
 	public void setup() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("registration-1")
-				.clientId("client-1").clientSecret("secret")
+				.clientId("client-1")
+				.clientSecret("secret")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).scope("read", "write")
-				.tokenUri("https://provider.com/oauth2/token").build();
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.scope("read", "write")
+				.tokenUri("https://provider.com/oauth2/token")
+				.build();
+		// @formatter:on
 		this.clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(clientRegistration);
 	}
 

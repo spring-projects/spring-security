@@ -37,10 +37,16 @@ public class OAuth2ClientCredentialsGrantRequestTests {
 
 	@Before
 	public void setup() {
-		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1").clientId("client-1")
-				.clientSecret("secret").clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).scope("read", "write")
-				.tokenUri("https://provider.com/oauth2/token").build();
+		// @formatter:off
+		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1")
+				.clientId("client-1")
+				.clientSecret("secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.scope("read", "write")
+				.tokenUri("https://provider.com/oauth2/token")
+				.build();
+		// @formatter:on
 	}
 
 	@Test
@@ -50,10 +56,15 @@ public class OAuth2ClientCredentialsGrantRequestTests {
 
 	@Test
 	public void constructorWhenClientRegistrationInvalidGrantTypeThenThrowIllegalArgumentException() {
+		// @formatter:off
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("registration-1")
-				.clientId("client-1").authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-				.redirectUri("https://localhost:8080/redirect-uri").authorizationUri("https://provider.com/oauth2/auth")
-				.clientName("Client 1").build();
+				.clientId("client-1")
+				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
+				.redirectUri("https://localhost:8080/redirect-uri")
+				.authorizationUri("https://provider.com/oauth2/auth")
+				.clientName("Client 1")
+				.build();
+		// @formatter:on
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new OAuth2ClientCredentialsGrantRequest(clientRegistration)).withMessage(
 						"clientRegistration.authorizationGrantType must be AuthorizationGrantType.CLIENT_CREDENTIALS");

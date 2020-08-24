@@ -50,8 +50,11 @@ public final class WebSessionServerOAuth2AuthorizedClientRepository implements S
 			Authentication principal, ServerWebExchange exchange) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.notNull(exchange, "exchange cannot be null");
-		return exchange.getSession().map(this::getAuthorizedClients)
+		// @formatter:off
+		return exchange.getSession()
+				.map(this::getAuthorizedClients)
 				.flatMap((clients) -> Mono.justOrEmpty((T) clients.get(clientRegistrationId)));
+		// @formatter:on
 	}
 
 	@Override
@@ -59,11 +62,15 @@ public final class WebSessionServerOAuth2AuthorizedClientRepository implements S
 			ServerWebExchange exchange) {
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		Assert.notNull(exchange, "exchange cannot be null");
-		return exchange.getSession().doOnSuccess((session) -> {
-			Map<String, OAuth2AuthorizedClient> authorizedClients = getAuthorizedClients(session);
-			authorizedClients.put(authorizedClient.getClientRegistration().getRegistrationId(), authorizedClient);
-			session.getAttributes().put(this.sessionAttributeName, authorizedClients);
-		}).then(Mono.empty());
+		// @formatter:off
+		return exchange.getSession()
+				.doOnSuccess((session) -> {
+					Map<String, OAuth2AuthorizedClient> authorizedClients = getAuthorizedClients(session);
+					authorizedClients.put(authorizedClient.getClientRegistration().getRegistrationId(), authorizedClient);
+					session.getAttributes().put(this.sessionAttributeName, authorizedClients);
+				})
+				.then(Mono.empty());
+		// @formatter:on
 	}
 
 	@Override
@@ -71,16 +78,20 @@ public final class WebSessionServerOAuth2AuthorizedClientRepository implements S
 			ServerWebExchange exchange) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.notNull(exchange, "exchange cannot be null");
-		return exchange.getSession().doOnSuccess((session) -> {
-			Map<String, OAuth2AuthorizedClient> authorizedClients = getAuthorizedClients(session);
-			authorizedClients.remove(clientRegistrationId);
-			if (authorizedClients.isEmpty()) {
-				session.getAttributes().remove(this.sessionAttributeName);
-			}
-			else {
-				session.getAttributes().put(this.sessionAttributeName, authorizedClients);
-			}
-		}).then(Mono.empty());
+		// @formatter:off
+		return exchange.getSession()
+				.doOnSuccess((session) -> {
+					Map<String, OAuth2AuthorizedClient> authorizedClients = getAuthorizedClients(session);
+					authorizedClients.remove(clientRegistrationId);
+					if (authorizedClients.isEmpty()) {
+						session.getAttributes().remove(this.sessionAttributeName);
+					}
+					else {
+						session.getAttributes().put(this.sessionAttributeName, authorizedClients);
+					}
+				})
+				.then(Mono.empty());
+		// @formatter:on
 	}
 
 	@SuppressWarnings("unchecked")

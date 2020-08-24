@@ -73,11 +73,16 @@ public class OAuth2AuthorizationContextTests {
 
 	@Test
 	public void withAuthorizedClientWhenAllValuesProvidedThenAllValuesAreSet() {
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(this.authorizedClient).principal(this.principal).attributes((attributes) -> {
+				.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.attributes((attributes) -> {
 					attributes.put("attribute1", "value1");
 					attributes.put("attribute2", "value2");
-				}).build();
+				})
+				.build();
+		// @formatter:on
 		assertThat(authorizationContext.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isSameAs(this.authorizedClient);
 		assertThat(authorizationContext.getPrincipal()).isSameAs(this.principal);

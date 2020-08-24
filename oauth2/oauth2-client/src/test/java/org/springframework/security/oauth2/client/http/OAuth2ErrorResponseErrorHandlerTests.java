@@ -36,8 +36,12 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 
 	@Test
 	public void handleErrorWhenErrorResponseBodyThenHandled() {
-		String errorResponse = "{\n" + "	\"error\": \"unauthorized_client\",\n"
-				+ "   \"error_description\": \"The client is not authorized\"\n" + "}\n";
+		// @formatter:off
+		String errorResponse = "{\n"
+				+ "   \"error\": \"unauthorized_client\",\n"
+				+ "   \"error_description\": \"The client is not authorized\"\n"
+				+ "}\n";
+		// @formatter:on
 		MockClientHttpResponse response = new MockClientHttpResponse(errorResponse.getBytes(), HttpStatus.BAD_REQUEST);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 				.isThrownBy(() -> this.errorHandler.handleError(response))

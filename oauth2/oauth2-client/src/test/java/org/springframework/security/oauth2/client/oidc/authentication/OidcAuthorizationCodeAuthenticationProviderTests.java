@@ -117,9 +117,15 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		}
 		catch (NoSuchAlgorithmException ex) {
 		}
-		this.authorizationRequest = TestOAuth2AuthorizationRequests.request().scope("openid", "profile", "email")
-				.attributes(attributes).additionalParameters(additionalParameters).build();
-		this.authorizationResponse = TestOAuth2AuthorizationResponses.success().build();
+		// @formatter:off
+		this.authorizationRequest = TestOAuth2AuthorizationRequests.request()
+				.scope("openid", "profile", "email")
+				.attributes(attributes)
+				.additionalParameters(additionalParameters)
+				.build();
+		this.authorizationResponse = TestOAuth2AuthorizationResponses.success()
+				.build();
+		// @formatter:on
 		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				this.authorizationResponse);
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
@@ -161,8 +167,11 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAuthorizationRequestDoesNotContainOpenidScopeThenReturnNull() {
-		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request().scope("scope1")
+		// @formatter:off
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+				.scope("scope1")
 				.build();
+		// @formatter:on
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				this.authorizationResponse);
 		OAuth2LoginAuthenticationToken authentication = (OAuth2LoginAuthenticationToken) this.authenticationProvider
@@ -174,8 +183,11 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	public void authenticateWhenAuthorizationErrorResponseThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString(OAuth2ErrorCodes.INVALID_SCOPE));
+		// @formatter:off
 		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.error()
-				.errorCode(OAuth2ErrorCodes.INVALID_SCOPE).build();
+				.errorCode(OAuth2ErrorCodes.INVALID_SCOPE)
+				.build();
+		// @formatter:on
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
 		this.authenticationProvider
@@ -186,8 +198,11 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	public void authenticateWhenAuthorizationResponseStateNotEqualAuthorizationRequestStateThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_state_parameter"));
-		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success().state("89012")
+		// @formatter:off
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success()
+				.state("89012")
 				.build();
+		// @formatter:on
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
 		this.authenticationProvider
@@ -198,8 +213,12 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	public void authenticateWhenTokenResponseDoesNotContainIdTokenThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_id_token"));
+		// @formatter:off
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse
-				.withResponse(this.accessTokenSuccessResponse()).additionalParameters(Collections.emptyMap()).build();
+				.withResponse(this.accessTokenSuccessResponse())
+				.additionalParameters(Collections.emptyMap())
+				.build();
+		// @formatter:on
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 		this.authenticationProvider
 				.authenticate(new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
@@ -209,7 +228,11 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	public void authenticateWhenJwkSetUriNotSetThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("missing_signature_verifier"));
-		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().jwkSetUri(null).build();
+		// @formatter:off
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
+				.jwkSetUri(null)
+				.build();
+		// @formatter:on
 		this.authenticationProvider
 				.authenticate(new OAuth2LoginAuthenticationToken(clientRegistration, this.authorizationExchange));
 	}
@@ -323,9 +346,15 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
 		additionalParameters.put(OidcParameterNames.ID_TOKEN, "id-token");
-		return OAuth2AccessTokenResponse.withToken("access-token-1234").tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.expiresIn(expiresAt.getEpochSecond()).scopes(scopes).refreshToken("refresh-token-1234")
-				.additionalParameters(additionalParameters).build();
+		// @formatter:off
+		return OAuth2AccessTokenResponse.withToken("access-token-1234")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(expiresAt.getEpochSecond())
+				.scopes(scopes)
+				.refreshToken("refresh-token-1234")
+				.additionalParameters(additionalParameters)
+				.build();
+		// @formatter:on
 	}
 
 }

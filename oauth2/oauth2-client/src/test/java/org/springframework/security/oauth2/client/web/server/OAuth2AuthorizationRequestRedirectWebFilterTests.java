@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author Rob Winch
@@ -86,15 +86,23 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 
 	@Test
 	public void filterWhenDoesNotMatchThenClientRegistrationRepositoryNotSubscribed() {
-		this.client.get().exchange().expectStatus().isOk();
-		verifyZeroInteractions(this.clientRepository, this.authzRequestRepository);
+		// @formatter:off
+		this.client.get()
+				.exchange()
+				.expectStatus().isOk();
+		// @formatter:on
+		verifyNoInteractions(this.clientRepository, this.authzRequestRepository);
 	}
 
 	@Test
 	public void filterWhenDoesMatchThenClientRegistrationRepositoryNotSubscribed() {
+		// @formatter:off
 		FluxExchangeResult<String> result = this.client.get()
-				.uri("https://example.com/oauth2/authorization/registration-id").exchange().expectStatus()
-				.is3xxRedirection().returnResult(String.class);
+				.uri("https://example.com/oauth2/authorization/registration-id")
+				.exchange()
+				.expectStatus().is3xxRedirection()
+				.returnResult(String.class);
+		// @formatter:on
 		result.assertWithDiagnostics(() -> {
 			URI location = result.getResponseHeaders().getLocation();
 			assertThat(location).hasScheme("https").hasHost("example.com").hasPath("/login/oauth/authorize")
@@ -108,16 +116,23 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	// gh-5520
 	@Test
 	public void filterWhenDoesMatchThenResolveRedirectUriExpandedExcludesQueryString() {
+		// @formatter:off
 		FluxExchangeResult<String> result = this.client.get()
 				.uri("https://example.com/oauth2/authorization/registration-id?foo=bar").exchange().expectStatus()
 				.is3xxRedirection().returnResult(String.class);
 		result.assertWithDiagnostics(() -> {
 			URI location = result.getResponseHeaders().getLocation();
-			assertThat(location).hasScheme("https").hasHost("example.com").hasPath("/login/oauth/authorize")
-					.hasParameter("response_type", "code").hasParameter("client_id", "client-id")
-					.hasParameter("scope", "read:user").hasParameter("state")
+			assertThat(location)
+					.hasScheme("https")
+					.hasHost("example.com")
+					.hasPath("/login/oauth/authorize")
+					.hasParameter("response_type", "code")
+					.hasParameter("client_id", "client-id")
+					.hasParameter("scope", "read:user")
+					.hasParameter("state")
 					.hasParameter("redirect_uri", "https://example.com/login/oauth2/code/registration-id");
 		});
+		// @formatter:on
 	}
 
 	@Test
@@ -125,9 +140,15 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 		FilteringWebHandler webHandler = new FilteringWebHandler(
 				(e) -> Mono.error(new ClientAuthorizationRequiredException(this.registration.getRegistrationId())),
 				Arrays.asList(this.filter));
-		this.client = WebTestClient.bindToWebHandler(webHandler).build();
-		FluxExchangeResult<String> result = this.client.get().uri("https://example.com/foo").exchange().expectStatus()
-				.is3xxRedirection().returnResult(String.class);
+		// @formatter:off
+		this.client = WebTestClient.bindToWebHandler(webHandler)
+				.build();
+		FluxExchangeResult<String> result = this.client.get()
+				.uri("https://example.com/foo")
+				.exchange()
+				.expectStatus().is3xxRedirection()
+				.returnResult(String.class);
+		// @formatter:on
 	}
 
 	@Test
@@ -137,18 +158,29 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 		FilteringWebHandler webHandler = new FilteringWebHandler(
 				(e) -> Mono.error(new ClientAuthorizationRequiredException(this.registration.getRegistrationId())),
 				Arrays.asList(this.filter));
-		this.client = WebTestClient.bindToWebHandler(webHandler).build();
-		this.client.get().uri("https://example.com/foo").exchange().expectStatus().is3xxRedirection()
+		// @formatter:off
+		this.client = WebTestClient.bindToWebHandler(webHandler)
+				.build();
+		this.client.get()
+				.uri("https://example.com/foo")
+				.exchange()
+				.expectStatus().is3xxRedirection()
 				.returnResult(String.class);
+		// @formatter:on
 		verify(this.requestCache).saveRequest(any());
 	}
 
 	@Test
 	public void filterWhenPathMatchesThenRequestSessionAttributeNotSaved() {
 		this.filter.setRequestCache(this.requestCache);
-		this.client.get().uri("https://example.com/oauth2/authorization/registration-id").exchange().expectStatus()
-				.is3xxRedirection().returnResult(String.class);
-		verifyZeroInteractions(this.requestCache);
+		// @formatter:off
+		this.client.get()
+				.uri("https://example.com/oauth2/authorization/registration-id")
+				.exchange()
+				.expectStatus().is3xxRedirection()
+				.returnResult(String.class);
+		// @formatter:on
+		verifyNoInteractions(this.requestCache);
 	}
 
 }

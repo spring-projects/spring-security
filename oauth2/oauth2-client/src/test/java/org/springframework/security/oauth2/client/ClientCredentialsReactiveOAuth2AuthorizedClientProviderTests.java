@@ -66,41 +66,58 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void setAccessTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
 				.withMessage("accessTokenResponseClient cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void setClockSkewWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
 				.withMessage("clockSkew cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void setClockSkewWhenNegativeSecondsThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(-1)))
 				.withMessage("clockSkew must be >= 0");
+		// @formatter:on
 	}
 
 	@Test
 	public void setClockWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.setClock(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClock(null))
 				.withMessage("clock cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.authorize(null).block())
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.authorize(null).block())
 				.withMessage("context cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void authorizeWhenNotClientCredentialsThenUnableToAuthorize() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withClientRegistration(clientRegistration).principal(this.principal).build();
+				.withClientRegistration(clientRegistration)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();
 	}
 
@@ -108,8 +125,12 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenClientCredentialsAndNotAuthorizedThenAuthorize() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withClientRegistration(this.clientRegistration).principal(this.principal).build();
+				.withClientRegistration(this.clientRegistration)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientProvider.authorize(authorizationContext).block();
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
@@ -126,8 +147,12 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 				this.principal.getName(), accessToken);
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(authorizedClient).principal(this.principal).build();
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		authorizedClient = this.authorizedClientProvider.authorize(authorizationContext).block();
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
@@ -138,8 +163,12 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenClientCredentialsAndTokenNotExpiredThenNotReauthorize() {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principal.getName(), TestOAuth2AccessTokens.noScopes());
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(authorizedClient).principal(this.principal).build();
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();
 	}
 
@@ -158,8 +187,12 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 		this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(90));
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(authorizedClient).principal(this.principal).build();
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext)
 				.block();
 		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);

@@ -71,8 +71,14 @@ final class OAuth2AuthorizationResponseUtils {
 		}
 		String errorDescription = request.getFirst(OAuth2ParameterNames.ERROR_DESCRIPTION);
 		String errorUri = request.getFirst(OAuth2ParameterNames.ERROR_URI);
-		return OAuth2AuthorizationResponse.error(errorCode).redirectUri(redirectUri).errorDescription(errorDescription)
-				.errorUri(errorUri).state(state).build();
+		// @formatter:off
+		return OAuth2AuthorizationResponse.error(errorCode)
+				.redirectUri(redirectUri)
+				.errorDescription(errorDescription)
+				.errorUri(errorUri)
+				.state(state)
+				.build();
+		// @formatter:on
 	}
 
 }

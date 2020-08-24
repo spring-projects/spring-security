@@ -157,9 +157,16 @@ public class OidcUserServiceTests {
 	// gh-6886
 	@Test
 	public void loadUserWhenNonStandardScopesAuthorizedAndAccessibleScopesMatchThenUserInfoEndpointRequested() {
-		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
-				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
-				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"sub\": \"subject1\",\n"
+			+ "   \"name\": \"first last\",\n"
+			+ "   \"given_name\": \"first\",\n"
+			+ "   \"family_name\": \"last\",\n"
+			+ "   \"preferred_username\": \"user1\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
@@ -173,9 +180,16 @@ public class OidcUserServiceTests {
 	// gh-6886
 	@Test
 	public void loadUserWhenNonStandardScopesAuthorizedAndAccessibleScopesEmptyThenUserInfoEndpointRequested() {
-		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
-				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
-				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"sub\": \"subject1\",\n"
+			+ "   \"name\": \"first last\",\n"
+			+ "   \"given_name\": \"first\",\n"
+			+ "   \"family_name\": \"last\",\n"
+			+ "   \"preferred_username\": \"user1\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
@@ -189,9 +203,16 @@ public class OidcUserServiceTests {
 	// gh-6886
 	@Test
 	public void loadUserWhenStandardScopesAuthorizedThenUserInfoEndpointRequested() {
-		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
-				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
-				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "	\"sub\": \"subject1\",\n"
+			+ "   \"name\": \"first last\",\n"
+			+ "   \"given_name\": \"first\",\n"
+			+ "   \"family_name\": \"last\",\n"
+			+ "   \"preferred_username\": \"user1\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
@@ -202,9 +223,16 @@ public class OidcUserServiceTests {
 
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() {
-		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
-				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
-				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"sub\": \"subject1\",\n"
+			+ "   \"name\": \"first last\",\n"
+			+ "   \"given_name\": \"first\",\n"
+			+ "   \"family_name\": \"last\",\n"
+			+ "   \"preferred_username\": \"user1\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
@@ -234,8 +262,12 @@ public class OidcUserServiceTests {
 	public void loadUserWhenUserInfoSuccessResponseAndUserInfoSubjectIsNullThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_user_info_response"));
-		String userInfoResponse = "{\n" + "	\"email\": \"full_name@provider.com\",\n" + "	\"name\": \"full name\"\n"
+		// @formatter:off
+		String userInfoResponse = "{\n"
+				+ "   \"email\": \"full_name@provider.com\",\n"
+				+ "   \"name\": \"full name\"\n"
 				+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
@@ -259,10 +291,16 @@ public class OidcUserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString(
 				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
-		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
-				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
-				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n";
-		// "}\n"; // Make the JSON invalid/malformed
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"sub\": \"subject1\",\n"
+			+ "   \"name\": \"first last\",\n"
+			+ "   \"given_name\": \"first\",\n"
+			+ "   \"family_name\": \"last\",\n"
+			+ "   \"preferred_username\": \"user1\",\n"
+			+ "   \"email\": \"user1@example.com\"\n";
+			// "}\n"; // Make the JSON invalid/malformed
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
@@ -292,9 +330,16 @@ public class OidcUserServiceTests {
 
 	@Test
 	public void loadUserWhenCustomUserNameAttributeNameThenGetNameReturnsCustomUserName() {
-		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
-				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
-				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"sub\": \"subject1\",\n"
+			+ "   \"name\": \"first last\",\n"
+			+ "   \"given_name\": \"first\",\n"
+			+ "   \"family_name\": \"last\",\n"
+			+ "   \"preferred_username\": \"user1\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
@@ -307,9 +352,16 @@ public class OidcUserServiceTests {
 	// gh-5294
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseThenAcceptHeaderJson() throws Exception {
-		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
-				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
-				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"sub\": \"subject1\",\n"
+			+ "   \"name\": \"first last\",\n"
+			+ "   \"given_name\": \"first\",\n"
+			+ "   \"family_name\": \"last\",\n"
+			+ "   \"preferred_username\": \"user1\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
@@ -321,9 +373,16 @@ public class OidcUserServiceTests {
 	// gh-5500
 	@Test
 	public void loadUserWhenAuthenticationMethodHeaderSuccessResponseThenHttpMethodGet() throws Exception {
-		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
-				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
-				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"sub\": \"subject1\",\n"
+			+ "   \"name\": \"first last\",\n"
+			+ "   \"given_name\": \"first\",\n"
+			+ "   \"family_name\": \"last\",\n"
+			+ "   \"preferred_username\": \"user1\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
@@ -338,9 +397,16 @@ public class OidcUserServiceTests {
 	// gh-5500
 	@Test
 	public void loadUserWhenAuthenticationMethodFormSuccessResponseThenHttpMethodPost() throws Exception {
-		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
-				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
-				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"sub\": \"subject1\",\n"
+			+ "   \"name\": \"first last\",\n"
+			+ "   \"given_name\": \"first\",\n"
+			+ "   \"family_name\": \"last\",\n"
+			+ "   \"preferred_username\": \"user1\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
@@ -355,9 +421,16 @@ public class OidcUserServiceTests {
 
 	@Test
 	public void loadUserWhenCustomClaimTypeConverterFactorySetThenApplied() {
-		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
-				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
-				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"sub\": \"subject1\",\n"
+			+ "   \"name\": \"first last\",\n"
+			+ "   \"given_name\": \"first\",\n"
+			+ "   \"family_name\": \"last\",\n"
+			+ "   \"preferred_username\": \"user1\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
@@ -395,7 +468,11 @@ public class OidcUserServiceTests {
 	}
 
 	private MockResponse jsonResponse(String json) {
-		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
+		// @formatter:off
+		return new MockResponse()
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(json);
+		// @formatter:on
 	}
 
 }

@@ -97,8 +97,13 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 	@Override
 	public Mono<OidcUser> loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
-		return getUserInfo(userRequest).map((userInfo) -> new OidcUserAuthority(userRequest.getIdToken(), userInfo))
-				.defaultIfEmpty(new OidcUserAuthority(userRequest.getIdToken(), null)).map((authority) -> {
+		// @formatter:off
+		return getUserInfo(userRequest)
+				.map((userInfo) ->
+						new OidcUserAuthority(userRequest.getIdToken(), userInfo)
+				)
+				.defaultIfEmpty(new OidcUserAuthority(userRequest.getIdToken(), null))
+				.map((authority) -> {
 					OidcUserInfo userInfo = authority.getUserInfo();
 					Set<GrantedAuthority> authorities = new HashSet<>();
 					authorities.add(authority);
@@ -114,14 +119,19 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 					}
 					return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
 				});
+		// @formatter:on
 	}
 
 	private Mono<OidcUserInfo> getUserInfo(OidcUserRequest userRequest) {
 		if (!OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest)) {
 			return Mono.empty();
 		}
-		return this.oauth2UserService.loadUser(userRequest).map(OAuth2User::getAttributes)
-				.map((claims) -> convertClaims(claims, userRequest.getClientRegistration())).map(OidcUserInfo::new)
+		// @formatter:off
+		return this.oauth2UserService
+				.loadUser(userRequest)
+				.map(OAuth2User::getAttributes)
+				.map((claims) -> convertClaims(claims, userRequest.getClientRegistration()))
+				.map(OidcUserInfo::new)
 				.doOnNext((userInfo) -> {
 					String subject = userInfo.getSubject();
 					if (subject == null || !subject.equals(userRequest.getIdToken().getSubject())) {
@@ -129,6 +139,7 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 						throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 					}
 				});
+		// @formatter:on
 	}
 
 	private Map<String, Object> convertClaims(Map<String, Object> claims, ClientRegistration clientRegistration) {

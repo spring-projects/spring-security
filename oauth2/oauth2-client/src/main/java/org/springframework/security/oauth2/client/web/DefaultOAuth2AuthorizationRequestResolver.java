@@ -153,10 +153,14 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 		String redirectUriStr = expandRedirectUri(request, clientRegistration, redirectUriAction);
 
+		// @formatter:off
 		builder.clientId(clientRegistration.getClientId())
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
-				.state(this.stateGenerator.generateKey()).attributes(attributes);
+				.redirectUri(redirectUriStr)
+				.scopes(clientRegistration.getScopes())
+				.state(this.stateGenerator.generateKey())
+				.attributes(attributes);
+		// @formatter:on
 
 		this.authorizationRequestCustomizer.accept(builder);
 
@@ -219,8 +223,13 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 			String action) {
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
+		// @formatter:off
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
-				.replacePath(request.getContextPath()).replaceQuery(null).fragment(null).build();
+				.replacePath(request.getContextPath())
+				.replaceQuery(null)
+				.fragment(null)
+				.build();
+		// @formatter:on
 		String scheme = uriComponents.getScheme();
 		uriVariables.put("baseScheme", (scheme != null) ? scheme : "");
 		String host = uriComponents.getHost();

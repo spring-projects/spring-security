@@ -90,10 +90,15 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	@Mock
 	private ReactiveJwtDecoder jwtDecoder;
 
-	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration().scope("openid");
+	// @formatter:off
+	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration()
+			.scope("openid");
+	// @formatter:on
 
+	// @formatter:off
 	private OAuth2AuthorizationResponse.Builder authorizationResponseBldr = OAuth2AuthorizationResponse.success("code")
 			.state("state");
+	// @formatter:on
 
 	private OidcIdToken idToken = TestOidcIdTokens.idToken().build();
 
@@ -153,7 +158,10 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticationWhenErrorThenOAuth2AuthenticationException() {
-		this.authorizationResponseBldr = OAuth2AuthorizationResponse.error("error").state("state");
+		// @formatter:off
+		this.authorizationResponseBldr = OAuth2AuthorizationResponse.error("error")
+				.state("state");
+		// @formatter:on
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
 	}
@@ -167,10 +175,12 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenIdTokenValidationErrorThenOAuth2AuthenticationException() {
+		// @formatter:off
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(
-						Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
 				.build();
+		// @formatter:on
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		given(this.jwtDecoder.decode(any())).willThrow(new JwtException("ID Token Validation Error"));
 		this.manager.setJwtDecoderFactory((c) -> this.jwtDecoder);
@@ -181,10 +191,13 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenIdTokenInvalidNonceThenOAuth2AuthenticationException() {
+		// @formatter:off
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.additionalParameters(
 						Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
 				.build();
+		// @formatter:on
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
@@ -202,11 +215,13 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticationWhenOAuth2UserNotFoundThenEmpty() {
+		// @formatter:off
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN,
 						"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ."))
 				.build();
+		// @formatter:on
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
@@ -223,10 +238,14 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticationWhenOAuth2UserFoundThenSuccess() {
-		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(
+		// @formatter:off
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse
+				.withToken("foo")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.additionalParameters(
 						Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
 				.build();
+		// @formatter:on
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
@@ -248,11 +267,15 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticationWhenRefreshTokenThenRefreshTokenInAuthorizedClient() {
-		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
+		// @formatter:off
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse
+				.withToken("foo")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.additionalParameters(
 						Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
-				.refreshToken("refresh-token").build();
+				.refreshToken("refresh-token")
+				.build();
+		// @formatter:on
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
@@ -281,8 +304,13 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		additionalParameters.put(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue());
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
-		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(additionalParameters).build();
+		// @formatter:off
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse
+				.withToken("foo")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.additionalParameters(additionalParameters)
+				.build();
+		// @formatter:on
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
@@ -304,10 +332,13 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenAuthoritiesMapperSetThenReturnMappedAuthorities() {
 		ClientRegistration clientRegistration = this.registration.build();
+		// @formatter:off
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.additionalParameters(
 						Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
 				.build();
+		// @formatter:on
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
@@ -342,13 +373,19 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		}
 		catch (NoSuchAlgorithmException ex) {
 		}
-		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode().state("state")
+		// @formatter:off
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.state("state")
 				.clientId(clientRegistration.getClientId())
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(clientRegistration.getRedirectUri()).scopes(clientRegistration.getScopes())
-				.additionalParameters(additionalParameters).attributes(attributes).build();
+				.redirectUri(clientRegistration.getRedirectUri())
+				.scopes(clientRegistration.getScopes())
+				.additionalParameters(additionalParameters)
+				.attributes(attributes).build();
 		OAuth2AuthorizationResponse authorizationResponse = this.authorizationResponseBldr
-				.redirectUri(clientRegistration.getRedirectUri()).build();
+				.redirectUri(clientRegistration.getRedirectUri())
+				.build();
+		// @formatter:on
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
 		return new OAuth2AuthorizationCodeAuthenticationToken(clientRegistration, authorizationExchange);

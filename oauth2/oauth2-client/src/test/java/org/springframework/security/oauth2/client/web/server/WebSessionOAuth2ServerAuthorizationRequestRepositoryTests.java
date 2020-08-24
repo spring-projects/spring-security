@@ -51,9 +51,14 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 
 	private WebSessionOAuth2ServerAuthorizationRequestRepository repository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
 
+	// @formatter:off
 	private OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-			.authorizationUri("https://example.com/oauth2/authorize").clientId("client-id")
-			.redirectUri("http://localhost/client-1").state("state").build();
+			.authorizationUri("https://example.com/oauth2/authorize")
+			.clientId("client-id")
+			.redirectUri("http://localhost/client-1")
+			.state("state")
+			.build();
+	// @formatter:on
 
 	private ServerWebExchange exchange = MockServerWebExchange
 			.from(MockServerHttpRequest.get("/").queryParam(OAuth2ParameterNames.STATE, "state"));
@@ -66,55 +71,80 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 
 	@Test
 	public void loadAuthorizationRequestWhenNoSessionThenEmpty() {
-		StepVerifier.create(this.repository.loadAuthorizationRequest(this.exchange)).verifyComplete();
+		// @formatter:off
+		StepVerifier.create(this.repository.loadAuthorizationRequest(this.exchange))
+				.verifyComplete();
+		// @formatter:on
 		assertSessionStartedIs(false);
 	}
 
 	@Test
 	public void loadAuthorizationRequestWhenSessionAndNoRequestThenEmpty() {
-		Mono<OAuth2AuthorizationRequest> setAttrThenLoad = this.exchange.getSession().map(WebSession::getAttributes)
+		// @formatter:off
+		Mono<OAuth2AuthorizationRequest> setAttrThenLoad = this.exchange.getSession()
+				.map(WebSession::getAttributes)
 				.doOnNext((attrs) -> attrs.put("foo", "bar"))
 				.then(this.repository.loadAuthorizationRequest(this.exchange));
-		StepVerifier.create(setAttrThenLoad).verifyComplete();
+		StepVerifier.create(setAttrThenLoad)
+				.verifyComplete();
+		// @formatter:on
 	}
 
 	@Test
 	public void loadAuthorizationRequestWhenNoStateParamThenEmpty() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
+		// @formatter:off
 		Mono<OAuth2AuthorizationRequest> saveAndLoad = this.repository
 				.saveAuthorizationRequest(this.authorizationRequest, this.exchange)
 				.then(this.repository.loadAuthorizationRequest(this.exchange));
-		StepVerifier.create(saveAndLoad).verifyComplete();
+		StepVerifier.create(saveAndLoad)
+				.verifyComplete();
+		// @formatter:on
 	}
 
 	@Test
 	public void loadAuthorizationRequestWhenSavedThenAuthorizationRequest() {
+		// @formatter:off
 		Mono<OAuth2AuthorizationRequest> saveAndLoad = this.repository
 				.saveAuthorizationRequest(this.authorizationRequest, this.exchange)
 				.then(this.repository.loadAuthorizationRequest(this.exchange));
-		StepVerifier.create(saveAndLoad).expectNext(this.authorizationRequest).verifyComplete();
+		StepVerifier.create(saveAndLoad)
+				.expectNext(this.authorizationRequest)
+				.verifyComplete();
+		// @formatter:on
 	}
 
 	@Test
 	public void loadAuthorizationRequestWhenMultipleSavedThenAuthorizationRequest() {
 		String oldState = "state0";
+		// @formatter:off
 		MockServerHttpRequest oldRequest = MockServerHttpRequest.get("/")
-				.queryParam(OAuth2ParameterNames.STATE, oldState).build();
+				.queryParam(OAuth2ParameterNames.STATE, oldState)
+				.build();
 		OAuth2AuthorizationRequest oldAuthorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri("https://example.com/oauth2/authorize").clientId("client-id")
-				.redirectUri("http://localhost/client-1").state(oldState).build();
+				.authorizationUri("https://example.com/oauth2/authorize")
+				.clientId("client-id")
+				.redirectUri("http://localhost/client-1")
+				.state(oldState)
+				.build();
+		// @formatter:on
 		WebSessionManager sessionManager = (e) -> this.exchange.getSession();
 		this.exchange = new DefaultServerWebExchange(this.exchange.getRequest(), new MockServerHttpResponse(),
 				sessionManager, ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
 		ServerWebExchange oldExchange = new DefaultServerWebExchange(oldRequest, new MockServerHttpResponse(),
 				sessionManager, ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
+		// @formatter:off
 		Mono<OAuth2AuthorizationRequest> saveAndSaveAndLoad = this.repository
 				.saveAuthorizationRequest(oldAuthorizationRequest, oldExchange)
 				.then(this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange))
 				.then(this.repository.loadAuthorizationRequest(oldExchange));
-		StepVerifier.create(saveAndSaveAndLoad).expectNext(oldAuthorizationRequest).verifyComplete();
+		StepVerifier.create(saveAndSaveAndLoad)
+				.expectNext(oldAuthorizationRequest)
+				.verifyComplete();
 		StepVerifier.create(this.repository.loadAuthorizationRequest(this.exchange))
-				.expectNext(this.authorizationRequest).verifyComplete();
+				.expectNext(this.authorizationRequest)
+				.verifyComplete();
+		// @formatter:on
 	}
 
 	@Test
@@ -147,58 +177,89 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 
 	@Test
 	public void removeAuthorizationRequestWhenPresentThenFoundAndRemoved() {
+		// @formatter:off
 		Mono<OAuth2AuthorizationRequest> saveAndRemove = this.repository
 				.saveAuthorizationRequest(this.authorizationRequest, this.exchange)
 				.then(this.repository.removeAuthorizationRequest(this.exchange));
-		StepVerifier.create(saveAndRemove).expectNext(this.authorizationRequest).verifyComplete();
-		StepVerifier.create(this.exchange.getSession().map(WebSession::getAttributes).map(Map::isEmpty))
+		StepVerifier.create(saveAndRemove)
+				.expectNext(this.authorizationRequest)
+				.verifyComplete();
+		StepVerifier.create(this.exchange
+					.getSession()
+					.map(WebSession::getAttributes)
+					.map(Map::isEmpty)
+				)
 				.expectNext(true).verifyComplete();
+		// @formatter:on
 	}
 
 	// gh-5599
 	@Test
 	public void removeAuthorizationRequestWhenStateMissingThenNoErrors() {
+		// @formatter:off
 		MockServerHttpRequest otherState = MockServerHttpRequest.get("/")
-				.queryParam(OAuth2ParameterNames.STATE, "other").build();
-		ServerWebExchange otherStateExchange = this.exchange.mutate().request(otherState).build();
+				.queryParam(OAuth2ParameterNames.STATE, "other")
+				.build();
+		ServerWebExchange otherStateExchange = this.exchange.mutate()
+				.request(otherState)
+				.build();
 		Mono<OAuth2AuthorizationRequest> saveAndRemove = this.repository
 				.saveAuthorizationRequest(this.authorizationRequest, this.exchange)
 				.then(this.repository.removeAuthorizationRequest(otherStateExchange));
-		StepVerifier.create(saveAndRemove).verifyComplete();
+		StepVerifier.create(saveAndRemove)
+				.verifyComplete();
+		// @formatter:on
 	}
 
 	@Test
 	public void removeAuthorizationRequestWhenMultipleThenOnlyOneRemoved() {
 		String oldState = "state0";
+		// @formatter:off
 		MockServerHttpRequest oldRequest = MockServerHttpRequest.get("/")
-				.queryParam(OAuth2ParameterNames.STATE, oldState).build();
+				.queryParam(OAuth2ParameterNames.STATE, oldState)
+				.build();
 		OAuth2AuthorizationRequest oldAuthorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri("https://example.com/oauth2/authorize").clientId("client-id")
-				.redirectUri("http://localhost/client-1").state(oldState).build();
+				.authorizationUri("https://example.com/oauth2/authorize")
+				.clientId("client-id")
+				.redirectUri("http://localhost/client-1")
+				.state(oldState)
+				.build();
+		// @formatter:on
 		WebSessionManager sessionManager = (e) -> this.exchange.getSession();
 		this.exchange = new DefaultServerWebExchange(this.exchange.getRequest(), new MockServerHttpResponse(),
 				sessionManager, ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
 		ServerWebExchange oldExchange = new DefaultServerWebExchange(oldRequest, new MockServerHttpResponse(),
 				sessionManager, ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
+		// @formatter:off
 		Mono<OAuth2AuthorizationRequest> saveAndSaveAndRemove = this.repository
 				.saveAuthorizationRequest(oldAuthorizationRequest, oldExchange)
 				.then(this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange))
 				.then(this.repository.removeAuthorizationRequest(this.exchange));
-		StepVerifier.create(saveAndSaveAndRemove).expectNext(this.authorizationRequest).verifyComplete();
-		StepVerifier.create(this.repository.loadAuthorizationRequest(this.exchange)).verifyComplete();
-		StepVerifier.create(this.repository.loadAuthorizationRequest(oldExchange)).expectNext(oldAuthorizationRequest)
+		StepVerifier.create(saveAndSaveAndRemove).expectNext(this.authorizationRequest)
 				.verifyComplete();
+		StepVerifier.create(this.repository.loadAuthorizationRequest(this.exchange))
+				.verifyComplete();
+		StepVerifier.create(this.repository.loadAuthorizationRequest(oldExchange))
+				.expectNext(oldAuthorizationRequest)
+				.verifyComplete();
+		// @formatter:on
 	}
 
 	// gh-7327
 	@Test
 	public void removeAuthorizationRequestWhenMultipleThenRemovedAndSessionAttributeUpdated() {
 		String oldState = "state0";
+		// @formatter:off
 		MockServerHttpRequest oldRequest = MockServerHttpRequest.get("/")
-				.queryParam(OAuth2ParameterNames.STATE, oldState).build();
+				.queryParam(OAuth2ParameterNames.STATE, oldState)
+				.build();
 		OAuth2AuthorizationRequest oldAuthorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri("https://example.com/oauth2/authorize").clientId("client-id")
-				.redirectUri("http://localhost/client-1").state(oldState).build();
+				.authorizationUri("https://example.com/oauth2/authorize")
+				.clientId("client-id")
+				.redirectUri("http://localhost/client-1")
+				.state(oldState)
+				.build();
+		// @formatter:on
 		Map<String, Object> sessionAttrs = spy(new HashMap<>());
 		WebSession session = mock(WebSession.class);
 		given(session.getAttributes()).willReturn(sessionAttrs);
@@ -207,18 +268,27 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 				sessionManager, ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
 		ServerWebExchange oldExchange = new DefaultServerWebExchange(oldRequest, new MockServerHttpResponse(),
 				sessionManager, ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
+		// @formatter:off
 		Mono<OAuth2AuthorizationRequest> saveAndSaveAndRemove = this.repository
 				.saveAuthorizationRequest(oldAuthorizationRequest, oldExchange)
 				.then(this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange))
 				.then(this.repository.removeAuthorizationRequest(this.exchange));
-		StepVerifier.create(saveAndSaveAndRemove).expectNext(this.authorizationRequest).verifyComplete();
-		StepVerifier.create(this.repository.loadAuthorizationRequest(this.exchange)).verifyComplete();
+		StepVerifier.create(saveAndSaveAndRemove).expectNext(this.authorizationRequest)
+				.verifyComplete();
+		StepVerifier.create(this.repository.loadAuthorizationRequest(this.exchange))
+				.verifyComplete();
+		// @formatter:on
 		verify(sessionAttrs, times(3)).put(any(), any());
 	}
 
 	private void assertSessionStartedIs(boolean expected) {
-		Mono<Boolean> isStarted = this.exchange.getSession().map(WebSession::isStarted);
-		StepVerifier.create(isStarted).expectNext(expected).verifyComplete();
+		// @formatter:off
+		Mono<Boolean> isStarted = this.exchange.getSession()
+				.map(WebSession::isStarted);
+		StepVerifier.create(isStarted)
+				.expectNext(expected)
+				.verifyComplete();
+		// @formatter:on
 	}
 
 }

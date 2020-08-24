@@ -214,9 +214,15 @@ public class OAuth2LoginAuthenticationProviderTests {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
-		return OAuth2AccessTokenResponse.withToken("access-token-1234").tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.expiresIn(expiresAt.getEpochSecond()).scopes(scopes).refreshToken("refresh-token-1234")
-				.additionalParameters(additionalParameters).build();
+		// @formatter:off
+		return OAuth2AccessTokenResponse.withToken("access-token-1234")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(expiresAt.getEpochSecond())
+				.scopes(scopes)
+				.refreshToken("refresh-token-1234")
+				.additionalParameters(additionalParameters)
+				.build();
+		// @formatter:on
 	}
 
 }

@@ -87,8 +87,14 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 public final class DefaultOAuth2AuthorizedClientManager implements OAuth2AuthorizedClientManager {
 
-	private static final OAuth2AuthorizedClientProvider DEFAULT_AUTHORIZED_CLIENT_PROVIDER = OAuth2AuthorizedClientProviderBuilder
-			.builder().authorizationCode().refreshToken().clientCredentials().password().build();
+	// @formatter:off
+	private static final OAuth2AuthorizedClientProvider DEFAULT_AUTHORIZED_CLIENT_PROVIDER = OAuth2AuthorizedClientProviderBuilder.builder()
+			.authorizationCode()
+			.refreshToken()
+			.clientCredentials()
+			.password()
+			.build();
+	// @formatter:on
 
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
@@ -156,13 +162,16 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 				contextBuilder = OAuth2AuthorizationContext.withClientRegistration(clientRegistration);
 			}
 		}
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = contextBuilder.principal(principal)
 				.attributes((attributes) -> {
 					Map<String, Object> contextAttributes = this.contextAttributesMapper.apply(authorizeRequest);
 					if (!CollectionUtils.isEmpty(contextAttributes)) {
 						attributes.putAll(contextAttributes);
 					}
-				}).build();
+				})
+				.build();
+		// @formatter:on
 		try {
 			authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
 		}

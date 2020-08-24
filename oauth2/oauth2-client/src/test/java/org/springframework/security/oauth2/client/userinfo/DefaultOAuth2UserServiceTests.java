@@ -80,8 +80,11 @@ public class DefaultOAuth2UserServiceTests {
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
-		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration().userInfoUri(null)
+		// @formatter:off
+		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration()
+				.userInfoUri(null)
 				.userNameAttributeName(null);
+		// @formatter:on
 		this.accessToken = TestOAuth2AccessTokens.noScopes();
 	}
 
@@ -120,16 +123,26 @@ public class DefaultOAuth2UserServiceTests {
 	public void loadUserWhenUserNameAttributeNameIsNullThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("missing_user_name_attribute"));
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri("https://provider.com/user")
+		// @formatter:off
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.userInfoUri("https://provider.com/user")
 				.build();
+		// @formatter:on
 		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() {
-		String userInfoResponse = "{\n" + "	\"user-name\": \"user1\",\n" + "   \"first-name\": \"first\",\n"
-				+ "   \"last-name\": \"last\",\n" + "   \"middle-name\": \"middle\",\n"
-				+ "   \"address\": \"address\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"user-name\": \"user1\",\n"
+			+ "   \"first-name\": \"first\",\n"
+			+ "   \"last-name\": \"last\",\n"
+			+ "   \"middle-name\": \"middle\",\n"
+			+ "   \"address\": \"address\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
@@ -155,10 +168,16 @@ public class DefaultOAuth2UserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString(
 				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
-		String userInfoResponse = "{\n" + "	\"user-name\": \"user1\",\n" + "   \"first-name\": \"first\",\n"
-				+ "   \"last-name\": \"last\",\n" + "   \"middle-name\": \"middle\",\n"
-				+ "   \"address\": \"address\",\n" + "   \"email\": \"user1@example.com\"\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "	\"user-name\": \"user1\",\n"
+			+ "   \"first-name\": \"first\",\n"
+			+ "   \"last-name\": \"last\",\n"
+			+ "   \"middle-name\": \"middle\",\n"
+			+ "   \"address\": \"address\",\n"
+			+ "   \"email\": \"user1@example.com\"\n";
 		// "}\n"; // Make the JSON invalid/malformed
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
@@ -190,7 +209,11 @@ public class DefaultOAuth2UserServiceTests {
 		this.exception.expectMessage(containsString(
 				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 		this.exception.expectMessage(containsString("Error Code: invalid_token"));
-		String userInfoErrorResponse = "{\n" + "   \"error\": \"invalid_token\"\n" + "}\n";
+		// @formatter:off
+		String userInfoErrorResponse = "{\n"
+				+ "   \"error\": \"invalid_token\"\n"
+				+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoErrorResponse).setResponseCode(400));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
@@ -224,9 +247,16 @@ public class DefaultOAuth2UserServiceTests {
 	// gh-5294
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseThenAcceptHeaderJson() throws Exception {
-		String userInfoResponse = "{\n" + "	\"user-name\": \"user1\",\n" + "   \"first-name\": \"first\",\n"
-				+ "   \"last-name\": \"last\",\n" + "   \"middle-name\": \"middle\",\n"
-				+ "   \"address\": \"address\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"user-name\": \"user1\",\n"
+			+ "   \"first-name\": \"first\",\n"
+			+ "   \"last-name\": \"last\",\n"
+			+ "   \"middle-name\": \"middle\",\n"
+			+ "   \"address\": \"address\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
@@ -239,9 +269,16 @@ public class DefaultOAuth2UserServiceTests {
 	// gh-5500
 	@Test
 	public void loadUserWhenAuthenticationMethodHeaderSuccessResponseThenHttpMethodGet() throws Exception {
-		String userInfoResponse = "{\n" + "	\"user-name\": \"user1\",\n" + "   \"first-name\": \"first\",\n"
-				+ "   \"last-name\": \"last\",\n" + "   \"middle-name\": \"middle\",\n"
-				+ "   \"address\": \"address\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"user-name\": \"user1\",\n"
+			+ "   \"first-name\": \"first\",\n"
+			+ "   \"last-name\": \"last\",\n"
+			+ "   \"middle-name\": \"middle\",\n"
+			+ "   \"address\": \"address\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
@@ -257,9 +294,16 @@ public class DefaultOAuth2UserServiceTests {
 	// gh-5500
 	@Test
 	public void loadUserWhenAuthenticationMethodFormSuccessResponseThenHttpMethodPost() throws Exception {
-		String userInfoResponse = "{\n" + "	\"user-name\": \"user1\",\n" + "   \"first-name\": \"first\",\n"
-				+ "   \"last-name\": \"last\",\n" + "   \"middle-name\": \"middle\",\n"
-				+ "   \"address\": \"address\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"user-name\": \"user1\",\n"
+			+ "   \"first-name\": \"first\",\n"
+			+ "   \"last-name\": \"last\",\n"
+			+ "   \"middle-name\": \"middle\",\n"
+			+ "   \"address\": \"address\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)

@@ -90,12 +90,19 @@ public class OAuth2LoginAuthenticationWebFilterTests {
 		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
 		ClientRegistration clientRegistration = this.registration.build();
-		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode().state("state")
+		// @formatter:off
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.state("state")
 				.clientId(clientRegistration.getClientId())
-				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(clientRegistration.getRedirectUri()).scopes(clientRegistration.getScopes()).build();
+				.authorizationUri(clientRegistration.getProviderDetails()
+				.getAuthorizationUri())
+				.redirectUri(clientRegistration.getRedirectUri())
+				.scopes(clientRegistration.getScopes())
+				.build();
 		OAuth2AuthorizationResponse authorizationResponse = this.authorizationResponseBldr
-				.redirectUri(clientRegistration.getRedirectUri()).build();
+				.redirectUri(clientRegistration.getRedirectUri())
+				.build();
+		// @formatter:on
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
 		return new OAuth2LoginAuthenticationToken(clientRegistration, authorizationExchange, user,

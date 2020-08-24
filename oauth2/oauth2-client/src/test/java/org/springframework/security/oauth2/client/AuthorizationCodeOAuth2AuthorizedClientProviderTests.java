@@ -61,22 +61,31 @@ public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenNotAuthorizationCodeThenUnableToAuthorize() {
 		ClientRegistration clientCredentialsClient = TestClientRegistrations.clientCredentials().build();
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withClientRegistration(clientCredentialsClient).principal(this.principal).build();
+				.withClientRegistration(clientCredentialsClient).principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
 	}
 
 	@Test
 	public void authorizeWhenAuthorizationCodeAndAuthorizedThenNotAuthorize() {
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(this.authorizedClient).principal(this.principal).build();
+				.withAuthorizedClient(this.authorizedClient).principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
 	}
 
 	@Test
 	public void authorizeWhenAuthorizationCodeAndNotAuthorizedThenAuthorize() {
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withClientRegistration(this.clientRegistration).principal(this.principal).build();
+				.withClientRegistration(this.clientRegistration).principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThatExceptionOfType(ClientAuthorizationRequiredException.class)
 				.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext));
 	}

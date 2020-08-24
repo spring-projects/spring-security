@@ -55,8 +55,11 @@ public class OAuth2AuthorizationRequestMixinTests {
 		Map<String, Object> additionalParameters = new LinkedHashMap<>();
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
-		this.authorizationRequestBuilder = TestOAuth2AuthorizationRequests.request().scope("read", "write")
+		// @formatter:off
+		this.authorizationRequestBuilder = TestOAuth2AuthorizationRequests.request()
+				.scope("read", "write")
 				.additionalParameters(additionalParameters);
+		// @formatter:on
 	}
 
 	@Test
@@ -69,8 +72,14 @@ public class OAuth2AuthorizationRequestMixinTests {
 
 	@Test
 	public void serializeWhenRequiredAttributesOnlyThenSerializes() throws Exception {
-		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestBuilder.scopes(null).state(null)
-				.additionalParameters(Map::clear).attributes(Map::clear).build();
+		// @formatter:off
+		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestBuilder
+				.scopes(null)
+				.state(null)
+				.additionalParameters(Map::clear)
+				.attributes(Map::clear)
+				.build();
+		// @formatter:on
 		String expectedJson = asJson(authorizationRequest);
 		String json = this.mapper.writeValueAsString(authorizationRequest);
 		JSONAssert.assertEquals(expectedJson, json, true);
@@ -106,8 +115,13 @@ public class OAuth2AuthorizationRequestMixinTests {
 
 	@Test
 	public void deserializeWhenRequiredAttributesOnlyThenDeserializes() throws Exception {
+		// @formatter:off
 		OAuth2AuthorizationRequest expectedAuthorizationRequest = this.authorizationRequestBuilder.scopes(null)
-				.state(null).additionalParameters(Map::clear).attributes(Map::clear).build();
+				.state(null)
+				.additionalParameters(Map::clear)
+				.attributes(Map::clear)
+				.build();
+		// @formatter:on
 		String json = asJson(expectedAuthorizationRequest);
 		OAuth2AuthorizationRequest authorizationRequest = this.mapper.readValue(json, OAuth2AuthorizationRequest.class);
 		assertThat(authorizationRequest.getAuthorizationUri())

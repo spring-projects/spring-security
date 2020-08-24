@@ -168,11 +168,19 @@ public final class ClientRegistration implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ClientRegistration{" + "registrationId='" + this.registrationId + '\'' + ", clientId='" + this.clientId
-				+ '\'' + ", clientSecret='" + this.clientSecret + '\'' + ", clientAuthenticationMethod="
-				+ this.clientAuthenticationMethod + ", authorizationGrantType=" + this.authorizationGrantType
-				+ ", redirectUri='" + this.redirectUri + '\'' + ", scopes=" + this.scopes + ", providerDetails="
-				+ this.providerDetails + ", clientName='" + this.clientName + '\'' + '}';
+		// @formatter:off
+		return "ClientRegistration{"
+				+ "registrationId='" + this.registrationId + '\''
+				+ ", clientId='" + this.clientId + '\''
+				+ ", clientSecret='" + this.clientSecret + '\''
+				+ ", clientAuthenticationMethod=" + this.clientAuthenticationMethod
+				+ ", authorizationGrantType=" + this.authorizationGrantType
+				+ ", redirectUri='" + this.redirectUri
+				+ '\'' + ", scopes=" + this.scopes
+				+ ", providerDetails=" + this.providerDetails
+				+ ", clientName='" + this.clientName + '\''
+				+ '}';
+		// @formatter:on
 	}
 
 	/**

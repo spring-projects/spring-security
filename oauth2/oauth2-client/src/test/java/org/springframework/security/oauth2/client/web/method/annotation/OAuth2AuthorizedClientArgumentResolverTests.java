@@ -110,18 +110,32 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 		securityContext.setAuthentication(this.authentication);
 		SecurityContextHolder.setContext(securityContext);
-		this.registration1 = ClientRegistration.withRegistrationId("client1").clientId("client-1")
-				.clientSecret("secret").clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+		// @formatter:off
+		this.registration1 = ClientRegistration.withRegistrationId("client1")
+				.clientId("client-1")
+				.clientSecret("secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}").scope("user")
-				.authorizationUri("https://provider.com/oauth2/authorize").tokenUri("https://provider.com/oauth2/token")
-				.userInfoUri("https://provider.com/oauth2/user").userNameAttributeName("id").clientName("client-1")
+				.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
+				.scope("user")
+				.authorizationUri("https://provider.com/oauth2/authorize")
+				.tokenUri("https://provider.com/oauth2/token")
+				.userInfoUri("https://provider.com/oauth2/user")
+				.userNameAttributeName("id")
+				.clientName("client-1")
 				.build();
-		this.registration2 = ClientRegistration.withRegistrationId("client2").clientId("client-2")
-				.clientSecret("secret").clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).scope("read", "write")
-				.tokenUri("https://provider.com/oauth2/token").build();
-		this.registration3 = TestClientRegistrations.password().registrationId("client3").build();
+		this.registration2 = ClientRegistration.withRegistrationId("client2")
+				.clientId("client-2")
+				.clientSecret("secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.scope("read", "write")
+				.tokenUri("https://provider.com/oauth2/token")
+				.build();
+		this.registration3 = TestClientRegistrations.password()
+				.registrationId("client3")
+				.build();
+		// @formatter:on
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1,
 				this.registration2, this.registration3);
 		this.authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);

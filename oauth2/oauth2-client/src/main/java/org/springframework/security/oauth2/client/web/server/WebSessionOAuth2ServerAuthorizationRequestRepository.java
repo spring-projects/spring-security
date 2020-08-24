@@ -52,19 +52,23 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 		if (state == null) {
 			return Mono.empty();
 		}
+		// @formatter:off
 		return getStateToAuthorizationRequest(exchange)
 				.filter((stateToAuthorizationRequest) -> stateToAuthorizationRequest.containsKey(state))
 				.map((stateToAuthorizationRequest) -> stateToAuthorizationRequest.get(state));
+		// @formatter:on
 	}
 
 	@Override
 	public Mono<Void> saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest,
 			ServerWebExchange exchange) {
 		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
+		// @formatter:off
 		return saveStateToAuthorizationRequest(exchange)
 				.doOnNext((stateToAuthorizationRequest) -> stateToAuthorizationRequest
 						.put(authorizationRequest.getState(), authorizationRequest))
 				.then();
+		// @formatter:on
 	}
 
 	@Override
@@ -73,29 +77,33 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 		if (state == null) {
 			return Mono.empty();
 		}
-		return exchange.getSession().map(WebSession::getAttributes).handle((sessionAttrs, sink) -> {
-			Map<String, OAuth2AuthorizationRequest> stateToAuthzRequest = sessionAttrsMapStateToAuthorizationRequest(
-					sessionAttrs);
-			if (stateToAuthzRequest == null) {
-				sink.complete();
-				return;
-			}
-			OAuth2AuthorizationRequest removedValue = stateToAuthzRequest.remove(state);
-			if (stateToAuthzRequest.isEmpty()) {
-				sessionAttrs.remove(this.sessionAttributeName);
-			}
-			else if (removedValue != null) {
-				// gh-7327 Overwrite the existing Map to ensure the state is saved for
-				// distributed sessions
-				sessionAttrs.put(this.sessionAttributeName, stateToAuthzRequest);
-			}
-			if (removedValue == null) {
-				sink.complete();
-			}
-			else {
-				sink.next(removedValue);
-			}
-		});
+		// @formatter:off
+		return exchange.getSession()
+				.map(WebSession::getAttributes)
+				.handle((sessionAttrs, sink) -> {
+					Map<String, OAuth2AuthorizationRequest> stateToAuthzRequest = sessionAttrsMapStateToAuthorizationRequest(
+							sessionAttrs);
+					if (stateToAuthzRequest == null) {
+						sink.complete();
+						return;
+					}
+					OAuth2AuthorizationRequest removedValue = stateToAuthzRequest.remove(state);
+					if (stateToAuthzRequest.isEmpty()) {
+						sessionAttrs.remove(this.sessionAttributeName);
+					}
+					else if (removedValue != null) {
+						// gh-7327 Overwrite the existing Map to ensure the state is saved for
+						// distributed sessions
+						sessionAttrs.put(this.sessionAttributeName, stateToAuthzRequest);
+					}
+					if (removedValue == null) {
+						sink.complete();
+					}
+					else {
+						sink.next(removedValue);
+					}
+				});
+		// @formatter:on
 	}
 
 	/**
@@ -115,22 +123,28 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 	private Mono<Map<String, OAuth2AuthorizationRequest>> getStateToAuthorizationRequest(ServerWebExchange exchange) {
 		Assert.notNull(exchange, "exchange cannot be null");
 
-		return getSessionAttributes(exchange).flatMap(
-				(sessionAttrs) -> Mono.justOrEmpty(this.sessionAttrsMapStateToAuthorizationRequest(sessionAttrs)));
+		// @formatter:off
+		return getSessionAttributes(exchange)
+				.flatMap((sessionAttrs) -> Mono.justOrEmpty(this.sessionAttrsMapStateToAuthorizationRequest(sessionAttrs)));
+		// @formatter:on
 	}
 
 	private Mono<Map<String, OAuth2AuthorizationRequest>> saveStateToAuthorizationRequest(ServerWebExchange exchange) {
 		Assert.notNull(exchange, "exchange cannot be null");
-		return getSessionAttributes(exchange).doOnNext((sessionAttrs) -> {
-			Object stateToAuthzRequest = sessionAttrs.get(this.sessionAttributeName);
-			if (stateToAuthzRequest == null) {
-				stateToAuthzRequest = new HashMap<String, OAuth2AuthorizationRequest>();
-			}
-			// No matter stateToAuthzRequest was in session or not, we should always put
-			// it into session again
-			// in case of redis or hazelcast session. #6215
-			sessionAttrs.put(this.sessionAttributeName, stateToAuthzRequest);
-		}).flatMap((sessionAttrs) -> Mono.justOrEmpty(this.sessionAttrsMapStateToAuthorizationRequest(sessionAttrs)));
+		// @formatter:off
+		return getSessionAttributes(exchange)
+				.doOnNext((sessionAttrs) -> {
+					Object stateToAuthzRequest = sessionAttrs.get(this.sessionAttributeName);
+					if (stateToAuthzRequest == null) {
+						stateToAuthzRequest = new HashMap<String, OAuth2AuthorizationRequest>();
+					}
+					// No matter stateToAuthzRequest was in session or not, we should always put
+					// it into session again
+					// in case of redis or hazelcast session. #6215
+					sessionAttrs.put(this.sessionAttributeName, stateToAuthzRequest);
+				})
+				.flatMap((sessionAttrs) -> Mono.justOrEmpty(this.sessionAttrsMapStateToAuthorizationRequest(sessionAttrs)));
+		// @formatter:on
 	}
 
 	private Map<String, OAuth2AuthorizationRequest> sessionAttrsMapStateToAuthorizationRequest(

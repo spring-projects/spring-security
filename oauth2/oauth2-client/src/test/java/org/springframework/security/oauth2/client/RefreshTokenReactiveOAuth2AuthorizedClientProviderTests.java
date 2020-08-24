@@ -86,33 +86,48 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void setClockSkewWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
 				.withMessage("clockSkew cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void setClockSkewWhenNegativeSecondsThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(-1)))
 				.withMessage("clockSkew must be >= 0");
+		// @formatter:on
 	}
 
 	@Test
 	public void setClockWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.setClock(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClock(null))
 				.withMessage("clock cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.authorize(null).block())
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.authorize(null).block())
 				.withMessage("context cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void authorizeWhenNotAuthorizedThenUnableToReauthorize() {
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withClientRegistration(this.clientRegistration).principal(this.principal).build();
+				.withClientRegistration(this.clientRegistration)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();
 	}
 
@@ -120,8 +135,12 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenAuthorizedAndRefreshTokenIsNullThenUnableToReauthorize() {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principal.getName(), this.authorizedClient.getAccessToken());
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(authorizedClient).principal(this.principal).build();
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();
 	}
 
@@ -129,8 +148,12 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenAuthorizedAndAccessTokenNotExpiredThenNotReauthorize() {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principal.getName(), TestOAuth2AccessTokens.noScopes(), this.authorizedClient.getRefreshToken());
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(authorizedClient).principal(this.principal).build();
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();
 	}
 
@@ -181,9 +204,13 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 				.refreshToken("new-refresh-token").build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		String[] requestScope = new String[] { "read", "write" };
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(this.authorizedClient).principal(this.principal)
-				.attribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME, requestScope).build();
+				.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.attribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME, requestScope)
+				.build();
+		// @formatter:on
 		this.authorizedClientProvider.authorize(authorizationContext).block();
 		ArgumentCaptor<OAuth2RefreshTokenGrantRequest> refreshTokenGrantRequestArgCaptor = ArgumentCaptor
 				.forClass(OAuth2RefreshTokenGrantRequest.class);
@@ -195,9 +222,13 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenAuthorizedAndInvalidRequestScopeProvidedThenThrowIllegalArgumentException() {
 		String invalidRequestScope = "read write";
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(this.authorizedClient).principal(this.principal)
-				.attribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME, invalidRequestScope).build();
+				.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.attribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME, invalidRequestScope)
+				.build();
+		// @formatter:on
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext).block())
 				.withMessageStartingWith("The context attribute must be of type String[] '"

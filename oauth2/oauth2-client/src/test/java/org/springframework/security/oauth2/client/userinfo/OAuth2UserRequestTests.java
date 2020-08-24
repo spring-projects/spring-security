@@ -48,12 +48,19 @@ public class OAuth2UserRequestTests {
 
 	@Before
 	public void setUp() {
-		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1").clientId("client-1")
-				.clientSecret("secret").clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri("https://client.com")
+		// @formatter:off
+		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1")
+				.clientId("client-1")
+				.clientSecret("secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri("https://client.com")
 				.scope(new LinkedHashSet<>(Arrays.asList("scope1", "scope2")))
 				.authorizationUri("https://provider.com/oauth2/authorization")
-				.tokenUri("https://provider.com/oauth2/token").clientName("Client 1").build();
+				.tokenUri("https://provider.com/oauth2/token")
+				.clientName("Client 1")
+				.build();
+		// @formatter:on
 		this.accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token-1234", Instant.now(),
 				Instant.now().plusSeconds(60), new LinkedHashSet<>(Arrays.asList("scope1", "scope2")));
 		this.additionalParameters = new HashMap<>();

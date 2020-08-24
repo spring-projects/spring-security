@@ -120,10 +120,15 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 
 	@Override
 	public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange) {
-		return this.authorizationRequestMatcher.matches(exchange).filter((matchResult) -> matchResult.isMatch())
+		// @formatter:off
+		return this.authorizationRequestMatcher
+				.matches(exchange)
+				.filter((matchResult) -> matchResult.isMatch())
 				.map(ServerWebExchangeMatcher.MatchResult::getVariables)
-				.map((variables) -> variables.get(DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME)).cast(String.class)
+				.map((variables) -> variables.get(DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME))
+				.cast(String.class)
 				.flatMap((clientRegistrationId) -> resolve(exchange, clientRegistrationId));
+		// @formatter:on
 	}
 
 	@Override
@@ -146,8 +151,10 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 	}
 
 	private Mono<ClientRegistration> findByRegistrationId(ServerWebExchange exchange, String clientRegistration) {
-		return this.clientRegistrationRepository.findByRegistrationId(clientRegistration).switchIfEmpty(Mono
-				.error(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id")));
+		// @formatter:off
+		return this.clientRegistrationRepository.findByRegistrationId(clientRegistration)
+				.switchIfEmpty(Mono.error(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id")));
+		// @formatter:on
 	}
 
 	private OAuth2AuthorizationRequest authorizationRequest(ServerWebExchange exchange,
@@ -156,10 +163,14 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
 		OAuth2AuthorizationRequest.Builder builder = getBuilder(clientRegistration, attributes);
+		// @formatter:off
 		builder.clientId(clientRegistration.getClientId())
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
-				.state(this.stateGenerator.generateKey()).attributes(attributes);
+				.redirectUri(redirectUriStr)
+				.scopes(clientRegistration.getScopes())
+				.state(this.stateGenerator.generateKey())
+				.attributes(attributes);
+		// @formatter:on
 
 		this.authorizationRequestCustomizer.accept(builder);
 
@@ -214,8 +225,13 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 	private static String expandRedirectUri(ServerHttpRequest request, ClientRegistration clientRegistration) {
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
+		// @formatter:off
 		UriComponents uriComponents = UriComponentsBuilder.fromUri(request.getURI())
-				.replacePath(request.getPath().contextPath().value()).replaceQuery(null).fragment(null).build();
+				.replacePath(request.getPath().contextPath().value())
+				.replaceQuery(null)
+				.fragment(null)
+				.build();
+		// @formatter:on
 		String scheme = uriComponents.getScheme();
 		uriVariables.put("baseScheme", (scheme != null) ? scheme : "");
 		String host = uriComponents.getHost();
@@ -236,8 +252,11 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 			action = "login";
 		}
 		uriVariables.put("action", action);
-		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri()).buildAndExpand(uriVariables)
+		// @formatter:off
+		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
+				.buildAndExpand(uriVariables)
 				.toUriString();
+		// @formatter:on
 	}
 
 	/**

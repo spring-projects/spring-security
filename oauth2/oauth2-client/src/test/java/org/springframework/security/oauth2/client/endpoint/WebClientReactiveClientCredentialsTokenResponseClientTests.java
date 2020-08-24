@@ -68,9 +68,15 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenHeaderThenSuccess() throws Exception {
-		enqueueJson("{\n" + "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
-				+ "  \"token_type\":\"bearer\",\n" + "  \"expires_in\":3600,\n"
-				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\",\n" + "  \"scope\":\"create\"\n" + "}");
+		// @formatter:off
+		enqueueJson("{\n"
+			+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
+			+ "  \"token_type\":\"bearer\",\n"
+			+ "  \"expires_in\":3600,\n"
+			+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\",\n"
+			+ "  \"scope\":\"create\"\n"
+			+ "}");
+		// @formatter:on
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
 				this.clientRegistration.build());
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
@@ -86,9 +92,15 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	public void getTokenResponseWhenPostThenSuccess() throws Exception {
 		ClientRegistration registration = this.clientRegistration
 				.clientAuthenticationMethod(ClientAuthenticationMethod.POST).build();
-		enqueueJson("{\n" + "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
-				+ "  \"token_type\":\"bearer\",\n" + "  \"expires_in\":3600,\n"
-				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\",\n" + "  \"scope\":\"create\"\n" + "}");
+		// @formatter:off
+		enqueueJson("{\n"
+			+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
+			+ "  \"token_type\":\"bearer\",\n"
+			+ "  \"expires_in\":3600,\n"
+			+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\",\n"
+			+ "  \"scope\":\"create\"\n"
+			+ "}");
+		// @formatter:on
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		RecordedRequest actualRequest = this.server.takeRequest();
@@ -102,9 +114,14 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenNoScopeThenClientRegistrationScopesDefaulted() {
 		ClientRegistration registration = this.clientRegistration.build();
-		enqueueJson("{\n" + "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
-				+ "  \"token_type\":\"bearer\",\n" + "  \"expires_in\":3600,\n"
-				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n" + "}");
+		// @formatter:off
+		enqueueJson("{\n"
+		+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
+		+ "  \"token_type\":\"bearer\",\n"
+		+ "  \"expires_in\":3600,\n"
+		+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n"
+		+ "}");
+		// @formatter:on
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		assertThat(response.getAccessToken().getScopes()).isEqualTo(registration.getScopes());
@@ -121,9 +138,14 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		given(customClient.post()).willReturn(WebClient.builder().build().post());
 		this.client.setWebClient(customClient);
 		ClientRegistration registration = this.clientRegistration.build();
-		enqueueJson("{\n" + "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
-				+ "  \"token_type\":\"bearer\",\n" + "  \"expires_in\":3600,\n"
-				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n" + "}");
+		// @formatter:off
+		enqueueJson("{\n"
+			+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
+			+ "  \"token_type\":\"bearer\",\n"
+			+ "  \"expires_in\":3600,\n"
+			+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n"
+			+ "}");
+		// @formatter:on
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		verify(customClient, atLeastOnce()).post();
@@ -142,8 +164,11 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	}
 
 	private void enqueueUnexpectedResponse() {
-		MockResponse response = new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+		// @formatter:off
+		MockResponse response = new MockResponse()
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.setResponseCode(301);
+		// @formatter:on
 		this.server.enqueue(response);
 	}
 

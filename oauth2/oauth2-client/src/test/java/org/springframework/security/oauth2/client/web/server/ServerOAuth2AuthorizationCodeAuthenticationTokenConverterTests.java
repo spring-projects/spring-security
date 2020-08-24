@@ -58,18 +58,30 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTests {
 
 	private String clientRegistrationId = "github";
 
+	// @formatter:off
 	private ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(this.clientRegistrationId)
 			.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).scope("read:user")
+			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+			.scope("read:user")
 			.authorizationUri("https://github.com/login/oauth/authorize")
-			.tokenUri("https://github.com/login/oauth/access_token").userInfoUri("https://api.github.com/user")
-			.userNameAttributeName("id").clientName("GitHub").clientId("clientId").clientSecret("clientSecret").build();
+			.tokenUri("https://github.com/login/oauth/access_token")
+			.userInfoUri("https://api.github.com/user")
+			.userNameAttributeName("id")
+			.clientName("GitHub")
+			.clientId("clientId")
+			.clientSecret("clientSecret")
+			.build();
+	// @formatter:on
 
+	// @formatter:off
 	private OAuth2AuthorizationRequest.Builder authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-			.authorizationUri("https://example.com/oauth2/authorize").clientId("client-id")
-			.redirectUri("http://localhost/client-1").state("state")
+			.authorizationUri("https://example.com/oauth2/authorize")
+			.clientId("client-id")
+			.redirectUri("http://localhost/client-1")
+			.state("state")
 			.attributes(Collections.singletonMap(OAuth2ParameterNames.REGISTRATION_ID, this.clientRegistrationId));
+	// @formatter:on
 
 	private final MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/");
 

@@ -78,7 +78,10 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		String userInfoUri = this.server.url("/user").toString();
-		this.clientRegistration = TestClientRegistrations.clientRegistration().userInfoUri(userInfoUri);
+		// @formatter:off
+		this.clientRegistration = TestClientRegistrations.clientRegistration()
+				.userInfoUri(userInfoUri);
+		// @formatter:on
 	}
 
 	@After
@@ -103,16 +106,28 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenUserNameAttributeNameIsNullThenThrowOAuth2AuthenticationException() {
 		this.clientRegistration.userNameAttributeName(null);
-		StepVerifier.create(this.userService.loadUser(oauth2UserRequest())).expectErrorSatisfies((ex) -> assertThat(ex)
-				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("missing_user_name_attribute"))
+		// @formatter:off
+		StepVerifier.create(this.userService.loadUser(oauth2UserRequest()))
+				.expectErrorSatisfies((ex) -> assertThat(ex)
+						.isInstanceOf(OAuth2AuthenticationException.class)
+						.hasMessageContaining("missing_user_name_attribute")
+				)
 				.verify();
+		// @formatter:on
 	}
 
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() {
-		String userInfoResponse = "{\n" + "	\"id\": \"user1\",\n" + "   \"first-name\": \"first\",\n"
-				+ "   \"last-name\": \"last\",\n" + "   \"middle-name\": \"middle\",\n"
-				+ "   \"address\": \"address\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"id\": \"user1\",\n"
+			+ "   \"first-name\": \"first\",\n"
+			+ "   \"last-name\": \"last\",\n"
+			+ "   \"middle-name\": \"middle\",\n"
+			+ "   \"address\": \"address\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		enqueueApplicationJsonBody(userInfoResponse);
 		OAuth2User user = this.userService.loadUser(oauth2UserRequest()).block();
 		assertThat(user.getName()).isEqualTo("user1");
@@ -134,9 +149,16 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenAuthenticationMethodHeaderSuccessResponseThenHttpMethodGet() throws Exception {
 		this.clientRegistration.userInfoAuthenticationMethod(AuthenticationMethod.HEADER);
-		String userInfoResponse = "{\n" + "	\"id\": \"user1\",\n" + "   \"first-name\": \"first\",\n"
-				+ "   \"last-name\": \"last\",\n" + "   \"middle-name\": \"middle\",\n"
-				+ "   \"address\": \"address\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"id\": \"user1\",\n"
+			+ "   \"first-name\": \"first\",\n"
+			+ "   \"last-name\": \"last\",\n"
+			+ "   \"middle-name\": \"middle\",\n"
+			+ "   \"address\": \"address\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		enqueueApplicationJsonBody(userInfoResponse);
 		this.userService.loadUser(oauth2UserRequest()).block();
 		RecordedRequest request = this.server.takeRequest();
@@ -150,9 +172,16 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenAuthenticationMethodFormSuccessResponseThenHttpMethodPost() throws Exception {
 		this.clientRegistration.userInfoAuthenticationMethod(AuthenticationMethod.FORM);
-		String userInfoResponse = "{\n" + "	\"id\": \"user1\",\n" + "   \"first-name\": \"first\",\n"
-				+ "   \"last-name\": \"last\",\n" + "   \"middle-name\": \"middle\",\n"
-				+ "   \"address\": \"address\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"id\": \"user1\",\n"
+			+ "   \"first-name\": \"first\",\n"
+			+ "   \"last-name\": \"last\",\n"
+			+ "   \"middle-name\": \"middle\",\n"
+			+ "   \"address\": \"address\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		enqueueApplicationJsonBody(userInfoResponse);
 		this.userService.loadUser(oauth2UserRequest()).block();
 		RecordedRequest request = this.server.takeRequest();
@@ -164,10 +193,16 @@ public class DefaultReactiveOAuth2UserServiceTests {
 
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() {
-		String userInfoResponse = "{\n" + "	\"id\": \"user1\",\n" + "   \"first-name\": \"first\",\n"
-				+ "   \"last-name\": \"last\",\n" + "   \"middle-name\": \"middle\",\n"
-				+ "   \"address\": \"address\",\n" + "   \"email\": \"user1@example.com\"\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "	\"id\": \"user1\",\n"
+			+ "   \"first-name\": \"first\",\n"
+			+ "   \"last-name\": \"last\",\n"
+			+ "   \"middle-name\": \"middle\",\n"
+			+ "   \"address\": \"address\",\n"
+			+ "   \"email\": \"user1@example.com\"\n";
 		// "}\n"; // Make the JSON invalid/malformed
+		// @formatter:on
 		enqueueApplicationJsonBody(userInfoResponse);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())

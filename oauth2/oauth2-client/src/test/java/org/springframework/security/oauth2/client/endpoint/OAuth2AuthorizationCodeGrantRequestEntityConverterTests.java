@@ -48,21 +48,38 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverterTests {
 
 	private OAuth2AuthorizationCodeGrantRequestEntityConverter converter = new OAuth2AuthorizationCodeGrantRequestEntityConverter();
 
+	// @formatter:off
 	private ClientRegistration.Builder clientRegistrationBuilder = ClientRegistration
-			.withRegistrationId("registration-1").clientId("client-1").clientSecret("secret")
+			.withRegistrationId("registration-1")
+			.clientId("client-1")
+			.clientSecret("secret")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUri("https://client.com/callback/client-1").scope("read", "write")
-			.authorizationUri("https://provider.com/oauth2/authorize").tokenUri("https://provider.com/oauth2/token")
-			.userInfoUri("https://provider.com/user").userNameAttributeName("id").clientName("client-1");
-
-	private OAuth2AuthorizationRequest.Builder authorizationRequestBuilder = OAuth2AuthorizationRequest
-			.authorizationCode().clientId("client-1").state("state-1234")
+			.redirectUri("https://client.com/callback/client-1")
+			.scope("read", "write")
 			.authorizationUri("https://provider.com/oauth2/authorize")
-			.redirectUri("https://client.com/callback/client-1").scopes(new HashSet(Arrays.asList("read", "write")));
+			.tokenUri("https://provider.com/oauth2/token")
+			.userInfoUri("https://provider.com/user")
+			.userNameAttributeName("id")
+			.clientName("client-1");
+	// @formatter:on
 
+	// @formatter:off
+	private OAuth2AuthorizationRequest.Builder authorizationRequestBuilder = OAuth2AuthorizationRequest
+			.authorizationCode()
+			.clientId("client-1")
+			.state("state-1234")
+			.authorizationUri("https://provider.com/oauth2/authorize")
+			.redirectUri("https://client.com/callback/client-1")
+			.scopes(new HashSet(Arrays.asList("read", "write")));
+	// @formatter:on
+
+	// @formatter:off
 	private OAuth2AuthorizationResponse.Builder authorizationResponseBuilder = OAuth2AuthorizationResponse
-			.success("code-1234").state("state-1234").redirectUri("https://client.com/callback/client-1");
+			.success("code-1234")
+			.state("state-1234")
+			.redirectUri("https://client.com/callback/client-1");
+	// @formatter:on
 
 	@SuppressWarnings("unchecked")
 	@Test

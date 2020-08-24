@@ -78,40 +78,57 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void setAccessTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
 				.withMessage("accessTokenResponseClient cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void setClockSkewWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
 				.withMessage("clockSkew cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void setClockSkewWhenNegativeSecondsThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(-1)))
 				.withMessage("clockSkew must be >= 0");
+		// @formatter:on
 	}
 
 	@Test
 	public void setClockWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.setClock(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClock(null))
 				.withMessage("clock cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.authorize(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.authorize(null))
 				.withMessage("context cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void authorizeWhenNotAuthorizedThenUnableToReauthorize() {
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withClientRegistration(this.clientRegistration).principal(this.principal).build();
+				.withClientRegistration(this.clientRegistration)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
 	}
 
@@ -119,8 +136,12 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenAuthorizedAndRefreshTokenIsNullThenUnableToReauthorize() {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principal.getName(), this.authorizedClient.getAccessToken());
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(authorizedClient).principal(this.principal).build();
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
 	}
 
@@ -128,8 +149,12 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenAuthorizedAndAccessTokenNotExpiredThenNotReauthorize() {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principal.getName(), TestOAuth2AccessTokens.noScopes(), this.authorizedClient.getRefreshToken());
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(authorizedClient).principal(this.principal).build();
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
 	}
 
@@ -149,8 +174,12 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 		// Shorten the lifespan of the access token by 90 seconds, which will ultimately
 		// force it to expire on the client
 		this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(90));
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(authorizedClient).principal(this.principal).build();
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
 		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(reauthorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
@@ -160,11 +189,19 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void authorizeWhenAuthorizedAndAccessTokenExpiredThenReauthorize() {
-		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
-				.refreshToken("new-refresh-token").build();
+		// @formatter:off
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses
+				.accessTokenResponse()
+				.refreshToken("new-refresh-token")
+				.build();
+		// @formatter:on
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(this.authorizedClient).principal(this.principal).build();
+				.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
 		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(reauthorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
@@ -174,13 +211,21 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void authorizeWhenAuthorizedAndRequestScopeProvidedThenScopeRequested() {
-		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
-				.refreshToken("new-refresh-token").build();
+		// @formatter:off
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses
+				.accessTokenResponse()
+				.refreshToken("new-refresh-token")
+				.build();
+		// @formatter:on
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 		String[] requestScope = new String[] { "read", "write" };
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(this.authorizedClient).principal(this.principal)
-				.attribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME, requestScope).build();
+				.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.attribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME, requestScope)
+				.build();
+		// @formatter:on
 		this.authorizedClientProvider.authorize(authorizationContext);
 		ArgumentCaptor<OAuth2RefreshTokenGrantRequest> refreshTokenGrantRequestArgCaptor = ArgumentCaptor
 				.forClass(OAuth2RefreshTokenGrantRequest.class);
@@ -192,9 +237,13 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenAuthorizedAndInvalidRequestScopeProvidedThenThrowIllegalArgumentException() {
 		String invalidRequestScope = "read write";
+		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(this.authorizedClient).principal(this.principal)
-				.attribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME, invalidRequestScope).build();
+				.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.attribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME, invalidRequestScope)
+				.build();
+		// @formatter:on
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
 				.withMessageStartingWith("The context attribute must be of type String[] '"

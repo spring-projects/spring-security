@@ -77,9 +77,13 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	public void setUp() {
 		this.registration1 = TestClientRegistrations.clientRegistration().build();
 		this.registration2 = TestClientRegistrations.clientRegistration2().build();
-		this.registration3 = TestClientRegistrations.clientRegistration().registrationId("registration-3")
+		// @formatter:off
+		this.registration3 = TestClientRegistrations.clientRegistration()
+				.registrationId("registration-3")
 				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-				.redirectUri("{baseUrl}/authorize/oauth2/implicit/{registrationId}").build();
+				.redirectUri("{baseUrl}/authorize/oauth2/implicit/{registrationId}")
+				.build();
+		// @formatter:on
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1,
 				this.registration2, this.registration3);
 		this.filter = new OAuth2AuthorizationRequestRedirectFilter(this.clientRegistrationRepository);
@@ -307,13 +311,18 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver.resolve(request);
 		Map<String, Object> additionalParameters = new HashMap<>(defaultAuthorizationRequest.getAdditionalParameters());
 		additionalParameters.put(loginHintParamName, request.getParameter(loginHintParamName));
+		// @formatter:off
 		String customAuthorizationRequestUri = UriComponentsBuilder
 				.fromUriString(defaultAuthorizationRequest.getAuthorizationRequestUri())
-				.queryParam(loginHintParamName, additionalParameters.get(loginHintParamName)).build(true).toUriString();
+				.queryParam(loginHintParamName, additionalParameters.get(loginHintParamName))
+				.build(true)
+				.toUriString();
 		OAuth2AuthorizationRequest result = OAuth2AuthorizationRequest
 				.from(defaultAuthorizationRequestResolver.resolve(request))
 				.additionalParameters(Collections.singletonMap("idp", request.getParameter("idp")))
-				.authorizationRequestUri(customAuthorizationRequestUri).build();
+				.authorizationRequestUri(customAuthorizationRequestUri)
+				.build();
+		// @formatter:on
 		given(resolver.resolve(any())).willReturn(result);
 		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
 		filter.doFilter(request, response, filterChain);

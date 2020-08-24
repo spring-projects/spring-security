@@ -67,8 +67,11 @@ public class OAuth2AuthorizedClientMixinTests {
 		Map<String, Object> providerConfigurationMetadata = new LinkedHashMap<>();
 		providerConfigurationMetadata.put("config1", "value1");
 		providerConfigurationMetadata.put("config2", "value2");
-		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration().scope("read", "write")
+		// @formatter:off
+		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration()
+				.scope("read", "write")
 				.providerConfigurationMetadata(providerConfigurationMetadata);
+		// @formatter:on
 		this.accessToken = TestOAuth2AccessTokens.scopes("read", "write");
 		this.refreshToken = TestOAuth2RefreshTokens.refreshToken();
 		this.principalName = "principal-name";
@@ -85,8 +88,16 @@ public class OAuth2AuthorizedClientMixinTests {
 
 	@Test
 	public void serializeWhenRequiredAttributesOnlyThenSerializes() throws Exception {
-		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().clientSecret(null)
-				.clientName(null).userInfoUri(null).userNameAttributeName(null).jwkSetUri(null).issuerUri(null).build();
+		// @formatter:off
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
+				.clientSecret(null)
+				.clientName(null)
+				.userInfoUri(null)
+				.userNameAttributeName(null)
+				.jwkSetUri(null)
+				.issuerUri(null)
+				.build();
+		// @formatter:on
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, this.principalName,
 				TestOAuth2AccessTokens.noScopes());
 		String expectedJson = asJson(authorizedClient);
@@ -154,8 +165,16 @@ public class OAuth2AuthorizedClientMixinTests {
 
 	@Test
 	public void deserializeWhenRequiredAttributesOnlyThenDeserializes() throws Exception {
-		ClientRegistration expectedClientRegistration = TestClientRegistrations.clientRegistration().clientSecret(null)
-				.clientName(null).userInfoUri(null).userNameAttributeName(null).jwkSetUri(null).issuerUri(null).build();
+		// @formatter:off
+		ClientRegistration expectedClientRegistration = TestClientRegistrations.clientRegistration()
+				.clientSecret(null)
+				.clientName(null)
+				.userInfoUri(null)
+				.userNameAttributeName(null)
+				.jwkSetUri(null)
+				.issuerUri(null)
+				.build();
+		// @formatter:on
 		OAuth2AccessToken expectedAccessToken = TestOAuth2AccessTokens.noScopes();
 		OAuth2AuthorizedClient expectedAuthorizedClient = new OAuth2AuthorizedClient(expectedClientRegistration,
 				this.principalName, expectedAccessToken);

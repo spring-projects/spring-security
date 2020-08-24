@@ -219,14 +219,21 @@ public class OAuth2LoginAuthenticationFilterTests {
 		request.addParameter(OAuth2ParameterNames.STATE, "state");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
+		// @formatter:off
 		ClientRegistration registrationNotFound = ClientRegistration.withRegistrationId("registration-not-found")
-				.clientId("client-1").clientSecret("secret")
+				.clientId("client-1")
+				.clientSecret("secret")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}").scope("user")
-				.authorizationUri("https://provider.com/oauth2/authorize").tokenUri("https://provider.com/oauth2/token")
-				.userInfoUri("https://provider.com/oauth2/user").userNameAttributeName("id").clientName("client-1")
+				.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
+				.scope("user")
+				.authorizationUri("https://provider.com/oauth2/authorize")
+				.tokenUri("https://provider.com/oauth2/token")
+				.userInfoUri("https://provider.com/oauth2/user")
+				.userNameAttributeName("id")
+				.clientName("client-1")
 				.build();
+		// @formatter:on
 		this.setUpAuthorizationRequest(request, response, registrationNotFound, state);
 		this.filter.doFilter(request, response, filterChain);
 		ArgumentCaptor<AuthenticationException> authenticationExceptionArgCaptor = ArgumentCaptor

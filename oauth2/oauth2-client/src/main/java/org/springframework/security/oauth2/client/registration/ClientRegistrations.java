@@ -148,8 +148,11 @@ public final class ClientRegistrations {
 	}
 
 	private static Supplier<ClientRegistration.Builder> oidc(URI issuer) {
-		URI uri = UriComponentsBuilder.fromUri(issuer).replacePath(issuer.getPath() + OIDC_METADATA_PATH)
+		// @formatter:off
+		URI uri = UriComponentsBuilder.fromUri(issuer)
+				.replacePath(issuer.getPath() + OIDC_METADATA_PATH)
 				.build(Collections.emptyMap());
+		// @formatter:on
 		return () -> {
 			RequestEntity<Void> request = RequestEntity.get(uri).build();
 			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
@@ -164,14 +167,20 @@ public final class ClientRegistrations {
 	}
 
 	private static Supplier<ClientRegistration.Builder> oidcRfc8414(URI issuer) {
-		URI uri = UriComponentsBuilder.fromUri(issuer).replacePath(OIDC_METADATA_PATH + issuer.getPath())
+		// @formatter:off
+		URI uri = UriComponentsBuilder.fromUri(issuer)
+				.replacePath(OIDC_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
+		// @formatter:on
 		return getRfc8414Builder(issuer, uri);
 	}
 
 	private static Supplier<ClientRegistration.Builder> oauth(URI issuer) {
-		URI uri = UriComponentsBuilder.fromUri(issuer).replacePath(OAUTH_METADATA_PATH + issuer.getPath())
+		// @formatter:off
+		URI uri = UriComponentsBuilder.fromUri(issuer)
+				.replacePath(OAUTH_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
+		// @formatter:on
 		return getRfc8414Builder(issuer, uri);
 	}
 
@@ -242,12 +251,19 @@ public final class ClientRegistrations {
 						+ "\" returned a configuration of " + grantTypes);
 		List<String> scopes = getScopes(metadata);
 		Map<String, Object> configurationMetadata = new LinkedHashMap<>(metadata.toJSONObject());
-		return ClientRegistration.withRegistrationId(name).userNameAttributeName(IdTokenClaimNames.SUB).scope(scopes)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).clientAuthenticationMethod(method)
+		// @formatter:off
+		return ClientRegistration.withRegistrationId(name)
+				.userNameAttributeName(IdTokenClaimNames.SUB)
+				.scope(scopes)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.clientAuthenticationMethod(method)
 				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
 				.authorizationUri(metadata.getAuthorizationEndpointURI().toASCIIString())
 				.providerConfigurationMetadata(configurationMetadata)
-				.tokenUri(metadata.getTokenEndpointURI().toASCIIString()).issuerUri(issuer).clientName(issuer);
+				.tokenUri(metadata.getTokenEndpointURI().toASCIIString())
+				.issuerUri(issuer)
+				.clientName(issuer);
+		// @formatter:on
 	}
 
 	private static ClientAuthenticationMethod getClientAuthenticationMethod(String issuer,

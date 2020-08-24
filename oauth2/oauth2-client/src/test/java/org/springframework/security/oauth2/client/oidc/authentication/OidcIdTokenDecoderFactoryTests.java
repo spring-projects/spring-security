@@ -50,7 +50,11 @@ import static org.mockito.Mockito.verify;
  */
 public class OidcIdTokenDecoderFactoryTests {
 
-	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration().scope("openid");
+	// @formatter:off
+	private ClientRegistration.Builder registration = TestClientRegistrations
+			.clientRegistration()
+			.scope("openid");
+	// @formatter:on
 
 	private OidcIdTokenDecoderFactory idTokenDecoderFactory;
 

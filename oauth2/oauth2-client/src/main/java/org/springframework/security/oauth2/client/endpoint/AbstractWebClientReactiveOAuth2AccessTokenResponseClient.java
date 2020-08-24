@@ -68,11 +68,15 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	@Override
 	public Mono<OAuth2AccessTokenResponse> getTokenResponse(T grantRequest) {
 		Assert.notNull(grantRequest, "grantRequest cannot be null");
-		return Mono.defer(
-				() -> this.webClient.post().uri(clientRegistration(grantRequest).getProviderDetails().getTokenUri())
-						.headers((headers) -> populateTokenRequestHeaders(grantRequest, headers))
-						.body(createTokenRequestBody(grantRequest)).exchange()
-						.flatMap((response) -> readTokenResponse(grantRequest, response)));
+		// @formatter:off
+		return Mono.defer(() -> this.webClient.post()
+				.uri(clientRegistration(grantRequest).getProviderDetails().getTokenUri())
+				.headers((headers) -> populateTokenRequestHeaders(grantRequest, headers))
+				.body(createTokenRequestBody(grantRequest))
+				.exchange()
+				.flatMap((response) -> readTokenResponse(grantRequest, response))
+		);
+		// @formatter:on
 	}
 
 	/**
@@ -187,7 +191,12 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	OAuth2AccessTokenResponse populateTokenResponse(T grantRequest, OAuth2AccessTokenResponse tokenResponse) {
 		if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
 			Set<String> defaultScopes = defaultScopes(grantRequest);
-			tokenResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse).scopes(defaultScopes).build();
+			// @formatter:off
+			tokenResponse = OAuth2AccessTokenResponse
+					.withResponse(tokenResponse)
+					.scopes(defaultScopes)
+					.build();
+			// @formatter:on
 		}
 		return tokenResponse;
 	}

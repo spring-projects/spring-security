@@ -119,8 +119,15 @@ public class NimbusAuthorizationCodeTokenResponseClient
 			refreshToken = accessTokenResponse.getTokens().getRefreshToken().getValue();
 		}
 		Map<String, Object> additionalParameters = new LinkedHashMap<>(accessTokenResponse.getCustomParameters());
-		return OAuth2AccessTokenResponse.withToken(accessToken).tokenType(accessTokenType).expiresIn(expiresIn)
-				.scopes(scopes).refreshToken(refreshToken).additionalParameters(additionalParameters).build();
+		// @formatter:off
+		return OAuth2AccessTokenResponse.withToken(accessToken)
+				.tokenType(accessTokenType)
+				.expiresIn(expiresIn)
+				.scopes(scopes)
+				.refreshToken(refreshToken)
+				.additionalParameters(additionalParameters)
+				.build();
+		// @formatter:on
 	}
 
 	private com.nimbusds.oauth2.sdk.TokenResponse getTokenResponse(AuthorizationGrant authorizationCodeGrant,

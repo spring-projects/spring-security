@@ -93,8 +93,12 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 	@Test
 	public void resolveWhenForwardedHeadersClientRegistrationFoundThenWorks() {
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.just(this.registration));
-		ServerWebExchange exchange = MockServerWebExchange
-				.from(MockServerHttpRequest.get("/oauth2/authorization/id").header("X-Forwarded-Host", "evil.com"));
+		// @formatter:off
+		MockServerHttpRequest.BaseBuilder<?> httpRequest = MockServerHttpRequest
+				.get("/oauth2/authorization/id")
+				.header("X-Forwarded-Host", "evil.com");
+		// @formatter:on
+		ServerWebExchange exchange = MockServerWebExchange.from(httpRequest);
 		OAuth2AuthorizationRequest request = this.resolver.resolve(exchange).block();
 		assertThat(request.getAuthorizationRequestUri())
 				.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&client_id=client-id&"

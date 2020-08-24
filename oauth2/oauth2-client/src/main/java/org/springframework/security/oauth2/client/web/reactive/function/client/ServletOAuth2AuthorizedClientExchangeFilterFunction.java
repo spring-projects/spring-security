@@ -262,10 +262,14 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	}
 
 	private void updateDefaultAuthorizedClientManager() {
+		// @formatter:off
 		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
-				.authorizationCode().refreshToken((configurer) -> configurer.clockSkew(this.accessTokenExpiresSkew))
+				.authorizationCode()
+				.refreshToken((configurer) -> configurer.clockSkew(this.accessTokenExpiresSkew))
 				.clientCredentials(this::updateClientCredentialsProvider)
-				.password((configurer) -> configurer.clockSkew(this.accessTokenExpiresSkew)).build();
+				.password((configurer) -> configurer.clockSkew(this.accessTokenExpiresSkew))
+				.build();
+		// @formatter:on
 		((DefaultOAuth2AuthorizedClientManager) this.authorizedClientManager)
 				.setAuthorizedClientProvider(authorizedClientProvider);
 	}
@@ -435,15 +439,21 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
+			// @formatter:off
 		return mergeRequestAttributesIfNecessary(request)
 				.filter((req) -> req.attribute(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME).isPresent())
 				.flatMap((req) -> reauthorizeClient(getOAuth2AuthorizedClient(req.attributes()), req))
-				.switchIfEmpty(Mono.defer(() -> mergeRequestAttributesIfNecessary(request)
-						.filter((req) -> resolveClientRegistrationId(req) != null)
-						.flatMap((req) -> authorizeClient(resolveClientRegistrationId(req), req))))
+				.switchIfEmpty(
+						Mono.defer(() ->
+							mergeRequestAttributesIfNecessary(request)
+								.filter((req) -> resolveClientRegistrationId(req) != null)
+								.flatMap((req) -> authorizeClient(resolveClientRegistrationId(req), req))
+						)
+				)
 				.map((authorizedClient) -> bearer(request, authorizedClient))
 				.flatMap((requestWithBearer) -> exchangeAndHandleResponse(requestWithBearer, next))
 				.switchIfEmpty(Mono.defer(() -> exchangeAndHandleResponse(request, next)));
+		// @formatter:on
 	}
 
 	private Mono<ClientResponse> exchangeAndHandleResponse(ClientRequest request, ExchangeFunction next) {
@@ -577,9 +587,12 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	}
 
 	private ClientRequest bearer(ClientRequest request, OAuth2AuthorizedClient authorizedClient) {
+		// @formatter:off
 		return ClientRequest.from(request)
 				.headers((headers) -> headers.setBearerAuth(authorizedClient.getAccessToken().getTokenValue()))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.build();
+		// @formatter:on
 	}
 
 	static OAuth2AuthorizedClient getOAuth2AuthorizedClient(Map<String, Object> attrs) {
@@ -664,19 +677,22 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		}
 
 		private Mono<Void> handleResponse(ClientRequest request, ClientResponse response) {
-			return Mono.justOrEmpty(resolveErrorIfPossible(response)).flatMap((oauth2Error) -> {
-				Map<String, Object> attrs = request.attributes();
-				OAuth2AuthorizedClient authorizedClient = getOAuth2AuthorizedClient(attrs);
-				if (authorizedClient == null) {
-					return Mono.empty();
-				}
-				ClientAuthorizationException authorizationException = new ClientAuthorizationException(oauth2Error,
-						authorizedClient.getClientRegistration().getRegistrationId());
-				Authentication principal = createAuthentication(authorizedClient.getPrincipalName());
-				HttpServletRequest servletRequest = getRequest(attrs);
-				HttpServletResponse servletResponse = getResponse(attrs);
-				return handleAuthorizationFailure(authorizationException, principal, servletRequest, servletResponse);
-			});
+			// @formatter:off
+			return Mono.justOrEmpty(resolveErrorIfPossible(response))
+					.flatMap((oauth2Error) -> {
+						Map<String, Object> attrs = request.attributes();
+						OAuth2AuthorizedClient authorizedClient = getOAuth2AuthorizedClient(attrs);
+						if (authorizedClient == null) {
+							return Mono.empty();
+						}
+						ClientAuthorizationException authorizationException = new ClientAuthorizationException(oauth2Error,
+								authorizedClient.getClientRegistration().getRegistrationId());
+						Authentication principal = createAuthentication(authorizedClient.getPrincipalName());
+						HttpServletRequest servletRequest = getRequest(attrs);
+						HttpServletResponse servletResponse = getResponse(attrs);
+						return handleAuthorizationFailure(authorizationException, principal, servletRequest, servletResponse);
+					});
+			// @formatter:on
 		}
 
 		private OAuth2Error resolveErrorIfPossible(ClientResponse response) {
@@ -702,13 +718,18 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		}
 
 		private Map<String, String> parseAuthParameters(String wwwAuthenticateHeader) {
+			// @formatter:off
 			return Stream.of(wwwAuthenticateHeader).filter((header) -> !StringUtils.isEmpty(header))
 					.filter((header) -> header.toLowerCase().startsWith("bearer"))
-					.map((header) -> header.substring("bearer".length())).map((header) -> header.split(","))
-					.flatMap(Stream::of).map((parameter) -> parameter.split("="))
+					.map((header) -> header.substring("bearer".length()))
+					.map((header) -> header.split(","))
+					.flatMap(Stream::of)
+					.map((parameter) -> parameter.split("="))
 					.filter((parameter) -> parameter.length > 1)
 					.collect(Collectors.toMap((parameters) -> parameters[0].trim(),
-							(parameters) -> parameters[1].trim().replace("\"", "")));
+							(parameters) -> parameters[1].trim().replace("\"", ""))
+					);
+			// @formatter:on
 		}
 
 		/**
@@ -776,7 +797,11 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 				HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
 			Runnable runnable = () -> this.authorizationFailureHandler.onAuthorizationFailure(exception, principal,
 					createAttributes(servletRequest, servletResponse));
-			return Mono.fromRunnable(runnable).subscribeOn(Schedulers.boundedElastic()).then();
+			// @formatter:off
+			return Mono.fromRunnable(runnable)
+					.subscribeOn(Schedulers.boundedElastic())
+					.then();
+			// @formatter:on
 		}
 
 		private static Map<String, Object> createAttributes(HttpServletRequest servletRequest,

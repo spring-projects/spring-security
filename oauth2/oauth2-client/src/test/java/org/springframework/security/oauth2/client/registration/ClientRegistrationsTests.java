@@ -48,27 +48,61 @@ public class ClientRegistrationsTests {
 	/**
 	 * Contains all optional parameters that are found in ClientRegistration
 	 */
+	// @formatter:off
 	private static final String DEFAULT_RESPONSE = "{\n"
 			+ "    \"authorization_endpoint\": \"https://example.com/o/oauth2/v2/auth\", \n"
-			+ "    \"claims_supported\": [\n" + "        \"aud\", \n" + "        \"email\", \n"
-			+ "        \"email_verified\", \n" + "        \"exp\", \n" + "        \"family_name\", \n"
-			+ "        \"given_name\", \n" + "        \"iat\", \n" + "        \"iss\", \n" + "        \"locale\", \n"
-			+ "        \"name\", \n" + "        \"picture\", \n" + "        \"sub\"\n" + "    ], \n"
-			+ "    \"code_challenge_methods_supported\": [\n" + "        \"plain\", \n" + "        \"S256\"\n"
-			+ "    ], \n" + "    \"id_token_signing_alg_values_supported\": [\n" + "        \"RS256\"\n" + "    ], \n"
+			+ "    \"claims_supported\": [\n"
+			+ "        \"aud\", \n"
+			+ "        \"email\", \n"
+			+ "        \"email_verified\", \n"
+			+ "        \"exp\", \n"
+			+ "        \"family_name\", \n"
+			+ "        \"given_name\", \n"
+			+ "        \"iat\", \n"
+			+ "        \"iss\", \n"
+			+ "        \"locale\", \n"
+			+ "        \"name\", \n"
+			+ "        \"picture\", \n"
+			+ "        \"sub\"\n"
+			+ "    ], \n"
+			+ "    \"code_challenge_methods_supported\": [\n"
+			+ "        \"plain\", \n"
+			+ "        \"S256\"\n"
+			+ "    ], \n"
+			+ "    \"id_token_signing_alg_values_supported\": [\n"
+			+ "        \"RS256\"\n"
+			+ "    ], \n"
 			+ "    \"issuer\": \"https://example.com\", \n"
-			+ "    \"jwks_uri\": \"https://example.com/oauth2/v3/certs\", \n" + "    \"response_types_supported\": [\n"
-			+ "        \"code\", \n" + "        \"token\", \n" + "        \"id_token\", \n"
-			+ "        \"code token\", \n" + "        \"code id_token\", \n" + "        \"token id_token\", \n"
-			+ "        \"code token id_token\", \n" + "        \"none\"\n" + "    ], \n"
+			+ "    \"jwks_uri\": \"https://example.com/oauth2/v3/certs\", \n"
+			+ "    \"response_types_supported\": [\n"
+			+ "        \"code\", \n"
+			+ "        \"token\", \n"
+			+ "        \"id_token\", \n"
+			+ "        \"code token\", \n"
+			+ "        \"code id_token\", \n"
+			+ "        \"token id_token\", \n"
+			+ "        \"code token id_token\", \n"
+			+ "        \"none\"\n"
+			+ "    ], \n"
 			+ "    \"revocation_endpoint\": \"https://example.com/o/oauth2/revoke\", \n"
-			+ "    \"scopes_supported\": [\n" + "        \"openid\", \n" + "        \"email\", \n"
-			+ "        \"profile\"\n" + "    ], \n" + "    \"subject_types_supported\": [\n" + "        \"public\"\n"
-			+ "    ], \n" + "    \"grant_types_supported\" : [\"authorization_code\"], \n"
+			+ "    \"scopes_supported\": [\n"
+			+ "        \"openid\", \n"
+			+ "        \"email\", \n"
+			+ "        \"profile\"\n"
+			+ "    ], \n"
+			+ "    \"subject_types_supported\": [\n"
+			+ "        \"public\"\n"
+			+ "    ], \n"
+			+ "    \"grant_types_supported\" : [\"authorization_code\"], \n"
 			+ "    \"token_endpoint\": \"https://example.com/oauth2/v4/token\", \n"
-			+ "    \"token_endpoint_auth_methods_supported\": [\n" + "        \"client_secret_post\", \n"
-			+ "        \"client_secret_basic\", \n" + "        \"none\"\n" + "    ], \n"
-			+ "    \"userinfo_endpoint\": \"https://example.com/oauth2/v3/userinfo\"\n" + "}";
+			+ "    \"token_endpoint_auth_methods_supported\": [\n"
+			+ "        \"client_secret_post\", \n"
+			+ "        \"client_secret_basic\", \n"
+			+ "        \"none\"\n"
+			+ "    ], \n"
+			+ "    \"userinfo_endpoint\": \"https://example.com/oauth2/v3/userinfo\"\n"
+			+ "}";
+	// @formatter:on
 
 	private MockWebServer server;
 
@@ -301,31 +335,43 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenTokenEndpointAuthMethodsInvalidThenException() {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("tls_client_auth"));
-		assertThatIllegalArgumentException().isThrownBy(() -> registration(""))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> registration(""))
 				.withMessageContaining("Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and "
 						+ "ClientAuthenticationMethod.NONE are supported. The issuer \"" + this.issuer
 						+ "\" returned a configuration of [tls_client_auth]");
+		// @formatter:on
 	}
 
 	@Test
 	public void issuerWhenOAuth2TokenEndpointAuthMethodsInvalidThenException() {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("tls_client_auth"));
-		assertThatIllegalArgumentException().isThrownBy(() -> registrationOAuth2("", null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> registrationOAuth2("", null))
 				.withMessageContaining("Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and "
 						+ "ClientAuthenticationMethod.NONE are supported. The issuer \"" + this.issuer
 						+ "\" returned a configuration of [tls_client_auth]");
+		// @formatter:on
 	}
 
 	@Test
 	public void issuerWhenOAuth2EmptyStringThenMeaningfulErrorMessage() {
-		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistrations.fromIssuerLocation(""))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> ClientRegistrations.fromIssuerLocation(""))
 				.withMessageContaining("issuer cannot be empty");
+		// @formatter:on
 	}
 
 	@Test
 	public void issuerWhenEmptyStringThenMeaningfulErrorMessage() {
-		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(""))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(""))
 				.withMessageContaining("issuer cannot be empty");
+		// @formatter:on
 	}
 
 	@Test
@@ -335,9 +381,12 @@ public class ClientRegistrationsTests {
 		MockResponse mockResponse = new MockResponse().setBody(body).setHeader(HttpHeaders.CONTENT_TYPE,
 				MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
-		assertThatIllegalStateException().isThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(this.issuer))
+		// @formatter:off
+		assertThatIllegalStateException()
+				.isThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(this.issuer))
 				.withMessageContaining("The Issuer \"https://example.com\" provided in the configuration metadata did "
 						+ "not match the requested issuer \"" + this.issuer + "\"");
+		// @formatter:on
 	}
 
 	@Test
@@ -347,20 +396,28 @@ public class ClientRegistrationsTests {
 		MockResponse mockResponse = new MockResponse().setBody(body).setHeader(HttpHeaders.CONTENT_TYPE,
 				MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
-		assertThatIllegalStateException().isThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.issuer))
+		// @formatter:off
+		assertThatIllegalStateException()
+				.isThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.issuer))
 				.withMessageContaining("The Issuer \"https://example.com\" provided in the configuration metadata "
 						+ "did not match the requested issuer \"" + this.issuer + "\"");
+		// @formatter:on
 	}
 
 	private ClientRegistration.Builder registration(String path) throws Exception {
 		this.issuer = createIssuerFromServer(path);
 		this.response.put("issuer", this.issuer);
 		String body = this.mapper.writeValueAsString(this.response);
-		MockResponse mockResponse = new MockResponse().setBody(body).setHeader(HttpHeaders.CONTENT_TYPE,
+		// @formatter:off
+		MockResponse mockResponse = new MockResponse()
+				.setBody(body)
+				.setHeader(HttpHeaders.CONTENT_TYPE,
 				MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
-		return ClientRegistrations.fromOidcIssuerLocation(this.issuer).clientId("client-id")
+		return ClientRegistrations.fromOidcIssuerLocation(this.issuer)
+				.clientId("client-id")
 				.clientSecret("client-secret");
+		// @formatter:on
 	}
 
 	private ClientRegistration.Builder registrationOAuth2(String path, String body) throws Exception {
@@ -380,7 +437,11 @@ public class ClientRegistrationsTests {
 			}
 		};
 		this.server.setDispatcher(dispatcher);
-		return ClientRegistrations.fromIssuerLocation(this.issuer).clientId("client-id").clientSecret("client-secret");
+		// @formatter:off
+		return ClientRegistrations.fromIssuerLocation(this.issuer)
+				.clientId("client-id")
+				.clientSecret("client-secret");
+		// @formatter:on
 	}
 
 	private String createIssuerFromServer(String path) {
@@ -416,8 +477,11 @@ public class ClientRegistrationsTests {
 	}
 
 	private MockResponse buildSuccessMockResponse(String body) {
-		return new MockResponse().setResponseCode(200).setBody(body).setHeader(HttpHeaders.CONTENT_TYPE,
-				MediaType.APPLICATION_JSON_VALUE);
+		// @formatter:off
+		return new MockResponse().setResponseCode(200)
+				.setBody(body)
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+		// @formatter:on
 	}
 
 }

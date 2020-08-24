@@ -202,15 +202,20 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+		// @formatter:off
 		return this.requiresAuthenticationMatcher.matches(exchange)
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.flatMap((matchResult) -> this.authenticationConverter.convert(exchange).onErrorMap(
-						OAuth2AuthorizationException.class,
-						(ex) -> new OAuth2AuthenticationException(ex.getError(), ex.getError().toString())))
+				.flatMap((matchResult) -> this.authenticationConverter.convert(exchange)
+					.onErrorMap(OAuth2AuthorizationException.class,
+						(ex) -> new OAuth2AuthenticationException(ex.getError(), ex.getError().toString())
+					)
+				)
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 				.flatMap((token) -> authenticate(exchange, chain, token))
-				.onErrorResume(AuthenticationException.class, (e) -> this.authenticationFailureHandler
-						.onAuthenticationFailure(new WebFilterExchange(exchange, chain), e));
+				.onErrorResume(AuthenticationException.class, (e) ->
+					this.authenticationFailureHandler.onAuthenticationFailure(new WebFilterExchange(exchange, chain), e)
+				);
+		// @formatter:on
 	}
 
 	private Mono<Void> authenticate(ServerWebExchange exchange, WebFilterChain chain, Authentication token) {
@@ -230,19 +235,30 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 				authenticationResult.getClientRegistration(), authenticationResult.getName(),
 				authenticationResult.getAccessToken(), authenticationResult.getRefreshToken());
+		// @formatter:off
 		return this.authenticationSuccessHandler.onAuthenticationSuccess(webFilterExchange, authentication)
-				.then(ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
-						.defaultIfEmpty(this.anonymousToken).flatMap((principal) -> this.authorizedClientRepository
-								.saveAuthorizedClient(authorizedClient, principal, webFilterExchange.getExchange())));
+				.then(ReactiveSecurityContextHolder.getContext()
+						.map(SecurityContext::getAuthentication)
+						.defaultIfEmpty(this.anonymousToken)
+						.flatMap((principal) -> this.authorizedClientRepository
+								.saveAuthorizedClient(authorizedClient, principal, webFilterExchange.getExchange())
+						)
+				);
+		// @formatter:on
 	}
 
 	private Mono<ServerWebExchangeMatcher.MatchResult> matchesAuthorizationResponse(ServerWebExchange exchange) {
-		return Mono.just(exchange).filter(
-				(exch) -> OAuth2AuthorizationResponseUtils.isAuthorizationResponse(exch.getRequest().getQueryParams()))
+		// @formatter:off
+		return Mono.just(exchange)
+				.filter((exch) ->
+						OAuth2AuthorizationResponseUtils.isAuthorizationResponse(exch.getRequest().getQueryParams())
+				)
 				.flatMap((exch) -> this.authorizationRequestRepository.loadAuthorizationRequest(exchange)
 						.flatMap((authorizationRequest) -> matchesRedirectUri(exch.getRequest().getURI(),
-								authorizationRequest.getRedirectUri())))
+								authorizationRequest.getRedirectUri()))
+				)
 				.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.notMatch());
+		// @formatter:on
 	}
 
 	private static Mono<ServerWebExchangeMatcher.MatchResult> matchesRedirectUri(URI authorizationResponseUri,

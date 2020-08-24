@@ -131,12 +131,18 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	private final Mono<Authentication> currentAuthenticationMono = ReactiveSecurityContextHolder.getContext()
 			.map(SecurityContext::getAuthentication).defaultIfEmpty(ANONYMOUS_USER_TOKEN);
 
+	// @formatter:off
 	private final Mono<String> clientRegistrationIdMono = this.currentAuthenticationMono
 			.filter((t) -> this.defaultOAuth2AuthorizedClient && t instanceof OAuth2AuthenticationToken)
-			.cast(OAuth2AuthenticationToken.class).map(OAuth2AuthenticationToken::getAuthorizedClientRegistrationId);
+			.cast(OAuth2AuthenticationToken.class)
+			.map(OAuth2AuthenticationToken::getAuthorizedClientRegistrationId);
+	// @formatter:on
 
+	// @formatter:off
 	private final Mono<ServerWebExchange> currentServerWebExchangeMono = Mono.subscriberContext()
-			.filter((c) -> c.hasKey(ServerWebExchange.class)).map((c) -> c.get(ServerWebExchange.class));
+			.filter((c) -> c.hasKey(ServerWebExchange.class))
+			.map((c) -> c.get(ServerWebExchange.class));
+	// @formatter:on
 
 	private final ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
 
@@ -372,11 +378,14 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	}
 
 	private void updateDefaultAuthorizedClientManager() {
-		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
-				.builder().authorizationCode()
+		// @formatter:off
+		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+				.authorizationCode()
 				.refreshToken((configurer) -> configurer.clockSkew(this.accessTokenExpiresSkew))
 				.clientCredentials(this::updateClientCredentialsProvider)
-				.password((configurer) -> configurer.clockSkew(this.accessTokenExpiresSkew)).build();
+				.password((configurer) -> configurer.clockSkew(this.accessTokenExpiresSkew))
+				.build();
+		// @formatter:on
 		if (this.authorizedClientManager instanceof UnAuthenticatedReactiveOAuth2AuthorizedClientManager) {
 			((UnAuthenticatedReactiveOAuth2AuthorizedClientManager) this.authorizedClientManager)
 					.setAuthorizedClientProvider(authorizedClientProvider);
@@ -418,9 +427,12 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-		return authorizedClient(request).map((authorizedClient) -> bearer(request, authorizedClient))
+		// @formatter:off
+		return authorizedClient(request)
+				.map((authorizedClient) -> bearer(request, authorizedClient))
 				.flatMap((requestWithBearer) -> exchangeAndHandleResponse(requestWithBearer, next))
 				.switchIfEmpty(Mono.defer(() -> exchangeAndHandleResponse(request, next)));
+		// @formatter:on
 	}
 
 	private Mono<ClientResponse> exchangeAndHandleResponse(ClientRequest request, ExchangeFunction next) {
@@ -430,22 +442,30 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 
 	private Mono<OAuth2AuthorizedClient> authorizedClient(ClientRequest request) {
 		OAuth2AuthorizedClient authorizedClientFromAttrs = oauth2AuthorizedClient(request);
+		// @formatter:off
 		return Mono.justOrEmpty(authorizedClientFromAttrs)
-				.switchIfEmpty(
-						Mono.defer(() -> authorizeRequest(request).flatMap(this.authorizedClientManager::authorize)))
+				.switchIfEmpty(Mono.defer(() -> authorizeRequest(request)
+						.flatMap(this.authorizedClientManager::authorize))
+				)
 				.flatMap((authorizedClient) -> reauthorizeRequest(request, authorizedClient)
-						.flatMap(this.authorizedClientManager::authorize));
+						.flatMap(this.authorizedClientManager::authorize)
+				);
+		// @formatter:on
 	}
 
 	private Mono<OAuth2AuthorizeRequest> authorizeRequest(ClientRequest request) {
 		Mono<String> clientRegistrationId = effectiveClientRegistrationId(request);
 		Mono<Optional<ServerWebExchange>> serverWebExchange = effectiveServerWebExchange(request);
-		return Mono.zip(clientRegistrationId, this.currentAuthenticationMono, serverWebExchange).map((t3) -> {
-			OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withClientRegistrationId(t3.getT1())
-					.principal(t3.getT2());
-			t3.getT3().ifPresent((exchange) -> builder.attribute(ServerWebExchange.class.getName(), exchange));
-			return builder.build();
-		});
+		// @formatter:off
+		return Mono.zip(clientRegistrationId, this.currentAuthenticationMono, serverWebExchange)
+				.map((t3) -> {
+					OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest
+							.withClientRegistrationId(t3.getT1())
+							.principal(t3.getT2());
+					t3.getT3().ifPresent((exchange) -> builder.attribute(ServerWebExchange.class.getName(), exchange));
+					return builder.build();
+				});
+		// @formatter:on
 	}
 
 	/**
@@ -456,9 +476,11 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * given request.
 	 */
 	private Mono<String> effectiveClientRegistrationId(ClientRequest request) {
+		// @formatter:off
 		return Mono.justOrEmpty(clientRegistrationId(request))
 				.switchIfEmpty(Mono.justOrEmpty(this.defaultClientRegistrationId))
 				.switchIfEmpty(this.clientRegistrationIdMono);
+		// @formatter:on
 	}
 
 	/**
@@ -474,24 +496,34 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * {@link ServerWebExchange} that is active for the given request.
 	 */
 	private Mono<Optional<ServerWebExchange>> effectiveServerWebExchange(ClientRequest request) {
-		return Mono.justOrEmpty(serverWebExchange(request)).switchIfEmpty(this.currentServerWebExchangeMono)
-				.map(Optional::of).defaultIfEmpty(Optional.empty());
+		// @formatter:off
+		return Mono.justOrEmpty(serverWebExchange(request))
+				.switchIfEmpty(this.currentServerWebExchangeMono)
+				.map(Optional::of)
+				.defaultIfEmpty(Optional.empty());
+		// @formatter:on
 	}
 
 	private Mono<OAuth2AuthorizeRequest> reauthorizeRequest(ClientRequest request,
 			OAuth2AuthorizedClient authorizedClient) {
 		Mono<Optional<ServerWebExchange>> serverWebExchange = effectiveServerWebExchange(request);
-		return Mono.zip(this.currentAuthenticationMono, serverWebExchange).map((t2) -> {
-			OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withAuthorizedClient(authorizedClient)
-					.principal(t2.getT1());
-			t2.getT2().ifPresent((exchange) -> builder.attribute(ServerWebExchange.class.getName(), exchange));
-			return builder.build();
-		});
+		// @formatter:off
+		return Mono.zip(this.currentAuthenticationMono, serverWebExchange)
+				.map((t2) -> {
+					OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withAuthorizedClient(authorizedClient)
+							.principal(t2.getT1());
+					t2.getT2().ifPresent((exchange) -> builder.attribute(ServerWebExchange.class.getName(), exchange));
+					return builder.build();
+				});
+		// @formatter:on
 	}
 
 	private ClientRequest bearer(ClientRequest request, OAuth2AuthorizedClient authorizedClient) {
+		// @formatter:off
 		return ClientRequest.from(request)
-				.headers((headers) -> headers.setBearerAuth(authorizedClient.getAccessToken().getTokenValue())).build();
+				.headers((headers) -> headers.setBearerAuth(authorizedClient.getAccessToken().getTokenValue()))
+				.build();
+		// @formatter:on
 	}
 
 	/**
@@ -555,10 +587,12 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			Assert.notNull(authorizeRequest, "authorizeRequest cannot be null");
 			String clientRegistrationId = authorizeRequest.getClientRegistrationId();
 			Authentication principal = authorizeRequest.getPrincipal();
+			// @formatter:off
 			return Mono.justOrEmpty(authorizeRequest.getAuthorizedClient())
 					.switchIfEmpty(loadAuthorizedClient(clientRegistrationId, principal))
 					.flatMap((authorizedClient) -> reauthorize(authorizedClient, authorizeRequest, principal))
 					.switchIfEmpty(findAndAuthorize(clientRegistrationId, principal));
+			// @formatter:on
 		}
 
 		private Mono<OAuth2AuthorizedClient> loadAuthorizedClient(String clientRegistrationId,
@@ -580,12 +614,18 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		}
 
 		private Mono<OAuth2AuthorizedClient> findAndAuthorize(String clientRegistrationId, Authentication principal) {
-			return Mono.defer(() -> this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
-					.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(
-							"Could not find ClientRegistration with id '" + clientRegistrationId + "'")))
-					.flatMap((clientRegistration) -> Mono.just(OAuth2AuthorizationContext
-							.withClientRegistration(clientRegistration).principal(principal).build()))
-					.flatMap((authorizationContext) -> authorize(authorizationContext, principal)));
+			// @formatter:off
+			return Mono.defer(() ->
+					this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
+						.switchIfEmpty(Mono.error(() ->
+								new IllegalArgumentException("Could not find ClientRegistration with id '" + clientRegistrationId + "'"))
+						)
+						.flatMap((clientRegistration) -> Mono.just(OAuth2AuthorizationContext
+							.withClientRegistration(clientRegistration).principal(principal).build())
+						)
+						.flatMap((authorizationContext) -> authorize(authorizationContext, principal))
+			);
+			// @formatter:on
 		}
 
 		/**
@@ -601,18 +641,22 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		 */
 		private Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizationContext authorizationContext,
 				Authentication principal) {
+			// @formatter:off
 			return this.authorizedClientProvider.authorize(authorizationContext)
 					// Delegates to the authorizationSuccessHandler of the successful
 					// authorization
 					.flatMap((authorizedClient) -> this.authorizationSuccessHandler
 							.onAuthorizationSuccess(authorizedClient, principal, Collections.emptyMap())
-							.thenReturn(authorizedClient))
+							.thenReturn(authorizedClient)
+					)
 					// Delegates to the authorizationFailureHandler of the failed
 					// authorization
-					.onErrorResume(OAuth2AuthorizationException.class,
-							(authorizationException) -> this.authorizationFailureHandler
+					.onErrorResume(OAuth2AuthorizationException.class, (authorizationException) ->
+							this.authorizationFailureHandler
 									.onAuthorizationFailure(authorizationException, principal, Collections.emptyMap())
-									.then(Mono.error(authorizationException)));
+									.then(Mono.error(authorizationException))
+					);
+			// @formatter:on
 		}
 
 		private void setAuthorizedClientProvider(ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider) {
@@ -653,23 +697,30 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 
 		@Override
 		public Mono<ClientResponse> handleResponse(ClientRequest request, Mono<ClientResponse> responseMono) {
-			return responseMono.flatMap((response) -> handleResponse(request, response).thenReturn(response))
+			// @formatter:off
+			return responseMono
+					.flatMap((response) -> handleResponse(request, response).thenReturn(response))
 					.onErrorResume(WebClientResponseException.class,
-							(e) -> handleWebClientResponseException(request, e).then(Mono.error(e)))
+							(e) -> handleWebClientResponseException(request, e).then(Mono.error(e))
+					)
 					.onErrorResume(OAuth2AuthorizationException.class,
 							(e) -> handleAuthorizationException(request, e).then(Mono.error(e)));
+			// @formatter:on
 		}
 
 		private Mono<Void> handleResponse(ClientRequest request, ClientResponse response) {
-			return Mono.justOrEmpty(resolveErrorIfPossible(response)).flatMap((oauth2Error) -> {
-				Mono<Optional<ServerWebExchange>> serverWebExchange = effectiveServerWebExchange(request);
-				Mono<String> clientRegistrationId = effectiveClientRegistrationId(request);
-				return Mono
-						.zip(ServerOAuth2AuthorizedClientExchangeFilterFunction.this.currentAuthenticationMono,
-								serverWebExchange, clientRegistrationId)
-						.flatMap((zipped) -> handleAuthorizationFailure(zipped.getT1(), zipped.getT2(),
-								new ClientAuthorizationException(oauth2Error, zipped.getT3())));
-			});
+			// @formatter:off
+			return Mono.justOrEmpty(resolveErrorIfPossible(response))
+					.flatMap((oauth2Error) -> {
+						Mono<Optional<ServerWebExchange>> serverWebExchange = effectiveServerWebExchange(request);
+						Mono<String> clientRegistrationId = effectiveClientRegistrationId(request);
+						return Mono
+								.zip(ServerOAuth2AuthorizedClientExchangeFilterFunction.this.currentAuthenticationMono,
+										serverWebExchange, clientRegistrationId)
+								.flatMap((zipped) -> handleAuthorizationFailure(zipped.getT1(), zipped.getT2(),
+										new ClientAuthorizationException(oauth2Error, zipped.getT3())));
+					});
+			// @formatter:on
 		}
 
 		private OAuth2Error resolveErrorIfPossible(ClientResponse response) {
@@ -695,13 +746,19 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		}
 
 		private Map<String, String> parseAuthParameters(String wwwAuthenticateHeader) {
-			return Stream.of(wwwAuthenticateHeader).filter((header) -> !StringUtils.isEmpty(header))
+			// @formatter:off
+			return Stream.of(wwwAuthenticateHeader)
+					.filter((header) -> !StringUtils.isEmpty(header))
 					.filter((header) -> header.toLowerCase().startsWith("bearer"))
-					.map((header) -> header.substring("bearer".length())).map((header) -> header.split(","))
-					.flatMap(Stream::of).map((parameter) -> parameter.split("="))
+					.map((header) -> header.substring("bearer".length()))
+					.map((header) -> header.split(","))
+					.flatMap(Stream::of)
+					.map((parameter) -> parameter.split("="))
 					.filter((parameter) -> parameter.length > 1)
 					.collect(Collectors.toMap((parameters) -> parameters[0].trim(),
-							(parameters) -> parameters[1].trim().replace("\"", "")));
+							(parameters) -> parameters[1].trim().replace("\"", ""))
+					);
+			// @formatter:on
 		}
 
 		/**
@@ -715,15 +772,16 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		 */
 		private Mono<Void> handleWebClientResponseException(ClientRequest request,
 				WebClientResponseException exception) {
-			return Mono.justOrEmpty(resolveErrorIfPossible(exception.getRawStatusCode())).flatMap((oauth2Error) -> {
-				Mono<Optional<ServerWebExchange>> serverWebExchange = effectiveServerWebExchange(request);
-				Mono<String> clientRegistrationId = effectiveClientRegistrationId(request);
-				return Mono
-						.zip(ServerOAuth2AuthorizedClientExchangeFilterFunction.this.currentAuthenticationMono,
-								serverWebExchange, clientRegistrationId)
-						.flatMap((zipped) -> handleAuthorizationFailure(zipped.getT1(), zipped.getT2(),
-								new ClientAuthorizationException(oauth2Error, zipped.getT3(), exception)));
-			});
+			return Mono.justOrEmpty(resolveErrorIfPossible(exception.getRawStatusCode()))
+					.flatMap((oauth2Error) -> {
+						Mono<Optional<ServerWebExchange>> serverWebExchange = effectiveServerWebExchange(request);
+						Mono<String> clientRegistrationId = effectiveClientRegistrationId(request);
+						return Mono
+								.zip(ServerOAuth2AuthorizedClientExchangeFilterFunction.this.currentAuthenticationMono,
+										serverWebExchange, clientRegistrationId)
+								.flatMap((zipped) -> handleAuthorizationFailure(zipped.getT1(), zipped.getT2(),
+										new ClientAuthorizationException(oauth2Error, zipped.getT3(), exception)));
+					});
 		}
 
 		/**

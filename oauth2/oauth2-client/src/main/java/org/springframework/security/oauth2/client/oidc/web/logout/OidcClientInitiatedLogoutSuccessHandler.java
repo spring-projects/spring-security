@@ -93,10 +93,17 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 		if (this.postLogoutRedirectUri == null) {
 			return null;
 		}
-		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
-				.replacePath(request.getContextPath()).replaceQuery(null).fragment(null).build();
+		// @formatter:off
+		UriComponents uriComponents = UriComponentsBuilder
+				.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+				.replacePath(request.getContextPath())
+				.replaceQuery(null)
+				.fragment(null)
+				.build();
 		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
-				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString())).toUri();
+				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
+				.toUri();
+		// @formatter:on
 	}
 
 	private String endpointUri(URI endSessionEndpoint, String idToken, URI postLogoutRedirectUri) {
@@ -105,7 +112,11 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 		if (postLogoutRedirectUri != null) {
 			builder.queryParam("post_logout_redirect_uri", postLogoutRedirectUri);
 		}
-		return builder.encode(StandardCharsets.UTF_8).build().toUriString();
+		// @formatter:off
+		return builder.encode(StandardCharsets.UTF_8)
+				.build()
+				.toUriString();
+		// @formatter:on
 	}
 
 	/**

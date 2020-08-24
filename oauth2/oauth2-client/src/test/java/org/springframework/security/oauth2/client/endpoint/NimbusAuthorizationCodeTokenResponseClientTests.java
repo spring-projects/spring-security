@@ -75,11 +75,17 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenSuccessResponseThenReturnAccessTokenResponse() throws Exception {
 		MockWebServer server = new MockWebServer();
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"openid profile\",\n" + "	\"refresh_token\": \"refresh-token-1234\",\n"
-				+ "   \"custom_parameter_1\": \"custom-value-1\",\n" + "   \"custom_parameter_2\": \"custom-value-2\"\n"
-				+ "}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"openid profile\",\n"
+			+ "   \"refresh_token\": \"refresh-token-1234\",\n"
+			+ "   \"custom_parameter_1\": \"custom-value-1\",\n"
+			+ "   \"custom_parameter_2\": \"custom-value-2\"\n"
+			+ "}\n";
+		// @formatter:on
 		server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.setBody(accessTokenSuccessResponse));
 		server.start();
@@ -127,11 +133,16 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		this.exception.expect(OAuth2AuthorizationException.class);
 		this.exception.expectMessage(containsString("invalid_token_response"));
 		MockWebServer server = new MockWebServer();
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"openid profile\",\n" + "   \"custom_parameter_1\": \"custom-value-1\",\n"
-				+ "   \"custom_parameter_2\": \"custom-value-2\"\n";
-		// "}\n"; // Make the JSON invalid/malformed
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "	\"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"openid profile\",\n"
+			+ "   \"custom_parameter_1\": \"custom-value-1\",\n"
+			+ "   \"custom_parameter_2\": \"custom-value-2\"\n";
+				// "}\n"; // Make the JSON invalid/malformed
+		// @formatter:on
 		server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.setBody(accessTokenSuccessResponse));
 		server.start();
@@ -160,7 +171,11 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		this.exception.expect(OAuth2AuthorizationException.class);
 		this.exception.expectMessage(containsString("unauthorized_client"));
 		MockWebServer server = new MockWebServer();
-		String accessTokenErrorResponse = "{\n" + "   \"error\": \"unauthorized_client\"\n" + "}\n";
+		// @formatter:off
+		String accessTokenErrorResponse = "{\n"
+				+ "   \"error\": \"unauthorized_client\"\n"
+				+ "}\n";
+		// @formatter:on
 		server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.setResponseCode(500).setBody(accessTokenErrorResponse));
 		server.start();
@@ -200,8 +215,13 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		this.exception.expect(OAuth2AuthorizationException.class);
 		this.exception.expectMessage(containsString("invalid_token_response"));
 		MockWebServer server = new MockWebServer();
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"not-bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"not-bearer\",\n"
+			+ "   \"expires_in\": \"3600\"\n"
+			+ "}\n";
+		// @formatter:on
 		server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.setBody(accessTokenSuccessResponse));
 		server.start();
@@ -220,9 +240,14 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	public void getTokenResponseWhenSuccessResponseIncludesScopeThenReturnAccessTokenResponseUsingResponseScope()
 			throws Exception {
 		MockWebServer server = new MockWebServer();
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"openid profile\"\n" + "}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"openid profile\"\n"
+			+ "}\n";
+		// @formatter:on
 		server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.setBody(accessTokenSuccessResponse));
 		server.start();
@@ -242,8 +267,13 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenReturnAccessTokenResponseUsingRequestedScope()
 			throws Exception {
 		MockWebServer server = new MockWebServer();
-		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\"\n"
+			+ "}\n";
+		// @formatter:on
 		server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.setBody(accessTokenSuccessResponse));
 		server.start();

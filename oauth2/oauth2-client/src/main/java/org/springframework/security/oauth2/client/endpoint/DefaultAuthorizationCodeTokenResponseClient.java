@@ -82,8 +82,11 @@ public final class DefaultAuthorizationCodeTokenResponseClient
 			// https://tools.ietf.org/html/rfc6749#section-5.1
 			// If AccessTokenResponse.scope is empty, then default to the scope
 			// originally requested by the client in the Token Request
+			// @formatter:off
 			tokenResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
-					.scopes(authorizationCodeGrantRequest.getClientRegistration().getScopes()).build();
+					.scopes(authorizationCodeGrantRequest.getClientRegistration().getScopes())
+					.build();
+			// @formatter:on
 		}
 		return tokenResponse;
 	}
