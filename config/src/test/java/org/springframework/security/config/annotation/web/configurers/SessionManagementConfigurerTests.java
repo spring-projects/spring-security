@@ -49,6 +49,7 @@ import org.springframework.security.web.session.HttpSessionDestroyedEvent;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -114,8 +115,14 @@ public class SessionManagementConfigurerTests {
 		this.spring.register(DisableSessionFixationEnableConcurrencyControlConfig.class).autowire();
 		MockHttpSession session = new MockHttpSession();
 		String sessionId = session.getId();
-		MvcResult mvcResult = this.mvc.perform(get("/").with(httpBasic("user", "password")).session(session))
-				.andExpect(status().isNotFound()).andReturn();
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/")
+				.with(httpBasic("user", "password"))
+				.session(session);
+		MvcResult mvcResult = this.mvc.perform(request)
+				.andExpect(status().isNotFound())
+				.andReturn();
+		// @formatter:on
 		assertThat(mvcResult.getRequest().getSession().getId()).isEqualTo(sessionId);
 	}
 
@@ -125,9 +132,16 @@ public class SessionManagementConfigurerTests {
 		MockHttpSession givenSession = new MockHttpSession();
 		String givenSessionId = givenSession.getId();
 		givenSession.setAttribute("name", "value");
-		MockHttpSession resultingSession = (MockHttpSession) this.mvc
-				.perform(get("/auth").session(givenSession).with(httpBasic("user", "password")))
-				.andExpect(status().isNotFound()).andReturn().getRequest().getSession(false);
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/auth")
+				.session(givenSession)
+				.with(httpBasic("user", "password"));
+		MockHttpSession resultingSession = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(status().isNotFound())
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		// @formatter:on
 		assertThat(givenSessionId).isNotEqualTo(resultingSession.getId());
 		assertThat(resultingSession.getAttribute("name")).isNull();
 	}
@@ -135,29 +149,65 @@ public class SessionManagementConfigurerTests {
 	@Test
 	public void loginWhenUserLoggedInAndMaxSessionsIsOneThenLoginPrevented() throws Exception {
 		this.spring.register(ConcurrencyControlConfig.class).autowire();
-		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"));
-		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
-				.andExpect(status().isFound()).andExpect(redirectedUrl("/login?error"));
+		// @formatter:off
+		MockHttpServletRequestBuilder firstRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		this.mvc.perform(firstRequest);
+		MockHttpServletRequestBuilder secondRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		this.mvc.perform(secondRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
 	}
 
 	@Test
 	public void loginWhenUserSessionExpiredAndMaxSessionsIsOneThenLoggedIn() throws Exception {
 		this.spring.register(ConcurrencyControlConfig.class).autowire();
-		MvcResult mvcResult = this.mvc
-				.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
+		// @formatter:off
+		MockHttpServletRequestBuilder firstRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		MvcResult mvcResult = this.mvc.perform(firstRequest)
 				.andReturn();
+		// @formatter:on
 		HttpSession authenticatedSession = mvcResult.getRequest().getSession();
 		this.spring.getContext().publishEvent(new HttpSessionDestroyedEvent(authenticatedSession));
-		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
-				.andExpect(status().isFound()).andExpect(redirectedUrl("/"));
+		// @formatter:off
+		MockHttpServletRequestBuilder secondRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		this.mvc.perform(secondRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/"));
+		// @formatter:on
 	}
 
 	@Test
 	public void loginWhenUserLoggedInAndMaxSessionsOneInLambdaThenLoginPrevented() throws Exception {
 		this.spring.register(ConcurrencyControlInLambdaConfig.class).autowire();
-		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"));
-		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
-				.andExpect(status().isFound()).andExpect(redirectedUrl("/login?error"));
+		// @formatter:off
+		MockHttpServletRequestBuilder firstRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		// @formatter:on
+		this.mvc.perform(firstRequest);
+		// @formatter:off
+		MockHttpServletRequestBuilder secondRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		this.mvc.perform(secondRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
 	}
 
 	@Test

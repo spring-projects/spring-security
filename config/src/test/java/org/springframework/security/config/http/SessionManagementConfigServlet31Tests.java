@@ -51,9 +51,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class SessionManagementConfigServlet31Tests {
 
-	private static final String XML_AUTHENTICATION_MANAGER = "<authentication-manager>" + "  <authentication-provider>"
-			+ "    <user-service>" + "      <user name='user' password='{noop}password' authorities='ROLE_USER' />"
-			+ "    </user-service>" + "  </authentication-provider>" + "</authentication-manager>";
+	// @formatter:off
+	private static final String XML_AUTHENTICATION_MANAGER = "<authentication-manager>"
+			+ "  <authentication-provider>"
+			+ "    <user-service>"
+			+ "      <user name='user' password='{noop}password' authorities='ROLE_USER' />"
+			+ "    </user-service>"
+			+ "  </authentication-provider>"
+			+ "</authentication-manager>";
+	// @formatter:on
 
 	@Mock
 	Method method;
@@ -92,8 +98,14 @@ public class SessionManagementConfigServlet31Tests {
 		request.setParameter("password", "password");
 		request.getSession().setAttribute("attribute1", "value1");
 		String id = request.getSession().getId();
-		loadContext("<http>\n" + "        <form-login/>\n" + "        <session-management/>\n"
-				+ "        <csrf disabled='true'/>\n" + "    </http>" + XML_AUTHENTICATION_MANAGER);
+		// @formatter:off
+		loadContext("<http>\n"
+				+ "        <form-login/>\n"
+				+ "        <session-management/>\n"
+				+ "        <csrf disabled='true'/>\n"
+				+ "    </http>"
+				+ XML_AUTHENTICATION_MANAGER);
+		// @formatter:on
 		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(request.getSession().getId()).isNotEqualTo(id);
 		assertThat(request.getSession().getAttribute("attribute1")).isEqualTo("value1");
@@ -108,9 +120,14 @@ public class SessionManagementConfigServlet31Tests {
 		request.setParameter("username", "user");
 		request.setParameter("password", "password");
 		String id = request.getSession().getId();
-		loadContext("<http>\n" + "        <form-login/>\n"
+		// @formatter:off
+		loadContext("<http>\n"
+				+ "        <form-login/>\n"
 				+ "        <session-management session-fixation-protection='changeSessionId'/>\n"
-				+ "        <csrf disabled='true'/>\n" + "    </http>" + XML_AUTHENTICATION_MANAGER);
+				+ "        <csrf disabled='true'/>\n"
+				+ "    </http>"
+				+ XML_AUTHENTICATION_MANAGER);
+		// @formatter:on
 		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(request.getSession().getId()).isNotEqualTo(id);
 	}

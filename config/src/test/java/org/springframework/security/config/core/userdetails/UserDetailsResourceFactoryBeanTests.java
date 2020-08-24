@@ -46,15 +46,21 @@ public class UserDetailsResourceFactoryBeanTests {
 
 	@Test
 	public void setResourceLoaderWhenNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.factory.setResourceLoader(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.factory.setResourceLoader(null))
 				.withStackTraceContaining("resourceLoader cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void getObjectWhenPropertiesResourceLocationNullThenThrowsIllegalStateException() {
 		this.factory.setResourceLoader(this.resourceLoader);
-		assertThatIllegalArgumentException().isThrownBy(() -> this.factory.getObject())
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.factory.getObject())
 				.withStackTraceContaining("resource cannot be null if resourceLocation is null");
+		// @formatter:on
 	}
 
 	@Test
@@ -73,8 +79,12 @@ public class UserDetailsResourceFactoryBeanTests {
 	@Test
 	public void getObjectWhenInvalidUserThenThrowsMeaningfulException() {
 		this.factory.setResource(new InMemoryResource("user=invalidFormatHere"));
-		assertThatIllegalStateException().isThrownBy(() -> this.factory.getObject()).withStackTraceContaining("user")
+		// @formatter:off
+		assertThatIllegalStateException()
+				.isThrownBy(() -> this.factory.getObject())
+				.withStackTraceContaining("user")
 				.withStackTraceContaining("invalidFormatHere");
+		// @formatter:on
 	}
 
 	@Test

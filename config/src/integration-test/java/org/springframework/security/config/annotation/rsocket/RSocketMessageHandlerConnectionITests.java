@@ -78,9 +78,15 @@ public class RSocketMessageHandlerConnectionITests {
 
 	@Before
 	public void setup() {
-		this.server = RSocketFactory.receive().frameDecoder(PayloadDecoder.ZERO_COPY)
-				.addSocketAcceptorPlugin(this.interceptor).acceptor(this.handler.responder())
-				.transport(TcpServerTransport.create("localhost", 0)).start().block();
+		// @formatter:off
+		this.server = RSocketFactory.receive()
+			.frameDecoder(PayloadDecoder.ZERO_COPY)
+			.addSocketAcceptorPlugin(this.interceptor)
+			.acceptor(this.handler.responder())
+			.transport(TcpServerTransport.create("localhost", 0))
+			.start()
+			.block();
+		// @formatter:on
 	}
 
 	@After
@@ -93,94 +99,147 @@ public class RSocketMessageHandlerConnectionITests {
 	@Test
 	public void routeWhenAuthorized() {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
+		// @formatter:off
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-		String hiRob = this.requester.route("secure.retrieve-mono").data("rob").retrieveMono(String.class).block();
+			.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+			.block();
+		String hiRob = this.requester.route("secure.retrieve-mono")
+			.data("rob")
+			.retrieveMono(String.class)
+			.block();
+		// @formatter:on
 		assertThat(hiRob).isEqualTo("Hi rob");
 	}
 
 	@Test
 	public void routeWhenNotAuthorized() {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
+		// @formatter:off
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
+			.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+			.block();
 		assertThatExceptionOfType(ApplicationErrorException.class).isThrownBy(() -> this.requester
-				.route("secure.admin.retrieve-mono").data("data").retrieveMono(String.class).block());
+				.route("secure.admin.retrieve-mono")
+				.data("data")
+				.retrieveMono(String.class)
+				.block()
+		);
+		// @formatter:on
 	}
 
 	@Test
 	public void routeWhenStreamCredentialsAuthorized() {
 		UsernamePasswordMetadata connectCredentials = new UsernamePasswordMetadata("user", "password");
-		this.requester = requester()
-				.setupMetadata(connectCredentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
+		// @formatter:off
+		this.requester = requester().setupMetadata(connectCredentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+			.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+			.block();
 		String hiRob = this.requester.route("secure.admin.retrieve-mono")
-				.metadata(new UsernamePasswordMetadata("admin", "password"),
-						UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.data("rob").retrieveMono(String.class).block();
+			.metadata(new UsernamePasswordMetadata("admin", "password"),
+					UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+			.data("rob")
+			.retrieveMono(String.class)
+			.block();
+		// @formatter:on
 		assertThat(hiRob).isEqualTo("Hi rob");
 	}
 
 	@Test
 	public void routeWhenStreamCredentialsHaveAuthority() {
 		UsernamePasswordMetadata connectCredentials = new UsernamePasswordMetadata("user", "password");
-		this.requester = requester()
-				.setupMetadata(connectCredentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
+		// @formatter:off
+		this.requester = requester().setupMetadata(connectCredentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+			.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+			.block();
 		String hiUser = this.requester.route("secure.authority.retrieve-mono")
-				.metadata(new UsernamePasswordMetadata("admin", "password"),
-						UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.data("Felipe").retrieveMono(String.class).block();
+			.metadata(new UsernamePasswordMetadata("admin", "password"),
+					UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+			.data("Felipe")
+			.retrieveMono(String.class)
+			.block();
+		// @formatter:on
 		assertThat(hiUser).isEqualTo("Hi Felipe");
 	}
 
 	@Test
 	public void connectWhenNotAuthenticated() {
+		// @formatter:off
 		this.requester = requester().connectTcp(this.server.address().getHostName(), this.server.address().getPort())
 				.block();
 		assertThatExceptionOfType(Exception.class)
-				.isThrownBy(() -> this.requester.route("retrieve-mono").data("data").retrieveMono(String.class).block())
+				.isThrownBy(() -> this.requester.route("retrieve-mono")
+						.data("data")
+						.retrieveMono(String.class)
+						.block()
+				)
 				.matches((ex) -> ex instanceof RejectedSetupException
 						|| ex.getClass().toString().contains("ReactiveException"));
+		// @formatter:on
 		// FIXME: https://github.com/rsocket/rsocket-java/issues/686
 	}
 
 	@Test
 	public void connectWhenNotAuthorized() {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("evil", "password");
+		// @formatter:off
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.block();
 		assertThatExceptionOfType(Exception.class)
-				.isThrownBy(() -> this.requester.route("retrieve-mono").data("data").retrieveMono(String.class).block())
+				.isThrownBy(() -> this.requester.route("retrieve-mono")
+						.data("data")
+						.retrieveMono(String.class)
+						.block()
+				)
 				.matches((ex) -> ex instanceof RejectedSetupException
 						|| ex.getClass().toString().contains("ReactiveException"));
+		// @formatter:on
 		// FIXME: https://github.com/rsocket/rsocket-java/issues/686
 	}
 
 	@Test
 	public void connectionDenied() {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
+		// @formatter:off
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.block();
 		assertThatExceptionOfType(ApplicationErrorException.class)
-				.isThrownBy(() -> this.requester.route("prohibit").data("data").retrieveMono(String.class).block());
+				.isThrownBy(() -> this.requester.route("prohibit")
+						.data("data")
+						.retrieveMono(String.class)
+						.block()
+				);
+		// @formatter:on
 	}
 
 	@Test
 	public void connectWithAnyRole() {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
+		// @formatter:off
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-		String hiRob = this.requester.route("anyroute").data("rob").retrieveMono(String.class).block();
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.block();
+		String hiRob = this.requester.route("anyroute")
+				.data("rob")
+				.retrieveMono(String.class)
+				.block();
+		// @formatter:on
 		assertThat(hiRob).isEqualTo("Hi rob");
 	}
 
 	@Test
 	public void connectWithAnyAuthority() {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("admin", "password");
+		// @formatter:off
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-		String hiEbert = this.requester.route("management.users").data("admin").retrieveMono(String.class).block();
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.block();
+		String hiEbert = this.requester.route("management.users")
+				.data("admin")
+				.retrieveMono(String.class)
+				.block();
+		// @formatter:on
 		assertThat(hiEbert).isEqualTo("Hi admin");
 	}
 
@@ -233,10 +292,18 @@ public class RSocketMessageHandlerConnectionITests {
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
-			rsocket.authorizePayload((authorize) -> authorize.setup().hasRole("SETUP").route("secure.admin.*")
-					.hasRole("ADMIN").route("secure.**").hasRole("USER").route("secure.authority.*")
-					.hasAuthority("ROLE_USER").route("management.*").hasAnyAuthority("ROLE_ADMIN").route("prohibit")
-					.denyAll().anyRequest().permitAll()).basicAuthentication(Customizer.withDefaults());
+			// @formatter:off
+			rsocket.authorizePayload((authorize) -> authorize
+					.setup().hasRole("SETUP")
+					.route("secure.admin.*").hasRole("ADMIN")
+					.route("secure.**").hasRole("USER")
+					.route("secure.authority.*").hasAuthority("ROLE_USER")
+					.route("management.*").hasAnyAuthority("ROLE_ADMIN")
+					.route("prohibit").denyAll()
+					.anyRequest().permitAll()
+			)
+			.basicAuthentication(Customizer.withDefaults());
+			// @formatter:on
 			return rsocket.build();
 		}
 

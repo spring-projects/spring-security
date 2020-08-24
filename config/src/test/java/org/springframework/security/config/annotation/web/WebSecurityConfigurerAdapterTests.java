@@ -51,6 +51,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -83,12 +84,15 @@ public class WebSecurityConfigurerAdapterTests {
 	@Test
 	public void loadConfigWhenRequestSecureThenDefaultSecurityHeadersReturned() throws Exception {
 		this.spring.register(HeadersArePopulatedByDefaultConfig.class).autowire();
-		this.mockMvc.perform(get("/").secure(true)).andExpect(header().string("X-Content-Type-Options", "nosniff"))
+		// @formatter:off
+		this.mockMvc.perform(get("/").secure(true))
+				.andExpect(header().string("X-Content-Type-Options", "nosniff"))
 				.andExpect(header().string("X-Frame-Options", "DENY"))
 				.andExpect(header().string("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains"))
 				.andExpect(header().string("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate"))
 				.andExpect(header().string("Pragma", "no-cache")).andExpect(header().string("Expires", "0"))
 				.andExpect(header().string("X-XSS-Protection", "1; mode=block"));
+		// @formatter:on
 	}
 
 	@Test
@@ -188,10 +192,9 @@ public class WebSecurityConfigurerAdapterTests {
 	public void performWhenUsingAuthenticationEventPublisherInDslThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationEventPublisherDsl.class).autowire();
 		AuthenticationEventPublisher authenticationEventPublisher = CustomAuthenticationEventPublisherDsl.EVENT_PUBLISHER;
-		this.mockMvc.perform(get("/").with(httpBasic("user", "password"))); // fails since
-																			// no
-																			// providers
-																			// configured
+		MockHttpServletRequestBuilder userRequest = get("/").with(httpBasic("user", "password"));
+		// fails since no providers configured
+		this.mockMvc.perform(userRequest);
 		verify(authenticationEventPublisher).publishAuthenticationFailure(any(AuthenticationException.class),
 				any(Authentication.class));
 	}

@@ -46,9 +46,15 @@ class SecuritySocketAcceptorInterceptorConfiguration {
 		if (rsocket == null) {
 			throw new NoSuchBeanDefinitionException("No RSocketSecurity defined");
 		}
-		rsocket.basicAuthentication(Customizer.withDefaults()).simpleAuthentication(Customizer.withDefaults())
-				.authorizePayload((authz) -> authz.setup().authenticated().anyRequest().authenticated()
-						.matcher((e) -> MatchResult.match()).permitAll());
+		// @formatter:off
+		rsocket.basicAuthentication(Customizer.withDefaults())
+			.simpleAuthentication(Customizer.withDefaults())
+			.authorizePayload((authz) -> authz
+				.setup().authenticated()
+				.anyRequest().authenticated()
+				.matcher((e) -> MatchResult.match()).permitAll()
+			);
+		// @formatter:on
 		return rsocket.build();
 	}
 

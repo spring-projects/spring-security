@@ -42,6 +42,7 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.FilterChainProxy;
@@ -52,6 +53,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessEvent
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -109,9 +111,9 @@ public class ServletApiConfigurerTests {
 	@Test
 	public void configureWhenUsingDefaultsThenRolePrefixIsSet() throws Exception {
 		this.spring.register(ServletApiConfig.class, AdminController.class).autowire();
-		this.mvc.perform(
-				get("/admin").with(authentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"))))
-				.andExpect(status().isOk());
+		TestingAuthenticationToken user = new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN");
+		MockHttpServletRequestBuilder request = get("/admin").with(authentication(user));
+		this.mvc.perform(request).andExpect(status().isOk());
 	}
 
 	@Test
@@ -125,11 +127,18 @@ public class ServletApiConfigurerTests {
 	@Test
 	public void servletApiWhenInvokedTwiceThenUsesOriginalRole() throws Exception {
 		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class, AdminController.class).autowire();
-		this.mvc.perform(
-				get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/admin")
+				.with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN")));
+		this.mvc.perform(request)
 				.andExpect(status().isOk());
-		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
+		SecurityMockMvcRequestPostProcessors.UserRequestPostProcessor userWithRoleAdmin = user("user")
+				.authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"));
+		MockHttpServletRequestBuilder requestWithRoleAdmin = get("/admin")
+				.with(userWithRoleAdmin);
+		this.mvc.perform(requestWithRoleAdmin)
 				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	@Test
@@ -142,18 +151,25 @@ public class ServletApiConfigurerTests {
 	@Test
 	public void requestWhenServletApiWithDefaultsInLambdaThenUsesDefaultRolePrefix() throws Exception {
 		this.spring.register(ServletApiWithDefaultsInLambdaConfig.class, AdminController.class).autowire();
-		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
+		MockHttpServletRequestBuilder request = get("/admin")
+				.with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN")));
+		this.mvc.perform(request)
 				.andExpect(status().isOk());
 	}
 
 	@Test
 	public void requestWhenRolePrefixInLambdaThenUsesCustomRolePrefix() throws Exception {
 		this.spring.register(RolePrefixInLambdaConfig.class, AdminController.class).autowire();
-		this.mvc.perform(
-				get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithAdminPermission = get("/admin")
+				.with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN")));
+		this.mvc.perform(requestWithAdminPermission)
 				.andExpect(status().isOk());
-		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
+		MockHttpServletRequestBuilder requestWithAdminRole = get("/admin")
+				.with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN")));
+		this.mvc.perform(requestWithAdminRole)
 				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	@Test

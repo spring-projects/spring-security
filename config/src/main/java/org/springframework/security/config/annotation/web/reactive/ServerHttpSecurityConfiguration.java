@@ -125,7 +125,11 @@ class ServerHttpSecurityConfiguration {
 	@Scope("prototype")
 	ServerHttpSecurity httpSecurity() {
 		ContextAwareServerHttpSecurity http = new ContextAwareServerHttpSecurity();
-		return http.authenticationManager(authenticationManager()).headers().and().logout().and();
+		// @formatter:off
+		return http.authenticationManager(authenticationManager())
+			.headers().and()
+			.logout().and();
+		// @formatter:on
 	}
 
 	private ReactiveAuthenticationManager authenticationManager() {

@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -53,10 +53,17 @@ public class MultiHttpBlockConfigTests {
 	@Test
 	public void requestWhenUsingMutuallyExclusiveHttpElementsThenIsRoutedAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("DistinctHttpElements")).autowire();
-		this.mvc.perform(MockMvcRequestBuilders.get("/first").with(httpBasic("user", "password")))
+		// @formatter:off
+		this.mvc.perform(get("/first").with(httpBasic("user", "password")))
 				.andExpect(status().isOk());
-		this.mvc.perform(post("/second/login").param("username", "user").param("password", "password").with(csrf()))
-				.andExpect(status().isFound()).andExpect(redirectedUrl("/"));
+		MockHttpServletRequestBuilder formLoginRequest = post("/second/login")
+				.param("username", "user")
+				.param("password", "password")
+				.with(csrf());
+		this.mvc.perform(formLoginRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/"));
+		// @formatter:on
 	}
 
 	@Test
@@ -80,9 +87,19 @@ public class MultiHttpBlockConfigTests {
 	public void requestWhenTargettingAuthenticationManagersToCorrespondingHttpElementsThenAuthenticationProceeds()
 			throws Exception {
 		this.spring.configLocations(this.xml("Sec1937")).autowire();
-		this.mvc.perform(get("/first").with(httpBasic("first", "password")).with(csrf())).andExpect(status().isOk());
-		this.mvc.perform(post("/second/login").param("username", "second").param("password", "password").with(csrf()))
+		// @formatter:off
+		MockHttpServletRequestBuilder basicLoginRequest = get("/first")
+				.with(httpBasic("first", "password"))
+				.with(csrf());
+		this.mvc.perform(basicLoginRequest)
+				.andExpect(status().isOk());
+		MockHttpServletRequestBuilder formLoginRequest = post("/second/login")
+				.param("username", "second")
+				.param("password", "password")
+				.with(csrf());
+		this.mvc.perform(formLoginRequest)
 				.andExpect(redirectedUrl("/"));
+		// @formatter:on
 	}
 
 	private String xml(String configName) {

@@ -45,15 +45,25 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 	@Test
 	public void helloWorld() {
 		WebTestClient webTestClient = WebTestClient.bindToController(new HelloWorldController()).build();
-		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
+		// @formatter:off
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+		// @formatter:on
 		driver.get("http://localhost/");
 		assertThat(driver.getPageSource()).contains("Hello World");
 	}
 
 	@Test
 	public void cookies() {
-		WebTestClient webTestClient = WebTestClient.bindToController(new CookieController()).build();
-		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
+		// @formatter:off
+		WebTestClient webTestClient = WebTestClient
+				.bindToController(new CookieController())
+				.build();
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+		// @formatter:on
 		driver.get("http://localhost/cookie");
 		assertThat(driver.getPageSource()).contains("theCookie");
 		driver.get("http://localhost/cookie/delete");
@@ -66,8 +76,16 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 		@ResponseBody
 		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
 		String index() {
-			return "<html>\n" + "<head>\n" + "<title>Hello World</title>\n" + "</head>\n" + "<body>\n"
-					+ "<h1>Hello World</h1>\n" + "</body>\n" + "</html>";
+			// @formatter:off
+			return "<html>\n"
+				+ "<head>\n"
+				+ "<title>Hello World</title>\n"
+				+ "</head>\n"
+				+ "<body>\n"
+				+ "<h1>Hello World</h1>\n"
+				+ "</body>\n"
+				+ "</html>";
+			// @formatter:on
 		}
 
 	}
@@ -78,8 +96,18 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 
 		@GetMapping(path = "/", produces = MediaType.TEXT_HTML_VALUE)
 		String view(@CookieValue(required = false) String cookieName) {
-			return "<html>\n" + "<head>\n" + "<title>Hello World</title>\n" + "</head>\n" + "<body>\n" + "<h1>"
-					+ TextEscapeUtils.escapeEntities(cookieName) + "</h1>\n" + "</body>\n" + "</html>";
+			// @formatter:off
+			return "<html>\n"
+				+ "<head>\n"
+				+ "<title>Hello World</title>\n"
+				+ "</head>\n"
+				+ "<body>\n"
+				+ "<h1>"
+				+ TextEscapeUtils.escapeEntities(cookieName)
+				+ "</h1>\n"
+				+ "</body>\n"
+				+ "</html>";
+			// @formatter:on
 		}
 
 		@GetMapping("/cookie")

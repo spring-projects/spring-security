@@ -52,9 +52,15 @@ public class SecurityNamespaceHandlerTests {
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
-	private static final String XML_AUTHENTICATION_MANAGER = "<authentication-manager>" + "  <authentication-provider>"
-			+ "    <user-service id='us'>" + "      <user name='bob' password='bobspassword' authorities='ROLE_A' />"
-			+ "    </user-service>" + "  </authentication-provider>" + "</authentication-manager>";
+	// @formatter:off
+	private static final String XML_AUTHENTICATION_MANAGER = "<authentication-manager>"
+			+ "  <authentication-provider>"
+			+ "    <user-service id='us'>"
+			+ "      <user name='bob' password='bobspassword' authorities='ROLE_A' />"
+			+ "    </user-service>"
+			+ "  </authentication-provider>"
+			+ "</authentication-manager>";
+	// @formatter:on
 
 	private static final String XML_HTTP_BLOCK = "<http auto-config='true'/>";
 

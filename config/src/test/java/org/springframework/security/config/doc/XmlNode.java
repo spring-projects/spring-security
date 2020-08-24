@@ -45,20 +45,33 @@ public class XmlNode {
 
 	public Stream<XmlNode> children() {
 		NodeList children = this.node.getChildNodes();
-		return IntStream.range(0, children.getLength()).mapToObj(children::item).map(XmlNode::new);
+		// @formatter:off
+		return IntStream.range(0, children.getLength())
+				.mapToObj(children::item)
+				.map(XmlNode::new);
+		// @formatter:on
 	}
 
 	public Optional<XmlNode> child(String name) {
-		return this.children().filter((child) -> name.equals(child.simpleName())).findFirst();
+		return this.children()
+				.filter((child) -> name.equals(child.simpleName()))
+				.findFirst();
 	}
 
 	public Optional<XmlNode> parent() {
-		return Optional.ofNullable(this.node.getParentNode()).map((parent) -> new XmlNode(parent));
+		// @formatter:off
+		return Optional.ofNullable(this.node.getParentNode())
+				.map((parent) -> new XmlNode(parent));
+		// @formatter:on
 	}
 
 	public String attribute(String name) {
-		return Optional.ofNullable(this.node.getAttributes()).map((attrs) -> attrs.getNamedItem(name))
-				.map((attr) -> attr.getTextContent()).orElse(null);
+		// @formatter:off
+		return Optional.ofNullable(this.node.getAttributes())
+				.map((attrs) -> attrs.getNamedItem(name))
+				.map((attr) -> attr.getTextContent())
+				.orElse(null);
+		// @formatter:on
 	}
 
 	public Node node() {

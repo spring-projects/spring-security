@@ -56,6 +56,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -141,19 +142,22 @@ public class NamespaceHttpOpenIDLoginTests {
 		OpenIDAuthenticationToken token = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS,
 				"identityUrl", "message", Arrays.asList(new OpenIDAttribute("name", "type")));
 		OpenIDLoginCustomRefsConfig.AUDS = mock(AuthenticationUserDetailsService.class);
-		given(OpenIDLoginCustomRefsConfig.AUDS.loadUserDetails(any(Authentication.class)))
-				.willReturn(new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
+		User user = new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		given(OpenIDLoginCustomRefsConfig.AUDS.loadUserDetails(any(Authentication.class))).willReturn(user);
 		OpenIDLoginCustomRefsConfig.ADS = spy(new WebAuthenticationDetailsSource());
 		OpenIDLoginCustomRefsConfig.CONSUMER = mock(OpenIDConsumer.class);
 		this.spring.register(OpenIDLoginCustomRefsConfig.class, UserDetailsServiceConfig.class).autowire();
 		given(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class)))
 				.willThrow(new AuthenticationServiceException("boom"));
-		this.mvc.perform(post("/login/openid").with(csrf()).param("openid.identity", "identity"))
-				.andExpect(redirectedUrl("/custom/failure"));
+		// @formatter:off
+		MockHttpServletRequestBuilder login = post("/login/openid")
+				.with(csrf())
+				.param("openid.identity", "identity");
+		// @formatter:on
+		this.mvc.perform(login).andExpect(redirectedUrl("/custom/failure"));
 		reset(OpenIDLoginCustomRefsConfig.CONSUMER);
 		given(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class))).willReturn(token);
-		this.mvc.perform(post("/login/openid").with(csrf()).param("openid.identity", "identity"))
-				.andExpect(redirectedUrl("/custom/targetUrl"));
+		this.mvc.perform(login).andExpect(redirectedUrl("/custom/targetUrl"));
 		verify(OpenIDLoginCustomRefsConfig.AUDS).loadUserDetails(any(Authentication.class));
 		verify(OpenIDLoginCustomRefsConfig.ADS).buildDetails(any(Object.class));
 	}

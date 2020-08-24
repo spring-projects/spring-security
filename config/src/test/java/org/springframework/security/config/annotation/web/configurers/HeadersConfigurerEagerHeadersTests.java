@@ -62,15 +62,17 @@ public class HeadersConfigurerEagerHeadersTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @ formatter:off
-			http.headers().addObjectPostProcessor(new ObjectPostProcessor<HeaderWriterFilter>() {
-				@Override
-				public HeaderWriterFilter postProcess(HeaderWriterFilter filter) {
-					filter.setShouldWriteHeadersEagerly(true);
-					return filter;
-				}
-			});
-			// @ formatter:on
+			// @formatter:off
+			http
+				.headers()
+					.addObjectPostProcessor(new ObjectPostProcessor<HeaderWriterFilter>() {
+						@Override
+						public HeaderWriterFilter postProcess(HeaderWriterFilter filter) {
+							filter.setShouldWriteHeadersEagerly(true);
+							return filter;
+						}
+					});
+			// @formatter:on
 		}
 
 	}

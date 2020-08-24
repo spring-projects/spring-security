@@ -38,6 +38,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -73,16 +74,22 @@ public class HttpBasicConfigurerTests {
 	@Test
 	public void httpBasicWhenUsingDefaultsInLambdaThenResponseIncludesBasicChallenge() throws Exception {
 		this.spring.register(DefaultsLambdaEntryPointConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
+		// @formatter:on
 	}
 
 	// SEC-2198
 	@Test
 	public void httpBasicWhenUsingDefaultsThenResponseIncludesBasicChallenge() throws Exception {
 		this.spring.register(DefaultsEntryPointConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
+		// @formatter:on
 	}
 
 	@Test
@@ -105,8 +112,8 @@ public class HttpBasicConfigurerTests {
 	@Test
 	public void httpBasicWhenRememberMeConfiguredThenSetsRememberMeCookie() throws Exception {
 		this.spring.register(BasicUsesRememberMeConfig.class).autowire();
-		this.mvc.perform(get("/").with(httpBasic("user", "password")).param("remember-me", "true"))
-				.andExpect(cookie().exists("remember-me"));
+		MockHttpServletRequestBuilder rememberMeRequest = get("/").with(httpBasic("user", "password")).param("remember-me", "true");
+		this.mvc.perform(rememberMeRequest).andExpect(cookie().exists("remember-me"));
 	}
 
 	@EnableWebSecurity

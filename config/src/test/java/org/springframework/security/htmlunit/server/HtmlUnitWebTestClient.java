@@ -55,11 +55,20 @@ final class HtmlUnitWebTestClient {
 		Assert.notNull(webClient, "WebClient must not be null");
 		Assert.notNull(webTestClient, "WebTestClient must not be null");
 		this.webClient = webClient;
-		this.webTestClient = webTestClient.mutate().filter(new FollowRedirects()).filter(new CookieManager()).build();
+		// @formatter:off
+		this.webTestClient = webTestClient.mutate()
+				.filter(new FollowRedirects())
+				.filter(new CookieManager())
+				.build();
+		// @formatter:on
 	}
 
 	FluxExchangeResult<String> getResponse(WebRequest webRequest) {
-		WebTestClient.RequestBodySpec request = this.webTestClient.method(httpMethod(webRequest)).uri(uri(webRequest));
+		// @formatter:off
+		WebTestClient.RequestBodySpec request = this.webTestClient
+				.method(httpMethod(webRequest))
+				.uri(uri(webRequest));
+		// @formatter:on
 		contentType(request, webRequest);
 		cookies(request, webRequest);
 		headers(request, webRequest);
@@ -150,10 +159,13 @@ final class HtmlUnitWebTestClient {
 				if (location.getHost() == null) {
 					redirectUrl = scheme + "://" + host + location.toASCIIString();
 				}
+				// @formatter:off
 				ClientRequest redirect = ClientRequest.method(HttpMethod.GET, URI.create(redirectUrl))
 						.headers((headers) -> headers.addAll(request.headers()))
 						.cookies((cookies) -> cookies.addAll(request.cookies()))
-						.attributes((attributes) -> attributes.putAll(request.attributes())).build();
+						.attributes((attributes) -> attributes.putAll(request.attributes()))
+						.build();
+				// @formatter:on
 				return next.exchange(redirect).flatMap((r) -> redirectIfNecessary(request, next, r));
 			}
 			return Mono.just(response);

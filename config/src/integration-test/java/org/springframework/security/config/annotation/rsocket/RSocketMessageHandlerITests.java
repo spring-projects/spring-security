@@ -76,14 +76,21 @@ public class RSocketMessageHandlerITests {
 
 	@Before
 	public void setup() {
-		this.server = RSocketFactory.receive().frameDecoder(PayloadDecoder.ZERO_COPY)
-				.addSocketAcceptorPlugin(this.interceptor).acceptor(this.handler.responder())
-				.transport(TcpServerTransport.create("localhost", 0)).start().block();
+		// @formatter:off
+		this.server = RSocketFactory.receive()
+				.frameDecoder(PayloadDecoder.ZERO_COPY)
+				.addSocketAcceptorPlugin(this.interceptor)
+				.acceptor(this.handler.responder())
+				.transport(TcpServerTransport.create("localhost", 0))
+				.start()
+				.block();
 		this.requester = RSocketRequester.builder()
 				// .rsocketFactory((factory) ->
 				// factory.addRequesterPlugin(payloadInterceptor))
 				.rsocketStrategies(this.handler.getRSocketStrategies())
-				.connectTcp("localhost", this.server.address().getPort()).block();
+				.connectTcp("localhost", this.server.address().getPort())
+				.block();
+		// @formatter:on
 	}
 
 	@After
@@ -96,9 +103,15 @@ public class RSocketMessageHandlerITests {
 	@Test
 	public void retrieveMonoWhenSecureThenDenied() throws Exception {
 		String data = "rob";
+		// @formatter:off
 		assertThatExceptionOfType(ApplicationErrorException.class).isThrownBy(
-				() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block())
-				.withMessageContaining("Access Denied");
+				() -> this.requester.route("secure.retrieve-mono")
+					.data(data)
+					.retrieveMono(String.class)
+					.block()
+			)
+			.withMessageContaining("Access Denied");
+		// @formatter:on
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -106,11 +119,15 @@ public class RSocketMessageHandlerITests {
 	public void retrieveMonoWhenAuthenticationFailedThenException() throws Exception {
 		String data = "rob";
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("invalid", "password");
+		// @formatter:off
 		assertThatExceptionOfType(ApplicationErrorException.class)
-				.isThrownBy(() -> this.requester.route("secure.retrieve-mono")
-						.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE).data(data)
-						.retrieveMono(String.class).block())
-				.withMessageContaining("Invalid Credentials");
+			.isThrownBy(() -> this.requester.route("secure.retrieve-mono")
+				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE).data(data)
+				.retrieveMono(String.class)
+				.block()
+			)
+			.withMessageContaining("Invalid Credentials");
+		// @formatter:on
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -118,9 +135,13 @@ public class RSocketMessageHandlerITests {
 	public void retrieveMonoWhenAuthorizedThenGranted() throws Exception {
 		String data = "rob";
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("rob", "password");
+		// @formatter:off
 		String hiRob = this.requester.route("secure.retrieve-mono")
-				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE).data(data)
-				.retrieveMono(String.class).block();
+			.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+			.data(data)
+			.retrieveMono(String.class)
+			.block();
+		// @formatter:on
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
 	}
@@ -128,7 +149,12 @@ public class RSocketMessageHandlerITests {
 	@Test
 	public void retrieveMonoWhenPublicThenGranted() throws Exception {
 		String data = "rob";
-		String hiRob = this.requester.route("retrieve-mono").data(data).retrieveMono(String.class).block();
+		// @formatter:off
+		String hiRob = this.requester.route("retrieve-mono")
+			.data(data)
+			.retrieveMono(String.class)
+			.block();
+		// @formatter:on
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
 	}
@@ -136,18 +162,29 @@ public class RSocketMessageHandlerITests {
 	@Test
 	public void retrieveFluxWhenDataFluxAndSecureThenDenied() throws Exception {
 		Flux<String> data = Flux.just("a", "b", "c");
+		// @formatter:off
 		assertThatExceptionOfType(ApplicationErrorException.class)
-				.isThrownBy(() -> this.requester.route("secure.retrieve-flux").data(data, String.class)
-						.retrieveFlux(String.class).collectList().block())
-				.withMessageContaining("Access Denied");
+			.isThrownBy(() -> this.requester.route("secure.retrieve-flux")
+				.data(data, String.class)
+				.retrieveFlux(String.class)
+				.collectList()
+				.block()
+			)
+			.withMessageContaining("Access Denied");
+		// @formatter:on
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
 	@Test
 	public void retrieveFluxWhenDataFluxAndPublicThenGranted() throws Exception {
 		Flux<String> data = Flux.just("a", "b", "c");
-		List<String> hi = this.requester.route("retrieve-flux").data(data, String.class).retrieveFlux(String.class)
-				.collectList().block();
+		// @formatter:off
+		List<String> hi = this.requester.route("retrieve-flux")
+			.data(data, String.class)
+			.retrieveFlux(String.class)
+			.collectList()
+			.block();
+		// @formatter:on
 		assertThat(hi).containsOnly("hello a", "hello b", "hello c");
 		assertThat(this.controller.payloads).containsOnlyElementsOf(data.collectList().block());
 	}
@@ -164,14 +201,24 @@ public class RSocketMessageHandlerITests {
 	@Test
 	public void sendWhenSecureThenDenied() throws Exception {
 		String data = "hi";
-		this.requester.route("secure.send").data(data).send().block();
+		// @formatter:off
+		this.requester.route("secure.send")
+			.data(data)
+			.send()
+			.block();
+		// @formatter:on
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
 	@Test
 	public void sendWhenPublicThenGranted() throws Exception {
 		String data = "hi";
-		this.requester.route("send").data(data).send().block();
+		// @formatter:off
+		this.requester.route("send")
+			.data(data)
+			.send()
+			.block();
+		// @formatter:on
 		assertThat(this.controller.awaitPayloads()).containsOnly("hi");
 	}
 
@@ -215,9 +262,14 @@ public class RSocketMessageHandlerITests {
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
+			// @formatter:off
 			rsocket.authorizePayload(
-					(authorize) -> authorize.route("secure.*").authenticated().anyExchange().permitAll())
-					.basicAuthentication(Customizer.withDefaults());
+				(authorize) -> authorize
+					.route("secure.*").authenticated()
+					.anyExchange().permitAll()
+				)
+				.basicAuthentication(Customizer.withDefaults());
+			// @formatter:on
 			return rsocket.build();
 		}
 

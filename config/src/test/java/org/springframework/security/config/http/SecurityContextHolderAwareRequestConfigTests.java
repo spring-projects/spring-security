@@ -67,14 +67,21 @@ public class SecurityContextHolderAwareRequestConfigTests {
 	@Test
 	public void servletLoginWhenUsingDefaultConfigurationThenUsesSpringSecurity() throws Exception {
 		this.spring.configLocations(this.xml("Simple")).autowire();
-		this.mvc.perform(get("/good-login")).andExpect(status().isOk()).andExpect(content().string("user"));
+		// @formatter:off
+		this.mvc.perform(get("/good-login"))
+				.andExpect(status().isOk())
+				.andExpect(content().string("user"));
+		// @formatter:on
 	}
 
 	@Test
 	public void servletAuthenticateWhenUsingDefaultConfigurationThenUsesSpringSecurity() throws Exception {
 		this.spring.configLocations(this.xml("Simple")).autowire();
-		this.mvc.perform(get("/authenticate")).andExpect(status().isFound())
+		// @formatter:off
+		this.mvc.perform(get("/authenticate"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 	}
 
 	@Test
@@ -83,8 +90,12 @@ public class SecurityContextHolderAwareRequestConfigTests {
 		MvcResult result = this.mvc.perform(get("/good-login")).andReturn();
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
 		assertThat(session).isNotNull();
-		result = this.mvc.perform(get("/do-logout").session(session)).andExpect(status().isOk())
-				.andExpect(content().string("")).andReturn();
+		// @formatter:off
+		result = this.mvc.perform(get("/do-logout").session(session))
+				.andExpect(status().isOk())
+				.andExpect(content().string(""))
+				.andReturn();
+		// @formatter:on
 		session = (MockHttpSession) result.getRequest().getSession(false);
 		assertThat(session).isNull();
 	}
@@ -92,31 +103,47 @@ public class SecurityContextHolderAwareRequestConfigTests {
 	@Test
 	public void servletAuthenticateWhenUsingHttpBasicThenUsesSpringSecurity() throws Exception {
 		this.spring.configLocations(this.xml("HttpBasic")).autowire();
-		this.mvc.perform(get("/authenticate")).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/authenticate"))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("discworld")));
+		// @formatter:on
 	}
 
 	@Test
 	public void servletAuthenticateWhenUsingFormLoginThenUsesSpringSecurity() throws Exception {
 		this.spring.configLocations(this.xml("FormLogin")).autowire();
-		this.mvc.perform(get("/authenticate")).andExpect(status().isFound())
+		// @formatter:off
+		this.mvc.perform(get("/authenticate"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 	}
 
 	@Test
 	public void servletLoginWhenUsingMultipleHttpConfigsThenUsesSpringSecurity() throws Exception {
 		this.spring.configLocations(this.xml("MultiHttp")).autowire();
-		this.mvc.perform(get("/good-login")).andExpect(status().isOk()).andExpect(content().string("user"));
-		this.mvc.perform(get("/v2/good-login")).andExpect(status().isOk()).andExpect(content().string("user2"));
+		// @formatter:off
+		this.mvc.perform(get("/good-login"))
+				.andExpect(status().isOk())
+				.andExpect(content().string("user"));
+		this.mvc.perform(get("/v2/good-login"))
+				.andExpect(status().isOk())
+				.andExpect(content().string("user2"));
+		// @formatter:on
 	}
 
 	@Test
 	public void servletAuthenticateWhenUsingMultipleHttpConfigsThenUsesSpringSecurity() throws Exception {
 		this.spring.configLocations(this.xml("MultiHttp")).autowire();
-		this.mvc.perform(get("/authenticate")).andExpect(status().isFound())
+		// @formatter:off
+		this.mvc.perform(get("/authenticate"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"));
-		this.mvc.perform(get("/v2/authenticate")).andExpect(status().isFound())
+		this.mvc.perform(get("/v2/authenticate"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login2"));
+		// @formatter:on
 	}
 
 	@Test
@@ -125,15 +152,26 @@ public class SecurityContextHolderAwareRequestConfigTests {
 		MvcResult result = this.mvc.perform(get("/good-login")).andReturn();
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
 		assertThat(session).isNotNull();
-		result = this.mvc.perform(get("/do-logout").session(session)).andExpect(status().isOk())
-				.andExpect(content().string("")).andReturn();
+		// @formatter:off
+		result = this.mvc.perform(get("/do-logout").session(session))
+				.andExpect(status().isOk())
+				.andExpect(content().string(""))
+				.andReturn();
+		// @formatter:on
 		session = (MockHttpSession) result.getRequest().getSession(false);
 		assertThat(session).isNotNull();
-		result = this.mvc.perform(get("/v2/good-login")).andReturn();
+		// @formatter:off
+		result = this.mvc.perform(get("/v2/good-login"))
+				.andReturn();
+		// @formatter:on
 		session = (MockHttpSession) result.getRequest().getSession(false);
 		assertThat(session).isNotNull();
-		result = this.mvc.perform(get("/v2/do-logout").session(session)).andExpect(status().isOk())
-				.andExpect(content().string("")).andReturn();
+		// @formatter:off
+		result = this.mvc.perform(get("/v2/do-logout").session(session))
+				.andExpect(status().isOk())
+				.andExpect(content().string(""))
+				.andReturn();
+		// @formatter:on
 		session = (MockHttpSession) result.getRequest().getSession(false);
 		assertThat(session).isNull();
 	}
@@ -143,11 +181,19 @@ public class SecurityContextHolderAwareRequestConfigTests {
 		this.spring.configLocations(this.xml("Logout")).autowire();
 		this.mvc.perform(get("/authenticate")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/signin"));
-		MvcResult result = this.mvc.perform(get("/good-login")).andReturn();
+		// @formatter:off
+		MvcResult result = this.mvc.perform(get("/good-login"))
+				.andReturn();
+		// @formatter:on
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
 		assertThat(session).isNotNull();
-		result = this.mvc.perform(get("/do-logout").session(session)).andExpect(status().isOk())
-				.andExpect(content().string("")).andExpect(cookie().maxAge("JSESSIONID", 0)).andReturn();
+		// @formatter:off
+		result = this.mvc.perform(get("/do-logout").session(session))
+				.andExpect(status().isOk())
+				.andExpect(content().string(""))
+				.andExpect(cookie().maxAge("JSESSIONID", 0))
+				.andReturn();
+		// @formatter:on
 		session = (MockHttpSession) result.getRequest().getSession(false);
 		assertThat(session).isNotNull();
 	}
@@ -159,7 +205,10 @@ public class SecurityContextHolderAwareRequestConfigTests {
 	@WithMockUser
 	public void servletIsUserInRoleWhenUsingDefaultConfigThenRoleIsSet() throws Exception {
 		this.spring.configLocations(this.xml("Simple")).autowire();
-		this.mvc.perform(get("/role")).andExpect(content().string("true"));
+		// @formatter:off
+		this.mvc.perform(get("/role"))
+				.andExpect(content().string("true"));
+		// @formatter:on
 	}
 
 	private String xml(String configName) {

@@ -34,6 +34,7 @@ import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
@@ -53,13 +54,15 @@ public class NamespaceJdbcUserServiceTests {
 	@Test
 	public void jdbcUserService() throws Exception {
 		this.spring.register(DataSourceConfig.class, JdbcUserServiceConfig.class).autowire();
-		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher user = authenticated().withUsername("user");
+		this.mockMvc.perform(formLogin()).andExpect(user);
 	}
 
 	@Test
 	public void jdbcUserServiceCustom() throws Exception {
 		this.spring.register(CustomDataSourceConfig.class, CustomJdbcUserServiceSampleConfig.class).autowire();
-		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user").withRoles("DBA", "USER"));
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher dba = authenticated().withUsername("user").withRoles("DBA", "USER");
+		this.mockMvc.perform(formLogin()).andExpect(dba);
 	}
 
 	@EnableWebSecurity

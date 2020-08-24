@@ -68,28 +68,40 @@ public class HttpCorsConfigTests {
 	@Test
 	public void getWhenUsingCorsThenDoesSpringSecurityCorsHandshake() throws Exception {
 		this.spring.configLocations(this.xml("WithCors")).autowire();
-		this.mvc.perform(get("/").with(this.approved())).andExpect(corsResponseHeaders())
+		// @formatter:off
+		this.mvc.perform(get("/").with(this.approved()))
+				.andExpect(corsResponseHeaders())
 				.andExpect((status().isIAmATeapot()));
-		this.mvc.perform(options("/").with(this.preflight())).andExpect(corsResponseHeaders())
+		this.mvc.perform(options("/").with(this.preflight()))
+				.andExpect(corsResponseHeaders())
 				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenUsingCustomCorsConfigurationSourceThenDoesSpringSecurityCorsHandshake() throws Exception {
 		this.spring.configLocations(this.xml("WithCorsConfigurationSource")).autowire();
-		this.mvc.perform(get("/").with(this.approved())).andExpect(corsResponseHeaders())
+		// @formatter:off
+		this.mvc.perform(get("/").with(this.approved()))
+				.andExpect(corsResponseHeaders())
 				.andExpect((status().isIAmATeapot()));
-		this.mvc.perform(options("/").with(this.preflight())).andExpect(corsResponseHeaders())
+		this.mvc.perform(options("/").with(this.preflight()))
+				.andExpect(corsResponseHeaders())
 				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenUsingCustomCorsFilterThenDoesSPringSecurityCorsHandshake() throws Exception {
 		this.spring.configLocations(this.xml("WithCorsFilter")).autowire();
-		this.mvc.perform(get("/").with(this.approved())).andExpect(corsResponseHeaders())
+		// @formatter:off
+		this.mvc.perform(get("/").with(this.approved()))
+				.andExpect(corsResponseHeaders())
 				.andExpect((status().isIAmATeapot()));
-		this.mvc.perform(options("/").with(this.preflight())).andExpect(corsResponseHeaders())
+		this.mvc.perform(options("/").with(this.preflight()))
+				.andExpect(corsResponseHeaders())
 				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	private String xml(String configName) {

@@ -124,12 +124,19 @@ public class SpringSecurityXsdParser {
 		while (!"schema".equals(root.simpleName())) {
 			root = root.parent().get();
 		}
-		return expand(root).filter((node) -> name.equals(node.attribute("name"))).findFirst()
+		// @formatter:off
+		return expand(root)
+				.filter((node) -> name.equals(node.attribute("name")))
+				.findFirst()
 				.orElseThrow(IllegalArgumentException::new);
+		// @formatter:on
 	}
 
 	private Stream<XmlNode> expand(XmlNode root) {
-		return Stream.concat(Stream.of(root), root.children().flatMap(this::expand));
+		// @formatter:off
+		return Stream.concat(Stream.of(root), root.children()
+				.flatMap(this::expand));
+		// @formatter:on
 	}
 
 	/**

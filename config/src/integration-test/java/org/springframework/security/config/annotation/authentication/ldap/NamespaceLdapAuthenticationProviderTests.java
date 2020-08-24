@@ -36,6 +36,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders;
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -57,16 +59,19 @@ public class NamespaceLdapAuthenticationProviderTests {
 	public void ldapAuthenticationProvider() throws Exception {
 		this.spring.register(LdapAuthenticationProviderConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob"));
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin().user("bob").password("bobspassword");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher user = authenticated().withUsername("bob");
+		this.mockMvc.perform(request).andExpect(user);
 	}
 
 	@Test
 	public void ldapAuthenticationProviderCustom() throws Exception {
 		this.spring.register(CustomLdapAuthenticationProviderConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword")).andExpect(authenticated()
-				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("PREFIX_DEVELOPERS"))));
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin().user("bob").password("bobspassword");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher user = authenticated()
+				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("PREFIX_DEVELOPERS")));
+		this.mockMvc.perform(request).andExpect(user);
 	}
 
 	// SEC-2490
@@ -83,16 +88,18 @@ public class NamespaceLdapAuthenticationProviderTests {
 
 		this.spring.register(CustomAuthoritiesPopulatorConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword")).andExpect(
-				authenticated().withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_EXTRA"))));
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin().user("bob").password("bobspassword");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher user = authenticated().withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_EXTRA")));
+		this.mockMvc.perform(request).andExpect(user);
 	}
 
 	@Test
 	public void ldapAuthenticationProviderPasswordCompare() throws Exception {
 		this.spring.register(PasswordCompareLdapConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bcrypt").password("password"))
-				.andExpect(authenticated().withUsername("bcrypt"));
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin().user("bcrypt").password("password");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher user = authenticated().withUsername("bcrypt");
+		this.mockMvc.perform(request).andExpect(user);
 	}
 
 }

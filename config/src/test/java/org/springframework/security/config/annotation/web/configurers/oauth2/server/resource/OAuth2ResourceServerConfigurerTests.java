@@ -121,6 +121,7 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -199,8 +200,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("ok"));
+		// @formatter:on
 	}
 
 	@Test
@@ -208,8 +212,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultInLambdaConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("ok"));
+		// @formatter:on
 	}
 
 	@Test
@@ -217,8 +224,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(WebServerConfig.class, JwkSetUriConfig.class, BasicController.class).autowire();
 		mockWebServer(jwks("Default"));
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("ok"));
+		// @formatter:on
 	}
 
 	@Test
@@ -226,8 +236,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(WebServerConfig.class, JwkSetUriInLambdaConfig.class, BasicController.class).autowire();
 		mockWebServer(jwks("Default"));
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("ok"));
+		// @formatter:on
 	}
 
 	@Test
@@ -235,8 +248,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("Expired");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isUnauthorized())
 				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
+		// @formatter:on
 	}
 
 	@Test
@@ -244,8 +260,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class).autowire();
 		mockRestOperations("malformed");
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string("WWW-Authenticate", "Bearer"));
+		// @formatter:on
 	}
 
 	@Test
@@ -253,15 +272,21 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(WebServerConfig.class, JwkSetUriConfig.class).autowire();
 		this.web.shutdown();
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string("WWW-Authenticate", "Bearer"));
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenUsingDefaultsWithMalformedBearerTokenThenInvalidToken() throws Exception {
 		this.spring.register(JwkSetUriConfig.class).autowire();
-		this.mvc.perform(get("/").with(bearerToken("an\"invalid\"token"))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken("an\"invalid\"token")))
+				.andExpect(status().isUnauthorized())
 				.andExpect(invalidTokenHeader("Bearer token is malformed"));
+		// @formatter:on
 	}
 
 	@Test
@@ -269,16 +294,22 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("MalformedPayload");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isUnauthorized()).andExpect(
-				invalidTokenHeader("An error occurred while attempting to decode the Jwt: Malformed payload"));
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isUnauthorized())
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt: Malformed payload"));
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenUsingDefaultsWithUnsignedBearerTokenThenInvalidToken() throws Exception {
 		this.spring.register(JwkSetUriConfig.class).autowire();
 		String token = this.token("Unsigned");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isUnauthorized())
 				.andExpect(invalidTokenHeader("Unsupported algorithm of none"));
+		// @formatter:on
 	}
 
 	@Test
@@ -286,16 +317,21 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class).autowire();
 		this.mockRestOperations(jwks("Default"));
 		String token = this.token("TooEarly");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isUnauthorized())
 				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenUsingDefaultsWithBearerTokenInTwoPlacesThenInvalidRequest() throws Exception {
 		this.spring.register(JwkSetUriConfig.class).autowire();
+		// @formatter:off
 		this.mvc.perform(get("/").with(bearerToken("token")).with(bearerToken("token").asParam()))
 				.andExpect(status().isBadRequest())
 				.andExpect(invalidRequestHeader("Found multiple bearer tokens in the request"));
+		// @formatter:on
 	}
 
 	@Test
@@ -304,23 +340,32 @@ public class OAuth2ResourceServerConfigurerTests {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("access_token", "token1");
 		params.add("access_token", "token2");
-		this.mvc.perform(get("/").params(params)).andExpect(status().isBadRequest())
+		// @formatter:off
+		this.mvc.perform(get("/").params(params))
+				.andExpect(status().isBadRequest())
 				.andExpect(invalidRequestHeader("Found multiple bearer tokens in the request"));
+		// @formatter:on
 	}
 
 	@Test
 	public void postWhenUsingDefaultsWithBearerTokenAsFormParameterThenIgnoresToken() throws Exception {
 		this.spring.register(JwkSetUriConfig.class).autowire();
-		this.mvc.perform(post("/") // engage csrf
-				.with(bearerToken("token").asParam())).andExpect(status().isForbidden())
+		// engage csrf
+		// @formatter:off
+		this.mvc.perform(post("/").with(bearerToken("token").asParam()))
+				.andExpect(status().isForbidden())
 				.andExpect(header().doesNotExist(HttpHeaders.WWW_AUTHENTICATE));
+		// @formatter:on
 	}
 
 	@Test
 	public void postWhenCsrfDisabledWithBearerTokenAsFormParameterThenIgnoresToken() throws Exception {
 		this.spring.register(CsrfDisabledConfig.class).autowire();
-		this.mvc.perform(post("/").with(bearerToken("token").asParam())).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(post("/").with(bearerToken("token").asParam()))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer"));
+		// @formatter:on
 	}
 
 	// gh-8031
@@ -329,14 +374,20 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, AnonymousDisabledConfig.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = token("ValidNoScopes");
-		this.mvc.perform(get("/authenticated").with(bearerToken(token))).andExpect(status().isNotFound());
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken(token)))
+				.andExpect(status().isNotFound());
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenUsingDefaultsWithNoBearerTokenThenUnauthorized() throws Exception {
 		this.spring.register(JwkSetUriConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer"));
+		// @formatter:on
 	}
 
 	@Test
@@ -344,8 +395,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidMessageReadScope");
-		this.mvc.perform(get("/requires-read-scope").with(bearerToken(token))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/requires-read-scope").with(bearerToken(token)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("[SCOPE_message:read]"));
+		// @formatter:on
 	}
 
 	@Test
@@ -353,8 +407,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(get("/requires-read-scope").with(bearerToken(token))).andExpect(status().isForbidden())
+		// @formatter:off
+		this.mvc.perform(get("/requires-read-scope").with(bearerToken(token)))
+				.andExpect(status().isForbidden())
 				.andExpect(insufficientScopeHeader());
+		// @formatter:on
 	}
 
 	@Test
@@ -362,8 +419,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidMessageWriteScp");
-		this.mvc.perform(get("/requires-read-scope").with(bearerToken(token))).andExpect(status().isForbidden())
+		// @formatter:off
+		this.mvc.perform(get("/requires-read-scope").with(bearerToken(token)))
+				.andExpect(status().isForbidden())
 				.andExpect(insufficientScopeHeader());
+		// @formatter:on
 	}
 
 	@Test
@@ -371,8 +431,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class).autowire();
 		mockRestOperations(jwks("Empty"));
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isUnauthorized())
 				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
+		// @formatter:on
 	}
 
 	@Test
@@ -380,8 +443,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("TwoKeys"));
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(get("/authenticated").with(bearerToken(token))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken(token)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("test-subject"));
+		// @formatter:on
 	}
 
 	@Test
@@ -389,8 +455,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("TwoKeys"));
 		String token = this.token("Kid");
-		this.mvc.perform(get("/authenticated").with(bearerToken(token))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken(token)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("test-subject"));
+		// @formatter:on
 	}
 
 	@Test
@@ -398,8 +467,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, MethodSecurityConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidMessageReadScope");
-		this.mvc.perform(get("/ms-requires-read-scope").with(bearerToken(token))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/ms-requires-read-scope").with(bearerToken(token)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("[SCOPE_message:read]"));
+		// @formatter:on
 	}
 
 	@Test
@@ -407,8 +479,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, MethodSecurityConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidMessageReadScp");
-		this.mvc.perform(get("/ms-requires-read-scope").with(bearerToken(token))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/ms-requires-read-scope").with(bearerToken(token)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("[SCOPE_message:read]"));
+		// @formatter:on
 	}
 
 	@Test
@@ -416,8 +491,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, MethodSecurityConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(get("/ms-requires-read-scope").with(bearerToken(token))).andExpect(status().isForbidden())
+		// @formatter:off
+		this.mvc.perform(get("/ms-requires-read-scope").with(bearerToken(token)))
+				.andExpect(status().isForbidden())
 				.andExpect(insufficientScopeHeader());
+		// @formatter:on
 	}
 
 	@Test
@@ -425,8 +503,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, MethodSecurityConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidMessageWriteScp");
-		this.mvc.perform(get("/ms-requires-read-scope").with(bearerToken(token))).andExpect(status().isForbidden())
+		// @formatter:off
+		this.mvc.perform(get("/ms-requires-read-scope").with(bearerToken(token)))
+				.andExpect(status().isForbidden())
 				.andExpect(insufficientScopeHeader());
+		// @formatter:on
 	}
 
 	@Test
@@ -434,8 +515,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, MethodSecurityConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidMessageReadScope");
-		this.mvc.perform(get("/ms-deny").with(bearerToken(token))).andExpect(status().isForbidden())
+		// @formatter:off
+		this.mvc.perform(get("/ms-deny").with(bearerToken(token)))
+				.andExpect(status().isForbidden())
 				.andExpect(insufficientScopeHeader());
+		// @formatter:on
 	}
 
 	@Test
@@ -443,15 +527,21 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(post("/authenticated").with(bearerToken(token))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(post("/authenticated").with(bearerToken(token)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("test-subject"));
+		// @formatter:on
 	}
 
 	@Test
 	public void postWhenUsingDefaultsWithNoBearerTokenThenCsrfDenies() throws Exception {
 		this.spring.register(JwkSetUriConfig.class).autowire();
-		this.mvc.perform(post("/authenticated")).andExpect(status().isForbidden())
+		// @formatter:off
+		this.mvc.perform(post("/authenticated"))
+				.andExpect(status().isForbidden())
 				.andExpect(header().doesNotExist(HttpHeaders.WWW_AUTHENTICATE));
+		// @formatter:on
 	}
 
 	@Test
@@ -459,8 +549,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("Expired");
-		this.mvc.perform(post("/authenticated").with(bearerToken(token))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(post("/authenticated").with(bearerToken(token)))
+				.andExpect(status().isUnauthorized())
 				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
+		// @formatter:on
 	}
 
 	@Test
@@ -468,7 +561,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, DefaultConfig.class, BasicController.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
-		MvcResult result = this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isOk()).andReturn();
+		// @formatter:off
+		MvcResult result = this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isOk())
+				.andReturn();
+		// @formatter:on
 		assertThat(result.getRequest().getSession(false)).isNull();
 	}
 
@@ -476,15 +573,23 @@ public class OAuth2ResourceServerConfigurerTests {
 	public void requestWhenIntrospectionConfiguredThenSessionIsNotCreated() throws Exception {
 		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class, BasicController.class).autowire();
 		mockRestOperations(json("Active"));
-		MvcResult result = this.mvc.perform(get("/authenticated").with(bearerToken("token"))).andExpect(status().isOk())
-				.andExpect(content().string("test-subject")).andReturn();
+		// @formatter:off
+		MvcResult result = this.mvc.perform(get("/authenticated").with(bearerToken("token")))
+				.andExpect(status().isOk())
+				.andExpect(content().string("test-subject"))
+				.andReturn();
+		// @formatter:on
 		assertThat(result.getRequest().getSession(false)).isNull();
 	}
 
 	@Test
 	public void requestWhenUsingDefaultsAndNoBearerTokenThenSessionIsCreated() throws Exception {
 		this.spring.register(JwkSetUriConfig.class, BasicController.class).autowire();
-		MvcResult result = this.mvc.perform(get("/")).andExpect(status().isUnauthorized()).andReturn();
+		// @formatter:off
+		MvcResult result = this.mvc.perform(get("/"))
+				.andExpect(status().isUnauthorized())
+				.andReturn();
+		// @formatter:on
 		assertThat(result.getRequest().getSession(false)).isNotNull();
 	}
 
@@ -494,7 +599,11 @@ public class OAuth2ResourceServerConfigurerTests {
 				.autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
-		MvcResult result = this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isOk()).andReturn();
+		// @formatter:off
+		MvcResult result = this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isOk())
+				.andReturn();
+		// @formatter:on
 		assertThat(result.getRequest().getSession(false)).isNotNull();
 	}
 
@@ -505,10 +614,14 @@ public class OAuth2ResourceServerConfigurerTests {
 				.autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(anyString())).willReturn(JWT);
-		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN)))
+				.andExpect(status().isOk())
 				.andExpect(content().string(JWT_SUBJECT));
-		this.mvc.perform(post("/authenticated").param("access_token", JWT_TOKEN)).andExpect(status().isOk())
+		this.mvc.perform(post("/authenticated").param("access_token", JWT_TOKEN))
+				.andExpect(status().isOk())
 				.andExpect(content().string(JWT_SUBJECT));
+		// @formatter:on
 	}
 
 	@Test
@@ -519,10 +632,14 @@ public class OAuth2ResourceServerConfigurerTests {
 				.autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(anyString())).willReturn(JWT);
-		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN)))
+				.andExpect(status().isOk())
 				.andExpect(content().string(JWT_SUBJECT));
-		this.mvc.perform(get("/authenticated").param("access_token", JWT_TOKEN)).andExpect(status().isOk())
+		this.mvc.perform(get("/authenticated").param("access_token", JWT_TOKEN))
+				.andExpect(status().isOk())
 				.andExpect(content().string(JWT_SUBJECT));
+		// @formatter:on
 	}
 
 	@Test
@@ -532,10 +649,15 @@ public class OAuth2ResourceServerConfigurerTests {
 				.autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(anyString())).willReturn(JWT);
-		this.mvc.perform(
-				post("/authenticated").param("access_token", JWT_TOKEN).with(bearerToken(JWT_TOKEN)).with(csrf()))
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/authenticated")
+				.param("access_token", JWT_TOKEN)
+				.with(bearerToken(JWT_TOKEN))
+				.with(csrf());
+		this.mvc.perform(request)
 				.andExpect(status().isBadRequest())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("invalid_request")));
+		// @formatter:on
 	}
 
 	@Test
@@ -546,9 +668,14 @@ public class OAuth2ResourceServerConfigurerTests {
 				.autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(anyString())).willReturn(JWT);
-		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN)).param("access_token", JWT_TOKEN))
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/authenticated")
+				.with(bearerToken(JWT_TOKEN))
+				.param("access_token", JWT_TOKEN);
+		this.mvc.perform(request)
 				.andExpect(status().isBadRequest())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("invalid_request")));
+		// @formatter:on
 	}
 
 	@Test
@@ -597,8 +724,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		CustomJwtDecoderOnDsl config = this.spring.getContext().getBean(CustomJwtDecoderOnDsl.class);
 		JwtDecoder decoder = config.decoder();
 		given(decoder.decode(anyString())).willReturn(JWT);
-		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN)))
+				.andExpect(status().isOk())
 				.andExpect(content().string(JWT_SUBJECT));
+		// @formatter:on
 	}
 
 	@Test
@@ -607,8 +737,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		CustomJwtDecoderInLambdaOnDsl config = this.spring.getContext().getBean(CustomJwtDecoderInLambdaOnDsl.class);
 		JwtDecoder decoder = config.decoder();
 		given(decoder.decode(anyString())).willReturn(JWT);
-		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN)))
+				.andExpect(status().isOk())
 				.andExpect(content().string(JWT_SUBJECT));
+		// @formatter:on
 	}
 
 	@Test
@@ -616,8 +749,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(CustomJwtDecoderAsBean.class, BasicController.class).autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(anyString())).willReturn(JWT);
-		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN)))
+				.andExpect(status().isOk())
 				.andExpect(content().string(JWT_SUBJECT));
+		// @formatter:on
 	}
 
 	@Test
@@ -686,8 +822,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RealmNameConfiguredOnEntryPoint.class, JwtDecoderConfig.class).autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(anyString())).willThrow(JwtException.class);
-		this.mvc.perform(get("/authenticated").with(bearerToken("invalid_token"))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken("invalid_token")))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer realm=\"myRealm\"")));
+		// @formatter:on
 	}
 
 	@Test
@@ -695,9 +834,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RealmNameConfiguredOnAccessDeniedHandler.class, JwtDecoderConfig.class).autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(anyString())).willReturn(JWT);
+		// @formatter:off
 		this.mvc.perform(get("/authenticated").with(bearerToken("insufficiently_scoped")))
 				.andExpect(status().isForbidden())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer realm=\"myRealm\"")));
+		// @formatter:on
 	}
 
 	@Test
@@ -723,8 +864,11 @@ public class OAuth2ResourceServerConfigurerTests {
 				.getJwtValidator();
 		OAuth2Error error = new OAuth2Error("custom-error", "custom-description", "custom-uri");
 		given(jwtValidator.validate(any(Jwt.class))).willReturn(OAuth2TokenValidatorResult.failure(error));
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("custom-description")));
+		// @formatter:on
 	}
 
 	@Test
@@ -733,7 +877,10 @@ public class OAuth2ResourceServerConfigurerTests {
 				.autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ExpiresAt4687177990");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isOk());
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	@Test
@@ -742,8 +889,11 @@ public class OAuth2ResourceServerConfigurerTests {
 				.autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ExpiresAt4687177990");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isUnauthorized())
 				.andExpect(invalidTokenHeader("Jwt expired at"));
+		// @formatter:on
 	}
 
 	@Test
@@ -755,7 +905,10 @@ public class OAuth2ResourceServerConfigurerTests {
 		given(jwtAuthenticationConverter.convert(JWT)).willReturn(JWT_AUTHENTICATION_TOKEN);
 		JwtDecoder jwtDecoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(jwtDecoder.decode(anyString())).willReturn(JWT);
-		this.mvc.perform(get("/").with(bearerToken(JWT_TOKEN))).andExpect(status().isOk());
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(JWT_TOKEN)))
+				.andExpect(status().isOk());
+		// @formatter:on
 		verify(jwtAuthenticationConverter).convert(JWT);
 	}
 
@@ -766,28 +919,40 @@ public class OAuth2ResourceServerConfigurerTests {
 				.autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(JWT_TOKEN)).willReturn(JWT);
-		this.mvc.perform(get("/requires-read-scope").with(bearerToken(JWT_TOKEN))).andExpect(status().isOk());
+		// @formatter:off
+		this.mvc.perform(get("/requires-read-scope").with(bearerToken(JWT_TOKEN)))
+				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	@Test
 	public void requestWhenUsingPublicKeyAndValidTokenThenAuthenticates() throws Exception {
 		this.spring.register(SingleKeyConfig.class, BasicController.class).autowire();
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(status().isOk());
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	@Test
 	public void requestWhenUsingPublicKeyAndSignatureFailsThenReturnsInvalidToken() throws Exception {
 		this.spring.register(SingleKeyConfig.class).autowire();
 		String token = this.token("WrongSignature");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(invalidTokenHeader("signature"));
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(invalidTokenHeader("signature"));
+		// @formatter:on
 	}
 
 	@Test
 	public void requestWhenUsingPublicKeyAlgorithmDoesNotMatchThenReturnsInvalidToken() throws Exception {
 		this.spring.register(SingleKeyConfig.class).autowire();
 		String token = this.token("WrongAlgorithm");
-		this.mvc.perform(get("/").with(bearerToken(token))).andExpect(invalidTokenHeader("algorithm"));
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(invalidTokenHeader("algorithm"));
+		// @formatter:on
 	}
 
 	// gh-7793
@@ -805,8 +970,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(JwtAuthenticationManagerConfig.class, BasicController.class).autowire();
 		given(bean(AuthenticationProvider.class).authenticate(any(Authentication.class)))
 				.willReturn(JWT_AUTHENTICATION_TOKEN);
-		this.mvc.perform(get("/authenticated").with(bearerToken("token"))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
+				.andExpect(status().isOk())
 				.andExpect(content().string("mock-test-subject"));
+		// @formatter:on
 		verifyBean(AuthenticationProvider.class).authenticate(any(Authentication.class));
 	}
 
@@ -814,8 +982,11 @@ public class OAuth2ResourceServerConfigurerTests {
 	public void getWhenIntrospectingThenOk() throws Exception {
 		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class, BasicController.class).autowire();
 		mockRestOperations(json("Active"));
-		this.mvc.perform(get("/authenticated").with(bearerToken("token"))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
+				.andExpect(status().isOk())
 				.andExpect(content().string("test-subject"));
+		// @formatter:on
 	}
 
 	@Test
@@ -823,24 +994,33 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, OpaqueTokenInLambdaConfig.class, BasicController.class)
 				.autowire();
 		mockRestOperations(json("Active"));
-		this.mvc.perform(get("/authenticated").with(bearerToken("token"))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
+				.andExpect(status().isOk())
 				.andExpect(content().string("test-subject"));
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenIntrospectionFailsThenUnauthorized() throws Exception {
 		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class).autowire();
 		mockRestOperations(json("Inactive"));
-		this.mvc.perform(get("/").with(bearerToken("token"))).andExpect(status().isUnauthorized()).andExpect(
-				header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("Provided token isn't active")));
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken("token")))
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("Provided token isn't active")));
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenIntrospectionLacksScopeThenForbidden() throws Exception {
 		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class).autowire();
 		mockRestOperations(json("ActiveNoScopes"));
-		this.mvc.perform(get("/requires-read-scope").with(bearerToken("token"))).andExpect(status().isForbidden())
+		// @formatter:off
+		this.mvc.perform(get("/requires-read-scope").with(bearerToken("token")))
+				.andExpect(status().isForbidden())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("scope")));
+		// @formatter:on
 	}
 
 	@Test
@@ -848,8 +1028,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(OpaqueTokenAuthenticationManagerConfig.class, BasicController.class).autowire();
 		given(bean(AuthenticationProvider.class).authenticate(any(Authentication.class)))
 				.willReturn(INTROSPECTION_AUTHENTICATION_TOKEN);
-		this.mvc.perform(get("/authenticated").with(bearerToken("token"))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
+				.andExpect(status().isOk())
 				.andExpect(content().string("mock-test-subject"));
+		// @formatter:on
 		verifyBean(AuthenticationProvider.class).authenticate(any(Authentication.class));
 	}
 
@@ -858,8 +1041,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(OpaqueTokenAuthenticationManagerInLambdaConfig.class, BasicController.class).autowire();
 		given(bean(AuthenticationProvider.class).authenticate(any(Authentication.class)))
 				.willReturn(INTROSPECTION_AUTHENTICATION_TOKEN);
-		this.mvc.perform(get("/authenticated").with(bearerToken("token"))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
+				.andExpect(status().isOk())
 				.andExpect(content().string("mock-test-subject"));
+		// @formatter:on
 		verifyBean(AuthenticationProvider.class).authenticate(any(Authentication.class));
 	}
 
@@ -903,12 +1089,17 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(BasicAndResourceServerConfig.class, JwtDecoderConfig.class).autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(anyString())).willThrow(JwtException.class);
-		this.mvc.perform(get("/authenticated").with(httpBasic("some", "user"))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(httpBasic("some", "user")))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Basic")));
-		this.mvc.perform(get("/authenticated")).andExpect(status().isUnauthorized())
+		this.mvc.perform(get("/authenticated"))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Basic")));
-		this.mvc.perform(get("/authenticated").with(bearerToken("invalid_token"))).andExpect(status().isUnauthorized())
+		this.mvc.perform(get("/authenticated").with(bearerToken("invalid_token")))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer")));
+		// @formatter:on
 	}
 
 	@Test
@@ -916,11 +1107,18 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(FormAndResourceServerConfig.class, JwtDecoderConfig.class).autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(anyString())).willThrow(JwtException.class);
-		MvcResult result = this.mvc.perform(get("/authenticated")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login")).andReturn();
-		assertThat(result.getRequest().getSession(false)).isNotNull();
-		result = this.mvc.perform(get("/authenticated").with(bearerToken("token"))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		MvcResult result = this.mvc.perform(get("/authenticated"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("http://localhost/login"))
 				.andReturn();
+		// @formatter:on
+		assertThat(result.getRequest().getSession(false)).isNotNull();
+		// @formatter:off
+		result = this.mvc.perform(get("/authenticated").with(bearerToken("token")))
+				.andExpect(status().isUnauthorized())
+				.andReturn();
+		// @formatter:on
 		assertThat(result.getRequest().getSession(false)).isNull();
 	}
 
@@ -931,11 +1129,14 @@ public class OAuth2ResourceServerConfigurerTests {
 				.autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(anyString())).willReturn(JWT);
+		// @formatter:off
 		this.mvc.perform(get("/authenticated").with(httpBasic("basic-user", "basic-password")))
-				.andExpect(status().isForbidden()).andExpect(header().doesNotExist(HttpHeaders.WWW_AUTHENTICATE));
+				.andExpect(status().isForbidden())
+				.andExpect(header().doesNotExist(HttpHeaders.WWW_AUTHENTICATE));
 		this.mvc.perform(get("/authenticated").with(bearerToken("insufficiently_scoped")))
 				.andExpect(status().isForbidden())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer")));
+		// @formatter:on
 	}
 
 	@Test
@@ -944,10 +1145,14 @@ public class OAuth2ResourceServerConfigurerTests {
 				.autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
-		this.mvc.perform(get("/authenticated").with(bearerToken(token))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken(token)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("test-subject"));
 		this.mvc.perform(get("/authenticated").with(httpBasic("basic-user", "basic-password")))
-				.andExpect(status().isOk()).andExpect(content().string("basic-user"));
+				.andExpect(status().isOk())
+				.andExpect(content().string("basic-user"));
+		// @formatter:on
 	}
 
 	@Test
@@ -980,16 +1185,25 @@ public class OAuth2ResourceServerConfigurerTests {
 		String jwtThree = jwtFromIssuer(issuerThree);
 		mockWebServer(String.format(metadata, issuerOne, issuerOne));
 		mockWebServer(jwkSet);
-		this.mvc.perform(get("/authenticated").with(bearerToken(jwtOne))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken(jwtOne)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("test-subject"));
+		// @formatter:on
 		mockWebServer(String.format(metadata, issuerTwo, issuerTwo));
 		mockWebServer(jwkSet);
-		this.mvc.perform(get("/authenticated").with(bearerToken(jwtTwo))).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken(jwtTwo)))
+				.andExpect(status().isOk())
 				.andExpect(content().string("test-subject"));
+		// @formatter:on
 		mockWebServer(String.format(metadata, issuerThree, issuerThree));
 		mockWebServer(jwkSet);
-		this.mvc.perform(get("/authenticated").with(bearerToken(jwtThree))).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken(jwtThree)))
+				.andExpect(status().isUnauthorized())
 				.andExpect(invalidTokenHeader("Invalid issuer"));
+		// @formatter:on
 	}
 
 	@Test

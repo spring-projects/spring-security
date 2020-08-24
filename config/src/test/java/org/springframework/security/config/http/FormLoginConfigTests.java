@@ -38,6 +38,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -67,24 +68,44 @@ public class FormLoginConfigTests {
 	@Test
 	public void getProtectedPageWhenFormLoginConfiguredThenRedirectsToDefaultLoginPage() throws Exception {
 		this.spring.configLocations(this.xml("WithAntRequestMatcher")).autowire();
-		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenDefaultTargetUrlConfiguredThenRedirectsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("WithDefaultTargetUrl")).autowire();
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf()))
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password")
+				.with(csrf());
+		this.mvc.perform(loginRequest)
 				.andExpect(redirectedUrl("/default"));
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenConfiguredWithSpelThenRedirectsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("UsingSpel")).autowire();
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf()))
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password")
+				.with(csrf());
+		this.mvc.perform(loginRequest)
 				.andExpect(redirectedUrl(WebConfigUtilsTests.URL + "/default"));
-		this.mvc.perform(post("/login").param("username", "user").param("password", "wrong").with(csrf()))
+		MockHttpServletRequestBuilder invalidPassword = post("/login")
+				.param("username", "user")
+				.param("password", "wrong")
+				.with(csrf());
+		this.mvc.perform(invalidPassword)
 				.andExpect(redirectedUrl(WebConfigUtilsTests.URL + "/failure"));
-		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost" + WebConfigUtilsTests.URL + "/login"));
+		this.mvc.perform(get("/"))
+				.andExpect(redirectedUrl("http://localhost" + WebConfigUtilsTests.URL + "/login"));
+		// @formatter:on
 	}
 
 	@Test
@@ -102,10 +123,20 @@ public class FormLoginConfigTests {
 	@Test
 	public void authenticateWhenCustomHandlerBeansConfiguredThenInvokesAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("WithSuccessAndFailureHandlers")).autowire();
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf()))
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password")
+				.with(csrf());
+		this.mvc.perform(loginRequest)
 				.andExpect(status().isIAmATeapot());
-		this.mvc.perform(post("/login").param("username", "user").param("password", "wrong").with(csrf()))
+		MockHttpServletRequestBuilder invalidPassword = post("/login")
+				.param("username", "user")
+				.param("password", "wrong")
+				.with(csrf());
+		this.mvc.perform(invalidPassword)
 				.andExpect(status().isIAmATeapot());
+		// @formatter:on
 	}
 
 	@Test
@@ -129,15 +160,25 @@ public class FormLoginConfigTests {
 	@Test
 	public void authenticateWhenCsrfIsEnabledThenRequiresToken() throws Exception {
 		this.spring.configLocations(this.xml("WithCsrfEnabled")).autowire();
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password"))
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password");
+		this.mvc.perform(loginRequest)
 				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenCsrfIsDisabledThenDoesNotRequireToken() throws Exception {
 		this.spring.configLocations(this.xml("WithCsrfDisabled")).autowire();
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password"))
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password");
+		this.mvc.perform(loginRequest)
 				.andExpect(status().isFound());
+		// @formatter:on
 	}
 
 	/**
@@ -148,8 +189,14 @@ public class FormLoginConfigTests {
 	public void authenticateWhenLoginPageIsSlashLoginAndAuthenticationFailsThenRedirectContainsErrorParameter()
 			throws Exception {
 		this.spring.configLocations(this.xml("ForSec3147")).autowire();
-		this.mvc.perform(post("/login").param("username", "user").param("password", "wrong").with(csrf()))
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "wrong")
+				.with(csrf());
+		this.mvc.perform(loginRequest)
 				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
 	}
 
 	private Filter getFilter(ApplicationContext context, Class<? extends Filter> filterClass) {

@@ -155,8 +155,11 @@ public class NamespaceHttpTests {
 	public void configureWhenAuthenticationEntryPointSetAndRequestUnauthorizedThenRedirectedToAuthenticationEntryPoint()
 			throws Exception {
 		this.spring.register(EntryPointRefConfig.class).autowire();
-		this.mockMvc.perform(get("/")).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		this.mockMvc.perform(get("/"))
+				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrlPattern("**/entry-point"));
+		// @formatter:on
 	}
 
 	@Test // http@jaas-api-provision
@@ -174,8 +177,11 @@ public class NamespaceHttpTests {
 	@Test // http@realm
 	public void configureWhenHttpBasicAndRequestUnauthorizedThenReturnWWWAuthenticateWithRealm() throws Exception {
 		this.spring.register(RealmConfig.class).autowire();
-		this.mockMvc.perform(get("/")).andExpect(status().isUnauthorized())
+		// @formatter:off
+		this.mockMvc.perform(get("/"))
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"RealmConfig\""));
+		// @formatter:on
 	}
 
 	@Test // http@request-matcher-ref ant

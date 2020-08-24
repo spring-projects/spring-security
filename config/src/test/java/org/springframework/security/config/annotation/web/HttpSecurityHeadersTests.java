@@ -68,18 +68,23 @@ public class HttpSecurityHeadersTests {
 	// gh-3975
 	@Test
 	public void headerWhenSpringMvcResourceThenCacheRelatedHeadersReset() throws Exception {
-		this.mockMvc.perform(get("/resources/file.js")).andExpect(status().isOk())
+		// @formatter:off
+		this.mockMvc.perform(get("/resources/file.js"))
+				.andExpect(status().isOk())
 				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "max-age=12345"))
 				.andExpect(header().doesNotExist(HttpHeaders.PRAGMA))
 				.andExpect(header().doesNotExist(HttpHeaders.EXPIRES));
+		// @formatter:on
 	}
 
 	@Test
 	public void headerWhenNotSpringResourceThenCacheRelatedHeadersSet() throws Exception {
+		// @formatter:off
 		this.mockMvc.perform(get("/notresource"))
 				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
 				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
 				.andExpect(header().string(HttpHeaders.EXPIRES, "0"));
+		// @formatter:on
 	}
 
 	@EnableWebSecurity
@@ -97,8 +102,11 @@ public class HttpSecurityHeadersTests {
 
 		@Override
 		public void addResourceHandlers(ResourceHandlerRegistry registry) {
-			registry.addResourceHandler("/resources/**").addResourceLocations("classpath:/resources/")
+			// @formatter:off
+			registry.addResourceHandler("/resources/**")
+					.addResourceLocations("classpath:/resources/")
 					.setCachePeriod(12345);
+			// @formatter:on
 		}
 
 	}

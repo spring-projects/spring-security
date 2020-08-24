@@ -99,10 +99,16 @@ public class JwtITests {
 	public void routeWhenBearerThenAuthorized() {
 		BearerTokenMetadata credentials = new BearerTokenMetadata("token");
 		given(this.decoder.decode(any())).willReturn(Mono.just(jwt()));
+		// @formatter:off
 		this.requester = requester()
-				.setupMetadata(credentials.getToken(), BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-		String hiRob = this.requester.route("secure.retrieve-mono").data("rob").retrieveMono(String.class).block();
+			.setupMetadata(credentials.getToken(), BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE)
+			.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+			.block();
+		String hiRob = this.requester.route("secure.retrieve-mono")
+			.data("rob")
+			.retrieveMono(String.class)
+			.block();
+		// @formatter:on
 		assertThat(hiRob).isEqualTo("Hi rob");
 	}
 
@@ -112,9 +118,14 @@ public class JwtITests {
 				.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
 		BearerTokenMetadata credentials = new BearerTokenMetadata("token");
 		given(this.decoder.decode(any())).willReturn(Mono.just(jwt()));
+		// @formatter:off
 		this.requester = requester().setupMetadata(credentials, authenticationMimeType)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-		String hiRob = this.requester.route("secure.retrieve-mono").data("rob").retrieveMono(String.class).block();
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.block();
+		String hiRob = this.requester.route("secure.retrieve-mono")
+				.data("rob")
+				.retrieveMono(String.class).block();
+		// @formatter:on
 		assertThat(hiRob).isEqualTo("Hi rob");
 	}
 

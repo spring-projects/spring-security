@@ -100,8 +100,11 @@ public class OAuth2ClientBeanDefinitionParserTests {
 	@Test
 	public void requestWhenAuthorizeThenRedirect() throws Exception {
 		this.spring.configLocations(xml("Minimal")).autowire();
-		MvcResult result = this.mvc.perform(get("/oauth2/authorization/google")).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		MvcResult result = this.mvc.perform(get("/oauth2/authorization/google"))
+				.andExpect(status().is3xxRedirection())
 				.andReturn();
+		// @formatter:on
 		assertThat(result.getResponse().getRedirectedUrl()).matches(
 				"https://accounts.google.com/o/oauth2/v2/auth\\?" + "response_type=code&client_id=google-client-id&"
 						+ "scope=scope1%20scope2&state=.{15,}&redirect_uri=http://localhost/callback/google");
@@ -110,12 +113,20 @@ public class OAuth2ClientBeanDefinitionParserTests {
 	@Test
 	public void requestWhenCustomClientRegistrationRepositoryThenCalled() throws Exception {
 		this.spring.configLocations(xml("CustomClientRegistrationRepository")).autowire();
+		// @formatter:off
 		ClientRegistration clientRegistration = CommonOAuth2Provider.GOOGLE.getBuilder("google")
-				.clientId("google-client-id").clientSecret("google-client-secret")
-				.redirectUri("http://localhost/callback/google").scope("scope1", "scope2").build();
+				.clientId("google-client-id")
+				.clientSecret("google-client-secret")
+				.redirectUri("http://localhost/callback/google")
+				.scope("scope1", "scope2")
+				.build();
+		// @formatter:on
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(clientRegistration);
-		MvcResult result = this.mvc.perform(get("/oauth2/authorization/google")).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		MvcResult result = this.mvc.perform(get("/oauth2/authorization/google"))
+				.andExpect(status().is3xxRedirection())
 				.andReturn();
+		// @formatter:on
 		assertThat(result.getResponse().getRedirectedUrl()).matches(
 				"https://accounts.google.com/o/oauth2/v2/auth\\?" + "response_type=code&client_id=google-client-id&"
 						+ "scope=scope1%20scope2&state=.{15,}&redirect_uri=http://localhost/callback/google");
@@ -128,10 +139,13 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
 		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest(clientRegistration);
 		given(this.authorizationRequestResolver.resolve(any())).willReturn(authorizationRequest);
-		this.mvc.perform(get("/oauth2/authorization/google")).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		this.mvc.perform(get("/oauth2/authorization/google"))
+				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("https://accounts.google.com/o/oauth2/v2/auth?"
 						+ "response_type=code&client_id=google-client-id&"
 						+ "scope=scope1%20scope2&state=state&redirect_uri=http://localhost/callback/google"));
+		// @formatter:on
 		verify(this.authorizationRequestResolver).resolve(any());
 	}
 
@@ -148,8 +162,11 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
+		// @formatter:off
 		this.mvc.perform(get(authorizationRequest.getRedirectUri()).params(params))
-				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl(authorizationRequest.getRedirectUri()));
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl(authorizationRequest.getRedirectUri()));
+		// @formatter:on
 		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
 				.forClass(OAuth2AuthorizedClient.class);
 		verify(this.authorizedClientRepository).saveAuthorizedClient(authorizedClientCaptor.capture(), any(), any(),
@@ -173,8 +190,11 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
+		// @formatter:off
 		this.mvc.perform(get(authorizationRequest.getRedirectUri()).params(params))
-				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl(authorizationRequest.getRedirectUri()));
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl(authorizationRequest.getRedirectUri()));
+		// @formatter:on
 		verify(this.authorizedClientService).saveAuthorizedClient(any(), any());
 	}
 
@@ -192,10 +212,15 @@ public class OAuth2ClientBeanDefinitionParserTests {
 	private static OAuth2AuthorizationRequest createAuthorizationRequest(ClientRegistration clientRegistration) {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
+		// @formatter:off
 		return OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.clientId(clientRegistration.getClientId()).redirectUri(clientRegistration.getRedirectUri())
-				.scopes(clientRegistration.getScopes()).state("state").attributes(attributes).build();
+				.scopes(clientRegistration.getScopes())
+				.state("state")
+				.attributes(attributes)
+				.build();
+		// @formatter:on
 	}
 
 	private static String xml(String configName) {

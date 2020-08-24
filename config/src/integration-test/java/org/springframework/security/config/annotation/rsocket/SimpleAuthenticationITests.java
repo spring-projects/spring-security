@@ -76,9 +76,15 @@ public class SimpleAuthenticationITests {
 
 	@Before
 	public void setup() {
-		this.server = RSocketFactory.receive().frameDecoder(PayloadDecoder.ZERO_COPY)
-				.addSocketAcceptorPlugin(this.interceptor).acceptor(this.handler.responder())
-				.transport(TcpServerTransport.create("localhost", 0)).start().block();
+		// @formatter:off
+		this.server = RSocketFactory.receive()
+			.frameDecoder(PayloadDecoder.ZERO_COPY)
+			.addSocketAcceptorPlugin(this.interceptor)
+			.acceptor(this.handler.responder())
+			.transport(TcpServerTransport.create("localhost", 0))
+			.start()
+			.block();
+		// @formatter:on
 	}
 
 	@After
@@ -90,11 +96,20 @@ public class SimpleAuthenticationITests {
 
 	@Test
 	public void retrieveMonoWhenSecureThenDenied() throws Exception {
-		this.requester = RSocketRequester.builder().rsocketStrategies(this.handler.getRSocketStrategies())
-				.connectTcp("localhost", this.server.address().getPort()).block();
+		// @formatter:off
+		this.requester = RSocketRequester.builder()
+			.rsocketStrategies(this.handler.getRSocketStrategies())
+			.connectTcp("localhost", this.server.address().getPort())
+			.block();
+		// @formatter:on
 		String data = "rob";
-		assertThatExceptionOfType(ApplicationErrorException.class).isThrownBy(
-				() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block());
+		// @formatter:off
+		assertThatExceptionOfType(ApplicationErrorException.class)
+			.isThrownBy(() -> this.requester.route("secure.retrieve-mono")
+				.data(data).retrieveMono(String.class)
+				.block()
+			);
+		// @formatter:on
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -103,12 +118,20 @@ public class SimpleAuthenticationITests {
 		MimeType authenticationMimeType = MimeTypeUtils
 				.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("rob", "password");
-		this.requester = RSocketRequester.builder().setupMetadata(credentials, authenticationMimeType)
-				.rsocketStrategies(this.handler.getRSocketStrategies())
-				.connectTcp("localhost", this.server.address().getPort()).block();
+		// @formatter:off
+		this.requester = RSocketRequester.builder()
+			.setupMetadata(credentials, authenticationMimeType)
+			.rsocketStrategies(this.handler.getRSocketStrategies())
+			.connectTcp("localhost", this.server.address().getPort())
+			.block();
+		// @formatter:on
 		String data = "rob";
-		String hiRob = this.requester.route("secure.retrieve-mono").metadata(credentials, authenticationMimeType)
-				.data(data).retrieveMono(String.class).block();
+		// @formatter:off
+		String hiRob = this.requester.route("secure.retrieve-mono")
+			.metadata(credentials, authenticationMimeType)
+			.data(data).retrieveMono(String.class)
+			.block();
+		// @formatter:on
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
 	}

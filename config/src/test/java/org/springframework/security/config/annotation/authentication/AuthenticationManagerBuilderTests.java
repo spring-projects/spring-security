@@ -50,6 +50,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -121,9 +122,10 @@ public class AuthenticationManagerBuilderTests {
 	@Test
 	public void authenticationManagerWhenMultipleProvidersThenWorks() throws Exception {
 		this.spring.register(MultiAuthenticationProvidersConfig.class).autowire();
-		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user").withRoles("USER"));
-		this.mockMvc.perform(formLogin().user("admin"))
-				.andExpect(authenticated().withUsername("admin").withRoles("USER", "ADMIN"));
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher user = authenticated().withUsername("user").withRoles("USER");
+		this.mockMvc.perform(formLogin()).andExpect(user);
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher admin = authenticated().withUsername("admin").withRoles("USER", "ADMIN");
+		this.mockMvc.perform(formLogin().user("admin")).andExpect(admin);
 	}
 
 	@Test
@@ -165,8 +167,14 @@ public class AuthenticationManagerBuilderTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.inMemoryAuthentication().withUser(PasswordEncodedUser.user()).and().inMemoryAuthentication()
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user())
+					.and()
+				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.admin());
+			// @formatter:on
 		}
 
 	}

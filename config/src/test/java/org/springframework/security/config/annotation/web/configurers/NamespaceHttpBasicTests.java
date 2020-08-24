@@ -35,6 +35,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -66,18 +67,28 @@ public class NamespaceHttpBasicTests {
 	public void basicAuthenticationWhenUsingDefaultsThenMatchesNamespace() throws Exception {
 		this.spring.register(HttpBasicConfig.class, UserConfig.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().isUnauthorized())
+		MockHttpServletRequestBuilder requestWithInvalidPassword = get("/").with(httpBasic("user", "invalid"));
+		// @formatter:off
+		this.mvc.perform(requestWithInvalidPassword)
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\""));
-		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isNotFound());
+		// @formatter:on
+		MockHttpServletRequestBuilder requestWithValidPassword = get("/").with(httpBasic("user", "password"));
+		this.mvc.perform(requestWithValidPassword).andExpect(status().isNotFound());
 	}
 
 	@Test
 	public void basicAuthenticationWhenUsingDefaultsInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(HttpBasicLambdaConfig.class, UserConfig.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().isUnauthorized())
+		MockHttpServletRequestBuilder requestWithInvalidPassword = get("/").with(httpBasic("user", "invalid"));
+		// @formatter:off
+		this.mvc.perform(requestWithInvalidPassword)
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\""));
-		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isNotFound());
+		// @formatter:on
+		MockHttpServletRequestBuilder requestWithValidPassword = get("/").with(httpBasic("user", "password"));
+		this.mvc.perform(requestWithValidPassword).andExpect(status().isNotFound());
 	}
 
 	/**
@@ -86,15 +97,23 @@ public class NamespaceHttpBasicTests {
 	@Test
 	public void basicAuthenticationWhenUsingCustomRealmThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpBasicConfig.class, UserConfig.class).autowire();
-		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().isUnauthorized())
+		MockHttpServletRequestBuilder requestWithInvalidPassword = get("/").with(httpBasic("user", "invalid"));
+		// @formatter:off
+		this.mvc.perform(requestWithInvalidPassword)
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Custom Realm\""));
+		// @formatter:on
 	}
 
 	@Test
 	public void basicAuthenticationWhenUsingCustomRealmInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpBasicLambdaConfig.class, UserConfig.class).autowire();
-		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().isUnauthorized())
+		MockHttpServletRequestBuilder requestWithInvalidPassword = get("/").with(httpBasic("user", "invalid"));
+		// @formatter:off
+		this.mvc.perform(requestWithInvalidPassword)
+				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Custom Realm\""));
+		// @formatter:on
 	}
 
 	/**

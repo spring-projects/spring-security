@@ -62,15 +62,21 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	@Test
 	public void requestWhenCustomAccessDeniedPageThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(AccessDeniedPageConfig.class).autowire();
-		this.mvc.perform(get("/").with(authentication(user()))).andExpect(status().isForbidden())
+		// @formatter:off
+		this.mvc.perform(get("/").with(authentication(user())))
+				.andExpect(status().isForbidden())
 				.andExpect(forwardedUrl("/AccessDeniedPageConfig"));
+		// @formatter:on
 	}
 
 	@Test
 	public void requestWhenCustomAccessDeniedPageInLambdaThenForwardedToCustomPage() throws Exception {
 		this.spring.register(AccessDeniedPageInLambdaConfig.class).autowire();
-		this.mvc.perform(get("/").with(authentication(user()))).andExpect(status().isForbidden())
+		// @formatter:off
+		this.mvc.perform(get("/").with(authentication(user())))
+				.andExpect(status().isForbidden())
 				.andExpect(forwardedUrl("/AccessDeniedPageConfig"));
+		// @formatter:on
 	}
 
 	@Test

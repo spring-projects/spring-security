@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
@@ -51,24 +52,35 @@ public class FormLoginBeanDefinitionParserTests {
 	@Test
 	public void getLoginWhenAutoConfigThenShowsDefaultLoginPage() throws Exception {
 		this.spring.configLocations(this.xml("Simple")).autowire();
-		String expectedContent = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
+		// @formatter:off
+		String expectedContent = "<!DOCTYPE html>\n"
+				+ "<html lang=\"en\">\n"
+				+ "  <head>\n"
 				+ "    <meta charset=\"utf-8\">\n"
 				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-				+ "    <meta name=\"description\" content=\"\">\n" + "    <meta name=\"author\" content=\"\">\n"
+				+ "    <meta name=\"description\" content=\"\">\n"
+				+ "    <meta name=\"author\" content=\"\">\n"
 				+ "    <title>Please sign in</title>\n"
 				+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
 				+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
-				+ "  </head>\n" + "  <body>\n" + "     <div class=\"container\">\n"
+				+ "  </head>\n"
+				+ "  <body>\n"
+				+ "     <div class=\"container\">\n"
 				+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
-				+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n" + "        <p>\n"
+				+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
+				+ "        <p>\n"
 				+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
 				+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
-				+ "        </p>\n" + "        <p>\n"
+				+ "        </p>\n"
+				+ "        <p>\n"
 				+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
 				+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
 				+ "        </p>\n"
 				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
-				+ "      </form>\n" + "</div>\n" + "</body></html>";
+				+ "      </form>\n"
+				+ "</div>\n"
+				+ "</body></html>";
+		// @formatter:on
 		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
 	}
 
@@ -81,75 +93,108 @@ public class FormLoginBeanDefinitionParserTests {
 	@Test
 	public void getLoginWhenConfiguredWithCustomAttributesThenLoginPageReflects() throws Exception {
 		this.spring.configLocations(this.xml("WithCustomAttributes")).autowire();
-		String expectedContent = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
+		// @formatter:off
+		String expectedContent = "<!DOCTYPE html>\n"
+				+ "<html lang=\"en\">\n"
+				+ "  <head>\n"
 				+ "    <meta charset=\"utf-8\">\n"
 				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-				+ "    <meta name=\"description\" content=\"\">\n" + "    <meta name=\"author\" content=\"\">\n"
+				+ "    <meta name=\"description\" content=\"\">\n"
+				+ "    <meta name=\"author\" content=\"\">\n"
 				+ "    <title>Please sign in</title>\n"
 				+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
 				+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
-				+ "  </head>\n" + "  <body>\n" + "     <div class=\"container\">\n"
+				+ "  </head>\n"
+				+ "  <body>\n"
+				+ "     <div class=\"container\">\n"
 				+ "      <form class=\"form-signin\" method=\"post\" action=\"/signin\">\n"
-				+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n" + "        <p>\n"
+				+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
+				+ "        <p>\n"
 				+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
 				+ "          <input type=\"text\" id=\"username\" name=\"custom_user\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
-				+ "        </p>\n" + "        <p>\n"
+				+ "        </p>\n"
+				+ "        <p>\n"
 				+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
 				+ "          <input type=\"password\" id=\"password\" name=\"custom_pass\" class=\"form-control\" placeholder=\"Password\" required>\n"
 				+ "        </p>\n"
 				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
-				+ "      </form>\n" + "</div>\n" + "</body></html>";
-		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
-		this.mvc.perform(get("/logout")).andExpect(status().is3xxRedirection());
+				+ "      </form>\n"
+				+ "</div>\n"
+				+ "</body></html>";
+		this.mvc.perform(get("/login"))
+				.andExpect(content().string(expectedContent));
+		this.mvc.perform(get("/logout"))
+				.andExpect(status().is3xxRedirection());
+		// @formatter:on
 	}
 
 	@Test
 	public void getLoginWhenConfiguredForOpenIdThenLoginPageReflects() throws Exception {
 		this.spring.configLocations(this.xml("WithOpenId")).autowire();
-		String expectedContent = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
+		// @formatter:off
+		String expectedContent = "<!DOCTYPE html>\n"
+				+ "<html lang=\"en\">\n"
+				+ "  <head>\n"
 				+ "    <meta charset=\"utf-8\">\n"
 				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-				+ "    <meta name=\"description\" content=\"\">\n" + "    <meta name=\"author\" content=\"\">\n"
+				+ "    <meta name=\"description\" content=\"\">\n"
+				+ "    <meta name=\"author\" content=\"\">\n"
 				+ "    <title>Please sign in</title>\n"
 				+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
 				+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
-				+ "  </head>\n" + "  <body>\n" + "     <div class=\"container\">\n"
+				+ "  </head>\n"
+				+ "  <body>\n"
+				+ "     <div class=\"container\">\n"
 				+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
-				+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n" + "        <p>\n"
+				+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
+				+ "        <p>\n"
 				+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
 				+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
-				+ "        </p>\n" + "        <p>\n"
+				+ "        </p>\n"
+				+ "        <p>\n"
 				+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
 				+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
 				+ "        </p>\n"
 				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 				+ "      </form>\n"
 				+ "      <form name=\"oidf\" class=\"form-signin\" method=\"post\" action=\"/login/openid\">\n"
-				+ "        <h2 class=\"form-signin-heading\">Login with OpenID Identity</h2>\n" + "        <p>\n"
+				+ "        <h2 class=\"form-signin-heading\">Login with OpenID Identity</h2>\n"
+				+ "        <p>\n"
 				+ "          <label for=\"username\" class=\"sr-only\">Identity</label>\n"
 				+ "          <input type=\"text\" id=\"username\" name=\"openid_identifier\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
 				+ "        </p>\n"
 				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
-				+ "      </form>\n" + "</div>\n" + "</body></html>";
+				+ "      </form>\n"
+				+ "</div>\n"
+				+ "</body></html>";
+		// @formatter:on
 		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
 	}
 
 	@Test
 	public void getLoginWhenConfiguredForOpenIdWithCustomAttributesThenLoginPageReflects() throws Exception {
 		this.spring.configLocations(this.xml("WithOpenIdCustomAttributes")).autowire();
-		String expectedContent = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
+		// @formatter:off
+		String expectedContent = "<!DOCTYPE html>\n"
+				+ "<html lang=\"en\">\n"
+				+ "  <head>\n"
 				+ "    <meta charset=\"utf-8\">\n"
 				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-				+ "    <meta name=\"description\" content=\"\">\n" + "    <meta name=\"author\" content=\"\">\n"
+				+ "    <meta name=\"description\" content=\"\">\n"
+				+ "    <meta name=\"author\" content=\"\">\n"
 				+ "    <title>Please sign in</title>\n"
 				+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
 				+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
-				+ "  </head>\n" + "  <body>\n" + "     <div class=\"container\">\n"
+				+ "  </head>\n"
+				+ "  <body>\n"
+				+ "     <div class=\"container\">\n"
 				+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
-				+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n" + "        <p>\n"
+				+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
+				+ "        <p>\n"
 				+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
 				+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
-				+ "        </p>\n" + "        <p>\n"
+				+ "        </p>\n"
+				+ "        <p>\n"
 				+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
 				+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
 				+ "        </p>\n"
@@ -161,23 +206,38 @@ public class FormLoginBeanDefinitionParserTests {
 				+ "          <input type=\"text\" id=\"username\" name=\"openid_identifier\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
 				+ "        </p>\n"
 				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
-				+ "      </form>\n" + "</div>\n" + "</body></html>";
+				+ "      </form>\n"
+				+ "</div>\n"
+				+ "</body></html>";
+		// @formatter:on
 		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
 	}
 
 	@Test
 	public void failedLoginWhenConfiguredWithCustomAuthenticationFailureThenForwardsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("WithAuthenticationFailureForwardUrl")).autowire();
-		this.mvc.perform(post("/login").param("username", "bob").param("password", "invalidpassword"))
-				.andExpect(status().isOk()).andExpect(forwardedUrl("/failure_forward_url"))
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "bob")
+				.param("password", "invalidpassword");
+		this.mvc.perform(loginRequest)
+				.andExpect(status().isOk())
+				.andExpect(forwardedUrl("/failure_forward_url"))
 				.andExpect(request().attribute(WebAttributes.AUTHENTICATION_EXCEPTION, not(nullValue())));
+		// @formatter:on
 	}
 
 	@Test
 	public void successfulLoginWhenConfiguredWithCustomAuthenticationSuccessThenForwardsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("WithAuthenticationSuccessForwardUrl")).autowire();
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password"))
-				.andExpect(status().isOk()).andExpect(forwardedUrl("/success_forward_url"));
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password");
+		this.mvc.perform(loginRequest)
+				.andExpect(status().isOk())
+				.andExpect(forwardedUrl("/success_forward_url"));
+		// @formatter:on
 	}
 
 	private String xml(String configName) {

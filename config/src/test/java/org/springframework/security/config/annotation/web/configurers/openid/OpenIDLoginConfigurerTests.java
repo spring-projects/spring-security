@@ -40,6 +40,7 @@ import org.springframework.security.openid.OpenIDAuthenticationFilter;
 import org.springframework.security.openid.OpenIDAuthenticationProvider;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -84,15 +85,21 @@ public class OpenIDLoginConfigurerTests {
 	@Test
 	public void openidLoginWhenInvokedTwiceThenUsesOriginalLoginPage() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverrideConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isFound())
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login/custom"));
+		// @formatter:on
 	}
 
 	@Test
 	public void requestWhenOpenIdLoginPageInLambdaThenRedirectsToLoginPAge() throws Exception {
 		this.spring.register(OpenIdLoginPageInLambdaConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isFound())
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login/custom"));
+		// @formatter:on
 	}
 
 	@Test
@@ -144,11 +151,15 @@ public class OpenIDLoginConfigurerTests {
 			server.enqueue(new MockResponse().addHeader(YadisResolver.YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
 					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
-			MvcResult mvcResult = this.mvc.perform(
-					get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
-					.andExpect(status().isFound()).andReturn();
+			// @formatter:off
+			MockHttpServletRequestBuilder request = get("/login/openid")
+					.param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint);
+			MvcResult mvcResult = this.mvc.perform(request)
+					.andExpect(status().isFound())
+					.andReturn();
 			Object attributeObject = mvcResult.getRequest().getSession()
 					.getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
+			// @formatter:on
 			assertThat(attributeObject).isInstanceOf(List.class);
 			List<OpenIDAttribute> attributeList = (List<OpenIDAttribute>) attributeObject;
 			assertThat(attributeList).hasSize(1);

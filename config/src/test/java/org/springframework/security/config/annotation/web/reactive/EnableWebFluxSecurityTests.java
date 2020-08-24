@@ -22,6 +22,7 @@ import java.security.Principal;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +73,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.result.view.AbstractView;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
 
 /**
  * @author Rob Winch
@@ -90,24 +92,48 @@ public class EnableWebFluxSecurityTests {
 	@Test
 	public void defaultRequiresAuthentication() {
 		this.spring.register(Config.class).autowire();
-		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
-		client.get().uri("/").exchange().expectStatus().isUnauthorized().expectBody().isEmpty();
+		// @formatter:off
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(this.springSecurityFilterChain)
+				.build();
+		client.get()
+				.uri("/")
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectBody().isEmpty();
+		// @formatter:on
 	}
 
 	// gh-4831
 	@Test
 	public void defaultMediaAllThenUnAuthorized() {
 		this.spring.register(Config.class).autowire();
-		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
-		client.get().uri("/").accept(MediaType.ALL).exchange().expectStatus().isUnauthorized().expectBody().isEmpty();
+		// @formatter:off
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(this.springSecurityFilterChain)
+				.build();
+		client.get()
+				.uri("/")
+				.accept(MediaType.ALL)
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectBody().isEmpty();
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenBasicThenNoSession() {
 		this.spring.register(Config.class).autowire();
-		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
-		FluxExchangeResult<String> result = client.get().headers((headers) -> headers.setBasicAuth("user", "password"))
-				.exchange().expectStatus().isOk().returnResult(String.class);
+		// @formatter:off
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(this.springSecurityFilterChain)
+				.build();
+		FluxExchangeResult<String> result = client.get()
+				.headers((headers) -> headers.setBasicAuth("user", "password"))
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(String.class);
+		// @formatter:on
 		result.assertWithDiagnostics(() -> assertThat(result.getResponseCookies().isEmpty()));
 	}
 
@@ -117,33 +143,45 @@ public class EnableWebFluxSecurityTests {
 		Authentication currentPrincipal = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		WebSessionServerSecurityContextRepository contextRepository = new WebSessionServerSecurityContextRepository();
 		SecurityContext context = new SecurityContextImpl(currentPrincipal);
+		// @formatter:off
+		WebFilter contextRepositoryWebFilter = (exchange, chain) -> contextRepository.save(exchange, context)
+				.switchIfEmpty(chain.filter(exchange))
+				.flatMap((e) -> chain.filter(exchange));
 		WebTestClient client = WebTestClientBuilder
-				.bindToWebFilters(
-						(exchange, chain) -> contextRepository.save(exchange, context)
-								.switchIfEmpty(chain.filter(exchange)).flatMap((e) -> chain.filter(exchange)),
-						this.springSecurityFilterChain,
-						(exchange,
-								chain) -> ReactiveSecurityContextHolder.getContext()
-										.map(SecurityContext::getAuthentication).flatMap((principal) -> exchange
-												.getResponse().writeWith(Mono.just(toDataBuffer(principal.getName())))))
+				.bindToWebFilters(contextRepositoryWebFilter, this.springSecurityFilterChain, writePrincipalWebFilter())
 				.build();
-		client.get().uri("/").exchange().expectStatus().isOk().expectBody(String.class)
-				.consumeWith((result) -> assertThat(result.getResponseBody()).isEqualTo(currentPrincipal.getName()));
+		client.get()
+				.uri("/")
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class).consumeWith((result) -> assertThat(result.getResponseBody()).isEqualTo(currentPrincipal.getName()));
+		// @formatter:on
+	}
+
+	private WebFilter writePrincipalWebFilter() {
+		// @formatter:off
+		return (exchange, chain) -> ReactiveSecurityContextHolder.getContext()
+				.map(SecurityContext::getAuthentication)
+				.flatMap((principal) -> exchange.getResponse()
+						.writeWith(Mono.just(toDataBuffer(principal.getName())))
+				);
+		// @formatter:on
 	}
 
 	@Test
 	public void defaultPopulatesReactorContextWhenAuthenticating() {
 		this.spring.register(Config.class).autowire();
+		// @formatter:off
 		WebTestClient client = WebTestClientBuilder
-				.bindToWebFilters(this.springSecurityFilterChain,
-						(exchange,
-								chain) -> ReactiveSecurityContextHolder.getContext()
-										.map(SecurityContext::getAuthentication).flatMap((principal) -> exchange
-												.getResponse().writeWith(Mono.just(toDataBuffer(principal.getName())))))
+				.bindToWebFilters(this.springSecurityFilterChain, writePrincipalWebFilter())
 				.build();
-		client.get().uri("/").headers((headers) -> headers.setBasicAuth("user", "password")).exchange().expectStatus()
-				.isOk().expectBody(String.class)
-				.consumeWith((result) -> assertThat(result.getResponseBody()).isEqualTo("user"));
+		client.get()
+				.uri("/")
+				.headers((headers) -> headers.setBasicAuth("user", "password"))
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class).consumeWith((result) -> assertThat(result.getResponseBody()).isEqualTo("user"));
+		// @formatter:on
 	}
 
 	@Test
@@ -158,23 +196,30 @@ public class EnableWebFluxSecurityTests {
 	@Test
 	public void passwordEncoderBeanIsUsed() {
 		this.spring.register(CustomPasswordEncoderConfig.class).autowire();
+		// @formatter:off
 		WebTestClient client = WebTestClientBuilder
-				.bindToWebFilters(this.springSecurityFilterChain,
-						(exchange,
-								chain) -> ReactiveSecurityContextHolder.getContext()
-										.map(SecurityContext::getAuthentication).flatMap((principal) -> exchange
-												.getResponse().writeWith(Mono.just(toDataBuffer(principal.getName())))))
+				.bindToWebFilters(this.springSecurityFilterChain, writePrincipalWebFilter())
 				.build();
-		client.get().uri("/").headers((headers) -> headers.setBasicAuth("user", "password")).exchange().expectStatus()
-				.isOk().expectBody(String.class)
+		client.get().uri("/").headers((headers) -> headers.setBasicAuth("user", "password"))
+				.exchange().expectStatus().isOk()
+				.expectBody(String.class)
 				.consumeWith((result) -> assertThat(result.getResponseBody()).isEqualTo("user"));
+		// @formatter:on
 	}
 
 	@Test
 	public void passwordUpdateManagerUsed() {
 		this.spring.register(MapReactiveUserDetailsServiceConfig.class).autowire();
-		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
-		client.get().uri("/").headers((h) -> h.setBasicAuth("user", "password")).exchange().expectStatus().isOk();
+		// @formatter:off
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(this.springSecurityFilterChain)
+				.build();
+		client.get()
+				.uri("/")
+				.headers((h) -> h.setBasicAuth("user", "password"))
+				.exchange()
+				.expectStatus().isOk();
+		// @formatter:on
 		ReactiveUserDetailsService users = this.spring.getContext().getBean(ReactiveUserDetailsService.class);
 		assertThat(users.findByUsername("user").block().getPassword()).startsWith("{bcrypt}");
 	}
@@ -182,32 +227,58 @@ public class EnableWebFluxSecurityTests {
 	@Test
 	public void formLoginWorks() {
 		this.spring.register(Config.class).autowire();
-		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain, (exchange,
-				chain) -> Mono.subscriberContext().flatMap((c) -> c.<Mono<Principal>>get(Authentication.class)).flatMap(
-						(principal) -> exchange.getResponse().writeWith(Mono.just(toDataBuffer(principal.getName())))))
+		// @formatter:off
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(this.springSecurityFilterChain, writePrincipalWebFilter())
 				.build();
+		// @formatter:on
 		MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
 		data.add("username", "user");
 		data.add("password", "password");
-		client.mutateWith(SecurityMockServerConfigurers.csrf()).post().uri("/login")
-				.body(BodyInserters.fromFormData(data)).exchange().expectStatus().is3xxRedirection().expectHeader()
-				.valueMatches("Location", "/");
+		// @formatter:off
+		client.mutateWith(csrf())
+				.post()
+				.uri("/login")
+				.body(BodyInserters.fromFormData(data))
+				.exchange()
+				.expectStatus().is3xxRedirection()
+				.expectHeader().valueMatches("Location", "/");
+		// @formatter:on
 	}
 
 	@Test
 	public void multiWorks() {
 		this.spring.register(MultiSecurityHttpConfig.class).autowire();
-		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
-		client.get().uri("/api/test").exchange().expectStatus().isUnauthorized().expectBody().isEmpty();
-		client.get().uri("/test").exchange().expectStatus().isOk();
+		// @formatter:off
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(this.springSecurityFilterChain)
+				.build();
+		client.get()
+				.uri("/api/test")
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectBody().isEmpty();
+		client.get()
+				.uri("/test")
+				.exchange()
+				.expectStatus().isOk();
+		// @formatter:on
 	}
 
 	@Test
 	@WithMockUser
 	public void authenticationPrincipalArgumentResolverWhenSpelThenWorks() {
 		this.spring.register(AuthenticationPrincipalConfig.class).autowire();
-		WebTestClient client = WebTestClient.bindToApplicationContext(this.spring.getContext()).build();
-		client.get().uri("/spel").exchange().expectStatus().isOk().expectBody(String.class).isEqualTo("user");
+		// @formatter:off
+		WebTestClient client = WebTestClient
+				.bindToApplicationContext(this.spring.getContext())
+				.build();
+		client.get()
+				.uri("/spel")
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class).isEqualTo("user");
+		// @formatter:on
 	}
 
 	private static DataBuffer toDataBuffer(String body) {

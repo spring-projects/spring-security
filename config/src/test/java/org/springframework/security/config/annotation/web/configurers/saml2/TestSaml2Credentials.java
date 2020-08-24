@@ -35,6 +35,7 @@ public final class TestSaml2Credentials {
 	}
 
 	static Saml2X509Credential verificationCertificate() {
+		// @formatter:off
 		String certificate = "-----BEGIN CERTIFICATE-----\n"
 				+ "MIIEEzCCAvugAwIBAgIJAIc1qzLrv+5nMA0GCSqGSIb3DQEBCwUAMIGfMQswCQYD\n"
 				+ "VQQGEwJVUzELMAkGA1UECAwCQ08xFDASBgNVBAcMC0Nhc3RsZSBSb2NrMRwwGgYD\n"
@@ -57,7 +58,9 @@ public final class TestSaml2Credentials {
 				+ "ZnrV+oc2zGD+no1/ySFOe3EiJCO5dehxKjYEmBRv5sU/LZFKZpozKN/BMEa6CqLu\n"
 				+ "xbzb7ykxVr7EVFXwltPxzE9TmL9OACNNyF5eJHWMRMllarUvkcXlh4pux4ks9e6z\n"
 				+ "V9DQBy2zds9f1I3qxg0eX6JnGrXi/ZiCT+lJgVe3ZFXiejiLAiKB04sXW3ti0LW3\n"
-				+ "lx13Y1YlQ4/tlpgTgfIJxKV6nyPiLoK0nywbMd+vpAirDt2Oc+hk\n" + "-----END CERTIFICATE-----";
+				+ "lx13Y1YlQ4/tlpgTgfIJxKV6nyPiLoK0nywbMd+vpAirDt2Oc+hk\n"
+				+ "-----END CERTIFICATE-----";
+		// @formatter:on
 		return new Saml2X509Credential(x509Certificate(certificate), Saml2X509CredentialType.VERIFICATION);
 	}
 
@@ -73,6 +76,7 @@ public final class TestSaml2Credentials {
 	}
 
 	static Saml2X509Credential signingCredential() {
+		// @formatter:off
 		String key = "-----BEGIN PRIVATE KEY-----\n"
 				+ "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBANG7v8QjQGU3MwQE\n"
 				+ "VUBxvH6Uuiy/MhZT7TV0ZNjyAF2ExA1gpn3aUxx6jYK5UnrpxRRE/KbeLucYbOhK\n"
@@ -86,8 +90,11 @@ public final class TestSaml2Credentials {
 				+ "EGvYtQJBAMm/i9NR7IVyyNIgZUpz5q4LI21rl1r4gUQuD8vA36zM81i4ROeuCly0\n"
 				+ "KkfdxR4PUfnKcQCX11YnHjk9uTFj75ECQEFY/gBnxDjzqyF35hAzrYIiMPQVfznt\n"
 				+ "YX/sDTE2AdVBVGaMj1Cb51bPHnNC6Q5kXKQnj/YrLqRQND09Q7ParX0CQQC5NxZr\n"
-				+ "9jKqhHj8yQD6PlXTsY4Occ7DH6/IoDenfdEVD5qlet0zmd50HatN2Jiqm5ubN7CM\n" + "INrtuLp4YHbgk1mi\n"
+				+ "9jKqhHj8yQD6PlXTsY4Occ7DH6/IoDenfdEVD5qlet0zmd50HatN2Jiqm5ubN7CM\n"
+				+ "INrtuLp4YHbgk1mi\n"
 				+ "-----END PRIVATE KEY-----";
+		// @formatter:on
+		// @formatter:off
 		String certificate = "-----BEGIN CERTIFICATE-----\n"
 				+ "MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBhMC\n"
 				+ "VVMxEzARBgNVBAgMCldhc2hpbmd0b24xEjAQBgNVBAcMCVZhbmNvdXZlcjEdMBsG\n"
@@ -102,7 +109,9 @@ public final class TestSaml2Credentials {
 				+ "y3Q6x+I4qakY/9qhBQIDAQABMA0GCSqGSIb3DQEBCwUAA4GBAAeViTvHOyQopWEi\n"
 				+ "XOfI2Z9eukwrSknDwq/zscR0YxwwqDBMt/QdAODfSwAfnciiYLkmEjlozWRtOeN+\n"
 				+ "qK7UFgP1bRl5qksrYX5S0z2iGJh0GvonLUt3e20Ssfl5tTEDDnAEUMLfBkyaxEHD\n"
-				+ "RZ/nbTJ7VTeZOSyRoVn5XHhpuJ0B\n" + "-----END CERTIFICATE-----";
+				+ "RZ/nbTJ7VTeZOSyRoVn5XHhpuJ0B\n"
+				+ "-----END CERTIFICATE-----";
+		// @formatter:on
 		PrivateKey pk = RsaKeyConverters.pkcs8().convert(new ByteArrayInputStream(key.getBytes()));
 		X509Certificate cert = x509Certificate(certificate);
 		return new Saml2X509Credential(pk, cert, Saml2X509CredentialType.SIGNING, Saml2X509CredentialType.DECRYPTION);

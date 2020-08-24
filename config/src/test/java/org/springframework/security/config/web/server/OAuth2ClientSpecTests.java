@@ -82,7 +82,11 @@ public class OAuth2ClientSpecTests {
 
 	@Autowired
 	public void setApplicationContext(ApplicationContext context) {
-		this.client = WebTestClient.bindToApplicationContext(context).build();
+		// @formatter:off
+		this.client = WebTestClient
+				.bindToApplicationContext(context)
+				.build();
+		// @formatter:on
 	}
 
 	@Test
@@ -96,7 +100,12 @@ public class OAuth2ClientSpecTests {
 		given(repository.findByRegistrationId(any()))
 				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
 		given(authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
-		this.client.get().uri("/").exchange().expectStatus().is3xxRedirection();
+		// @formatter:off
+		this.client.get()
+				.uri("/")
+				.exchange()
+				.expectStatus().is3xxRedirection();
+		// @formatter:on
 	}
 
 	@Test
@@ -109,7 +118,12 @@ public class OAuth2ClientSpecTests {
 		given(repository.findByRegistrationId(any()))
 				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
 		given(authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
-		this.client.get().uri("/").exchange().expectStatus().is3xxRedirection();
+		// @formatter:off
+		this.client.get()
+				.uri("/")
+				.exchange()
+				.expectStatus().is3xxRedirection();
+		// @formatter:on
 	}
 
 	@Test
@@ -135,11 +149,17 @@ public class OAuth2ClientSpecTests {
 		given(converter.convert(any())).willReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
 		given(manager.authenticate(any())).willReturn(Mono.just(result));
 		given(requestCache.getRedirectUri(any())).willReturn(Mono.just(URI.create("/saved-request")));
+		// @formatter:off
 		this.client.get()
-				.uri((uriBuilder) -> uriBuilder.path("/authorize/oauth2/code/registration-id")
-						.queryParam(OAuth2ParameterNames.CODE, "code").queryParam(OAuth2ParameterNames.STATE, "state")
-						.build())
-				.exchange().expectStatus().is3xxRedirection();
+				.uri((uriBuilder) -> uriBuilder
+						.path("/authorize/oauth2/code/registration-id")
+						.queryParam(OAuth2ParameterNames.CODE, "code")
+						.queryParam(OAuth2ParameterNames.STATE, "state")
+						.build()
+				)
+				.exchange()
+				.expectStatus().is3xxRedirection();
+		// @formatter:on
 		verify(converter).convert(any());
 		verify(manager).authenticate(any());
 		verify(requestCache).getRedirectUri(any());
@@ -169,11 +189,17 @@ public class OAuth2ClientSpecTests {
 		given(converter.convert(any())).willReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
 		given(manager.authenticate(any())).willReturn(Mono.just(result));
 		given(requestCache.getRedirectUri(any())).willReturn(Mono.just(URI.create("/saved-request")));
+		// @formatter:off
 		this.client.get()
-				.uri((uriBuilder) -> uriBuilder.path("/authorize/oauth2/code/registration-id")
-						.queryParam(OAuth2ParameterNames.CODE, "code").queryParam(OAuth2ParameterNames.STATE, "state")
-						.build())
-				.exchange().expectStatus().is3xxRedirection();
+				.uri((uriBuilder) -> uriBuilder
+						.path("/authorize/oauth2/code/registration-id")
+						.queryParam(OAuth2ParameterNames.CODE, "code")
+						.queryParam(OAuth2ParameterNames.STATE, "state")
+						.build()
+				)
+				.exchange()
+				.expectStatus().is3xxRedirection();
+		// @formatter:on
 		verify(converter).convert(any());
 		verify(manager).authenticate(any());
 		verify(requestCache).getRedirectUri(any());

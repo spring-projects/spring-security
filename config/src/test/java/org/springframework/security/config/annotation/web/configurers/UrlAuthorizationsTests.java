@@ -61,42 +61,60 @@ public class UrlAuthorizationsTests {
 	@WithMockUser(authorities = "ROLE_USER")
 	public void hasAnyAuthorityWhenAuthoritySpecifiedThenMatchesAuthority() throws Exception {
 		this.spring.register(RoleConfig.class).autowire();
-		this.mvc.perform(get("/role-user-authority")).andExpect(status().isNotFound());
-		this.mvc.perform(get("/role-user")).andExpect(status().isNotFound());
-		this.mvc.perform(get("/role-admin-authority")).andExpect(status().isForbidden());
+		// @formatter:off
+		this.mvc.perform(get("/role-user-authority"))
+				.andExpect(status().isNotFound());
+		this.mvc.perform(get("/role-user"))
+				.andExpect(status().isNotFound());
+		this.mvc.perform(get("/role-admin-authority"))
+				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	@Test
 	@WithMockUser(authorities = "ROLE_ADMIN")
 	public void hasAnyAuthorityWhenAuthoritiesSpecifiedThenMatchesAuthority() throws Exception {
 		this.spring.register(RoleConfig.class).autowire();
-		this.mvc.perform(get("/role-user-admin-authority")).andExpect(status().isNotFound());
-		this.mvc.perform(get("/role-user-admin")).andExpect(status().isNotFound());
-		this.mvc.perform(get("/role-user-authority")).andExpect(status().isForbidden());
+		this.mvc.perform(get("/role-user-admin-authority"))
+				.andExpect(status().isNotFound());
+		this.mvc.perform(get("/role-user-admin"))
+				.andExpect(status().isNotFound());
+		this.mvc.perform(get("/role-user-authority"))
+				.andExpect(status().isForbidden());
 	}
 
 	@Test
 	@WithMockUser(roles = "USER")
 	public void hasAnyRoleWhenRoleSpecifiedThenMatchesRole() throws Exception {
 		this.spring.register(RoleConfig.class).autowire();
-		this.mvc.perform(get("/role-user")).andExpect(status().isNotFound());
-		this.mvc.perform(get("/role-admin")).andExpect(status().isForbidden());
+		// @formatter:off
+		this.mvc.perform(get("/role-user"))
+				.andExpect(status().isNotFound());
+		this.mvc.perform(get("/role-admin"))
+				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	@Test
 	@WithMockUser(roles = "ADMIN")
 	public void hasAnyRoleWhenRolesSpecifiedThenMatchesRole() throws Exception {
 		this.spring.register(RoleConfig.class).autowire();
-		this.mvc.perform(get("/role-admin-user")).andExpect(status().isNotFound());
-		this.mvc.perform(get("/role-user")).andExpect(status().isForbidden());
+		this.mvc.perform(get("/role-admin-user"))
+				.andExpect(status().isNotFound());
+		this.mvc.perform(get("/role-user"))
+				.andExpect(status().isForbidden());
 	}
 
 	@Test
 	@WithMockUser(authorities = "USER")
 	public void hasAnyRoleWhenRoleSpecifiedThenDoesNotMatchAuthority() throws Exception {
 		this.spring.register(RoleConfig.class).autowire();
-		this.mvc.perform(get("/role-user")).andExpect(status().isForbidden());
-		this.mvc.perform(get("/role-admin")).andExpect(status().isForbidden());
+		// @formatter:off
+		this.mvc.perform(get("/role-user"))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/role-admin"))
+				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	@Test
@@ -145,7 +163,11 @@ public class UrlAuthorizationsTests {
 			ApplicationContext context = getApplicationContext();
 			UrlAuthorizationConfigurer<HttpSecurity>.StandardInterceptUrlRegistry registry = http
 					.apply(new UrlAuthorizationConfigurer(context)).getRegistry();
-			registry.antMatchers("/a").hasRole("ADMIN").anyRequest().hasRole("USER");
+			// @formatter:off
+			registry
+					.antMatchers("/a").hasRole("ADMIN")
+					.anyRequest().hasRole("USER");
+			// @formatter:on
 		}
 
 	}

@@ -110,11 +110,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 public class OAuth2LoginConfigurerTests {
 
+	// @formatter:off
 	private static final ClientRegistration GOOGLE_CLIENT_REGISTRATION = CommonOAuth2Provider.GOOGLE
-			.getBuilder("google").clientId("clientId").clientSecret("clientSecret").build();
+			.getBuilder("google")
+			.clientId("clientId")
+			.clientSecret("clientSecret")
+			.build();
+	// @formatter:on
 
+	// @formatter:off
 	private static final ClientRegistration GITHUB_CLIENT_REGISTRATION = CommonOAuth2Provider.GITHUB
-			.getBuilder("github").clientId("clientId").clientSecret("clientSecret").build();
+			.getBuilder("github")
+			.clientId("clientId")
+			.clientSecret("clientSecret")
+			.build();
+	// @formatter:on
 
 	private ConfigurableApplicationContext context;
 
@@ -296,11 +306,15 @@ public class OAuth2LoginConfigurerTests {
 		loadConfig(OAuth2LoginConfigCustomAuthorizationRequestResolver.class);
 		OAuth2AuthorizationRequestResolver resolver = this.context
 				.getBean(OAuth2LoginConfigCustomAuthorizationRequestResolver.class).resolver;
+		// @formatter:off
 		OAuth2AuthorizationRequest result = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri("https://accounts.google.com/authorize").clientId("client-id").state("adsfa")
+				.authorizationUri("https://accounts.google.com/authorize")
+				.clientId("client-id")
+				.state("adsfa")
 				.authorizationRequestUri(
 						"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1")
 				.build();
+		// @formatter:on
 		given(resolver.resolve(any())).willReturn(result);
 		String requestUri = "/oauth2/authorization/google";
 		this.request = new MockHttpServletRequest("GET", requestUri);
@@ -316,11 +330,15 @@ public class OAuth2LoginConfigurerTests {
 		loadConfig(OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda.class);
 		OAuth2AuthorizationRequestResolver resolver = this.context
 				.getBean(OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda.class).resolver;
+		// @formatter:off
 		OAuth2AuthorizationRequest result = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri("https://accounts.google.com/authorize").clientId("client-id").state("adsfa")
+				.authorizationUri("https://accounts.google.com/authorize")
+				.clientId("client-id")
+				.state("adsfa")
 				.authorizationRequestUri(
 						"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1")
 				.build();
+		// @formatter:on
 		given(resolver.resolve(any())).willReturn(result);
 		String requestUri = "/oauth2/authorization/google";
 		this.request = new MockHttpServletRequest("GET", requestUri);
@@ -511,12 +529,17 @@ public class OAuth2LoginConfigurerTests {
 
 	private OAuth2AuthorizationRequest createOAuth2AuthorizationRequest(ClientRegistration registration,
 			String... scopes) {
+		// @formatter:off
 		return OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
-				.clientId(registration.getClientId()).state("state123").redirectUri("http://localhost")
+				.clientId(registration.getClientId())
+				.state("state123")
+				.redirectUri("http://localhost")
 				.attributes(Collections.singletonMap(OAuth2ParameterNames.REGISTRATION_ID,
 						registration.getRegistrationId()))
-				.scope(scopes).build();
+				.scope(scopes)
+				.build();
+		// @formatter:on
 	}
 
 	private static OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> createOauth2AccessTokenResponseClient() {

@@ -51,6 +51,7 @@ import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -113,16 +114,24 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenHasAnyAuthorityRoleUserConfiguredAndAuthorityIsRoleUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserAnyAuthorityConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_USER"))))
-				.andExpect(status().isOk());
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+				.authorities(new SimpleGrantedAuthority("ROLE_USER")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenHasAnyAuthorityRoleUserConfiguredAndAuthorityIsRoleAdminThenRespondsWithForbidden()
 			throws Exception {
 		this.spring.register(RoleUserAnyAuthorityConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
-				.andExpect(status().isForbidden());
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithAdmin = get("/")
+				.with(user("user")
+				.authorities(new SimpleGrantedAuthority("ROLE_ADMIN")));
+		// @formatter:on
+		this.mvc.perform(requestWithAdmin).andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -134,16 +143,24 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenHasAuthorityRoleUserConfiguredAndAuthorityIsRoleUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserAuthorityConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_USER"))))
-				.andExpect(status().isOk());
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+				.authorities(new SimpleGrantedAuthority("ROLE_USER")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenHasAuthorityRoleUserConfiguredAndAuthorityIsRoleAdminThenRespondsWithForbidden()
 			throws Exception {
 		this.spring.register(RoleUserAuthorityConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
-				.andExpect(status().isForbidden());
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithAdmin = get("/")
+				.with(user("user")
+				.authorities(new SimpleGrantedAuthority("ROLE_ADMIN")));
+		// @formatter:on
+		this.mvc.perform(requestWithAdmin).andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -155,22 +172,35 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenAuthorityRoleUserOrAdminRequiredAndAuthorityIsRoleUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserOrRoleAdminAuthorityConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_USER"))))
-				.andExpect(status().isOk());
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+				.authorities(new SimpleGrantedAuthority("ROLE_USER")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenAuthorityRoleUserOrAdminRequiredAndAuthorityIsRoleAdminThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserOrRoleAdminAuthorityConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
-				.andExpect(status().isOk());
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+				.authorities(new SimpleGrantedAuthority("ROLE_ADMIN")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenAuthorityRoleUserOrAdminRequiredAndAuthorityIsRoleOtherThenRespondsWithForbidden()
 			throws Exception {
 		this.spring.register(RoleUserOrRoleAdminAuthorityConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_OTHER"))))
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+				.authorities(new SimpleGrantedAuthority("ROLE_OTHER")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser)
 				.andExpect(status().isForbidden());
 	}
 
@@ -183,31 +213,56 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenHasAnyRoleUserConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isOk());
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+				.roles("USER"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenHasAnyRoleUserConfiguredAndRoleIsAdminThenRespondsWithForbidden() throws Exception {
 		this.spring.register(RoleUserConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").roles("ADMIN"))).andExpect(status().isForbidden());
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithAdmin = get("/")
+				.with(user("user")
+				.roles("ADMIN"));
+		// @formatter:on
+		this.mvc.perform(requestWithAdmin).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenRoleUserOrAdminConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserOrAdminConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isOk());
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+			.with(user("user")
+			.roles("USER"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenRoleUserOrAdminConfiguredAndRoleIsAdminThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserOrAdminConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").roles("ADMIN"))).andExpect(status().isOk());
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithAdmin = get("/")
+			.with(user("user")
+			.roles("ADMIN"));
+		// @formatter:on
+		this.mvc.perform(requestWithAdmin).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenRoleUserOrAdminConfiguredAndRoleIsOtherThenRespondsWithForbidden() throws Exception {
 		this.spring.register(RoleUserOrAdminConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").roles("OTHER"))).andExpect(status().isForbidden());
+		//<editor-fold desc="Description">
+		MockHttpServletRequestBuilder requestWithRoleOther = get("/")
+			.with(user("user")
+			.roles("OTHER"));
+		//</editor-fold>
+		this.mvc.perform(requestWithRoleOther).andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -237,7 +292,8 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenAnonymousConfiguredAndLoggedInUserThenRespondsWithForbidden() throws Exception {
 		this.spring.register(AnonymousConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user"))).andExpect(status().isForbidden());
+		MockHttpServletRequestBuilder requestWithUser = get("/").with(user("user"));
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -249,9 +305,9 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenRememberMeConfiguredAndRememberMeTokenThenRespondsWithOk() throws Exception {
 		this.spring.register(RememberMeConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(authentication(
-				new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))))
-				.andExpect(status().isOk());
+		RememberMeAuthenticationToken rememberme = new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		MockHttpServletRequestBuilder requestWithRememberme = get("/").with(authentication(rememberme));
+		this.mvc.perform(requestWithRememberme).andExpect(status().isOk());
 	}
 
 	@Test
@@ -263,7 +319,8 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWheDenyAllConfiguredAndUserLoggedInThenRespondsWithForbidden() throws Exception {
 		this.spring.register(DenyAllConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isForbidden());
+		MockHttpServletRequestBuilder requestWithUser = get("/").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -275,23 +332,24 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenNotDenyAllConfiguredAndRememberMeTokenThenRespondsWithOk() throws Exception {
 		this.spring.register(NotDenyAllConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(authentication(
-				new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))))
-				.andExpect(status().isOk());
+		RememberMeAuthenticationToken rememberme = new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		MockHttpServletRequestBuilder requestWithRememberme = get("/").with(authentication(rememberme));
+		this.mvc.perform(requestWithRememberme).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenFullyAuthenticatedConfiguredAndRememberMeTokenThenRespondsWithUnauthorized() throws Exception {
 		this.spring.register(FullyAuthenticatedConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(authentication(
-				new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))))
-				.andExpect(status().isUnauthorized());
+		RememberMeAuthenticationToken rememberme = new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		MockHttpServletRequestBuilder requestWithRememberme = get("/").with(authentication(rememberme));
+		this.mvc.perform(requestWithRememberme).andExpect(status().isUnauthorized());
 	}
 
 	@Test
 	public void getWhenFullyAuthenticatedConfiguredAndUserThenRespondsWithOk() throws Exception {
 		this.spring.register(FullyAuthenticatedConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isOk());
+		MockHttpServletRequestBuilder requestWithUser = get("/").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
@@ -303,19 +361,26 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void postWhenAccessRoleUserOrGetRequestConfiguredAndRoleUserThenRespondsWithOk() throws Exception {
 		this.spring.register(AccessConfig.class, BasicController.class).autowire();
-		this.mvc.perform(post("/").with(csrf()).with(user("user").roles("USER"))).andExpect(status().isOk());
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = post("/")
+				.with(csrf())
+				.with(user("user").roles("USER"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
 	public void postWhenAccessRoleUserOrGetRequestConfiguredThenRespondsWithUnauthorized() throws Exception {
 		this.spring.register(AccessConfig.class, BasicController.class).autowire();
-		this.mvc.perform(post("/").with(csrf())).andExpect(status().isUnauthorized());
+		MockHttpServletRequestBuilder requestWithCsrf = post("/").with(csrf());
+		this.mvc.perform(requestWithCsrf).andExpect(status().isUnauthorized());
 	}
 
 	@Test
 	public void authorizeRequestsWhenInvokedTwiceThenUsesOriginalConfiguration() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotResetConfig.class, BasicController.class).autowire();
-		this.mvc.perform(post("/").with(csrf())).andExpect(status().isUnauthorized());
+		MockHttpServletRequestBuilder requestWithCsrf = post("/").with(csrf());
+		this.mvc.perform(requestWithCsrf).andExpect(status().isUnauthorized());
 	}
 
 	@Test
@@ -334,50 +399,58 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenPermissionCheckAndRoleDoesNotMatchThenRespondsWithForbidden() throws Exception {
 		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
-		this.mvc.perform(get("/admin").with(user("user").roles("USER"))).andExpect(status().isForbidden());
+		MockHttpServletRequestBuilder requestWithUser = get("/admin").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenPermissionCheckAndRoleMatchesThenRespondsWithOk() throws Exception {
 		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
-		this.mvc.perform(get("/user").with(user("user").roles("USER"))).andExpect(status().isOk());
+		MockHttpServletRequestBuilder requestWithUser = get("/user").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenPermissionCheckAndAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
 		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
-		this.mvc.perform(get("/allow").with(user("user").roles("USER"))).andExpect(status().isOk());
+		MockHttpServletRequestBuilder requestWithUser = get("/allow").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenPermissionCheckAndAuthenticationNameDoesNotMatchThenRespondsWithForbidden() throws Exception {
 		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
-		this.mvc.perform(get("/deny").with(user("user").roles("USER"))).andExpect(status().isForbidden());
+		MockHttpServletRequestBuilder requestWithUser = get("/deny").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenCustomExpressionHandlerAndRoleDoesNotMatchThenRespondsWithForbidden() throws Exception {
 		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
-		this.mvc.perform(get("/admin").with(user("user").roles("USER"))).andExpect(status().isForbidden());
+		MockHttpServletRequestBuilder requestWithUser = get("/admin").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenCustomExpressionHandlerAndRoleMatchesThenRespondsWithOk() throws Exception {
 		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
-		this.mvc.perform(get("/user").with(user("user").roles("USER"))).andExpect(status().isOk());
+		MockHttpServletRequestBuilder requestWithUser = get("/user").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenCustomExpressionHandlerAndAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
 		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
-		this.mvc.perform(get("/allow").with(user("user").roles("USER"))).andExpect(status().isOk());
+		MockHttpServletRequestBuilder requestWithUser = get("/allow").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenCustomExpressionHandlerAndAuthenticationNameDoesNotMatchThenRespondsWithForbidden()
 			throws Exception {
 		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
-		this.mvc.perform(get("/deny").with(user("user").roles("USER"))).andExpect(status().isForbidden());
+		MockHttpServletRequestBuilder requestWithUser = get("/deny").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
 	// SEC-3011
@@ -418,13 +491,15 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenRegisteringRoleHierarchyAndRelatedRoleAllowedThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleHierarchyConfig.class, WildcardController.class).autowire();
-		this.mvc.perform(get("/allow").with(user("user").roles("USER"))).andExpect(status().isOk());
+		MockHttpServletRequestBuilder requestWithUser = get("/allow").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenRegisteringRoleHierarchyAndNoRelatedRolesAllowedThenRespondsWithForbidden() throws Exception {
 		this.spring.register(RoleHierarchyConfig.class, WildcardController.class).autowire();
-		this.mvc.perform(get("/deny").with(user("user").roles("USER"))).andExpect(status().isForbidden());
+		MockHttpServletRequestBuilder requestWithUser = get("/deny").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity

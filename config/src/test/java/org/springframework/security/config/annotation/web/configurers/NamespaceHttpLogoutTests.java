@@ -40,6 +40,7 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -72,15 +73,21 @@ public class NamespaceHttpLogoutTests {
 	@WithMockUser
 	public void logoutWhenUsingDefaultsThenMatchesNamespace() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
-		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
-				.andExpect(redirectedUrl("/login?logout")).andExpect(noCookies()).andExpect(session(Objects::isNull));
+		// @formatter:off
+		this.mvc.perform(post("/logout").with(csrf()))
+				.andExpect(authenticated(false))
+				.andExpect(redirectedUrl("/login?logout"))
+				.andExpect(noCookies())
+				.andExpect(session(Objects::isNull));
+		// @formatter:on
 	}
 
 	@Test
 	@WithMockUser
 	public void logoutWhenDisabledInLambdaThenRespondsWithNotFound() throws Exception {
 		this.spring.register(HttpLogoutDisabledInLambdaConfig.class).autowire();
-		this.mvc.perform(post("/logout").with(csrf()).with(user("user"))).andExpect(status().isNotFound());
+		MockHttpServletRequestBuilder logoutRequest = post("/logout").with(csrf()).with(user("user"));
+		this.mvc.perform(logoutRequest).andExpect(status().isNotFound());
 	}
 
 	/**
@@ -90,20 +97,28 @@ public class NamespaceHttpLogoutTests {
 	@WithMockUser
 	public void logoutWhenUsingVariousCustomizationsMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpLogoutConfig.class).autowire();
-		this.mvc.perform(post("/custom-logout").with(csrf())).andExpect(authenticated(false))
+		// @formatter:off
+		this.mvc.perform(post("/custom-logout").with(csrf()))
+				.andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/logout-success"))
 				.andExpect((result) -> assertThat(result.getResponse().getCookies()).hasSize(1))
-				.andExpect(cookie().maxAge("remove", 0)).andExpect(session(Objects::nonNull));
+				.andExpect(cookie().maxAge("remove", 0))
+				.andExpect(session(Objects::nonNull));
+		// @formatter:on
 	}
 
 	@Test
 	@WithMockUser
 	public void logoutWhenUsingVariousCustomizationsInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpLogoutInLambdaConfig.class).autowire();
-		this.mvc.perform(post("/custom-logout").with(csrf())).andExpect(authenticated(false))
+		// @formatter:off
+		this.mvc.perform(post("/custom-logout").with(csrf()))
+				.andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/logout-success"))
 				.andExpect((result) -> assertThat(result.getResponse().getCookies()).hasSize(1))
-				.andExpect(cookie().maxAge("remove", 0)).andExpect(session(Objects::nonNull));
+				.andExpect(cookie().maxAge("remove", 0))
+				.andExpect(session(Objects::nonNull));
+		// @formatter:on
 	}
 
 	/**
@@ -113,18 +128,26 @@ public class NamespaceHttpLogoutTests {
 	@WithMockUser
 	public void logoutWhenUsingSuccessHandlerRefThenMatchesNamespace() throws Exception {
 		this.spring.register(SuccessHandlerRefHttpLogoutConfig.class).autowire();
-		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
-				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig")).andExpect(noCookies())
+		// @formatter:off
+		this.mvc.perform(post("/logout").with(csrf()))
+				.andExpect(authenticated(false))
+				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig"))
+				.andExpect(noCookies())
 				.andExpect(session(Objects::isNull));
+		// @formatter:on
 	}
 
 	@Test
 	@WithMockUser
 	public void logoutWhenUsingSuccessHandlerRefInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(SuccessHandlerRefHttpLogoutInLambdaConfig.class).autowire();
-		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
-				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig")).andExpect(noCookies())
+		// @formatter:off
+		this.mvc.perform(post("/logout").with(csrf()))
+				.andExpect(authenticated(false))
+				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig"))
+				.andExpect(noCookies())
 				.andExpect(session(Objects::isNull));
+		// @formatter:on
 	}
 
 	ResultMatcher authenticated(boolean authenticated) {

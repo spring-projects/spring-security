@@ -198,9 +198,11 @@ public class SecurityReactorContextConfigurationTests {
 				.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 		ClientResponse clientResponseOk = ClientResponse.create(HttpStatus.OK).build();
+		// @formatter:off
 		ExchangeFilterFunction filter = (req, next) -> Mono.subscriberContext()
 				.filter((ctx) -> ctx.hasKey(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES))
-				.map((ctx) -> ctx.get(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES)).cast(Map.class)
+				.map((ctx) -> ctx.get(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES))
+				.cast(Map.class)
 				.map((attributes) -> {
 					if (attributes.containsKey(HttpServletRequest.class)
 							&& attributes.containsKey(HttpServletResponse.class)
@@ -211,6 +213,7 @@ public class SecurityReactorContextConfigurationTests {
 						return ClientResponse.create(HttpStatus.NOT_FOUND).build();
 					}
 				});
+		// @formatter:on
 		ClientRequest clientRequest = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 		MockExchangeFunction exchange = new MockExchangeFunction();
 		Map<Object, Object> expectedContextAttributes = new HashMap<>();
@@ -219,9 +222,14 @@ public class SecurityReactorContextConfigurationTests {
 		expectedContextAttributes.put(Authentication.class, this.authentication);
 		Mono<ClientResponse> clientResponseMono = filter.filter(clientRequest, exchange)
 				.flatMap((response) -> filter.filter(clientRequest, exchange));
-		StepVerifier.create(clientResponseMono).expectAccessibleContext()
+		// @formatter:off
+		StepVerifier.create(clientResponseMono)
+				.expectAccessibleContext()
 				.contains(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES, expectedContextAttributes)
-				.then().expectNext(clientResponseOk).verifyComplete();
+				.then()
+				.expectNext(clientResponseOk)
+				.verifyComplete();
+		// @formatter:on
 	}
 
 	@EnableWebSecurity

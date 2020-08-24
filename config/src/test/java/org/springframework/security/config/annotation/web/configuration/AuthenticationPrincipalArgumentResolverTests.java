@@ -68,7 +68,11 @@ public class AuthenticationPrincipalArgumentResolverTests {
 				new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities()));
 		SecurityContextHolder.setContext(context);
 		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-		mockMvc.perform(get("/users/self")).andExpect(status().isOk()).andExpect(content().string("extracted-user"));
+		// @formatter:off
+		mockMvc.perform(get("/users/self"))
+				.andExpect(status().isOk())
+				.andExpect(content().string("extracted-user"));
+		// @formatter:on
 	}
 
 	@EnableWebSecurity

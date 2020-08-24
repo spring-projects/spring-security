@@ -30,6 +30,7 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -66,22 +67,26 @@ public class NamespaceHttpInterceptUrlTests {
 	@Test
 	public void authenticatedRequestWhenUrlRequiresElevatedPrivilegesThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class).autowire();
-		this.mvc.perform(get("/users").with(authentication(user("ROLE_USER")))).andExpect(status().isForbidden());
+		MockHttpServletRequestBuilder requestWithUser = get("/users").with(authentication(user("ROLE_USER")));
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void authenticatedRequestWhenAuthorizedThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class, BaseController.class).autowire();
-		this.mvc.perform(get("/users").with(authentication(user("ROLE_ADMIN")))).andExpect(status().isOk()).andReturn();
+		MockHttpServletRequestBuilder requestWithAdmin = get("/users").with(authentication(user("ROLE_ADMIN")));
+		this.mvc.perform(requestWithAdmin).andExpect(status().isOk()).andReturn();
 	}
 
 	@Test
 	public void requestWhenMappedByPostInterceptUrlThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class, BaseController.class).autowire();
-		this.mvc.perform(get("/admin/post").with(authentication(user("ROLE_USER")))).andExpect(status().isOk());
-		this.mvc.perform(post("/admin/post").with(authentication(user("ROLE_USER")))).andExpect(status().isForbidden());
-		this.mvc.perform(post("/admin/post").with(csrf()).with(authentication(user("ROLE_ADMIN"))))
-				.andExpect(status().isOk());
+		MockHttpServletRequestBuilder getWithUser = get("/admin/post").with(authentication(user("ROLE_USER")));
+		this.mvc.perform(getWithUser).andExpect(status().isOk());
+		MockHttpServletRequestBuilder postWithUser = post("/admin/post").with(authentication(user("ROLE_USER")));
+		this.mvc.perform(postWithUser).andExpect(status().isForbidden());
+		MockHttpServletRequestBuilder requestWithAdmin = post("/admin/post").with(csrf()).with(authentication(user("ROLE_ADMIN")));
+		this.mvc.perform(requestWithAdmin).andExpect(status().isOk());
 	}
 
 	@Test

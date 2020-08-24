@@ -84,17 +84,20 @@ class HttpSecurityConfiguration {
 				this.objectPostProcessor, passwordEncoder);
 		authenticationBuilder.parentAuthenticationManager(authenticationManager());
 		HttpSecurity http = new HttpSecurity(this.objectPostProcessor, authenticationBuilder, createSharedObjects());
-		http.csrf(withDefaults());
-		http.addFilter(new WebAsyncManagerIntegrationFilter());
-		http.exceptionHandling(withDefaults());
-		http.headers(withDefaults());
-		http.sessionManagement(withDefaults());
-		http.securityContext(withDefaults());
-		http.requestCache(withDefaults());
-		http.anonymous(withDefaults());
-		http.servletApi(withDefaults());
-		http.logout(withDefaults());
-		http.apply(new DefaultLoginPageConfigurer<>());
+		// @formatter:off
+		http
+			.csrf(withDefaults())
+			.addFilter(new WebAsyncManagerIntegrationFilter())
+			.exceptionHandling(withDefaults())
+			.headers(withDefaults())
+			.sessionManagement(withDefaults())
+			.securityContext(withDefaults())
+			.requestCache(withDefaults())
+			.anonymous(withDefaults())
+			.servletApi(withDefaults())
+			.logout(withDefaults())
+			.apply(new DefaultLoginPageConfigurer<>());
+		// @formatter:on
 		return http;
 	}
 

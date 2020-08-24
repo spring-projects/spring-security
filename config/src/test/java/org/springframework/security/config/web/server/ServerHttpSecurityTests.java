@@ -110,8 +110,13 @@ public class ServerHttpSecurityTests {
 		given(this.contextRepository.load(any())).willReturn(securityContext.mono());
 		this.http.securityContextRepository(this.contextRepository);
 		WebTestClient client = buildClient();
-		FluxExchangeResult<String> result = client.get().uri("/").exchange().expectHeader()
-				.valueMatches(HttpHeaders.CACHE_CONTROL, ".+").returnResult(String.class);
+		// @formatter:off
+		FluxExchangeResult<String> result = client.get()
+				.uri("/")
+				.exchange()
+				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
+				.returnResult(String.class);
+		// @formatter:on
 		assertThat(result.getResponseCookies()).isEmpty();
 		// there is no need to try and load the SecurityContext by default
 		securityContext.assertWasNotSubscribed();
@@ -126,10 +131,18 @@ public class ServerHttpSecurityTests {
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
 		authorize.anyExchange().authenticated();
 		WebTestClient client = buildClient();
-		EntityExchangeResult<String> result = client.get().uri("/")
-				.headers((headers) -> headers.setBasicAuth("rob", "rob")).exchange().expectStatus().isOk()
-				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+").expectBody(String.class)
-				.consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok")).returnResult();
+		// @formatter:off
+		EntityExchangeResult<String> result = client.get()
+				.uri("/")
+				.headers((headers) -> headers
+						.setBasicAuth("rob", "rob")
+				)
+				.exchange()
+				.expectStatus().isOk()
+				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
+				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"))
+				.returnResult();
+		// @formatter:on
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
 	}
 
@@ -143,27 +156,48 @@ public class ServerHttpSecurityTests {
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
 		authorize.anyExchange().authenticated();
 		WebTestClient client = buildClient();
-		EntityExchangeResult<String> result = client.get().uri("/")
-				.headers((headers) -> headers.setBasicAuth("rob", "rob")).exchange().expectStatus().isOk()
-				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+").expectBody(String.class)
-				.consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok")).returnResult();
+		// @formatter:off
+		EntityExchangeResult<String> result = client.get()
+				.uri("/")
+				.headers((headers) -> headers
+						.setBasicAuth("rob", "rob")
+				)
+				.exchange()
+				.expectStatus().isOk()
+				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
+				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"))
+				.returnResult();
+		// @formatter:on
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNotNull();
 	}
 
 	@Test
 	public void basicWhenNoCredentialsThenUnauthorized() {
-		this.http.authorizeExchange().anyExchange().authenticated();
+		this.http.authorizeExchange()
+				.anyExchange().authenticated();
 		WebTestClient client = buildClient();
-		client.get().uri("/").exchange().expectStatus().isUnauthorized().expectHeader()
-				.valueMatches(HttpHeaders.CACHE_CONTROL, ".+").expectBody().isEmpty();
+		// @formatter:off
+		client.get().uri("/")
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
+				.expectBody().isEmpty();
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenServerWebExchangeFromContextThenFound() {
 		SecurityWebFilterChain filter = this.http.build();
-		WebTestClient client = WebTestClient.bindToController(new SubscriberContextController())
-				.webFilter(new WebFilterChainProxy(filter)).build();
-		client.get().uri("/foo/bar").exchange().expectBody(String.class).isEqualTo("/foo/bar");
+		// @formatter:off
+		WebTestClient client = WebTestClient
+				.bindToController(new SubscriberContextController())
+				.webFilter(new WebFilterChainProxy(filter))
+				.build();
+		client.get()
+				.uri("/foo/bar")
+				.exchange()
+				.expectBody(String.class).isEqualTo("/foo/bar");
+		// @formatter:on
 	}
 
 	@Test
@@ -199,7 +233,12 @@ public class ServerHttpSecurityTests {
 		SecurityWebFilterChain securityWebFilterChain = this.http
 				.addFilterAfter(new TestWebFilter(), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE)
 				.build();
-		List filters = securityWebFilterChain.getWebFilters().map(WebFilter::getClass).collectList().block();
+		// @formatter:off
+		List filters = securityWebFilterChain.getWebFilters()
+				.map(WebFilter::getClass)
+				.collectList()
+				.block();
+		// @formatter:on
 		assertThat(filters).isNotNull().isNotEmpty().containsSequence(SecurityContextServerWebExchangeWebFilter.class,
 				TestWebFilter.class);
 	}
@@ -210,25 +249,46 @@ public class ServerHttpSecurityTests {
 		SecurityWebFilterChain securityWebFilterChain = this.http
 				.addFilterBefore(new TestWebFilter(), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE)
 				.build();
-		List filters = securityWebFilterChain.getWebFilters().map(WebFilter::getClass).collectList().block();
+		// @formatter:off
+		List filters = securityWebFilterChain.getWebFilters()
+				.map(WebFilter::getClass)
+				.collectList()
+				.block();
+		// @formatter:on
 		assertThat(filters).isNotNull().isNotEmpty().containsSequence(TestWebFilter.class,
 				SecurityContextServerWebExchangeWebFilter.class);
 	}
 
 	@Test
 	public void anonymous() {
-		SecurityWebFilterChain securityFilterChain = this.http.anonymous().and().build();
-		WebTestClient client = WebTestClientBuilder.bindToControllerAndWebFilters(
-				AnonymousAuthenticationWebFilterTests.HttpMeController.class, securityFilterChain).build();
-		client.get().uri("/me").exchange().expectStatus().isOk().expectBody(String.class).isEqualTo("anonymousUser");
+		// @formatter:off
+		SecurityWebFilterChain securityFilterChain = this.http
+				.anonymous().and()
+				.build();
+		WebTestClient client = WebTestClientBuilder
+				.bindToControllerAndWebFilters(AnonymousAuthenticationWebFilterTests.HttpMeController.class, securityFilterChain)
+				.build();
+		client.get()
+				.uri("/me")
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class).isEqualTo("anonymousUser");
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenAnonymousConfiguredThenAuthenticationIsAnonymous() {
 		SecurityWebFilterChain securityFilterChain = this.http.anonymous(withDefaults()).build();
-		WebTestClient client = WebTestClientBuilder.bindToControllerAndWebFilters(
-				AnonymousAuthenticationWebFilterTests.HttpMeController.class, securityFilterChain).build();
-		client.get().uri("/me").exchange().expectStatus().isOk().expectBody(String.class).isEqualTo("anonymousUser");
+		// @formatter:off
+		WebTestClient client = WebTestClientBuilder
+				.bindToControllerAndWebFilters(AnonymousAuthenticationWebFilterTests.HttpMeController.class, securityFilterChain)
+				.build();
+		client.get()
+				.uri("/me")
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class).isEqualTo("anonymousUser");
+		// @formatter:on
 	}
 
 	@Test
@@ -240,10 +300,17 @@ public class ServerHttpSecurityTests {
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
 		authorize.anyExchange().hasAuthority("ROLE_ADMIN");
 		WebTestClient client = buildClient();
-		EntityExchangeResult<String> result = client.get().uri("/")
-				.headers((headers) -> headers.setBasicAuth("rob", "rob")).exchange().expectStatus().isOk()
-				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+").expectBody(String.class)
-				.consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok")).returnResult();
+		// @formatter:off
+		EntityExchangeResult<String> result = client.get()
+				.uri("/")
+				.headers((headers) -> headers
+						.setBasicAuth("rob", "rob")
+				).exchange()
+				.expectStatus().isOk()
+				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
+				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"))
+				.returnResult();
+		// @formatter:on
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
 	}
 
@@ -257,9 +324,15 @@ public class ServerHttpSecurityTests {
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
 		authorize.anyExchange().authenticated();
 		WebTestClient client = buildClient();
-		EntityExchangeResult<String> result = client.get().uri("/").exchange().expectStatus().isUnauthorized()
+		// @formatter:off
+		EntityExchangeResult<String> result = client.get()
+				.uri("/")
+				.exchange()
+				.expectStatus().isUnauthorized()
 				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, (value) -> assertThat(value).contains("myrealm"))
-				.expectBody(String.class).returnResult();
+				.expectBody(String.class)
+				.returnResult();
+		// @formatter:on
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
 	}
 
@@ -273,9 +346,15 @@ public class ServerHttpSecurityTests {
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
 		authorize.anyExchange().authenticated();
 		WebTestClient client = buildClient();
-		EntityExchangeResult<String> result = client.get().uri("/").exchange().expectStatus().isUnauthorized()
+		// @formatter:off
+		EntityExchangeResult<String> result = client.get()
+				.uri("/")
+				.exchange()
+				.expectStatus().isUnauthorized()
 				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, (value) -> assertThat(value).contains("myrealm"))
-				.expectBody(String.class).returnResult();
+				.expectBody(String.class)
+				.returnResult();
+		// @formatter:on
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
 	}
 
@@ -284,12 +363,26 @@ public class ServerHttpSecurityTests {
 		ReactiveAuthenticationManager customAuthenticationManager = mock(ReactiveAuthenticationManager.class);
 		given(customAuthenticationManager.authenticate(any()))
 				.willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
-		SecurityWebFilterChain securityFilterChain = this.http.httpBasic()
-				.authenticationManager(customAuthenticationManager).and().build();
+		// @formatter:off
+		SecurityWebFilterChain securityFilterChain = this.http
+				.httpBasic()
+					.authenticationManager(customAuthenticationManager)
+					.and()
+				.build();
+		// @formatter:on
 		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
-		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
-		client.get().uri("/").headers((headers) -> headers.setBasicAuth("rob", "rob")).exchange().expectStatus().isOk()
+		// @formatter:off
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(springSecurityFilterChain)
+				.build();
+		client.get()
+				.uri("/").headers((headers) -> headers
+						.setBasicAuth("rob", "rob")
+				)
+				.exchange()
+				.expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"));
+		// @formatter:on
 		verifyZeroInteractions(this.authenticationManager);
 	}
 
@@ -298,12 +391,27 @@ public class ServerHttpSecurityTests {
 		ReactiveAuthenticationManager customAuthenticationManager = mock(ReactiveAuthenticationManager.class);
 		given(customAuthenticationManager.authenticate(any()))
 				.willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
+		// @formatter:off
 		SecurityWebFilterChain securityFilterChain = this.http
-				.httpBasic((httpBasic) -> httpBasic.authenticationManager(customAuthenticationManager)).build();
+				.httpBasic((httpBasic) -> httpBasic
+						.authenticationManager(customAuthenticationManager)
+				)
+				.build();
+		// @formatter:on
 		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
-		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
-		client.get().uri("/").headers((headers) -> headers.setBasicAuth("rob", "rob")).exchange().expectStatus().isOk()
+		// @formatter:off
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(springSecurityFilterChain)
+				.build();
+		client.get()
+				.uri("/")
+				.headers((headers) -> headers
+						.setBasicAuth("rob", "rob")
+				)
+				.exchange()
+				.expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"));
+		// @formatter:on
 		verifyZeroInteractions(this.authenticationManager);
 		verify(customAuthenticationManager).authenticate(any(Authentication.class));
 	}

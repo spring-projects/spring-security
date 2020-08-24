@@ -44,10 +44,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 public class AuthenticationManagerBeanDefinitionParserTests {
 
-	private static final String CONTEXT = "<authentication-manager id='am'>" + "    <authentication-provider>"
+	// @formatter:off
+	private static final String CONTEXT = "<authentication-manager id='am'>"
+			+ "    <authentication-provider>"
 			+ "        <user-service>"
 			+ "            <user name='bob' password='{noop}bobspassword' authorities='ROLE_A,ROLE_B' />"
-			+ "        </user-service>" + "    </authentication-provider>" + "</authentication-manager>";
+			+ "        </user-service>"
+			+ "    </authentication-provider>"
+			+ "</authentication-manager>";
+	// @formatter:on
 
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -92,12 +97,17 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 
 	@Test
 	public void passwordEncoderBeanUsed() throws Exception {
-		this.spring.context(
-				"<b:bean id='passwordEncoder' class='org.springframework.security.crypto.password.NoOpPasswordEncoder' factory-method='getInstance'/>"
-						+ "<user-service>" + "  <user name='user' password='password' authorities='ROLE_A,ROLE_B' />"
-						+ "</user-service>" + "<http/>")
-				.mockMvcAfterSpringSecurityOk().autowire();
-		this.mockMvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isOk());
+		// @formatter:off
+		this.spring.context("<b:bean id='passwordEncoder' class='org.springframework.security.crypto.password.NoOpPasswordEncoder' factory-method='getInstance'/>"
+				+ "<user-service>"
+				+ "  <user name='user' password='password' authorities='ROLE_A,ROLE_B' />"
+				+ "</user-service>"
+				+ "<http/>")
+				.mockMvcAfterSpringSecurityOk()
+				.autowire();
+		this.mockMvc.perform(get("/").with(httpBasic("user", "password")))
+				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	private static class AuthListener implements ApplicationListener<AbstractAuthenticationEvent> {

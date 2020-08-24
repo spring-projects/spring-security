@@ -41,6 +41,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -81,6 +82,7 @@ public class HttpSecurityConfigurationTests {
 	@Test
 	public void getWhenDefaultFilterChainBeanThenDefaultHeadersInResponse() throws Exception {
 		this.spring.register(DefaultWithFilterChainConfig.class).autowire();
+		// @formatter:off
 		MvcResult mvcResult = this.mockMvc.perform(get("/").secure(true))
 				.andExpect(header().string(HttpHeaders.X_CONTENT_TYPE_OPTIONS, "nosniff"))
 				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS,
@@ -90,7 +92,9 @@ public class HttpSecurityConfigurationTests {
 				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
 				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
 				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
-				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block"))
+				.andReturn();
+		// @formatter:on
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactlyInAnyOrder(
 				HttpHeaders.X_CONTENT_TYPE_OPTIONS, HttpHeaders.X_FRAME_OPTIONS, HttpHeaders.STRICT_TRANSPORT_SECURITY,
 				HttpHeaders.CACHE_CONTROL, HttpHeaders.EXPIRES, HttpHeaders.PRAGMA, HttpHeaders.X_XSS_PROTECTION);
@@ -99,21 +103,33 @@ public class HttpSecurityConfigurationTests {
 	@Test
 	public void logoutWhenDefaultFilterChainBeanThenCreatesDefaultLogoutEndpoint() throws Exception {
 		this.spring.register(DefaultWithFilterChainConfig.class).autowire();
-		this.mockMvc.perform(post("/logout").with(csrf())).andExpect(redirectedUrl("/login?logout"));
+		// @formatter:off
+		this.mockMvc.perform(post("/logout").with(csrf()))
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	@Test
 	public void loadConfigWhenDefaultConfigThenWebAsyncManagerIntegrationFilterAdded() throws Exception {
 		this.spring.register(DefaultWithFilterChainConfig.class, NameController.class).autowire();
-		MvcResult mvcResult = this.mockMvc.perform(get("/name").with(user("Bob"))).andExpect(request().asyncStarted())
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithBob = get("/name").with(user("Bob"));
+		MvcResult mvcResult = this.mockMvc.perform(requestWithBob)
+				.andExpect(request().asyncStarted())
 				.andReturn();
-		this.mockMvc.perform(asyncDispatch(mvcResult)).andExpect(status().isOk()).andExpect(content().string("Bob"));
+		this.mockMvc.perform(asyncDispatch(mvcResult))
+				.andExpect(status().isOk())
+				.andExpect(content().string("Bob"));
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenDefaultFilterChainBeanThenAnonymousPermitted() throws Exception {
 		this.spring.register(AuthorizeRequestsConfig.class, UserDetailsConfig.class, BaseController.class).autowire();
-		this.mockMvc.perform(get("/")).andExpect(status().isOk());
+		// @formatter:off
+		this.mockMvc.perform(get("/"))
+				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	@Test
@@ -121,29 +137,48 @@ public class HttpSecurityConfigurationTests {
 		this.spring.register(SecurityEnabledConfig.class, UserDetailsConfig.class).autowire();
 		MockHttpSession session = new MockHttpSession();
 		String sessionId = session.getId();
-		MvcResult result = this.mockMvc.perform(
-				post("/login").param("username", "user").param("password", "password").session(session).with(csrf()))
-				.andReturn();
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password")
+				.session(session)
+				.with(csrf());
+		// @formatter:on
+		MvcResult result = this.mockMvc.perform(loginRequest).andReturn();
 		assertThat(result.getRequest().getSession(false).getId()).isNotEqualTo(sessionId);
 	}
 
 	@Test
 	public void authenticateWhenDefaultFilterChainBeanThenRedirectsToSavedRequest() throws Exception {
 		this.spring.register(SecurityEnabledConfig.class, UserDetailsConfig.class).autowire();
-		MockHttpSession session = (MockHttpSession) this.mockMvc.perform(get("/messages")).andReturn().getRequest()
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mockMvc.perform(get("/messages"))
+				.andReturn()
+				.getRequest()
 				.getSession();
-		this.mockMvc.perform(
-				post("/login").param("username", "user").param("password", "password").session(session).with(csrf()))
+		// @formatter:on
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password")
+				.session(session)
+				.with(csrf());
+		// @formatter:on
+		// @formatter:off
+		this.mockMvc.perform(loginRequest)
 				.andExpect(redirectedUrl("http://localhost/messages"));
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenDefaultFilterChainBeanThenRolePrefixIsSet() throws Exception {
 		this.spring.register(SecurityEnabledConfig.class, UserDetailsConfig.class, UserController.class).autowire();
+		TestingAuthenticationToken user = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		// @formatter:off
 		this.mockMvc
-				.perform(get("/user")
-						.with(authentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"))))
+				.perform(get("/user").with(authentication(user)))
 				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	@Test
@@ -177,7 +212,13 @@ public class HttpSecurityConfigurationTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			return http.authorizeRequests((authorize) -> authorize.anyRequest().permitAll()).build();
+			// @formatter:off
+			return http
+					.authorizeRequests((authorize) -> authorize
+						.anyRequest().permitAll()
+					)
+					.build();
+			// @formatter:on
 		}
 
 	}
@@ -187,8 +228,14 @@ public class HttpSecurityConfigurationTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			return http.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
-					.formLogin(withDefaults()).build();
+			// @formatter:off
+			return http
+					.authorizeRequests((authorize) -> authorize
+						.anyRequest().authenticated()
+					)
+					.formLogin(withDefaults())
+					.build();
+			// @formatter:on
 		}
 
 	}
@@ -198,8 +245,13 @@ public class HttpSecurityConfigurationTests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER")
+			// @formatter:off
+			UserDetails user = User.withDefaultPasswordEncoder()
+					.username("user")
+					.password("password")
+					.roles("USER")
 					.build();
+			// @formatter:on
 			return new InMemoryUserDetailsManager(user);
 		}
 

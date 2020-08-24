@@ -282,7 +282,11 @@ public class NamespaceHttpX509Tests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.inMemoryAuthentication().withUser("rod").password("password").roles("USER", "ADMIN");
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser("rod").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
 
 		@Override

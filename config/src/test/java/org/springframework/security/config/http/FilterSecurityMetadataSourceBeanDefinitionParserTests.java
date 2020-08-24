@@ -60,8 +60,11 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 
 	@Test
 	public void parsingMinimalConfigurationIsSuccessful() {
+		// @formatter:off
 		setContext("<filter-security-metadata-source id='fids' use-expressions='false'>"
-				+ "   <intercept-url pattern='/**' access='ROLE_A'/>" + "</filter-security-metadata-source>");
+				+ "   <intercept-url pattern='/**' access='ROLE_A'/>"
+				+ "</filter-security-metadata-source>");
+		// @formatter:on
 		DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) this.appContext
 				.getBean("fids");
 		Collection<ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
@@ -70,9 +73,11 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 
 	@Test
 	public void expressionsAreSupported() {
+		// @formatter:off
 		setContext("<filter-security-metadata-source id='fids'>"
 				+ "   <intercept-url pattern='/**' access=\"hasRole('ROLE_A')\" />"
 				+ "</filter-security-metadata-source>");
+		// @formatter:on
 		ExpressionBasedFilterInvocationSecurityMetadataSource fids = (ExpressionBasedFilterInvocationSecurityMetadataSource) this.appContext
 				.getBean("fids");
 		ConfigAttribute[] cad = fids.getAttributes(createFilterInvocation("/anything", "GET"))
@@ -98,6 +103,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 
 	@Test
 	public void parsingWithinFilterSecurityInterceptorIsSuccessful() {
+		// @formatter:off
 		setContext("<http auto-config='true' use-expressions='false'/>"
 				+ "<b:bean id='fsi' class='org.springframework.security.web.access.intercept.FilterSecurityInterceptor' autowire='byType'>"
 				+ "   <b:property name='securityMetadataSource'>"
@@ -105,9 +111,12 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 				+ "           <intercept-url pattern='/secure/extreme/**' access='ROLE_SUPERVISOR'/>"
 				+ "           <intercept-url pattern='/secure/**' access='ROLE_USER'/>"
 				+ "           <intercept-url pattern='/**' access='ROLE_USER'/>"
-				+ "       </filter-security-metadata-source>" + "   </b:property>"
+				+ "       </filter-security-metadata-source>"
+				+ "   </b:property>"
 				+ "   <b:property name='authenticationManager' ref='" + BeanIds.AUTHENTICATION_MANAGER + "'/>"
-				+ "</b:bean>" + ConfigTestUtils.AUTH_PROVIDER_XML);
+				+ "</b:bean>"
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
 	}
 
 	@Test(expected = BeanDefinitionParsingException.class)

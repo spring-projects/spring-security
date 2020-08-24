@@ -40,6 +40,8 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -83,41 +85,63 @@ public class RequestCacheConfigurerTests {
 	@Test
 	public void getWhenBookmarkedUrlIsFaviconIcoThenPostAuthenticationRedirectsToRoot() throws Exception {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/favicon.ico"))
-				.andExpect(redirectedUrl("http://localhost/login")).andReturn().getRequest().getSession();
-		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/")); // ignores
-																			// favicon.ico
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores favicon.ico
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
 	@Test
 	public void getWhenBookmarkedUrlIsFaviconPngThenPostAuthenticationRedirectsToRoot() throws Exception {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/favicon.png"))
-				.andExpect(redirectedUrl("http://localhost/login")).andReturn().getRequest().getSession();
-		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/")); // ignores
-																			// favicon.png
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores favicon.png
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
 	// SEC-2321
 	@Test
 	public void getWhenBookmarkedRequestIsApplicationJsonThenPostAuthenticationRedirectsToRoot() throws Exception {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
-		MockHttpSession session = (MockHttpSession) this.mvc
-				.perform(get("/messages").header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-				.andExpect(redirectedUrl("http://localhost/login")).andReturn().getRequest().getSession();
-		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/")); // ignores
-																			// application/json
+		MockHttpServletRequestBuilder request = get("/messages").header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores application/json
 		// This is desirable since JSON requests are typically not invoked directly from
 		// the browser and we don't want the browser to replay them
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
 	// SEC-2321
 	@Test
 	public void getWhenBookmarkedRequestIsXRequestedWithThenPostAuthenticationRedirectsToRoot() throws Exception {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder xRequestedWith = get("/messages")
+				.header("X-Requested-With", "XMLHttpRequest");
 		MockHttpSession session = (MockHttpSession) this.mvc
-				.perform(get("/messages").header("X-Requested-With", "XMLHttpRequest"))
-				.andExpect(redirectedUrl("http://localhost/login")).andReturn().getRequest().getSession();
+				.perform(xRequestedWith)
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 		// This is desirable since XHR requests are typically not invoked directly from
 		// the browser and we don't want the browser to replay them
@@ -126,49 +150,75 @@ public class RequestCacheConfigurerTests {
 	@Test
 	public void getWhenBookmarkedRequestIsTextEventStreamThenPostAuthenticationRedirectsToRoot() throws Exception {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
-		MockHttpSession session = (MockHttpSession) this.mvc
-				.perform(get("/messages").header(HttpHeaders.ACCEPT, MediaType.TEXT_EVENT_STREAM))
-				.andExpect(redirectedUrl("http://localhost/login")).andReturn().getRequest().getSession();
-		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/")); // ignores
-																			// text/event-stream
+		MockHttpServletRequestBuilder request = get("/messages").header(HttpHeaders.ACCEPT, MediaType.TEXT_EVENT_STREAM);
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores text/event-stream
 		// This is desirable since event-stream requests are typically not invoked
 		// directly from the browser and we don't want the browser to replay them
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
 	@Test
 	public void getWhenBookmarkedRequestIsAllMediaTypeThenPostAuthenticationRemembers() throws Exception {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
-		MockHttpSession session = (MockHttpSession) this.mvc
-				.perform(get("/messages").header(HttpHeaders.ACCEPT, MediaType.ALL))
-				.andExpect(redirectedUrl("http://localhost/login")).andReturn().getRequest().getSession();
+		MockHttpServletRequestBuilder request = get("/messages").header(HttpHeaders.ACCEPT, MediaType.ALL);
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/messages"));
 	}
 
 	@Test
 	public void getWhenBookmarkedRequestIsTextHtmlThenPostAuthenticationRemembers() throws Exception {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
-		MockHttpSession session = (MockHttpSession) this.mvc
-				.perform(get("/messages").header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML))
-				.andExpect(redirectedUrl("http://localhost/login")).andReturn().getRequest().getSession();
+		MockHttpServletRequestBuilder request = get("/messages").header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/messages"));
 	}
 
 	@Test
 	public void getWhenBookmarkedRequestIsChromeThenPostAuthenticationRemembers() throws Exception {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
-		MockHttpSession session = (MockHttpSession) this.mvc
-				.perform(get("/messages").header(HttpHeaders.ACCEPT,
-						"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"))
-				.andExpect(redirectedUrl("http://localhost/login")).andReturn().getRequest().getSession();
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/messages")
+				.header(HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/messages"));
 	}
 
 	@Test
 	public void getWhenBookmarkedRequestIsRequestedWithAndroidThenPostAuthenticationRemembers() throws Exception {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
-		MockHttpSession session = (MockHttpSession) this.mvc
-				.perform(get("/messages").header("X-Requested-With", "com.android"))
-				.andExpect(redirectedUrl("http://localhost/login")).andReturn().getRequest().getSession();
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/messages")
+				.header("X-Requested-With", "com.android");
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/messages"));
 	}
 
@@ -177,7 +227,12 @@ public class RequestCacheConfigurerTests {
 	public void getWhenRequestCacheIsDisabledThenExceptionTranslationFilterDoesNotStoreRequest() throws Exception {
 		this.spring.register(RequestCacheDisabledConfig.class,
 				ExceptionHandlingConfigurerTests.DefaultSecurityConfig.class).autowire();
-		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob")).andReturn().getRequest().getSession();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
@@ -186,8 +241,13 @@ public class RequestCacheConfigurerTests {
 	public void postWhenRequestIsMultipartThenPostAuthenticationRedirectsToRoot() throws Exception {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
 		MockMultipartFile aFile = new MockMultipartFile("aFile", "A_FILE".getBytes());
-		MockHttpSession session = (MockHttpSession) this.mvc.perform(multipart("/upload").file(aFile)).andReturn()
-				.getRequest().getSession();
+		MockMultipartHttpServletRequestBuilder request = multipart("/upload").file(aFile);
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
@@ -195,26 +255,47 @@ public class RequestCacheConfigurerTests {
 	public void getWhenRequestCacheIsDisabledInLambdaThenExceptionTranslationFilterDoesNotStoreRequest()
 			throws Exception {
 		this.spring.register(RequestCacheDisabledInLambdaConfig.class, DefaultSecurityConfig.class).autowire();
-		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob")).andReturn().getRequest().getSession();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
 	@Test
 	public void getWhenRequestCacheInLambdaThenRedirectedToCachedPage() throws Exception {
 		this.spring.register(RequestCacheInLambdaConfig.class, DefaultSecurityConfig.class).autowire();
-		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob")).andReturn().getRequest().getSession();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/bob"));
 	}
 
 	@Test
 	public void getWhenCustomRequestCacheInLambdaThenCustomRequestCacheUsed() throws Exception {
 		this.spring.register(CustomRequestCacheInLambdaConfig.class, DefaultSecurityConfig.class).autowire();
-		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob")).andReturn().getRequest().getSession();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
 	private static RequestBuilder formLogin(MockHttpSession session) {
-		return post("/login").param("username", "user").param("password", "password").session(session).with(csrf());
+		// @formatter:off
+		return post("/login")
+				.param("username", "user")
+				.param("password", "password")
+				.session(session)
+				.with(csrf());
+		// @formatter:on
 	}
 
 	@EnableWebSecurity

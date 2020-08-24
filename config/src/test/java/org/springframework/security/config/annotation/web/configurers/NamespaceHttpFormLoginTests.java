@@ -36,6 +36,7 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
@@ -65,8 +66,13 @@ public class NamespaceHttpFormLoginTests {
 		this.spring.register(FormLoginConfig.class, UserDetailsServiceConfig.class).autowire();
 		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
 		this.mvc.perform(post("/login").with(csrf())).andExpect(redirectedUrl("/login?error"));
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf()))
-				.andExpect(redirectedUrl("/"));
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password")
+				.with(csrf());
+		// @formatter:on
+		this.mvc.perform(loginRequest).andExpect(redirectedUrl("/"));
 	}
 
 	@Test
@@ -75,8 +81,13 @@ public class NamespaceHttpFormLoginTests {
 		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/authentication/login"));
 		this.mvc.perform(post("/authentication/login/process").with(csrf()))
 				.andExpect(redirectedUrl("/authentication/login?failed"));
-		this.mvc.perform(post("/authentication/login/process").param("username", "user").param("password", "password")
-				.with(csrf())).andExpect(redirectedUrl("/default"));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/authentication/login/process")
+				.param("username", "user")
+				.param("password", "password")
+				.with(csrf());
+		// @formatter:on
+		this.mvc.perform(request).andExpect(redirectedUrl("/default"));
 	}
 
 	@Test
@@ -85,8 +96,13 @@ public class NamespaceHttpFormLoginTests {
 		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
 		this.mvc.perform(post("/login").with(csrf())).andExpect(redirectedUrl("/custom/failure"));
 		verifyBean(WebAuthenticationDetailsSource.class).buildDetails(any(HttpServletRequest.class));
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf()))
-				.andExpect(redirectedUrl("/custom/targetUrl"));
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password")
+				.with(csrf());
+		// @formatter:on
+		this.mvc.perform(loginRequest).andExpect(redirectedUrl("/custom/targetUrl"));
 	}
 
 	private <T> T verifyBean(Class<T> beanClass) {

@@ -30,6 +30,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -85,21 +86,34 @@ public class FormLoginConfigurerTests {
 	@Test
 	public void loginWhenFormLoginConfiguredThenHasDefaultUsernameAndPasswordParameterNames() throws Exception {
 		this.spring.register(FormLoginConfig.class).autowire();
-		this.mockMvc.perform(formLogin().user("username", "user").password("password", "password"))
-				.andExpect(status().isFound()).andExpect(redirectedUrl("/"));
+		// @formatter:off
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder loginRequest = formLogin()
+				.user("username", "user")
+				.password("password", "password");
+		this.mockMvc.perform(loginRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/"));
+		// @formatter:on
 	}
 
 	@Test
 	public void loginWhenFormLoginConfiguredThenHasDefaultFailureUrl() throws Exception {
 		this.spring.register(FormLoginConfig.class).autowire();
-		this.mockMvc.perform(formLogin().user("invalid")).andExpect(status().isFound())
+		// @formatter:off
+		this.mockMvc.perform(formLogin().user("invalid"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
 	}
 
 	@Test
 	public void loginWhenFormLoginConfiguredThenHasDefaultSuccessUrl() throws Exception {
 		this.spring.register(FormLoginConfig.class).autowire();
-		this.mockMvc.perform(formLogin()).andExpect(status().isFound()).andExpect(redirectedUrl("/"));
+		// @formatter:off
+		this.mockMvc.perform(formLogin())
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/"));
+		// @formatter:on
 	}
 
 	@Test
@@ -117,28 +131,44 @@ public class FormLoginConfigurerTests {
 	@Test
 	public void requestProtectedWhenFormLoginConfiguredThenRedirectsToLogin() throws Exception {
 		this.spring.register(FormLoginConfig.class).autowire();
-		this.mockMvc.perform(get("/private")).andExpect(status().isFound())
+		// @formatter:off
+		this.mockMvc.perform(get("/private"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 	}
 
 	@Test
 	public void loginWhenFormLoginDefaultsInLambdaThenHasDefaultUsernameAndPasswordParameterNames() throws Exception {
 		this.spring.register(FormLoginInLambdaConfig.class).autowire();
-		this.mockMvc.perform(formLogin().user("username", "user").password("password", "password"))
-				.andExpect(status().isFound()).andExpect(redirectedUrl("/"));
+		// @formatter:off
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder loginRequest = formLogin()
+				.user("username", "user")
+				.password("password", "password");
+		this.mockMvc.perform(loginRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/"));
+		// @formatter:on
 	}
 
 	@Test
 	public void loginWhenFormLoginDefaultsInLambdaThenHasDefaultFailureUrl() throws Exception {
 		this.spring.register(FormLoginInLambdaConfig.class).autowire();
-		this.mockMvc.perform(formLogin().user("invalid")).andExpect(status().isFound())
+		// @formatter:off
+		this.mockMvc.perform(formLogin().user("invalid"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
 	}
 
 	@Test
 	public void loginWhenFormLoginDefaultsInLambdaThenHasDefaultSuccessUrl() throws Exception {
 		this.spring.register(FormLoginInLambdaConfig.class).autowire();
-		this.mockMvc.perform(formLogin()).andExpect(status().isFound()).andExpect(redirectedUrl("/"));
+		// @formatter:off
+		this.mockMvc.perform(formLogin())
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/"));
+		// @formatter:on
 	}
 
 	@Test
@@ -156,27 +186,41 @@ public class FormLoginConfigurerTests {
 	@Test
 	public void requestProtectedWhenFormLoginDefaultsInLambdaThenRedirectsToLogin() throws Exception {
 		this.spring.register(FormLoginInLambdaConfig.class).autowire();
-		this.mockMvc.perform(get("/private")).andExpect(status().isFound())
+		// @formatter:off
+		this.mockMvc.perform(get("/private"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 	}
 
 	@Test
 	public void getLoginPageWhenFormLoginPermitAllThenPermittedAndNoRedirect() throws Exception {
 		this.spring.register(FormLoginConfigPermitAll.class).autowire();
-		this.mockMvc.perform(get("/login")).andExpect(status().isOk()).andExpect(redirectedUrl(null));
+		// @formatter:off
+		this.mockMvc.perform(get("/login"))
+				.andExpect(status().isOk())
+				.andExpect(redirectedUrl(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void getLoginPageWithErrorQueryWhenFormLoginPermitAllThenPermittedAndNoRedirect() throws Exception {
 		this.spring.register(FormLoginConfigPermitAll.class).autowire();
-		this.mockMvc.perform(get("/login?error")).andExpect(status().isOk()).andExpect(redirectedUrl(null));
+		// @formatter:off
+		this.mockMvc.perform(get("/login?error"))
+				.andExpect(status().isOk())
+				.andExpect(redirectedUrl(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void loginWhenFormLoginPermitAllAndInvalidUserThenRedirectsToLoginPageWithError() throws Exception {
 		this.spring.register(FormLoginConfigPermitAll.class).autowire();
-		this.mockMvc.perform(formLogin().user("invalid")).andExpect(status().isFound())
+		// @formatter:off
+		this.mockMvc.perform(formLogin().user("invalid"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
 	}
 
 	@Test
@@ -194,8 +238,12 @@ public class FormLoginConfigurerTests {
 	@Test
 	public void loginWhenCustomLoginPageAndInvalidUserThenRedirectsToCustomLoginPageWithError() throws Exception {
 		this.spring.register(FormLoginDefaultsConfig.class).autowire();
-		this.mockMvc.perform(formLogin("/authenticate").user("invalid")).andExpect(status().isFound())
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin("/authenticate").user("invalid");
+		// @formatter:off
+		this.mockMvc.perform(request)
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("/authenticate?error"));
+		// @formatter:on
 	}
 
 	@Test
@@ -219,13 +267,21 @@ public class FormLoginConfigurerTests {
 	@Test
 	public void loginWhenCustomLoginProcessingUrlThenRedirectsToHome() throws Exception {
 		this.spring.register(FormLoginLoginProcessingUrlConfig.class).autowire();
-		this.mockMvc.perform(formLogin("/loginCheck")).andExpect(status().isFound()).andExpect(redirectedUrl("/"));
+		// @formatter:off
+		this.mockMvc.perform(formLogin("/loginCheck"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/"));
+		// @formatter:on
 	}
 
 	@Test
 	public void loginWhenCustomLoginProcessingUrlInLambdaThenRedirectsToHome() throws Exception {
 		this.spring.register(FormLoginLoginProcessingUrlInLambdaConfig.class).autowire();
-		this.mockMvc.perform(formLogin("/loginCheck")).andExpect(status().isFound()).andExpect(redirectedUrl("/"));
+		// @formatter:off
+		this.mockMvc.perform(formLogin("/loginCheck"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/"));
+		// @formatter:on
 	}
 
 	@Test
@@ -233,28 +289,36 @@ public class FormLoginConfigurerTests {
 		FormLoginUsesPortMapperConfig.PORT_MAPPER = mock(PortMapper.class);
 		given(FormLoginUsesPortMapperConfig.PORT_MAPPER.lookupHttpsPort(any())).willReturn(9443);
 		this.spring.register(FormLoginUsesPortMapperConfig.class).autowire();
-		this.mockMvc.perform(get("http://localhost:9090")).andExpect(status().isFound())
+		// @formatter:off
+		this.mockMvc.perform(get("http://localhost:9090"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("https://localhost:9443/login"));
+		// @formatter:on
 		verify(FormLoginUsesPortMapperConfig.PORT_MAPPER).lookupHttpsPort(any());
 	}
 
 	@Test
 	public void failureUrlWhenPermitAllAndFailureHandlerThenSecured() throws Exception {
 		this.spring.register(PermitAllIgnoresFailureHandlerConfig.class).autowire();
-		this.mockMvc.perform(get("/login?error")).andExpect(status().isFound())
+		// @formatter:off
+		this.mockMvc.perform(get("/login?error"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 	}
 
 	@Test
 	public void formLoginWhenInvokedTwiceThenUsesOriginalUsernameParameter() throws Exception {
 		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class).autowire();
-		this.mockMvc.perform(formLogin().user("custom-username", "user")).andExpect(authenticated());
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder loginRequest = formLogin().user("custom-username", "user");
+		this.mockMvc.perform(loginRequest).andExpect(authenticated());
 	}
 
 	@Test
 	public void loginWhenInvalidLoginAndFailureForwardUrlThenForwardsToFailureForwardUrl() throws Exception {
 		this.spring.register(FormLoginUserForwardAuthenticationSuccessAndFailureConfig.class).autowire();
-		this.mockMvc.perform(formLogin().user("invalid")).andExpect(forwardedUrl("/failure_forward_url"));
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder loginRequest = formLogin().user("invalid");
+		this.mockMvc.perform(loginRequest).andExpect(forwardedUrl("/failure_forward_url"));
 	}
 
 	@Test

@@ -62,7 +62,11 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 	@Test
 	public void getWhenDefaultsThenLoginChallengeCreatesSession() throws Exception {
 		this.spring.register(DefaultConfig.class, BasicController.class).autowire();
-		MvcResult result = this.mvc.perform(get("/")).andExpect(status().isUnauthorized()).andReturn();
+		// @formatter:off
+		MvcResult result = this.mvc.perform(get("/"))
+				.andExpect(status().isUnauthorized())
+				.andReturn();
+		// @formatter:on
 		assertThat(result.getRequest().getSession(false)).isNotNull();
 	}
 

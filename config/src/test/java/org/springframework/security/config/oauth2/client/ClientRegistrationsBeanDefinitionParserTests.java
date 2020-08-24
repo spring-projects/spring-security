@@ -46,39 +46,80 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/oauth2/client/ClientRegistrationsBeanDefinitionParserTests";
 
+	// @formatter:off
 	private static final String ISSUER_URI_XML_CONFIG = "<b:beans xmlns:b=\"http://www.springframework.org/schema/beans\"\n"
-			+ "\t\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
-			+ "\t\txmlns=\"http://www.springframework.org/schema/security\"\n" + "\t\txsi:schemaLocation=\"\n"
-			+ "\t\t\thttp://www.springframework.org/schema/security\n"
-			+ "\t\t\thttps://www.springframework.org/schema/security/spring-security.xsd\n"
-			+ "\t\t\thttp://www.springframework.org/schema/beans\n"
-			+ "\t\t\thttps://www.springframework.org/schema/beans/spring-beans.xsd\">\n" + "\n"
-			+ "\t<client-registrations>\n"
-			+ "\t\t<client-registration registration-id=\"google-login\" client-id=\"google-client-id\" \n"
-			+ "\t\t\t\t\t\t\t client-secret=\"google-client-secret\" provider-id=\"google\"/>\n"
-			+ "\t\t<provider provider-id=\"google\" issuer-uri=\"${issuer-uri}\"/>\n" + "\t</client-registrations>\n"
-			+ "\n" + "</b:beans>\n";
+			+ "		xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+			+ "		xmlns=\"http://www.springframework.org/schema/security\"\n"
+			+ "		xsi:schemaLocation=\"\n"
+			+ "			http://www.springframework.org/schema/security\n"
+			+ "			https://www.springframework.org/schema/security/spring-security.xsd\n"
+			+ "			http://www.springframework.org/schema/beans\n"
+			+ "			https://www.springframework.org/schema/beans/spring-beans.xsd\">\n"
+			+ "\n"
+			+ "	<client-registrations>\n"
+			+ "		<client-registration registration-id=\"google-login\" client-id=\"google-client-id\" \n"
+			+ "							 client-secret=\"google-client-secret\" provider-id=\"google\"/>\n"
+			+ "		<provider provider-id=\"google\" issuer-uri=\"${issuer-uri}\"/>\n"
+			+ "	</client-registrations>\n"
+			+ "\n"
+			+ "</b:beans>\n";
+	// @formatter:on
 
+	// @formatter:off
 	private static final String OIDC_DISCOVERY_RESPONSE = "{\n"
 			+ "    \"authorization_endpoint\": \"https://example.com/o/oauth2/v2/auth\", \n"
-			+ "    \"claims_supported\": [\n" + "        \"aud\", \n" + "        \"email\", \n"
-			+ "        \"email_verified\", \n" + "        \"exp\", \n" + "        \"family_name\", \n"
-			+ "        \"given_name\", \n" + "        \"iat\", \n" + "        \"iss\", \n" + "        \"locale\", \n"
-			+ "        \"name\", \n" + "        \"picture\", \n" + "        \"sub\"\n" + "    ], \n"
-			+ "    \"code_challenge_methods_supported\": [\n" + "        \"plain\", \n" + "        \"S256\"\n"
-			+ "    ], \n" + "    \"id_token_signing_alg_values_supported\": [\n" + "        \"RS256\"\n" + "    ], \n"
-			+ "    \"issuer\": \"${issuer-uri}\", \n" + "    \"jwks_uri\": \"https://example.com/oauth2/v3/certs\", \n"
-			+ "    \"response_types_supported\": [\n" + "        \"code\", \n" + "        \"token\", \n"
-			+ "        \"id_token\", \n" + "        \"code token\", \n" + "        \"code id_token\", \n"
-			+ "        \"token id_token\", \n" + "        \"code token id_token\", \n" + "        \"none\"\n"
-			+ "    ], \n" + "    \"revocation_endpoint\": \"https://example.com/o/oauth2/revoke\", \n"
-			+ "    \"scopes_supported\": [\n" + "        \"openid\", \n" + "        \"email\", \n"
-			+ "        \"profile\"\n" + "    ], \n" + "    \"subject_types_supported\": [\n" + "        \"public\"\n"
-			+ "    ], \n" + "    \"grant_types_supported\" : [\"authorization_code\"], \n"
+			+ "    \"claims_supported\": [\n"
+			+ "        \"aud\", \n"
+			+ "        \"email\", \n"
+			+ "        \"email_verified\", \n"
+			+ "        \"exp\", \n"
+			+ "        \"family_name\", \n"
+			+ "        \"given_name\", \n"
+			+ "        \"iat\", \n"
+			+ "        \"iss\", \n"
+			+ "        \"locale\", \n"
+			+ "        \"name\", \n"
+			+ "        \"picture\", \n"
+			+ "        \"sub\"\n"
+			+ "    ], \n"
+			+ "    \"code_challenge_methods_supported\": [\n"
+			+ "        \"plain\", \n"
+			+ "        \"S256\"\n"
+			+ "    ], \n"
+			+ "    \"id_token_signing_alg_values_supported\": [\n"
+			+ "        \"RS256\"\n"
+			+ "    ], \n"
+			+ "    \"issuer\": \"${issuer-uri}\", \n"
+			+ "    \"jwks_uri\": \"https://example.com/oauth2/v3/certs\", \n"
+			+ "    \"response_types_supported\": [\n"
+			+ "        \"code\", \n"
+			+ "        \"token\", \n"
+			+ "        \"id_token\", \n"
+			+ "        \"code token\", \n"
+			+ "        \"code id_token\", \n"
+			+ "        \"token id_token\", \n"
+			+ "        \"code token id_token\", \n"
+			+ "        \"none\"\n"
+			+ "    ], \n"
+			+ "    \"revocation_endpoint\": \"https://example.com/o/oauth2/revoke\", \n"
+			+ "    \"scopes_supported\": [\n"
+			+ "        \"openid\", \n"
+			+ "        \"email\", \n"
+			+ "        \"profile\"\n"
+			+ "    ], \n"
+			+ "    \"subject_types_supported\": [\n"
+			+ "        \"public\"\n"
+			+ "    ], \n"
+			+ "    \"grant_types_supported\" : [\"authorization_code\"], \n"
 			+ "    \"token_endpoint\": \"https://example.com/oauth2/v4/token\", \n"
-			+ "    \"token_endpoint_auth_methods_supported\": [\n" + "        \"client_secret_post\", \n"
-			+ "        \"client_secret_basic\", \n" + "        \"none\"\n" + "    ], \n"
-			+ "    \"userinfo_endpoint\": \"https://example.com/oauth2/v3/userinfo\"\n" + "}";
+			+ "    \"token_endpoint_auth_methods_supported\": [\n"
+			+ "        \"client_secret_post\", \n"
+			+ "        \"client_secret_basic\", \n"
+			+ "        \"none\"\n"
+			+ "    ], \n"
+			+ "    \"userinfo_endpoint\": \"https://example.com/oauth2/v3/userinfo\"\n"
+			+ "}";
+	// @formatter:on
 
 	@Autowired
 	private ClientRegistrationRepository clientRegistrationRepository;
@@ -183,7 +224,10 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 	}
 
 	private static String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+		return CONFIG_LOCATION_PREFIX
+			+ "-"
+			+ configName
+			+ ".xml";
 	}
 
 }

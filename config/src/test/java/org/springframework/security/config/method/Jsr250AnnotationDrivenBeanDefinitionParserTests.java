@@ -40,9 +40,12 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 
 	@Before
 	public void loadContext() {
+		// @formatter:off
 		this.appContext = new InMemoryXmlApplicationContext(
 				"<b:bean id='target' class='org.springframework.security.access.annotation.Jsr250BusinessServiceImpl'/>"
-						+ "<global-method-security jsr250-annotations='enabled'/>" + ConfigTestUtils.AUTH_PROVIDER_XML);
+						+ "<global-method-security jsr250-annotations='enabled'/>"
+						+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
 		this.target = (BusinessService) this.appContext.getBean("target");
 	}
 

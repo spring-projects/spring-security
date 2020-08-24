@@ -52,6 +52,7 @@ import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -84,19 +85,24 @@ public class NamespaceSessionManagementTests {
 				.autowire();
 		MockHttpSession session = new MockHttpSession();
 		String sessionId = session.getId();
-		MvcResult result = this.mvc.perform(get("/auth").session(session).with(httpBasic("user", "password")))
-				.andExpect(session()).andReturn();
+		MockHttpServletRequestBuilder request = get("/auth").session(session).with(httpBasic("user", "password"));
+		// @formatter:off
+		MvcResult result = this.mvc.perform(request)
+				.andExpect(session())
+				.andReturn();
+		// @formatter:on
 		assertThat(result.getRequest().getSession(false).getId()).isNotEqualTo(sessionId);
 	}
 
 	@Test
 	public void authenticateWhenUsingInvalidSessionUrlThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomSessionManagementConfig.class).autowire();
-		this.mvc.perform(get("/auth").with((request) -> {
+		MockHttpServletRequestBuilder request = get("/auth").with((request) -> {
 			request.setRequestedSessionIdValid(false);
 			request.setRequestedSessionId("id");
 			return request;
-		})).andExpect(redirectedUrl("/invalid-session"));
+		});
+		this.mvc.perform(request).andExpect(redirectedUrl("/invalid-session"));
 	}
 
 	@Test
@@ -127,8 +133,12 @@ public class NamespaceSessionManagementTests {
 		mock.setSession(new MockHttpSession());
 		given(mock.changeSessionId()).willThrow(SessionAuthenticationException.class);
 		mock.setMethod("GET");
-		this.mvc.perform(get("/auth").with((request) -> mock).with(httpBasic("user", "password")))
-				.andExpect(redirectedUrl("/session-auth-error"));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/auth")
+				.with((request) -> mock)
+				.with(httpBasic("user", "password"));
+		// @formatter:on
+		this.mvc.perform(request).andExpect(redirectedUrl("/session-auth-error"));
 	}
 
 	@Test
@@ -136,7 +146,8 @@ public class NamespaceSessionManagementTests {
 		this.spring.register(CustomSessionManagementConfig.class, BasicController.class, UserDetailsServiceConfig.class)
 				.autowire();
 		SessionRegistry sessionRegistry = this.spring.getContext().getBean(SessionRegistry.class);
-		this.mvc.perform(get("/auth").with(httpBasic("user", "password"))).andExpect(status().isOk());
+		MockHttpServletRequestBuilder request = get("/auth").with(httpBasic("user", "password"));
+		this.mvc.perform(request).andExpect(status().isOk());
 		verify(sessionRegistry).registerNewSession(any(String.class), any(Object.class));
 	}
 
@@ -144,11 +155,12 @@ public class NamespaceSessionManagementTests {
 	@Test
 	public void authenticateWhenUsingCustomInvalidSessionStrategyThenMatchesNamespace() throws Exception {
 		this.spring.register(InvalidSessionStrategyConfig.class).autowire();
-		this.mvc.perform(get("/auth").with((request) -> {
+		MockHttpServletRequestBuilder request = get("/auth").with((request) -> {
 			request.setRequestedSessionIdValid(false);
 			request.setRequestedSessionId("id");
 			return request;
-		})).andExpect(status().isOk());
+		});
+		this.mvc.perform(request).andExpect(status().isOk());
 		verifyBean(InvalidSessionStrategy.class).onInvalidSessionDetected(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 	}
@@ -157,7 +169,8 @@ public class NamespaceSessionManagementTests {
 	public void authenticateWhenUsingCustomSessionAuthenticationStrategyThenMatchesNamespace() throws Exception {
 		this.spring.register(RefsSessionManagementConfig.class, BasicController.class, UserDetailsServiceConfig.class)
 				.autowire();
-		this.mvc.perform(get("/auth").with(httpBasic("user", "password"))).andExpect(status().isOk());
+		MockHttpServletRequestBuilder request = get("/auth").with(httpBasic("user", "password"));
+		this.mvc.perform(request).andExpect(status().isOk());
 		verifyBean(SessionAuthenticationStrategy.class).onAuthentication(any(Authentication.class),
 				any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
@@ -169,9 +182,16 @@ public class NamespaceSessionManagementTests {
 				.autowire();
 		MockHttpSession givenSession = new MockHttpSession();
 		String givenSessionId = givenSession.getId();
-		MockHttpSession resultingSession = (MockHttpSession) this.mvc
-				.perform(get("/auth").session(givenSession).with(httpBasic("user", "password")))
-				.andExpect(status().isOk()).andReturn().getRequest().getSession(false);
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/auth")
+				.session(givenSession)
+				.with(httpBasic("user", "password"));
+		MockHttpSession resultingSession = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(status().isOk())
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		// @formatter:on
 		assertThat(givenSessionId).isEqualTo(resultingSession.getId());
 	}
 
@@ -182,9 +202,15 @@ public class NamespaceSessionManagementTests {
 		MockHttpSession givenSession = new MockHttpSession();
 		String givenSessionId = givenSession.getId();
 		givenSession.setAttribute("name", "value");
-		MockHttpSession resultingSession = (MockHttpSession) this.mvc
-				.perform(get("/auth").session(givenSession).with(httpBasic("user", "password")))
-				.andExpect(status().isOk()).andReturn().getRequest().getSession(false);
+		// @formatter:off
+		MockHttpSession resultingSession = (MockHttpSession) this.mvc.perform(get("/auth")
+				.session(givenSession)
+				.with(httpBasic("user", "password")))
+				.andExpect(status().isOk())
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		// @formatter:on
 		assertThat(givenSessionId).isNotEqualTo(resultingSession.getId());
 		assertThat(resultingSession.getAttribute("name")).isEqualTo("value");
 	}
@@ -193,8 +219,12 @@ public class NamespaceSessionManagementTests {
 	@Test
 	public void authenticateWhenUsingSessionFixationProtectionThenUsesNonNullEventPublisher() throws Exception {
 		this.spring.register(SFPPostProcessedConfig.class, UserDetailsServiceConfig.class).autowire();
-		this.mvc.perform(get("/auth").session(new MockHttpSession()).with(httpBasic("user", "password")))
-				.andExpect(status().isNotFound());
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/auth")
+				.session(new MockHttpSession())
+				.with(httpBasic("user", "password"));
+		// @formatter:on
+		this.mvc.perform(request).andExpect(status().isNotFound());
 		verifyBean(MockEventListener.class).onApplicationEvent(any(SessionFixationProtectionEvent.class));
 	}
 
@@ -204,9 +234,15 @@ public class NamespaceSessionManagementTests {
 		MockHttpSession givenSession = new MockHttpSession();
 		String givenSessionId = givenSession.getId();
 		givenSession.setAttribute("name", "value");
-		MockHttpSession resultingSession = (MockHttpSession) this.mvc
-				.perform(get("/auth").session(givenSession).with(httpBasic("user", "password")))
-				.andExpect(status().isNotFound()).andReturn().getRequest().getSession(false);
+		MockHttpServletRequestBuilder request = get("/auth").session(givenSession)
+				.with(httpBasic("user", "password"));
+		// @formatter:off
+		MockHttpSession resultingSession = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(status().isNotFound())
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		// @formatter:on
 		assertThat(givenSessionId).isNotEqualTo(resultingSession.getId());
 		assertThat(resultingSession.getAttribute("name")).isNull();
 	}

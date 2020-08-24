@@ -45,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class RsaKeyConversionServicePostProcessorTests {
 
+	// @formatter:off
 	private static final String PKCS8_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----\n"
 			+ "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCMk7CKSTfu3QoV\n"
 			+ "HoPVXxwZO+qweztd36cVWYqGOZinrOR2crWFu50AgR2CsdIH0+cqo7F4Vx7/3O8i\n"
@@ -70,8 +71,10 @@ public class RsaKeyConversionServicePostProcessorTests {
 			+ "OHjxffBM0hH+fySx8m53gFfr2BpaqDX5f6ZGBlly1SlsWZ4CchCVsc71nshipi7I\n"
 			+ "k8HL9F5/OpQdDNprJ5RMBNfkWE65Nrcsb1e6oPkCgYAxwgdiSOtNg8PjDVDmAhwT\n"
 			+ "Mxj0Dtwi2fAqQ76RVrrXpNp3uCOIAu4CfruIb5llcJ3uak0ZbnWri32AxSgk80y3\n"
-			+ "EWiRX/WEDu5znejF+5O3pI02atWWcnxifEKGGlxwkcMbQdA67MlrJLFaSnnGpNXo\n" + "yPfcul058SOqhafIZQMEKQ==\n"
+			+ "EWiRX/WEDu5znejF+5O3pI02atWWcnxifEKGGlxwkcMbQdA67MlrJLFaSnnGpNXo\n"
+			+ "yPfcul058SOqhafIZQMEKQ==\n"
 			+ "-----END PRIVATE KEY-----";
+	// @formatter:on
 
 	private static final String X509_PUBLIC_KEY_LOCATION = "classpath:org/springframework/security/config/annotation/web/configuration/simple.pub";
 

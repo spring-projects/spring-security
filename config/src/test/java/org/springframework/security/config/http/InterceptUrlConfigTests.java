@@ -30,6 +30,7 @@ import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -65,8 +66,12 @@ public class InterceptUrlConfigTests {
 	@Test
 	public void requestWhenMethodIsSpecifiedThenItIsNotGivenPriority() throws Exception {
 		this.spring.configLocations(this.xml("Sec2256")).autowire();
-		this.mvc.perform(post("/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
-		this.mvc.perform(get("/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
+		// @formatter:off
+		this.mvc.perform(post("/path").with(userCredentials()))
+				.andExpect(status().isOk());
+		this.mvc.perform(get("/path").with(userCredentials()))
+				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	/**
@@ -75,16 +80,25 @@ public class InterceptUrlConfigTests {
 	@Test
 	public void requestWhenUsingPatchThenAuthorizesRequestsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("PatchMethod")).autowire();
-		this.mvc.perform(get("/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
-		this.mvc.perform(patch("/path").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
-		this.mvc.perform(patch("/path").with(httpBasic("admin", "password"))).andExpect(status().isOk());
+		// @formatter:off
+		this.mvc.perform(get("/path").with(userCredentials()))
+				.andExpect(status().isOk());
+		this.mvc.perform(patch("/path").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(patch("/path").with(adminCredentials()))
+				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	@Test
 	public void requestWhenUsingHasAnyRoleThenAuthorizesRequestsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("HasAnyRole")).autowire();
-		this.mvc.perform(get("/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
-		this.mvc.perform(get("/path").with(httpBasic("admin", "password"))).andExpect(status().isForbidden());
+		// @formatter:off
+		this.mvc.perform(get("/path").with(userCredentials()))
+				.andExpect(status().isOk());
+		this.mvc.perform(get("/path").with(adminCredentials()))
+				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	/**
@@ -93,10 +107,14 @@ public class InterceptUrlConfigTests {
 	@Test
 	public void requestWhenUsingPathVariablesThenAuthorizesRequestsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("PathVariables")).autowire();
-		this.mvc.perform(get("/path/user/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
-		this.mvc.perform(get("/path/otheruser/path").with(httpBasic("user", "password")))
+		// @formatter:off
+		this.mvc.perform(get("/path/user/path").with(userCredentials()))
+				.andExpect(status().isOk());
+		this.mvc.perform(get("/path/otheruser/path").with(userCredentials()))
 				.andExpect(status().isForbidden());
-		this.mvc.perform(get("/path").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
+		this.mvc.perform(get("/path").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	/**
@@ -105,10 +123,14 @@ public class InterceptUrlConfigTests {
 	@Test
 	public void requestWhenUsingCamelCasePathVariablesThenAuthorizesRequestsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("CamelCasePathVariables")).autowire();
-		this.mvc.perform(get("/path/user/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
-		this.mvc.perform(get("/path/otheruser/path").with(httpBasic("user", "password")))
+		// @formatter:off
+		this.mvc.perform(get("/path/user/path").with(userCredentials()))
+				.andExpect(status().isOk());
+		this.mvc.perform(get("/path/otheruser/path").with(userCredentials()))
 				.andExpect(status().isForbidden());
-		this.mvc.perform(get("/PATH/user/path").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
+		this.mvc.perform(get("/PATH/user/path").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	/**
@@ -117,25 +139,36 @@ public class InterceptUrlConfigTests {
 	@Test
 	public void requestWhenUsingPathVariablesAndTypeConversionThenAuthorizesRequestsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("TypeConversionPathVariables")).autowire();
-		this.mvc.perform(get("/path/1/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
-		this.mvc.perform(get("/path/2/path").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
+		// @formatter:off
+		this.mvc.perform(get("/path/1/path").with(userCredentials()))
+				.andExpect(status().isOk());
+		this.mvc.perform(get("/path/2/path").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	@Test
 	public void requestWhenUsingMvcMatchersThenAuthorizesRequestsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("MvcMatchers")).autowire();
-		this.mvc.perform(get("/path")).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/path.html")).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/path/")).andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/path"))
+				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/path.html"))
+				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/path/"))
+				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
 	public void requestWhenUsingMvcMatchersAndPathVariablesThenAuthorizesRequestsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("MvcMatchersPathVariables")).autowire();
-		this.mvc.perform(get("/path/user/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
-		this.mvc.perform(get("/path/otheruser/path").with(httpBasic("user", "password")))
+		// @formatter:off
+		this.mvc.perform(get("/path/user/path").with(userCredentials()))
+				.andExpect(status().isOk());
+		this.mvc.perform(get("/path/otheruser/path").with(userCredentials()))
 				.andExpect(status().isForbidden());
-		this.mvc.perform(get("/PATH/user/path").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
+		this.mvc.perform(get("/PATH/user/path").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	@Test
@@ -144,9 +177,14 @@ public class InterceptUrlConfigTests {
 		MockServletContext servletContext = mockServletContext("/spring");
 		ConfigurableWebApplicationContext context = this.spring.getContext();
 		context.setServletContext(servletContext);
-		this.mvc.perform(get("/spring/path").servletPath("/spring")).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/spring/path.html").servletPath("/spring")).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/spring/path/").servletPath("/spring")).andExpect(status().isUnauthorized());
+		// @formatter:off
+		this.mvc.perform(get("/spring/path").servletPath("/spring"))
+				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/spring/path.html").servletPath("/spring"))
+				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/spring/path/").servletPath("/spring"))
+				.andExpect(status().isUnauthorized());
+		// @formatter:on
 	}
 
 	@Test
@@ -171,6 +209,14 @@ public class InterceptUrlConfigTests {
 	public void configureWhenUsingDefaultMatcherAndServletPathThenThrowsException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
 				.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultMatcherServletPath")).autowire());
+	}
+
+	private static RequestPostProcessor adminCredentials() {
+		return httpBasic("admin", "password");
+	}
+
+	private static RequestPostProcessor userCredentials() {
+		return httpBasic("user", "password");
 	}
 
 	private MockServletContext mockServletContext(String servletPath) {

@@ -29,6 +29,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders;
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
@@ -55,35 +57,39 @@ public class LdapAuthenticationProviderConfigurerTests {
 	public void authenticationManagerSupportMultipleLdapContextWithDefaultRolePrefix() throws Exception {
 		this.spring.register(MultiLdapAuthenticationProvidersConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob")
-						.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin().user("bob").password("bobspassword");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated().withUsername("bob")
+				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS")));
+		this.mockMvc.perform(request).andExpect(expectedUser);
 	}
 
 	@Test
 	public void authenticationManagerSupportMultipleLdapContextWithCustomRolePrefix() throws Exception {
 		this.spring.register(MultiLdapWithCustomRolePrefixAuthenticationProvidersConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob")
-						.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROL_DEVELOPERS"))));
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin().user("bob").password("bobspassword");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated().withUsername("bob")
+				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROL_DEVELOPERS")));
+		this.mockMvc.perform(request).andExpect(expectedUser);
 	}
 
 	@Test
 	public void authenticationManagerWhenPortZeroThenAuthenticates() throws Exception {
 		this.spring.register(LdapWithRandomPortConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob"));
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin().user("bob").password("bobspassword");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated().withUsername("bob");
+		this.mockMvc.perform(request).andExpect(expectedUser);
 	}
 
 	@Test
 	public void authenticationManagerWhenSearchSubtreeThenNestedGroupFound() throws Exception {
 		this.spring.register(GroupSubtreeSearchConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("ben").password("benspassword"))
-				.andExpect(authenticated().withUsername("ben").withAuthorities(
-						AuthorityUtils.createAuthorityList("ROLE_SUBMANAGERS", "ROLE_MANAGERS", "ROLE_DEVELOPERS")));
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin().user("ben").password("benspassword");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated().withUsername("ben").withAuthorities(
+				AuthorityUtils.createAuthorityList("ROLE_SUBMANAGERS", "ROLE_MANAGERS", "ROLE_DEVELOPERS"));
+		this.mockMvc.perform(request).andExpect(expectedUser);
 	}
 
 	@EnableWebSecurity

@@ -322,8 +322,14 @@ public class ExceptionHandlingConfigurerTests {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:on
-			http.authorizeRequests().anyRequest().authenticated().and().exceptionHandling()
-					.authenticationEntryPoint(AEP).and().exceptionHandling();
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.exceptionHandling()
+					.authenticationEntryPoint(AEP)
+					.and()
+				.exceptionHandling();
 			// @formatter:off
 		}
 	}

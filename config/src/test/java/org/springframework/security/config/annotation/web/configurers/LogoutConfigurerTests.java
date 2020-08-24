@@ -35,6 +35,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -101,65 +102,103 @@ public class LogoutConfigurerTests {
 	@Test
 	public void logoutWhenInvokedTwiceThenUsesOriginalLogoutUrl() throws Exception {
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
-		this.mvc.perform(post("/custom/logout").with(csrf())).andExpect(status().isFound())
+		MockHttpServletRequestBuilder logoutRequest = post("/custom/logout").with(csrf());
+		// @formatter:off
+		this.mvc.perform(logoutRequest)
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	// SEC-2311
 	@Test
 	public void logoutWhenGetRequestAndCsrfDisabledThenRedirectsToLogin() throws Exception {
 		this.spring.register(CsrfDisabledConfig.class).autowire();
-		this.mvc.perform(get("/logout")).andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
+		// @formatter:off
+		this.mvc.perform(get("/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	@Test
 	public void logoutWhenPostRequestAndCsrfDisabledThenRedirectsToLogin() throws Exception {
 		this.spring.register(CsrfDisabledConfig.class).autowire();
-		this.mvc.perform(post("/logout")).andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
+		// @formatter:off
+		this.mvc.perform(post("/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	@Test
 	public void logoutWhenPutRequestAndCsrfDisabledThenRedirectsToLogin() throws Exception {
 		this.spring.register(CsrfDisabledConfig.class).autowire();
-		this.mvc.perform(put("/logout")).andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
+		// @formatter:off
+		this.mvc.perform(put("/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	@Test
 	public void logoutWhenDeleteRequestAndCsrfDisabledThenRedirectsToLogin() throws Exception {
 		this.spring.register(CsrfDisabledConfig.class).autowire();
-		this.mvc.perform(delete("/logout")).andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
+		// @formatter:off
+		this.mvc.perform(delete("/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	@Test
 	public void logoutWhenGetRequestAndCsrfDisabledAndCustomLogoutUrlThenRedirectsToLogin() throws Exception {
 		this.spring.register(CsrfDisabledAndCustomLogoutConfig.class).autowire();
-		this.mvc.perform(get("/custom/logout")).andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
+		// @formatter:off
+		this.mvc.perform(get("/custom/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	@Test
 	public void logoutWhenPostRequestAndCsrfDisabledAndCustomLogoutUrlThenRedirectsToLogin() throws Exception {
 		this.spring.register(CsrfDisabledAndCustomLogoutConfig.class).autowire();
-		this.mvc.perform(post("/custom/logout")).andExpect(status().isFound())
+		// @formatter:off
+		this.mvc.perform(post("/custom/logout"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	@Test
 	public void logoutWhenPutRequestAndCsrfDisabledAndCustomLogoutUrlThenRedirectsToLogin() throws Exception {
 		this.spring.register(CsrfDisabledAndCustomLogoutConfig.class).autowire();
-		this.mvc.perform(put("/custom/logout")).andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
+		// @formatter:off
+		this.mvc.perform(put("/custom/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	@Test
 	public void logoutWhenDeleteRequestAndCsrfDisabledAndCustomLogoutUrlThenRedirectsToLogin() throws Exception {
 		this.spring.register(CsrfDisabledAndCustomLogoutConfig.class).autowire();
-		this.mvc.perform(delete("/custom/logout")).andExpect(status().isFound())
+		// @formatter:off
+		this.mvc.perform(delete("/custom/logout"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	@Test
 	public void logoutWhenCustomLogoutUrlInLambdaThenRedirectsToLogin() throws Exception {
 		this.spring.register(CsrfDisabledAndCustomLogoutInLambdaConfig.class).autowire();
-		this.mvc.perform(get("/custom/logout")).andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
+		// @formatter:off
+		this.mvc.perform(get("/custom/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	// SEC-3170
@@ -188,44 +227,70 @@ public class LogoutConfigurerTests {
 	@Test
 	public void logoutWhenAcceptTextHtmlThenRedirectsToLogin() throws Exception {
 		this.spring.register(BasicSecurityConfig.class).autowire();
-		this.mvc.perform(
-				post("/logout").with(csrf()).with(user("user")).header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML_VALUE))
-				.andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
+		// @formatter:off
+		MockHttpServletRequestBuilder logoutRequest = post("/logout")
+				.with(csrf())
+				.with(user("user"))
+				.header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML_VALUE);
+		this.mvc.perform(logoutRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	// gh-3282
 	@Test
 	public void logoutWhenAcceptApplicationJsonThenReturnsStatusNoContent() throws Exception {
 		this.spring.register(BasicSecurityConfig.class).autowire();
-		this.mvc.perform(post("/logout").with(csrf()).with(user("user")).header(HttpHeaders.ACCEPT,
-				MediaType.APPLICATION_JSON_VALUE)).andExpect(status().isNoContent());
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/logout")
+				.with(csrf())
+				.with(user("user"))
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+		// @formatter:on
+		this.mvc.perform(request).andExpect(status().isNoContent());
 	}
 
 	// gh-4831
 	@Test
 	public void logoutWhenAcceptAllThenReturnsStatusNoContent() throws Exception {
 		this.spring.register(BasicSecurityConfig.class).autowire();
-		this.mvc.perform(
-				post("/logout").with(csrf()).with(user("user")).header(HttpHeaders.ACCEPT, MediaType.ALL_VALUE))
-				.andExpect(status().isNoContent());
+		// @formatter:off
+		MockHttpServletRequestBuilder logoutRequest = post("/logout")
+				.with(csrf())
+				.with(user("user"))
+				.header(HttpHeaders.ACCEPT, MediaType.ALL_VALUE);
+		// @formatter:on
+		this.mvc.perform(logoutRequest).andExpect(status().isNoContent());
 	}
 
 	// gh-3902
 	@Test
 	public void logoutWhenAcceptFromChromeThenRedirectsToLogin() throws Exception {
 		this.spring.register(BasicSecurityConfig.class).autowire();
-		this.mvc.perform(post("/logout").with(csrf()).with(user("user")).header(HttpHeaders.ACCEPT,
-				"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"))
-				.andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/logout")
+				.with(csrf())
+				.with(user("user"))
+				.header(HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+		this.mvc.perform(request)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
 	}
 
 	// gh-3997
 	@Test
 	public void logoutWhenXMLHttpRequestThenReturnsStatusNoContent() throws Exception {
 		this.spring.register(BasicSecurityConfig.class).autowire();
-		this.mvc.perform(post("/logout").with(csrf()).with(user("user"))
-				.header(HttpHeaders.ACCEPT, "text/html,application/json").header("X-Requested-With", "XMLHttpRequest"))
-				.andExpect(status().isNoContent());
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/logout")
+				.with(csrf())
+				.with(user("user"))
+				.header(HttpHeaders.ACCEPT, "text/html,application/json")
+				.header("X-Requested-With", "XMLHttpRequest");
+		// @formatter:on
+		this.mvc.perform(request).andExpect(status().isNoContent());
 	}
 
 	@Test

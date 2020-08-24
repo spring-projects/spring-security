@@ -336,27 +336,51 @@ public class WebSecurityConfigurationTests {
 		@Order(1)
 		@Bean
 		SecurityFilterChain filterChain1(HttpSecurity http) throws Exception {
-			return http.antMatcher("/role1/**").authorizeRequests((authorize) -> authorize.anyRequest().hasRole("1"))
+			// @formatter:off
+			return http
+					.antMatcher("/role1/**")
+					.authorizeRequests((authorize) -> authorize
+							.anyRequest().hasRole("1")
+					)
 					.build();
+			// @formatter:on
 		}
 
 		@Order(2)
 		@Bean
 		SecurityFilterChain filterChain2(HttpSecurity http) throws Exception {
-			return http.antMatcher("/role2/**").authorizeRequests((authorize) -> authorize.anyRequest().hasRole("2"))
+			// @formatter:off
+			return http
+					.antMatcher("/role2/**")
+					.authorizeRequests((authorize) -> authorize
+							.anyRequest().hasRole("2")
+					)
 					.build();
+			// @formatter:on
 		}
 
 		@Order(3)
 		@Bean
 		SecurityFilterChain filterChain3(HttpSecurity http) throws Exception {
-			return http.antMatcher("/role3/**").authorizeRequests((authorize) -> authorize.anyRequest().hasRole("3"))
+			// @formatter:off
+			return http
+					.antMatcher("/role3/**")
+					.authorizeRequests((authorize) -> authorize
+							.anyRequest().hasRole("3")
+					)
 					.build();
+			// @formatter:on
 		}
 
 		@Bean
 		SecurityFilterChain filterChain4(HttpSecurity http) throws Exception {
-			return http.authorizeRequests((authorize) -> authorize.anyRequest().hasRole("4")).build();
+			// @formatter:off
+			return http
+					.authorizeRequests((authorize) -> authorize
+						.anyRequest().hasRole("4")
+					)
+					.build();
+			// @formatter:on
 		}
 
 	}
@@ -509,7 +533,13 @@ public class WebSecurityConfigurationTests {
 
 		@Bean
 		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			return http.authorizeRequests((authorize) -> authorize.anyRequest().authenticated()).build();
+			// @formatter:off
+			return http
+					.authorizeRequests((authorize) -> authorize
+						.anyRequest().authenticated()
+					)
+					.build();
+			// @formatter:on
 		}
 
 	}
@@ -623,8 +653,14 @@ public class WebSecurityConfigurationTests {
 		@Order(2)
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			return http.antMatcher("/filter/**")
-					.authorizeRequests((authorize) -> authorize.anyRequest().authenticated()).build();
+			// @formatter:off
+			return http
+					.antMatcher("/filter/**")
+					.authorizeRequests((authorize) -> authorize
+							.anyRequest().authenticated()
+					)
+					.build();
+			// @formatter:on
 		}
 
 		@Order(1)
@@ -633,7 +669,13 @@ public class WebSecurityConfigurationTests {
 
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
-				http.antMatcher("/config/**").authorizeRequests((authorize) -> authorize.anyRequest().permitAll());
+				// @formatter:off
+				http
+					.antMatcher("/config/**")
+					.authorizeRequests((authorize) -> authorize
+							.anyRequest().permitAll()
+					);
+				// @formatter:on
 			}
 
 		}

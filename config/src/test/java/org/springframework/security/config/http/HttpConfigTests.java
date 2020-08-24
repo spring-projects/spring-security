@@ -52,7 +52,11 @@ public class HttpConfigTests {
 	@Test
 	public void getWhenUsingMinimalConfigurationThenRedirectsToLogin() throws Exception {
 		this.spring.configLocations(this.xml("Minimal")).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 	}
 
 	@Test

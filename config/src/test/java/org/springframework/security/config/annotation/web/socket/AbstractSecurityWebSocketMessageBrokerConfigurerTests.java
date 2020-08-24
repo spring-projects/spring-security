@@ -590,10 +590,12 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
 		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry.addEndpoint("/other").setHandshakeHandler(testHandshakeHandler()).withSockJS()
-					.setInterceptors(new HttpSessionHandshakeInterceptor());
-			registry.addEndpoint("/chat").setHandshakeHandler(testHandshakeHandler()).withSockJS()
-					.setInterceptors(new HttpSessionHandshakeInterceptor());
+			// @formatter:off
+			registry.addEndpoint("/other").setHandshakeHandler(testHandshakeHandler())
+					.withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
+			registry.addEndpoint("/chat").setHandshakeHandler(testHandshakeHandler())
+					.withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
+			// @formatter:on
 		}
 
 		// @formatter:off
@@ -646,8 +648,12 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
 		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry.addEndpoint("/other").withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
-			registry.addEndpoint("/chat").withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
+			// @formatter:off
+			registry.addEndpoint("/other")
+					.withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
+			registry.addEndpoint("/chat")
+					.withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
+			// @formatter:on
 		}
 
 		@Override
@@ -684,19 +690,23 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
 		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry.addEndpoint("/websocket").setHandshakeHandler(testHandshakeHandler())
+			// @formatter:off
+			registry.addEndpoint("/websocket")
+					.setHandshakeHandler(testHandshakeHandler())
 					.addInterceptors(new HttpSessionHandshakeInterceptor());
+			// @formatter:on
 		}
 
-		// @formatter:off
 		@Override
 		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+			// @formatter:off
 			messages
 				.simpDestMatchers("/permitAll/**").permitAll()
 				.simpDestMatchers("/customExpression/**").access("denyRob")
 				.anyMessage().denyAll();
+			// @formatter:on
 		}
-		// @formatter:on
+
 		@Bean
 		public TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
@@ -713,8 +723,11 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
 		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry.addEndpoint("/chat").setHandshakeHandler(this.context.getBean(TestHandshakeHandler.class))
+			// @formatter:off
+			registry.addEndpoint("/chat")
+					.setHandshakeHandler(this.context.getBean(TestHandshakeHandler.class))
 					.withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
+			// @formatter:on
 		}
 
 		@Autowired

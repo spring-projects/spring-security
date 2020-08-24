@@ -129,8 +129,12 @@ public class SpringTestContext implements Closeable {
 		this.context.setServletConfig(new MockServletConfig());
 		this.context.refresh();
 		if (this.context.containsBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN)) {
-			MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity())
-					.apply(new AddFilter()).build();
+			// @formatter:off
+			MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.context).
+					apply(springSecurity())
+					.apply(new AddFilter())
+					.build();
+			// @formatter:on
 			this.context.getBeanFactory().registerResolvableDependency(MockMvc.class, mockMvc);
 		}
 		AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();

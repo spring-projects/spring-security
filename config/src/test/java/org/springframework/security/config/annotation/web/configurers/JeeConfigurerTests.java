@@ -31,9 +31,11 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.security.web.authentication.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthenticatedProcessingFilter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -78,11 +80,16 @@ public class JeeConfigurerTests {
 		this.spring.register(InvokeTwiceDoesNotOverride.class).autowire();
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("user");
-		this.mvc.perform(get("/").principal(user).with((request) -> {
-			request.addUserRole("ROLE_ADMIN");
-			request.addUserRole("ROLE_USER");
-			return request;
-		})).andExpect(authenticated().withRoles("USER"));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/")
+				.principal(user)
+				.with((request) -> {
+					request.addUserRole("ROLE_ADMIN");
+					request.addUserRole("ROLE_USER");
+					return request;
+				});
+		// @formatter:on
+		this.mvc.perform(request).andExpect(authenticated().withRoles("USER"));
 	}
 
 	@Test
@@ -90,11 +97,16 @@ public class JeeConfigurerTests {
 		this.spring.register(JeeMappableRolesConfig.class).autowire();
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("user");
-		this.mvc.perform(get("/").principal(user).with((request) -> {
-			request.addUserRole("ROLE_ADMIN");
-			request.addUserRole("ROLE_USER");
-			return request;
-		})).andExpect(authenticated().withRoles("USER"));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/")
+				.principal(user)
+				.with((request) -> {
+					request.addUserRole("ROLE_ADMIN");
+					request.addUserRole("ROLE_USER");
+					return request;
+				});
+		// @formatter:on
+		this.mvc.perform(request).andExpect(authenticated().withRoles("USER"));
 	}
 
 	@Test
@@ -102,11 +114,17 @@ public class JeeConfigurerTests {
 		this.spring.register(JeeMappableAuthoritiesConfig.class).autowire();
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("user");
-		this.mvc.perform(get("/").principal(user).with((request) -> {
-			request.addUserRole("ROLE_ADMIN");
-			request.addUserRole("ROLE_USER");
-			return request;
-		})).andExpect(authenticated().withAuthorities(AuthorityUtils.createAuthorityList("ROLE_USER")));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/")
+				.principal(user)
+				.with((request) -> {
+					request.addUserRole("ROLE_ADMIN");
+					request.addUserRole("ROLE_USER");
+					return request;
+				});
+		// @formatter:on
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher authenticatedAsUser = authenticated().withAuthorities(AuthorityUtils.createAuthorityList("ROLE_USER"));
+		this.mvc.perform(request).andExpect(authenticatedAsUser);
 	}
 
 	@Test
@@ -119,11 +137,16 @@ public class JeeConfigurerTests {
 		given(user.getName()).willReturn("user");
 		given(JeeCustomAuthenticatedUserDetailsServiceConfig.authenticationUserDetailsService.loadUserDetails(any()))
 				.willReturn(userDetails);
-		this.mvc.perform(get("/").principal(user).with((request) -> {
-			request.addUserRole("ROLE_ADMIN");
-			request.addUserRole("ROLE_USER");
-			return request;
-		})).andExpect(authenticated().withRoles("USER"));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/")
+				.principal(user)
+				.with((request) -> {
+					request.addUserRole("ROLE_ADMIN");
+					request.addUserRole("ROLE_USER");
+					return request;
+				});
+		// @formatter:on
+		this.mvc.perform(request).andExpect(authenticated().withRoles("USER"));
 	}
 
 	@EnableWebSecurity

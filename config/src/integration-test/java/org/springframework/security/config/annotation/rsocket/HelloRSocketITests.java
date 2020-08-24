@@ -71,9 +71,15 @@ public class HelloRSocketITests {
 
 	@Before
 	public void setup() {
-		this.server = RSocketFactory.receive().frameDecoder(PayloadDecoder.ZERO_COPY)
-				.addSocketAcceptorPlugin(this.interceptor).acceptor(this.handler.responder())
-				.transport(TcpServerTransport.create("localhost", 0)).start().block();
+		// @formatter:off
+		this.server = RSocketFactory.receive()
+			.frameDecoder(PayloadDecoder.ZERO_COPY)
+			.addSocketAcceptorPlugin(this.interceptor)
+			.acceptor(this.handler.responder())
+			.transport(TcpServerTransport.create("localhost", 0))
+			.start()
+			.block();
+		// @formatter:on
 	}
 
 	@After
@@ -85,13 +91,23 @@ public class HelloRSocketITests {
 
 	@Test
 	public void retrieveMonoWhenSecureThenDenied() throws Exception {
-		this.requester = RSocketRequester.builder().rsocketStrategies(this.handler.getRSocketStrategies())
-				.connectTcp("localhost", this.server.address().getPort()).block();
+		// @formatter:off
+		this.requester = RSocketRequester.builder()
+			.rsocketStrategies(this.handler.getRSocketStrategies())
+			.connectTcp("localhost", this.server.address().getPort())
+			.block();
+		// @formatter:on
 		String data = "rob";
+		// @formatter:off
 		assertThatExceptionOfType(Exception.class).isThrownBy(
-				() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block())
+				() -> this.requester.route("secure.retrieve-mono")
+						.data(data)
+						.retrieveMono(String.class)
+						.block()
+				)
 				.matches((ex) -> ex instanceof RejectedSetupException
 						|| ex.getClass().toString().contains("ReactiveException"));
+		// @formatter:on
 		// FIXME: https://github.com/rsocket/rsocket-java/issues/686
 		assertThat(this.controller.payloads).isEmpty();
 	}
@@ -99,14 +115,21 @@ public class HelloRSocketITests {
 	@Test
 	public void retrieveMonoWhenAuthorizedThenGranted() throws Exception {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("rob", "password");
+		// @formatter:off
 		this.requester = RSocketRequester.builder()
-				.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.rsocketStrategies(this.handler.getRSocketStrategies())
-				.connectTcp("localhost", this.server.address().getPort()).block();
+			.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+			.rsocketStrategies(this.handler.getRSocketStrategies())
+			.connectTcp("localhost", this.server.address().getPort())
+			.block();
+		// @formatter:on
 		String data = "rob";
+		// @formatter:off
 		String hiRob = this.requester.route("secure.retrieve-mono")
-				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE).data(data)
-				.retrieveMono(String.class).block();
+			.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+			.data(data)
+			.retrieveMono(String.class)
+			.block();
+		// @formatter:on
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
 	}

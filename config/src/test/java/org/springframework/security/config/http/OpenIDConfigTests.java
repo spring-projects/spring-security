@@ -40,6 +40,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -73,21 +74,32 @@ public class OpenIDConfigTests {
 	@Test
 	public void requestWhenOpenIDAndFormLoginBothConfiguredThenRedirectsToGeneratedLoginPage() throws Exception {
 		this.spring.configLocations(this.xml("WithFormLogin")).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 		assertThat(getFilter(DefaultLoginPageGeneratingFilter.class)).isNotNull();
 	}
 
 	@Test
 	public void requestWhenOpenIDAndFormLoginWithFormLoginPageConfiguredThenFormLoginPageWins() throws Exception {
 		this.spring.configLocations(this.xml("WithFormLoginPage")).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/form-page"));
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("http://localhost/form-page"));
+		// @formatter:on
 	}
 
 	@Test
 	public void requestWhenOpenIDAndFormLoginWithOpenIDLoginPageConfiguredThenOpenIDLoginPageWins() throws Exception {
 		this.spring.configLocations(this.xml("WithOpenIDLoginPageAndFormLogin")).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isFound())
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/openid-page"));
+		// @formatter:on
 	}
 
 	@Test
@@ -110,13 +122,20 @@ public class OpenIDConfigTests {
 		openIDFilter.setConsumer(consumer);
 		String expectedReturnTo = new StringBuilder("http://localhost/login/openid").append("?")
 				.append(AbstractRememberMeServices.DEFAULT_PARAMETER).append("=").append("on").toString();
-		this.mvc.perform(get("/")).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/login"));
-		this.mvc.perform(get("/login")).andExpect(status().isOk())
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("http://localhost/login"));
+		this.mvc.perform(get("/login"))
+				.andExpect(status().isOk())
 				.andExpect(content().string(containsString(AbstractRememberMeServices.DEFAULT_PARAMETER)));
-		this.mvc.perform(get("/login/openid")
+		MockHttpServletRequestBuilder openidLogin = get("/login/openid")
 				.param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "https://ww1.openid.com")
-				.param(AbstractRememberMeServices.DEFAULT_PARAMETER, "on")).andExpect(status().isFound())
+				.param(AbstractRememberMeServices.DEFAULT_PARAMETER, "on");
+		this.mvc.perform(openidLogin)
+				.andExpect(status().isFound())
 				.andExpect(redirectedUrl(openIdEndpointUrl + expectedReturnTo));
+		// @formatter:on
 	}
 
 	@Test
@@ -131,8 +150,7 @@ public class OpenIDConfigTests {
 			server.enqueue(new MockResponse().addHeader(YadisResolver.YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
 					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
-			this.mvc.perform(
-					get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
+			this.mvc.perform(get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
 					.andExpect(status().isFound())
 					.andExpect((result) -> result.getResponse().getRedirectedUrl().endsWith(
 							"openid.ext1.type.nickname=http%3A%2F%2Fschema.openid.net%2FnamePerson%2Ffriendly&"
@@ -150,7 +168,11 @@ public class OpenIDConfigTests {
 			throws Exception {
 		this.spring.configLocations(this.xml("Sec2919")).autowire();
 		assertThat(getFilter(DefaultLoginPageGeneratingFilter.class)).isNull();
-		this.mvc.perform(get("/login")).andExpect(status().isOk()).andExpect(content().string("a custom login page"));
+		// @formatter:off
+		this.mvc.perform(get("/login"))
+				.andExpect(status().isOk())
+				.andExpect(content().string("a custom login page"));
+		// @formatter:on
 	}
 
 	private <T extends Filter> T getFilter(Class<T> clazz) {

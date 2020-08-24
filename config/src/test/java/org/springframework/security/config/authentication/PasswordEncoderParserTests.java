@@ -44,7 +44,10 @@ public class PasswordEncoderParserTests {
 		this.spring.configLocations(
 				"classpath:org/springframework/security/config/authentication/PasswordEncoderParserTests-default.xml")
 				.mockMvcAfterSpringSecurityOk().autowire();
-		this.mockMvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isOk());
+		// @formatter:off
+		this.mockMvc.perform(get("/").with(httpBasic("user", "password")))
+				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	@Test
@@ -52,7 +55,10 @@ public class PasswordEncoderParserTests {
 		this.spring.configLocations(
 				"classpath:org/springframework/security/config/authentication/PasswordEncoderParserTests-bean.xml")
 				.mockMvcAfterSpringSecurityOk().autowire();
-		this.mockMvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isOk());
+		// @formatter:off
+		this.mockMvc.perform(get("/").with(httpBasic("user", "password")))
+				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 }

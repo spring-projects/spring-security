@@ -47,20 +47,18 @@ public class NamespaceAuthenticationManagerTests {
 	@Test
 	public void authenticationMangerWhenDefaultThenEraseCredentialsIsTrue() throws Exception {
 		this.spring.register(EraseCredentialsTrueDefaultConfig.class).autowire();
-		this.mockMvc.perform(formLogin())
-				.andExpect(authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNull()));
-		this.mockMvc.perform(formLogin())
-				.andExpect(authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNull()));
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher nullCredentials = authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNull());
+		this.mockMvc.perform(formLogin()).andExpect(nullCredentials);
+		this.mockMvc.perform(formLogin()).andExpect(nullCredentials);
 		// no exception due to username being cleared out
 	}
 
 	@Test
 	public void authenticationMangerWhenEraseCredentialsIsFalseThenCredentialsNotNull() throws Exception {
 		this.spring.register(EraseCredentialsFalseConfig.class).autowire();
-		this.mockMvc.perform(formLogin())
-				.andExpect(authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNotNull()));
-		this.mockMvc.perform(formLogin())
-				.andExpect(authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNotNull()));
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher notNullCredentials = authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNotNull());
+		this.mockMvc.perform(formLogin()).andExpect(notNullCredentials);
+		this.mockMvc.perform(formLogin()).andExpect(notNullCredentials);
 		// no exception due to username being cleared out
 	}
 
@@ -68,8 +66,8 @@ public class NamespaceAuthenticationManagerTests {
 	// SEC-2533
 	public void authenticationManagerWhenGlobalAndEraseCredentialsIsFalseThenCredentialsNotNull() throws Exception {
 		this.spring.register(GlobalEraseCredentialsFalseConfig.class).autowire();
-		this.mockMvc.perform(SecurityMockMvcRequestBuilders.formLogin()).andExpect(SecurityMockMvcResultMatchers
-				.authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNotNull()));
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher notNullCredentials = authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNotNull());
+		this.mockMvc.perform(formLogin()).andExpect(notNullCredentials);
 	}
 
 	@EnableWebSecurity

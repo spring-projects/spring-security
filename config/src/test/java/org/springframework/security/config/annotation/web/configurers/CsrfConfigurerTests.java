@@ -46,6 +46,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -288,8 +289,13 @@ public class CsrfConfigurerTests {
 		given(CsrfTokenRepositoryConfig.REPO.loadToken(any())).willReturn(csrfToken);
 		given(CsrfTokenRepositoryConfig.REPO.generateToken(any())).willReturn(csrfToken);
 		this.spring.register(CsrfTokenRepositoryConfig.class, BasicController.class).autowire();
-		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
-				.andExpect(redirectedUrl("/"));
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		// @formatter:on
+		this.mvc.perform(loginRequest).andExpect(redirectedUrl("/"));
 		verify(CsrfTokenRepositoryConfig.REPO).saveToken(isNull(), any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 	}
@@ -316,28 +322,40 @@ public class CsrfConfigurerTests {
 	@Test
 	public void loginWhenNoCsrfTokenThenRespondsWithForbidden() throws Exception {
 		this.spring.register(FormLoginConfig.class).autowire();
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password"))
-				.andExpect(status().isForbidden()).andExpect(unauthenticated());
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password");
+		this.mvc.perform(loginRequest)
+				.andExpect(status().isForbidden())
+				.andExpect(unauthenticated());
+		// @formatter:on
 	}
 
 	@Test
 	public void logoutWhenNoCsrfTokenThenRespondsWithForbidden() throws Exception {
 		this.spring.register(FormLoginConfig.class).autowire();
-		this.mvc.perform(post("/logout").with(user("username"))).andExpect(status().isForbidden())
+		MockHttpServletRequestBuilder logoutRequest = post("/logout").with(user("username"));
+		// @formatter:off
+		this.mvc.perform(logoutRequest)
+				.andExpect(status().isForbidden())
 				.andExpect(authenticated());
+		// @formatter:on
 	}
 
 	// SEC-2543
 	@Test
 	public void logoutWhenCsrfEnabledAndGetRequestThenDoesNotLogout() throws Exception {
 		this.spring.register(FormLoginConfig.class).autowire();
-		this.mvc.perform(get("/logout").with(user("username"))).andExpect(authenticated());
+		MockHttpServletRequestBuilder logoutRequest = get("/logout").with(user("username"));
+		this.mvc.perform(logoutRequest).andExpect(authenticated());
 	}
 
 	@Test
 	public void logoutWhenGetRequestAndGetEnabledForLogoutThenLogsOut() throws Exception {
 		this.spring.register(LogoutAllowsGetConfig.class).autowire();
-		this.mvc.perform(get("/logout").with(user("username"))).andExpect(unauthenticated());
+		MockHttpServletRequestBuilder logoutRequest = get("/logout").with(user("username"));
+		this.mvc.perform(logoutRequest).andExpect(unauthenticated());
 	}
 
 	// SEC-2749
@@ -366,8 +384,13 @@ public class CsrfConfigurerTests {
 	public void csrfAuthenticationStrategyConfiguredThenStrategyUsed() throws Exception {
 		CsrfAuthenticationStrategyConfig.STRATEGY = mock(SessionAuthenticationStrategy.class);
 		this.spring.register(CsrfAuthenticationStrategyConfig.class).autowire();
-		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
-				.andExpect(redirectedUrl("/"));
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		// @formatter:on
+		this.mvc.perform(loginRequest).andExpect(redirectedUrl("/"));
 		verify(CsrfAuthenticationStrategyConfig.STRATEGY, atLeastOnce()).onAuthentication(any(Authentication.class),
 				any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}

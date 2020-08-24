@@ -61,6 +61,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -107,13 +108,22 @@ public class OAuth2ClientConfigurerTests {
 
 	@Before
 	public void setup() {
-		this.registration1 = TestClientRegistrations.clientRegistration().registrationId("registration-1")
-				.clientId("client-1").clientSecret("secret")
+		// @formatter:off
+		this.registration1 = TestClientRegistrations.clientRegistration()
+				.registrationId("registration-1")
+				.clientId("client-1")
+				.clientSecret("secret")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).redirectUri("{baseUrl}/client-1")
-				.scope("user").authorizationUri("https://provider.com/oauth2/authorize")
-				.tokenUri("https://provider.com/oauth2/token").userInfoUri("https://provider.com/oauth2/user")
-				.userNameAttributeName("id").clientName("client-1").build();
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri("{baseUrl}/client-1")
+				.scope("user")
+				.authorizationUri("https://provider.com/oauth2/authorize")
+				.tokenUri("https://provider.com/oauth2/token")
+				.userInfoUri("https://provider.com/oauth2/user")
+				.userNameAttributeName("id")
+				.clientName("client-1")
+				.build();
+		// @formatter:on
 		clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1);
 		authorizedClientService = new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
 		authorizedClientRepository = new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(
@@ -131,11 +141,13 @@ public class OAuth2ClientConfigurerTests {
 	@Test
 	public void configureWhenAuthorizationCodeRequestThenRedirectForAuthorization() throws Exception {
 		this.spring.register(OAuth2ClientConfig.class).autowire();
+		// @formatter:off
 		MvcResult mvcResult = this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
 				.andExpect(status().is3xxRedirection()).andReturn();
 		assertThat(mvcResult.getResponse().getRedirectedUrl())
 				.matches("https://provider.com/oauth2/authorize\\?" + "response_type=code&client_id=client-1&"
 						+ "scope=user&state=.{15,}&" + "redirect_uri=http://localhost/client-1");
+		// @formatter:on
 	}
 
 	@Test
@@ -154,10 +166,15 @@ public class OAuth2ClientConfigurerTests {
 		// Setup the Authorization Request in the session
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, this.registration1.getRegistrationId());
+		// @formatter:off
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(this.registration1.getProviderDetails().getAuthorizationUri())
-				.clientId(this.registration1.getClientId()).redirectUri("http://localhost/client-1").state("state")
-				.attributes(attributes).build();
+				.clientId(this.registration1.getClientId())
+				.redirectUri("http://localhost/client-1")
+				.state("state")
+				.attributes(attributes)
+				.build();
+		// @formatter:on
 		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -165,9 +182,16 @@ public class OAuth2ClientConfigurerTests {
 		MockHttpSession session = (MockHttpSession) request.getSession();
 		String principalName = "user1";
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
-		this.mockMvc.perform(get("/client-1").param(OAuth2ParameterNames.CODE, "code")
-				.param(OAuth2ParameterNames.STATE, "state").with(authentication(authentication)).session(session))
-				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("http://localhost/client-1"));
+		// @formatter:off
+		MockHttpServletRequestBuilder clientRequest = get("/client-1")
+				.param(OAuth2ParameterNames.CODE, "code")
+				.param(OAuth2ParameterNames.STATE, "state")
+				.with(authentication(authentication))
+				.session(session);
+		this.mockMvc.perform(clientRequest)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/client-1"));
+		// @formatter:on
 		OAuth2AuthorizedClient authorizedClient = authorizedClientRepository
 				.loadAuthorizedClient(this.registration1.getRegistrationId(), authentication, request);
 		assertThat(authorizedClient).isNotNull();
@@ -191,10 +215,14 @@ public class OAuth2ClientConfigurerTests {
 		// Setup the Authorization Request in the session
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, this.registration1.getRegistrationId());
+		// @formatter:off
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(this.registration1.getProviderDetails().getAuthorizationUri())
-				.clientId(this.registration1.getClientId()).redirectUri("http://localhost/client-1").state("state")
-				.attributes(attributes).build();
+				.clientId(this.registration1.getClientId()).redirectUri("http://localhost/client-1")
+				.state("state")
+				.attributes(attributes)
+				.build();
+		// @formatter:on
 		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -202,9 +230,16 @@ public class OAuth2ClientConfigurerTests {
 		MockHttpSession session = (MockHttpSession) request.getSession();
 		String principalName = "user1";
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
-		this.mockMvc.perform(get("/client-1").param(OAuth2ParameterNames.CODE, "code")
-				.param(OAuth2ParameterNames.STATE, "state").with(authentication(authentication)).session(session))
-				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("http://localhost/client-1"));
+		// @formatter:off
+		MockHttpServletRequestBuilder clientRequest = get("/client-1")
+				.param(OAuth2ParameterNames.CODE, "code")
+				.param(OAuth2ParameterNames.STATE, "state")
+				.with(authentication(authentication))
+				.session(session);
+		this.mockMvc.perform(clientRequest)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/client-1"));
+		// @formatter:on
 		verify(requestCache).getRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -218,8 +253,11 @@ public class OAuth2ClientConfigurerTests {
 		given(authorizationRequestResolver.resolve(any()))
 				.willAnswer((invocation) -> defaultAuthorizationRequestResolver.resolve(invocation.getArgument(0)));
 		this.spring.register(OAuth2ClientConfig.class).autowire();
-		this.mockMvc.perform(get("/oauth2/authorization/registration-1")).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
+				.andExpect(status().is3xxRedirection())
 				.andReturn();
+		// @formatter:on
 		verify(authorizationRequestResolver).resolve(any());
 	}
 

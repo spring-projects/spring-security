@@ -36,10 +36,12 @@ import org.springframework.security.oauth2.server.resource.authentication.TestBe
 import org.springframework.security.oauth2.server.resource.web.reactive.function.client.ServletBearerExchangeFilterFunction;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,8 +65,12 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 	public void requestWhenUsingFilterThenBearerTokenPropagated() throws Exception {
 		BearerTokenAuthentication authentication = TestBearerTokenAuthentications.bearer();
 		this.spring.register(BearerFilterConfig.class, WebServerConfig.class, Controller.class).autowire();
-		this.mockMvc.perform(get("/token").with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
-				.andExpect(status().isOk()).andExpect(content().string("Bearer token"));
+		MockHttpServletRequestBuilder authenticatedRequest = get("/token").with(authentication(authentication));
+		// @formatter:off
+		this.mockMvc.perform(authenticatedRequest)
+				.andExpect(status().isOk())
+				.andExpect(content().string("Bearer token"));
+		// @formatter:on
 	}
 
 	// gh-7418
@@ -72,8 +78,12 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 	public void requestWhenNotUsingFilterThenBearerTokenNotPropagated() throws Exception {
 		BearerTokenAuthentication authentication = TestBearerTokenAuthentications.bearer();
 		this.spring.register(BearerFilterlessConfig.class, WebServerConfig.class, Controller.class).autowire();
-		this.mockMvc.perform(get("/token").with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
-				.andExpect(status().isOk()).andExpect(content().string(""));
+		MockHttpServletRequestBuilder authenticatedRequest = get("/token").with(authentication(authentication));
+		// @formatter:off
+		this.mockMvc.perform(authenticatedRequest)
+				.andExpect(status().isOk())
+				.andExpect(content().string(""));
+		// @formatter:on
 	}
 
 	@EnableWebSecurity
@@ -120,8 +130,18 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 
 		@GetMapping("/token")
 		String token() {
-			return this.rest.get().uri(this.uri).retrieve().bodyToMono(String.class)
-					.flatMap((result) -> this.rest.get().uri(this.uri).retrieve().bodyToMono(String.class)).block();
+			// @formatter:off
+			return this.rest.get()
+					.uri(this.uri)
+					.retrieve()
+					.bodyToMono(String.class)
+					.flatMap((result) -> this.rest.get()
+							.uri(this.uri)
+							.retrieve()
+							.bodyToMono(String.class)
+					)
+					.block();
+			// @formatter:on
 		}
 
 	}

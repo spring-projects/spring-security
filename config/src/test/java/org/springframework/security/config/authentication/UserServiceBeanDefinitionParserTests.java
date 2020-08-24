@@ -52,8 +52,11 @@ public class UserServiceBeanDefinitionParserTests {
 
 	@Test
 	public void userServiceWithEmbeddedUsersWorksSuccessfully() {
-		setContext("<user-service id='service'>" + "    <user name='joe' password='joespassword' authorities='ROLE_A'/>"
+		// @formatter:off
+		setContext("<user-service id='service'>"
+				+ "    <user name='joe' password='joespassword' authorities='ROLE_A'/>"
 				+ "</user-service>");
+		// @formatter:on
 		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		userService.loadUserByUsername("joe");
 	}
@@ -63,10 +66,12 @@ public class UserServiceBeanDefinitionParserTests {
 		System.setProperty("principal.name", "joe");
 		System.setProperty("principal.pass", "joespassword");
 		System.setProperty("principal.authorities", "ROLE_A,ROLE_B");
+		// @formatter:off
 		setContext("<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>"
 				+ "<user-service id='service'>"
 				+ "    <user name='${principal.name}' password='${principal.pass}' authorities='${principal.authorities}'/>"
 				+ "</user-service>");
+		// @formatter:on
 		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		UserDetails joe = userService.loadUserByUsername("joe");
 		assertThat(joe.getPassword()).isEqualTo("joespassword");
@@ -75,7 +80,11 @@ public class UserServiceBeanDefinitionParserTests {
 
 	@Test
 	public void embeddedUsersWithNoPasswordIsGivenGeneratedValue() {
-		setContext("<user-service id='service'>" + "    <user name='joe' authorities='ROLE_A'/>" + "</user-service>");
+		// @formatter:off
+		setContext("<user-service id='service'>"
+				+ "    <user name='joe' authorities='ROLE_A'/>"
+				+ "</user-service>");
+		// @formatter:on
 		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		UserDetails joe = userService.loadUserByUsername("joe");
 		assertThat(joe.getPassword().length() > 0).isTrue();
@@ -84,9 +93,12 @@ public class UserServiceBeanDefinitionParserTests {
 
 	@Test
 	public void worksWithOpenIDUrlsAsNames() {
-		setContext("<user-service id='service'>" + "    <user name='https://joe.myopenid.com/' authorities='ROLE_A'/>"
+		// @formatter:off
+		setContext("<user-service id='service'>"
+				+ "    <user name='https://joe.myopenid.com/' authorities='ROLE_A'/>"
 				+ "    <user name='https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9' authorities='ROLE_A'/>"
 				+ "</user-service>");
+		// @formatter:on
 		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		assertThat(userService.loadUserByUsername("https://joe.myopenid.com/").getUsername())
 				.isEqualTo("https://joe.myopenid.com/");
@@ -96,10 +108,12 @@ public class UserServiceBeanDefinitionParserTests {
 
 	@Test
 	public void disabledAndEmbeddedFlagsAreSupported() {
+		// @formatter:off
 		setContext("<user-service id='service'>"
 				+ "    <user name='joe' password='joespassword' authorities='ROLE_A' locked='true'/>"
 				+ "    <user name='Bob' password='bobspassword' authorities='ROLE_A' disabled='true'/>"
 				+ "</user-service>");
+		// @formatter:on
 		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		UserDetails joe = userService.loadUserByUsername("joe");
 		assertThat(joe.isAccountNonLocked()).isFalse();
@@ -110,8 +124,11 @@ public class UserServiceBeanDefinitionParserTests {
 
 	@Test(expected = FatalBeanException.class)
 	public void userWithBothPropertiesAndEmbeddedUsersThrowsException() {
+		// @formatter:off
 		setContext("<user-service id='service' properties='doesntmatter.props'>"
-				+ "    <user name='joe' password='joespassword' authorities='ROLE_A'/>" + "</user-service>");
+				+ "    <user name='joe' password='joespassword' authorities='ROLE_A'/>"
+				+ "</user-service>");
+		// @formatter:on
 		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		userService.loadUserByUsername("Joe");
 	}

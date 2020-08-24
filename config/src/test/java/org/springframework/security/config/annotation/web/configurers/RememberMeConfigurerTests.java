@@ -40,11 +40,13 @@ import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -83,8 +85,16 @@ public class RememberMeConfigurerTests {
 	public void postWhenNoUserDetailsServiceThenException() {
 		this.spring.register(NullUserDetailsConfig.class).autowire();
 		assertThatIllegalStateException()
-				.isThrownBy(() -> this.mvc.perform(post("/login").param("username", "user")
-						.param("password", "password").param("remember-me", "true").with(csrf())))
+				.isThrownBy(() -> {
+					// @formatter:off
+					MockHttpServletRequestBuilder request = post("/login")
+							.param("username", "user")
+							.param("password", "password")
+							.param("remember-me", "true")
+							.with(csrf());
+					// @formatter:on
+					this.mvc.perform(request);
+				})
 				.withMessageContaining("UserDetailsService is required");
 	}
 
@@ -99,15 +109,26 @@ public class RememberMeConfigurerTests {
 		given(DuplicateDoesNotOverrideConfig.userDetailsService.loadUserByUsername(anyString()))
 				.willReturn(new User("user", "password", Collections.emptyList()));
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
-		this.mvc.perform(get("/").with(httpBasic("user", "password")).param("remember-me", "true"));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/")
+				.with(httpBasic("user", "password"))
+				.param("remember-me", "true");
+		// @formatter:on
+		this.mvc.perform(request);
 		verify(DuplicateDoesNotOverrideConfig.userDetailsService).loadUserByUsername("user");
 	}
 
 	@Test
 	public void loginWhenRememberMeTrueThenRespondsWithRememberMeCookie() throws Exception {
 		this.spring.register(RememberMeConfig.class).autowire();
-		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password")
-				.param("remember-me", "true")).andExpect(cookie().exists("remember-me"));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true");
+		// @formatter:on
+		this.mvc.perform(request).andExpect(cookie().exists("remember-me"));
 	}
 
 	@Test
@@ -116,57 +137,108 @@ public class RememberMeConfigurerTests {
 		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
 				.param("password", "password").param("remember-me", "true")).andReturn();
 		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
-		this.mvc.perform(get("/abc").cookie(rememberMeCookie)).andExpect(authenticated()
-				.withAuthentication((auth) -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class)));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/abc").cookie(rememberMeCookie);
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher remembermeAuthentication = authenticated()
+				.withAuthentication((auth) -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class));
+		// @formatter:on
+		this.mvc.perform(request).andExpect(remembermeAuthentication);
 	}
 
 	@Test
 	public void logoutWhenRememberMeCookieThenAuthenticationIsRememberMeCookieExpired() throws Exception {
 		this.spring.register(RememberMeConfig.class).autowire();
-		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
-				.param("password", "password").param("remember-me", "true")).andReturn();
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true");
+		// @formatter:on
+		MvcResult mvcResult = this.mvc.perform(loginRequest).andReturn();
 		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
 		HttpSession session = mvcResult.getRequest().getSession();
-		this.mvc.perform(post("/logout").with(csrf()).cookie(rememberMeCookie).session((MockHttpSession) session))
-				.andExpect(redirectedUrl("/login?logout")).andExpect(cookie().maxAge("remember-me", 0));
+		// @formatter:off
+		MockHttpServletRequestBuilder logoutRequest = post("/logout")
+				.with(csrf())
+				.cookie(rememberMeCookie)
+				.session((MockHttpSession) session);
+		this.mvc.perform(logoutRequest)
+				.andExpect(redirectedUrl("/login?logout"))
+				.andExpect(cookie().maxAge("remember-me", 0));
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenRememberMeCookieAndLoggedOutThenRedirectsToLogin() throws Exception {
 		this.spring.register(RememberMeConfig.class).autowire();
-		MvcResult loginMvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
-				.param("password", "password").param("remember-me", "true")).andReturn();
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true");
+		// @formatter:on
+		MvcResult loginMvcResult = this.mvc.perform(loginRequest).andReturn();
 		Cookie rememberMeCookie = loginMvcResult.getResponse().getCookie("remember-me");
 		HttpSession session = loginMvcResult.getRequest().getSession();
-		MvcResult logoutMvcResult = this.mvc
-				.perform(post("/logout").with(csrf()).cookie(rememberMeCookie).session((MockHttpSession) session))
-				.andReturn();
+		// @formatter:off
+		MockHttpServletRequestBuilder logoutRequest = post("/logout")
+				.with(csrf())
+				.cookie(rememberMeCookie)
+				.session((MockHttpSession) session);
+		// @formatter:on
+		MvcResult logoutMvcResult = this.mvc.perform(logoutRequest).andReturn();
 		Cookie expiredRememberMeCookie = logoutMvcResult.getResponse().getCookie("remember-me");
-		this.mvc.perform(get("/abc").with(csrf()).cookie(expiredRememberMeCookie))
-				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:off
+		MockHttpServletRequestBuilder expiredRequest = get("/abc")
+				.with(csrf())
+				.cookie(expiredRememberMeCookie);
+		// @formatter:on
+		this.mvc.perform(expiredRequest).andExpect(redirectedUrl("http://localhost/login"));
 	}
 
 	@Test
 	public void loginWhenRememberMeConfiguredInLambdaThenRespondsWithRememberMeCookie() throws Exception {
 		this.spring.register(RememberMeInLambdaConfig.class).autowire();
-		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password")
-				.param("remember-me", "true")).andExpect(cookie().exists("remember-me"));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true");
+		// @formatter:on
+		this.mvc.perform(request).andExpect(cookie().exists("remember-me"));
 	}
 
 	@Test
 	public void loginWhenRememberMeTrueAndCookieDomainThenRememberMeCookieHasDomain() throws Exception {
 		this.spring.register(RememberMeCookieDomainConfig.class).autowire();
-		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password")
-				.param("remember-me", "true")).andExpect(cookie().exists("remember-me"))
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true");
+		this.mvc.perform(request).
+				andExpect(cookie().exists("remember-me"))
 				.andExpect(cookie().domain("remember-me", "spring.io"));
+		// @formatter:on
 	}
 
 	@Test
 	public void loginWhenRememberMeTrueAndCookieDomainInLambdaThenRememberMeCookieHasDomain() throws Exception {
 		this.spring.register(RememberMeCookieDomainInLambdaConfig.class).autowire();
-		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password")
-				.param("remember-me", "true")).andExpect(cookie().exists("remember-me"))
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true");
+		this.mvc.perform(loginRequest)
+				.andExpect(cookie().exists("remember-me"))
 				.andExpect(cookie().domain("remember-me", "spring.io"));
+		// @formatter:on
 	}
 
 	@Test
@@ -181,11 +253,21 @@ public class RememberMeConfigurerTests {
 	@Test
 	public void getWhenRememberMeCookieAndNoKeyConfiguredThenKeyFromRememberMeServicesIsUsed() throws Exception {
 		this.spring.register(FallbackRememberMeKeyConfig.class).autowire();
-		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
-				.param("password", "password").param("remember-me", "true")).andReturn();
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true");
+		// @formatter:on
+		MvcResult mvcResult = this.mvc.perform(loginRequest).andReturn();
 		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
-		this.mvc.perform(get("/abc").cookie(rememberMeCookie)).andExpect(authenticated()
-				.withAuthentication((auth) -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class)));
+		MockHttpServletRequestBuilder requestWithRememberme = get("/abc").cookie(rememberMeCookie);
+		// @formatter:off
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher remembermeAuthentication = authenticated()
+				.withAuthentication((auth) -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class));
+		// @formatter:on
+		this.mvc.perform(requestWithRememberme).andExpect(remembermeAuthentication);
 	}
 
 	@EnableWebSecurity

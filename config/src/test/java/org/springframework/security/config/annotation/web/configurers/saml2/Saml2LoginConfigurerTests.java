@@ -82,6 +82,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -198,8 +199,11 @@ public class Saml2LoginConfigurerTests {
 		String response = new String(samlDecode(SIGNED_RESPONSE));
 		given(CustomAuthenticationConverter.authenticationConverter.convert(any(HttpServletRequest.class)))
 				.willReturn(new Saml2AuthenticationToken(relyingPartyRegistration, response));
-		this.mvc.perform(post("/login/saml2/sso/" + relyingPartyRegistration.getRegistrationId()).param("SAMLResponse",
-				SIGNED_RESPONSE)).andExpect(redirectedUrl("/"));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/login/saml2/sso/" + relyingPartyRegistration.getRegistrationId())
+				.param("SAMLResponse", SIGNED_RESPONSE);
+		// @formatter:on
+		this.mvc.perform(request).andExpect(redirectedUrl("/"));
 		verify(CustomAuthenticationConverter.authenticationConverter).convert(any(HttpServletRequest.class));
 	}
 

@@ -144,7 +144,11 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestLoginWhenMultiClientRegistrationThenReturnLoginPageWithClients() throws Exception {
 		this.spring.configLocations(this.xml("MultiClientRegistration")).autowire();
-		MvcResult result = this.mvc.perform(get("/login")).andExpect(status().is2xxSuccessful()).andReturn();
+		// @formatter:off
+		MvcResult result = this.mvc.perform(get("/login"))
+				.andExpect(status().is2xxSuccessful())
+				.andReturn();
+		// @formatter:on
 		assertThat(result.getResponse().getContentAsString())
 				.contains("<a href=\"/oauth2/authorization/google-login\">Google</a>");
 		assertThat(result.getResponse().getContentAsString())
@@ -155,8 +159,11 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestWhenSingleClientRegistrationThenAutoRedirect() throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration")).autowire();
-		this.mvc.perform(get("/")).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/oauth2/authorization/google-login"));
+		// @formatter:on
 		verify(this.requestCache).saveRequest(any(), any());
 	}
 
@@ -165,8 +172,11 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	public void requestWhenSingleClientRegistrationAndRequestFaviconNotAuthenticatedThenRedirectDefaultLoginPage()
 			throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration")).autowire();
-		this.mvc.perform(get("/favicon.ico").accept(new MediaType("image", "*"))).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		this.mvc.perform(get("/favicon.ico").accept(new MediaType("image", "*")))
+				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 	}
 
 	// gh-6812
@@ -174,8 +184,11 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	public void requestWhenSingleClientRegistrationAndRequestXHRNotAuthenticatedThenDoesNotRedirectForAuthorization()
 			throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration")).autowire();
-		this.mvc.perform(get("/").header("X-Requested-With", "XMLHttpRequest")).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		this.mvc.perform(get("/").header("X-Requested-With", "XMLHttpRequest"))
+				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 	}
 
 	@Test
@@ -211,7 +224,10 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
-		this.mvc.perform(get("/login/oauth2/code/github-login").params(params)).andExpect(status().is2xxSuccessful());
+		// @formatter:off
+		this.mvc.perform(get("/login/oauth2/code/github-login").params(params))
+				.andExpect(status().is2xxSuccessful());
+		// @formatter:on
 		ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 		verify(this.authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
 		Authentication authentication = authenticationCaptor.getValue();
@@ -257,8 +273,11 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
-		this.mvc.perform(get("/login/oauth2/code/google-login").params(params)).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		this.mvc.perform(get("/login/oauth2/code/google-login").params(params))
+				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/"));
+		// @formatter:on
 		verify(this.jwtDecoderFactory).createDecoder(any());
 		verify(this.requestCache).getRequest(any(), any());
 	}
@@ -302,7 +321,10 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		given(this.jwtDecoderFactory.createDecoder(any())).willReturn((token) -> jwt);
 		given(this.userAuthoritiesMapper.mapAuthorities(any()))
 				.willReturn((Collection) AuthorityUtils.createAuthorityList("ROLE_OIDC_USER"));
-		this.mvc.perform(get("/login/oauth2/code/google-login").params(params)).andExpect(status().is2xxSuccessful());
+		// @formatter:off
+		this.mvc.perform(get("/login/oauth2/code/google-login").params(params))
+				.andExpect(status().is2xxSuccessful());
+		// @formatter:on
 		authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 		verify(this.authenticationSuccessHandler, times(2)).onAuthenticationSuccess(any(), any(),
 				authenticationCaptor.capture());
@@ -330,7 +352,10 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
-		this.mvc.perform(get("/login/oauth2/github-login").params(params)).andExpect(status().is2xxSuccessful());
+		// @formatter:off
+		this.mvc.perform(get("/login/oauth2/github-login").params(params))
+				.andExpect(status().is2xxSuccessful());
+		// @formatter:on
 		ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 		verify(this.authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
 		Authentication authentication = authenticationCaptor.getValue();
@@ -342,7 +367,10 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	public void requestWhenCustomAuthorizationRequestResolverThenCalled() throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration-WithCustomAuthorizationRequestResolver"))
 				.autowire();
-		this.mvc.perform(get("/oauth2/authorization/google-login")).andExpect(status().is3xxRedirection());
+		// @formatter:off
+		this.mvc.perform(get("/oauth2/authorization/google-login"))
+				.andExpect(status().is3xxRedirection());
+		// @formatter:on
 		verify(this.authorizationRequestResolver).resolve(any());
 	}
 
@@ -350,15 +378,21 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestWhenMultiClientRegistrationThenRedirectDefaultLoginPage() throws Exception {
 		this.spring.configLocations(this.xml("MultiClientRegistration")).autowire();
-		this.mvc.perform(get("/")).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 	}
 
 	@Test
 	public void requestWhenCustomLoginPageThenRedirectCustomLoginPage() throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration-WithCustomLoginPage")).autowire();
-		this.mvc.perform(get("/")).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/custom-login"));
+		// @formatter:on
 	}
 
 	// gh-6802
@@ -366,8 +400,11 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	public void requestWhenSingleClientRegistrationAndFormLoginConfiguredThenRedirectDefaultLoginPage()
 			throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration-WithFormLogin")).autowire();
-		this.mvc.perform(get("/")).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 	}
 
 	@Test
@@ -444,7 +481,11 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, "user",
 				TestOAuth2AccessTokens.noScopes());
 		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(authorizedClient);
-		this.mvc.perform(get("/authorized-client")).andExpect(status().isOk()).andExpect(content().string("resolved"));
+		// @formatter:off
+		this.mvc.perform(get("/authorized-client"))
+				.andExpect(status().isOk())
+				.andExpect(content().string("resolved"));
+		// @formatter:on
 	}
 
 	private String xml(String configName) {

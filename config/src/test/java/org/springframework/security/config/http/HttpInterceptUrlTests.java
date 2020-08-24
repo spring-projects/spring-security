@@ -48,9 +48,14 @@ public class HttpInterceptUrlTests {
 	@Test
 	public void interceptUrlWhenRequestMatcherRefThenWorks() throws Exception {
 		loadConfig("interceptUrlWhenRequestMatcherRefThenWorks.xml");
-		this.mockMvc.perform(get("/foo")).andExpect(status().isUnauthorized());
-		this.mockMvc.perform(get("/FOO")).andExpect(status().isUnauthorized());
-		this.mockMvc.perform(get("/other")).andExpect(status().isOk());
+		// @formatter:off
+		this.mockMvc.perform(get("/foo"))
+				.andExpect(status().isUnauthorized());
+		this.mockMvc.perform(get("/FOO"))
+				.andExpect(status().isUnauthorized());
+		this.mockMvc.perform(get("/other"))
+				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	private void loadConfig(String... configLocations) {

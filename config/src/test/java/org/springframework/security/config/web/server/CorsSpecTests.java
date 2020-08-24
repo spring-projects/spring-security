@@ -103,8 +103,13 @@ public class CorsSpecTests {
 
 	private void assertHeaders() {
 		WebTestClient client = buildClient();
-		FluxExchangeResult<String> response = client.get().uri("https://example.com/")
-				.headers((h) -> h.setOrigin("https://origin.example.com")).exchange().returnResult(String.class);
+		// @formatter:off
+		FluxExchangeResult<String> response = client.get()
+				.uri("https://example.com/")
+				.headers((h) -> h.setOrigin("https://origin.example.com"))
+				.exchange()
+				.returnResult(String.class);
+		// @formatter:on
 		Map<String, List<String>> responseHeaders = response.getResponseHeaders();
 		if (!this.expectedHeaders.isEmpty()) {
 			assertThat(responseHeaders).describedAs(response.toString()).containsAllEntriesOf(this.expectedHeaders);
@@ -115,7 +120,10 @@ public class CorsSpecTests {
 	}
 
 	private WebTestClient buildClient() {
-		return WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
+		// @formatter:off
+		return WebTestClientBuilder.bindToWebFilters(this.http.build())
+				.build();
+		// @formatter:on
 	}
 
 }
