@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.test.web.servlet.showcase.secured;
 
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+package org.springframework.security.test.web.servlet.showcase.secured;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -39,6 +36,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WithUserDetailsAuthenticationTests.Config.class)
 @WebAppConfiguration
@@ -51,14 +53,14 @@ public class WithUserDetailsAuthenticationTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity()).build();
 	}
 
 	@Test
 	@WithUserDetails
 	public void requestProtectedUrlWithUser() throws Exception {
-		mvc.perform(get("/"))
-		// Ensure we got past Security
+		this.mvc.perform(get("/"))
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withUsername("user"));
@@ -67,29 +69,28 @@ public class WithUserDetailsAuthenticationTests {
 	@Test
 	@WithUserDetails("admin")
 	public void requestProtectedUrlWithAdmin() throws Exception {
-		mvc.perform(get("/admin"))
+		this.mvc.perform(get("/admin"))
 				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
-				.andExpect(
-						authenticated().withUsername("admin").withRoles("ADMIN", "USER"));
+				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN", "USER"));
 	}
 
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
 
-		// @formatter:off
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					.and()
 				.formLogin();
+			// @formatter:on
 		}
-		// @formatter:on
 
 		@Bean
 		@Override
@@ -97,14 +98,16 @@ public class WithUserDetailsAuthenticationTests {
 			return super.userDetailsServiceBean();
 		}
 
-		// @formatter:off
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER").and()
 					.withUser("admin").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
-		// @formatter:on
+
 	}
+
 }

@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.util.matcher;
 
 import java.util.Collections;
 import java.util.Map;
 
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * An interface for determining if a {@link ServerWebExchangeMatcher} matches.
+ *
  * @author Rob Winch
  * @since 5.0
  */
@@ -39,7 +42,9 @@ public interface ServerWebExchangeMatcher {
 	 * The result of matching
 	 */
 	class MatchResult {
+
 		private final boolean match;
+
 		private final Map<String, Object> variables;
 
 		private MatchResult(boolean match, Map<String, Object> variables) {
@@ -48,7 +53,7 @@ public interface ServerWebExchangeMatcher {
 		}
 
 		public boolean isMatch() {
-			return match;
+			return this.match;
 		}
 
 		/**
@@ -56,7 +61,7 @@ public interface ServerWebExchangeMatcher {
 		 * @return
 		 */
 		public Map<String, Object> getVariables() {
-			return variables;
+			return this.variables;
 		}
 
 		/**
@@ -69,7 +74,8 @@ public interface ServerWebExchangeMatcher {
 
 		/**
 		 *
-		 * Creates an instance of {@link MatchResult} that is a match with the specified variables
+		 * Creates an instance of {@link MatchResult} that is a match with the specified
+		 * variables
 		 * @param variables
 		 * @return
 		 */
@@ -84,5 +90,7 @@ public interface ServerWebExchangeMatcher {
 		public static Mono<MatchResult> notMatch() {
 			return Mono.just(new MatchResult(false, Collections.emptyMap()));
 		}
+
 	}
+
 }

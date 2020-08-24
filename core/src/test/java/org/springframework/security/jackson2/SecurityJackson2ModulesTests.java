@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-
 package org.springframework.security.jackson2;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -25,108 +31,110 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.annotation.*;
-import java.util.HashMap;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
-* @author Rob Winch
-* @since 5.0
-*/
+ * @author Rob Winch
+ * @since 5.0
+ */
 public class SecurityJackson2ModulesTests {
+
 	private ObjectMapper mapper;
 
 	@Before
 	public void setup() {
-		mapper = new ObjectMapper();
-		SecurityJackson2Modules.enableDefaultTyping(mapper);
+		this.mapper = new ObjectMapper();
+		SecurityJackson2Modules.enableDefaultTyping(this.mapper);
 	}
 
 	@Test
 	public void readValueWhenNotAllowedOrMappedThenThrowsException() {
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-		assertThatThrownBy(() -> {
-				mapper.readValue(content, Object.class);
-			}
-		).hasStackTraceContaining("allowlist");
+		// @formatter:off
+		assertThatExceptionOfType(Exception.class)
+				.isThrownBy(() -> this.mapper.readValue(content, Object.class))
+				.withStackTraceContaining("allowlist");
+		// @formatter:on
 	}
 
 	@Test
 	public void readValueWhenExplicitDefaultTypingAfterSecuritySetupThenReadsAsSpecificType() throws Exception {
-		mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+		this.mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-
-		assertThat(mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
+		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
 	}
 
 	@Test
 	public void readValueWhenExplicitDefaultTypingBeforeSecuritySetupThenReadsAsSpecificType() throws Exception {
-		mapper = new ObjectMapper();
-		mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-		SecurityJackson2Modules.enableDefaultTyping(mapper);
+		this.mapper = new ObjectMapper();
+		this.mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+		SecurityJackson2Modules.enableDefaultTyping(this.mapper);
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-
-		assertThat(mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
+		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
 	}
 
 	@Test
 	public void readValueWhenAnnotatedThenReadsAsSpecificType() throws Exception {
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlistedButAnnotated\",\"property\":\"bar\"}";
-
-		assertThat(mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlistedButAnnotated.class);
+		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlistedButAnnotated.class);
 	}
 
 	@Test
 	public void readValueWhenMixinProvidedThenReadsAsSpecificType() throws Exception {
-		mapper.addMixIn(NotAllowlisted.class, NotAllowlistedMixin.class);
+		this.mapper.addMixIn(NotAllowlisted.class, NotAllowlistedMixin.class);
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-
-		assertThat(mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
+		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
 	}
 
 	@Test
 	public void readValueWhenHashMapThenReadsAsSpecificType() throws Exception {
-		mapper.addMixIn(NotAllowlisted.class, NotAllowlistedMixin.class);
+		this.mapper.addMixIn(NotAllowlisted.class, NotAllowlistedMixin.class);
 		String content = "{\"@class\":\"java.util.HashMap\"}";
-
-		assertThat(mapper.readValue(content, Object.class)).isInstanceOf(HashMap.class);
+		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(HashMap.class);
 	}
 
 	@Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
-	public @interface NotJacksonAnnotation {}
+	public @interface NotJacksonAnnotation {
+
+	}
 
 	@NotJacksonAnnotation
 	static class NotAllowlisted {
+
 		private String property = "bar";
 
-		public String getProperty() {
-			return property;
+		String getProperty() {
+			return this.property;
 		}
 
-		public void setProperty(String property) {
+		void setProperty(String property) {
 		}
+
 	}
 
 	@JsonIgnoreType(false)
 	static class NotAllowlistedButAnnotated {
+
 		private String property = "bar";
 
-		public String getProperty() {
-			return property;
+		String getProperty() {
+			return this.property;
 		}
 
-		public void setProperty(String property) {
+		void setProperty(String property) {
 		}
+
 	}
 
 	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
-		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+			isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	abstract class NotAllowlistedMixin {
 
 	}
+
 }

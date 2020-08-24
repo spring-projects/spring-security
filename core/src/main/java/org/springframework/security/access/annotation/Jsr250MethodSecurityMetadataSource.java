@@ -36,8 +36,7 @@ import org.springframework.security.access.method.AbstractFallbackMethodSecurity
  * @author Ben Alex
  * @since 2.0
  */
-public class Jsr250MethodSecurityMetadataSource extends
-		AbstractFallbackMethodSecurityMetadataSource {
+public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
 
 	private String defaultRolePrefix = "ROLE_";
 
@@ -51,22 +50,23 @@ public class Jsr250MethodSecurityMetadataSource extends
 	 * <p>
 	 * If null or empty, then no default role prefix is used.
 	 * </p>
-	 *
 	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
 	 */
 	public void setDefaultRolePrefix(String defaultRolePrefix) {
 		this.defaultRolePrefix = defaultRolePrefix;
 	}
 
+	@Override
 	protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
 		return processAnnotations(clazz.getAnnotations());
 	}
 
-	protected Collection<ConfigAttribute> findAttributes(Method method,
-			Class<?> targetClass) {
+	@Override
+	protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
 		return processAnnotations(AnnotationUtils.getAnnotations(method));
 	}
 
+	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		return null;
 	}
@@ -76,18 +76,17 @@ public class Jsr250MethodSecurityMetadataSource extends
 			return null;
 		}
 		List<ConfigAttribute> attributes = new ArrayList<>();
-
-		for (Annotation a : annotations) {
-			if (a instanceof DenyAll) {
+		for (Annotation annotation : annotations) {
+			if (annotation instanceof DenyAll) {
 				attributes.add(Jsr250SecurityConfig.DENY_ALL_ATTRIBUTE);
 				return attributes;
 			}
-			if (a instanceof PermitAll) {
+			if (annotation instanceof PermitAll) {
 				attributes.add(Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE);
 				return attributes;
 			}
-			if (a instanceof RolesAllowed) {
-				RolesAllowed ra = (RolesAllowed) a;
+			if (annotation instanceof RolesAllowed) {
+				RolesAllowed ra = (RolesAllowed) annotation;
 
 				for (String allowed : ra.value()) {
 					String defaultedAllowed = getRoleWithDefaultPrefix(allowed);
@@ -103,12 +102,13 @@ public class Jsr250MethodSecurityMetadataSource extends
 		if (role == null) {
 			return role;
 		}
-		if (defaultRolePrefix == null || defaultRolePrefix.length() == 0) {
+		if (this.defaultRolePrefix == null || this.defaultRolePrefix.length() == 0) {
 			return role;
 		}
-		if (role.startsWith(defaultRolePrefix)) {
+		if (role.startsWith(this.defaultRolePrefix)) {
 			return role;
 		}
-		return defaultRolePrefix + role;
+		return this.defaultRolePrefix + role;
 	}
+
 }

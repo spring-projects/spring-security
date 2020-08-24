@@ -41,42 +41,36 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class InsecureChannelProcessor implements InitializingBean, ChannelProcessor {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private ChannelEntryPoint entryPoint = new RetryWithHttpEntryPoint();
+
 	private String insecureKeyword = "REQUIRES_INSECURE_CHANNEL";
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public void afterPropertiesSet() {
-		Assert.hasLength(insecureKeyword, "insecureKeyword required");
-		Assert.notNull(entryPoint, "entryPoint required");
+		Assert.hasLength(this.insecureKeyword, "insecureKeyword required");
+		Assert.notNull(this.entryPoint, "entryPoint required");
 	}
 
+	@Override
 	public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
 			throws IOException, ServletException {
-		if ((invocation == null) || (config == null)) {
-			throw new IllegalArgumentException("Nulls cannot be provided");
-		}
-
+		Assert.isTrue(invocation != null && config != null, "Nulls cannot be provided");
 		for (ConfigAttribute attribute : config) {
 			if (supports(attribute)) {
 				if (invocation.getHttpRequest().isSecure()) {
-					entryPoint
-							.commence(invocation.getRequest(), invocation.getResponse());
+					this.entryPoint.commence(invocation.getRequest(), invocation.getResponse());
 				}
 			}
 		}
 	}
 
 	public ChannelEntryPoint getEntryPoint() {
-		return entryPoint;
+		return this.entryPoint;
 	}
 
 	public String getInsecureKeyword() {
-		return insecureKeyword;
+		return this.insecureKeyword;
 	}
 
 	public void setEntryPoint(ChannelEntryPoint entryPoint) {
@@ -87,8 +81,10 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
 		this.insecureKeyword = secureKeyword;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		return (attribute != null) && (attribute.getAttribute() != null)
 				&& attribute.getAttribute().equals(getInsecureKeyword());
 	}
+
 }

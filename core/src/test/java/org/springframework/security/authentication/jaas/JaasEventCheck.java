@@ -25,22 +25,19 @@ import org.springframework.security.authentication.jaas.event.JaasAuthentication
  * @author Ray Krueger
  */
 public class JaasEventCheck implements ApplicationListener<JaasAuthenticationEvent> {
-	// ~ Instance fields
-	// ================================================================================================
 
 	JaasAuthenticationFailedEvent failedEvent;
+
 	JaasAuthenticationSuccessEvent successEvent;
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public void onApplicationEvent(JaasAuthenticationEvent event) {
 		if (event instanceof JaasAuthenticationFailedEvent) {
-			failedEvent = (JaasAuthenticationFailedEvent) event;
+			this.failedEvent = (JaasAuthenticationFailedEvent) event;
 		}
-
 		if (event instanceof JaasAuthenticationSuccessEvent) {
-			successEvent = (JaasAuthenticationSuccessEvent) event;
+			this.successEvent = (JaasAuthenticationSuccessEvent) event;
 		}
 	}
+
 }

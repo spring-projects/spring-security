@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.userinfo;
 
 import java.util.Collection;
@@ -34,15 +35,15 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 
 /**
  * Tests for {@link CustomUserTypesOAuth2UserService}.
@@ -51,9 +52,13 @@ import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.no
  * @author Eddú Meléndez
  */
 public class CustomUserTypesOAuth2UserServiceTests {
+
 	private ClientRegistration.Builder clientRegistrationBuilder;
+
 	private OAuth2AccessToken accessToken;
+
 	private CustomUserTypesOAuth2UserService userService;
+
 	private MockWebServer server;
 
 	@Rule
@@ -64,9 +69,11 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		String registrationId = "client-registration-id-1";
-		this.clientRegistrationBuilder = clientRegistration().registrationId(registrationId);
-		this.accessToken = noScopes();
-
+		// @formatter:off
+		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration()
+				.registrationId(registrationId);
+		// @formatter:on
+		this.accessToken = TestOAuth2AccessTokens.noScopes();
 		Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
 		customUserTypes.put(registrationId, CustomOAuth2User.class);
 		this.userService = new CustomUserTypesOAuth2UserService(customUserTypes);
@@ -109,37 +116,35 @@ public class CustomUserTypesOAuth2UserServiceTests {
 
 	@Test
 	public void loadUserWhenCustomUserTypeNotFoundThenReturnNull() {
-		ClientRegistration clientRegistration =
-				clientRegistration().registrationId("other-client-registration-id-1").build();
-
+		// @formatter:off
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
+				.registrationId("other-client-registration-id-1")
+				.build();
+		// @formatter:on
 		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 		assertThat(user).isNull();
 	}
 
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() {
-		String userInfoResponse = "{\n" +
-			"	\"id\": \"12345\",\n" +
-			"   \"name\": \"first last\",\n" +
-			"   \"login\": \"user1\",\n" +
-			"   \"email\": \"user1@example.com\"\n" +
-			"}\n";
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"id\": \"12345\",\n"
+			+ "   \"name\": \"first last\",\n"
+			+ "   \"login\": \"user1\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
-
 		String userInfoUri = this.server.url("/user").toString();
-
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
-
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
-
 		assertThat(user.getName()).isEqualTo("first last");
 		assertThat(user.getAttributes().size()).isEqualTo(4);
 		assertThat((String) user.getAttribute("id")).isEqualTo("12345");
 		assertThat((String) user.getAttribute("name")).isEqualTo("first last");
 		assertThat((String) user.getAttribute("login")).isEqualTo("user1");
 		assertThat((String) user.getAttribute("email")).isEqualTo("user1@example.com");
-
 		assertThat(user.getAuthorities().size()).isEqualTo(1);
 		assertThat(user.getAuthorities().iterator().next().getAuthority()).isEqualTo("ROLE_USER");
 	}
@@ -147,71 +152,67 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
+		this.exception.expectMessage(containsString(
+				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"id\": \"12345\",\n"
+			+ "   \"name\": \"first last\",\n"
 
-		String userInfoResponse = "{\n" +
-			"	\"id\": \"12345\",\n" +
-			"   \"name\": \"first last\",\n" +
-			"   \"login\": \"user1\",\n" +
-			"   \"email\": \"user1@example.com\"\n";
-//			"}\n";		// Make the JSON invalid/malformed
+			+ "   \"login\": \"user1\",\n"
+			+ "   \"email\": \"user1@example.com\"\n";
+			// "}\n"; // Make the JSON invalid/malformed
+		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
-
 		String userInfoUri = this.server.url("/user").toString();
-
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
-
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
 	@Test
 	public void loadUserWhenServerErrorThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error"));
-
+		this.exception.expectMessage(containsString(
+				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error"));
 		this.server.enqueue(new MockResponse().setResponseCode(500));
-
 		String userInfoUri = this.server.url("/user").toString();
-
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
-
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
 	@Test
 	public void loadUserWhenUserInfoUriInvalidThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
-
+		this.exception.expectMessage(containsString(
+				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 		String userInfoUri = "https://invalid-provider.com/user";
-
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
-
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
 	private ClientRegistration.Builder withRegistrationId(String registrationId) {
-		return ClientRegistration
-				.withRegistrationId(registrationId)
+		// @formatter:off
+		return ClientRegistration.withRegistrationId(registrationId)
 				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
 				.clientId("client")
 				.tokenUri("/token");
+		// @formatter:on
 	}
 
 	private MockResponse jsonResponse(String json) {
-		return new MockResponse()
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(json);
+		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
 	}
 
 	public static class CustomOAuth2User implements OAuth2User {
+
 		private List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+
 		private String id;
+
 		private String name;
+
 		private String login;
+
 		private String email;
 
 		public CustomOAuth2User() {
@@ -264,5 +265,7 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		public void setEmail(String email) {
 			this.email = email;
 		}
+
 	}
+
 }

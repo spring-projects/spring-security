@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.csrf;
 
 import org.springframework.util.Assert;
@@ -48,47 +49,37 @@ public final class DefaultCsrfToken implements CsrfToken {
 		this.token = token;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.csrf.CsrfToken#getHeaderName()
-	 */
+	@Override
 	public String getHeaderName() {
 		return this.headerName;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.csrf.CsrfToken#getParameterName()
-	 */
+	@Override
 	public String getParameterName() {
 		return this.parameterName;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.csrf.CsrfToken#getToken()
-	 */
+	@Override
 	public String getToken() {
 		return this.token;
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o)
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
-		if (o == null || !(o instanceof CsrfToken))
+		}
+		if (obj == null || !(obj instanceof CsrfToken)) {
 			return false;
-
-		CsrfToken that = (CsrfToken) o;
-
-		if (!getToken().equals(that.getToken()))
+		}
+		CsrfToken other = (CsrfToken) obj;
+		if (!getToken().equals(other.getToken())) {
 			return false;
-		if (!getParameterName().equals(that.getParameterName()))
+		}
+		if (!getParameterName().equals(other.getParameterName())) {
 			return false;
-		return getHeaderName().equals(that.getHeaderName());
+		}
+		return getHeaderName().equals(other.getHeaderName());
 	}
 
 	@Override
@@ -98,4 +89,5 @@ public final class DefaultCsrfToken implements CsrfToken {
 		result = 31 * result + getHeaderName().hashCode();
 		return result;
 	}
+
 }

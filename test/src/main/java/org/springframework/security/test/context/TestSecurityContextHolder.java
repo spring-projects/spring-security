@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.context;
 
 import javax.servlet.FilterChain;
@@ -46,7 +47,8 @@ import org.springframework.util.Assert;
  * </li>
  * <li>The test is ran. When used with {@link MockMvc} it is typically used with
  * {@link SecurityMockMvcRequestPostProcessors#testSecurityContext()}. Which ensures the
- * {@link SecurityContext} from {@link TestSecurityContextHolder} is properly populated.</li>
+ * {@link SecurityContext} from {@link TestSecurityContextHolder} is properly
+ * populated.</li>
  * <li>After the test is executed, the {@link TestSecurityContextHolder} and the
  * {@link SecurityContextHolder} are cleared out</li>
  * </ul>
@@ -54,11 +56,13 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @author Tadaya Tsuyukubo
  * @since 4.0
- *
  */
 public final class TestSecurityContextHolder {
 
 	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<>();
+
+	private TestSecurityContextHolder() {
+	}
 
 	/**
 	 * Clears the {@link SecurityContext} from {@link TestSecurityContextHolder} and
@@ -71,17 +75,14 @@ public final class TestSecurityContextHolder {
 
 	/**
 	 * Gets the {@link SecurityContext} from {@link TestSecurityContextHolder}.
-	 *
 	 * @return the {@link SecurityContext} from {@link TestSecurityContextHolder}.
 	 */
 	public static SecurityContext getContext() {
 		SecurityContext ctx = contextHolder.get();
-
 		if (ctx == null) {
 			ctx = getDefaultContext();
 			contextHolder.set(ctx);
 		}
-
 		return ctx;
 	}
 
@@ -97,10 +98,9 @@ public final class TestSecurityContextHolder {
 	}
 
 	/**
-	 * Creates a new {@link SecurityContext} with the given {@link Authentication}.
-	 * The {@link SecurityContext} is set on {@link TestSecurityContextHolder} and
+	 * Creates a new {@link SecurityContext} with the given {@link Authentication}. The
+	 * {@link SecurityContext} is set on {@link TestSecurityContextHolder} and
 	 * {@link SecurityContextHolder}.
-	 *
 	 * @param authentication the {@link Authentication} to use
 	 * @since 5.1.1
 	 */
@@ -114,13 +114,10 @@ public final class TestSecurityContextHolder {
 	/**
 	 * Gets the default {@link SecurityContext} by delegating to the
 	 * {@link SecurityContextHolder}
-	 *
 	 * @return the default {@link SecurityContext}
 	 */
 	private static SecurityContext getDefaultContext() {
 		return SecurityContextHolder.getContext();
 	}
 
-	private TestSecurityContextHolder() {
-	}
 }

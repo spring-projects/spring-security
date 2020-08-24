@@ -33,19 +33,18 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
  *
  * @author Josh Cummings
  */
-public class TestBearerTokenAuthentications {
-	public static BearerTokenAuthentication bearer() {
-		Collection<GrantedAuthority> authorities =
-				AuthorityUtils.createAuthorityList("SCOPE_USER");
-		OAuth2AuthenticatedPrincipal principal =
-				new DefaultOAuth2AuthenticatedPrincipal(
-						Collections.singletonMap("sub", "user"),
-						authorities);
-		OAuth2AccessToken token =
-				new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-						"token", Instant.now(), Instant.now().plusSeconds(86400),
-						new HashSet<>(Arrays.asList("USER")));
+public final class TestBearerTokenAuthentications {
 
+	private TestBearerTokenAuthentications() {
+	}
+
+	public static BearerTokenAuthentication bearer() {
+		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("SCOPE_USER");
+		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(
+				Collections.singletonMap("sub", "user"), authorities);
+		OAuth2AccessToken token = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token", Instant.now(),
+				Instant.now().plusSeconds(86400), new HashSet<>(Arrays.asList("USER")));
 		return new BearerTokenAuthentication(principal, token, authorities);
 	}
+
 }

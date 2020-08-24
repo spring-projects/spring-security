@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import org.junit.Test;
@@ -45,13 +46,13 @@ public class OAuth2ResourceServerControllerTests {
 
 	@Test
 	public void indexGreetsAuthenticatedUser() throws Exception {
-		this.mvc.perform(get("/").with(opaqueToken().attributes(a -> a.put("sub", "ch4mpy"))))
+		this.mvc.perform(get("/").with(opaqueToken().attributes((a) -> a.put("sub", "ch4mpy"))))
 				.andExpect(content().string(is("Hello, ch4mpy!")));
 	}
 
 	@Test
 	public void messageCanBeReadWithScopeMessageReadAuthority() throws Exception {
-		this.mvc.perform(get("/message").with(opaqueToken().attributes(a -> a.put("scope", "message:read"))))
+		this.mvc.perform(get("/message").with(opaqueToken().attributes((a) -> a.put("scope", "message:read"))))
 				.andExpect(content().string(is("secret message")));
 
 		this.mvc.perform(get("/message")

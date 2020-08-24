@@ -16,8 +16,13 @@
 
 package org.springframework.security.web.reactive.result.view;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -25,42 +30,36 @@ import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.csrf.DefaultCsrfToken;
 import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor.DEFAULT_CSRF_ATTR_NAME;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
 public class CsrfRequestDataValueProcessorTests {
+
 	private MockServerWebExchange exchange = exchange(HttpMethod.GET);
 
 	private CsrfRequestDataValueProcessor processor = new CsrfRequestDataValueProcessor();
 
 	private CsrfToken token = new DefaultCsrfToken("1", "a", "b");
+
 	private Map<String, String> expected = new HashMap<>();
 
 	@Before
 	public void setup() {
 		this.expected.put(this.token.getParameterName(), this.token.getToken());
-		this.exchange.getAttributes().put(DEFAULT_CSRF_ATTR_NAME, this.token);
+		this.exchange.getAttributes().put(CsrfRequestDataValueProcessor.DEFAULT_CSRF_ATTR_NAME, this.token);
 	}
 
 	@Test
 	public void assertAllMethodsDeclared() {
-		Method[] expectedMethods = ReflectionUtils
-			.getAllDeclaredMethods(CsrfRequestDataValueProcessor.class);
+		Method[] expectedMethods = ReflectionUtils.getAllDeclaredMethods(CsrfRequestDataValueProcessor.class);
 		for (Method expected : expectedMethods) {
-			assertThat(
-				ReflectionUtils.findMethod(
-					CsrfRequestDataValueProcessor.class,
-					expected.getName(), expected.getParameterTypes())).as(
-				"Expected to find " + expected + " defined on "
-					+ CsrfRequestDataValueProcessor.class).isNotNull();
+			assertThat(ReflectionUtils.findMethod(CsrfRequestDataValueProcessor.class, expected.getName(),
+					expected.getParameterTypes()))
+							.as("Expected to find " + expected + " defined on " + CsrfRequestDataValueProcessor.class)
+							.isNotNull();
 		}
 	}
 
@@ -90,15 +89,13 @@ public class CsrfRequestDataValueProcessorTests {
 	@Test
 	public void getExtraHiddenFieldsHasCsrfToken_POST() {
 		this.processor.processAction(this.exchange, "action", "POST");
-		assertThat(this.processor.getExtraHiddenFields(this.exchange)).isEqualTo(
-			this.expected);
+		assertThat(this.processor.getExtraHiddenFields(this.exchange)).isEqualTo(this.expected);
 	}
 
 	@Test
 	public void getExtraHiddenFieldsHasCsrfToken_post() {
 		this.processor.processAction(this.exchange, "action", "post");
-		assertThat(this.processor.getExtraHiddenFields(this.exchange)).isEqualTo(
-			this.expected);
+		assertThat(this.processor.getExtraHiddenFields(this.exchange)).isEqualTo(this.expected);
 	}
 
 	@Test
@@ -110,8 +107,7 @@ public class CsrfRequestDataValueProcessorTests {
 	@Test
 	public void processFormFieldValue() {
 		String value = "action";
-		assertThat(this.processor.processFormFieldValue(this.exchange, "name", value, "hidden"))
-			.isEqualTo(value);
+		assertThat(this.processor.processFormFieldValue(this.exchange, "name", value, "hidden")).isEqualTo(value);
 	}
 
 	@Test
@@ -123,10 +119,9 @@ public class CsrfRequestDataValueProcessorTests {
 	@Test
 	public void createGetExtraHiddenFieldsHasCsrfToken() {
 		CsrfToken token = new DefaultCsrfToken("1", "a", "b");
-		this.exchange.getAttributes().put(DEFAULT_CSRF_ATTR_NAME, token);
+		this.exchange.getAttributes().put(CsrfRequestDataValueProcessor.DEFAULT_CSRF_ATTR_NAME, token);
 		Map<String, String> expected = new HashMap<>();
 		expected.put(token.getParameterName(), token.getToken());
-
 		CsrfRequestDataValueProcessor processor = new CsrfRequestDataValueProcessor();
 		assertThat(this.processor.getExtraHiddenFields(this.exchange)).isEqualTo(expected);
 	}
@@ -134,4 +129,5 @@ public class CsrfRequestDataValueProcessorTests {
 	private MockServerWebExchange exchange(HttpMethod method) {
 		return MockServerWebExchange.from(MockServerHttpRequest.method(HttpMethod.GET, "/"));
 	}
+
 }

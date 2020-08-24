@@ -52,7 +52,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -60,6 +60,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 @ContextConfiguration
 @RunWith(SpringRunner.class)
 public class RSocketMessageHandlerITests {
+
 	@Autowired
 	RSocketMessageHandler handler;
 
@@ -75,20 +76,22 @@ public class RSocketMessageHandlerITests {
 
 	@Before
 	public void setup() {
+		// @formatter:off
 		this.server = RSocketServer.create()
 				.payloadDecoder(PayloadDecoder.ZERO_COPY)
-				.interceptors((registry) -> {
-					registry.forSocketAcceptor(this.interceptor);
-				})
+				.interceptors((registry) ->
+					registry.forSocketAcceptor(this.interceptor)
+				)
 				.acceptor(this.handler.responder())
 				.bind(TcpServerTransport.create("localhost", 0))
 				.block();
-
 		this.requester = RSocketRequester.builder()
-				//				.rsocketFactory(factory -> factory.addRequesterPlugin(payloadInterceptor))
+				// .rsocketFactory((factory) ->
+				// factory.addRequesterPlugin(payloadInterceptor))
 				.rsocketStrategies(this.handler.getRSocketStrategies())
 				.connectTcp("localhost", this.server.address().getPort())
 				.block();
+		// @formatter:on
 	}
 
 	@After
@@ -101,13 +104,15 @@ public class RSocketMessageHandlerITests {
 	@Test
 	public void retrieveMonoWhenSecureThenDenied() throws Exception {
 		String data = "rob";
-		assertThatCode(() -> this.requester.route("secure.retrieve-mono")
-				.data(data)
-				.retrieveMono(String.class)
-				.block()
-			).isInstanceOf(ApplicationErrorException.class)
-			.hasMessageContaining("Access Denied");
-
+		// @formatter:off
+		assertThatExceptionOfType(ApplicationErrorException.class).isThrownBy(
+				() -> this.requester.route("secure.retrieve-mono")
+					.data(data)
+					.retrieveMono(String.class)
+					.block()
+			)
+			.withMessageContaining("Access Denied");
+		// @formatter:on
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -115,14 +120,15 @@ public class RSocketMessageHandlerITests {
 	public void retrieveMonoWhenAuthenticationFailedThenException() throws Exception {
 		String data = "rob";
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("invalid", "password");
-		assertThatCode(() -> this.requester.route("secure.retrieve-mono")
-				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.data(data)
+		// @formatter:off
+		assertThatExceptionOfType(ApplicationErrorException.class)
+			.isThrownBy(() -> this.requester.route("secure.retrieve-mono")
+				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE).data(data)
 				.retrieveMono(String.class)
 				.block()
-			).isInstanceOf(ApplicationErrorException.class)
-			.hasMessageContaining("Invalid Credentials");
-
+			)
+			.withMessageContaining("Invalid Credentials");
+		// @formatter:on
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -130,12 +136,13 @@ public class RSocketMessageHandlerITests {
 	public void retrieveMonoWhenAuthorizedThenGranted() throws Exception {
 		String data = "rob";
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("rob", "password");
+		// @formatter:off
 		String hiRob = this.requester.route("secure.retrieve-mono")
-				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.data(data)
-				.retrieveMono(String.class)
-				.block();
-
+			.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+			.data(data)
+			.retrieveMono(String.class)
+			.block();
+		// @formatter:on
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
 	}
@@ -143,11 +150,12 @@ public class RSocketMessageHandlerITests {
 	@Test
 	public void retrieveMonoWhenPublicThenGranted() throws Exception {
 		String data = "rob";
+		// @formatter:off
 		String hiRob = this.requester.route("retrieve-mono")
-				.data(data)
-				.retrieveMono(String.class)
-				.block();
-
+			.data(data)
+			.retrieveMono(String.class)
+			.block();
+		// @formatter:on
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
 	}
@@ -155,26 +163,29 @@ public class RSocketMessageHandlerITests {
 	@Test
 	public void retrieveFluxWhenDataFluxAndSecureThenDenied() throws Exception {
 		Flux<String> data = Flux.just("a", "b", "c");
-		assertThatCode(() -> this.requester.route("secure.retrieve-flux")
+		// @formatter:off
+		assertThatExceptionOfType(ApplicationErrorException.class)
+			.isThrownBy(() -> this.requester.route("secure.retrieve-flux")
 				.data(data, String.class)
 				.retrieveFlux(String.class)
 				.collectList()
 				.block()
-			).isInstanceOf(ApplicationErrorException.class)
-			.hasMessageContaining("Access Denied");
-
+			)
+			.withMessageContaining("Access Denied");
+		// @formatter:on
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
 	@Test
 	public void retrieveFluxWhenDataFluxAndPublicThenGranted() throws Exception {
 		Flux<String> data = Flux.just("a", "b", "c");
+		// @formatter:off
 		List<String> hi = this.requester.route("retrieve-flux")
-				.data(data, String.class)
-				.retrieveFlux(String.class)
-				.collectList()
-				.block();
-
+			.data(data, String.class)
+			.retrieveFlux(String.class)
+			.collectList()
+			.block();
+		// @formatter:on
 		assertThat(hi).containsOnly("hello a", "hello b", "hello c");
 		assertThat(this.controller.payloads).containsOnlyElementsOf(data.collectList().block());
 	}
@@ -182,35 +193,33 @@ public class RSocketMessageHandlerITests {
 	@Test
 	public void retrieveFluxWhenDataStringAndSecureThenDenied() throws Exception {
 		String data = "a";
-		assertThatCode(() -> this.requester.route("secure.hello")
-				.data(data)
-				.retrieveFlux(String.class)
-				.collectList()
-				.block()
-			).isInstanceOf(ApplicationErrorException.class)
-			.hasMessageContaining("Access Denied");
-
+		assertThatExceptionOfType(ApplicationErrorException.class).isThrownBy(
+				() -> this.requester.route("secure.hello").data(data).retrieveFlux(String.class).collectList().block())
+				.withMessageContaining("Access Denied");
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
 	@Test
 	public void sendWhenSecureThenDenied() throws Exception {
 		String data = "hi";
+		// @formatter:off
 		this.requester.route("secure.send")
-				.data(data)
-				.send()
-				.block();
-
+			.data(data)
+			.send()
+			.block();
+		// @formatter:on
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
 	@Test
 	public void sendWhenPublicThenGranted() throws Exception {
 		String data = "hi";
+		// @formatter:off
 		this.requester.route("send")
-				.data(data)
-				.send()
-				.block();
+			.data(data)
+			.send()
+			.block();
+		// @formatter:on
 		assertThat(this.controller.awaitPayloads()).containsOnly("hi");
 	}
 
@@ -219,26 +228,25 @@ public class RSocketMessageHandlerITests {
 	static class Config {
 
 		@Bean
-		public ServerController controller() {
+		ServerController controller() {
 			return new ServerController();
 		}
 
 		@Bean
-		public RSocketMessageHandler messageHandler() {
+		RSocketMessageHandler messageHandler() {
 			RSocketMessageHandler handler = new RSocketMessageHandler();
 			handler.setRSocketStrategies(rsocketStrategies());
 			return handler;
 		}
 
 		@Bean
-		public RSocketStrategies rsocketStrategies() {
-			return RSocketStrategies.builder()
-					.encoder(new BasicAuthenticationEncoder())
-					.build();
+		RSocketStrategies rsocketStrategies() {
+			return RSocketStrategies.builder().encoder(new BasicAuthenticationEncoder()).build();
 		}
 
 		@Bean
 		MapReactiveUserDetailsService uds() {
+			// @formatter:off
 			UserDetails rob = User.withDefaultPasswordEncoder()
 					.username("rob")
 					.password("password")
@@ -249,45 +257,44 @@ public class RSocketMessageHandlerITests {
 					.password("password")
 					.roles("USER")
 					.build();
+			// @formatter:on
 			return new MapReactiveUserDetailsService(rob, rossen);
 		}
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
-			rsocket
-					.authorizePayload(authorize -> {
-						authorize
-								.route("secure.*").authenticated()
-								.anyExchange().permitAll();
-					})
-					.basicAuthentication(Customizer.withDefaults());
+			// @formatter:off
+			rsocket.authorizePayload(
+				(authorize) -> authorize
+					.route("secure.*").authenticated()
+					.anyExchange().permitAll()
+				)
+				.basicAuthentication(Customizer.withDefaults());
+			// @formatter:on
 			return rsocket.build();
 		}
+
 	}
 
 	@Controller
 	static class ServerController {
+
 		private List<String> payloads = new ArrayList<>();
 
-		@MessageMapping({"secure.retrieve-mono", "retrieve-mono"})
+		@MessageMapping({ "secure.retrieve-mono", "retrieve-mono" })
 		String retrieveMono(String payload) {
 			add(payload);
 			return "Hi " + payload;
 		}
 
-		@MessageMapping({"secure.retrieve-flux", "retrieve-flux"})
+		@MessageMapping({ "secure.retrieve-flux", "retrieve-flux" })
 		Flux<String> retrieveFlux(Flux<String> payload) {
-			return payload.doOnNext(this::add)
-					.map(p -> "hello " + p);
+			return payload.doOnNext(this::add).map((p) -> "hello " + p);
 		}
 
-		@MessageMapping({"secure.send", "send"})
+		@MessageMapping({ "secure.send", "send" })
 		Mono<Void> send(Mono<String> payload) {
-			return payload
-					.doOnNext(this::add)
-					.then(Mono.fromRunnable(() -> {
-						doNotifyAll();
-					}));
+			return payload.doOnNext(this::add).then(Mono.fromRunnable(() -> doNotifyAll()));
 		}
 
 		private synchronized void doNotifyAll() {
@@ -302,6 +309,7 @@ public class RSocketMessageHandlerITests {
 		private void add(String p) {
 			this.payloads.add(p);
 		}
+
 	}
 
 }

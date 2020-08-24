@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.jackson2;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 
 /**
- * This mixin class is used to serialize/deserialize {@link ClientRegistration}.
- * It also registers a custom deserializer {@link ClientRegistrationDeserializer}.
+ * This mixin class is used to serialize/deserialize {@link ClientRegistration}. It also
+ * registers a custom deserializer {@link ClientRegistrationDeserializer}.
  *
  * @author Joe Grandja
  * @since 5.3
@@ -37,4 +39,5 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class ClientRegistrationMixin {
+
 }

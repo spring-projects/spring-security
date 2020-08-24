@@ -16,21 +16,21 @@
 
 package org.springframework.security.jackson2;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Jitendra Singh
@@ -44,18 +44,18 @@ public class SecurityContextMixinTests extends AbstractMixinTests {
 		+ "\"authentication\": " + UsernamePasswordAuthenticationTokenMixinTests.AUTHENTICATED_STRINGPRINCIPAL_JSON
 	+ "}";
 	// @formatter:on
-
 	@Test
 	public void securityContextSerializeTest() throws JsonProcessingException, JSONException {
 		SecurityContext context = new SecurityContextImpl();
-		context.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "1234", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))));
-		String actualJson = mapper.writeValueAsString(context);
+		context.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "1234",
+				Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))));
+		String actualJson = this.mapper.writeValueAsString(context);
 		JSONAssert.assertEquals(SECURITY_CONTEXT_JSON, actualJson, true);
 	}
 
 	@Test
 	public void securityContextDeserializeTest() throws IOException {
-		SecurityContext context = mapper.readValue(SECURITY_CONTEXT_JSON, SecurityContextImpl.class);
+		SecurityContext context = this.mapper.readValue(SECURITY_CONTEXT_JSON, SecurityContextImpl.class);
 		assertThat(context).isNotNull();
 		assertThat(context.getAuthentication()).isNotNull().isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getPrincipal()).isEqualTo("admin");
@@ -65,4 +65,5 @@ public class SecurityContextMixinTests extends AbstractMixinTests {
 		assertThat(authorities).hasSize(1);
 		assertThat(authorities).contains(new SimpleGrantedAuthority("ROLE_USER"));
 	}
+
 }

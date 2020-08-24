@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.contact;
 
 import org.springframework.security.access.prepost.PostFilter;
@@ -28,8 +29,7 @@ import java.util.List;
  * @author Ben Alex
  */
 public interface ContactManager {
-	// ~ Methods
-	// ========================================================================================================
+
 	@PreAuthorize("hasPermission(#contact, admin)")
 	void addPermission(Contact contact, Sid recipient, Permission permission);
 

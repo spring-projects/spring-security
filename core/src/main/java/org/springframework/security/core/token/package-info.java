@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * A service for building secure random tokens.
  */
 package org.springframework.security.core.token;
-

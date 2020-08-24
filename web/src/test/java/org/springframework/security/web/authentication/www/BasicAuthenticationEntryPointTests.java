@@ -36,7 +36,6 @@ public class BasicAuthenticationEntryPointTests {
 	@Test
 	public void testDetectsMissingRealmName() {
 		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
-
 		try {
 			ep.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
@@ -56,22 +55,15 @@ public class BasicAuthenticationEntryPointTests {
 	@Test
 	public void testNormalOperation() throws Exception {
 		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
-
 		ep.setRealmName("hello");
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/some_path");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		// ep.afterPropertiesSet();
-
 		ep.commence(request, response, new DisabledException("These are the jokes kid"));
-
 		assertThat(response.getStatus()).isEqualTo(401);
 		assertThat(response.getErrorMessage()).isEqualTo(HttpStatus.UNAUTHORIZED.getReasonPhrase());
-
-		assertThat(response.getHeader("WWW-Authenticate"))
-				.isEqualTo("Basic realm=\"hello\"");
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"hello\"");
 	}
+
 }

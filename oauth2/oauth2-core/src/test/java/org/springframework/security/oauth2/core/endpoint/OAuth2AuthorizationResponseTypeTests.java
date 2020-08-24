@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.endpoint;
 
 import org.junit.Test;
@@ -35,4 +36,5 @@ public class OAuth2AuthorizationResponseTypeTests {
 	public void getValueWhenResponseTypeTokenThenReturnToken() {
 		assertThat(OAuth2AuthorizationResponseType.TOKEN.getValue()).isEqualTo("token");
 	}
+
 }

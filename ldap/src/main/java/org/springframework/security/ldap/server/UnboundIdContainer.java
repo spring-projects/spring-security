@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.server;
 
 import java.io.InputStream;
@@ -37,8 +38,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author Eddú Meléndez
  */
-public class UnboundIdContainer implements InitializingBean, DisposableBean, Lifecycle,
-		ApplicationContextAware {
+public class UnboundIdContainer implements InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
 
 	private InMemoryDirectoryServer directoryServer;
 
@@ -85,20 +85,16 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 		if (isRunning()) {
 			return;
 		}
-
 		try {
 			InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(this.defaultPartitionSuffix);
 			config.addAdditionalBindCredentials("uid=admin,ou=system", "secret");
-
 			config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("LDAP", this.port));
 			config.setEnforceSingleStructuralObjectClass(false);
 			config.setEnforceAttributeSyntaxCompliance(true);
-
 			DN dn = new DN(this.defaultPartitionSuffix);
 			Entry entry = new Entry(dn);
 			entry.addAttribute("objectClass", "top", "domain", "extensibleObject");
 			entry.addAttribute("dc", dn.getRDN().getAttributeValues()[0]);
-
 			InMemoryDirectoryServer directoryServer = new InMemoryDirectoryServer(config);
 			directoryServer.add(entry);
 			importLdif(directoryServer);
@@ -106,10 +102,10 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 			this.port = directoryServer.getListenPort();
 			this.directoryServer = directoryServer;
 			this.running = true;
-		} catch (LDAPException ex) {
+		}
+		catch (LDAPException ex) {
 			throw new RuntimeException("Server startup failed", ex);
 		}
-
 	}
 
 	private void importLdif(InMemoryDirectoryServer directoryServer) {
@@ -124,7 +120,8 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 						directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
 					}
 				}
-			} catch (Exception ex) {
+			}
+			catch (Exception ex) {
 				throw new IllegalStateException("Unable to load LDIF " + this.ldif, ex);
 			}
 		}
@@ -139,4 +136,5 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 	public boolean isRunning() {
 		return this.running;
 	}
+
 }

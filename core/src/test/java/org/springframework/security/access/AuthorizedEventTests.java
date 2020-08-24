@@ -17,7 +17,7 @@
 package org.springframework.security.access;
 
 import org.junit.Test;
-import org.springframework.security.access.SecurityConfig;
+
 import org.springframework.security.access.event.AuthorizedEvent;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
@@ -37,14 +37,12 @@ public class AuthorizedEventTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRejectsNulls2() {
-
-		new AuthorizedEvent(new SimpleMethodInvocation(), null,
-				new UsernamePasswordAuthenticationToken("foo", "bar"));
+		new AuthorizedEvent(new SimpleMethodInvocation(), null, new UsernamePasswordAuthenticationToken("foo", "bar"));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRejectsNulls3() {
-		new AuthorizedEvent(new SimpleMethodInvocation(),
-				SecurityConfig.createList("TEST"), null);
+		new AuthorizedEvent(new SimpleMethodInvocation(), SecurityConfig.createList("TEST"), null);
 	}
+
 }

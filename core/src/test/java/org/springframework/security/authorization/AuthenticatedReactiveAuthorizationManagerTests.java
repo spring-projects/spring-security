@@ -20,14 +20,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -35,51 +36,47 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticatedReactiveAuthorizationManagerTests {
+
 	@Mock
 	Authentication authentication;
 
 	AuthenticatedReactiveAuthorizationManager<Object> manager = AuthenticatedReactiveAuthorizationManager
-		.authenticated();
+			.authenticated();
 
 	@Test
 	public void checkWhenAuthenticatedThenReturnTrue() {
-		when(authentication.isAuthenticated()).thenReturn(true);
-
-		boolean granted = manager.check(Mono.just(authentication), null).block().isGranted();
-
+		given(this.authentication.isAuthenticated()).willReturn(true);
+		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isTrue();
 	}
 
 	@Test
 	public void checkWhenNotAuthenticatedThenReturnFalse() {
-		boolean granted = manager.check(Mono.just(authentication), null).block().isGranted();
-
+		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenEmptyThenReturnFalse() {
-		boolean granted = manager.check(Mono.empty(), null).block().isGranted();
-
+		boolean granted = this.manager.check(Mono.empty(), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenAnonymousAuthenticatedThenReturnFalse() {
 		AnonymousAuthenticationToken anonymousAuthenticationToken = mock(AnonymousAuthenticationToken.class);
-
-		boolean granted = manager.check(Mono.just(anonymousAuthenticationToken), null).block().isGranted();
-
+		boolean granted = this.manager.check(Mono.just(anonymousAuthenticationToken), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenErrorThenError() {
-		Mono<AuthorizationDecision> result = manager.check(Mono.error(new RuntimeException("ooops")), null);
-
-		StepVerifier
-			.create(result)
-			.expectError()
-			.verify();
+		Mono<AuthorizationDecision> result = this.manager.check(Mono.error(new RuntimeException("ooops")), null);
+		// @formatter:off
+		StepVerifier.create(result)
+				.expectError()
+				.verify();
+		// @formatter:on
 	}
+
 }

@@ -21,8 +21,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
+
+import org.springframework.util.Assert;
 
 /**
  * A {@link Map} based implementation of {@link ReactiveUserDetailsService}
@@ -31,6 +32,7 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class MapReactiveUserDetailsService implements ReactiveUserDetailsService, ReactiveUserDetailsPasswordService {
+
 	private final Map<String, UserDetails> users;
 
 	/**
@@ -64,25 +66,32 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	@Override
 	public Mono<UserDetails> findByUsername(String username) {
 		String key = getKey(username);
-		UserDetails result = users.get(key);
-		return result == null ? Mono.empty() : Mono.just(User.withUserDetails(result).build());
+		UserDetails result = this.users.get(key);
+		return (result != null) ? Mono.just(User.withUserDetails(result).build()) : Mono.empty();
 	}
 
 	@Override
 	public Mono<UserDetails> updatePassword(UserDetails user, String newPassword) {
+		// @formatter:off
 		return Mono.just(user)
-				.map(u ->
-					User.withUserDetails(u)
-						.password(newPassword)
-						.build()
-				)
-				.doOnNext(u -> {
+				.map((userDetails) -> withNewPassword(userDetails, newPassword))
+				.doOnNext((userDetails) -> {
 					String key = getKey(user.getUsername());
-					this.users.put(key, u);
+					this.users.put(key, userDetails);
 				});
+		// @formatter:on
+	}
+
+	private UserDetails withNewPassword(UserDetails userDetails, String newPassword) {
+		// @formatter:off
+		return User.withUserDetails(userDetails)
+				.password(newPassword)
+				.build();
+		// @formatter:on
 	}
 
 	private String getKey(String username) {
 		return username.toLowerCase();
 	}
+
 }

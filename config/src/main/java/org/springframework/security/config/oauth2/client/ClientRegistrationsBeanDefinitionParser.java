@@ -13,7 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.oauth2.client;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.w3c.dom.Element;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
@@ -29,14 +39,6 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Element;
-
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author Ruby Hartono
@@ -45,22 +47,39 @@ import java.util.Optional;
 public final class ClientRegistrationsBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String ELT_CLIENT_REGISTRATION = "client-registration";
+
 	private static final String ELT_PROVIDER = "provider";
+
 	private static final String ATT_REGISTRATION_ID = "registration-id";
+
 	private static final String ATT_CLIENT_ID = "client-id";
+
 	private static final String ATT_CLIENT_SECRET = "client-secret";
+
 	private static final String ATT_CLIENT_AUTHENTICATION_METHOD = "client-authentication-method";
+
 	private static final String ATT_AUTHORIZATION_GRANT_TYPE = "authorization-grant-type";
+
 	private static final String ATT_REDIRECT_URI = "redirect-uri";
+
 	private static final String ATT_SCOPE = "scope";
+
 	private static final String ATT_CLIENT_NAME = "client-name";
+
 	private static final String ATT_PROVIDER_ID = "provider-id";
+
 	private static final String ATT_AUTHORIZATION_URI = "authorization-uri";
+
 	private static final String ATT_TOKEN_URI = "token-uri";
+
 	private static final String ATT_USER_INFO_URI = "user-info-uri";
+
 	private static final String ATT_USER_INFO_AUTHENTICATION_METHOD = "user-info-authentication-method";
+
 	private static final String ATT_USER_INFO_USER_NAME_ATTRIBUTE = "user-info-user-name-attribute";
+
 	private static final String ATT_JWK_SET_URI = "jwk-set-uri";
+
 	private static final String ATT_ISSUER_URI = "issuer-uri";
 
 	@Override
@@ -68,19 +87,15 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 		CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(element.getTagName(),
 				parserContext.extractSource(element));
 		parserContext.pushContainingComponent(compositeDef);
-
 		Map<String, Map<String, String>> providers = getProviders(element);
 		List<ClientRegistration> clientRegistrations = getClientRegistrations(element, parserContext, providers);
-
 		BeanDefinition clientRegistrationRepositoryBean = BeanDefinitionBuilder
 				.rootBeanDefinition(InMemoryClientRegistrationRepository.class)
-				.addConstructorArgValue(clientRegistrations)
-				.getBeanDefinition();
-		String clientRegistrationRepositoryId = parserContext.getReaderContext().generateBeanName(
-				clientRegistrationRepositoryBean);
-		parserContext.registerBeanComponent(new BeanComponentDefinition(
-				clientRegistrationRepositoryBean, clientRegistrationRepositoryId));
-
+				.addConstructorArgValue(clientRegistrations).getBeanDefinition();
+		String clientRegistrationRepositoryId = parserContext.getReaderContext()
+				.generateBeanName(clientRegistrationRepositoryBean);
+		parserContext.registerBeanComponent(
+				new BeanComponentDefinition(clientRegistrationRepositoryBean, clientRegistrationRepositoryId));
 		parserContext.popAndRegisterContainingComponent();
 		return null;
 	}
@@ -89,7 +104,6 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 			Map<String, Map<String, String>> providers) {
 		List<Element> clientRegistrationElts = DomUtils.getChildElementsByTagName(element, ELT_CLIENT_REGISTRATION);
 		List<ClientRegistration> clientRegistrations = new ArrayList<>();
-
 		for (Element clientRegistrationElt : clientRegistrationElts) {
 			String registrationId = clientRegistrationElt.getAttribute(ATT_REGISTRATION_ID);
 			String providerId = clientRegistrationElt.getAttribute(ATT_PROVIDER_ID);
@@ -103,60 +117,51 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 					continue;
 				}
 			}
-			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_ID))
-					.ifPresent(builder::clientId);
+			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_ID)).ifPresent(builder::clientId);
 			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_SECRET))
 					.ifPresent(builder::clientSecret);
 			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_AUTHENTICATION_METHOD))
-					.map(ClientAuthenticationMethod::new)
-					.ifPresent(builder::clientAuthenticationMethod);
+					.map(ClientAuthenticationMethod::new).ifPresent(builder::clientAuthenticationMethod);
 			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_AUTHORIZATION_GRANT_TYPE))
-					.map(AuthorizationGrantType::new)
-					.ifPresent(builder::authorizationGrantType);
-			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_REDIRECT_URI))
-					.ifPresent(builder::redirectUri);
+					.map(AuthorizationGrantType::new).ifPresent(builder::authorizationGrantType);
+			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_REDIRECT_URI)).ifPresent(builder::redirectUri);
 			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_SCOPE))
-					.map(StringUtils::commaDelimitedListToSet)
-					.ifPresent(builder::scope);
-			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_NAME))
-					.ifPresent(builder::clientName);
+					.map(StringUtils::commaDelimitedListToSet).ifPresent(builder::scope);
+			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_NAME)).ifPresent(builder::clientName);
 			clientRegistrations.add(builder.build());
 		}
-
 		return clientRegistrations;
 	}
 
 	private Map<String, Map<String, String>> getProviders(Element element) {
 		List<Element> providerElts = DomUtils.getChildElementsByTagName(element, ELT_PROVIDER);
 		Map<String, Map<String, String>> providers = new HashMap<>();
-
 		for (Element providerElt : providerElts) {
 			Map<String, String> provider = new HashMap<>();
 			String providerId = providerElt.getAttribute(ATT_PROVIDER_ID);
 			provider.put(ATT_PROVIDER_ID, providerId);
 			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_AUTHORIZATION_URI))
-					.ifPresent(value -> provider.put(ATT_AUTHORIZATION_URI, value));
+					.ifPresent((value) -> provider.put(ATT_AUTHORIZATION_URI, value));
 			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_TOKEN_URI))
-					.ifPresent(value -> provider.put(ATT_TOKEN_URI, value));
+					.ifPresent((value) -> provider.put(ATT_TOKEN_URI, value));
 			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_USER_INFO_URI))
-					.ifPresent(value -> provider.put(ATT_USER_INFO_URI, value));
+					.ifPresent((value) -> provider.put(ATT_USER_INFO_URI, value));
 			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_USER_INFO_AUTHENTICATION_METHOD))
-					.ifPresent(value -> provider.put(ATT_USER_INFO_AUTHENTICATION_METHOD, value));
+					.ifPresent((value) -> provider.put(ATT_USER_INFO_AUTHENTICATION_METHOD, value));
 			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_USER_INFO_USER_NAME_ATTRIBUTE))
-					.ifPresent(value -> provider.put(ATT_USER_INFO_USER_NAME_ATTRIBUTE, value));
+					.ifPresent((value) -> provider.put(ATT_USER_INFO_USER_NAME_ATTRIBUTE, value));
 			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_JWK_SET_URI))
-					.ifPresent(value -> provider.put(ATT_JWK_SET_URI, value));
+					.ifPresent((value) -> provider.put(ATT_JWK_SET_URI, value));
 			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_ISSUER_URI))
-					.ifPresent(value -> provider.put(ATT_ISSUER_URI, value));
+					.ifPresent((value) -> provider.put(ATT_ISSUER_URI, value));
 			providers.put(providerId, provider);
 		}
-
 		return providers;
 	}
 
 	private static ClientRegistration.Builder getBuilderFromIssuerIfPossible(String registrationId,
 			String configuredProviderId, Map<String, Map<String, String>> providers) {
-		String providerId = configuredProviderId != null ? configuredProviderId : registrationId;
+		String providerId = (configuredProviderId != null) ? configuredProviderId : registrationId;
 		if (providers.containsKey(providerId)) {
 			Map<String, String> provider = providers.get(providerId);
 			String issuer = provider.get(ATT_ISSUER_URI);
@@ -176,7 +181,7 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 		if (provider == null && !providers.containsKey(providerId)) {
 			return null;
 		}
-		ClientRegistration.Builder builder = provider != null ? provider.getBuilder(registrationId)
+		ClientRegistration.Builder builder = (provider != null) ? provider.getBuilder(registrationId)
 				: ClientRegistration.withRegistrationId(registrationId);
 		if (providers.containsKey(providerId)) {
 			return getBuilder(builder, providers.get(providerId));
@@ -186,24 +191,19 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 
 	private static ClientRegistration.Builder getBuilder(ClientRegistration.Builder builder,
 			Map<String, String> provider) {
-		getOptionalIfNotEmpty(provider.get(ATT_AUTHORIZATION_URI))
-				.ifPresent(builder::authorizationUri);
-		getOptionalIfNotEmpty(provider.get(ATT_TOKEN_URI))
-				.ifPresent(builder::tokenUri);
-		getOptionalIfNotEmpty(provider.get(ATT_USER_INFO_URI))
-				.ifPresent(builder::userInfoUri);
-		getOptionalIfNotEmpty(provider.get(ATT_USER_INFO_AUTHENTICATION_METHOD))
-				.map(AuthenticationMethod::new)
+		getOptionalIfNotEmpty(provider.get(ATT_AUTHORIZATION_URI)).ifPresent(builder::authorizationUri);
+		getOptionalIfNotEmpty(provider.get(ATT_TOKEN_URI)).ifPresent(builder::tokenUri);
+		getOptionalIfNotEmpty(provider.get(ATT_USER_INFO_URI)).ifPresent(builder::userInfoUri);
+		getOptionalIfNotEmpty(provider.get(ATT_USER_INFO_AUTHENTICATION_METHOD)).map(AuthenticationMethod::new)
 				.ifPresent(builder::userInfoAuthenticationMethod);
-		getOptionalIfNotEmpty(provider.get(ATT_JWK_SET_URI))
-				.ifPresent(builder::jwkSetUri);
+		getOptionalIfNotEmpty(provider.get(ATT_JWK_SET_URI)).ifPresent(builder::jwkSetUri);
 		getOptionalIfNotEmpty(provider.get(ATT_USER_INFO_USER_NAME_ATTRIBUTE))
 				.ifPresent(builder::userNameAttributeName);
 		return builder;
 	}
 
 	private static Optional<String> getOptionalIfNotEmpty(String str) {
-		return Optional.ofNullable(str).filter(s -> !s.isEmpty());
+		return Optional.ofNullable(str).filter((s) -> !s.isEmpty());
 	}
 
 	private static CommonOAuth2Provider getCommonProvider(String providerId) {
@@ -214,10 +214,12 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 			}
 			try {
 				return CommonOAuth2Provider.valueOf(value);
-			} catch (Exception ex) {
+			}
+			catch (Exception ex) {
 				return findEnum(value);
 			}
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			return null;
 		}
 	}
@@ -237,12 +239,13 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 	private static String getCanonicalName(String name) {
 		StringBuilder canonicalName = new StringBuilder(name.length());
 		name.chars().filter(Character::isLetterOrDigit).map(Character::toLowerCase)
-				.forEach(c -> canonicalName.append((char) c));
+				.forEach((c) -> canonicalName.append((char) c));
 		return canonicalName.toString();
 	}
 
 	private static String getErrorMessage(String configuredProviderId, String registrationId) {
-		return configuredProviderId != null ? "Unknown provider ID '" + configuredProviderId + "'"
+		return (configuredProviderId != null) ? "Unknown provider ID '" + configuredProviderId + "'"
 				: "Provider ID must be specified for client registration '" + registrationId + "'";
 	}
+
 }

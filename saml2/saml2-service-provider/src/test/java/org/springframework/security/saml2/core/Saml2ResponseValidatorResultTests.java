@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.saml2.core;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for verifying {@link Saml2ResponseValidatorResult}
@@ -26,8 +27,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Josh Cummings
  */
 public class Saml2ResponseValidatorResultTests {
-	private static final Saml2Error DETAIL = new Saml2Error(
-			"error", "description");
+
+	private static final Saml2Error DETAIL = new Saml2Error("error", "description");
 
 	@Test
 	public void successWhenInvokedThenReturnsSuccessfulResult() {
@@ -64,9 +65,7 @@ public class Saml2ResponseValidatorResultTests {
 	@Test
 	public void concatResultWhenInvokedThenReturnsCopyContainingAll() {
 		Saml2ResponseValidatorResult failure = Saml2ResponseValidatorResult.failure(DETAIL);
-		Saml2ResponseValidatorResult merged = failure
-				.concat(failure)
-				.concat(failure);
+		Saml2ResponseValidatorResult merged = failure.concat(failure).concat(failure);
 
 		assertThat(merged.hasErrors()).isTrue();
 		assertThat(merged.getErrors()).containsExactly(DETAIL, DETAIL, DETAIL);
@@ -75,15 +74,22 @@ public class Saml2ResponseValidatorResultTests {
 
 	@Test
 	public void concatErrorWhenNullThenIllegalArgument() {
-		assertThatThrownBy(() -> Saml2ResponseValidatorResult.failure(DETAIL)
-				.concat((Saml2Error) null))
-				.isInstanceOf(IllegalArgumentException.class);
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> Saml2ResponseValidatorResult.failure(DETAIL)
+						.concat((Saml2Error) null)
+				);
+		// @formatter:on
 	}
 
 	@Test
 	public void concatResultWhenNullThenIllegalArgument() {
-		assertThatThrownBy(() -> Saml2ResponseValidatorResult.failure(DETAIL)
-				.concat((Saml2ResponseValidatorResult) null))
-				.isInstanceOf(IllegalArgumentException.class);
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> Saml2ResponseValidatorResult.failure(DETAIL)
+						.concat((Saml2ResponseValidatorResult) null)
+				);
+		// @formatter:on
 	}
+
 }

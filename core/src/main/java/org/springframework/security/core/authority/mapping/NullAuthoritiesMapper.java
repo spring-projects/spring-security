@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.authority.mapping;
 
-import org.springframework.security.core.GrantedAuthority;
+import java.util.Collection;
 
-import java.util.*;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * @author Luke Taylor
  */
 public class NullAuthoritiesMapper implements GrantedAuthoritiesMapper {
-	public Collection<? extends GrantedAuthority> mapAuthorities(
-			Collection<? extends GrantedAuthority> authorities) {
+
+	@Override
+	public Collection<? extends GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> authorities) {
 		return authorities;
 	}
+
 }

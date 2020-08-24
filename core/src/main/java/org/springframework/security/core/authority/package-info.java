@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * The default implementation of the {@code GrantedAuthority} interface.
  */
 package org.springframework.security.core.authority;
-

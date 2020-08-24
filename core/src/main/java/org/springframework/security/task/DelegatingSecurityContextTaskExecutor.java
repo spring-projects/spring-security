@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.task;
 
 import org.springframework.core.task.TaskExecutor;
@@ -28,30 +29,27 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Rob Winch
  * @since 3.2
  */
-public class DelegatingSecurityContextTaskExecutor extends
-		DelegatingSecurityContextExecutor implements TaskExecutor {
+public class DelegatingSecurityContextTaskExecutor extends DelegatingSecurityContextExecutor implements TaskExecutor {
+
 	/**
 	 * Creates a new {@link DelegatingSecurityContextTaskExecutor} that uses the specified
 	 * {@link SecurityContext}.
-	 *
 	 * @param delegateTaskExecutor the {@link TaskExecutor} to delegate to. Cannot be
 	 * null.
 	 * @param securityContext the {@link SecurityContext} to use for each
 	 * {@link DelegatingSecurityContextRunnable}
 	 */
-	public DelegatingSecurityContextTaskExecutor(TaskExecutor delegateTaskExecutor,
-			SecurityContext securityContext) {
+	public DelegatingSecurityContextTaskExecutor(TaskExecutor delegateTaskExecutor, SecurityContext securityContext) {
 		super(delegateTaskExecutor, securityContext);
 	}
 
 	/**
 	 * Creates a new {@link DelegatingSecurityContextTaskExecutor} that uses the current
 	 * {@link SecurityContext} from the {@link SecurityContextHolder}.
-	 *
-	 * @param delegate the {@link TaskExecutor} to delegate to. Cannot be
-	 * null.
+	 * @param delegate the {@link TaskExecutor} to delegate to. Cannot be null.
 	 */
 	public DelegatingSecurityContextTaskExecutor(TaskExecutor delegate) {
 		this(delegate, null);
 	}
+
 }

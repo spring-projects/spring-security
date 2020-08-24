@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.web;
 
 import java.io.IOException;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +43,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public final class Saml2MetadataFilter extends OncePerRequestFilter {
 
 	private final Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationConverter;
+
 	private final Saml2MetadataResolver saml2MetadataResolver;
 
 	private RequestMatcher requestMatcher = new AntPathRequestMatcher(
@@ -58,20 +60,16 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
-
 		RequestMatcher.MatchResult matcher = this.requestMatcher.matcher(request);
 		if (!matcher.isMatch()) {
 			chain.doFilter(request, response);
 			return;
 		}
-
-		RelyingPartyRegistration relyingPartyRegistration =
-				this.relyingPartyRegistrationConverter.convert(request);
+		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationConverter.convert(request);
 		if (relyingPartyRegistration == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
-
 		String metadata = this.saml2MetadataResolver.resolve(relyingPartyRegistration);
 		String registrationId = relyingPartyRegistration.getRegistrationId();
 		writeMetadataToResponse(response, registrationId, metadata);
@@ -79,7 +77,6 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 
 	private void writeMetadataToResponse(HttpServletResponse response, String registrationId, String metadata)
 			throws IOException {
-
 		response.setContentType(MediaType.APPLICATION_XML_VALUE);
 		response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
 				"attachment; filename=\"saml-" + registrationId + "-metadata.xml\"");
@@ -88,13 +85,13 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * Set the {@link RequestMatcher} that determines whether this filter should
-	 * handle the incoming {@link HttpServletRequest}
-	 *
+	 * Set the {@link RequestMatcher} that determines whether this filter should handle
+	 * the incoming {@link HttpServletRequest}
 	 * @param requestMatcher
 	 */
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
 		this.requestMatcher = requestMatcher;
 	}
+
 }

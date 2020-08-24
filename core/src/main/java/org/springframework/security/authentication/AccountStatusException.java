@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.authentication;
 
 import org.springframework.security.core.AuthenticationException;
@@ -24,11 +25,13 @@ import org.springframework.security.core.AuthenticationException;
  * @author Luke Taylor
  */
 public abstract class AccountStatusException extends AuthenticationException {
+
 	public AccountStatusException(String msg) {
 		super(msg);
 	}
 
-	public AccountStatusException(String msg, Throwable t) {
-		super(msg, t);
+	public AccountStatusException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
+
 }

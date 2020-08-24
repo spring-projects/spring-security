@@ -39,11 +39,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  */
 public class NamespaceHttpBasicTests {
+
 	@Mock
 	Method method;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	ConfigurableApplicationContext context;
@@ -69,28 +72,25 @@ public class NamespaceHttpBasicTests {
 	@Test
 	public void httpBasicWithPasswordEncoder() throws Exception {
 		// @formatter:off
-		loadContext("<http>\n" +
-			"		<intercept-url pattern=\"/**\" access=\"hasRole('USER')\" />\n" +
-			"		<http-basic />\n" +
-			"	</http>\n" +
-			"\n" +
-			"	<authentication-manager id=\"authenticationManager\">\n" +
-			"		<authentication-provider>\n" +
-			"			<password-encoder ref=\"passwordEncoder\" />\n" +
-			"			<user-service>\n" +
-			"				<user name=\"user\" password=\"$2a$10$Zk1MxFEt7YYji4Ccy9xlfuewWzUMsmHZfy4UcCmNKVV6z5i/JNGJW\" authorities=\"ROLE_USER\"/>\n" +
-			"			</user-service>\n" +
-			"		</authentication-provider>\n" +
-			"	</authentication-manager>\n" +
-			"	<b:bean id=\"passwordEncoder\"\n" +
-			"		class=\"org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder\" />");
-			// @formatter:on
-
+		loadContext("<http>\n"
+			+ "	<intercept-url pattern=\"/**\" access=\"hasRole('USER')\" />\n"
+			+ "	<http-basic />\n"
+			+ "</http>\n"
+			+  "\n"
+			+  "<authentication-manager id=\"authenticationManager\">\n"
+			+  "	<authentication-provider>\n"
+			+  "		<password-encoder ref=\"passwordEncoder\" />\n"
+			+  "		<user-service>\n"
+			+  "			<user name=\"user\" password=\"$2a$10$Zk1MxFEt7YYji4Ccy9xlfuewWzUMsmHZfy4UcCmNKVV6z5i/JNGJW\" authorities=\"ROLE_USER\"/>\n"
+			+  "		</user-service>\n"
+			+  "	</authentication-provider>\n"
+			+  "</authentication-manager>\n"
+			+  "<b:bean id=\"passwordEncoder\"\n"
+			+  "	class=\"org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder\" />");
+		// @formatter:on
 		this.request.addHeader("Authorization",
 				"Basic " + Base64.getEncoder().encodeToString("user:test".getBytes("UTF-8")));
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
@@ -98,23 +98,21 @@ public class NamespaceHttpBasicTests {
 	@Test
 	public void httpBasicUnauthorizedOnDefault() throws Exception {
 		// @formatter:off
-		loadContext("<http>\n" +
-			"		<intercept-url pattern=\"/**\" access=\"hasRole('USER')\" />\n" +
-			"		<http-basic />\n" +
-			"	</http>\n" +
-			"\n" +
-			"	<authentication-manager />");
+		loadContext("<http>\n"
+			+  "	<intercept-url pattern=\"/**\" access=\"hasRole('USER')\" />\n"
+			+  "	<http-basic />\n"
+			+  "</http>\n"
+			+  "\n"
+			+  "<authentication-manager />");
 		// @formatter:on
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		assertThat(this.response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"Realm\"");
 	}
 
 	private void loadContext(String context) {
 		this.context = new InMemoryXmlApplicationContext(context);
-		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain",
-				Filter.class);
+		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain", Filter.class);
 	}
+
 }

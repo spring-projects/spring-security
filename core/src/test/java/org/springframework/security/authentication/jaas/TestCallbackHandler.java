@@ -16,11 +16,10 @@
 
 package org.springframework.security.authentication.jaas;
 
-import org.springframework.security.authentication.jaas.JaasAuthenticationCallbackHandler;
-import org.springframework.security.core.Authentication;
-
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.TextInputCallback;
+
+import org.springframework.security.core.Authentication;
 
 /**
  * TestCallbackHandler
@@ -28,13 +27,13 @@ import javax.security.auth.callback.TextInputCallback;
  * @author Ray Krueger
  */
 public class TestCallbackHandler implements JaasAuthenticationCallbackHandler {
-	// ~ Methods
-	// ========================================================================================================
 
+	@Override
 	public void handle(Callback callback, Authentication auth) {
 		if (callback instanceof TextInputCallback) {
 			TextInputCallback tic = (TextInputCallback) callback;
 			tic.setText(auth.getPrincipal().toString());
 		}
 	}
+
 }

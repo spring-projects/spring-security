@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.http.converter;
 
 import java.nio.charset.Charset;
@@ -36,26 +37,27 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.util.Assert;
 
 /**
- * A {@link HttpMessageConverter} for an {@link OAuth2AccessTokenResponse OAuth 2.0 Access Token Response}.
+ * A {@link HttpMessageConverter} for an {@link OAuth2AccessTokenResponse OAuth 2.0 Access
+ * Token Response}.
  *
- * @see AbstractHttpMessageConverter
- * @see OAuth2AccessTokenResponse
  * @author Joe Grandja
  * @since 5.1
+ * @see AbstractHttpMessageConverter
+ * @see OAuth2AccessTokenResponse
  */
-public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpMessageConverter<OAuth2AccessTokenResponse> {
+public class OAuth2AccessTokenResponseHttpMessageConverter
+		extends AbstractHttpMessageConverter<OAuth2AccessTokenResponse> {
+
 	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-	private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_RESPONSE_TYPE =
-			new ParameterizedTypeReference<Map<String, Object>>() {};
+	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
+	};
 
 	private GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters.getJsonMessageConverter();
 
-	protected Converter<Map<String, String>, OAuth2AccessTokenResponse> tokenResponseConverter =
-			new MapOAuth2AccessTokenResponseConverter();
+	protected Converter<Map<String, String>, OAuth2AccessTokenResponse> tokenResponseConverter = new MapOAuth2AccessTokenResponseConverter();
 
-	protected Converter<OAuth2AccessTokenResponse, Map<String, String>> tokenResponseParametersConverter =
-			new OAuth2AccessTokenResponseMapConverter();
+	protected Converter<OAuth2AccessTokenResponse, Map<String, String>> tokenResponseParametersConverter = new OAuth2AccessTokenResponseMapConverter();
 
 	public OAuth2AccessTokenResponseHttpMessageConverter() {
 		super(DEFAULT_CHARSET, MediaType.APPLICATION_JSON, new MediaType("application", "*+json"));
@@ -67,57 +69,63 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 	}
 
 	@Override
-	protected OAuth2AccessTokenResponse readInternal(Class<? extends OAuth2AccessTokenResponse> clazz, HttpInputMessage inputMessage)
-			throws HttpMessageNotReadableException {
-
+	@SuppressWarnings("unchecked")
+	protected OAuth2AccessTokenResponse readInternal(Class<? extends OAuth2AccessTokenResponse> clazz,
+			HttpInputMessage inputMessage) throws HttpMessageNotReadableException {
 		try {
-			// gh-6463
-			// Parse parameter values as Object in order to handle potential JSON Object and then convert values to String
-			@SuppressWarnings("unchecked")
-			Map<String, Object> tokenResponseParameters = (Map<String, Object>) this.jsonMessageConverter.read(
-					PARAMETERIZED_RESPONSE_TYPE.getType(), null, inputMessage);
-			return this.tokenResponseConverter.convert(
-					tokenResponseParameters.entrySet().stream()
-							.collect(Collectors.toMap(
-									Map.Entry::getKey,
-									entry -> String.valueOf(entry.getValue()))));
-		} catch (Exception ex) {
-			throw new HttpMessageNotReadableException("An error occurred reading the OAuth 2.0 Access Token Response: " +
-					ex.getMessage(), ex, inputMessage);
+			// gh-6463: Parse parameter values as Object in order to handle potential JSON
+			// Object and then convert values to String
+			Map<String, Object> tokenResponseParameters = (Map<String, Object>) this.jsonMessageConverter
+					.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
+			// @formatter:off
+			return this.tokenResponseConverter.convert(tokenResponseParameters
+					.entrySet()
+					.stream()
+					.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> String.valueOf(entry.getValue()))));
+			// @formatter:on
+		}
+		catch (Exception ex) {
+			throw new HttpMessageNotReadableException(
+					"An error occurred reading the OAuth 2.0 Access Token Response: " + ex.getMessage(), ex,
+					inputMessage);
 		}
 	}
 
 	@Override
 	protected void writeInternal(OAuth2AccessTokenResponse tokenResponse, HttpOutputMessage outputMessage)
 			throws HttpMessageNotWritableException {
-
 		try {
 			Map<String, String> tokenResponseParameters = this.tokenResponseParametersConverter.convert(tokenResponse);
-			this.jsonMessageConverter.write(
-					tokenResponseParameters, PARAMETERIZED_RESPONSE_TYPE.getType(), MediaType.APPLICATION_JSON, outputMessage);
-		} catch (Exception ex) {
-			throw new HttpMessageNotWritableException("An error occurred writing the OAuth 2.0 Access Token Response: " + ex.getMessage(), ex);
+			this.jsonMessageConverter.write(tokenResponseParameters, STRING_OBJECT_MAP.getType(),
+					MediaType.APPLICATION_JSON, outputMessage);
+		}
+		catch (Exception ex) {
+			throw new HttpMessageNotWritableException(
+					"An error occurred writing the OAuth 2.0 Access Token Response: " + ex.getMessage(), ex);
 		}
 	}
 
 	/**
-	 * Sets the {@link Converter} used for converting the OAuth 2.0 Access Token Response parameters
-	 * to an {@link OAuth2AccessTokenResponse}.
-	 *
-	 * @param tokenResponseConverter the {@link Converter} used for converting to an {@link OAuth2AccessTokenResponse}
+	 * Sets the {@link Converter} used for converting the OAuth 2.0 Access Token Response
+	 * parameters to an {@link OAuth2AccessTokenResponse}.
+	 * @param tokenResponseConverter the {@link Converter} used for converting to an
+	 * {@link OAuth2AccessTokenResponse}
 	 */
-	public final void setTokenResponseConverter(Converter<Map<String, String>, OAuth2AccessTokenResponse> tokenResponseConverter) {
+	public final void setTokenResponseConverter(
+			Converter<Map<String, String>, OAuth2AccessTokenResponse> tokenResponseConverter) {
 		Assert.notNull(tokenResponseConverter, "tokenResponseConverter cannot be null");
 		this.tokenResponseConverter = tokenResponseConverter;
 	}
 
 	/**
-	 * Sets the {@link Converter} used for converting the {@link OAuth2AccessTokenResponse}
-	 * to a {@code Map} representation of the OAuth 2.0 Access Token Response parameters.
-	 *
-	 * @param tokenResponseParametersConverter the {@link Converter} used for converting to a {@code Map} representation of the Access Token Response parameters
+	 * Sets the {@link Converter} used for converting the
+	 * {@link OAuth2AccessTokenResponse} to a {@code Map} representation of the OAuth 2.0
+	 * Access Token Response parameters.
+	 * @param tokenResponseParametersConverter the {@link Converter} used for converting
+	 * to a {@code Map} representation of the Access Token Response parameters
 	 */
-	public final void setTokenResponseParametersConverter(Converter<OAuth2AccessTokenResponse, Map<String, String>> tokenResponseParametersConverter) {
+	public final void setTokenResponseParametersConverter(
+			Converter<OAuth2AccessTokenResponse, Map<String, String>> tokenResponseParametersConverter) {
 		Assert.notNull(tokenResponseParametersConverter, "tokenResponseParametersConverter cannot be null");
 		this.tokenResponseParametersConverter = tokenResponseParametersConverter;
 	}

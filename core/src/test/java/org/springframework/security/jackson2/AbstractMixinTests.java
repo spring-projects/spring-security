@@ -27,13 +27,14 @@ import org.springframework.security.core.userdetails.User;
  * @since 4.2
  */
 public abstract class AbstractMixinTests {
+
 	protected ObjectMapper mapper;
 
 	@Before
 	public void setup() {
-		mapper = new ObjectMapper();
+		this.mapper = new ObjectMapper();
 		ClassLoader loader = getClass().getClassLoader();
-		mapper.registerModules(SecurityJackson2Modules.getModules(loader));
+		this.mapper.registerModules(SecurityJackson2Modules.getModules(loader));
 	}
 
 	User createDefaultUser() {
@@ -43,4 +44,5 @@ public abstract class AbstractMixinTests {
 	User createUser(String username, String password, String authority) {
 		return new User(username, password, AuthorityUtils.createAuthorityList(authority));
 	}
+
 }

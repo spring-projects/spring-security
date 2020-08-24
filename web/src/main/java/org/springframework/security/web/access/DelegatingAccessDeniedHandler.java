@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.access;
 
 import java.io.IOException;
@@ -36,13 +37,13 @@ import org.springframework.util.Assert;
  *
  */
 public final class DelegatingAccessDeniedHandler implements AccessDeniedHandler {
+
 	private final LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> handlers;
 
 	private final AccessDeniedHandler defaultHandler;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param handlers a map of the {@link AccessDeniedException} class to the
 	 * {@link AccessDeniedHandler} that should be used. Each is considered in the order
 	 * they are specified and only the first {@link AccessDeniedHandler} is ued.
@@ -58,11 +59,10 @@ public final class DelegatingAccessDeniedHandler implements AccessDeniedHandler 
 		this.defaultHandler = defaultHandler;
 	}
 
+	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
-			AccessDeniedException accessDeniedException) throws IOException,
-			ServletException {
-		for (Entry<Class<? extends AccessDeniedException>, AccessDeniedHandler> entry : handlers
-				.entrySet()) {
+			AccessDeniedException accessDeniedException) throws IOException, ServletException {
+		for (Entry<Class<? extends AccessDeniedException>, AccessDeniedHandler> entry : this.handlers.entrySet()) {
 			Class<? extends AccessDeniedException> handlerClass = entry.getKey();
 			if (handlerClass.isAssignableFrom(accessDeniedException.getClass())) {
 				AccessDeniedHandler handler = entry.getValue();
@@ -70,7 +70,7 @@ public final class DelegatingAccessDeniedHandler implements AccessDeniedHandler 
 				return;
 			}
 		}
-		defaultHandler.handle(request, response, accessDeniedException);
+		this.defaultHandler.handle(request, response, accessDeniedException);
 	}
 
 }

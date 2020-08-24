@@ -32,13 +32,14 @@ import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -46,6 +47,7 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class JwtReactiveAuthenticationManagerTests {
+
 	@Mock
 	private ReactiveJwtDecoder jwtDecoder;
 
@@ -56,82 +58,91 @@ public class JwtReactiveAuthenticationManagerTests {
 	@Before
 	public void setup() {
 		this.manager = new JwtReactiveAuthenticationManager(this.jwtDecoder);
-		this.jwt = jwt().claim("scope", "message:read message:write").build();
+		// @formatter:off
+		this.jwt = TestJwts.jwt()
+				.claim("scope", "message:read message:write")
+				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenJwtDecoderNullThenIllegalArgumentException() {
 		this.jwtDecoder = null;
-		assertThatCode(() -> new JwtReactiveAuthenticationManager(this.jwtDecoder))
-				.isInstanceOf(IllegalArgumentException.class);
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtReactiveAuthenticationManager(this.jwtDecoder));
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenWrongTypeThenEmpty() {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("foo", "bar");
-
 		assertThat(this.manager.authenticate(token).block()).isNull();
 	}
 
 	@Test
 	public void authenticateWhenEmptyJwtThenEmpty() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(token.getToken())).thenReturn(Mono.empty());
-
+		given(this.jwtDecoder.decode(token.getToken())).willReturn(Mono.empty());
 		assertThat(this.manager.authenticate(token).block()).isNull();
 	}
 
 	@Test
 	public void authenticateWhenJwtExceptionThenOAuth2AuthenticationException() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(any())).thenReturn(Mono.error(new BadJwtException("Oops")));
-
-		assertThatCode(() -> this.manager.authenticate(token).block())
-				.isInstanceOf(OAuth2AuthenticationException.class);
+		given(this.jwtDecoder.decode(any())).willReturn(Mono.error(new BadJwtException("Oops")));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.manager.authenticate(token).block());
 	}
 
 	// gh-7549
 	@Test
 	public void authenticateWhenDecoderThrowsIncompatibleErrorMessageThenWrapsWithGenericOne() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new BadJwtException("with \"invalid\" chars"));
-
-		assertThatCode(() -> this.manager.authenticate(token).block())
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasFieldOrPropertyWithValue(
-						"error.description",
-						"Invalid token");
+		given(this.jwtDecoder.decode(token.getToken())).willThrow(new BadJwtException("with \"invalid\" chars"));
+		// @formatter:off
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.manager.authenticate(token).block())
+				.satisfies((ex) -> assertThat(ex)
+						.hasFieldOrPropertyWithValue("error.description", "Invalid token")
+				);
+		// @formatter:on
 	}
 
 	// gh-7785
 	@Test
 	public void authenticateWhenDecoderFailsGenericallyThenThrowsGenericException() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new JwtException("no jwk set"));
-
-		assertThatCode(() -> this.manager.authenticate(token).block())
-				.isInstanceOf(AuthenticationException.class)
+		given(this.jwtDecoder.decode(token.getToken())).willThrow(new JwtException("no jwk set"));
+		// @formatter:off
+		assertThatExceptionOfType(AuthenticationException.class)
+				.isThrownBy(() -> this.manager.authenticate(token).block())
 				.isNotInstanceOf(OAuth2AuthenticationException.class);
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenNotJwtExceptionThenPropagates() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(any())).thenReturn(Mono.error(new RuntimeException("Oops")));
-
-		assertThatCode(() -> this.manager.authenticate(token).block())
-				.isInstanceOf(RuntimeException.class);
+		given(this.jwtDecoder.decode(any())).willReturn(Mono.error(new RuntimeException("Oops")));
+		// @formatter:off
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> this.manager.authenticate(token).block());
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenJwtThenSuccess() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(token.getToken())).thenReturn(Mono.just(this.jwt));
-
+		given(this.jwtDecoder.decode(token.getToken())).willReturn(Mono.just(this.jwt));
 		Authentication authentication = this.manager.authenticate(token).block();
-
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.isAuthenticated()).isTrue();
-		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsOnly("SCOPE_message:read", "SCOPE_message:write");
+		// @formatter:off
+		assertThat(authentication.getAuthorities())
+				.extracting(GrantedAuthority::getAuthority)
+				.containsOnly("SCOPE_message:read", "SCOPE_message:write");
+		// @formatter:on
 	}
+
 }

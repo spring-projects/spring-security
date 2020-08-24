@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.endpoint;
 
 /**
- * Standard parameter names defined in the OAuth Parameters Registry
- * and used by the authorization endpoint and token endpoint.
+ * Standard parameter names defined in the OAuth Parameters Registry and used by the
+ * authorization endpoint and token endpoint.
  *
  * @author Stephen Doxsee
  * @author Kevin Bolduc
  * @since 5.2
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-6.1">6.1 OAuth Parameters Registry</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-6.1">6.1
+ * OAuth Parameters Registry</a>
  */
 public interface PkceParameterNames {
 
@@ -40,4 +42,5 @@ public interface PkceParameterNames {
 	 * {@code code_verifier} - used in Token Request.
 	 */
 	String CODE_VERIFIER = "code_verifier";
+
 }

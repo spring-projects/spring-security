@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
@@ -38,23 +40,23 @@ import org.springframework.security.web.AuthenticationEntryPoint;
  * The <code>commence</code> method will always return an
  * <code>HttpServletResponse.SC_FORBIDDEN</code> (403 error).
  *
- * @see org.springframework.security.web.access.ExceptionTranslationFilter
- *
  * @author Luke Taylor
  * @author Ruud Senden
  * @since 2.0
+ * @see org.springframework.security.web.access.ExceptionTranslationFilter
  */
 public class Http403ForbiddenEntryPoint implements AuthenticationEntryPoint {
+
 	private static final Log logger = LogFactory.getLog(Http403ForbiddenEntryPoint.class);
 
 	/**
 	 * Always returns a 403 error code to the client.
 	 */
-	public void commence(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException arg2) throws IOException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Pre-authenticated entry point called. Rejecting access");
-		}
+	@Override
+	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException arg2)
+			throws IOException {
+		logger.debug("Pre-authenticated entry point called. Rejecting access");
 		response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
 	}
+
 }

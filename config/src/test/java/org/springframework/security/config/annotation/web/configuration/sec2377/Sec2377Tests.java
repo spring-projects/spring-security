@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configuration.sec2377;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.security.config.annotation.web.configuration.sec2377.a.Sec2377AConfig;
 import org.springframework.security.config.annotation.web.configuration.sec2377.b.Sec2377BConfig;
@@ -37,11 +39,9 @@ public class Sec2377Tests {
 	@Test
 	public void refreshContextWhenParentAndChildRegisteredThenNoException() {
 		this.parent.register(Sec2377AConfig.class).autowire();
-
-		ConfigurableApplicationContext context =
-			this.child.register(Sec2377BConfig.class).getContext();
+		ConfigurableApplicationContext context = this.child.register(Sec2377BConfig.class).getContext();
 		context.setParent(this.parent.getContext());
-
 		this.child.autowire();
 	}
+
 }

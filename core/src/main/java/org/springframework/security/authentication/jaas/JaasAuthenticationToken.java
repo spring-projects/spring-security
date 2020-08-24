@@ -18,11 +18,11 @@ package org.springframework.security.authentication.jaas;
 
 import java.util.List;
 
+import javax.security.auth.login.LoginContext;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
-
-import javax.security.auth.login.LoginContext;
 
 /**
  * UsernamePasswordAuthenticationToken extension to carry the Jaas LoginContext that the
@@ -34,30 +34,21 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final transient LoginContext loginContext;
 
-	// ~ Constructors
-	// ===================================================================================================
-
-	public JaasAuthenticationToken(Object principal, Object credentials,
-			LoginContext loginContext) {
+	public JaasAuthenticationToken(Object principal, Object credentials, LoginContext loginContext) {
 		super(principal, credentials);
 		this.loginContext = loginContext;
 	}
 
-	public JaasAuthenticationToken(Object principal, Object credentials,
-			List<GrantedAuthority> authorities, LoginContext loginContext) {
+	public JaasAuthenticationToken(Object principal, Object credentials, List<GrantedAuthority> authorities,
+			LoginContext loginContext) {
 		super(principal, credentials, authorities);
 		this.loginContext = loginContext;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public LoginContext getLoginContext() {
-		return loginContext;
+		return this.loginContext;
 	}
+
 }

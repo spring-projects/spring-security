@@ -22,20 +22,24 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.relyingPartyRegistration;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link DefaultRelyingPartyRegistrationResolver}
  */
 public class DefaultRelyingPartyRegistrationResolverTests {
-	private final RelyingPartyRegistration registration = relyingPartyRegistration().build();
-	private final RelyingPartyRegistrationRepository repository =
-			new InMemoryRelyingPartyRegistrationRepository(this.registration);
-	private final DefaultRelyingPartyRegistrationResolver resolver =
-			new DefaultRelyingPartyRegistrationResolver(this.repository);
+
+	private final RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
+			.build();
+
+	private final RelyingPartyRegistrationRepository repository = new InMemoryRelyingPartyRegistrationRepository(
+			this.registration);
+
+	private final DefaultRelyingPartyRegistrationResolver resolver = new DefaultRelyingPartyRegistrationResolver(
+			this.repository);
 
 	@Test
 	public void resolveWhenRequestContainsRegistrationIdThenResolves() {
@@ -43,8 +47,7 @@ public class DefaultRelyingPartyRegistrationResolverTests {
 		request.setPathInfo("/some/path/" + this.registration.getRegistrationId());
 		RelyingPartyRegistration registration = this.resolver.convert(request);
 		assertThat(registration).isNotNull();
-		assertThat(registration.getRegistrationId())
-				.isEqualTo(this.registration.getRegistrationId());
+		assertThat(registration.getRegistrationId()).isEqualTo(this.registration.getRegistrationId());
 		assertThat(registration.getEntityId())
 				.isEqualTo("http://localhost/saml2/service-provider-metadata/" + this.registration.getRegistrationId());
 		assertThat(registration.getAssertionConsumerServiceLocation())
@@ -68,7 +71,7 @@ public class DefaultRelyingPartyRegistrationResolverTests {
 
 	@Test
 	public void constructorWhenNullRelyingPartyRegistrationThenIllegalArgument() {
-		assertThatCode(() -> new DefaultRelyingPartyRegistrationResolver(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultRelyingPartyRegistrationResolver(null));
 	}
+
 }

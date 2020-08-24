@@ -18,39 +18,48 @@ package org.springframework.security.web.server.authorization;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import reactor.core.publisher.Mono;
+
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
 public class DelegatingReactiveAuthorizationManagerTests {
+
 	@Mock
 	ServerWebExchangeMatcher match1;
+
 	@Mock
 	ServerWebExchangeMatcher match2;
-	@Mock AuthorityReactiveAuthorizationManager<AuthorizationContext> delegate1;
-	@Mock AuthorityReactiveAuthorizationManager<AuthorizationContext> delegate2;
+
 	@Mock
+	AuthorityReactiveAuthorizationManager<AuthorizationContext> delegate1;
+
+	@Mock
+	AuthorityReactiveAuthorizationManager<AuthorizationContext> delegate2;
+
 	ServerWebExchange exchange;
+
 	@Mock
 	Mono<Authentication> authentication;
+
 	@Mock
 	AuthorizationDecision decision;
 
@@ -58,30 +67,31 @@ public class DelegatingReactiveAuthorizationManagerTests {
 
 	@Before
 	public void setup() {
-		manager = DelegatingReactiveAuthorizationManager.builder()
-			.add(new ServerWebExchangeMatcherEntry<>(match1, delegate1))
-			.add(new ServerWebExchangeMatcherEntry<>(match2, delegate2))
-			.build();
+		MockitoAnnotations.initMocks(this);
+		this.manager = DelegatingReactiveAuthorizationManager.builder()
+				.add(new ServerWebExchangeMatcherEntry<>(this.match1, this.delegate1))
+				.add(new ServerWebExchangeMatcherEntry<>(this.match2, this.delegate2)).build();
+		MockServerHttpRequest request = MockServerHttpRequest.get("/test").build();
+		this.exchange = MockServerWebExchange.from(request);
 	}
 
 	@Test
 	public void checkWhenFirstMatchesThenNoMoreMatchersAndNoMoreDelegatesInvoked() {
-		when(match1.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
-		when(delegate1.check(eq(authentication), any(AuthorizationContext.class))).thenReturn(Mono.just(decision));
-
-		assertThat(manager.check(authentication, exchange).block()).isEqualTo(decision);
-
-		verifyZeroInteractions(match2, delegate2);
+		given(this.match1.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
+		given(this.delegate1.check(eq(this.authentication), any(AuthorizationContext.class)))
+				.willReturn(Mono.just(this.decision));
+		assertThat(this.manager.check(this.authentication, this.exchange).block()).isEqualTo(this.decision);
+		verifyZeroInteractions(this.match2, this.delegate2);
 	}
 
 	@Test
 	public void checkWhenSecondMatchesThenNoMoreMatchersAndNoMoreDelegatesInvoked() {
-		when(match1.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-		when(match2.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
-		when(delegate2.check(eq(authentication), any(AuthorizationContext.class))).thenReturn(Mono.just(decision));
-
-		assertThat(manager.check(authentication, exchange).block()).isEqualTo(decision);
-
-		verifyZeroInteractions(delegate1);
+		given(this.match1.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.match2.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
+		given(this.delegate2.check(eq(this.authentication), any(AuthorizationContext.class)))
+				.willReturn(Mono.just(this.decision));
+		assertThat(this.manager.check(this.authentication, this.exchange).block()).isEqualTo(this.decision);
+		verifyZeroInteractions(this.delegate1);
 	}
+
 }

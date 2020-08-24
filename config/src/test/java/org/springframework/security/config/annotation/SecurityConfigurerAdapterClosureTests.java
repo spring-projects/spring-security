@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation;
 
+package org.springframework.security.config.annotation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +30,7 @@ import static org.mockito.Mockito.mock;
  *
  */
 public class SecurityConfigurerAdapterClosureTests {
+
 	ConcereteSecurityConfigurerAdapter conf = new ConcereteSecurityConfigurerAdapter();
 
 	@Test
@@ -42,25 +43,25 @@ public class SecurityConfigurerAdapterClosureTests {
 				return l;
 			}
 		});
-
 		this.conf.init(builder);
 		this.conf.configure(builder);
-
 		assertThat(this.conf.list).contains("a");
 	}
 
-	static class ConcereteSecurityConfigurerAdapter extends
-			SecurityConfigurerAdapter<Object, SecurityBuilder<Object>> {
-		private List<Object> list = new ArrayList<Object>();
+	static class ConcereteSecurityConfigurerAdapter extends SecurityConfigurerAdapter<Object, SecurityBuilder<Object>> {
+
+		private List<Object> list = new ArrayList<>();
 
 		@Override
 		public void configure(SecurityBuilder<Object> builder) throws Exception {
 			this.list = postProcess(this.list);
 		}
 
-		public ConcereteSecurityConfigurerAdapter list(List<Object> l) {
+		ConcereteSecurityConfigurerAdapter list(List<Object> l) {
 			this.list = l;
 			return this;
 		}
+
 	}
+
 }

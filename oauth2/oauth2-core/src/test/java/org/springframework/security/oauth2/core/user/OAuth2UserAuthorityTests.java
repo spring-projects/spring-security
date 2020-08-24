@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.core.user;
 
-import org.junit.Test;
+package org.springframework.security.oauth2.core.user;
 
 import java.util.Collections;
 import java.util.Map;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,7 +29,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class OAuth2UserAuthorityTests {
+
 	private static final String AUTHORITY = "ROLE_USER";
+
 	private static final Map<String, Object> ATTRIBUTES = Collections.singletonMap("username", "test");
 
 	@Test(expected = IllegalArgumentException.class)
@@ -49,8 +52,8 @@ public class OAuth2UserAuthorityTests {
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		OAuth2UserAuthority userAuthority = new OAuth2UserAuthority(AUTHORITY, ATTRIBUTES);
-
 		assertThat(userAuthority.getAuthority()).isEqualTo(AUTHORITY);
 		assertThat(userAuthority.getAttributes()).isEqualTo(ATTRIBUTES);
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.access.expression;
 
 import java.util.Collections;
@@ -37,14 +38,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 public class AbstractVariableEvaluationContextPostProcessorTests {
+
 	static final String KEY = "a";
 	static final String VALUE = "b";
+
 	VariableEvaluationContextPostProcessor processor;
 
 	FilterInvocation invocation;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	EvaluationContext context;
 
 	@Before
@@ -53,34 +58,33 @@ public class AbstractVariableEvaluationContextPostProcessorTests {
 		this.request = new MockHttpServletRequest();
 		this.request.setServletPath("/");
 		this.response = new MockHttpServletResponse();
-		this.invocation = new FilterInvocation(this.request, this.response,
-				new MockFilterChain());
+		this.invocation = new FilterInvocation(this.request, this.response, new MockFilterChain());
 		this.context = new StandardEvaluationContext();
 	}
 
 	@Test
 	public void extractVariables() {
 		this.context = this.processor.postProcess(this.context, this.invocation);
-
 		assertThat(this.context.lookupVariable(KEY)).isEqualTo(VALUE);
 	}
 
 	@Test
 	public void extractVariablesOnlyUsedOnce() {
 		this.context = this.processor.postProcess(this.context, this.invocation);
-
 		assertThat(this.context.lookupVariable(KEY)).isEqualTo(VALUE);
 		this.processor.results = Collections.emptyMap();
 		assertThat(this.context.lookupVariable(KEY)).isEqualTo(VALUE);
 	}
 
-	static class VariableEvaluationContextPostProcessor
-			extends AbstractVariableEvaluationContextPostProcessor {
+	static class VariableEvaluationContextPostProcessor extends AbstractVariableEvaluationContextPostProcessor {
+
 		Map<String, String> results = Collections.singletonMap(KEY, VALUE);
 
 		@Override
 		protected Map<String, String> extractVariables(HttpServletRequest request) {
 			return this.results;
 		}
+
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.support;
 
 import java.util.List;
@@ -41,23 +42,25 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @since 4.0
  */
 public abstract class WebTestUtils {
+
 	private static final SecurityContextRepository DEFAULT_CONTEXT_REPO = new HttpSessionSecurityContextRepository();
+
 	private static final CsrfTokenRepository DEFAULT_TOKEN_REPO = new HttpSessionCsrfTokenRepository();
+
+	private WebTestUtils() {
+	}
 
 	/**
 	 * Gets the {@link SecurityContextRepository} for the specified
 	 * {@link HttpServletRequest}. If one is not found, a default
 	 * {@link HttpSessionSecurityContextRepository} is used.
-	 *
 	 * @param request the {@link HttpServletRequest} to obtain the
 	 * {@link SecurityContextRepository}
 	 * @return the {@link SecurityContextRepository} for the specified
 	 * {@link HttpServletRequest}
 	 */
-	public static SecurityContextRepository getSecurityContextRepository(
-			HttpServletRequest request) {
-		SecurityContextPersistenceFilter filter = findFilter(request,
-				SecurityContextPersistenceFilter.class);
+	public static SecurityContextRepository getSecurityContextRepository(HttpServletRequest request) {
+		SecurityContextPersistenceFilter filter = findFilter(request, SecurityContextPersistenceFilter.class);
 		if (filter == null) {
 			return DEFAULT_CONTEXT_REPO;
 		}
@@ -67,15 +70,13 @@ public abstract class WebTestUtils {
 	/**
 	 * Sets the {@link SecurityContextRepository} for the specified
 	 * {@link HttpServletRequest}.
-	 *
 	 * @param request the {@link HttpServletRequest} to obtain the
 	 * {@link SecurityContextRepository}
 	 * @param securityContextRepository the {@link SecurityContextRepository} to set
 	 */
 	public static void setSecurityContextRepository(HttpServletRequest request,
 			SecurityContextRepository securityContextRepository) {
-		SecurityContextPersistenceFilter filter = findFilter(request,
-				SecurityContextPersistenceFilter.class);
+		SecurityContextPersistenceFilter filter = findFilter(request, SecurityContextPersistenceFilter.class);
 		if (filter != null) {
 			ReflectionTestUtils.setField(filter, "repo", securityContextRepository);
 		}
@@ -84,7 +85,6 @@ public abstract class WebTestUtils {
 	/**
 	 * Gets the {@link CsrfTokenRepository} for the specified {@link HttpServletRequest}.
 	 * If one is not found, the default {@link HttpSessionCsrfTokenRepository} is used.
-	 *
 	 * @param request the {@link HttpServletRequest} to obtain the
 	 * {@link CsrfTokenRepository}
 	 * @return the {@link CsrfTokenRepository} for the specified
@@ -95,19 +95,16 @@ public abstract class WebTestUtils {
 		if (filter == null) {
 			return DEFAULT_TOKEN_REPO;
 		}
-		return (CsrfTokenRepository) ReflectionTestUtils.getField(filter,
-				"tokenRepository");
+		return (CsrfTokenRepository) ReflectionTestUtils.getField(filter, "tokenRepository");
 	}
 
 	/**
 	 * Sets the {@link CsrfTokenRepository} for the specified {@link HttpServletRequest}.
-	 *
 	 * @param request the {@link HttpServletRequest} to obtain the
 	 * {@link CsrfTokenRepository}
 	 * @param repository the {@link CsrfTokenRepository} to set
 	 */
-	public static void setCsrfTokenRepository(HttpServletRequest request,
-			CsrfTokenRepository repository) {
+	public static void setCsrfTokenRepository(HttpServletRequest request, CsrfTokenRepository repository) {
 		CsrfFilter filter = findFilter(request, CsrfFilter.class);
 		if (filter != null) {
 			ReflectionTestUtils.setField(filter, "tokenRepository", repository);
@@ -115,15 +112,13 @@ public abstract class WebTestUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	static <T extends Filter> T findFilter(HttpServletRequest request,
-			Class<T> filterClass) {
+	static <T extends Filter> T findFilter(HttpServletRequest request, Class<T> filterClass) {
 		ServletContext servletContext = request.getServletContext();
 		Filter springSecurityFilterChain = getSpringSecurityFilterChain(servletContext);
 		if (springSecurityFilterChain == null) {
 			return null;
 		}
-		List<Filter> filters = ReflectionTestUtils
-				.invokeMethod(springSecurityFilterChain, "getFilters", request);
+		List<Filter> filters = ReflectionTestUtils.invokeMethod(springSecurityFilterChain, "getFilters", request);
 		if (filters == null) {
 			return null;
 		}
@@ -136,25 +131,22 @@ public abstract class WebTestUtils {
 	}
 
 	private static Filter getSpringSecurityFilterChain(ServletContext servletContext) {
-		Filter result = (Filter) servletContext
-				.getAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
+		Filter result = (Filter) servletContext.getAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
 		if (result != null) {
 			return result;
 		}
 		WebApplicationContext webApplicationContext = WebApplicationContextUtils
 				.getWebApplicationContext(servletContext);
-		if (webApplicationContext != null) {
-			try {
-				return webApplicationContext.getBean(
-						AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
-						Filter.class);
-			}
-			catch (NoSuchBeanDefinitionException notFound) {
-			}
+		if (webApplicationContext == null) {
+			return null;
 		}
-		return null;
+		try {
+			String beanName = AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME;
+			return webApplicationContext.getBean(beanName, Filter.class);
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+			return null;
+		}
 	}
 
-	private WebTestUtils() {
-	}
 }

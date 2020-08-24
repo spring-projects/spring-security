@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header.writers;
 
 /**
@@ -33,4 +34,5 @@ public final class XContentTypeOptionsHeaderWriter extends StaticHeadersWriter {
 	public XContentTypeOptionsHeaderWriter() {
 		super("X-Content-Type-Options", "nosniff");
 	}
+
 }

@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.server;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import java.io.File;
-import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,6 +41,7 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.transport.socket.SocketAcceptor;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -65,8 +66,8 @@ import org.springframework.util.Assert;
  * application context is closed to allow the bean to be disposed of and the server
  * shutdown prior to attempting to start it again.
  * <p>
- * This class is intended for testing and internal security namespace use, only, and is not
- * considered part of the framework's public API.
+ * This class is intended for testing and internal security namespace use, only, and is
+ * not considered part of the framework's public API.
  *
  * @author Luke Taylor
  * @author Rob Winch
@@ -76,115 +77,104 @@ import org.springframework.util.Assert;
  * supported with no GA version to replace it.
  */
 @Deprecated
-public class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle,
-		ApplicationContextAware {
+public class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	final DefaultDirectoryService service;
+
 	LdapServer server;
 
 	private TcpTransport transport;
+
 	private ApplicationContext ctxt;
+
 	private File workingDir;
 
 	private boolean running;
+
 	private final String ldifResources;
+
 	private final JdbmPartition partition;
+
 	private final String root;
+
 	private int port = 53389;
+
 	private int localPort;
 
 	private boolean ldapOverSslEnabled;
+
 	private File keyStoreFile;
+
 	private String certificatePassord;
 
 	public ApacheDSContainer(String root, String ldifs) throws Exception {
 		this.ldifResources = ldifs;
-		service = new DefaultDirectoryService();
+		this.service = new DefaultDirectoryService();
 		List<Interceptor> list = new ArrayList<>();
-
 		list.add(new NormalizationInterceptor());
 		list.add(new AuthenticationInterceptor());
 		list.add(new ReferralInterceptor());
-		// list.add( new AciAuthorizationInterceptor() );
-		// list.add( new DefaultAuthorizationInterceptor() );
 		list.add(new ExceptionInterceptor());
-		// list.add( new ChangeLogInterceptor() );
 		list.add(new OperationalAttributeInterceptor());
-		// list.add( new SchemaInterceptor() );
 		list.add(new SubentryInterceptor());
-		// list.add( new CollectiveAttributeInterceptor() );
-		// list.add( new EventInterceptor() );
-		// list.add( new TriggerInterceptor() );
-		// list.add( new JournalInterceptor() );
-
-		service.setInterceptors(list);
-		partition = new JdbmPartition();
-		partition.setId("rootPartition");
-		partition.setSuffix(root);
+		this.service.setInterceptors(list);
+		this.partition = new JdbmPartition();
+		this.partition.setId("rootPartition");
+		this.partition.setSuffix(root);
 		this.root = root;
-		service.addPartition(partition);
-		service.setExitVmOnShutdown(false);
-		service.setShutdownHookEnabled(false);
-		service.getChangeLog().setEnabled(false);
-		service.setDenormalizeOpAttrsEnabled(true);
+		this.service.addPartition(this.partition);
+		this.service.setExitVmOnShutdown(false);
+		this.service.setShutdownHookEnabled(false);
+		this.service.getChangeLog().setEnabled(false);
+		this.service.setDenormalizeOpAttrsEnabled(true);
 	}
 
+	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (workingDir == null) {
+		if (this.workingDir == null) {
 			String apacheWorkDir = System.getProperty("apacheDSWorkDir");
-
 			if (apacheWorkDir == null) {
 				apacheWorkDir = createTempDirectory("apacheds-spring-security-");
 			}
-
 			setWorkingDirectory(new File(apacheWorkDir));
 		}
-		if (this.ldapOverSslEnabled && this.keyStoreFile == null) {
-			throw new IllegalArgumentException("When LdapOverSsl is enabled, the keyStoreFile property must be set.");
-		}
-
-		server = new LdapServer();
-		server.setDirectoryService(service);
+		Assert.isTrue(!this.ldapOverSslEnabled || this.keyStoreFile != null,
+				"When LdapOverSsl is enabled, the keyStoreFile property must be set.");
+		this.server = new LdapServer();
+		this.server.setDirectoryService(this.service);
 		// AbstractLdapIntegrationTests assume IPv4, so we specify the same here
-
-		this.transport = new TcpTransport(port);
-		if (ldapOverSslEnabled) {
-				transport.setEnableSSL(true);
-				server.setKeystoreFile(this.keyStoreFile.getAbsolutePath());
-				server.setCertificatePassword(this.certificatePassord);
+		this.transport = new TcpTransport(this.port);
+		if (this.ldapOverSslEnabled) {
+			this.transport.setEnableSSL(true);
+			this.server.setKeystoreFile(this.keyStoreFile.getAbsolutePath());
+			this.server.setCertificatePassword(this.certificatePassord);
 		}
-		server.setTransports(transport);
+		this.server.setTransports(this.transport);
 		start();
 	}
 
+	@Override
 	public void destroy() {
 		stop();
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
-		ctxt = applicationContext;
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.ctxt = applicationContext;
 	}
 
 	public void setWorkingDirectory(File workingDir) {
 		Assert.notNull(workingDir, "workingDir cannot be null");
-
-		logger.info("Setting working directory for LDAP_PROVIDER: "
-				+ workingDir.getAbsolutePath());
-
-		if (workingDir.exists()) {
-			throw new IllegalArgumentException(
-					"The specified working directory '"
-							+ workingDir.getAbsolutePath()
-							+ "' already exists. Another directory service instance may be using it or it may be from a "
-							+ " previous unclean shutdown. Please confirm and delete it or configure a different "
-							+ "working directory");
-		}
-
+		this.logger.info("Setting working directory for LDAP_PROVIDER: " + workingDir.getAbsolutePath());
+		Assert.isTrue(!workingDir.exists(),
+				"The specified working directory '" + workingDir.getAbsolutePath()
+						+ "' already exists. Another directory service instance may be using it or it may be from a "
+						+ " previous unclean shutdown. Please confirm and delete it or configure a different "
+						+ "working directory");
 		this.workingDir = workingDir;
-
-		service.setWorkingDirectory(workingDir);
+		this.service.setWorkingDirectory(workingDir);
 	}
 
 	public void setPort(int port) {
@@ -197,7 +187,6 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
 	/**
 	 * Returns the port that is resolved by {@link TcpTransport}.
-	 *
 	 * @return the port that is resolved by {@link TcpTransport}
 	 */
 	public int getLocalPort() {
@@ -207,7 +196,6 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 	/**
 	 * If set to {@code true} will enable LDAP over SSL (LDAPs). If set to {@code true}
 	 * {@link ApacheDSContainer#setCertificatePassord(String)} must be set as well.
-	 *
 	 * @param ldapOverSslEnabled If not set, will default to false
 	 */
 	public void setLdapOverSslEnabled(boolean ldapOverSslEnabled) {
@@ -215,7 +203,8 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 	}
 
 	/**
-	 * The keyStore must not be null and must be a valid file. Will set the keyStore file on the underlying {@link LdapServer}.
+	 * The keyStore must not be null and must be a valid file. Will set the keyStore file
+	 * on the underlying {@link LdapServer}.
 	 * @param keyStoreFile Mandatory if LDAPs is enabled
 	 */
 	public void setKeyStoreFile(File keyStoreFile) {
@@ -226,7 +215,6 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
 	/**
 	 * Will set the certificate password on the underlying {@link LdapServer}.
-	 *
 	 * @param certificatePassord May be null
 	 */
 	public void setCertificatePassord(String certificatePassord) {
@@ -234,125 +222,107 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 	}
 
 	public DefaultDirectoryService getService() {
-		return service;
+		return this.service;
 	}
 
+	@Override
 	public void start() {
 		if (isRunning()) {
 			return;
 		}
-
-		if (service.isStarted()) {
-			throw new IllegalStateException("DirectoryService is already running.");
-		}
-
-		logger.info("Starting directory server...");
+		Assert.state(!this.service.isStarted(), "DirectoryService is already running.");
+		this.logger.info("Starting directory server...");
 		try {
-			service.startup();
-			server.start();
+			this.service.startup();
+			this.server.start();
 		}
-		catch (Exception e) {
-			throw new RuntimeException("Server startup failed", e);
+		catch (Exception ex) {
+			throw new RuntimeException("Server startup failed", ex);
 		}
-
 		try {
-			service.getAdminSession().lookup(partition.getSuffixDn());
+			this.service.getAdminSession().lookup(this.partition.getSuffixDn());
 		}
-		catch (LdapNameNotFoundException e) {
-			try {
-				LdapDN dn = new LdapDN(root);
-				Assert.isTrue(root.startsWith("dc="), "root must start with dc=");
-				String dc = root.substring(3, root.indexOf(','));
-				ServerEntry entry = service.newEntry(dn);
-				entry.add("objectClass", "top", "domain", "extensibleObject");
-				entry.add("dc", dc);
-				service.getAdminSession().add(entry);
-			}
-			catch (Exception e1) {
-				logger.error("Failed to create dc entry", e1);
-			}
+		catch (LdapNameNotFoundException ex) {
+			handleLdapNameNotFoundException();
 		}
-		catch (Exception e) {
-			logger.error("Lookup failed", e);
+		catch (Exception ex) {
+			this.logger.error("Lookup failed", ex);
 		}
-
 		SocketAcceptor socketAcceptor = this.server.getSocketAcceptor(this.transport);
 		InetSocketAddress localAddress = socketAcceptor.getLocalAddress();
 		this.localPort = localAddress.getPort();
-
-		running = true;
-
+		this.running = true;
 		try {
 			importLdifs();
 		}
-		catch (Exception e) {
-			throw new RuntimeException("Failed to import LDIF file(s)", e);
+		catch (Exception ex) {
+			throw new RuntimeException("Failed to import LDIF file(s)", ex);
 		}
 	}
 
+	private void handleLdapNameNotFoundException() {
+		try {
+			LdapDN dn = new LdapDN(this.root);
+			Assert.isTrue(this.root.startsWith("dc="), "root must start with dc=");
+			String dc = this.root.substring(3, this.root.indexOf(','));
+			ServerEntry entry = this.service.newEntry(dn);
+			entry.add("objectClass", "top", "domain", "extensibleObject");
+			entry.add("dc", dc);
+			this.service.getAdminSession().add(entry);
+		}
+		catch (Exception ex) {
+			this.logger.error("Failed to create dc entry", ex);
+		}
+	}
+
+	@Override
 	public void stop() {
 		if (!isRunning()) {
 			return;
 		}
-
-		logger.info("Shutting down directory server ...");
+		this.logger.info("Shutting down directory server ...");
 		try {
-			server.stop();
-			service.shutdown();
+			this.server.stop();
+			this.service.shutdown();
 		}
-		catch (Exception e) {
-			logger.error("Shutdown failed", e);
+		catch (Exception ex) {
+			this.logger.error("Shutdown failed", ex);
 			return;
 		}
-
-		running = false;
-
-		if (workingDir.exists()) {
-			logger.info("Deleting working directory " + workingDir.getAbsolutePath());
-			deleteDir(workingDir);
+		this.running = false;
+		if (this.workingDir.exists()) {
+			this.logger.info("Deleting working directory " + this.workingDir.getAbsolutePath());
+			deleteDir(this.workingDir);
 		}
 	}
 
 	private void importLdifs() throws Exception {
 		// Import any ldif files
-		Resource[] ldifs;
-
-		if (ctxt == null) {
-			// Not running within an app context
-			ldifs = new PathMatchingResourcePatternResolver().getResources(ldifResources);
-		}
-		else {
-			ldifs = ctxt.getResources(ldifResources);
-		}
-
+		Resource[] ldifs = (this.ctxt != null) ? this.ctxt.getResources(this.ldifResources)
+				: new PathMatchingResourcePatternResolver().getResources(this.ldifResources);
 		// Note that we can't just import using the ServerContext returned
 		// from starting Apache DS, apparently because of the long-running issue
 		// DIRSERVER-169.
 		// We need a standard context.
 		// DirContext dirContext = contextSource.getReadWriteContext();
-
 		if (ldifs == null || ldifs.length == 0) {
 			return;
 		}
+		Assert.isTrue(ldifs.length == 1, () -> "More than one LDIF resource found with the supplied pattern:"
+				+ this.ldifResources + " Got " + Arrays.toString(ldifs));
+		String ldifFile = getLdifFile(ldifs);
+		this.logger.info("Loading LDIF file: " + ldifFile);
+		LdifFileLoader loader = new LdifFileLoader(this.service.getAdminSession(), new File(ldifFile), null,
+				getClass().getClassLoader());
+		loader.execute();
+	}
 
-		if (ldifs.length == 1) {
-			String ldifFile;
-
-			try {
-				ldifFile = ldifs[0].getFile().getAbsolutePath();
-			}
-			catch (IOException e) {
-				ldifFile = ldifs[0].getURI().toString();
-			}
-			logger.info("Loading LDIF file: " + ldifFile);
-			LdifFileLoader loader = new LdifFileLoader(service.getAdminSession(),
-					new File(ldifFile), null, getClass().getClassLoader());
-			loader.execute();
+	private String getLdifFile(Resource[] ldifs) throws IOException {
+		try {
+			return ldifs[0].getFile().getAbsolutePath();
 		}
-		else {
-			throw new IllegalArgumentException(
-					"More than one LDIF resource found with the supplied pattern:"
-							+ ldifResources + " Got " + Arrays.toString(ldifs));
+		catch (IOException ex) {
+			return ldifs[0].getURI().toString();
 		}
 	}
 
@@ -360,7 +330,6 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 		String parentTempDir = System.getProperty("java.io.tmpdir");
 		String fileNamePrefix = prefix + System.nanoTime();
 		String fileName = fileNamePrefix;
-
 		for (int i = 0; i < 1000; i++) {
 			File tempDir = new File(parentTempDir, fileName);
 			if (!tempDir.exists()) {
@@ -368,9 +337,8 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 			}
 			fileName = fileNamePrefix + "~" + i;
 		}
-
-		throw new IOException("Failed to create a temporary directory for file at "
-				+ new File(parentTempDir, fileNamePrefix));
+		throw new IOException(
+				"Failed to create a temporary directory for file at " + new File(parentTempDir, fileNamePrefix));
 	}
 
 	private boolean deleteDir(File dir) {
@@ -383,11 +351,12 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 				}
 			}
 		}
-
 		return dir.delete();
 	}
 
+	@Override
 	public boolean isRunning() {
-		return running;
+		return this.running;
 	}
+
 }

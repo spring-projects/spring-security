@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.oauth2.client;
 
 import okhttp3.mockwebserver.MockResponse;
@@ -20,6 +21,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -41,27 +43,30 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Ruby Hartono
  */
 public class ClientRegistrationsBeanDefinitionParserTests {
+
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/oauth2/client/ClientRegistrationsBeanDefinitionParserTests";
 
-	private static final String ISSUER_URI_XML_CONFIG = "<b:beans xmlns:b=\"http://www.springframework.org/schema/beans\"\n" +
-			"\t\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-			"\t\txmlns=\"http://www.springframework.org/schema/security\"\n" +
-			"\t\txsi:schemaLocation=\"\n" +
-			"\t\t\thttp://www.springframework.org/schema/security\n" +
-			"\t\t\thttps://www.springframework.org/schema/security/spring-security.xsd\n" +
-			"\t\t\thttp://www.springframework.org/schema/beans\n" +
-			"\t\t\thttps://www.springframework.org/schema/beans/spring-beans.xsd\">\n" +
-			"\n" +
-			"\t<client-registrations>\n" +
-			"\t\t<client-registration registration-id=\"google-login\" client-id=\"google-client-id\" \n" +
-			"\t\t\t\t\t\t\t client-secret=\"google-client-secret\" provider-id=\"google\"/>\n" +
-			"\t\t<provider provider-id=\"google\" issuer-uri=\"${issuer-uri}\"/>\n" +
-			"\t</client-registrations>\n" +
-			"\n" +
-			"</b:beans>\n";
+	// @formatter:off
+	private static final String ISSUER_URI_XML_CONFIG = "<b:beans xmlns:b=\"http://www.springframework.org/schema/beans\"\n"
+			+ "		xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+			+ "		xmlns=\"http://www.springframework.org/schema/security\"\n"
+			+ "		xsi:schemaLocation=\"\n"
+			+ "			http://www.springframework.org/schema/security\n"
+			+ "			https://www.springframework.org/schema/security/spring-security.xsd\n"
+			+ "			http://www.springframework.org/schema/beans\n"
+			+ "			https://www.springframework.org/schema/beans/spring-beans.xsd\">\n"
+			+ "\n"
+			+ "	<client-registrations>\n"
+			+ "		<client-registration registration-id=\"google-login\" client-id=\"google-client-id\" \n"
+			+ "							 client-secret=\"google-client-secret\" provider-id=\"google\"/>\n"
+			+ "		<provider provider-id=\"google\" issuer-uri=\"${issuer-uri}\"/>\n"
+			+ "	</client-registrations>\n"
+			+ "\n"
+			+ "</b:beans>\n";
+	// @formatter:on
 
-	private static final String OIDC_DISCOVERY_RESPONSE =
-			"{\n"
+	// @formatter:off
+	private static final String OIDC_DISCOVERY_RESPONSE = "{\n"
 			+ "    \"authorization_endpoint\": \"https://example.com/o/oauth2/v2/auth\", \n"
 			+ "    \"claims_supported\": [\n"
 			+ "        \"aud\", \n"
@@ -114,6 +119,7 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 			+ "    ], \n"
 			+ "    \"userinfo_endpoint\": \"https://example.com/oauth2/v3/userinfo\"\n"
 			+ "}";
+	// @formatter:on
 
 	@Autowired
 	private ClientRegistrationRepository clientRegistrationRepository;
@@ -135,16 +141,12 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		String serverUrl = this.server.url("/").toString();
-
 		String discoveryResponse = OIDC_DISCOVERY_RESPONSE.replace("${issuer-uri}", serverUrl);
 		this.server.enqueue(jsonResponse(discoveryResponse));
-
 		String contextConfig = ISSUER_URI_XML_CONFIG.replace("${issuer-uri}", serverUrl);
 		this.spring.context(contextConfig).autowire();
-
-		assertThat(clientRegistrationRepository).isInstanceOf(InMemoryClientRegistrationRepository.class);
-
-		ClientRegistration googleRegistration = clientRegistrationRepository.findByRegistrationId("google-login");
+		assertThat(this.clientRegistrationRepository).isInstanceOf(InMemoryClientRegistrationRepository.class);
+		ClientRegistration googleRegistration = this.clientRegistrationRepository.findByRegistrationId("google-login");
 		assertThat(googleRegistration).isNotNull();
 		assertThat(googleRegistration.getRegistrationId()).isEqualTo("google-login");
 		assertThat(googleRegistration.getClientId()).isEqualTo("google-client-id");
@@ -154,7 +156,6 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleRegistration.getRedirectUri()).isEqualTo("{baseUrl}/{action}/oauth2/code/{registrationId}");
 		assertThat(googleRegistration.getScopes()).isNull();
 		assertThat(googleRegistration.getClientName()).isEqualTo(serverUrl);
-
 		ProviderDetails googleProviderDetails = googleRegistration.getProviderDetails();
 		assertThat(googleProviderDetails).isNotNull();
 		assertThat(googleProviderDetails.getAuthorizationUri()).isEqualTo("https://example.com/o/oauth2/v2/auth");
@@ -170,11 +171,10 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 
 	@Test
 	public void parseWhenMultipleClientsConfiguredThenAvailableInRepository() {
-		this.spring.configLocations(this.xml("MultiClientRegistration")).autowire();
-
-		assertThat(clientRegistrationRepository).isInstanceOf(InMemoryClientRegistrationRepository.class);
-
-		ClientRegistration googleRegistration = clientRegistrationRepository.findByRegistrationId("google-login");
+		this.spring.configLocations(ClientRegistrationsBeanDefinitionParserTests.xml("MultiClientRegistration"))
+				.autowire();
+		assertThat(this.clientRegistrationRepository).isInstanceOf(InMemoryClientRegistrationRepository.class);
+		ClientRegistration googleRegistration = this.clientRegistrationRepository.findByRegistrationId("google-login");
 		assertThat(googleRegistration).isNotNull();
 		assertThat(googleRegistration.getRegistrationId()).isEqualTo("google-login");
 		assertThat(googleRegistration.getClientId()).isEqualTo("google-client-id");
@@ -182,9 +182,9 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(googleRegistration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(googleRegistration.getRedirectUri()).isEqualTo("{baseUrl}/login/oauth2/code/{registrationId}");
-		assertThat(googleRegistration.getScopes()).isEqualTo(StringUtils.commaDelimitedListToSet("openid,profile,email"));
+		assertThat(googleRegistration.getScopes())
+				.isEqualTo(StringUtils.commaDelimitedListToSet("openid,profile,email"));
 		assertThat(googleRegistration.getClientName()).isEqualTo("Google");
-
 		ProviderDetails googleProviderDetails = googleRegistration.getProviderDetails();
 		assertThat(googleProviderDetails).isNotNull();
 		assertThat(googleProviderDetails.getAuthorizationUri())
@@ -197,8 +197,7 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleProviderDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo("sub");
 		assertThat(googleProviderDetails.getJwkSetUri()).isEqualTo("https://www.googleapis.com/oauth2/v3/certs");
 		assertThat(googleProviderDetails.getIssuerUri()).isEqualTo("https://accounts.google.com");
-
-		ClientRegistration githubRegistration = clientRegistrationRepository.findByRegistrationId("github-login");
+		ClientRegistration githubRegistration = this.clientRegistrationRepository.findByRegistrationId("github-login");
 		assertThat(githubRegistration).isNotNull();
 		assertThat(githubRegistration.getRegistrationId()).isEqualTo("github-login");
 		assertThat(githubRegistration.getClientId()).isEqualTo("github-client-id");
@@ -206,9 +205,9 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(githubRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(githubRegistration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(githubRegistration.getRedirectUri()).isEqualTo("{baseUrl}/login/oauth2/code/{registrationId}");
-		assertThat(googleRegistration.getScopes()).isEqualTo(StringUtils.commaDelimitedListToSet("openid,profile,email"));
+		assertThat(googleRegistration.getScopes())
+				.isEqualTo(StringUtils.commaDelimitedListToSet("openid,profile,email"));
 		assertThat(githubRegistration.getClientName()).isEqualTo("Github");
-
 		ProviderDetails githubProviderDetails = githubRegistration.getProviderDetails();
 		assertThat(githubProviderDetails).isNotNull();
 		assertThat(githubProviderDetails.getAuthorizationUri()).isEqualTo("https://github.com/login/oauth/authorize");
@@ -220,12 +219,11 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 	}
 
 	private static MockResponse jsonResponse(String json) {
-		return new MockResponse()
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(json);
+		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
 	}
 
 	private static String xml(String configName) {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
+
 }

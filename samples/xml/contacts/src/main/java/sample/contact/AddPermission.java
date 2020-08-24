@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.contact;
 
 import org.springframework.security.acls.domain.BasePermission;
@@ -23,15 +24,12 @@ import org.springframework.security.acls.domain.BasePermission;
  * @author Ben Alex
  */
 public class AddPermission {
-	// ~ Instance fields
-	// ================================================================================================
+
 
 	public Contact contact;
 	public Integer permission = BasePermission.READ.getMask();
 	public String recipient;
 
-	// ~ Methods
-	// ========================================================================================================
 
 	public Contact getContact() {
 		return contact;

@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.integration;
 
-import static org.assertj.core.api.Assertions.*;
+package org.springframework.security.integration;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ContextConfiguration(locations = { "/sec-933-app-context.xml" })
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -33,6 +35,7 @@ public class SEC933ApplicationContextTests {
 
 	@Test
 	public void testSimpleApplicationContextBootstrap() {
-		assertThat(userDetailsService).isNotNull();
+		assertThat(this.userDetailsService).isNotNull();
 	}
+
 }

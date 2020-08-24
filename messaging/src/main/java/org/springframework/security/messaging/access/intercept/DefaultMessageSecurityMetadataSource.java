@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.access.intercept;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.messaging.Message;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.messaging.access.expression.ExpressionBasedMessageSecurityMetadataSourceFactory;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
-
-import java.util.*;
 
 /**
  * A default implementation of {@link MessageSecurityMetadataSource} that looks up the
@@ -31,14 +36,13 @@ import java.util.*;
  * {@code Collection<ConfigAttribute>} is returned.
  * </p>
  *
+ * @author Rob Winch
+ * @since 4.0
  * @see ChannelSecurityInterceptor
  * @see ExpressionBasedMessageSecurityMetadataSourceFactory
- *
- * @since 4.0
- * @author Rob Winch
  */
-public final class DefaultMessageSecurityMetadataSource implements
-		MessageSecurityMetadataSource {
+public final class DefaultMessageSecurityMetadataSource implements MessageSecurityMetadataSource {
+
 	private final Map<MessageMatcher<?>, Collection<ConfigAttribute>> messageMap;
 
 	public DefaultMessageSecurityMetadataSource(
@@ -46,12 +50,11 @@ public final class DefaultMessageSecurityMetadataSource implements
 		this.messageMap = messageMap;
 	}
 
+	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Collection<ConfigAttribute> getAttributes(Object object)
-			throws IllegalArgumentException {
+	public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
 		final Message message = (Message) object;
-		for (Map.Entry<MessageMatcher<?>, Collection<ConfigAttribute>> entry : messageMap
-				.entrySet()) {
+		for (Map.Entry<MessageMatcher<?>, Collection<ConfigAttribute>> entry : this.messageMap.entrySet()) {
 			if (entry.getKey().matches(message)) {
 				return entry.getValue();
 			}
@@ -59,17 +62,18 @@ public final class DefaultMessageSecurityMetadataSource implements
 		return null;
 	}
 
+	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> allAttributes = new HashSet<>();
-
-		for (Collection<ConfigAttribute> entry : messageMap.values()) {
+		for (Collection<ConfigAttribute> entry : this.messageMap.values()) {
 			allAttributes.addAll(entry);
 		}
-
 		return allAttributes;
 	}
 
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return Message.class.isAssignableFrom(clazz);
 	}
+
 }

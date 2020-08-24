@@ -39,14 +39,10 @@ import static org.mockito.Mockito.verify;
  */
 public class JdbcDaoImplTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	private JdbcDaoImpl makePopulatedJdbcDao() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 		dao.setDataSource(PopulatedDatabase.getDataSource());
 		dao.afterPropertiesSet();
-
 		return dao;
 	}
 
@@ -55,7 +51,6 @@ public class JdbcDaoImplTests {
 		dao.setDataSource(PopulatedDatabase.getDataSource());
 		dao.setRolePrefix("ARBITRARY_PREFIX_");
 		dao.afterPropertiesSet();
-
 		return dao;
 	}
 
@@ -66,21 +61,16 @@ public class JdbcDaoImplTests {
 		assertThat(user.getUsername()).isEqualTo("rod");
 		assertThat(user.getPassword()).isEqualTo("koala");
 		assertThat(user.isEnabled()).isTrue();
-
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
-				.contains("ROLE_TELLER");
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
-				.contains("ROLE_SUPERVISOR");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_TELLER");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_SUPERVISOR");
 	}
 
 	@Test
-	public void testCheckDaoOnlyReturnsGrantedAuthoritiesGrantedToUser()
-			throws Exception {
+	public void testCheckDaoOnlyReturnsGrantedAuthoritiesGrantedToUser() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 		UserDetails user = dao.loadUserByUsername("scott");
 		assertThat(user.getAuthorities()).hasSize(1);
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
-				.contains("ROLE_TELLER");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_TELLER");
 	}
 
 	@Test
@@ -95,7 +85,6 @@ public class JdbcDaoImplTests {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 		dao.setAuthoritiesByUsernameQuery("SELECT * FROM FOO");
 		assertThat(dao.getAuthoritiesByUsernameQuery()).isEqualTo("SELECT * FROM FOO");
-
 		dao.setUsersByUsernameQuery("SELECT USERS FROM FOO");
 		assertThat(dao.getUsersByUsernameQuery()).isEqualTo("SELECT USERS FROM FOO");
 	}
@@ -103,7 +92,6 @@ public class JdbcDaoImplTests {
 	@Test
 	public void testLookupFailsIfUserHasNoGrantedAuthorities() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
-
 		try {
 			dao.loadUserByUsername("cooper");
 			fail("Should have thrown UsernameNotFoundException");
@@ -115,13 +103,11 @@ public class JdbcDaoImplTests {
 	@Test
 	public void testLookupFailsWithWrongUsername() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
-
 		try {
 			dao.loadUserByUsername("UNKNOWN_USER");
 			fail("Should have thrown UsernameNotFoundException");
 		}
 		catch (UsernameNotFoundException expected) {
-
 		}
 	}
 
@@ -136,13 +122,10 @@ public class JdbcDaoImplTests {
 	public void testRolePrefixWorks() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDaoWithRolePrefix();
 		assertThat(dao.getRolePrefix()).isEqualTo("ARBITRARY_PREFIX_");
-
 		UserDetails user = dao.loadUserByUsername("rod");
 		assertThat(user.getUsername()).isEqualTo("rod");
 		assertThat(user.getAuthorities()).hasSize(2);
-
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
-				.contains("ARBITRARY_PREFIX_ROLE_TELLER");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ARBITRARY_PREFIX_ROLE_TELLER");
 		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
 				.contains("ARBITRARY_PREFIX_ROLE_SUPERVISOR");
 	}
@@ -152,7 +135,6 @@ public class JdbcDaoImplTests {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 		dao.setEnableAuthorities(false);
 		dao.setEnableGroups(true);
-
 		UserDetails jerry = dao.loadUserByUsername("jerry");
 		assertThat(jerry.getAuthorities()).hasSize(3);
 	}
@@ -170,34 +152,29 @@ public class JdbcDaoImplTests {
 	@Test
 	public void testStartupFailsIfDataSourceNotSet() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
-
 		try {
 			dao.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
 	@Test
 	public void testStartupFailsIfUserMapSetToNull() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
-
 		try {
 			dao.setDataSource(null);
 			dao.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setMessageSourceWhenNullThenThrowsException() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
-
 		dao.setMessageSource(null);
 	}
 
@@ -207,9 +184,8 @@ public class JdbcDaoImplTests {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 		dao.setMessageSource(source);
 		String code = "code";
-
 		dao.getMessages().getMessage(code);
-
 		verify(source).getMessage(eq(code), any(), any());
 	}
+
 }

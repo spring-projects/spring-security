@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.savedrequest;
 
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
+import java.util.Base64;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import java.util.Base64;
+import org.junit.Test;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Zeeshan Adnan
@@ -37,7 +39,6 @@ public class CookieRequestCacheTests {
 	@Test
 	public void saveRequestWhenMatchesThenSavedRequestInACookieOnResponse() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setServerPort(443);
 		request.setSecure(true);
@@ -46,15 +47,11 @@ public class CookieRequestCacheTests {
 		request.setRequestURI("/destination");
 		request.setQueryString("param1=a&param2=b&param3=1122");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		cookieRequestCache.saveRequest(request, response);
-
 		Cookie savedCookie = response.getCookie(DEFAULT_COOKIE_NAME);
 		assertThat(savedCookie).isNotNull();
-
 		String redirectUrl = decodeCookie(savedCookie.getValue());
 		assertThat(redirectUrl).isEqualTo("https://abc.com/destination?param1=a&param2=b&param3=1122");
-
 		assertThat(savedCookie.getMaxAge()).isEqualTo(-1);
 		assertThat(savedCookie.getPath()).isEqualTo("/");
 		assertThat(savedCookie.isHttpOnly()).isTrue();
@@ -64,22 +61,18 @@ public class CookieRequestCacheTests {
 	@Test
 	public void setRequestMatcherWhenRequestMatcherIsSetNullThenThrowsIllegalArgumentException() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
-		assertThatThrownBy(() -> cookieRequestCache.setRequestMatcher(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> cookieRequestCache.setRequestMatcher(null));
 	}
 
 	@Test
 	public void getMatchingRequestWhenRequestMatcherDefinedThenReturnsCorrectSubsetOfCachedRequests() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
-		cookieRequestCache.setRequestMatcher(request -> request.getRequestURI().equals("/expected-destination"));
-
+		cookieRequestCache.setRequestMatcher((request) -> request.getRequestURI().equals("/expected-destination"));
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cookieRequestCache.saveRequest(request, response);
-
 		SavedRequest savedRequest = cookieRequestCache.getRequest(request, response);
 		assertThat(savedRequest).isNull();
-
 		HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(request, response);
 		assertThat(matchingRequest).isNull();
 	}
@@ -87,7 +80,8 @@ public class CookieRequestCacheTests {
 	@Test
 	public void getRequestWhenRequestIsWithoutCookiesThenReturnsNullSavedRequest() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
-		SavedRequest savedRequest = cookieRequestCache.getRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
+		SavedRequest savedRequest = cookieRequestCache.getRequest(new MockHttpServletRequest(),
+				new MockHttpServletResponse());
 		assertThat(savedRequest).isNull();
 	}
 
@@ -102,12 +96,10 @@ public class CookieRequestCacheTests {
 
 	@Test
 	public void getRequestWhenRequestContainsSavedRequestCookieThenReturnsSaveRequest() {
-
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		String redirectUrl = "https://abc.com/destination?param1=a&param2=b&param3=1122";
 		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
-
 		SavedRequest savedRequest = cookieRequestCache.getRequest(request, new MockHttpServletResponse());
 		assertThat(savedRequest).isNotNull();
 		assertThat(savedRequest.getRedirectUrl()).isEqualTo(redirectUrl);
@@ -115,11 +107,10 @@ public class CookieRequestCacheTests {
 
 	@Test
 	public void matchingRequestWhenRequestDoesNotContainSavedRequestCookieThenReturnsNull() {
-
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
-		HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(new MockHttpServletRequest(), response);
+		HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(new MockHttpServletRequest(),
+				response);
 		assertThat(matchingRequest).isNull();
 		assertThat(response.getCookie(DEFAULT_COOKIE_NAME)).isNull();
 	}
@@ -134,11 +125,9 @@ public class CookieRequestCacheTests {
 		request.setServerName("abc.com");
 		request.setRequestURI("/destination");
 		request.setQueryString("param1=a&param2=b&param3=1122");
-
 		String redirectUrl = "https://abc.com/destination?param1=a&param2=b&param3=1122";
 		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		cookieRequestCache.getMatchingRequest(request, response);
 		Cookie expiredCookie = response.getCookie(DEFAULT_COOKIE_NAME);
 		assertThat(expiredCookie).isNotNull();
@@ -155,11 +144,9 @@ public class CookieRequestCacheTests {
 		request.setScheme("https");
 		request.setServerName("abc.com");
 		request.setRequestURI("/destination");
-
 		String redirectUrl = "https://abc.com/api";
 		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		final HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(request, response);
 		assertThat(matchingRequest).isNull();
 		Cookie expiredCookie = response.getCookie(DEFAULT_COOKIE_NAME);

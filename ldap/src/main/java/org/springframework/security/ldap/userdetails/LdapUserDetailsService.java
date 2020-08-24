@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.userdetails;
 
 import java.util.Collection;
@@ -35,28 +36,29 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  */
 public class LdapUserDetailsService implements UserDetailsService {
+
 	private final LdapUserSearch userSearch;
+
 	private final LdapAuthoritiesPopulator authoritiesPopulator;
+
 	private UserDetailsContextMapper userDetailsMapper = new LdapUserDetailsMapper();
 
 	public LdapUserDetailsService(LdapUserSearch userSearch) {
 		this(userSearch, new NullLdapAuthoritiesPopulator());
 	}
 
-	public LdapUserDetailsService(LdapUserSearch userSearch,
-			LdapAuthoritiesPopulator authoritiesPopulator) {
+	public LdapUserDetailsService(LdapUserSearch userSearch, LdapAuthoritiesPopulator authoritiesPopulator) {
 		Assert.notNull(userSearch, "userSearch must not be null");
 		Assert.notNull(authoritiesPopulator, "authoritiesPopulator must not be null");
 		this.userSearch = userSearch;
 		this.authoritiesPopulator = authoritiesPopulator;
 	}
 
-	public UserDetails loadUserByUsername(String username)
-			throws UsernameNotFoundException {
-		DirContextOperations userData = userSearch.searchForUser(username);
-
-		return userDetailsMapper.mapUserFromContext(userData, username,
-				authoritiesPopulator.getGrantedAuthorities(userData, username));
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		DirContextOperations userData = this.userSearch.searchForUser(username);
+		return this.userDetailsMapper.mapUserFromContext(userData, username,
+				this.authoritiesPopulator.getGrantedAuthorities(userData, username));
 	}
 
 	public void setUserDetailsMapper(UserDetailsContextMapper userDetailsMapper) {
@@ -64,11 +66,13 @@ public class LdapUserDetailsService implements UserDetailsService {
 		this.userDetailsMapper = userDetailsMapper;
 	}
 
-	private static final class NullLdapAuthoritiesPopulator implements
-			LdapAuthoritiesPopulator {
-		public Collection<GrantedAuthority> getGrantedAuthorities(
-				DirContextOperations userDetails, String username) {
+	private static final class NullLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
+
+		@Override
+		public Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userDetails, String username) {
 			return AuthorityUtils.NO_AUTHORITIES;
 		}
+
 	}
+
 }

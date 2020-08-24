@@ -16,11 +16,6 @@
 
 package org.springframework.security.web.authentication.session;
 
-import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -31,7 +26,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.security.core.Authentication;
+
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rob Winch
@@ -62,42 +63,37 @@ public class CompositeSessionAuthenticationStrategyTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyDelegates() {
-		new CompositeSessionAuthenticationStrategy(
-				Collections.<SessionAuthenticationStrategy> emptyList());
+		new CompositeSessionAuthenticationStrategy(Collections.<SessionAuthenticationStrategy>emptyList());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorDelegatesContainNull() {
-		new CompositeSessionAuthenticationStrategy(
-				Collections.<SessionAuthenticationStrategy> singletonList(null));
+		new CompositeSessionAuthenticationStrategy(Collections.<SessionAuthenticationStrategy>singletonList(null));
 	}
 
 	@Test
 	public void delegatesToAll() {
 		CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(
-				Arrays.asList(strategy1, strategy2));
-		strategy.onAuthentication(authentication, request, response);
-
-		verify(strategy1).onAuthentication(authentication, request, response);
-		verify(strategy2).onAuthentication(authentication, request, response);
+				Arrays.asList(this.strategy1, this.strategy2));
+		strategy.onAuthentication(this.authentication, this.request, this.response);
+		verify(this.strategy1).onAuthentication(this.authentication, this.request, this.response);
+		verify(this.strategy2).onAuthentication(this.authentication, this.request, this.response);
 	}
 
 	@Test
 	public void delegateShortCircuits() {
-		doThrow(new SessionAuthenticationException("oops")).when(
-				strategy1).onAuthentication(authentication, request, response);
-
+		willThrow(new SessionAuthenticationException("oops")).given(this.strategy1)
+				.onAuthentication(this.authentication, this.request, this.response);
 		CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(
-				Arrays.asList(strategy1, strategy2));
-
+				Arrays.asList(this.strategy1, this.strategy2));
 		try {
-			strategy.onAuthentication(authentication, request, response);
+			strategy.onAuthentication(this.authentication, this.request, this.response);
 			fail("Expected Exception");
 		}
 		catch (SessionAuthenticationException success) {
 		}
-
-		verify(strategy1).onAuthentication(authentication, request, response);
-		verify(strategy2, times(0)).onAuthentication(authentication, request, response);
+		verify(this.strategy1).onAuthentication(this.authentication, this.request, this.response);
+		verify(this.strategy2, times(0)).onAuthentication(this.authentication, this.request, this.response);
 	}
+
 }

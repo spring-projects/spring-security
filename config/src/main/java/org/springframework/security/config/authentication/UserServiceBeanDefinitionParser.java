@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.authentication;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
+
+import org.w3c.dom.Element;
 
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -32,14 +35,12 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor
  * @author Ben Alex
  */
-public class UserServiceBeanDefinitionParser extends
-		AbstractUserDetailsServiceBeanDefinitionParser {
+public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
 
 	static final String ATT_PASSWORD = "password";
 	static final String ATT_NAME = "name";
@@ -51,57 +52,44 @@ public class UserServiceBeanDefinitionParser extends
 
 	private SecureRandom random;
 
+	@Override
 	protected String getBeanClassName(Element element) {
 		return InMemoryUserDetailsManager.class.getName();
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
-	protected void doParse(Element element, ParserContext parserContext,
-			BeanDefinitionBuilder builder) {
+	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		String userProperties = element.getAttribute(ATT_PROPERTIES);
 		List<Element> userElts = DomUtils.getChildElementsByTagName(element, ELT_USER);
-
 		if (StringUtils.hasText(userProperties)) {
-
 			if (!CollectionUtils.isEmpty(userElts)) {
 				throw new BeanDefinitionStoreException(
 						"Use of a properties file and user elements are mutually exclusive");
 			}
-
 			BeanDefinition bd = new RootBeanDefinition(PropertiesFactoryBean.class);
 			bd.getPropertyValues().addPropertyValue("location", userProperties);
 			builder.addConstructorArgValue(bd);
-
 			return;
 		}
-
 		if (CollectionUtils.isEmpty(userElts)) {
-			throw new BeanDefinitionStoreException(
-					"You must supply user definitions, either with <" + ELT_USER
-							+ "> child elements or a " + "properties file (using the '"
-							+ ATT_PROPERTIES + "' attribute)");
+			throw new BeanDefinitionStoreException("You must supply user definitions, either with <" + ELT_USER
+					+ "> child elements or a " + "properties file (using the '" + ATT_PROPERTIES + "' attribute)");
 		}
-
 		ManagedList<BeanDefinition> users = new ManagedList<>();
-
 		for (Object elt : userElts) {
 			Element userElt = (Element) elt;
 			String userName = userElt.getAttribute(ATT_NAME);
 			String password = userElt.getAttribute(ATT_PASSWORD);
-
 			if (!StringUtils.hasLength(password)) {
 				password = generateRandomPassword();
 			}
-
 			boolean locked = "true".equals(userElt.getAttribute(ATT_LOCKED));
 			boolean disabled = "true".equals(userElt.getAttribute(ATT_DISABLED));
-			BeanDefinitionBuilder authorities = BeanDefinitionBuilder
-					.rootBeanDefinition(AuthorityUtils.class);
+			BeanDefinitionBuilder authorities = BeanDefinitionBuilder.rootBeanDefinition(AuthorityUtils.class);
 			authorities.addConstructorArgValue(userElt.getAttribute(ATT_AUTHORITIES));
 			authorities.setFactoryMethod("commaSeparatedStringToAuthorityList");
-
-			BeanDefinitionBuilder user = BeanDefinitionBuilder
-					.rootBeanDefinition(User.class);
+			BeanDefinitionBuilder user = BeanDefinitionBuilder.rootBeanDefinition(User.class);
 			user.addConstructorArgValue(userName);
 			user.addConstructorArgValue(password);
 			user.addConstructorArgValue(!disabled);
@@ -109,23 +97,22 @@ public class UserServiceBeanDefinitionParser extends
 			user.addConstructorArgValue(true);
 			user.addConstructorArgValue(!locked);
 			user.addConstructorArgValue(authorities.getBeanDefinition());
-
 			users.add(user.getBeanDefinition());
 		}
-
 		builder.addConstructorArgValue(users);
 	}
 
 	private String generateRandomPassword() {
-		if (random == null) {
+		if (this.random == null) {
 			try {
-				random = SecureRandom.getInstance("SHA1PRNG");
+				this.random = SecureRandom.getInstance("SHA1PRNG");
 			}
-			catch (NoSuchAlgorithmException e) {
+			catch (NoSuchAlgorithmException ex) {
 				// Shouldn't happen...
 				throw new RuntimeException("Failed find SHA1PRNG algorithm!");
 			}
 		}
-		return Long.toString(random.nextLong());
+		return Long.toString(this.random.nextLong());
 	}
+
 }

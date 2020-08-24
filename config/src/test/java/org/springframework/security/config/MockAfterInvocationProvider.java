@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config;
 
 import java.util.Collection;
@@ -24,16 +25,18 @@ import org.springframework.security.core.Authentication;
 
 public class MockAfterInvocationProvider implements AfterInvocationProvider {
 
-	public Object decide(Authentication authentication, Object object,
-			Collection<ConfigAttribute> config, Object returnedObject)
-			throws AccessDeniedException {
+	@Override
+	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
+			Object returnedObject) throws AccessDeniedException {
 		return returnedObject;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		return true;
 	}
 
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}

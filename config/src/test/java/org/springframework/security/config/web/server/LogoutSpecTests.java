@@ -18,13 +18,14 @@ package org.springframework.security.config.web.server;
 
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
+
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
+import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -38,209 +39,173 @@ public class LogoutSpecTests {
 
 	@Test
 	public void defaultLogout() {
+		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange()
-				.anyExchange().authenticated()
-				.and()
-			.formLogin().and()
-			.build();
-
-		WebTestClient webTestClient = WebTestClientBuilder
-			.bindToWebFilters(securityWebFilter)
-			.build();
-
-		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
-			.webTestClientSetup(webTestClient)
-			.build();
-
-		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage.to(driver, FormLoginTests.DefaultLoginPage.class)
-			.assertAt();
-
-		loginPage = loginPage.loginForm()
-			.username("user")
-			.password("invalid")
-			.submit(FormLoginTests.DefaultLoginPage.class)
-			.assertError();
-
-		FormLoginTests.HomePage homePage = loginPage.loginForm()
-			.username("user")
-			.password("password")
-			.submit(FormLoginTests.HomePage.class);
-
-		homePage.assertAt();
-
-		loginPage = FormLoginTests.DefaultLogoutPage.to(driver)
-			.assertAt()
-			.logout();
-
-		loginPage
-			.assertAt()
-			.assertLogout();
-	}
-
-	@Test
-	public void customLogout() {
-		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange()
-				.anyExchange().authenticated()
-				.and()
-			.formLogin().and()
-			.logout()
-				.requiresLogout(ServerWebExchangeMatchers.pathMatchers("/custom-logout"))
-				.and()
-			.build();
-
-		WebTestClient webTestClient = WebTestClientBuilder
-			.bindToWebFilters(securityWebFilter)
-			.build();
-
-		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
-			.webTestClientSetup(webTestClient)
-			.build();
-
-		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage.to(driver, FormLoginTests.DefaultLoginPage.class)
-			.assertAt();
-
-		loginPage = loginPage.loginForm()
-			.username("user")
-			.password("invalid")
-			.submit(FormLoginTests.DefaultLoginPage.class)
-			.assertError();
-
-		FormLoginTests.HomePage homePage = loginPage.loginForm()
-			.username("user")
-			.password("password")
-			.submit(FormLoginTests.HomePage.class);
-
-		homePage.assertAt();
-
-		driver.get("http://localhost/custom-logout");
-
-		FormLoginTests.DefaultLoginPage.create(driver)
-			.assertAt()
-			.assertLogout();
-	}
-
-	@Test
-	public void logoutWhenCustomLogoutInLambdaThenCustomLogoutUsed() {
-		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange(authorizeExchange ->
-				authorizeExchange
-					.anyExchange().authenticated()
-			)
-			.formLogin(withDefaults())
-			.logout(logout ->
-				logout
-					.requiresLogout(ServerWebExchangeMatchers.pathMatchers("/custom-logout"))
-			)
-			.build();
-
-		WebTestClient webTestClient = WebTestClientBuilder
-			.bindToWebFilters(securityWebFilter)
-			.build();
-
-		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
-			.webTestClientSetup(webTestClient)
-			.build();
-
-		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage.to(driver, FormLoginTests.DefaultLoginPage.class)
-			.assertAt();
-
-		loginPage = loginPage.loginForm()
-			.username("user")
-			.password("invalid")
-			.submit(FormLoginTests.DefaultLoginPage.class)
-			.assertError();
-
-		FormLoginTests.HomePage homePage = loginPage.loginForm()
-			.username("user")
-			.password("password")
-			.submit(FormLoginTests.HomePage.class);
-
-		homePage.assertAt();
-
-		driver.get("http://localhost/custom-logout");
-
-		FormLoginTests.DefaultLoginPage.create(driver)
-			.assertAt()
-			.assertLogout();
-	}
-
-	@Test
-	public void logoutWhenDisabledThenPostToLogoutDoesNothing() {
-		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange()
-				.anyExchange().authenticated()
-				.and()
-				.formLogin().and()
-				.logout().disable()
-				.build();
-
-		WebTestClient webTestClient = WebTestClientBuilder
-				.bindToWebFilters(securityWebFilter)
-				.build();
-
-		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
-				.webTestClientSetup(webTestClient)
-				.build();
-
-		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage.to(driver, FormLoginTests.DefaultLoginPage.class)
-				.assertAt();
-
-		FormLoginTests.HomePage homePage = loginPage.loginForm()
-				.username("user")
-				.password("password")
-				.submit(FormLoginTests.HomePage.class);
-
-		homePage.assertAt();
-
-		FormLoginTests.DefaultLogoutPage.to(driver)
-				.assertAt()
-				.logout();
-
-		homePage
-				.assertAt();
-	}
-
-
-	@Test
-	public void logoutWhenCustomSecurityContextRepositoryThenLogsOut() {
-		WebSessionServerSecurityContextRepository repository = new WebSessionServerSecurityContextRepository();
-		repository.setSpringSecurityContextAttrName("CUSTOM_CONTEXT_ATTR");
-		SecurityWebFilterChain securityWebFilter = this.http
-				.securityContextRepository(repository)
 				.authorizeExchange()
 					.anyExchange().authenticated()
 					.and()
 				.formLogin()
 					.and()
-				.logout()
-					.and()
 				.build();
-
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
 				.webTestClientSetup(webTestClient)
 				.build();
-
-		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage.to(driver, FormLoginTests.DefaultLoginPage.class)
-				.assertAt();
-
+		// @formatter:on
+		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage
+				.to(driver, FormLoginTests.DefaultLoginPage.class).assertAt();
+		// @formatter:off
+		loginPage = loginPage.loginForm()
+				.username("user")
+				.password("invalid")
+				.submit(FormLoginTests.DefaultLoginPage.class)
+				.assertError();
 		FormLoginTests.HomePage homePage = loginPage.loginForm()
 				.username("user")
 				.password("password")
 				.submit(FormLoginTests.HomePage.class);
-
+		// @formatter:on
 		homePage.assertAt();
-
-		FormLoginTests.DefaultLogoutPage.to(driver)
-				.assertAt()
-				.logout();
-
-		FormLoginTests.HomePage.to(driver, FormLoginTests.DefaultLoginPage.class)
-				.assertAt();
+		loginPage = FormLoginTests.DefaultLogoutPage.to(driver).assertAt().logout();
+		loginPage.assertAt().assertLogout();
 	}
+
+	@Test
+	public void customLogout() {
+		// @formatter:off
+		SecurityWebFilterChain securityWebFilter = this.http
+				.authorizeExchange()
+					.anyExchange().authenticated()
+					.and()
+				.formLogin().and()
+				.logout()
+					.requiresLogout(ServerWebExchangeMatchers.pathMatchers("/custom-logout"))
+				.and()
+				.build();
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+		// @formatter:on
+		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage
+				.to(driver, FormLoginTests.DefaultLoginPage.class).assertAt();
+		// @formatter:off
+		loginPage = loginPage.loginForm()
+					.username("user")
+					.password("invalid")
+					.submit(FormLoginTests.DefaultLoginPage.class)
+				.assertError();
+		FormLoginTests.HomePage homePage = loginPage.loginForm()
+				.username("user")
+				.password("password")
+				.submit(FormLoginTests.HomePage.class);
+		homePage.assertAt();
+		// @formatter:on
+		driver.get("http://localhost/custom-logout");
+		FormLoginTests.DefaultLoginPage.create(driver).assertAt().assertLogout();
+	}
+
+	@Test
+	public void logoutWhenCustomLogoutInLambdaThenCustomLogoutUsed() {
+		// @formatter:off
+		SecurityWebFilterChain securityWebFilter = this.http
+				.authorizeExchange((exchange) -> exchange
+						.anyExchange().authenticated()
+				)
+				.formLogin(withDefaults())
+				.logout((logout) -> logout
+						.requiresLogout(ServerWebExchangeMatchers.pathMatchers("/custom-logout"))
+				)
+				.build();
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+		// @formatter:on
+		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage
+				.to(driver, FormLoginTests.DefaultLoginPage.class).assertAt();
+		// @formatter:off
+		loginPage = loginPage.loginForm()
+				.username("user")
+				.password("invalid")
+				.submit(FormLoginTests.DefaultLoginPage.class)
+				.assertError();
+		FormLoginTests.HomePage homePage = loginPage.loginForm()
+				.username("user").password("password")
+				.submit(FormLoginTests.HomePage.class);
+		// @formatter:on
+		homePage.assertAt();
+		driver.get("http://localhost/custom-logout");
+		FormLoginTests.DefaultLoginPage.create(driver).assertAt().assertLogout();
+	}
+
+	@Test
+	public void logoutWhenDisabledThenPostToLogoutDoesNothing() {
+		// @formatter:off
+		SecurityWebFilterChain securityWebFilter = this.http
+				.authorizeExchange()
+					.anyExchange().authenticated()
+					.and()
+				.formLogin().and()
+				.logout().disable()
+				.build();
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+		// @formatter:on
+		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage
+				.to(driver, FormLoginTests.DefaultLoginPage.class).assertAt();
+		// @formatter:off
+		FormLoginTests.HomePage homePage = loginPage.loginForm()
+				.username("user")
+				.password("password")
+				.submit(FormLoginTests.HomePage.class);
+		// @formatter:on
+		homePage.assertAt();
+		FormLoginTests.DefaultLogoutPage.to(driver).assertAt().logout();
+		homePage.assertAt();
+	}
+
+	@Test
+	public void logoutWhenCustomSecurityContextRepositoryThenLogsOut() {
+		WebSessionServerSecurityContextRepository repository = new WebSessionServerSecurityContextRepository();
+		repository.setSpringSecurityContextAttrName("CUSTOM_CONTEXT_ATTR");
+		// @formatter:off
+		SecurityWebFilterChain securityWebFilter = this.http
+				.securityContextRepository(repository)
+				.authorizeExchange()
+					.anyExchange().authenticated()
+					.and()
+				.formLogin().and()
+				.logout().and()
+				.build();
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+		// @formatter:on
+		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage
+				.to(driver, FormLoginTests.DefaultLoginPage.class).assertAt();
+		// @formatter:off
+		FormLoginTests.HomePage homePage = loginPage.loginForm()
+				.username("user")
+				.password("password")
+				.submit(FormLoginTests.HomePage.class);
+		// @formatter:on
+		homePage.assertAt();
+		FormLoginTests.DefaultLogoutPage.to(driver).assertAt().logout();
+		FormLoginTests.HomePage.to(driver, FormLoginTests.DefaultLoginPage.class).assertAt();
+	}
+
 }

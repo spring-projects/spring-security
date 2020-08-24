@@ -21,10 +21,12 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
+
 import javax.xml.namespace.QName;
 
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.opensaml.core.xml.XMLObjectBuilder;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -43,18 +45,16 @@ import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.Assert;
 
-import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
-import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getMarshallerFactory;
-
 /**
- * Resolves the SAML 2.0 Relying Party Metadata for a given {@link RelyingPartyRegistration}
- * using the OpenSAML API.
+ * Resolves the SAML 2.0 Relying Party Metadata for a given
+ * {@link RelyingPartyRegistration} using the OpenSAML API.
  *
  * @author Jakub Kubrynski
  * @author Josh Cummings
  * @since 5.4
  */
 public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
+
 	static {
 		OpenSamlInitializationService.initialize();
 	}
@@ -62,22 +62,17 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	private final EntityDescriptorMarshaller entityDescriptorMarshaller;
 
 	public OpenSamlMetadataResolver() {
-		this.entityDescriptorMarshaller = (EntityDescriptorMarshaller)
-				getMarshallerFactory().getMarshaller(EntityDescriptor.DEFAULT_ELEMENT_NAME);
+		this.entityDescriptorMarshaller = (EntityDescriptorMarshaller) XMLObjectProviderRegistrySupport
+				.getMarshallerFactory().getMarshaller(EntityDescriptor.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.entityDescriptorMarshaller, "entityDescriptorMarshaller cannot be null");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String resolve(RelyingPartyRegistration relyingPartyRegistration) {
 		EntityDescriptor entityDescriptor = build(EntityDescriptor.ELEMENT_QNAME);
 		entityDescriptor.setEntityID(relyingPartyRegistration.getEntityId());
-
 		SPSSODescriptor spSsoDescriptor = buildSpSsoDescriptor(relyingPartyRegistration);
 		entityDescriptor.getRoleDescriptors(SPSSODescriptor.DEFAULT_ELEMENT_NAME).add(spSsoDescriptor);
-
 		return serialize(entityDescriptor);
 	}
 
@@ -85,10 +80,10 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		SPSSODescriptor spSsoDescriptor = build(SPSSODescriptor.DEFAULT_ELEMENT_NAME);
 		spSsoDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
 		spSsoDescriptor.setWantAssertionsSigned(true);
-		spSsoDescriptor.getKeyDescriptors().addAll(buildKeys(
-				registration.getSigningX509Credentials(), UsageType.SIGNING));
-		spSsoDescriptor.getKeyDescriptors().addAll(buildKeys(
-				registration.getDecryptionX509Credentials(), UsageType.ENCRYPTION));
+		spSsoDescriptor.getKeyDescriptors()
+				.addAll(buildKeys(registration.getSigningX509Credentials(), UsageType.SIGNING));
+		spSsoDescriptor.getKeyDescriptors()
+				.addAll(buildKeys(registration.getDecryptionX509Credentials(), UsageType.ENCRYPTION));
 		spSsoDescriptor.getAssertionConsumerServices().add(buildAssertionConsumerService(registration));
 		return spSsoDescriptor;
 	}
@@ -107,16 +102,14 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		KeyInfo keyInfo = build(KeyInfo.DEFAULT_ELEMENT_NAME);
 		X509Certificate x509Certificate = build(X509Certificate.DEFAULT_ELEMENT_NAME);
 		X509Data x509Data = build(X509Data.DEFAULT_ELEMENT_NAME);
-
 		try {
 			x509Certificate.setValue(new String(Base64.getEncoder().encode(certificate.getEncoded())));
-		} catch (CertificateEncodingException e) {
+		}
+		catch (CertificateEncodingException ex) {
 			throw new Saml2Exception("Cannot encode certificate " + certificate.toString());
 		}
-
 		x509Data.getX509Certificates().add(x509Certificate);
 		keyInfo.getX509Datas().add(x509Data);
-
 		keyDescriptor.setUse(usageType);
 		keyDescriptor.setKeyInfo(keyInfo);
 		return keyDescriptor;
@@ -132,20 +125,21 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 
 	@SuppressWarnings("unchecked")
 	private <T> T build(QName elementName) {
-		XMLObjectBuilder<?> builder = getBuilderFactory().getBuilder(elementName);
+		XMLObjectBuilder<?> builder = XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(elementName);
 		if (builder == null) {
 			throw new Saml2Exception("Unable to resolve Builder for " + elementName);
 		}
 		return (T) builder.buildObject(elementName);
 	}
 
-
 	private String serialize(EntityDescriptor entityDescriptor) {
 		try {
 			Element element = this.entityDescriptorMarshaller.marshall(entityDescriptor);
 			return SerializeSupport.prettyPrintXML(element);
-		} catch (Exception e) {
-			throw new Saml2Exception(e);
+		}
+		catch (Exception ex) {
+			throw new Saml2Exception(ex);
 		}
 	}
+
 }

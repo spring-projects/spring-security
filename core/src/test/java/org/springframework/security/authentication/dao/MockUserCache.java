@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- *
- */
+
 package org.springframework.security.authentication.dao;
 
 import java.util.HashMap;
@@ -25,17 +23,22 @@ import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class MockUserCache implements UserCache {
+
 	private Map<String, UserDetails> cache = new HashMap<>();
 
+	@Override
 	public UserDetails getUserFromCache(String username) {
-		return cache.get(username);
+		return this.cache.get(username);
 	}
 
+	@Override
 	public void putUserInCache(UserDetails user) {
-		cache.put(user.getUsername(), user);
+		this.cache.put(user.getUsername(), user);
 	}
 
+	@Override
 	public void removeUserFromCache(String username) {
-		cache.remove(username);
+		this.cache.remove(username);
 	}
+
 }

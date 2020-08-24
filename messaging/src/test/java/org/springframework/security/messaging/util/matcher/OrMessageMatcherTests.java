@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.messaging.util.matcher;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+package org.springframework.security.messaging.util.matcher;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,10 +24,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.messaging.Message;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
 @RunWith(MockitoJUnitRunner.class)
-public class AndMessageMatcherTest {
+public class OrMessageMatcherTests {
+
 	@Mock
 	private MessageMatcher<Object> delegate;
 
@@ -43,74 +46,69 @@ public class AndMessageMatcherTest {
 
 	@Test(expected = NullPointerException.class)
 	public void constructorNullArray() {
-		new AndMessageMatcher<>((MessageMatcher<Object>[]) null);
+		new OrMessageMatcher<>((MessageMatcher<Object>[]) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorArrayContainsNull() {
-		new AndMessageMatcher<>((MessageMatcher<Object>) null);
+		new OrMessageMatcher<>((MessageMatcher<Object>) null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyArray() {
-		new AndMessageMatcher<>((MessageMatcher<Object>[]) new MessageMatcher[0]);
+		new OrMessageMatcher<>(new MessageMatcher[0]);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullList() {
-		new AndMessageMatcher<>((List<MessageMatcher<Object>>) null);
+		new OrMessageMatcher<>((List<MessageMatcher<Object>>) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorListContainsNull() {
-		new AndMessageMatcher<>(Arrays.asList((MessageMatcher<Object>) null));
+		new OrMessageMatcher<>(Arrays.asList((MessageMatcher<Object>) null));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyList() {
-		new AndMessageMatcher<>(Collections.emptyList());
+		new OrMessageMatcher<>(Collections.emptyList());
 	}
 
 	@Test
 	public void matchesSingleTrue() {
-		when(delegate.matches(message)).thenReturn(true);
-		matcher = new AndMessageMatcher<>(delegate);
-
-		assertThat(matcher.matches(message)).isTrue();
+		given(this.delegate.matches(this.message)).willReturn(true);
+		this.matcher = new OrMessageMatcher<>(this.delegate);
+		assertThat(this.matcher.matches(this.message)).isTrue();
 	}
 
 	@Test
 	public void matchesMultiTrue() {
-		when(delegate.matches(message)).thenReturn(true);
-		when(delegate2.matches(message)).thenReturn(true);
-		matcher = new AndMessageMatcher<>(delegate, delegate2);
-
-		assertThat(matcher.matches(message)).isTrue();
+		given(this.delegate.matches(this.message)).willReturn(true);
+		this.matcher = new OrMessageMatcher<>(this.delegate, this.delegate2);
+		assertThat(this.matcher.matches(this.message)).isTrue();
 	}
 
 	@Test
 	public void matchesSingleFalse() {
-		when(delegate.matches(message)).thenReturn(false);
-		matcher = new AndMessageMatcher<>(delegate);
-
-		assertThat(matcher.matches(message)).isFalse();
+		given(this.delegate.matches(this.message)).willReturn(false);
+		this.matcher = new OrMessageMatcher<>(this.delegate);
+		assertThat(this.matcher.matches(this.message)).isFalse();
 	}
 
 	@Test
 	public void matchesMultiBothFalse() {
-		when(delegate.matches(message)).thenReturn(false);
-		matcher = new AndMessageMatcher<>(delegate, delegate2);
-
-		assertThat(matcher.matches(message)).isFalse();
+		given(this.delegate.matches(this.message)).willReturn(false);
+		given(this.delegate2.matches(this.message)).willReturn(false);
+		this.matcher = new OrMessageMatcher<>(this.delegate, this.delegate2);
+		assertThat(this.matcher.matches(this.message)).isFalse();
 	}
 
 	@Test
 	public void matchesMultiSingleFalse() {
-		when(delegate.matches(message)).thenReturn(true);
-		when(delegate2.matches(message)).thenReturn(false);
-		matcher = new AndMessageMatcher<>(delegate, delegate2);
-
-		assertThat(matcher.matches(message)).isFalse();
+		given(this.delegate.matches(this.message)).willReturn(true);
+		this.matcher = new OrMessageMatcher<>(this.delegate, this.delegate2);
+		assertThat(this.matcher.matches(this.message)).isTrue();
 	}
+
 }

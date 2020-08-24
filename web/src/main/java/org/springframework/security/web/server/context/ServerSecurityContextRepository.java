@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.context;
+
+import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.server.ServerWebExchange;
 
-import reactor.core.publisher.Mono;
-
 /**
  * Strategy used for persisting a {@link SecurityContext} between requests.
+ *
  * @author Rob Winch
  * @since 5.0
  * @see ReactorContextWebFilter
@@ -42,4 +44,5 @@ public interface ServerSecurityContextRepository {
 	 * @return the {@link SecurityContext} to lookup or empty if not found. Never null
 	 */
 	Mono<SecurityContext> load(ServerWebExchange exchange);
+
 }

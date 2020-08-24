@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.crypto.keygen;
 
-import static org.assertj.core.api.Assertions.*;
+package org.springframework.security.crypto.keygen;
 
 import java.util.Arrays;
 
 import org.junit.Test;
+
 import org.springframework.security.crypto.codec.Hex;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class KeyGeneratorsTests {
 

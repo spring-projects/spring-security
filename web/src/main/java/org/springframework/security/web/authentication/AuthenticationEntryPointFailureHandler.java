@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
@@ -28,7 +29,7 @@ import org.springframework.util.Assert;
 /**
  * Adapts a {@link AuthenticationEntryPoint} into a {@link AuthenticationFailureHandler}
  *
- * @author sbespalov
+ * @author Sergey Bespalov
  * @since 5.2.0
  */
 public class AuthenticationEntryPointFailureHandler implements AuthenticationFailureHandler {
@@ -45,4 +46,5 @@ public class AuthenticationEntryPointFailureHandler implements AuthenticationFai
 			AuthenticationException exception) throws IOException, ServletException {
 		this.authenticationEntryPoint.commence(request, response, exception);
 	}
+
 }

@@ -13,25 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.web.server;
+
+import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 /**
- * Implementations of this interface are responsible for the persistence
- * of {@link OAuth2AuthorizedClient Authorized Client(s)} between requests.
+ * Implementations of this interface are responsible for the persistence of
+ * {@link OAuth2AuthorizedClient Authorized Client(s)} between requests.
  *
  * <p>
- * The primary purpose of an {@link OAuth2AuthorizedClient Authorized Client}
- * is to associate an {@link OAuth2AuthorizedClient#getAccessToken() Access Token} credential
- * to a {@link OAuth2AuthorizedClient#getClientRegistration() Client} and Resource Owner,
- * who is the {@link OAuth2AuthorizedClient#getPrincipalName() Principal}
- * that originally granted the authorization.
+ * The primary purpose of an {@link OAuth2AuthorizedClient Authorized Client} is to
+ * associate an {@link OAuth2AuthorizedClient#getAccessToken() Access Token} credential to
+ * a {@link OAuth2AuthorizedClient#getClientRegistration() Client} and Resource Owner, who
+ * is the {@link OAuth2AuthorizedClient#getPrincipalName() Principal} that originally
+ * granted the authorization.
  *
  * @author Rob Winch
  * @since 5.1
@@ -43,10 +45,9 @@ import reactor.core.publisher.Mono;
 public interface ServerOAuth2AuthorizedClientRepository {
 
 	/**
-	 * Returns the {@link OAuth2AuthorizedClient} associated to the
-	 * provided client registration identifier and End-User {@link Authentication} (Resource Owner)
-	 * or {@code null} if not available.
-	 *
+	 * Returns the {@link OAuth2AuthorizedClient} associated to the provided client
+	 * registration identifier and End-User {@link Authentication} (Resource Owner) or
+	 * {@code null} if not available.
 	 * @param clientRegistrationId the identifier for the client's registration
 	 * @param principal the End-User {@link Authentication} (Resource Owner)
 	 * @param exchange the {@code ServerWebExchange}
@@ -57,20 +58,18 @@ public interface ServerOAuth2AuthorizedClientRepository {
 			Authentication principal, ServerWebExchange exchange);
 
 	/**
-	 * Saves the {@link OAuth2AuthorizedClient} associating it to
-	 * the provided End-User {@link Authentication} (Resource Owner).
-	 *
+	 * Saves the {@link OAuth2AuthorizedClient} associating it to the provided End-User
+	 * {@link Authentication} (Resource Owner).
 	 * @param authorizedClient the authorized client
 	 * @param principal the End-User {@link Authentication} (Resource Owner)
 	 * @param exchange the {@code ServerWebExchange}
 	 */
-	Mono<Void> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient,
-			Authentication principal, ServerWebExchange exchange);
+	Mono<Void> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal,
+			ServerWebExchange exchange);
 
 	/**
-	 * Removes the {@link OAuth2AuthorizedClient} associated to the
-	 * provided client registration identifier and End-User {@link Authentication} (Resource Owner).
-	 *
+	 * Removes the {@link OAuth2AuthorizedClient} associated to the provided client
+	 * registration identifier and End-User {@link Authentication} (Resource Owner).
 	 * @param clientRegistrationId the identifier for the client's registration
 	 * @param principal the End-User {@link Authentication} (Resource Owner)
 	 * @param exchange the {@code ServerWebExchange}

@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.access.expression;
+
+import java.util.Map;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -22,8 +25,6 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 import org.springframework.util.Assert;
-
-import java.util.Map;
 
 /**
  * Simple expression configuration attribute for use in {@link Message} authorizations.
@@ -34,13 +35,13 @@ import java.util.Map;
  */
 @SuppressWarnings("serial")
 class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationContextPostProcessor<Message<?>> {
-	private final Expression authorizeExpression;
-	private final MessageMatcher<?> matcher;
 
+	private final Expression authorizeExpression;
+
+	private final MessageMatcher<?> matcher;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param authorizeExpression the {@link Expression} to use. Cannot be null
 	 * @param matcher the {@link MessageMatcher} used to match the messages.
 	 */
@@ -51,28 +52,30 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 		this.matcher = matcher;
 	}
 
-
 	Expression getAuthorizeExpression() {
-		return authorizeExpression;
+		return this.authorizeExpression;
 	}
 
+	@Override
 	public String getAttribute() {
 		return null;
 	}
 
 	@Override
 	public String toString() {
-		return authorizeExpression.getExpressionString();
+		return this.authorizeExpression.getExpressionString();
 	}
 
 	@Override
 	public EvaluationContext postProcess(EvaluationContext ctx, Message<?> message) {
-		if (matcher instanceof SimpDestinationMessageMatcher) {
-			final Map<String, String> variables = ((SimpDestinationMessageMatcher) matcher).extractPathVariables(message);
-			for (Map.Entry<String, String> entry : variables.entrySet()){
+		if (this.matcher instanceof SimpDestinationMessageMatcher) {
+			Map<String, String> variables = ((SimpDestinationMessageMatcher) this.matcher)
+					.extractPathVariables(message);
+			for (Map.Entry<String, String> entry : variables.entrySet()) {
 				ctx.setVariable(entry.getKey(), entry.getValue());
 			}
 		}
 		return ctx;
 	}
+
 }

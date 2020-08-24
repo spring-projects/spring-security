@@ -25,13 +25,11 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Luke Taylor
  */
 public interface LdapUserDetails extends UserDetails, CredentialsContainer {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * The DN of the entry for this user's account.
-	 *
 	 * @return the user's DN
 	 */
 	String getDn();
+
 }

@@ -28,7 +28,6 @@ import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Tests for {@link BearerTokenAuthenticationEntryPoint}.
@@ -46,129 +45,88 @@ public class BearerTokenAuthenticationEntryPointTests {
 	}
 
 	@Test
-	public void commenceWhenNoBearerTokenErrorThenStatus401AndAuthHeader()
-			throws Exception {
-
+	public void commenceWhenNoBearerTokenErrorThenStatus401AndAuthHeader() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		this.authenticationEntryPoint.commence(request, response, new BadCredentialsException("test"));
-
 		assertThat(response.getStatus()).isEqualTo(401);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer");
 	}
 
 	@Test
-	public void commenceWhenNoBearerTokenErrorAndRealmSetThenStatus401AndAuthHeaderWithRealm()
-			throws Exception {
-
+	public void commenceWhenNoBearerTokenErrorAndRealmSetThenStatus401AndAuthHeaderWithRealm() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		this.authenticationEntryPoint.setRealmName("test");
 		this.authenticationEntryPoint.commence(request, response, new BadCredentialsException("test"));
-
 		assertThat(response.getStatus()).isEqualTo(401);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer realm=\"test\"");
 	}
 
 	@Test
-	public void commenceWhenInvalidRequestErrorThenStatus400AndHeaderWithError()
-			throws Exception {
-
+	public void commenceWhenInvalidRequestErrorThenStatus400AndHeaderWithError() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		BearerTokenError error = new BearerTokenError(
-				BearerTokenErrorCodes.INVALID_REQUEST,
-				HttpStatus.BAD_REQUEST,
-				null,
-				null);
-
-		this.authenticationEntryPoint.commence(request, response,
-				new OAuth2AuthenticationException(error));
-
+		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_REQUEST, HttpStatus.BAD_REQUEST,
+				null, null);
+		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(400);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"invalid_request\"");
 	}
 
 	@Test
-	public void commenceWhenInvalidRequestErrorThenStatus400AndHeaderWithErrorDetails()
-			throws Exception {
-
+	public void commenceWhenInvalidRequestErrorThenStatus400AndHeaderWithErrorDetails() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_REQUEST, HttpStatus.BAD_REQUEST,
 				"The access token expired", null, null);
-
-		this.authenticationEntryPoint.commence(request, response,
-				new OAuth2AuthenticationException(error));
-
+		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(400);
 		assertThat(response.getHeader("WWW-Authenticate"))
 				.isEqualTo("Bearer error=\"invalid_request\", error_description=\"The access token expired\"");
 	}
 
 	@Test
-	public void commenceWhenInvalidRequestErrorThenStatus400AndHeaderWithErrorUri()
-			throws Exception {
-
+	public void commenceWhenInvalidRequestErrorThenStatus400AndHeaderWithErrorUri() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_REQUEST, HttpStatus.BAD_REQUEST,
 				null, "https://example.com", null);
-
-		this.authenticationEntryPoint.commence(request, response,
-				new OAuth2AuthenticationException(error));
-
+		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(400);
 		assertThat(response.getHeader("WWW-Authenticate"))
 				.isEqualTo("Bearer error=\"invalid_request\", error_uri=\"https://example.com\"");
 	}
 
 	@Test
-	public void commenceWhenInvalidTokenErrorThenStatus401AndHeaderWithError()
-			throws Exception {
-
+	public void commenceWhenInvalidTokenErrorThenStatus401AndHeaderWithError() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_TOKEN, HttpStatus.UNAUTHORIZED,
 				null, null);
-
-		this.authenticationEntryPoint.commence(request, response,
-				new OAuth2AuthenticationException(error));
-
+		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(401);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"invalid_token\"");
 	}
 
 	@Test
-	public void commenceWhenInsufficientScopeErrorThenStatus403AndHeaderWithError()
-			throws Exception {
-
+	public void commenceWhenInsufficientScopeErrorThenStatus403AndHeaderWithError() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INSUFFICIENT_SCOPE, HttpStatus.FORBIDDEN,
 				null, null);
-
-		this.authenticationEntryPoint.commence(request, response,
-				new OAuth2AuthenticationException(error));
-
+		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(403);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\"");
 	}
 
 	@Test
-	public void commenceWhenInsufficientScopeErrorThenStatus403AndHeaderWithErrorAndScope()
-			throws Exception {
-
+	public void commenceWhenInsufficientScopeErrorThenStatus403AndHeaderWithErrorAndScope() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INSUFFICIENT_SCOPE, HttpStatus.FORBIDDEN,
 				null, null, "test.read test.write");
-
-		this.authenticationEntryPoint.commence(request, response,
-				new OAuth2AuthenticationException(error));
-
+		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(403);
 		assertThat(response.getHeader("WWW-Authenticate"))
 				.isEqualTo("Bearer error=\"insufficient_scope\", scope=\"test.read test.write\"");
@@ -177,16 +135,12 @@ public class BearerTokenAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenInsufficientScopeAndRealmSetThenStatus403AndHeaderWithErrorAndAllDetails()
 			throws Exception {
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INSUFFICIENT_SCOPE, HttpStatus.FORBIDDEN,
 				"Insufficient scope", "https://example.com", "test.read test.write");
-
 		this.authenticationEntryPoint.setRealmName("test");
-		this.authenticationEntryPoint.commence(request, response,
-				new OAuth2AuthenticationException(error));
-
+		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(403);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo(
 				"Bearer realm=\"test\", error=\"insufficient_scope\", error_description=\"Insufficient scope\", "
@@ -195,8 +149,7 @@ public class BearerTokenAuthenticationEntryPointTests {
 
 	@Test
 	public void setRealmNameWhenNullRealmNameThenNoExceptionThrown() {
-		assertThatCode(() -> this.authenticationEntryPoint.setRealmName(null))
-				.doesNotThrowAnyException();
+		this.authenticationEntryPoint.setRealmName(null);
 	}
 
 }

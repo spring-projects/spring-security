@@ -16,11 +16,12 @@
 
 package org.springframework.security.authentication;
 
+import org.junit.Test;
+
+import org.springframework.security.core.authority.AuthorityUtils;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-
-import org.junit.Test;
-import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
  * Tests {@link UsernamePasswordAuthenticationToken}.
@@ -29,33 +30,24 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 public class UsernamePasswordAuthenticationTokenTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void authenticatedPropertyContractIsSatisfied() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.NO_AUTHORITIES);
-
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+				AuthorityUtils.NO_AUTHORITIES);
 		// check default given we passed some GrantedAuthorty[]s (well, we passed empty
 		// list)
 		assertThat(token.isAuthenticated()).isTrue();
-
 		// check explicit set to untrusted (we can safely go from trusted to untrusted,
 		// but not the reverse)
 		token.setAuthenticated(false);
 		assertThat(!token.isAuthenticated()).isTrue();
-
 		// Now let's create a UsernamePasswordAuthenticationToken without any
 		// GrantedAuthorty[]s (different constructor)
 		token = new UsernamePasswordAuthenticationToken("Test", "Password");
-
 		assertThat(!token.isAuthenticated()).isTrue();
-
 		// check we're allowed to still set it to untrusted
 		token.setAuthenticated(false);
 		assertThat(!token.isAuthenticated()).isTrue();
-
 		// check denied changing it to trusted
 		try {
 			token.setAuthenticated(true);
@@ -67,8 +59,7 @@ public class UsernamePasswordAuthenticationTokenTests {
 
 	@Test
 	public void gettersReturnCorrectData() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password",
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 		assertThat(token.getPrincipal()).isEqualTo("Test");
 		assertThat(token.getCredentials()).isEqualTo("Password");
@@ -81,4 +72,5 @@ public class UsernamePasswordAuthenticationTokenTests {
 		Class<?> clazz = UsernamePasswordAuthenticationToken.class;
 		clazz.getDeclaredConstructor((Class[]) null);
 	}
+
 }

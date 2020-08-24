@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header.writers;
 
 import java.util.Collections;
@@ -27,24 +28,26 @@ import org.springframework.util.Assert;
 
 /**
  * <p>
- * Provides support for <a href="https://www.w3.org/TR/referrer-policy/">Referrer Policy</a>.
+ * Provides support for <a href="https://www.w3.org/TR/referrer-policy/">Referrer
+ * Policy</a>.
  * </p>
  *
  * <p>
  * The list of policies defined can be found at
- * <a href="https://www.w3.org/TR/referrer-policy/#referrer-policies">Referrer Policies</a>.
+ * <a href="https://www.w3.org/TR/referrer-policy/#referrer-policies">Referrer
+ * Policies</a>.
  * </p>
  *
  * <p>
  * This implementation of {@link HeaderWriter} writes the following header:
  * </p>
  * <ul>
- *  <li>Referrer-Policy</li>
+ * <li>Referrer-Policy</li>
  * </ul>
  *
  * <p>
- * By default, the Referrer-Policy header is not included in the response.
- * Policy <b>no-referrer</b> is used by default if no {@link ReferrerPolicy} is set.
+ * By default, the Referrer-Policy header is not included in the response. Policy
+ * <b>no-referrer</b> is used by default if no {@link ReferrerPolicy} is set.
  * </p>
  *
  * @author Eddú Meléndez
@@ -67,7 +70,6 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 
 	/**
 	 * Creates a new instance.
-	 *
 	 * @param policy a referrer policy
 	 * @throws IllegalArgumentException if policy is null
 	 */
@@ -86,7 +88,8 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * @see org.springframework.security.web.header.HeaderWriter#writeHeaders(HttpServletRequest, HttpServletResponse)
+	 * @see org.springframework.security.web.header.HeaderWriter#writeHeaders(HttpServletRequest,
+	 * HttpServletResponse)
 	 */
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
@@ -98,12 +101,19 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 	public enum ReferrerPolicy {
 
 		NO_REFERRER("no-referrer"),
+
 		NO_REFERRER_WHEN_DOWNGRADE("no-referrer-when-downgrade"),
+
 		SAME_ORIGIN("same-origin"),
+
 		ORIGIN("origin"),
+
 		STRICT_ORIGIN("strict-origin"),
+
 		ORIGIN_WHEN_CROSS_ORIGIN("origin-when-cross-origin"),
+
 		STRICT_ORIGIN_WHEN_CROSS_ORIGIN("strict-origin-when-cross-origin"),
+
 		UNSAFE_URL("unsafe-url");
 
 		private static final Map<String, ReferrerPolicy> REFERRER_POLICIES;
@@ -116,7 +126,7 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 			REFERRER_POLICIES = Collections.unmodifiableMap(referrerPolicies);
 		}
 
-		private String policy;
+		private final String policy;
 
 		ReferrerPolicy(String policy) {
 			this.policy = policy;
@@ -129,6 +139,7 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 		public static ReferrerPolicy get(String referrerPolicy) {
 			return REFERRER_POLICIES.get(referrerPolicy);
 		}
+
 	}
 
 }

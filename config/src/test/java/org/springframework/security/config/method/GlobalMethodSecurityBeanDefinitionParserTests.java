@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.method;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
+package org.springframework.security.config.method;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
+
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.BeansException;
@@ -59,55 +58,58 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.util.FieldUtils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
 /**
  * @author Ben Alex
  * @author Luke Taylor
  */
 public class GlobalMethodSecurityBeanDefinitionParserTests {
-	private final UsernamePasswordAuthenticationToken bob = new UsernamePasswordAuthenticationToken(
-			"bob", "bobspassword");
+
+	private final UsernamePasswordAuthenticationToken bob = new UsernamePasswordAuthenticationToken("bob",
+			"bobspassword");
 
 	private AbstractXmlApplicationContext appContext;
 
 	private BusinessService target;
 
 	public void loadContext() {
+		// @formatter:off
 		setContext("<b:bean id='target' class='org.springframework.security.access.annotation.BusinessServiceImpl'/>"
 				+ "<global-method-security order='1001' proxy-target-class='false' >"
 				+ "    <protect-pointcut expression='execution(* *.someUser*(..))' access='ROLE_USER'/>"
 				+ "    <protect-pointcut expression='execution(* *.someAdmin*(..))' access='ROLE_ADMIN'/>"
-				+ "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML);
-		target = (BusinessService) appContext.getBean("target");
+				+ "</global-method-security>"
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
+		this.target = (BusinessService) this.appContext.getBean("target");
 	}
 
 	@After
 	public void closeAppContext() {
-		if (appContext != null) {
-			appContext.close();
-			appContext = null;
+		if (this.appContext != null) {
+			this.appContext.close();
+			this.appContext = null;
 		}
 		SecurityContextHolder.clearContext();
-		target = null;
+		this.target = null;
 	}
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
 		loadContext();
-
-		target.someUserMethod1();
+		this.target.someUserMethod1();
 	}
 
 	@Test
 	public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
 		loadContext();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"user", "password");
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
 		SecurityContextHolder.getContext().setAuthentication(token);
-
-		target.someUserMethod1();
-
+		this.target.someUserMethod1();
 		// SEC-1213. Check the order
-		Advisor[] advisors = ((Advised) target).getAdvisors();
+		Advisor[] advisors = ((Advised) this.target).getAdvisors();
 		assertThat(advisors).hasSize(1);
 		assertThat(((MethodSecurityMetadataSourceAdvisor) advisors[0]).getOrder()).isEqualTo(1001);
 	}
@@ -115,68 +117,66 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	@Test(expected = AccessDeniedException.class)
 	public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
 		loadContext();
-		TestingAuthenticationToken token = new TestingAuthenticationToken("Test",
-				"Password", "ROLE_SOMEOTHERROLE");
+		TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password", "ROLE_SOMEOTHERROLE");
 		token.setAuthenticated(true);
-
 		SecurityContextHolder.getContext().setAuthentication(token);
-
-		target.someAdminMethod();
+		this.target.someAdminMethod();
 	}
 
 	@Test
 	public void doesntInterfereWithBeanPostProcessing() {
+		// @formatter:off
 		setContext("<b:bean id='myUserService' class='org.springframework.security.config.PostProcessedMockUserDetailsService'/>"
 				+ "<global-method-security />"
 				+ "<authentication-manager>"
 				+ "   <authentication-provider user-service-ref='myUserService'/>"
 				+ "</authentication-manager>"
 				+ "<b:bean id='beanPostProcessor' class='org.springframework.security.config.MockUserServiceBeanPostProcessor'/>");
-
-		PostProcessedMockUserDetailsService service = (PostProcessedMockUserDetailsService) appContext
+		// @formatter:on
+		PostProcessedMockUserDetailsService service = (PostProcessedMockUserDetailsService) this.appContext
 				.getBean("myUserService");
-
 		assertThat(service.getPostProcessorWasHere()).isEqualTo("Hello from the post processor!");
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void worksWithAspectJAutoproxy() {
+		// @formatter:off
 		setContext("<global-method-security>"
 				+ "  <protect-pointcut expression='execution(* org.springframework.security.config.*Service.*(..))'"
 				+ "       access='ROLE_SOMETHING' />"
 				+ "</global-method-security>"
 				+ "<b:bean id='myUserService' class='org.springframework.security.config.PostProcessedMockUserDetailsService'/>"
-				+ "<aop:aspectj-autoproxy />" + "<authentication-manager>"
+				+ "<aop:aspectj-autoproxy />"
+				+ "<authentication-manager>"
 				+ "   <authentication-provider user-service-ref='myUserService'/>"
 				+ "</authentication-manager>");
-
-		UserDetailsService service = (UserDetailsService) appContext
-				.getBean("myUserService");
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password",
+		// @formatter:on
+		UserDetailsService service = (UserDetailsService) this.appContext.getBean("myUserService");
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		service.loadUserByUsername("notused");
 	}
 
 	@Test
 	public void supportsMethodArgumentsInPointcut() {
+		// @formatter:off
 		setContext("<b:bean id='target' class='org.springframework.security.access.annotation.BusinessServiceImpl'/>"
 				+ "<global-method-security>"
 				+ "   <protect-pointcut expression='execution(* org.springframework.security.access.annotation.BusinessService.someOther(String))' access='ROLE_ADMIN'/>"
 				+ "   <protect-pointcut expression='execution(* org.springframework.security.access.annotation.BusinessService.*(..))' access='ROLE_USER'/>"
-				+ "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML);
-		SecurityContextHolder.getContext().setAuthentication(
-				new UsernamePasswordAuthenticationToken("user", "password"));
-		target = (BusinessService) appContext.getBean("target");
+				+ "</global-method-security>"
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
+		SecurityContextHolder.getContext()
+				.setAuthentication(new UsernamePasswordAuthenticationToken("user", "password"));
+		this.target = (BusinessService) this.appContext.getBean("target");
 		// someOther(int) should not be matched by someOther(String), but should require
 		// ROLE_USER
-		target.someOther(0);
-
+		this.target.someOther(0);
 		try {
 			// String version should required admin role
-			target.someOther("somestring");
+			this.target.someOther("somestring");
 			fail("Expected AccessDeniedException");
 		}
 		catch (AccessDeniedException expected) {
@@ -185,6 +185,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
 	@Test
 	public void supportsBooleanPointcutExpressions() {
+		// @formatter:off
 		setContext("<b:bean id='target' class='org.springframework.security.access.annotation.BusinessServiceImpl'/>"
 				+ "<global-method-security>"
 				+ "   <protect-pointcut expression="
@@ -192,22 +193,21 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ "       and not execution(* org.springframework.security.access.annotation.BusinessService.someOther(String)))' "
 				+ "               access='ROLE_USER'/>"
 				+ "</global-method-security>"
-				+ AUTH_PROVIDER_XML);
-		target = (BusinessService) appContext.getBean("target");
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
+		this.target = (BusinessService) this.appContext.getBean("target");
 		// String method should not be protected
-		target.someOther("somestring");
-
+		this.target.someOther("somestring");
 		// All others should require ROLE_USER
 		try {
-			target.someOther(0);
+			this.target.someOther(0);
 			fail("Expected AuthenticationCredentialsNotFoundException");
 		}
 		catch (AuthenticationCredentialsNotFoundException expected) {
 		}
-
-		SecurityContextHolder.getContext().setAuthentication(
-				new UsernamePasswordAuthenticationToken("user", "password"));
-		target.someOther(0);
+		SecurityContextHolder.getContext()
+				.setAuthentication(new UsernamePasswordAuthenticationToken("user", "password"));
+		this.target.someOther(0);
 	}
 
 	@Test(expected = BeanDefinitionParsingException.class)
@@ -218,80 +218,81 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	// SEC-936
 	@Test(expected = AccessDeniedException.class)
 	public void worksWithoutTargetOrClass() {
+		// @formatter:off
 		setContext("<global-method-security secured-annotations='enabled'/>"
 				+ "<b:bean id='businessService' class='org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean'>"
 				+ "    <b:property name='serviceUrl' value='http://localhost:8080/SomeService'/>"
 				+ "    <b:property name='serviceInterface' value='org.springframework.security.access.annotation.BusinessService'/>"
-				+ "</b:bean>" + AUTH_PROVIDER_XML);
-
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password",
+				+ "</b:bean>"
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-		target = (BusinessService) appContext.getBean("businessService");
-		target.someUserMethod1();
+		this.target = (BusinessService) this.appContext.getBean("businessService");
+		this.target.someUserMethod1();
 	}
 
 	// Expression configuration tests
-
 	@SuppressWarnings("unchecked")
 	@Test
-	public void expressionVoterAndAfterInvocationProviderUseSameExpressionHandlerInstance()
-			throws Exception {
-		setContext("<global-method-security pre-post-annotations='enabled'/>"
-				+ AUTH_PROVIDER_XML);
-		AffirmativeBased adm = (AffirmativeBased) appContext
-				.getBeansOfType(AffirmativeBased.class).values().toArray()[0];
-		List voters = (List) FieldUtils.getFieldValue(adm, "decisionVoters");
-		PreInvocationAuthorizationAdviceVoter mev = (PreInvocationAuthorizationAdviceVoter) voters
-				.get(0);
-		MethodSecurityMetadataSourceAdvisor msi = (MethodSecurityMetadataSourceAdvisor) appContext
-				.getBeansOfType(MethodSecurityMetadataSourceAdvisor.class).values()
+	public void expressionVoterAndAfterInvocationProviderUseSameExpressionHandlerInstance() throws Exception {
+		setContext("<global-method-security pre-post-annotations='enabled'/>" + ConfigTestUtils.AUTH_PROVIDER_XML);
+		AffirmativeBased adm = (AffirmativeBased) this.appContext.getBeansOfType(AffirmativeBased.class).values()
 				.toArray()[0];
+		List voters = (List) FieldUtils.getFieldValue(adm, "decisionVoters");
+		PreInvocationAuthorizationAdviceVoter mev = (PreInvocationAuthorizationAdviceVoter) voters.get(0);
+		MethodSecurityMetadataSourceAdvisor msi = (MethodSecurityMetadataSourceAdvisor) this.appContext
+				.getBeansOfType(MethodSecurityMetadataSourceAdvisor.class).values().toArray()[0];
 		AfterInvocationProviderManager pm = (AfterInvocationProviderManager) ((MethodSecurityInterceptor) msi
 				.getAdvice()).getAfterInvocationManager();
-		PostInvocationAdviceProvider aip = (PostInvocationAdviceProvider) pm
-				.getProviders().get(0);
-		assertThat(FieldUtils.getFieldValue(mev, "preAdvice.expressionHandler")).isSameAs(FieldUtils
-				.getFieldValue(aip, "postAdvice.expressionHandler"));
+		PostInvocationAdviceProvider aip = (PostInvocationAdviceProvider) pm.getProviders().get(0);
+		assertThat(FieldUtils.getFieldValue(mev, "preAdvice.expressionHandler"))
+				.isSameAs(FieldUtils.getFieldValue(aip, "postAdvice.expressionHandler"));
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void accessIsDeniedForHasRoleExpression() {
+		// @formatter:off
 		setContext("<global-method-security pre-post-annotations='enabled'/>"
 				+ "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>"
-				+ AUTH_PROVIDER_XML);
-		SecurityContextHolder.getContext().setAuthentication(bob);
-		target = (BusinessService) appContext.getBean("target");
-		target.someAdminMethod();
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
+		SecurityContextHolder.getContext().setAuthentication(this.bob);
+		this.target = (BusinessService) this.appContext.getBean("target");
+		this.target.someAdminMethod();
 	}
 
 	@Test
 	public void beanNameExpressionPropertyIsSupported() {
+		// @formatter:off
 		setContext("<global-method-security pre-post-annotations='enabled' proxy-target-class='true'/>"
 				+ "<b:bean id='number' class='java.lang.Integer'>"
 				+ "    <b:constructor-arg value='1294'/>"
 				+ "</b:bean>"
 				+ "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>"
-				+ AUTH_PROVIDER_XML);
-		SecurityContextHolder.getContext().setAuthentication(bob);
-		ExpressionProtectedBusinessServiceImpl target = (ExpressionProtectedBusinessServiceImpl) appContext
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
+		SecurityContextHolder.getContext().setAuthentication(this.bob);
+		ExpressionProtectedBusinessServiceImpl target = (ExpressionProtectedBusinessServiceImpl) this.appContext
 				.getBean("target");
 		target.methodWithBeanNamePropertyAccessExpression("x");
 	}
 
 	@Test
 	public void preAndPostFilterAnnotationsWorkWithLists() {
+		// @formatter:off
 		setContext("<global-method-security pre-post-annotations='enabled'/>"
 				+ "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>"
-				+ AUTH_PROVIDER_XML);
-		SecurityContextHolder.getContext().setAuthentication(bob);
-		target = (BusinessService) appContext.getBean("target");
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
+		SecurityContextHolder.getContext().setAuthentication(this.bob);
+		this.target = (BusinessService) this.appContext.getBean("target");
 		List<String> arg = new ArrayList<>();
 		arg.add("joe");
 		arg.add("bob");
 		arg.add("sam");
-		List<?> result = target.methodReturningAList(arg);
+		List<?> result = this.target.methodReturningAList(arg);
 		// Expression is (filterObject == name or filterObject == 'sam'), so "joe" should
 		// be gone after pre-filter
 		// PostFilter should remove sam from the return object
@@ -301,13 +302,15 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
 	@Test
 	public void prePostFilterAnnotationWorksWithArrays() {
+		// @formatter:off
 		setContext("<global-method-security pre-post-annotations='enabled'/>"
 				+ "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>"
-				+ AUTH_PROVIDER_XML);
-		SecurityContextHolder.getContext().setAuthentication(bob);
-		target = (BusinessService) appContext.getBean("target");
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
+		SecurityContextHolder.getContext().setAuthentication(this.bob);
+		this.target = (BusinessService) this.appContext.getBean("target");
 		Object[] arg = new String[] { "joe", "bob", "sam" };
-		Object[] result = target.methodReturningAnArray(arg);
+		Object[] result = this.target.methodReturningAnArray(arg);
 		assertThat(result).hasSize(1);
 		assertThat(result[0]).isEqualTo("bob");
 	}
@@ -315,6 +318,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	// SEC-1392
 	@Test
 	public void customPermissionEvaluatorIsSupported() {
+		// @formatter:off
 		setContext("<global-method-security pre-post-annotations='enabled'>"
 				+ "   <expression-handler ref='expressionHandler'/>"
 				+ "</global-method-security>"
@@ -322,18 +326,23 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ "   <b:property name='permissionEvaluator' ref='myPermissionEvaluator'/>"
 				+ "</b:bean>"
 				+ "<b:bean id='myPermissionEvaluator' class='org.springframework.security.config.method.TestPermissionEvaluator'/>"
-				+ AUTH_PROVIDER_XML);
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
 	}
 
 	// SEC-1450
 	@Test(expected = AuthenticationException.class)
 	@SuppressWarnings("unchecked")
 	public void genericsAreMatchedByProtectPointcut() {
-		setContext("<b:bean id='target' class='org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParserTests$ConcreteFoo'/>"
-				+ "<global-method-security>"
-				+ "   <protect-pointcut expression='execution(* org..*Foo.foo(..))' access='ROLE_USER'/>"
-				+ "</global-method-security>" + AUTH_PROVIDER_XML);
-		Foo foo = (Foo) appContext.getBean("target");
+		// @formatter:off
+		setContext(
+				"<b:bean id='target' class='org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParserTests$ConcreteFoo'/>"
+						+ "<global-method-security>"
+						+ "   <protect-pointcut expression='execution(* org..*Foo.foo(..))' access='ROLE_USER'/>"
+						+ "</global-method-security>"
+						+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
+		Foo foo = (Foo) this.appContext.getBean("target");
 		foo.foo(new SecurityConfig("A"));
 	}
 
@@ -341,11 +350,13 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void genericsMethodArgumentNamesAreResolved() {
+		// @formatter:off
 		setContext("<b:bean id='target' class='" + ConcreteFoo.class.getName() + "'/>"
 				+ "<global-method-security pre-post-annotations='enabled'/>"
-				+ AUTH_PROVIDER_XML);
-		SecurityContextHolder.getContext().setAuthentication(bob);
-		Foo foo = (Foo) appContext.getBean("target");
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
+		SecurityContextHolder.getContext().setAuthentication(this.bob);
+		Foo foo = (Foo) this.appContext.getBean("target");
 		foo.foo(new SecurityConfig("A"));
 	}
 
@@ -356,114 +367,108 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		props.addPropertyValue("key", "blah");
 		parent.registerSingleton("runAsMgr", RunAsManagerImpl.class, props);
 		parent.refresh();
-
-		setContext("<global-method-security run-as-manager-ref='runAsMgr'/>"
-				+ AUTH_PROVIDER_XML, parent);
-		RunAsManagerImpl ram = (RunAsManagerImpl) appContext.getBean("runAsMgr");
-		MethodSecurityMetadataSourceAdvisor msi = (MethodSecurityMetadataSourceAdvisor) appContext
-				.getBeansOfType(MethodSecurityMetadataSourceAdvisor.class).values()
-				.toArray()[0];
+		setContext("<global-method-security run-as-manager-ref='runAsMgr'/>" + ConfigTestUtils.AUTH_PROVIDER_XML,
+				parent);
+		RunAsManagerImpl ram = (RunAsManagerImpl) this.appContext.getBean("runAsMgr");
+		MethodSecurityMetadataSourceAdvisor msi = (MethodSecurityMetadataSourceAdvisor) this.appContext
+				.getBeansOfType(MethodSecurityMetadataSourceAdvisor.class).values().toArray()[0];
 		assertThat(ram).isSameAs(FieldUtils.getFieldValue(msi.getAdvice(), "runAsManager"));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void supportsExternalMetadataSource() {
-		setContext("<b:bean id='target' class='"
-				+ ConcreteFoo.class.getName()
-				+ "'/>"
+		// @formatter:off
+		setContext("<b:bean id='target' class='" + ConcreteFoo.class.getName() + "'/>"
 				+ "<method-security-metadata-source id='mds'>"
-				+ "      <protect method='"
-				+ Foo.class.getName()
-				+ ".foo' access='ROLE_ADMIN'/>"
+				+ "      <protect method='" + Foo.class.getName() + ".foo' access='ROLE_ADMIN'/>"
 				+ "</method-security-metadata-source>"
 				+ "<global-method-security pre-post-annotations='enabled' metadata-source-ref='mds'/>"
-				+ AUTH_PROVIDER_XML);
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
 		// External MDS should take precedence over PreAuthorize
-		SecurityContextHolder.getContext().setAuthentication(bob);
-		Foo foo = (Foo) appContext.getBean("target");
+		SecurityContextHolder.getContext().setAuthentication(this.bob);
+		Foo foo = (Foo) this.appContext.getBean("target");
 		try {
 			foo.foo(new SecurityConfig("A"));
 			fail("Bob can't invoke admin methods");
 		}
 		catch (AccessDeniedException expected) {
 		}
-		SecurityContextHolder.getContext().setAuthentication(
-				new UsernamePasswordAuthenticationToken("admin", "password"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "password"));
 		foo.foo(new SecurityConfig("A"));
 	}
 
 	@Test
 	public void supportsCustomAuthenticationManager() {
-		setContext("<b:bean id='target' class='"
-				+ ConcreteFoo.class.getName()
-				+ "'/>"
+		// @formatter:off
+		setContext("<b:bean id='target' class='" + ConcreteFoo.class.getName() + "'/>"
 				+ "<method-security-metadata-source id='mds'>"
-				+ "      <protect method='"
-				+ Foo.class.getName()
-				+ ".foo' access='ROLE_ADMIN'/>"
+				+ "      <protect method='" + Foo.class.getName() + ".foo' access='ROLE_ADMIN'/>"
 				+ "</method-security-metadata-source>"
 				+ "<global-method-security pre-post-annotations='enabled' metadata-source-ref='mds' authentication-manager-ref='customAuthMgr'/>"
 				+ "<b:bean id='customAuthMgr' class='org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParserTests$CustomAuthManager'>"
-				+ "      <b:constructor-arg value='authManager'/>" + "</b:bean>"
-				+ AUTH_PROVIDER_XML);
-		SecurityContextHolder.getContext().setAuthentication(bob);
-		Foo foo = (Foo) appContext.getBean("target");
+				+ "      <b:constructor-arg value='authManager'/>"
+				+ "</b:bean>"
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+		// @formatter:on
+		SecurityContextHolder.getContext().setAuthentication(this.bob);
+		Foo foo = (Foo) this.appContext.getBean("target");
 		try {
 			foo.foo(new SecurityConfig("A"));
 			fail("Bob can't invoke admin methods");
 		}
 		catch (AccessDeniedException expected) {
 		}
-		SecurityContextHolder.getContext().setAuthentication(
-				new UsernamePasswordAuthenticationToken("admin", "password"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "password"));
 		foo.foo(new SecurityConfig("A"));
 	}
 
-	static class CustomAuthManager implements AuthenticationManager,
-			ApplicationContextAware {
+	private void setContext(String context) {
+		this.appContext = new InMemoryXmlApplicationContext(context);
+	}
+
+	private void setContext(String context, ApplicationContext parent) {
+		this.appContext = new InMemoryXmlApplicationContext(context, parent);
+	}
+
+	static class CustomAuthManager implements AuthenticationManager, ApplicationContextAware {
+
 		private String beanName;
+
 		private AuthenticationManager authenticationManager;
 
 		CustomAuthManager(String beanName) {
 			this.beanName = beanName;
 		}
 
-		public Authentication authenticate(Authentication authentication)
-				throws AuthenticationException {
-			return authenticationManager.authenticate(authentication);
+		@Override
+		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+			return this.authenticationManager.authenticate(authentication);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see
-		 * org.springframework.context.ApplicationContextAware#setApplicationContext(org
-		 * .springframework.context.ApplicationContext)
-		 */
-		public void setApplicationContext(ApplicationContext applicationContext)
-				throws BeansException {
-			this.authenticationManager = applicationContext.getBean(beanName,
-					AuthenticationManager.class);
+		@Override
+		public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+			this.authenticationManager = applicationContext.getBean(this.beanName, AuthenticationManager.class);
 		}
-	}
 
-	private void setContext(String context) {
-		appContext = new InMemoryXmlApplicationContext(context);
-	}
-
-	private void setContext(String context, ApplicationContext parent) {
-		appContext = new InMemoryXmlApplicationContext(context, parent);
 	}
 
 	interface Foo<T extends ConfigAttribute> {
+
 		void foo(T action);
+
 	}
 
 	public static class ConcreteFoo implements Foo<SecurityConfig> {
+
+		@Override
 		@PreAuthorize("#action.attribute == 'A'")
 		public void foo(SecurityConfig action) {
 		}
+
 	}
 
 }

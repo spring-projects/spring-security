@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.util.matcher;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+package org.springframework.security.web.util.matcher;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,18 +25,18 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.security.web.util.matcher.AndRequestMatcher;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AndRequestMatcherTests {
+
 	@Mock
 	private RequestMatcher delegate;
 
@@ -77,48 +75,44 @@ public class AndRequestMatcherTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyList() {
-		new AndRequestMatcher(Collections.<RequestMatcher> emptyList());
+		new AndRequestMatcher(Collections.<RequestMatcher>emptyList());
 	}
 
 	@Test
 	public void matchesSingleTrue() {
-		when(delegate.matches(request)).thenReturn(true);
-		matcher = new AndRequestMatcher(delegate);
-
-		assertThat(matcher.matches(request)).isTrue();
+		given(this.delegate.matches(this.request)).willReturn(true);
+		this.matcher = new AndRequestMatcher(this.delegate);
+		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
 	@Test
 	public void matchesMultiTrue() {
-		when(delegate.matches(request)).thenReturn(true);
-		when(delegate2.matches(request)).thenReturn(true);
-		matcher = new AndRequestMatcher(delegate, delegate2);
-
-		assertThat(matcher.matches(request)).isTrue();
+		given(this.delegate.matches(this.request)).willReturn(true);
+		given(this.delegate2.matches(this.request)).willReturn(true);
+		this.matcher = new AndRequestMatcher(this.delegate, this.delegate2);
+		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
 	@Test
 	public void matchesSingleFalse() {
-		when(delegate.matches(request)).thenReturn(false);
-		matcher = new AndRequestMatcher(delegate);
-
-		assertThat(matcher.matches(request)).isFalse();
+		given(this.delegate.matches(this.request)).willReturn(false);
+		this.matcher = new AndRequestMatcher(this.delegate);
+		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 
 	@Test
 	public void matchesMultiBothFalse() {
-		when(delegate.matches(request)).thenReturn(false);
-		matcher = new AndRequestMatcher(delegate, delegate2);
-
-		assertThat(matcher.matches(request)).isFalse();
+		given(this.delegate.matches(this.request)).willReturn(false);
+		this.matcher = new AndRequestMatcher(this.delegate, this.delegate2);
+		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 
 	@Test
 	public void matchesMultiSingleFalse() {
-		when(delegate.matches(request)).thenReturn(true);
-		when(delegate2.matches(request)).thenReturn(false);
-		matcher = new AndRequestMatcher(delegate, delegate2);
-
-		assertThat(matcher.matches(request)).isFalse();
+		given(this.delegate.matches(this.request)).willReturn(true);
+		given(this.delegate2.matches(this.request)).willReturn(false);
+		this.matcher = new AndRequestMatcher(this.delegate, this.delegate2);
+		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
+
 }

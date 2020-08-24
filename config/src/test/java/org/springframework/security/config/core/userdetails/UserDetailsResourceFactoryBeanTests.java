@@ -16,26 +16,29 @@
 
 package org.springframework.security.config.core.userdetails;
 
+import java.util.Collection;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.util.InMemoryResource;
 
-import java.util.Collection;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class UserDetailsResourceFactoryBeanTest {
+public class UserDetailsResourceFactoryBeanTests {
+
 	@Mock
 	ResourceLoader resourceLoader;
 
@@ -43,60 +46,62 @@ public class UserDetailsResourceFactoryBeanTest {
 
 	@Test
 	public void setResourceLoaderWhenNullThenThrowsException() {
-		assertThatThrownBy(() -> factory.setResourceLoader(null) )
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasStackTraceContaining("resourceLoader cannot be null");
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.factory.setResourceLoader(null))
+				.withStackTraceContaining("resourceLoader cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void getObjectWhenPropertiesResourceLocationNullThenThrowsIllegalStateException() {
-		factory.setResourceLoader(resourceLoader);
-
-		assertThatThrownBy(() -> factory.getObject() )
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasStackTraceContaining("resource cannot be null if resourceLocation is null");
+		this.factory.setResourceLoader(this.resourceLoader);
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.factory.getObject())
+				.withStackTraceContaining("resource cannot be null if resourceLocation is null");
+		// @formatter:on
 	}
 
 	@Test
 	public void getObjectWhenPropertiesResourceLocationSingleUserThenThrowsGetsSingleUser() throws Exception {
-		factory.setResourceLocation("classpath:users.properties");
-
-		Collection<UserDetails> users = factory.getObject();
-
+		this.factory.setResourceLocation("classpath:users.properties");
+		Collection<UserDetails> users = this.factory.getObject();
 		assertLoaded();
 	}
 
 	@Test
 	public void getObjectWhenPropertiesResourceSingleUserThenThrowsGetsSingleUser() throws Exception {
-		factory.setResource(new InMemoryResource("user=password,ROLE_USER"));
-
+		this.factory.setResource(new InMemoryResource("user=password,ROLE_USER"));
 		assertLoaded();
 	}
 
 	@Test
 	public void getObjectWhenInvalidUserThenThrowsMeaningfulException() {
-		factory.setResource(new InMemoryResource("user=invalidFormatHere"));
-
-		assertThatThrownBy(() -> factory.getObject() )
-			.isInstanceOf(IllegalStateException.class)
-			.hasStackTraceContaining("user")
-			.hasStackTraceContaining("invalidFormatHere");
+		this.factory.setResource(new InMemoryResource("user=invalidFormatHere"));
+		// @formatter:off
+		assertThatIllegalStateException()
+				.isThrownBy(() -> this.factory.getObject())
+				.withStackTraceContaining("user")
+				.withStackTraceContaining("invalidFormatHere");
+		// @formatter:on
 	}
 
 	@Test
 	public void getObjectWhenStringSingleUserThenGetsSingleUser() throws Exception {
 		this.factory = UserDetailsResourceFactoryBean.fromString("user=password,ROLE_USER");
-
 		assertLoaded();
 	}
 
 	private void assertLoaded() throws Exception {
-		Collection<UserDetails> users = factory.getObject();
-
+		Collection<UserDetails> users = this.factory.getObject();
+		// @formatter:off
 		UserDetails expectedUser = User.withUsername("user")
 			.password("password")
 			.authorities("ROLE_USER")
 			.build();
+		// @formatter:on
 		assertThat(users).containsExactly(expectedUser);
 	}
+
 }

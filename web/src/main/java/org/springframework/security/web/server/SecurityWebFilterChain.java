@@ -16,14 +16,15 @@
 
 package org.springframework.security.web.server;
 
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
- /**
- * Defines a filter chain which is capable of being matched against a {@link ServerWebExchange} in order to decide
- * whether it applies to that request.
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+
+/**
+ * Defines a filter chain which is capable of being matched against a
+ * {@link ServerWebExchange} in order to decide whether it applies to that request.
  *
  * @author Rob Winch
  * @since 5.0
@@ -31,7 +32,8 @@ import reactor.core.publisher.Mono;
 public interface SecurityWebFilterChain {
 
 	/**
-	 * Determines if this {@link SecurityWebFilterChain} matches the provided {@link ServerWebExchange}
+	 * Determines if this {@link SecurityWebFilterChain} matches the provided
+	 * {@link ServerWebExchange}
 	 * @param exchange the {@link ServerWebExchange}
 	 * @return true if it matches, else false
 	 */
@@ -42,4 +44,5 @@ public interface SecurityWebFilterChain {
 	 * @return
 	 */
 	Flux<WebFilter> getWebFilters();
+
 }

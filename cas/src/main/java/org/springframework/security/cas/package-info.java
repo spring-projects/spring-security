@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
- * Spring Security support for Jasig's Central Authentication Service (<a href="https://www.jasig.org/cas">CAS</a>).
+ * Spring Security support for Jasig's Central Authentication Service
+ * (<a href="https://www.jasig.org/cas">CAS</a>).
  */
 package org.springframework.security.cas;
-

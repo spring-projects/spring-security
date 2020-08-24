@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.header;
 
 import java.time.Duration;
 
-import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
+
+import org.springframework.security.web.server.header.StaticServerHttpHeadersWriter.Builder;
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * Writes the Strict-Transport-Security if the request is secure.
+ *
  * @author Rob Winch
  * @since 5.0
  */
-public final class StrictTransportSecurityServerHttpHeadersWriter
-	implements ServerHttpHeadersWriter {
+public final class StrictTransportSecurityServerHttpHeadersWriter implements ServerHttpHeadersWriter {
+
 	public static final String STRICT_TRANSPORT_SECURITY = "Strict-Transport-Security";
 
 	private String maxAge;
@@ -38,9 +41,6 @@ public final class StrictTransportSecurityServerHttpHeadersWriter
 
 	private ServerHttpHeadersWriter delegate;
 
-	/**
-	 *
-	 */
 	public StrictTransportSecurityServerHttpHeadersWriter() {
 		setIncludeSubDomains(true);
 		setMaxAge(Duration.ofDays(365L));
@@ -48,12 +48,9 @@ public final class StrictTransportSecurityServerHttpHeadersWriter
 		updateDelegate();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.web.server.HttpHeadersWriter#writeHttpHeaders(org.springframework.http.HttpHeaders)
-	 */
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		return isSecure(exchange) ? delegate.writeHttpHeaders(exchange) : Mono.empty();
+		return isSecure(exchange) ? this.delegate.writeHttpHeaders(exchange) : Mono.empty();
 	}
 
 	/**
@@ -61,18 +58,18 @@ public final class StrictTransportSecurityServerHttpHeadersWriter
 	 * @param includeSubDomains if subdomains should be included
 	 */
 	public void setIncludeSubDomains(boolean includeSubDomains) {
-		subdomain = includeSubDomains ? " ; includeSubDomains" : "";
+		this.subdomain = includeSubDomains ? " ; includeSubDomains" : "";
 		updateDelegate();
 	}
 
 	/**
 	 * <p>
-     * Sets if preload should be included. Default is false
-     * </p>
+	 * Sets if preload should be included. Default is false
+	 * </p>
 	 *
 	 * <p>
-	 * See <a href="https://hstspreload.org/">Website hstspreload.org</a>
-	 * for additional details.
+	 * See <a href="https://hstspreload.org/">Website hstspreload.org</a> for additional
+	 * details.
 	 * </p>
 	 * @param preload if preload should be included
 	 * @since 5.2.0
@@ -93,9 +90,9 @@ public final class StrictTransportSecurityServerHttpHeadersWriter
 	}
 
 	private void updateDelegate() {
-		delegate = StaticServerHttpHeadersWriter.builder()
-				.header(STRICT_TRANSPORT_SECURITY, maxAge + subdomain + preload)
-				.build();
+		Builder builder = StaticServerHttpHeadersWriter.builder();
+		builder.header(STRICT_TRANSPORT_SECURITY, this.maxAge + this.subdomain + this.preload);
+		this.delegate = builder.build();
 	}
 
 	private boolean isSecure(ServerWebExchange exchange) {
@@ -103,4 +100,5 @@ public final class StrictTransportSecurityServerHttpHeadersWriter
 		boolean isSecure = scheme != null && scheme.equalsIgnoreCase("https");
 		return isSecure;
 	}
+
 }

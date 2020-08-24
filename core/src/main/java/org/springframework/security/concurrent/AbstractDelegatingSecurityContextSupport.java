@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.concurrent;
 
 import java.util.concurrent.Callable;
@@ -34,7 +35,6 @@ abstract class AbstractDelegatingSecurityContextSupport {
 	/**
 	 * Creates a new {@link AbstractDelegatingSecurityContextSupport} that uses the
 	 * specified {@link SecurityContext}.
-	 *
 	 * @param securityContext the {@link SecurityContext} to use for each
 	 * {@link DelegatingSecurityContextRunnable} and each
 	 * {@link DelegatingSecurityContextCallable} or null to default to the current
@@ -45,10 +45,11 @@ abstract class AbstractDelegatingSecurityContextSupport {
 	}
 
 	protected final Runnable wrap(Runnable delegate) {
-		return DelegatingSecurityContextRunnable.create(delegate, securityContext);
+		return DelegatingSecurityContextRunnable.create(delegate, this.securityContext);
 	}
 
 	protected final <T> Callable<T> wrap(Callable<T> delegate) {
-		return DelegatingSecurityContextCallable.create(delegate, securityContext);
+		return DelegatingSecurityContextCallable.create(delegate, this.securityContext);
 	}
+
 }

@@ -16,12 +16,10 @@
 
 package org.springframework.security.ldap.authentication;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.util.*;
+import java.util.Collection;
 
 import org.junit.Test;
+
 import org.springframework.ldap.CommunicationException;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
@@ -37,6 +35,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
 /**
  * Tests {@link LdapAuthenticationProvider}.
  *
@@ -46,41 +49,32 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
  */
 public class LdapAuthenticationProviderTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void testSupportsUsernamePasswordAuthenticationToken() {
-		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(
-				new MockAuthenticator(), new MockAuthoritiesPopulator());
-
+		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
+				new MockAuthoritiesPopulator());
 		assertThat(ldapProvider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
 	}
 
 	@Test
 	public void testDefaultMapperIsSet() {
-		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(
-				new MockAuthenticator(), new MockAuthoritiesPopulator());
-
+		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
+				new MockAuthoritiesPopulator());
 		assertThat(ldapProvider.getUserDetailsContextMapper() instanceof LdapUserDetailsMapper).isTrue();
 	}
 
 	@Test
 	public void testEmptyOrNullUserNameThrowsException() {
-		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(
-				new MockAuthenticator(), new MockAuthoritiesPopulator());
-
+		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
+				new MockAuthoritiesPopulator());
 		try {
-			ldapProvider.authenticate(new UsernamePasswordAuthenticationToken(null,
-					"password"));
+			ldapProvider.authenticate(new UsernamePasswordAuthenticationToken(null, "password"));
 			fail("Expected BadCredentialsException for empty username");
 		}
 		catch (BadCredentialsException expected) {
 		}
-
 		try {
-			ldapProvider.authenticate(new UsernamePasswordAuthenticationToken("",
-					"bobspassword"));
+			ldapProvider.authenticate(new UsernamePasswordAuthenticationToken("", "bobspassword"));
 			fail("Expected BadCredentialsException for null username");
 		}
 		catch (BadCredentialsException expected) {
@@ -90,26 +84,18 @@ public class LdapAuthenticationProviderTests {
 	@Test(expected = BadCredentialsException.class)
 	public void usernameNotFoundExceptionIsHiddenByDefault() {
 		final LdapAuthenticator authenticator = mock(LdapAuthenticator.class);
-		final UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken(
-				"joe", "password");
-		when(authenticator.authenticate(joe)).thenThrow(
-				new UsernameNotFoundException("nobody"));
-
-		LdapAuthenticationProvider provider = new LdapAuthenticationProvider(
-				authenticator);
+		final UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken("joe", "password");
+		given(authenticator.authenticate(joe)).willThrow(new UsernameNotFoundException("nobody"));
+		LdapAuthenticationProvider provider = new LdapAuthenticationProvider(authenticator);
 		provider.authenticate(joe);
 	}
 
 	@Test(expected = UsernameNotFoundException.class)
 	public void usernameNotFoundExceptionIsNotHiddenIfConfigured() {
 		final LdapAuthenticator authenticator = mock(LdapAuthenticator.class);
-		final UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken(
-				"joe", "password");
-		when(authenticator.authenticate(joe)).thenThrow(
-				new UsernameNotFoundException("nobody"));
-
-		LdapAuthenticationProvider provider = new LdapAuthenticationProvider(
-				authenticator);
+		final UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken("joe", "password");
+		given(authenticator.authenticate(joe)).willThrow(new UsernameNotFoundException("nobody"));
+		LdapAuthenticationProvider provider = new LdapAuthenticationProvider(authenticator);
 		provider.setHideUserNotFoundExceptions(false);
 		provider.authenticate(joe);
 	}
@@ -117,16 +103,13 @@ public class LdapAuthenticationProviderTests {
 	@Test
 	public void normalUsage() {
 		MockAuthoritiesPopulator populator = new MockAuthoritiesPopulator();
-		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(
-				new MockAuthenticator(), populator);
+		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(), populator);
 		LdapUserDetailsMapper userMapper = new LdapUserDetailsMapper();
 		userMapper.setRoleAttributes(new String[] { "ou" });
 		ldapProvider.setUserDetailsContextMapper(userMapper);
-
 		assertThat(ldapProvider.getAuthoritiesPopulator()).isNotNull();
-
-		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-				"ben", "benspassword");
+		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben",
+				"benspassword");
 		Object authDetails = new Object();
 		authRequest.setDetails(authDetails);
 		Authentication authResult = ldapProvider.authenticate(authRequest);
@@ -137,53 +120,42 @@ public class LdapAuthenticationProviderTests {
 		assertThat(user.getPassword()).isEqualTo("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=");
 		assertThat(user.getUsername()).isEqualTo("ben");
 		assertThat(populator.getRequestedUsername()).isEqualTo("ben");
-
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
-				.contains("ROLE_FROM_ENTRY");
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
-				.contains("ROLE_FROM_POPULATOR");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_FROM_ENTRY");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_FROM_POPULATOR");
 	}
 
 	@Test
 	public void passwordIsSetFromUserDataIfUseAuthenticationRequestCredentialsIsFalse() {
-		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(
-				new MockAuthenticator(), new MockAuthoritiesPopulator());
+		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
+				new MockAuthoritiesPopulator());
 		ldapProvider.setUseAuthenticationRequestCredentials(false);
-
-		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-				"ben", "benspassword");
+		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben",
+				"benspassword");
 		Authentication authResult = ldapProvider.authenticate(authRequest);
 		assertThat(authResult.getCredentials()).isEqualTo("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=");
-
 	}
 
 	@Test
 	public void useWithNullAuthoritiesPopulatorReturnsCorrectRole() {
-		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(
-				new MockAuthenticator());
+		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator());
 		LdapUserDetailsMapper userMapper = new LdapUserDetailsMapper();
 		userMapper.setRoleAttributes(new String[] { "ou" });
 		ldapProvider.setUserDetailsContextMapper(userMapper);
-		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-				"ben", "benspassword");
-		UserDetails user = (UserDetails) ldapProvider.authenticate(authRequest)
-				.getPrincipal();
+		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben",
+				"benspassword");
+		UserDetails user = (UserDetails) ldapProvider.authenticate(authRequest).getPrincipal();
 		assertThat(user.getAuthorities()).hasSize(1);
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
-				.contains("ROLE_FROM_ENTRY");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_FROM_ENTRY");
 	}
 
 	@Test
 	public void authenticateWithNamingException() {
-		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-				"ben", "benspassword");
+		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben",
+				"benspassword");
 		LdapAuthenticator mockAuthenticator = mock(LdapAuthenticator.class);
-		CommunicationException expectedCause = new CommunicationException(
-				new javax.naming.CommunicationException());
-		when(mockAuthenticator.authenticate(authRequest)).thenThrow(expectedCause);
-
-		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(
-				mockAuthenticator);
+		CommunicationException expectedCause = new CommunicationException(new javax.naming.CommunicationException());
+		given(mockAuthenticator.authenticate(authRequest)).willThrow(expectedCause);
+		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(mockAuthenticator);
 		try {
 			ldapProvider.authenticate(authRequest);
 			fail("Expected Exception");
@@ -193,46 +165,42 @@ public class LdapAuthenticationProviderTests {
 		}
 	}
 
-	// ~ Inner Classes
-	// ==================================================================================================
-
 	class MockAuthenticator implements LdapAuthenticator {
 
+		@Override
 		public DirContextOperations authenticate(Authentication authentication) {
 			DirContextAdapter ctx = new DirContextAdapter();
 			ctx.setAttributeValue("ou", "FROM_ENTRY");
 			String username = authentication.getName();
 			String password = (String) authentication.getCredentials();
-
 			if (username.equals("ben") && password.equals("benspassword")) {
-				ctx.setDn(new DistinguishedName(
-						"cn=ben,ou=people,dc=springframework,dc=org"));
+				ctx.setDn(new DistinguishedName("cn=ben,ou=people,dc=springframework,dc=org"));
 				ctx.setAttributeValue("userPassword", "{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=");
-
 				return ctx;
 			}
 			else if (username.equals("jen") && password.equals("")) {
-				ctx.setDn(new DistinguishedName(
-						"cn=jen,ou=people,dc=springframework,dc=org"));
-
+				ctx.setDn(new DistinguishedName("cn=jen,ou=people,dc=springframework,dc=org"));
 				return ctx;
 			}
-
 			throw new BadCredentialsException("Authentication failed.");
 		}
+
 	}
 
 	class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {
+
 		String username;
 
-		public Collection<GrantedAuthority> getGrantedAuthorities(
-				DirContextOperations userCtx, String username) {
+		@Override
+		public Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userCtx, String username) {
 			this.username = username;
 			return AuthorityUtils.createAuthorityList("ROLE_FROM_POPULATOR");
 		}
 
 		String getRequestedUsername() {
-			return username;
+			return this.username;
 		}
+
 	}
+
 }

@@ -13,24 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.cas.userdetails;
-
-import static org.assertj.core.api.Assertions.*;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.jasig.cas.client.authentication.AttributePrincipal;
-import org.jasig.cas.client.validation.Assertion;
-import org.junit.Test;
-import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.jasig.cas.client.authentication.AttributePrincipal;
+import org.jasig.cas.client.validation.Assertion;
+import org.junit.Test;
+
+import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Luke Taylor
@@ -50,14 +51,13 @@ public class GrantedAuthorityFromAssertionAttributesUserDetailsServiceTests {
 		attributes.put("c", "role_c");
 		attributes.put("d", null);
 		attributes.put("someother", "unused");
-		when(assertion.getPrincipal()).thenReturn(principal);
-		when(principal.getAttributes()).thenReturn(attributes);
-		when(principal.getName()).thenReturn("somebody");
-		CasAssertionAuthenticationToken token = new CasAssertionAuthenticationToken(
-				assertion, "ticket");
+		given(assertion.getPrincipal()).willReturn(principal);
+		given(principal.getAttributes()).willReturn(attributes);
+		given(principal.getName()).willReturn("somebody");
+		CasAssertionAuthenticationToken token = new CasAssertionAuthenticationToken(assertion, "ticket");
 		UserDetails user = uds.loadUserDetails(token);
 		Set<String> roles = AuthorityUtils.authorityListToSet(user.getAuthorities());
-		assertThat(roles).containsExactlyInAnyOrder(
-				"role_a1", "role_a2", "role_b", "role_c");
+		assertThat(roles).containsExactlyInAnyOrder("role_a1", "role_a2", "role_b", "role_c");
 	}
+
 }

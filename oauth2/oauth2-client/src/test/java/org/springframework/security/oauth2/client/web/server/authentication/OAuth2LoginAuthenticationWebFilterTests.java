@@ -16,11 +16,17 @@
 
 package org.springframework.security.oauth2.client.web.server.authentication;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -36,15 +42,10 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
-import reactor.core.publisher.Mono;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -52,59 +53,60 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class OAuth2LoginAuthenticationWebFilterTests {
+
 	@Mock
 	private ReactiveAuthenticationManager authenticationManager;
+
 	@Mock
 	private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 
 	private OAuth2LoginAuthenticationWebFilter filter;
-	private WebFilterExchange webFilterExchange;
 
+	private WebFilterExchange webFilterExchange;
 
 	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration();
 
-
-	private OAuth2AuthorizationResponse.Builder authorizationResponseBldr = OAuth2AuthorizationResponse
-			.success("code")
+	private OAuth2AuthorizationResponse.Builder authorizationResponseBldr = OAuth2AuthorizationResponse.success("code")
 			.state("state");
 
 	@Before
 	public void setup() {
-		this.filter = new OAuth2LoginAuthenticationWebFilter(this.authenticationManager, this.authorizedClientRepository);
-		this.webFilterExchange = new WebFilterExchange(MockServerWebExchange.from(MockServerHttpRequest.get("/")), new DefaultWebFilterChain(exchange -> exchange.getResponse().setComplete()));
-		when(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any()))
-				.thenReturn(Mono.empty());
+		this.filter = new OAuth2LoginAuthenticationWebFilter(this.authenticationManager,
+				this.authorizedClientRepository);
+		this.webFilterExchange = new WebFilterExchange(MockServerWebExchange.from(MockServerHttpRequest.get("/")),
+				new DefaultWebFilterChain((exchange) -> exchange.getResponse().setComplete()));
+		given(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
 	}
 
 	@Test
 	public void onAuthenticationSuccessWhenOAuth2LoginAuthenticationTokenThenSavesAuthorizedClient() {
 		this.filter.onAuthenticationSuccess(loginToken(), this.webFilterExchange).block();
-
 		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), any(), any());
 	}
 
 	private OAuth2LoginAuthenticationToken loginToken() {
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-				"token",
-				Instant.now(),
-				Instant.now().plus(Duration.ofDays(1)),
-				Collections.singleton("user"));
-		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), Collections
-				.singletonMap("user", "rob"), "user");
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token",
+				Instant.now(), Instant.now().plus(Duration.ofDays(1)), Collections.singleton("user"));
+		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
+				Collections.singletonMap("user", "rob"), "user");
 		ClientRegistration clientRegistration = this.registration.build();
-		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest
-				.authorizationCode()
+		// @formatter:off
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.state("state")
 				.clientId(clientRegistration.getClientId())
-				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+				.authorizationUri(clientRegistration.getProviderDetails()
+				.getAuthorizationUri())
 				.redirectUri(clientRegistration.getRedirectUri())
 				.scopes(clientRegistration.getScopes())
 				.build();
 		OAuth2AuthorizationResponse authorizationResponse = this.authorizationResponseBldr
 				.redirectUri(clientRegistration.getRedirectUri())
 				.build();
+		// @formatter:on
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
-		return new OAuth2LoginAuthenticationToken(clientRegistration, authorizationExchange, user, user.getAuthorities(), accessToken);
+		return new OAuth2LoginAuthenticationToken(clientRegistration, authorizationExchange, user,
+				user.getAuthorities(), accessToken);
 	}
+
 }

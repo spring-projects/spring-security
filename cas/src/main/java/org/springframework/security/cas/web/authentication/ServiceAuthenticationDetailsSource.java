@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.cas.web.authentication;
 
 import java.net.MalformedURLException;
@@ -34,22 +35,16 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  */
-public class ServiceAuthenticationDetailsSource implements
-		AuthenticationDetailsSource<HttpServletRequest, ServiceAuthenticationDetails> {
-	// ~ Instance fields
-	// ================================================================================================
+public class ServiceAuthenticationDetailsSource
+		implements AuthenticationDetailsSource<HttpServletRequest, ServiceAuthenticationDetails> {
 
 	private final Pattern artifactPattern;
 
 	private ServiceProperties serviceProperties;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Creates an implementation that uses the specified ServiceProperties and the default
 	 * CAS artifactParameterName.
-	 *
 	 * @param serviceProperties The ServiceProperties to use to construct the serviceUrl.
 	 */
 	public ServiceAuthenticationDetailsSource(ServiceProperties serviceProperties) {
@@ -58,35 +53,31 @@ public class ServiceAuthenticationDetailsSource implements
 
 	/**
 	 * Creates an implementation that uses the specified artifactParameterName
-	 *
 	 * @param serviceProperties The ServiceProperties to use to construct the serviceUrl.
 	 * @param artifactParameterName the artifactParameterName that is removed from the
 	 * current URL. The result becomes the service url. Cannot be null and cannot be an
 	 * empty String.
 	 */
-	public ServiceAuthenticationDetailsSource(ServiceProperties serviceProperties,
-			String artifactParameterName) {
+	public ServiceAuthenticationDetailsSource(ServiceProperties serviceProperties, String artifactParameterName) {
 		Assert.notNull(serviceProperties, "serviceProperties cannot be null");
 		this.serviceProperties = serviceProperties;
-		this.artifactPattern = DefaultServiceAuthenticationDetails
-				.createArtifactPattern(artifactParameterName);
+		this.artifactPattern = DefaultServiceAuthenticationDetails.createArtifactPattern(artifactParameterName);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * @param context the {@code HttpServletRequest} object.
 	 * @return the {@code ServiceAuthenticationDetails} containing information about the
 	 * current request
 	 */
+	@Override
 	public ServiceAuthenticationDetails buildDetails(HttpServletRequest context) {
 		try {
-			return new DefaultServiceAuthenticationDetails(
-					serviceProperties.getService(), context, artifactPattern);
+			return new DefaultServiceAuthenticationDetails(this.serviceProperties.getService(), context,
+					this.artifactPattern);
 		}
-		catch (MalformedURLException e) {
-			throw new RuntimeException(e);
+		catch (MalformedURLException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
+
 }

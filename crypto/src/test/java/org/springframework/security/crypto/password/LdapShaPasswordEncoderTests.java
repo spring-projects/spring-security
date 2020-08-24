@@ -17,6 +17,7 @@
 package org.springframework.security.crypto.password;
 
 import org.junit.Test;
+
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,13 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SuppressWarnings("deprecation")
 public class LdapShaPasswordEncoderTests {
-	// ~ Instance fields
-	// ================================================================================================
 
 	LdapShaPasswordEncoder sha = new LdapShaPasswordEncoder();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Test
 	public void invalidPasswordFails() {
@@ -87,14 +83,11 @@ public class LdapShaPasswordEncoderTests {
 	public void correctPrefixCaseIsUsed() {
 		this.sha.setForceLowerCasePrefix(false);
 		assertThat(this.sha.encode("somepassword").startsWith("{SSHA}"));
-
 		this.sha.setForceLowerCasePrefix(true);
 		assertThat(this.sha.encode("somepassword").startsWith("{ssha}"));
-
 		this.sha = new LdapShaPasswordEncoder(KeyGenerators.shared(0));
 		this.sha.setForceLowerCasePrefix(false);
 		assertThat(this.sha.encode("somepassword").startsWith("{SHA}"));
-
 		this.sha.setForceLowerCasePrefix(true);
 		assertThat(this.sha.encode("somepassword").startsWith("{SSHA}"));
 	}
@@ -109,4 +102,5 @@ public class LdapShaPasswordEncoderTests {
 		// No right brace
 		this.sha.matches("somepassword", "{SSHA25ro4PKC8jhQZ26jVsozhX/xaP0suHgX");
 	}
+
 }

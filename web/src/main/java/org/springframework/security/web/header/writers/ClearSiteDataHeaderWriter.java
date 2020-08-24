@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -31,13 +32,13 @@ import org.springframework.util.Assert;
  * Site Data</a>.
  *
  * <p>
- * Developers may instruct a user agent to clear various types of relevant data by delivering
- * a Clear-Site-Data HTTP response header in response to a request.
+ * Developers may instruct a user agent to clear various types of relevant data by
+ * delivering a Clear-Site-Data HTTP response header in response to a request.
  * <p>
  *
  * <p>
- * Due to <a href="https://w3c.github.io/webappsec-clear-site-data/#incomplete">Incomplete Clearing</a>
- * section the header is only applied if the request is secure.
+ * Due to <a href="https://w3c.github.io/webappsec-clear-site-data/#incomplete">Incomplete
+ * Clearing</a> section the header is only applied if the request is secure.
  * </p>
  *
  * @author Rafiullah Hamedy
@@ -55,14 +56,13 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 
 	/**
 	 * <p>
-	 * Creates a new instance of {@link ClearSiteDataHeaderWriter} with given sources.
-	 * The constructor also initializes <b>requestMatcher</b> with a new instance of
-	 * <b>SecureRequestMatcher</b> to ensure that header is only applied if and when
-	 * the request is secure as per the <b>Incomplete Clearing</b> section.
+	 * Creates a new instance of {@link ClearSiteDataHeaderWriter} with given sources. The
+	 * constructor also initializes <b>requestMatcher</b> with a new instance of
+	 * <b>SecureRequestMatcher</b> to ensure that header is only applied if and when the
+	 * request is secure as per the <b>Incomplete Clearing</b> section.
 	 * </p>
-	 *
 	 * @param directives (i.e. "cache", "cookies", "storage", "executionContexts" or "*")
-	 * @throws {@link IllegalArgumentException} if sources is null or empty.
+	 * @throws IllegalArgumentException if sources is null or empty.
 	 */
 	public ClearSiteDataHeaderWriter(Directive... directives) {
 		Assert.notEmpty(directives, "directives cannot be empty or null");
@@ -76,31 +76,10 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 			if (!response.containsHeader(CLEAR_SITE_DATA_HEADER)) {
 				response.setHeader(CLEAR_SITE_DATA_HEADER, this.headerValue);
 			}
-		} else if (logger.isDebugEnabled()) {
-			logger.debug("Not injecting Clear-Site-Data header since it did not match the "
-						+ "requestMatcher " + this.requestMatcher);
 		}
-	}
-
-	/**
-	 * <p>Represents the directive values expected by the {@link ClearSiteDataHeaderWriter}</p>.
-	 */
-	public enum Directive {
-		CACHE("cache"),
-		COOKIES("cookies"),
-		STORAGE("storage"),
-		EXECUTION_CONTEXTS("executionContexts"),
-		ALL("*");
-
-		private final String headerValue;
-
-		Directive(String headerValue) {
-			this.headerValue = "\"" + headerValue + "\"";
-		}
-
-		public String getHeaderValue() {
-			return this.headerValue;
-		}
+		this.logger.debug(
+				LogMessage.format("Not injecting Clear-Site-Data header since it did not match the requestMatcher %s",
+						this.requestMatcher));
 	}
 
 	private String transformToHeaderValue(Directive... directives) {
@@ -112,14 +91,45 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 		return sb.toString();
 	}
 
-	private static final class SecureRequestMatcher implements RequestMatcher {
-		public boolean matches(HttpServletRequest request) {
-			return request.isSecure();
-		}
-	}
-
 	@Override
 	public String toString() {
 		return getClass().getName() + " [headerValue=" + this.headerValue + "]";
 	}
+
+	/**
+	 * Represents the directive values expected by the {@link ClearSiteDataHeaderWriter}.
+	 */
+	public enum Directive {
+
+		CACHE("cache"),
+
+		COOKIES("cookies"),
+
+		STORAGE("storage"),
+
+		EXECUTION_CONTEXTS("executionContexts"),
+
+		ALL("*");
+
+		private final String headerValue;
+
+		Directive(String headerValue) {
+			this.headerValue = "\"" + headerValue + "\"";
+		}
+
+		public String getHeaderValue() {
+			return this.headerValue;
+		}
+
+	}
+
+	private static final class SecureRequestMatcher implements RequestMatcher {
+
+		@Override
+		public boolean matches(HttpServletRequest request) {
+			return request.isSecure();
+		}
+
+	}
+
 }

@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.reactive.result.method.annotation;
 
 import java.lang.annotation.Annotation;
 
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
@@ -36,10 +39,9 @@ import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolverSupport;
 import org.springframework.web.server.ServerWebExchange;
 
-import reactor.core.publisher.Mono;
-
 /**
  * Resolves the Authentication
+ *
  * @author Rob Winch
  * @since 5.0
  */
@@ -70,41 +72,31 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 	public Mono<Object> resolveArgument(MethodParameter parameter, BindingContext bindingContext,
 			ServerWebExchange exchange) {
 		ReactiveAdapter adapter = getAdapterRegistry().getAdapter(parameter.getParameterType());
-		return ReactiveSecurityContextHolder.getContext()
-			.map(SecurityContext::getAuthentication)
-			.flatMap(a -> {
-				Object p = resolvePrincipal(parameter, a.getPrincipal());
-				Mono<Object> principal = Mono.justOrEmpty(p);
-				return adapter == null ? principal : Mono.just(adapter.fromPublisher(principal));
-			});
+		return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
+				.flatMap((authentication) -> {
+					Mono<Object> principal = Mono
+							.justOrEmpty(resolvePrincipal(parameter, authentication.getPrincipal()));
+					return (adapter != null) ? Mono.just(adapter.fromPublisher(principal)) : principal;
+				});
 	}
 
 	private Object resolvePrincipal(MethodParameter parameter, Object principal) {
-		AuthenticationPrincipal authPrincipal = findMethodAnnotation(
-			AuthenticationPrincipal.class, parameter);
-
-		String expressionToParse = authPrincipal.expression();
+		AuthenticationPrincipal annotation = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
+		String expressionToParse = annotation.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(principal);
 			context.setVariable("this", principal);
-			context.setBeanResolver(beanResolver);
-
+			context.setBeanResolver(this.beanResolver);
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			principal = expression.getValue(context);
 		}
-
 		if (isInvalidType(parameter, principal)) {
-
-			if (authPrincipal.errorOnInvalidType()) {
-				throw new ClassCastException(principal + " is not assignable to "
-					+ parameter.getParameterType());
+			if (annotation.errorOnInvalidType()) {
+				throw new ClassCastException(principal + " is not assignable to " + parameter.getParameterType());
 			}
-			else {
-				return null;
-			}
+			return null;
 		}
-
 		return principal;
 	}
 
@@ -127,22 +119,19 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 
 	/**
 	 * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
-	 *
 	 * @param annotationClass the class of the {@link Annotation} to find on the
 	 * {@link MethodParameter}
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass,
-			MethodParameter parameter) {
+	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
 		T annotation = parameter.getParameterAnnotation(annotationClass);
 		if (annotation != null) {
 			return annotation;
 		}
 		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
 		for (Annotation toSearch : annotationsToSearch) {
-			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(),
-				annotationClass);
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
 			if (annotation != null) {
 				return annotation;
 			}

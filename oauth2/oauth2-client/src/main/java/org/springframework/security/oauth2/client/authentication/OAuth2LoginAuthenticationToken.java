@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.authentication;
+
+import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -26,12 +30,9 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExch
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
-import java.util.Collection;
-import java.util.Collections;
-
 /**
- * An {@link AbstractAuthenticationToken} for OAuth 2.0 Login,
- * which leverages the OAuth 2.0 Authorization Code Grant Flow.
+ * An {@link AbstractAuthenticationToken} for OAuth 2.0 Login, which leverages the OAuth
+ * 2.0 Authorization Code Grant Flow.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -40,25 +41,31 @@ import java.util.Collections;
  * @see ClientRegistration
  * @see OAuth2AuthorizationExchange
  * @see OAuth2AccessToken
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section
+ * 4.1 Authorization Code Grant Flow</a>
  */
 public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	private OAuth2User principal;
+
 	private ClientRegistration clientRegistration;
+
 	private OAuth2AuthorizationExchange authorizationExchange;
+
 	private OAuth2AccessToken accessToken;
+
 	private OAuth2RefreshToken refreshToken;
 
 	/**
-	 * This constructor should be used when the Authorization Request/Response is complete.
-	 *
+	 * This constructor should be used when the Authorization Request/Response is
+	 * complete.
 	 * @param clientRegistration the client registration
 	 * @param authorizationExchange the authorization exchange
 	 */
 	public OAuth2LoginAuthenticationToken(ClientRegistration clientRegistration,
-											OAuth2AuthorizationExchange authorizationExchange) {
-
+			OAuth2AuthorizationExchange authorizationExchange) {
 		super(Collections.emptyList());
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.notNull(authorizationExchange, "authorizationExchange cannot be null");
@@ -69,9 +76,8 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 
 	/**
 	 * This constructor should be used when the Access Token Request/Response is complete,
-	 * which indicates that the Authorization Code Grant flow has fully completed
-	 * and OAuth 2.0 Login has been achieved.
-	 *
+	 * which indicates that the Authorization Code Grant flow has fully completed and
+	 * OAuth 2.0 Login has been achieved.
 	 * @param clientRegistration the client registration
 	 * @param authorizationExchange the authorization exchange
 	 * @param principal the user {@code Principal} registered with the OAuth 2.0 Provider
@@ -79,18 +85,15 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 	 * @param accessToken the access token credential
 	 */
 	public OAuth2LoginAuthenticationToken(ClientRegistration clientRegistration,
-											OAuth2AuthorizationExchange authorizationExchange,
-											OAuth2User principal,
-											Collection<? extends GrantedAuthority> authorities,
-											OAuth2AccessToken accessToken) {
+			OAuth2AuthorizationExchange authorizationExchange, OAuth2User principal,
+			Collection<? extends GrantedAuthority> authorities, OAuth2AccessToken accessToken) {
 		this(clientRegistration, authorizationExchange, principal, authorities, accessToken, null);
 	}
 
 	/**
 	 * This constructor should be used when the Access Token Request/Response is complete,
-	 * which indicates that the Authorization Code Grant flow has fully completed
-	 * and OAuth 2.0 Login has been achieved.
-	 *
+	 * which indicates that the Authorization Code Grant flow has fully completed and
+	 * OAuth 2.0 Login has been achieved.
 	 * @param clientRegistration the client registration
 	 * @param authorizationExchange the authorization exchange
 	 * @param principal the user {@code Principal} registered with the OAuth 2.0 Provider
@@ -99,11 +102,9 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 	 * @param refreshToken the refresh token credential
 	 */
 	public OAuth2LoginAuthenticationToken(ClientRegistration clientRegistration,
-											OAuth2AuthorizationExchange authorizationExchange,
-											OAuth2User principal,
-											Collection<? extends GrantedAuthority> authorities,
-											OAuth2AccessToken accessToken,
-											@Nullable OAuth2RefreshToken refreshToken) {
+			OAuth2AuthorizationExchange authorizationExchange, OAuth2User principal,
+			Collection<? extends GrantedAuthority> authorities, OAuth2AccessToken accessToken,
+			@Nullable OAuth2RefreshToken refreshToken) {
 		super(authorities);
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.notNull(authorizationExchange, "authorizationExchange cannot be null");
@@ -129,7 +130,6 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 
 	/**
 	 * Returns the {@link ClientRegistration client registration}.
-	 *
 	 * @return the {@link ClientRegistration}
 	 */
 	public ClientRegistration getClientRegistration() {
@@ -138,7 +138,6 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 
 	/**
 	 * Returns the {@link OAuth2AuthorizationExchange authorization exchange}.
-	 *
 	 * @return the {@link OAuth2AuthorizationExchange}
 	 */
 	public OAuth2AuthorizationExchange getAuthorizationExchange() {
@@ -147,7 +146,6 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 
 	/**
 	 * Returns the {@link OAuth2AccessToken access token}.
-	 *
 	 * @return the {@link OAuth2AccessToken}
 	 */
 	public OAuth2AccessToken getAccessToken() {
@@ -156,11 +154,11 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 
 	/**
 	 * Returns the {@link OAuth2RefreshToken refresh token}.
-	 *
-	 * @since 5.1
 	 * @return the {@link OAuth2RefreshToken}
+	 * @since 5.1
 	 */
 	public @Nullable OAuth2RefreshToken getRefreshToken() {
 		return this.refreshToken;
 	}
+
 }

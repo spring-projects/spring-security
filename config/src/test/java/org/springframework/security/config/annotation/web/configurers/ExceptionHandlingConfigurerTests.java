@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,13 +67,154 @@ public class ExceptionHandlingConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnExceptionTranslationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class, DefaultSecurityConfig.class).autowire();
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ExceptionTranslationFilter.class));
+	}
 
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(ExceptionTranslationFilter.class));
+	// SEC-2199
+	@Test
+	public void getWhenAcceptHeaderIsApplicationXhtmlXmlThenRespondsWith302() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XHTML_XML))
+				.andExpect(status().isFound());
+	}
+
+	// SEC-2199
+	@Test
+	public void getWhenAcceptHeaderIsImageGifThenRespondsWith302() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.IMAGE_GIF)).andExpect(status().isFound());
+	}
+
+	// SEC-2199
+	@Test
+	public void getWhenAcceptHeaderIsImageJpgThenRespondsWith302() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.IMAGE_JPEG)).andExpect(status().isFound());
+	}
+
+	// SEC-2199
+	@Test
+	public void getWhenAcceptHeaderIsImagePngThenRespondsWith302() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.IMAGE_PNG)).andExpect(status().isFound());
+	}
+
+	// SEC-2199
+	@Test
+	public void getWhenAcceptHeaderIsTextHtmlThenRespondsWith302() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML)).andExpect(status().isFound());
+	}
+
+	// SEC-2199
+	@Test
+	public void getWhenAcceptHeaderIsTextPlainThenRespondsWith302() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN)).andExpect(status().isFound());
+	}
+
+	// SEC-2199
+	@Test
+	public void getWhenAcceptHeaderIsApplicationAtomXmlThenRespondsWith401() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.APPLICATION_ATOM_XML))
+				.andExpect(status().isUnauthorized());
+	}
+
+	// SEC-2199
+	@Test
+	public void getWhenAcceptHeaderIsApplicationFormUrlEncodedThenRespondsWith401() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.APPLICATION_FORM_URLENCODED))
+				.andExpect(status().isUnauthorized());
+	}
+
+	// SEC-2199
+	@Test
+	public void getWhenAcceptHeaderIsApplicationJsonThenRespondsWith401() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
+				.andExpect(status().isUnauthorized());
+	}
+
+	// SEC-2199
+	@Test
+	public void getWhenAcceptHeaderIsApplicationOctetStreamThenRespondsWith401() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM))
+				.andExpect(status().isUnauthorized());
+	}
+
+	// SEC-2199
+	@Test
+	public void getWhenAcceptHeaderIsMultipartFormDataThenRespondsWith401() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.MULTIPART_FORM_DATA))
+				.andExpect(status().isUnauthorized());
+	}
+
+	// SEC-2199
+	@Test
+	public void getWhenAcceptHeaderIsTextXmlThenRespondsWith401() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.TEXT_XML)).andExpect(status().isUnauthorized());
+	}
+
+	// gh-4831
+	@Test
+	public void getWhenAcceptIsAnyThenRespondsWith401() throws Exception {
+		this.spring.register(DefaultSecurityConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, MediaType.ALL)).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void getWhenAcceptIsChromeThenRespondsWith302() throws Exception {
+		this.spring.register(DefaultSecurityConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT,
+				"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"))
+				.andExpect(status().isFound());
+	}
+
+	@Test
+	public void getWhenAcceptIsTextPlainAndXRequestedWithIsXHRThenRespondsWith401() throws Exception {
+		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
+		this.mvc.perform(get("/").header("Accept", MediaType.TEXT_PLAIN).header("X-Requested-With", "XMLHttpRequest"))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void getWhenCustomContentNegotiationStrategyThenStrategyIsUsed() throws Exception {
+		this.spring.register(OverrideContentNegotiationStrategySharedObjectConfig.class, DefaultSecurityConfig.class)
+				.autowire();
+		this.mvc.perform(get("/"));
+		verify(OverrideContentNegotiationStrategySharedObjectConfig.CNS, atLeastOnce())
+				.resolveMediaTypes(any(NativeWebRequest.class));
+	}
+
+	@Test
+	public void getWhenUsingDefaultsAndUnauthenticatedThenRedirectsToLogin() throws Exception {
+		this.spring.register(DefaultHttpConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, "bogus/type"))
+				.andExpect(redirectedUrl("http://localhost/login"));
+	}
+
+	@Test
+	public void getWhenDeclaringHttpBasicBeforeFormLoginThenRespondsWith401() throws Exception {
+		this.spring.register(BasicAuthenticationEntryPointBeforeFormLoginConfig.class).autowire();
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, "bogus/type")).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void getWhenInvokingExceptionHandlingTwiceThenOriginalEntryPointUsed() throws Exception {
+		this.spring.register(InvokeTwiceDoesNotOverrideConfig.class).autowire();
+		this.mvc.perform(get("/"));
+		verify(InvokeTwiceDoesNotOverrideConfig.AEP).commence(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(AuthenticationException.class));
 	}
 
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
 		@Override
@@ -87,189 +229,41 @@ public class ExceptionHandlingConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
 		}
-	}
 
-	// SEC-2199
-	@Test
-	public void getWhenAcceptHeaderIsApplicationXhtmlXmlThenRespondsWith302() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XHTML_XML))
-				.andExpect(status().isFound());
-	}
-
-	// SEC-2199
-	@Test
-	public void getWhenAcceptHeaderIsImageGifThenRespondsWith302() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.IMAGE_GIF))
-				.andExpect(status().isFound());
-	}
-
-	// SEC-2199
-	@Test
-	public void getWhenAcceptHeaderIsImageJpgThenRespondsWith302() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.IMAGE_JPEG))
-				.andExpect(status().isFound());
-	}
-
-	// SEC-2199
-	@Test
-	public void getWhenAcceptHeaderIsImagePngThenRespondsWith302() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.IMAGE_PNG))
-				.andExpect(status().isFound());
-	}
-
-	// SEC-2199
-	@Test
-	public void getWhenAcceptHeaderIsTextHtmlThenRespondsWith302() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML))
-				.andExpect(status().isFound());
-	}
-
-	// SEC-2199
-	@Test
-	public void getWhenAcceptHeaderIsTextPlainThenRespondsWith302() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN))
-				.andExpect(status().isFound());
-	}
-
-	// SEC-2199
-	@Test
-	public void getWhenAcceptHeaderIsApplicationAtomXmlThenRespondsWith401() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_ATOM_XML))
-				.andExpect(status().isUnauthorized());
-	}
-
-	// SEC-2199
-	@Test
-	public void getWhenAcceptHeaderIsApplicationFormUrlEncodedThenRespondsWith401() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_FORM_URLENCODED))
-				.andExpect(status().isUnauthorized());
-	}
-
-	// SEC-2199
-	@Test
-	public void getWhenAcceptHeaderIsApplicationJsonThenRespondsWith401() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON))
-				.andExpect(status().isUnauthorized());
-	}
-
-	// SEC-2199
-	@Test
-	public void getWhenAcceptHeaderIsApplicationOctetStreamThenRespondsWith401() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM))
-				.andExpect(status().isUnauthorized());
-	}
-
-	// SEC-2199
-	@Test
-	public void getWhenAcceptHeaderIsMultipartFormDataThenRespondsWith401() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.MULTIPART_FORM_DATA))
-				.andExpect(status().isUnauthorized());
-	}
-
-	// SEC-2199
-	@Test
-	public void getWhenAcceptHeaderIsTextXmlThenRespondsWith401() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.TEXT_XML))
-				.andExpect(status().isUnauthorized());
-	}
-
-	// gh-4831
-	@Test
-	public void getWhenAcceptIsAnyThenRespondsWith401() throws Exception {
-		this.spring.register(DefaultSecurityConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.ALL))
-				.andExpect(status().isUnauthorized());
-	}
-
-	@Test
-	public void getWhenAcceptIsChromeThenRespondsWith302() throws Exception {
-		this.spring.register(DefaultSecurityConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT,
-						"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"))
-				.andExpect(status().isFound());
-	}
-
-	@Test
-	public void getWhenAcceptIsTextPlainAndXRequestedWithIsXHRThenRespondsWith401() throws Exception {
-		this.spring.register(HttpBasicAndFormLoginEntryPointsConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header("Accept", MediaType.TEXT_PLAIN)
-				.header("X-Requested-With", "XMLHttpRequest"))
-				.andExpect(status().isUnauthorized());
 	}
 
 	@EnableWebSecurity
 	static class DefaultSecurityConfig {
 
 		@Bean
-		public InMemoryUserDetailsManager userDetailsManager() {
+		InMemoryUserDetailsManager userDetailsManager() {
+			// @formatter:off
 			return new InMemoryUserDetailsManager(User.withDefaultPasswordEncoder()
 				.username("user")
 				.password("password")
 				.roles("USER")
 				.build()
 			);
+			// @formatter:off
 		}
 	}
-
 	@EnableWebSecurity
 	static class HttpBasicAndFormLoginEntryPointsConfig extends WebSecurityConfigurerAdapter {
-
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER");
 		}
-
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -282,53 +276,29 @@ public class ExceptionHandlingConfigurerTests {
 				.formLogin();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenCustomContentNegotiationStrategyThenStrategyIsUsed() throws Exception {
-		this.spring.register(OverrideContentNegotiationStrategySharedObjectConfig.class,
-				DefaultSecurityConfig.class).autowire();
-
-		this.mvc.perform(get("/"));
-
-		verify(OverrideContentNegotiationStrategySharedObjectConfig.CNS, atLeastOnce())
-				.resolveMediaTypes(any(NativeWebRequest.class));
 	}
 
 	@EnableWebSecurity
 	static class OverrideContentNegotiationStrategySharedObjectConfig extends WebSecurityConfigurerAdapter {
+
 		static ContentNegotiationStrategy CNS = mock(ContentNegotiationStrategy.class);
 
 		@Bean
-		public static ContentNegotiationStrategy cns() {
+		static ContentNegotiationStrategy cns() {
 			return CNS;
 		}
-	}
 
-	@Test
-	public void getWhenUsingDefaultsAndUnauthenticatedThenRedirectsToLogin() throws Exception {
-		this.spring.register(DefaultHttpConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, "bogus/type"))
-				.andExpect(redirectedUrl("http://localhost/login"));
 	}
 
 	@EnableWebSecurity
 	static class DefaultHttpConfig extends WebSecurityConfigurerAdapter {
-	}
 
-	@Test
-	public void getWhenDeclaringHttpBasicBeforeFormLoginThenRespondsWith401() throws Exception {
-		this.spring.register(BasicAuthenticationEntryPointBeforeFormLoginConfig.class).autowire();
-
-		this.mvc.perform(get("/")
-				.header(HttpHeaders.ACCEPT, "bogus/type"))
-				.andExpect(status().isUnauthorized());
 	}
 
 	@EnableWebSecurity
 	static class BasicAuthenticationEntryPointBeforeFormLoginConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -341,35 +311,27 @@ public class ExceptionHandlingConfigurerTests {
 				.formLogin();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenInvokingExceptionHandlingTwiceThenOriginalEntryPointUsed() throws Exception {
-		this.spring.register(InvokeTwiceDoesNotOverrideConfig.class).autowire();
-
-		this.mvc.perform(get("/"));
-
-		verify(InvokeTwiceDoesNotOverrideConfig.AEP)
-				.commence(any(HttpServletRequest.class),
-						any(HttpServletResponse.class), any(AuthenticationException.class));
 	}
 
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+
 		static AuthenticationEntryPoint AEP = mock(AuthenticationEntryPoint.class);
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:on
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.exceptionHandling()
-					.authenticationEntryPoint(AEP)
-					.and()
+					.authenticationEntryPoint(AEP).and()
 				.exceptionHandling();
-			// @formatter:off
+			// @formatter:on
 		}
+
 	}
+
 }

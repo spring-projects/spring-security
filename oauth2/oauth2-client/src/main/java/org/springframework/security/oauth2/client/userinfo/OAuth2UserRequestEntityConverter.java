@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.userinfo;
+
+import java.net.URI;
+import java.util.Collections;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
@@ -27,14 +31,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-import java.util.Collections;
-
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-
 /**
- * A {@link Converter} that converts the provided {@link OAuth2UserRequest}
- * to a {@link RequestEntity} representation of a request for the UserInfo Endpoint.
+ * A {@link Converter} that converts the provided {@link OAuth2UserRequest} to a
+ * {@link RequestEntity} representation of a request for the UserInfo Endpoint.
  *
  * @author Joe Grandja
  * @since 5.1
@@ -43,27 +42,23 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
  * @see RequestEntity
  */
 public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserRequest, RequestEntity<?>> {
-	private static final MediaType DEFAULT_CONTENT_TYPE = MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+
+	private static final MediaType DEFAULT_CONTENT_TYPE = MediaType
+			.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 
 	/**
 	 * Returns the {@link RequestEntity} used for the UserInfo Request.
-	 *
 	 * @param userRequest the user request
 	 * @return the {@link RequestEntity} used for the UserInfo Request
 	 */
 	@Override
 	public RequestEntity<?> convert(OAuth2UserRequest userRequest) {
 		ClientRegistration clientRegistration = userRequest.getClientRegistration();
-
-		HttpMethod httpMethod = HttpMethod.GET;
-		if (AuthenticationMethod.FORM.equals(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())) {
-			httpMethod = HttpMethod.POST;
-		}
+		HttpMethod httpMethod = getHttpMethod(clientRegistration);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())
-				.build()
-				.toUri();
+		URI uri = UriComponentsBuilder
+				.fromUriString(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri()).build().toUri();
 
 		RequestEntity<?> request;
 		if (HttpMethod.POST.equals(httpMethod)) {
@@ -71,11 +66,21 @@ public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserReq
 			MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
 			formParameters.add(OAuth2ParameterNames.ACCESS_TOKEN, userRequest.getAccessToken().getTokenValue());
 			request = new RequestEntity<>(formParameters, headers, httpMethod, uri);
-		} else {
+		}
+		else {
 			headers.setBearerAuth(userRequest.getAccessToken().getTokenValue());
 			request = new RequestEntity<>(headers, httpMethod, uri);
 		}
 
 		return request;
 	}
+
+	private HttpMethod getHttpMethod(ClientRegistration clientRegistration) {
+		if (AuthenticationMethod.FORM
+				.equals(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())) {
+			return HttpMethod.POST;
+		}
+		return HttpMethod.GET;
+	}
+
 }

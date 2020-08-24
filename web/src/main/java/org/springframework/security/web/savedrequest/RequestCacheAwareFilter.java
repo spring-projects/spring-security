@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.savedrequest;
 
 import java.io.IOException;
@@ -54,14 +55,12 @@ public class RequestCacheAwareFilter extends GenericFilterBean {
 		this.requestCache = requestCache;
 	}
 
-	public void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
-
-		HttpServletRequest wrappedSavedRequest = requestCache.getMatchingRequest(
-				(HttpServletRequest) request, (HttpServletResponse) response);
-
-		chain.doFilter(wrappedSavedRequest == null ? request : wrappedSavedRequest,
-				response);
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		HttpServletRequest wrappedSavedRequest = this.requestCache.getMatchingRequest((HttpServletRequest) request,
+				(HttpServletResponse) response);
+		chain.doFilter((wrappedSavedRequest != null) ? wrappedSavedRequest : request, response);
 	}
 
 }

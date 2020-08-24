@@ -16,17 +16,15 @@
 
 package org.springframework.security.cas.authentication;
 
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Cache;
-
-import org.junit.Test;
-import org.junit.BeforeClass;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import org.junit.AfterClass;
-import org.springframework.security.cas.authentication.CasAuthenticationToken;
-import org.springframework.security.cas.authentication.EhCacheBasedTicketCache;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link EhCacheBasedTicketCache}.
@@ -34,10 +32,9 @@ import static org.assertj.core.api.Assertions.*;
  * @author Ben Alex
  */
 public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTests {
+
 	private static CacheManager cacheManager;
 
-	// ~ Methods
-	// ========================================================================================================
 	@BeforeClass
 	public static void initCacheManaer() {
 		cacheManager = CacheManager.create();
@@ -55,17 +52,13 @@ public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTe
 		EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
 		cache.setCache(cacheManager.getCache("castickets"));
 		cache.afterPropertiesSet();
-
 		final CasAuthenticationToken token = getToken();
-
 		// Check it gets stored in the cache
 		cache.putTicketInCache(token);
 		assertThat(cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ")).isEqualTo(token);
-
 		// Check it gets removed from the cache
 		cache.removeTicketFromCache(getToken());
 		assertThat(cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ")).isNull();
-
 		// Check it doesn't return values for null or unknown service tickets
 		assertThat(cache.getByTicketId(null)).isNull();
 		assertThat(cache.getByTicketId("UNKNOWN_SERVICE_TICKET")).isNull();
@@ -74,17 +67,15 @@ public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTe
 	@Test
 	public void testStartupDetectsMissingCache() throws Exception {
 		EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
-
 		try {
 			cache.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
-
 		Ehcache myCache = cacheManager.getCache("castickets");
 		cache.setCache(myCache);
 		assertThat(cache.getCache()).isEqualTo(myCache);
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.jose.jws;
 
 import org.junit.Test;
@@ -44,4 +45,5 @@ public class SignatureAlgorithmTests {
 	public void fromWhenAlgorithmInvalidThenDoesNotResolve() {
 		assertThat(SignatureAlgorithm.from("invalid")).isNull();
 	}
+
 }

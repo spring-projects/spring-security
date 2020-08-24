@@ -26,23 +26,20 @@ import javax.naming.ldap.ControlFactory;
  * @author Luke Taylor
  */
 public class PasswordPolicyControlFactory extends ControlFactory {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Creates an instance of PasswordPolicyResponseControl if the passed control is a
 	 * response control of this type. Attributes of the result are filled with the correct
 	 * values (e.g. error code).
-	 *
 	 * @param ctl the control the check
-	 *
 	 * @return a response control of type PasswordPolicyResponseControl, or null
 	 */
+	@Override
 	public Control getControlInstance(Control ctl) {
 		if (ctl.getID().equals(PasswordPolicyControl.OID)) {
 			return new PasswordPolicyResponseControl(ctl.getEncodedValue());
 		}
-
 		return null;
 	}
+
 }

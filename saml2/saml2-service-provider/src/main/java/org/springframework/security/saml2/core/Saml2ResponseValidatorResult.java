@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
  * @since 5.4
  */
 public final class Saml2ResponseValidatorResult {
+
 	static final Saml2ResponseValidatorResult NO_ERRORS = new Saml2ResponseValidatorResult(Collections.emptyList());
 
 	private final Collection<Saml2Error> errors;
@@ -41,7 +42,6 @@ public final class Saml2ResponseValidatorResult {
 
 	/**
 	 * Say whether this result indicates success
-	 *
 	 * @return whether this result has errors
 	 */
 	public boolean hasErrors() {
@@ -50,17 +50,16 @@ public final class Saml2ResponseValidatorResult {
 
 	/**
 	 * Return error details regarding the validation attempt
-	 *
-	 * @return the collection of results in this result, if any; returns an empty list otherwise
+	 * @return the collection of results in this result, if any; returns an empty list
+	 * otherwise
 	 */
 	public Collection<Saml2Error> getErrors() {
 		return Collections.unmodifiableCollection(this.errors);
 	}
 
 	/**
-	 * Return a new {@link Saml2ResponseValidatorResult} that contains
-	 * both the given {@link Saml2Error} and the errors from the result
-	 *
+	 * Return a new {@link Saml2ResponseValidatorResult} that contains both the given
+	 * {@link Saml2Error} and the errors from the result
 	 * @param error the {@link Saml2Error} to append
 	 * @return a new {@link Saml2ResponseValidatorResult} for further reporting
 	 */
@@ -72,10 +71,8 @@ public final class Saml2ResponseValidatorResult {
 	}
 
 	/**
-	 * Return a new {@link Saml2ResponseValidatorResult} that contains
-	 * the errors from the given {@link Saml2ResponseValidatorResult} as well
-	 * as this result.
-	 *
+	 * Return a new {@link Saml2ResponseValidatorResult} that contains the errors from the
+	 * given {@link Saml2ResponseValidatorResult} as well as this result.
 	 * @param result the {@link Saml2ResponseValidatorResult} to merge with this one
 	 * @return a new {@link Saml2ResponseValidatorResult} for further reporting
 	 */
@@ -88,7 +85,6 @@ public final class Saml2ResponseValidatorResult {
 
 	/**
 	 * Construct a successful {@link Saml2ResponseValidatorResult}
-	 *
 	 * @return an {@link Saml2ResponseValidatorResult} with no errors
 	 */
 	public static Saml2ResponseValidatorResult success() {
@@ -97,7 +93,6 @@ public final class Saml2ResponseValidatorResult {
 
 	/**
 	 * Construct a failure {@link Saml2ResponseValidatorResult} with the provided detail
-	 *
 	 * @param errors the list of errors
 	 * @return an {@link Saml2ResponseValidatorResult} with the errors specified
 	 */
@@ -107,7 +102,6 @@ public final class Saml2ResponseValidatorResult {
 
 	/**
 	 * Construct a failure {@link Saml2ResponseValidatorResult} with the provided detail
-	 *
 	 * @param errors the list of errors
 	 * @return an {@link Saml2ResponseValidatorResult} with the errors specified
 	 */
@@ -118,4 +112,5 @@ public final class Saml2ResponseValidatorResult {
 
 		return new Saml2ResponseValidatorResult(errors);
 	}
+
 }

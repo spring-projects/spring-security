@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.ldap.userdetails;
 
-import static org.assertj.core.api.Assertions.*;
+package org.springframework.security.ldap.userdetails;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
+
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor
@@ -33,7 +35,6 @@ public class InetOrgPersonTests {
 	public void testUsernameIsMappedFromContextUidIfNotSet() {
 		InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
 		InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
-
 		assertThat(p.getUsername()).isEqualTo("ghengis");
 	}
 
@@ -53,7 +54,6 @@ public class InetOrgPersonTests {
 		InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
 		essence.setUsername("joe");
 		InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
-
 		assertThat(p.getUsername()).isEqualTo("joe");
 		assertThat(p.getUid()).isEqualTo("ghengis");
 	}
@@ -62,7 +62,6 @@ public class InetOrgPersonTests {
 	public void attributesMapCorrectlyFromContext() {
 		InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
 		InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
-
 		assertThat(p.getCarLicense()).isEqualTo("HORS1");
 		assertThat(p.getMail()).isEqualTo("ghengis@mongolia");
 		assertThat(p.getGivenName()).isEqualTo("Ghengis");
@@ -87,7 +86,6 @@ public class InetOrgPersonTests {
 	public void testPasswordIsSetFromContextUserPassword() {
 		InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
 		InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
-
 		assertThat(p.getPassword()).isEqualTo("pillage");
 	}
 
@@ -95,13 +93,11 @@ public class InetOrgPersonTests {
 	public void mappingBackToContextMatchesOriginalData() {
 		DirContextAdapter ctx1 = createUserContext();
 		DirContextAdapter ctx2 = new DirContextAdapter();
-		ctx1.setAttributeValues("objectclass", new String[] { "top", "person",
-				"organizationalPerson", "inetOrgPerson" });
+		ctx1.setAttributeValues("objectclass",
+				new String[] { "top", "person", "organizationalPerson", "inetOrgPerson" });
 		ctx2.setDn(new DistinguishedName("ignored=ignored"));
-		InetOrgPerson p = (InetOrgPerson) (new InetOrgPerson.Essence(ctx1))
-				.createUserDetails();
+		InetOrgPerson p = (InetOrgPerson) (new InetOrgPerson.Essence(ctx1)).createUserDetails();
 		p.populateContext(ctx2);
-
 		assertThat(ctx2).isEqualTo(ctx1);
 	}
 
@@ -110,20 +106,16 @@ public class InetOrgPersonTests {
 		DirContextAdapter ctx1 = createUserContext();
 		DirContextAdapter ctx2 = new DirContextAdapter();
 		ctx2.setDn(new DistinguishedName("ignored=ignored"));
-		ctx1.setAttributeValues("objectclass", new String[] { "top", "person",
-				"organizationalPerson", "inetOrgPerson" });
-		InetOrgPerson p = (InetOrgPerson) (new InetOrgPerson.Essence(ctx1))
-				.createUserDetails();
-		InetOrgPerson p2 = (InetOrgPerson) new InetOrgPerson.Essence(p)
-				.createUserDetails();
+		ctx1.setAttributeValues("objectclass",
+				new String[] { "top", "person", "organizationalPerson", "inetOrgPerson" });
+		InetOrgPerson p = (InetOrgPerson) (new InetOrgPerson.Essence(ctx1)).createUserDetails();
+		InetOrgPerson p2 = (InetOrgPerson) new InetOrgPerson.Essence(p).createUserDetails();
 		p2.populateContext(ctx2);
-
 		assertThat(ctx2).isEqualTo(ctx1);
 	}
 
 	private DirContextAdapter createUserContext() {
 		DirContextAdapter ctx = new DirContextAdapter();
-
 		ctx.setDn(new DistinguishedName("ignored=ignored"));
 		ctx.setAttributeValue("uid", "ghengis");
 		ctx.setAttributeValue("userPassword", "pillage");
@@ -148,7 +140,6 @@ public class InetOrgPersonTests {
 		ctx.setAttributeValue("sn", "Khan");
 		ctx.setAttributeValue("street", "Westward Avenue");
 		ctx.setAttributeValue("telephoneNumber", "+442075436521");
-
 		return ctx;
 	}
 

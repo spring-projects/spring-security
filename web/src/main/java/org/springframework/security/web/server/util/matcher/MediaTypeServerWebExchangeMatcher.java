@@ -24,9 +24,10 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.http.InvalidMediaTypeException;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.web.accept.ContentNegotiationStrategy;
@@ -40,10 +41,13 @@ import org.springframework.web.server.ServerWebExchange;
  * @since 5.0
  */
 public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatcher {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final Collection<MediaType> matchingMediaTypes;
+
 	private boolean useEquals;
+
 	private Set<MediaType> ignoredMediaTypes = Collections.emptySet();
 
 	/**
@@ -62,7 +66,8 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 	 */
 	public MediaTypeServerWebExchangeMatcher(Collection<MediaType> matchingMediaTypes) {
 		Assert.notEmpty(matchingMediaTypes, "matchingMediaTypes cannot be null");
-		Assert.isTrue(!matchingMediaTypes.contains(null), () -> "matchingMediaTypes cannot contain null. Got " + matchingMediaTypes);
+		Assert.isTrue(!matchingMediaTypes.contains(null),
+				() -> "matchingMediaTypes cannot contain null. Got " + matchingMediaTypes);
 		this.matchingMediaTypes = matchingMediaTypes;
 	}
 
@@ -72,34 +77,26 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 		try {
 			httpRequestMediaTypes = resolveMediaTypes(exchange);
 		}
-		catch (NotAcceptableStatusException e) {
-			this.logger.debug("Failed to parse MediaTypes, returning false", e);
+		catch (NotAcceptableStatusException ex) {
+			this.logger.debug("Failed to parse MediaTypes, returning false", ex);
 			return MatchResult.notMatch();
 		}
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("httpRequestMediaTypes=" + httpRequestMediaTypes);
-		}
+		this.logger.debug(LogMessage.format("httpRequestMediaTypes=%s", httpRequestMediaTypes));
 		for (MediaType httpRequestMediaType : httpRequestMediaTypes) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Processing " + httpRequestMediaType);
-			}
+			this.logger.debug(LogMessage.format("Processing %s", httpRequestMediaType));
 			if (shouldIgnore(httpRequestMediaType)) {
 				this.logger.debug("Ignoring");
 				continue;
 			}
 			if (this.useEquals) {
-				boolean isEqualTo = this.matchingMediaTypes
-					.contains(httpRequestMediaType);
+				boolean isEqualTo = this.matchingMediaTypes.contains(httpRequestMediaType);
 				this.logger.debug("isEqualTo " + isEqualTo);
 				return isEqualTo ? MatchResult.match() : MatchResult.notMatch();
 			}
 			for (MediaType matchingMediaType : this.matchingMediaTypes) {
-				boolean isCompatibleWith = matchingMediaType
-					.isCompatibleWith(httpRequestMediaType);
-				if (this.logger.isDebugEnabled()) {
-					this.logger.debug(matchingMediaType + " .isCompatibleWith "
-						+ httpRequestMediaType + " = " + isCompatibleWith);
-				}
+				boolean isCompatibleWith = matchingMediaType.isCompatibleWith(httpRequestMediaType);
+				this.logger.debug(LogMessage.format("%s .isCompatibleWith %s = %s", matchingMediaType,
+						httpRequestMediaType, isCompatibleWith));
 				if (isCompatibleWith) {
 					return MatchResult.match();
 				}
@@ -108,7 +105,6 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 		this.logger.debug("Did not match any media types");
 		return MatchResult.notMatch();
 	}
-
 
 	private boolean shouldIgnore(MediaType httpRequestMediaType) {
 		for (MediaType ignoredMediaType : this.ignoredMediaTypes) {
@@ -122,7 +118,6 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 	/**
 	 * If set to true, matches on exact {@link MediaType}, else uses
 	 * {@link MediaType#isCompatibleWith(MediaType)}.
-	 *
 	 * @param useEquals specify if equals comparison should be used.
 	 */
 	public void setUseEquals(boolean useEquals) {
@@ -133,7 +128,6 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 	 * Set the {@link MediaType} to ignore from the {@link ContentNegotiationStrategy}.
 	 * This is useful if for example, you want to match on
 	 * {@link MediaType#APPLICATION_JSON} but want to ignore {@link MediaType#ALL}.
-	 *
 	 * @param ignoredMediaTypes the {@link MediaType}'s to ignore from the
 	 * {@link ContentNegotiationStrategy}
 	 */
@@ -150,14 +144,14 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 		catch (InvalidMediaTypeException ex) {
 			String value = exchange.getRequest().getHeaders().getFirst("Accept");
 			throw new NotAcceptableStatusException(
-				"Could not parse 'Accept' header [" + value + "]: " + ex.getMessage());
+					"Could not parse 'Accept' header [" + value + "]: " + ex.getMessage());
 		}
 	}
 
 	@Override
 	public String toString() {
-		return "MediaTypeRequestMatcher [matchingMediaTypes="
-			+ this.matchingMediaTypes + ", useEquals=" + this.useEquals
-			+ ", ignoredMediaTypes=" + this.ignoredMediaTypes + "]";
+		return "MediaTypeRequestMatcher [matchingMediaTypes=" + this.matchingMediaTypes + ", useEquals="
+				+ this.useEquals + ", ignoredMediaTypes=" + this.ignoredMediaTypes + "]";
 	}
+
 }

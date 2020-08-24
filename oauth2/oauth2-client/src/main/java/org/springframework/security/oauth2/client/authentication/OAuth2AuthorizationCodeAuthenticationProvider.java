@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.authentication;
 
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -28,70 +29,67 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.util.Assert;
 
 /**
- * An implementation of an {@link AuthenticationProvider} for the OAuth 2.0 Authorization Code Grant.
+ * An implementation of an {@link AuthenticationProvider} for the OAuth 2.0 Authorization
+ * Code Grant.
  *
  * <p>
- * This {@link AuthenticationProvider} is responsible for authenticating
- * an Authorization Code credential with the Authorization Server's Token Endpoint
- * and if valid, exchanging it for an Access Token credential.
+ * This {@link AuthenticationProvider} is responsible for authenticating an Authorization
+ * Code credential with the Authorization Server's Token Endpoint and if valid, exchanging
+ * it for an Access Token credential.
  *
  * @author Joe Grandja
  * @since 5.1
  * @see OAuth2AuthorizationCodeAuthenticationToken
  * @see OAuth2AccessTokenResponseClient
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section
+ * 4.1 Authorization Code Grant Flow</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token
+ * Request</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token
+ * Response</a>
  */
 public class OAuth2AuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
+
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
+
 	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
 	/**
-	 * Constructs an {@code OAuth2AuthorizationCodeAuthenticationProvider} using the provided parameters.
-	 *
-	 * @param accessTokenResponseClient the client used for requesting the access token credential from the Token Endpoint
+	 * Constructs an {@code OAuth2AuthorizationCodeAuthenticationProvider} using the
+	 * provided parameters.
+	 * @param accessTokenResponseClient the client used for requesting the access token
+	 * credential from the Token Endpoint
 	 */
 	public OAuth2AuthorizationCodeAuthenticationProvider(
-		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
-
+			OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
 	}
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
-			(OAuth2AuthorizationCodeAuthenticationToken) authentication;
-
-		OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication
-				.getAuthorizationExchange().getAuthorizationResponse();
+		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = (OAuth2AuthorizationCodeAuthenticationToken) authentication;
+		OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication.getAuthorizationExchange()
+				.getAuthorizationResponse();
 		if (authorizationResponse.statusError()) {
 			throw new OAuth2AuthorizationException(authorizationResponse.getError());
 		}
-
-		OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication
-				.getAuthorizationExchange().getAuthorizationRequest();
+		OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication.getAuthorizationExchange()
+				.getAuthorizationRequest();
 		if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
 			throw new OAuth2AuthorizationException(oauth2Error);
 		}
-
-		OAuth2AccessTokenResponse accessTokenResponse =
-			this.accessTokenResponseClient.getTokenResponse(
-				new OAuth2AuthorizationCodeGrantRequest(
-					authorizationCodeAuthentication.getClientRegistration(),
-					authorizationCodeAuthentication.getAuthorizationExchange()));
-
-		OAuth2AuthorizationCodeAuthenticationToken authenticationResult =
-			new OAuth2AuthorizationCodeAuthenticationToken(
+		OAuth2AccessTokenResponse accessTokenResponse = this.accessTokenResponseClient.getTokenResponse(
+				new OAuth2AuthorizationCodeGrantRequest(authorizationCodeAuthentication.getClientRegistration(),
+						authorizationCodeAuthentication.getAuthorizationExchange()));
+		OAuth2AuthorizationCodeAuthenticationToken authenticationResult = new OAuth2AuthorizationCodeAuthenticationToken(
 				authorizationCodeAuthentication.getClientRegistration(),
-				authorizationCodeAuthentication.getAuthorizationExchange(),
-				accessTokenResponse.getAccessToken(),
-				accessTokenResponse.getRefreshToken(),
-				accessTokenResponse.getAdditionalParameters());
+				authorizationCodeAuthentication.getAuthorizationExchange(), accessTokenResponse.getAccessToken(),
+				accessTokenResponse.getRefreshToken(), accessTokenResponse.getAdditionalParameters());
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
-
 		return authenticationResult;
 	}
 
@@ -99,4 +97,5 @@ public class OAuth2AuthorizationCodeAuthenticationProvider implements Authentica
 	public boolean supports(Class<?> authentication) {
 		return OAuth2AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
 	}
+
 }

@@ -23,24 +23,21 @@ import org.junit.rules.ExpectedException;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.CACHE;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.COOKIES;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.EXECUTION_CONTEXTS;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.STORAGE;
 
 /**
- *
  * @author Rafiullah Hamedy
  * @author Josh Cummings
- *
- * @see {@link ClearSiteDataHeaderWriter}
+ * @see ClearSiteDataHeaderWriter
  */
 public class ClearSiteDataHeaderWriterTests {
+
 	private static final String HEADER_NAME = "Clear-Site-Data";
 
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
 
 	@Rule
@@ -57,34 +54,31 @@ public class ClearSiteDataHeaderWriterTests {
 	public void createInstanceWhenMissingSourceThenThrowsException() {
 		this.thrown.expect(Exception.class);
 		this.thrown.expectMessage("directives cannot be empty or null");
-
 		new ClearSiteDataHeaderWriter();
 	}
 
 	@Test
 	public void writeHeaderWhenRequestNotSecureThenHeaderIsNotPresent() {
 		this.request.setSecure(false);
-		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter(CACHE);
+		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter(Directive.CACHE);
 		headerWriter.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeader(HEADER_NAME)).isNull();
 	}
 
 	@Test
 	public void writeHeaderWhenRequestIsSecureThenHeaderValueMatchesPassedSource() {
-		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter(STORAGE);
+		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter(Directive.STORAGE);
 		headerWriter.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeader(HEADER_NAME)).isEqualTo("\"storage\"");
 	}
 
 	@Test
 	public void writeHeaderWhenRequestIsSecureThenHeaderValueMatchesPassedSources() {
-		ClearSiteDataHeaderWriter headerWriter =
-				new ClearSiteDataHeaderWriter(CACHE, COOKIES, STORAGE, EXECUTION_CONTEXTS);
+		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter(Directive.CACHE, Directive.COOKIES,
+				Directive.STORAGE, Directive.EXECUTION_CONTEXTS);
 		headerWriter.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeader(HEADER_NAME))
 				.isEqualTo("\"cache\", \"cookies\", \"storage\", \"executionContexts\"");
 	}
+
 }

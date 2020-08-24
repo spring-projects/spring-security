@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.access.intercept.method;
 
-import static org.assertj.core.api.Assertions.assertThat;
+package org.springframework.security.access.intercept.method;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link MapBasedMethodSecurityMetadataSource}.
@@ -33,41 +35,48 @@ import org.springframework.security.access.method.MapBasedMethodSecurityMetadata
  * @since 2.0.4
  */
 public class MapBasedMethodSecurityMetadataSourceTests {
+
 	private final List<ConfigAttribute> ROLE_A = SecurityConfig.createList("ROLE_A");
+
 	private final List<ConfigAttribute> ROLE_B = SecurityConfig.createList("ROLE_B");
+
 	private MapBasedMethodSecurityMetadataSource mds;
+
 	private Method someMethodString;
+
 	private Method someMethodInteger;
 
 	@Before
 	public void initialize() throws Exception {
-		mds = new MapBasedMethodSecurityMetadataSource();
-		someMethodString = MockService.class.getMethod("someMethod", String.class);
-		someMethodInteger = MockService.class.getMethod("someMethod", Integer.class);
+		this.mds = new MapBasedMethodSecurityMetadataSource();
+		this.someMethodString = MockService.class.getMethod("someMethod", String.class);
+		this.someMethodInteger = MockService.class.getMethod("someMethod", Integer.class);
 	}
 
 	@Test
 	public void wildcardedMatchIsOverwrittenByMoreSpecificMatch() {
-		mds.addSecureMethod(MockService.class, "some*", ROLE_A);
-		mds.addSecureMethod(MockService.class, "someMethod*", ROLE_B);
-		assertThat(mds.getAttributes(someMethodInteger, MockService.class)).isEqualTo(ROLE_B);
+		this.mds.addSecureMethod(MockService.class, "some*", this.ROLE_A);
+		this.mds.addSecureMethod(MockService.class, "someMethod*", this.ROLE_B);
+		assertThat(this.mds.getAttributes(this.someMethodInteger, MockService.class)).isEqualTo(this.ROLE_B);
 	}
 
 	@Test
 	public void methodsWithDifferentArgumentsAreMatchedCorrectly() {
-		mds.addSecureMethod(MockService.class, someMethodInteger, ROLE_A);
-		mds.addSecureMethod(MockService.class, someMethodString, ROLE_B);
-
-		assertThat(mds.getAttributes(someMethodInteger, MockService.class)).isEqualTo(ROLE_A);
-		assertThat(mds.getAttributes(someMethodString, MockService.class)).isEqualTo(ROLE_B);
+		this.mds.addSecureMethod(MockService.class, this.someMethodInteger, this.ROLE_A);
+		this.mds.addSecureMethod(MockService.class, this.someMethodString, this.ROLE_B);
+		assertThat(this.mds.getAttributes(this.someMethodInteger, MockService.class)).isEqualTo(this.ROLE_A);
+		assertThat(this.mds.getAttributes(this.someMethodString, MockService.class)).isEqualTo(this.ROLE_B);
 	}
 
 	@SuppressWarnings("unused")
 	private class MockService {
+
 		public void someMethod(String s) {
 		}
 
 		public void someMethod(Integer i) {
 		}
+
 	}
+
 }

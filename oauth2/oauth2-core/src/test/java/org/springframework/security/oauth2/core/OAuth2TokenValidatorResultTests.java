@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core;
 
 import org.junit.Test;
-
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,8 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Josh Cummings
  */
 public class OAuth2TokenValidatorResultTests {
-	private static final OAuth2Error DETAIL = new OAuth2Error(
-			"error", "description", "uri");
+
+	private static final OAuth2Error DETAIL = new OAuth2Error("error", "description", "uri");
 
 	@Test
 	public void successWhenInvokedThenReturnsSuccessfulResult() {
@@ -40,7 +38,6 @@ public class OAuth2TokenValidatorResultTests {
 	@Test
 	public void failureWhenInvokedWithDetailReturnsFailureResultIncludingDetail() {
 		OAuth2TokenValidatorResult failure = OAuth2TokenValidatorResult.failure(DETAIL);
-
 		assertThat(failure.hasErrors()).isTrue();
 		assertThat(failure.getErrors()).containsExactly(DETAIL);
 	}
@@ -48,8 +45,8 @@ public class OAuth2TokenValidatorResultTests {
 	@Test
 	public void failureWhenInvokedWithMultipleDetailsReturnsFailureResultIncludingAll() {
 		OAuth2TokenValidatorResult failure = OAuth2TokenValidatorResult.failure(DETAIL, DETAIL);
-
 		assertThat(failure.hasErrors()).isTrue();
 		assertThat(failure.getErrors()).containsExactly(DETAIL, DETAIL);
 	}
+
 }

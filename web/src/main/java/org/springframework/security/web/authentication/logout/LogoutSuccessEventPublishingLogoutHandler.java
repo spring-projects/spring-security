@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication.logout;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.authentication.event.LogoutSuccessEvent;
@@ -35,13 +36,13 @@ public final class LogoutSuccessEventPublishingLogoutHandler implements LogoutHa
 
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-		if (eventPublisher == null) {
+		if (this.eventPublisher == null) {
 			return;
 		}
 		if (authentication == null) {
 			return;
 		}
-		eventPublisher.publishEvent(new LogoutSuccessEvent(authentication));
+		this.eventPublisher.publishEvent(new LogoutSuccessEvent(authentication));
 	}
 
 	@Override

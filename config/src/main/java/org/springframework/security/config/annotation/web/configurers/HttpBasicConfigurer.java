@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.Arrays;
@@ -53,8 +54,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * The following Filters are populated
  *
  * <ul>
- * <li>
- * {@link BasicAuthenticationFilter}</li>
+ * <li>{@link BasicAuthenticationFilter}</li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
@@ -77,16 +77,18 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * @author Rob Winch
  * @since 3.2
  */
-public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
-		AbstractHttpConfigurer<HttpBasicConfigurer<B>, B> {
+public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
+		extends AbstractHttpConfigurer<HttpBasicConfigurer<B>, B> {
 
-	private static final RequestHeaderRequestMatcher X_REQUESTED_WITH = new RequestHeaderRequestMatcher("X-Requested-With",
-			"XMLHttpRequest");
+	private static final RequestHeaderRequestMatcher X_REQUESTED_WITH = new RequestHeaderRequestMatcher(
+			"X-Requested-With", "XMLHttpRequest");
 
 	private static final String DEFAULT_REALM = "Realm";
 
 	private AuthenticationEntryPoint authenticationEntryPoint;
+
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
+
 	private BasicAuthenticationEntryPoint basicAuthEntryPoint = new BasicAuthenticationEntryPoint();
 
 	/**
@@ -95,12 +97,9 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	 */
 	public HttpBasicConfigurer() {
 		realmName(DEFAULT_REALM);
-
 		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
 		entryPoints.put(X_REQUESTED_WITH, new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-
-		DelegatingAuthenticationEntryPoint defaultEntryPoint = new DelegatingAuthenticationEntryPoint(
-				entryPoints);
+		DelegatingAuthenticationEntryPoint defaultEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
 		defaultEntryPoint.setDefaultEntryPoint(this.basicAuthEntryPoint);
 		this.authenticationEntryPoint = defaultEntryPoint;
 	}
@@ -109,7 +108,6 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	 * Allows easily changing the realm, but leaving the remaining defaults in place. If
 	 * {@link #authenticationEntryPoint(AuthenticationEntryPoint)} has been invoked,
 	 * invoking this method will result in an error.
-	 *
 	 * @param realmName the HTTP Basic realm to use
 	 * @return {@link HttpBasicConfigurer} for additional customization
 	 */
@@ -122,14 +120,11 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	/**
 	 * The {@link AuthenticationEntryPoint} to be populated on
 	 * {@link BasicAuthenticationFilter} in the event that authentication fails. The
-	 * default to use {@link BasicAuthenticationEntryPoint} with the realm
-	 * "Realm".
-	 *
+	 * default to use {@link BasicAuthenticationEntryPoint} with the realm "Realm".
 	 * @param authenticationEntryPoint the {@link AuthenticationEntryPoint} to use
 	 * @return {@link HttpBasicConfigurer} for additional customization
 	 */
-	public HttpBasicConfigurer<B> authenticationEntryPoint(
-			AuthenticationEntryPoint authenticationEntryPoint) {
+	public HttpBasicConfigurer<B> authenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
 		this.authenticationEntryPoint = authenticationEntryPoint;
 		return this;
 	}
@@ -137,7 +132,6 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	/**
 	 * Specifies a custom {@link AuthenticationDetailsSource} to use for basic
 	 * authentication. The default is {@link WebAuthenticationDetailsSource}.
-	 *
 	 * @param authenticationDetailsSource the custom {@link AuthenticationDetailsSource}
 	 * to use
 	 * @return {@link HttpBasicConfigurer} for additional customization
@@ -154,47 +148,38 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	}
 
 	private void registerDefaults(B http) {
-		ContentNegotiationStrategy contentNegotiationStrategy = http
-				.getSharedObject(ContentNegotiationStrategy.class);
+		ContentNegotiationStrategy contentNegotiationStrategy = http.getSharedObject(ContentNegotiationStrategy.class);
 		if (contentNegotiationStrategy == null) {
 			contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 		}
-
-		MediaTypeRequestMatcher restMatcher = new MediaTypeRequestMatcher(
-				contentNegotiationStrategy, MediaType.APPLICATION_ATOM_XML,
-				MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON,
-				MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML,
-				MediaType.MULTIPART_FORM_DATA, MediaType.TEXT_XML);
+		MediaTypeRequestMatcher restMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy,
+				MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON,
+				MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML, MediaType.MULTIPART_FORM_DATA,
+				MediaType.TEXT_XML);
 		restMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-
 		MediaTypeRequestMatcher allMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.ALL);
 		allMatcher.setUseEquals(true);
-
 		RequestMatcher notHtmlMatcher = new NegatedRequestMatcher(
-				new MediaTypeRequestMatcher(contentNegotiationStrategy,
-						MediaType.TEXT_HTML));
+				new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.TEXT_HTML));
 		RequestMatcher restNotHtmlMatcher = new AndRequestMatcher(
 				Arrays.<RequestMatcher>asList(notHtmlMatcher, restMatcher));
-
-		RequestMatcher preferredMatcher = new OrRequestMatcher(Arrays.asList(X_REQUESTED_WITH, restNotHtmlMatcher, allMatcher));
-
+		RequestMatcher preferredMatcher = new OrRequestMatcher(
+				Arrays.asList(X_REQUESTED_WITH, restNotHtmlMatcher, allMatcher));
 		registerDefaultEntryPoint(http, preferredMatcher);
 		registerDefaultLogoutSuccessHandler(http, preferredMatcher);
 	}
 
 	private void registerDefaultEntryPoint(B http, RequestMatcher preferredMatcher) {
-		ExceptionHandlingConfigurer<B> exceptionHandling = http
-				.getConfigurer(ExceptionHandlingConfigurer.class);
+		ExceptionHandlingConfigurer<B> exceptionHandling = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptionHandling == null) {
 			return;
 		}
-		exceptionHandling.defaultAuthenticationEntryPointFor(
-				postProcess(this.authenticationEntryPoint), preferredMatcher);
+		exceptionHandling.defaultAuthenticationEntryPointFor(postProcess(this.authenticationEntryPoint),
+				preferredMatcher);
 	}
 
 	private void registerDefaultLogoutSuccessHandler(B http, RequestMatcher preferredMatcher) {
-		LogoutConfigurer<B> logout = http
-				.getConfigurer(LogoutConfigurer.class);
+		LogoutConfigurer<B> logout = http.getConfigurer(LogoutConfigurer.class);
 		if (logout == null) {
 			return;
 		}
@@ -204,13 +189,11 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 
 	@Override
 	public void configure(B http) {
-		AuthenticationManager authenticationManager = http
-				.getSharedObject(AuthenticationManager.class);
-		BasicAuthenticationFilter basicAuthenticationFilter = new BasicAuthenticationFilter(
-				authenticationManager, this.authenticationEntryPoint);
+		AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
+		BasicAuthenticationFilter basicAuthenticationFilter = new BasicAuthenticationFilter(authenticationManager,
+				this.authenticationEntryPoint);
 		if (this.authenticationDetailsSource != null) {
-			basicAuthenticationFilter
-					.setAuthenticationDetailsSource(this.authenticationDetailsSource);
+			basicAuthenticationFilter.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 		}
 		RememberMeServices rememberMeServices = http.getSharedObject(RememberMeServices.class);
 		if (rememberMeServices != null) {
@@ -219,4 +202,5 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 		basicAuthenticationFilter = postProcess(basicAuthenticationFilter);
 		http.addFilter(basicAuthenticationFilter);
 	}
+
 }

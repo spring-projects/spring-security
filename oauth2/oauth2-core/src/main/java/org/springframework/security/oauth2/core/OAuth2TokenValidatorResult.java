@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public final class OAuth2TokenValidatorResult {
+
 	static final OAuth2TokenValidatorResult NO_ERRORS = new OAuth2TokenValidatorResult(Collections.emptyList());
 
 	private final Collection<OAuth2Error> errors;
@@ -41,7 +42,6 @@ public final class OAuth2TokenValidatorResult {
 
 	/**
 	 * Say whether this result indicates success
-	 *
 	 * @return whether this result has errors
 	 */
 	public boolean hasErrors() {
@@ -50,8 +50,8 @@ public final class OAuth2TokenValidatorResult {
 
 	/**
 	 * Return error details regarding the validation attempt
-	 *
-	 * @return the collection of results in this result, if any; returns an empty list otherwise
+	 * @return the collection of results in this result, if any; returns an empty list
+	 * otherwise
 	 */
 	public Collection<OAuth2Error> getErrors() {
 		return this.errors;
@@ -59,7 +59,6 @@ public final class OAuth2TokenValidatorResult {
 
 	/**
 	 * Construct a successful {@link OAuth2TokenValidatorResult}
-	 *
 	 * @return an {@link OAuth2TokenValidatorResult} with no errors
 	 */
 	public static OAuth2TokenValidatorResult success() {
@@ -68,7 +67,6 @@ public final class OAuth2TokenValidatorResult {
 
 	/**
 	 * Construct a failure {@link OAuth2TokenValidatorResult} with the provided detail
-	 *
 	 * @param errors the list of errors
 	 * @return an {@link OAuth2TokenValidatorResult} with the errors specified
 	 */
@@ -78,15 +76,11 @@ public final class OAuth2TokenValidatorResult {
 
 	/**
 	 * Construct a failure {@link OAuth2TokenValidatorResult} with the provided detail
-	 *
 	 * @param errors the list of errors
 	 * @return an {@link OAuth2TokenValidatorResult} with the errors specified
 	 */
 	public static OAuth2TokenValidatorResult failure(Collection<OAuth2Error> errors) {
-		if (errors.isEmpty()) {
-			return NO_ERRORS;
-		}
-
-		return new OAuth2TokenValidatorResult(errors);
+		return (errors.isEmpty()) ? NO_ERRORS : new OAuth2TokenValidatorResult(errors);
 	}
+
 }

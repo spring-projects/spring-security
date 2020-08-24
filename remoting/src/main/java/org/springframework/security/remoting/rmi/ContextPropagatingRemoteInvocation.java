@@ -16,16 +16,18 @@
 
 package org.springframework.security.remoting.rmi;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.core.log.LogMessage;
 import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * The actual {@code RemoteInvocation} that is passed from the client to the server.
@@ -46,93 +48,72 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	private static final Log logger = LogFactory
-			.getLog(ContextPropagatingRemoteInvocation.class);
-
-	// ~ Instance fields
-	// ================================================================================================
+	private static final Log logger = LogFactory.getLog(ContextPropagatingRemoteInvocation.class);
 
 	private final String principal;
-	private final String credentials;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private final String credentials;
 
 	/**
 	 * Constructs the object, storing the principal and credentials extracted from the
 	 * client-side security context.
-	 *
 	 * @param methodInvocation the method to invoke
 	 */
 	public ContextPropagatingRemoteInvocation(MethodInvocation methodInvocation) {
 		super(methodInvocation);
-		Authentication currentUser = SecurityContextHolder.getContext()
-				.getAuthentication();
-
+		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
 		if (currentUser != null) {
-			principal = currentUser.getName();
+			this.principal = currentUser.getName();
 			Object userCredentials = currentUser.getCredentials();
-			credentials = userCredentials == null ? null : userCredentials.toString();
+			this.credentials = (userCredentials != null) ? userCredentials.toString() : null;
 		}
 		else {
-			principal = credentials = null;
+			this.credentials = null;
+			this.principal = null;
 		}
-
 		if (logger.isDebugEnabled()) {
-			logger.debug("RemoteInvocation now has principal: " + principal);
-			if (credentials == null) {
+			logger.debug("RemoteInvocation now has principal: " + this.principal);
+			if (this.credentials == null) {
 				logger.debug("RemoteInvocation now has null credentials.");
 			}
 		}
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Invoked on the server-side.
 	 * <p>
 	 * The transmitted principal and credentials will be used to create an unauthenticated
-	 * {@code Authentication} instance for processing by the {@code AuthenticationManager}.
-	 *
+	 * {@code Authentication} instance for processing by the
+	 * {@code AuthenticationManager}.
 	 * @param targetObject the target object to apply the invocation to
-	 *
 	 * @return the invocation result
-	 *
 	 * @throws NoSuchMethodException if the method name could not be resolved
 	 * @throws IllegalAccessException if the method could not be accessed
 	 * @throws InvocationTargetException if the method invocation resulted in an exception
 	 */
-	public Object invoke(Object targetObject) throws NoSuchMethodException,
-			IllegalAccessException, InvocationTargetException {
-
-		if (principal != null) {
-			Authentication request = createAuthenticationRequest(principal, credentials);
+	@Override
+	public Object invoke(Object targetObject)
+			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+		if (this.principal != null) {
+			Authentication request = createAuthenticationRequest(this.principal, this.credentials);
 			request.setAuthenticated(false);
 			SecurityContextHolder.getContext().setAuthentication(request);
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Set SecurityContextHolder to contain: " + request);
-			}
+			logger.debug(LogMessage.format("Set SecurityContextHolder to contain: %s", request));
 		}
-
 		try {
 			return super.invoke(targetObject);
 		}
 		finally {
 			SecurityContextHolder.clearContext();
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Cleared SecurityContextHolder.");
-			}
+			logger.debug("Cleared SecurityContextHolder.");
 		}
 	}
 
 	/**
 	 * Creates the server-side authentication request object.
 	 */
-	protected Authentication createAuthenticationRequest(String principal,
-			String credentials) {
+	protected Authentication createAuthenticationRequest(String principal, String credentials) {
 		return new UsernamePasswordAuthenticationToken(principal, credentials);
 	}
+
 }

@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.method;
 
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -26,13 +28,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class SecuredTests {
+
 	@Autowired
 	SecuredServiceImpl service;
 
@@ -43,13 +45,16 @@ public class SecuredTests {
 
 	@Test(expected = AccessDeniedException.class)
 	public void securedAdminRoleDenied() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
-		service.securedAdminRole();
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
+		this.service.securedAdminRole();
 	}
 
 	@Test
 	public void securedAdminRoleGranted() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
-		service.securedAdminRole();
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
+		this.service.securedAdminRole();
 	}
+
 }

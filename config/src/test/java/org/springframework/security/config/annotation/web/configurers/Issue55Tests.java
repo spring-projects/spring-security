@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+
 import javax.servlet.Filter;
 
 import org.junit.Rule;
@@ -38,7 +40,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.stereotype.Component;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
@@ -54,91 +56,22 @@ public class Issue55Tests {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this");
 		this.spring.register(WebSecurityConfigurerAdapterDefaultsAuthManagerConfig.class);
 		this.spring.getContext().getBean(FilterChainProxy.class);
-
 		FilterSecurityInterceptor filter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class, 0);
 		assertThat(filter.getAuthenticationManager().authenticate(token)).isEqualTo(CustomAuthenticationManager.RESULT);
-	}
-
-
-	@EnableWebSecurity
-	static class WebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
-		@Component
-		public static class WebSecurityAdapter extends WebSecurityConfigurerAdapter {
-
-			@Override
-			protected void configure(HttpSecurity http) throws Exception {
-				// @formatter:off
-				http
-					.authorizeRequests()
-						.anyRequest().hasRole("USER");
-				// @formatter:on
-			}
-		}
-
-		@Configuration
-		public static class AuthenticationManagerConfiguration {
-			@Bean
-			public AuthenticationManager authenticationManager() throws Exception {
-				return new CustomAuthenticationManager();
-			}
-		}
 	}
 
 	@Test
-	public void multiHttpWebSecurityConfigurerAdapterDefaultsToAutowired() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+	public void multiHttpWebSecurityConfigurerAdapterDefaultsToAutowired()
+			throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this");
 		this.spring.register(MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig.class);
 		this.spring.getContext().getBean(FilterChainProxy.class);
-
 		FilterSecurityInterceptor filter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class, 0);
 		assertThat(filter.getAuthenticationManager().authenticate(token)).isEqualTo(CustomAuthenticationManager.RESULT);
-
-		FilterSecurityInterceptor secondFilter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class, 1);
-		assertThat(secondFilter.getAuthenticationManager().authenticate(token)).isEqualTo(CustomAuthenticationManager.RESULT);
-	}
-
-	@EnableWebSecurity
-	static class MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
-		@Component
-		@Order(1)
-		public static class ApiWebSecurityAdapter extends WebSecurityConfigurerAdapter {
-			@Override
-			protected void configure(HttpSecurity http) throws Exception {
-				// @formatter:off
-				http.antMatcher("/api/**")
-					.authorizeRequests()
-						.anyRequest().hasRole("USER");
-				// @formatter:on
-			}
-		}
-
-		@Component
-		public static class WebSecurityAdapter extends WebSecurityConfigurerAdapter {
-			@Override
-			protected void configure(HttpSecurity http) throws Exception {
-				// @formatter:off
-				http
-					.authorizeRequests()
-						.anyRequest().hasRole("USER");
-				// @formatter:on
-			}
-		}
-
-		@Configuration
-		public static class AuthenticationManagerConfiguration {
-			@Bean
-			public AuthenticationManager authenticationManager() throws Exception {
-				return new CustomAuthenticationManager();
-			}
-		}
-	}
-
-	static class CustomAuthenticationManager implements AuthenticationManager {
-		static Authentication RESULT = new TestingAuthenticationToken("test", "this", "ROLE_USER");
-
-		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-			return RESULT;
-		}
+		FilterSecurityInterceptor secondFilter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class,
+				1);
+		assertThat(secondFilter.getAuthenticationManager().authenticate(token))
+				.isEqualTo(CustomAuthenticationManager.RESULT);
 	}
 
 	Filter findFilter(Class<?> filter, int index) {
@@ -154,4 +87,89 @@ public class Issue55Tests {
 	SecurityFilterChain filterChain(int index) {
 		return this.spring.getContext().getBean(FilterChainProxy.class).getFilterChains().get(index);
 	}
+
+	@EnableWebSecurity
+	static class WebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
+
+		@Component
+		public static class WebSecurityAdapter extends WebSecurityConfigurerAdapter {
+
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
+				http
+					.authorizeRequests()
+						.anyRequest().hasRole("USER");
+				// @formatter:on
+			}
+
+		}
+
+		@Configuration
+		public static class AuthenticationManagerConfiguration {
+
+			@Bean
+			public AuthenticationManager authenticationManager() throws Exception {
+				return new CustomAuthenticationManager();
+			}
+
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
+
+		@Component
+		@Order(1)
+		public static class ApiWebSecurityAdapter extends WebSecurityConfigurerAdapter {
+
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
+				http.antMatcher("/api/**")
+					.authorizeRequests()
+						.anyRequest().hasRole("USER");
+				// @formatter:on
+			}
+
+		}
+
+		@Component
+		public static class WebSecurityAdapter extends WebSecurityConfigurerAdapter {
+
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
+				http
+					.authorizeRequests()
+						.anyRequest().hasRole("USER");
+				// @formatter:on
+			}
+
+		}
+
+		@Configuration
+		public static class AuthenticationManagerConfiguration {
+
+			@Bean
+			public AuthenticationManager authenticationManager() throws Exception {
+				return new CustomAuthenticationManager();
+			}
+
+		}
+
+	}
+
+	static class CustomAuthenticationManager implements AuthenticationManager {
+
+		static Authentication RESULT = new TestingAuthenticationToken("test", "this", "ROLE_USER");
+
+		@Override
+		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+			return RESULT;
+		}
+
+	}
+
 }

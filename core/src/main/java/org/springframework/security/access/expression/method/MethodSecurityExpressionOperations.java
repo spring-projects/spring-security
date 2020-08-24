@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.expression.method;
 
 import org.springframework.security.access.expression.SecurityExpressionOperations;
@@ -25,6 +26,7 @@ import org.springframework.security.access.expression.SecurityExpressionOperatio
  * @since 3.1.1
  */
 public interface MethodSecurityExpressionOperations extends SecurityExpressionOperations {
+
 	void setFilterObject(Object filterObject);
 
 	Object getFilterObject();
@@ -34,4 +36,5 @@ public interface MethodSecurityExpressionOperations extends SecurityExpressionOp
 	Object getReturnObject();
 
 	Object getThis();
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.domain;
 
 import java.util.List;
@@ -61,42 +62,33 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 	 * decide how to handle the permission check. Similarly, if any of the SID arguments
 	 * presented to the method were not loaded by the ACL,
 	 * <code>UnloadedSidException</code> will be thrown.
-	 *
 	 * @param permission the exact permissions to scan for (order is important)
 	 * @param sids the exact SIDs to scan for (order is important)
 	 * @param administrativeMode if <code>true</code> denotes the query is for
 	 * administrative purposes and no auditing will be undertaken
-	 *
 	 * @return <code>true</code> if one of the permissions has been granted,
 	 * <code>false</code> if one of the permissions has been specifically revoked
-	 *
 	 * @throws NotFoundException if an exact ACE for one of the permission bit masks and
 	 * SID combination could not be found
 	 */
-	public boolean isGranted(Acl acl, List<Permission> permission, List<Sid> sids,
-			boolean administrativeMode) throws NotFoundException {
-
-		final List<AccessControlEntry> aces = acl.getEntries();
-
+	@Override
+	public boolean isGranted(Acl acl, List<Permission> permission, List<Sid> sids, boolean administrativeMode)
+			throws NotFoundException {
+		List<AccessControlEntry> aces = acl.getEntries();
 		AccessControlEntry firstRejection = null;
-
 		for (Permission p : permission) {
 			for (Sid sid : sids) {
 				// Attempt to find exact match for this permission mask and SID
 				boolean scanNextSid = true;
-
 				for (AccessControlEntry ace : aces) {
-
-					if (isGranted(ace, p)
-							&& ace.getSid().equals(sid)) {
+					if (isGranted(ace, p) && ace.getSid().equals(sid)) {
 						// Found a matching ACE, so its authorization decision will
 						// prevail
 						if (ace.isGranting()) {
 							// Success
 							if (!administrativeMode) {
-								auditLogger.logIfNeeded(true, ace);
+								this.auditLogger.logIfNeeded(true, ace);
 							}
-
 							return true;
 						}
 
@@ -107,13 +99,11 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 							// Store first rejection for auditing reasons
 							firstRejection = ace;
 						}
-
 						scanNextSid = false; // helps break the loop
 
 						break; // exit aces loop
 					}
 				}
-
 				if (!scanNextSid) {
 					break; // exit SID for loop (now try next permission)
 				}
@@ -124,9 +114,8 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 			// We found an ACE to reject the request at this point, as no
 			// other ACEs were found that granted a different permission
 			if (!administrativeMode) {
-				auditLogger.logIfNeeded(false, firstRejection);
+				this.auditLogger.logIfNeeded(false, firstRejection);
 			}
-
 			return false;
 		}
 
@@ -135,26 +124,22 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 			// We have a parent, so let them try to find a matching ACE
 			return acl.getParentAcl().isGranted(permission, sids, false);
 		}
-		else {
-			// We either have no parent, or we're the uppermost parent
-			throw new NotFoundException(
-					"Unable to locate a matching ACE for passed permissions and SIDs");
-		}
+
+		// We either have no parent, or we're the uppermost parent
+		throw new NotFoundException("Unable to locate a matching ACE for passed permissions and SIDs");
 	}
 
 	/**
-	 * Compares an ACE Permission to the given Permission.
-	 * By default, we compare the Permission masks for exact match.
-	 * Subclasses of this strategy can override this behavior and implement
-	 * more sophisticated comparisons, e.g. a bitwise comparison for ACEs that grant access.
-	 * <pre>{@code
+	 * Compares an ACE Permission to the given Permission. By default, we compare the
+	 * Permission masks for exact match. Subclasses of this strategy can override this
+	 * behavior and implement more sophisticated comparisons, e.g. a bitwise comparison
+	 * for ACEs that grant access. <pre>{@code
 	 * if (ace.isGranting() && p.getMask() != 0) {
 	 *    return (ace.getPermission().getMask() & p.getMask()) != 0;
 	 * } else {
 	 *    return ace.getPermission().getMask() == p.getMask();
 	 * }
 	 * }</pre>
-	 *
 	 * @param ace the ACE from the Acl holding the mask.
 	 * @param p the Permission we are checking against.
 	 * @return true, if the respective masks are considered to be equal.

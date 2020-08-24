@@ -23,7 +23,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link FeaturePolicyHeaderWriter}.
@@ -52,29 +52,25 @@ public class FeaturePolicyHeaderWriterTests {
 
 	@Test
 	public void writeHeadersFeaturePolicyDefault() {
-		writer.writeHeaders(this.request, this.response);
-
+		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeaderNames()).hasSize(1);
-		assertThat(this.response.getHeader("Feature-Policy"))
-				.isEqualTo(DEFAULT_POLICY_DIRECTIVES);
+		assertThat(this.response.getHeader("Feature-Policy")).isEqualTo(DEFAULT_POLICY_DIRECTIVES);
 	}
 
 	@Test
 	public void createWriterWithNullDirectivesShouldThrowException() {
-		assertThatThrownBy(() -> new FeaturePolicyHeaderWriter(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("policyDirectives must not be null or empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new FeaturePolicyHeaderWriter(null))
+				.withMessage("policyDirectives must not be null or empty");
 	}
 
 	@Test
 	public void createWriterWithEmptyDirectivesShouldThrowException() {
-		assertThatThrownBy(() -> new FeaturePolicyHeaderWriter(""))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("policyDirectives must not be null or empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new FeaturePolicyHeaderWriter(""))
+				.withMessage("policyDirectives must not be null or empty");
 	}
 
 	@Test
-	public void writeHeaderOnlyIfNotPresent(){
+	public void writeHeaderOnlyIfNotPresent() {
 		String value = new String("value");
 		this.response.setHeader(FEATURE_POLICY_HEADER, value);
 		this.writer.writeHeaders(this.request, this.response);

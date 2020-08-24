@@ -16,8 +16,14 @@
 
 package org.springframework.security.oauth2.server.resource.web.access.server;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -25,18 +31,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class BearerTokenServerAccessDeniedHandlerTests {
+
 	private BearerTokenServerAccessDeniedHandler accessDeniedHandler;
 
 	@Before
@@ -46,56 +47,47 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 
 	@Test
 	public void handleWhenNotOAuth2AuthenticatedThenStatus403() {
-
 		Authentication token = new TestingAuthenticationToken("user", "pass");
 		ServerWebExchange exchange = mock(ServerWebExchange.class);
-		when(exchange.getPrincipal()).thenReturn(Mono.just(token));
-		when(exchange.getResponse()).thenReturn(new MockServerHttpResponse());
-
+		given(exchange.getPrincipal()).willReturn(Mono.just(token));
+		given(exchange.getResponse()).willReturn(new MockServerHttpResponse());
 		this.accessDeniedHandler.handle(exchange, null).block();
-
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate")).isEqualTo(
-				Arrays.asList("Bearer"));
+		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate")).isEqualTo(Arrays.asList("Bearer"));
 	}
 
 	@Test
 	public void handleWhenNotOAuth2AuthenticatedAndRealmSetThenStatus403AndAuthHeaderWithRealm() {
-
 		Authentication token = new TestingAuthenticationToken("user", "pass");
 		ServerWebExchange exchange = mock(ServerWebExchange.class);
-		when(exchange.getPrincipal()).thenReturn(Mono.just(token));
-		when(exchange.getResponse()).thenReturn(new MockServerHttpResponse());
-
+		given(exchange.getPrincipal()).willReturn(Mono.just(token));
+		given(exchange.getResponse()).willReturn(new MockServerHttpResponse());
 		this.accessDeniedHandler.setRealmName("test");
 		this.accessDeniedHandler.handle(exchange, null).block();
-
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate")).isEqualTo(
-				Arrays.asList("Bearer realm=\"test\""));
+		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate"))
+				.isEqualTo(Arrays.asList("Bearer realm=\"test\""));
 	}
 
 	@Test
 	public void handleWhenOAuth2AuthenticatedThenStatus403AndAuthHeaderWithInsufficientScopeErrorAttribute() {
-
 		Authentication token = new TestingOAuth2TokenAuthenticationToken(Collections.emptyMap());
 		ServerWebExchange exchange = mock(ServerWebExchange.class);
-		when(exchange.getPrincipal()).thenReturn(Mono.just(token));
-		when(exchange.getResponse()).thenReturn(new MockServerHttpResponse());
-
+		given(exchange.getPrincipal()).willReturn(Mono.just(token));
+		given(exchange.getResponse()).willReturn(new MockServerHttpResponse());
 		this.accessDeniedHandler.handle(exchange, null).block();
-
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate")).isEqualTo(
-				Arrays.asList("Bearer error=\"insufficient_scope\", " +
-				"error_description=\"The request requires higher privileges than provided by the access token.\", " +
-				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\""));
+		// @formatter:off
+		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate"))
+				.isEqualTo(Arrays.asList("Bearer error=\"insufficient_scope\", "
+						+ "error_description=\"The request requires higher privileges than provided by the access token.\", "
+						+ "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\""));
+		// @formatter:on
 	}
 
 	@Test
 	public void setRealmNameWhenNullRealmNameThenNoExceptionThrown() {
-		assertThatCode(() -> this.accessDeniedHandler.setRealmName(null))
-				.doesNotThrowAnyException();
+		this.accessDeniedHandler.setRealmName(null);
 	}
 
 	static class TestingOAuth2TokenAuthenticationToken
@@ -114,9 +106,13 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 		}
 
 		static class TestingOAuth2Token extends AbstractOAuth2Token {
+
 			TestingOAuth2Token(String tokenValue) {
 				super(tokenValue);
 			}
+
 		}
+
 	}
+
 }

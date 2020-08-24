@@ -16,21 +16,27 @@
 
 package org.springframework.security.cas.jackson2;
 
-import com.fasterxml.jackson.annotation.*;
+import java.util.Collection;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jasig.cas.client.validation.Assertion;
+
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-
 /**
- * Mixin class which helps in deserialize {@link org.springframework.security.cas.authentication.CasAuthenticationToken}
- * using jackson. Two more dependent classes needs to register along with this mixin class.
+ * Mixin class which helps in deserialize
+ * {@link org.springframework.security.cas.authentication.CasAuthenticationToken} using
+ * jackson. Two more dependent classes needs to register along with this mixin class.
  * <ol>
- * 		<li>{@link org.springframework.security.cas.jackson2.AssertionImplMixin}</li>
- *      <li>{@link org.springframework.security.cas.jackson2.AttributePrincipalImplMixin}</li>
+ * <li>{@link org.springframework.security.cas.jackson2.AssertionImplMixin}</li>
+ * <li>{@link org.springframework.security.cas.jackson2.AttributePrincipalImplMixin}</li>
  * </ol>
  *
  * <p>
@@ -53,7 +59,6 @@ class CasAuthenticationTokenMixin {
 
 	/**
 	 * Mixin Constructor helps in deserialize {@link CasAuthenticationToken}
-	 *
 	 * @param keyHash hashCode of provided key to identify if this object made by a given
 	 * {@link CasAuthenticationProvider}
 	 * @param principal typically the UserDetails object (cannot be <code>null</code>)
@@ -70,8 +75,9 @@ class CasAuthenticationTokenMixin {
 	 */
 	@JsonCreator
 	CasAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash, @JsonProperty("principal") Object principal,
-										@JsonProperty("credentials") Object credentials,
-										@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
-										@JsonProperty("userDetails") UserDetails userDetails, @JsonProperty("assertion") Assertion assertion) {
+			@JsonProperty("credentials") Object credentials,
+			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
+			@JsonProperty("userDetails") UserDetails userDetails, @JsonProperty("assertion") Assertion assertion) {
 	}
+
 }

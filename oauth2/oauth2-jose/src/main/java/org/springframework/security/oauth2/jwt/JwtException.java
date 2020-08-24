@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.jwt;
 
 /**
@@ -25,7 +26,6 @@ public class JwtException extends RuntimeException {
 
 	/**
 	 * Constructs a {@code JwtException} using the provided parameters.
-	 *
 	 * @param message the detail message
 	 */
 	public JwtException(String message) {
@@ -34,11 +34,11 @@ public class JwtException extends RuntimeException {
 
 	/**
 	 * Constructs a {@code JwtException} using the provided parameters.
-	 *
 	 * @param message the detail message
 	 * @param cause the root cause
 	 */
 	public JwtException(String message, Throwable cause) {
 		super(message, cause);
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.servlet.request;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,8 +34,10 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -46,14 +49,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Client;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -69,6 +70,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration
 @WebAppConfiguration
 public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
+
 	@Autowired
 	WebApplicationContext context;
 
@@ -89,20 +91,15 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 		TestSecurityContextHolder.clearContext();
 	}
 
-
 	@Test
-	public void oauth2ClientWhenUsingDefaultsThenException()
-			throws Exception {
-
-		assertThatCode(() -> oauth2Client().postProcessRequest(new MockHttpServletRequest()))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("ClientRegistration");
+	public void oauth2ClientWhenUsingDefaultsThenException() throws Exception {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> oauth2Client().postProcessRequest(new MockHttpServletRequest()))
+				.withMessageContaining("ClientRegistration");
 	}
 
 	@Test
-	public void oauth2ClientWhenUsingDefaultsThenProducesDefaultAuthorizedClient()
-		throws Exception {
-
+	public void oauth2ClientWhenUsingDefaultsThenProducesDefaultAuthorizedClient() throws Exception {
 		this.mvc.perform(get("/access-token").with(oauth2Client("registration-id")))
 				.andExpect(content().string("access-token"));
 		this.mvc.perform(get("/client-id").with(oauth2Client("registration-id")))
@@ -110,73 +107,66 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 	}
 
 	@Test
-	public void oauth2ClientWhenClientRegistrationThenUses()
-			throws Exception {
-
-		ClientRegistration clientRegistration = clientRegistration()
+	public void oauth2ClientWhenClientRegistrationThenUses() throws Exception {
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
 				.registrationId("registration-id").clientId("client-id").build();
-		this.mvc.perform(get("/client-id")
-				.with(oauth2Client().clientRegistration(clientRegistration)))
+		this.mvc.perform(get("/client-id").with(oauth2Client().clientRegistration(clientRegistration)))
 				.andExpect(content().string("client-id"));
 	}
 
 	@Test
-	public void oauth2ClientWhenClientRegistrationConsumerThenUses()
-			throws Exception {
-
+	public void oauth2ClientWhenClientRegistrationConsumerThenUses() throws Exception {
 		this.mvc.perform(get("/client-id")
-				.with(oauth2Client("registration-id").clientRegistration(c -> c.clientId("client-id"))))
+				.with(oauth2Client("registration-id").clientRegistration((c) -> c.clientId("client-id"))))
 				.andExpect(content().string("client-id"));
 	}
 
 	@Test
 	public void oauth2ClientWhenPrincipalNameThenUses() throws Exception {
-		this.mvc.perform(get("/principal-name")
-				.with(oauth2Client("registration-id").principalName("test-subject")))
+		this.mvc.perform(get("/principal-name").with(oauth2Client("registration-id").principalName("test-subject")))
 				.andExpect(content().string("test-subject"));
 	}
 
 	@Test
 	public void oauth2ClientWhenAccessTokenThenUses() throws Exception {
-		OAuth2AccessToken accessToken = noScopes();
-		this.mvc.perform(get("/access-token")
-				.with(oauth2Client("registration-id").accessToken(accessToken)))
+		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.noScopes();
+		this.mvc.perform(get("/access-token").with(oauth2Client("registration-id").accessToken(accessToken)))
 				.andExpect(content().string("no-scopes"));
 	}
 
 	@Test
 	public void oauth2ClientWhenUsedOnceThenDoesNotAffectRemainingTests() throws Exception {
-		this.mvc.perform(get("/client-id")
-				.with(oauth2Client("registration-id")))
+		this.mvc.perform(get("/client-id").with(oauth2Client("registration-id")))
 				.andExpect(content().string("test-client"));
-
-		OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(clientRegistration().build(), "sub", noScopes());
+		OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(TestClientRegistrations.clientRegistration().build(),
+				"sub", TestOAuth2AccessTokens.noScopes());
 		OAuth2AuthorizedClientRepository repository = this.context.getBean(OAuth2AuthorizedClientRepository.class);
-		when(repository.loadAuthorizedClient(eq("registration-id"), any(Authentication.class), any(HttpServletRequest.class)))
-				.thenReturn(client);
-		this.mvc.perform(get("/client-id"))
-				.andExpect(content().string("client-id"));
-		verify(repository).loadAuthorizedClient(
-				eq("registration-id"), any(Authentication.class), any(HttpServletRequest.class));
+		given(repository.loadAuthorizedClient(eq("registration-id"), any(Authentication.class),
+				any(HttpServletRequest.class))).willReturn(client);
+		this.mvc.perform(get("/client-id")).andExpect(content().string("client-id"));
+		verify(repository).loadAuthorizedClient(eq("registration-id"), any(Authentication.class),
+				any(HttpServletRequest.class));
 	}
 
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class OAuth2ClientConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
-				.authorizeRequests(authz -> authz
+				.authorizeRequests((authz) -> authz
 					.anyRequest().permitAll()
 				)
 				.oauth2Client();
+			// @formatter:on
 		}
 
 		@Bean
 		ClientRegistrationRepository clientRegistrationRepository() {
 			return mock(ClientRegistrationRepository.class);
 		}
-
 
 		@Bean
 		OAuth2AuthorizedClientRepository authorizedClientRepository() {
@@ -185,20 +175,27 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 
 		@RestController
 		static class PrincipalController {
+
 			@GetMapping("/access-token")
-			String accessToken(@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
+			String accessToken(
+					@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
 				return authorizedClient.getAccessToken().getTokenValue();
 			}
 
 			@GetMapping("/principal-name")
-			String principalName(@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
+			String principalName(
+					@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
 				return authorizedClient.getPrincipalName();
 			}
 
 			@GetMapping("/client-id")
-			String clientId(@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
+			String clientId(
+					@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
 				return authorizedClient.getClientRegistration().getClientId();
 			}
+
 		}
+
 	}
+
 }

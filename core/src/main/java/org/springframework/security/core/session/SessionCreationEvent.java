@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.session;
 
 /**
@@ -27,4 +28,5 @@ public abstract class SessionCreationEvent extends AbstractSessionEvent {
 	public SessionCreationEvent(Object source) {
 		super(source);
 	}
+
 }

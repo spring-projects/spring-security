@@ -16,6 +16,11 @@
 
 package org.springframework.security.oauth2.server.resource.web.server;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -28,26 +33,21 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
- * An {@link AuthenticationEntryPoint} implementation used to commence authentication of protected resource requests
- * using {@link BearerTokenAuthenticationFilter}.
+ * An {@link AuthenticationEntryPoint} implementation used to commence authentication of
+ * protected resource requests using {@link BearerTokenAuthenticationFilter}.
  * <p>
- * Uses information provided by {@link BearerTokenError} to set HTTP response status code and populate
- * {@code WWW-Authenticate} HTTP header.
+ * Uses information provided by {@link BearerTokenError} to set HTTP response status code
+ * and populate {@code WWW-Authenticate} HTTP header.
  *
  * @author Rob Winch
- * @see BearerTokenError
- * @see <a href="https://tools.ietf.org/html/rfc6750#section-3" target="_blank">RFC 6750 Section 3: The WWW-Authenticate
- * Response Header Field</a>
  * @since 5.1
+ * @see BearerTokenError
+ * @see <a href="https://tools.ietf.org/html/rfc6750#section-3" target="_blank">RFC 6750
+ * Section 3: The WWW-Authenticate Response Header Field</a>
  */
-public final class BearerTokenServerAuthenticationEntryPoint implements
-		ServerAuthenticationEntryPoint {
+public final class BearerTokenServerAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
 
 	private String realmName;
 
@@ -59,7 +59,6 @@ public final class BearerTokenServerAuthenticationEntryPoint implements
 	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException authException) {
 		return Mono.defer(() -> {
 			HttpStatus status = getStatus(authException);
-
 			Map<String, String> parameters = createParameters(authException);
 			String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
 			ServerHttpResponse response = exchange.getResponse();
@@ -74,23 +73,17 @@ public final class BearerTokenServerAuthenticationEntryPoint implements
 		if (this.realmName != null) {
 			parameters.put("realm", this.realmName);
 		}
-
 		if (authException instanceof OAuth2AuthenticationException) {
 			OAuth2Error error = ((OAuth2AuthenticationException) authException).getError();
-
 			parameters.put("error", error.getErrorCode());
-
 			if (StringUtils.hasText(error.getDescription())) {
 				parameters.put("error_description", error.getDescription());
 			}
-
 			if (StringUtils.hasText(error.getUri())) {
 				parameters.put("error_uri", error.getUri());
 			}
-
 			if (error instanceof BearerTokenError) {
 				BearerTokenError bearerTokenError = (BearerTokenError) error;
-
 				if (StringUtils.hasText(bearerTokenError.getScope())) {
 					parameters.put("scope", bearerTokenError.getScope());
 				}
@@ -112,7 +105,6 @@ public final class BearerTokenServerAuthenticationEntryPoint implements
 	private static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {
 		StringBuilder wwwAuthenticate = new StringBuilder();
 		wwwAuthenticate.append("Bearer");
-
 		if (!parameters.isEmpty()) {
 			wwwAuthenticate.append(" ");
 			int i = 0;
@@ -124,7 +116,7 @@ public final class BearerTokenServerAuthenticationEntryPoint implements
 				i++;
 			}
 		}
-
 		return wwwAuthenticate.toString();
 	}
+
 }

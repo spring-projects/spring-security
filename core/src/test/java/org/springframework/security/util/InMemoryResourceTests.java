@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.util;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.Test;
 
-import org.junit.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor
@@ -38,4 +39,5 @@ public class InMemoryResourceTests {
 		assertThat(new InMemoryResource("xxx").equals(new InMemoryResource("xxxx"))).isFalse();
 		assertThat(new InMemoryResource("xxx").equals(new Object())).isFalse();
 	}
+
 }

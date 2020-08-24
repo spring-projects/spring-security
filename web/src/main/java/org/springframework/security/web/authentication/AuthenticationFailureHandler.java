@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
@@ -45,7 +46,7 @@ public interface AuthenticationFailureHandler {
 	 * @param exception the exception which was thrown to reject the authentication
 	 * request.
 	 */
-	void onAuthenticationFailure(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException exception)
-			throws IOException, ServletException;
+	void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) throws IOException, ServletException;
+
 }

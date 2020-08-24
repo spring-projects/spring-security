@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.samples.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,17 +30,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.authorizeRequests(authorizeRequests ->
+			.authorizeRequests((authorizeRequests) -> 
 				authorizeRequests
 					.antMatchers("/resources/**").permitAll()
 					.anyRequest().authenticated()
 			)
-			.formLogin(formLogin ->
+			.formLogin((formLogin) -> 
 				formLogin
 					.loginPage("/login")
 					.permitAll()
 			)
-			.logout(logout ->
+			.logout((logout) -> 
 				logout
 					.permitAll()
 			);

@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.core.endpoint;
 
-import org.junit.Test;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
+package org.springframework.security.oauth2.core.endpoint;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -24,6 +22,10 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.junit.Test;
+
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,46 +36,55 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class OAuth2AccessTokenResponseTests {
+
 	private static final String TOKEN_VALUE = "access-token";
+
 	private static final String REFRESH_TOKEN_VALUE = "refresh-token";
+
 	private static final long EXPIRES_IN = Instant.now().plusSeconds(5).toEpochMilli();
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenTokenValueIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		OAuth2AccessTokenResponse.withToken(null)
-			.tokenType(OAuth2AccessToken.TokenType.BEARER)
-			.expiresIn(EXPIRES_IN)
-			.build();
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(EXPIRES_IN)
+				.build();
+		// @formatter:on
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenTokenTypeIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		OAuth2AccessTokenResponse.withToken(TOKEN_VALUE)
-			.tokenType(null)
-			.expiresIn(EXPIRES_IN)
-			.build();
+				.tokenType(null)
+				.expiresIn(EXPIRES_IN)
+				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenExpiresInIsZeroThenExpiresAtOneSecondAfterIssueAt() {
-		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
-			.withToken(TOKEN_VALUE)
-			.tokenType(OAuth2AccessToken.TokenType.BEARER)
-			.expiresIn(0)
-			.build();
-		assertThat(tokenResponse.getAccessToken().getExpiresAt()).isEqualTo(
-			tokenResponse.getAccessToken().getIssuedAt().plusSeconds(1));
+		// @formatter:off
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse.withToken(TOKEN_VALUE)
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(0)
+				.build();
+		// @formatter:on
+		assertThat(tokenResponse.getAccessToken().getExpiresAt())
+				.isEqualTo(tokenResponse.getAccessToken().getIssuedAt().plusSeconds(1));
 	}
 
 	@Test
 	public void buildWhenExpiresInIsNegativeThenExpiresAtOneSecondAfterIssueAt() {
-		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
-			.withToken(TOKEN_VALUE)
-			.tokenType(OAuth2AccessToken.TokenType.BEARER)
-			.expiresIn(-1L)
-			.build();
-		assertThat(tokenResponse.getAccessToken().getExpiresAt()).isEqualTo(
-			tokenResponse.getAccessToken().getIssuedAt().plusSeconds(1));
+		// @formatter:off
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse.withToken(TOKEN_VALUE)
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(-1L)
+				.build();
+		// @formatter:on
+		assertThat(tokenResponse.getAccessToken().getExpiresAt())
+				.isEqualTo(tokenResponse.getAccessToken().getIssuedAt().plusSeconds(1));
 	}
 
 	@Test
@@ -83,16 +94,15 @@ public class OAuth2AccessTokenResponseTests {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
-
-		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
-			.withToken(TOKEN_VALUE)
-			.tokenType(OAuth2AccessToken.TokenType.BEARER)
-			.expiresIn(expiresAt.toEpochMilli())
-			.scopes(scopes)
-			.refreshToken(REFRESH_TOKEN_VALUE)
-			.additionalParameters(additionalParameters)
-			.build();
-
+		// @formatter:off
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse.withToken(TOKEN_VALUE)
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(expiresAt.toEpochMilli())
+				.scopes(scopes)
+				.refreshToken(REFRESH_TOKEN_VALUE)
+				.additionalParameters(additionalParameters)
+				.build();
+		// @formatter:on
 		assertThat(tokenResponse.getAccessToken()).isNotNull();
 		assertThat(tokenResponse.getAccessToken().getTokenValue()).isEqualTo(TOKEN_VALUE);
 		assertThat(tokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
@@ -110,25 +120,25 @@ public class OAuth2AccessTokenResponseTests {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
-
-		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
-				.withToken(TOKEN_VALUE)
+		// @formatter:off
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse.withToken(TOKEN_VALUE)
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.expiresIn(expiresAt.toEpochMilli())
 				.scopes(scopes)
 				.refreshToken(REFRESH_TOKEN_VALUE)
 				.additionalParameters(additionalParameters)
 				.build();
-
-		OAuth2AccessTokenResponse withResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
-				.build();
-
-		assertThat(withResponse.getAccessToken().getTokenValue()).isEqualTo(tokenResponse.getAccessToken().getTokenValue());
+		// @formatter:on
+		OAuth2AccessTokenResponse withResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse).build();
+		assertThat(withResponse.getAccessToken().getTokenValue())
+				.isEqualTo(tokenResponse.getAccessToken().getTokenValue());
 		assertThat(withResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(withResponse.getAccessToken().getIssuedAt()).isEqualTo(tokenResponse.getAccessToken().getIssuedAt());
-		assertThat(withResponse.getAccessToken().getExpiresAt()).isEqualTo(tokenResponse.getAccessToken().getExpiresAt());
+		assertThat(withResponse.getAccessToken().getExpiresAt())
+				.isEqualTo(tokenResponse.getAccessToken().getExpiresAt());
 		assertThat(withResponse.getAccessToken().getScopes()).isEqualTo(tokenResponse.getAccessToken().getScopes());
-		assertThat(withResponse.getRefreshToken().getTokenValue()).isEqualTo(tokenResponse.getRefreshToken().getTokenValue());
+		assertThat(withResponse.getRefreshToken().getTokenValue())
+				.isEqualTo(tokenResponse.getRefreshToken().getTokenValue());
 		assertThat(withResponse.getAdditionalParameters()).isEqualTo(tokenResponse.getAdditionalParameters());
 	}
 
@@ -139,34 +149,30 @@ public class OAuth2AccessTokenResponseTests {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
-
-		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
-				.withToken(TOKEN_VALUE)
+		// @formatter:off
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse.withToken(TOKEN_VALUE)
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.expiresIn(expiresAt.toEpochMilli())
 				.scopes(scopes)
 				.additionalParameters(additionalParameters)
 				.build();
-
-		OAuth2AccessTokenResponse withResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
-				.build();
-
+		// @formatter:on
+		OAuth2AccessTokenResponse withResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse).build();
 		assertThat(withResponse.getRefreshToken()).isNull();
 	}
 
 	@Test
 	public void buildWhenResponseAndExpiresInThenExpiresAtEqualToIssuedAtPlusExpiresIn() {
-		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
-				.withToken(TOKEN_VALUE)
+		// @formatter:off
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse.withToken(TOKEN_VALUE)
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.build();
-
+		// @formatter:on
 		long expiresIn = 30;
 		OAuth2AccessTokenResponse withResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
-				.expiresIn(expiresIn)
-				.build();
-
-		assertThat(withResponse.getAccessToken().getExpiresAt()).isEqualTo(
-				withResponse.getAccessToken().getIssuedAt().plusSeconds(expiresIn));
+				.expiresIn(expiresIn).build();
+		assertThat(withResponse.getAccessToken().getExpiresAt())
+				.isEqualTo(withResponse.getAccessToken().getIssuedAt().plusSeconds(expiresIn));
 	}
+
 }

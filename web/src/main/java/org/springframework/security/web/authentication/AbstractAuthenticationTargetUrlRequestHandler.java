@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -40,21 +43,17 @@ import org.springframework.util.StringUtils;
  * Uses the following logic sequence to determine how it should handle the
  * forward/redirect
  * <ul>
- * <li>
- * If the {@code alwaysUseDefaultTargetUrl} property is set to true, the
+ * <li>If the {@code alwaysUseDefaultTargetUrl} property is set to true, the
  * {@code defaultTargetUrl} property will be used for the destination.</li>
- * <li>
- * If a parameter matching the value of {@code targetUrlParameter} has been set on the
+ * <li>If a parameter matching the value of {@code targetUrlParameter} has been set on the
  * request, the value will be used as the destination. If you are enabling this
  * functionality, then you should ensure that the parameter cannot be used by an attacker
  * to redirect the user to a malicious site (by clicking on a URL with the parameter
  * included, for example). Typically it would be used when the parameter is included in
  * the login form and submitted with the username and password.</li>
- * <li>
- * If the {@code useReferer} property is set, the "Referer" HTTP header value will be
+ * <li>If the {@code useReferer} property is set, the "Referer" HTTP header value will be
  * used, if present.</li>
- * <li>
- * As a fallback option, the {@code defaultTargetUrl} value will be used.</li>
+ * <li>As a fallback option, the {@code defaultTargetUrl} value will be used.</li>
  * </ul>
  *
  * @author Luke Taylor
@@ -63,10 +62,15 @@ import org.springframework.util.StringUtils;
 public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
+
 	private String targetUrlParameter = null;
+
 	private String defaultTargetUrl = "/";
+
 	private boolean alwaysUseDefaultTargetUrl = false;
+
 	private boolean useReferer = false;
+
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	protected AbstractAuthenticationTargetUrlRequestHandler() {
@@ -78,61 +82,50 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	 * <p>
 	 * The redirect will not be performed if the response has already been committed.
 	 */
-	protected void handle(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException, ServletException {
+	protected void handle(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+			throws IOException, ServletException {
 		String targetUrl = determineTargetUrl(request, response, authentication);
-
 		if (response.isCommitted()) {
-			logger.debug("Response has already been committed. Unable to redirect to "
-					+ targetUrl);
+			this.logger.debug(
+					LogMessage.format("Response has already been committed. Unable to redirect to %s", targetUrl));
 			return;
 		}
-
-		redirectStrategy.sendRedirect(request, response, targetUrl);
+		this.redirectStrategy.sendRedirect(request, response, targetUrl);
 	}
 
 	/**
 	 * Builds the target URL according to the logic defined in the main class Javadoc
-	 *
 	 * @since 5.2
 	 */
-	protected String determineTargetUrl(HttpServletRequest request,
-			HttpServletResponse response, Authentication authentication) {
+	protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication) {
 		return determineTargetUrl(request, response);
 	}
 
 	/**
 	 * Builds the target URL according to the logic defined in the main class Javadoc.
 	 */
-	protected String determineTargetUrl(HttpServletRequest request,
-			HttpServletResponse response) {
+	protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response) {
 		if (isAlwaysUseDefaultTargetUrl()) {
-			return defaultTargetUrl;
+			return this.defaultTargetUrl;
 		}
-
 		// Check for the parameter and use that if available
 		String targetUrl = null;
-
-		if (targetUrlParameter != null) {
-			targetUrl = request.getParameter(targetUrlParameter);
-
+		if (this.targetUrlParameter != null) {
+			targetUrl = request.getParameter(this.targetUrlParameter);
 			if (StringUtils.hasText(targetUrl)) {
-				logger.debug("Found targetUrlParameter in request: " + targetUrl);
-
+				this.logger.debug("Found targetUrlParameter in request: " + targetUrl);
 				return targetUrl;
 			}
 		}
-
-		if (useReferer && !StringUtils.hasLength(targetUrl)) {
+		if (this.useReferer && !StringUtils.hasLength(targetUrl)) {
 			targetUrl = request.getHeader("Referer");
-			logger.debug("Using Referer header: " + targetUrl);
+			this.logger.debug("Using Referer header: " + targetUrl);
 		}
-
 		if (!StringUtils.hasText(targetUrl)) {
-			targetUrl = defaultTargetUrl;
-			logger.debug("Using default Url: " + targetUrl);
+			targetUrl = this.defaultTargetUrl;
+			this.logger.debug("Using default Url: " + targetUrl);
 		}
-
 		return targetUrl;
 	}
 
@@ -140,11 +133,10 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	 * Supplies the default target Url that will be used if no saved request is found or
 	 * the {@code alwaysUseDefaultTargetUrl} property is set to true. If not set, defaults
 	 * to {@code /}.
-	 *
 	 * @return the defaultTargetUrl property
 	 */
 	protected final String getDefaultTargetUrl() {
-		return defaultTargetUrl;
+		return this.defaultTargetUrl;
 	}
 
 	/**
@@ -154,7 +146,6 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	 * context path, and should include the leading <code>/</code>. Alternatively,
 	 * inclusion of a scheme name (such as "http://" or "https://") as the prefix will
 	 * denote a fully-qualified URL and this is also supported.
-	 *
 	 * @param defaultTargetUrl
 	 */
 	public void setDefaultTargetUrl(String defaultTargetUrl) {
@@ -172,13 +163,12 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	}
 
 	protected boolean isAlwaysUseDefaultTargetUrl() {
-		return alwaysUseDefaultTargetUrl;
+		return this.alwaysUseDefaultTargetUrl;
 	}
 
 	/**
 	 * If this property is set, the current request will be checked for this a parameter
 	 * with this name and the value used as the target URL if present.
-	 *
 	 * @param targetUrlParameter the name of the parameter containing the encoded target
 	 * URL. Defaults to null.
 	 */
@@ -190,7 +180,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	}
 
 	protected String getTargetUrlParameter() {
-		return targetUrlParameter;
+		return this.targetUrlParameter;
 	}
 
 	/**
@@ -201,7 +191,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	}
 
 	protected RedirectStrategy getRedirectStrategy() {
-		return redirectStrategy;
+		return this.redirectStrategy;
 	}
 
 	/**

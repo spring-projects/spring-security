@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header.writers;
 
-import org.springframework.security.web.header.HeaderWriter;
-import org.springframework.util.Assert;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+
+import org.springframework.security.web.header.HeaderWriter;
+import org.springframework.util.Assert;
 
 /**
  * A {@link HeaderWriter} that delegates to several other {@link HeaderWriter}s.
@@ -34,9 +36,8 @@ public class CompositeHeaderWriter implements HeaderWriter {
 
 	/**
 	 * Creates a new instance.
-	 *
 	 * @param headerWriters the {@link HeaderWriter} instances to write out headers to the
-	 *                      {@link HttpServletResponse}.
+	 * {@link HttpServletResponse}.
 	 */
 	public CompositeHeaderWriter(List<HeaderWriter> headerWriters) {
 		Assert.notEmpty(headerWriters, "headerWriters cannot be empty");
@@ -45,6 +46,7 @@ public class CompositeHeaderWriter implements HeaderWriter {
 
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		this.headerWriters.forEach(headerWriter -> headerWriter.writeHeaders(request, response));
+		this.headerWriters.forEach((headerWriter) -> headerWriter.writeHeaders(request, response));
 	}
+
 }

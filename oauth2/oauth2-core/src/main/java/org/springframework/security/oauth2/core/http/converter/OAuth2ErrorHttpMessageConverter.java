@@ -13,7 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.http.converter;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
@@ -30,25 +37,20 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 /**
  * A {@link HttpMessageConverter} for an {@link OAuth2Error OAuth 2.0 Error}.
  *
- * @see AbstractHttpMessageConverter
- * @see OAuth2Error
  * @author Joe Grandja
  * @since 5.1
+ * @see AbstractHttpMessageConverter
+ * @see OAuth2Error
  */
 public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverter<OAuth2Error> {
+
 	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-	private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_RESPONSE_TYPE =
-			new ParameterizedTypeReference<Map<String, Object>>() {};
+	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
+	};
 
 	private GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters.getJsonMessageConverter();
 
@@ -66,44 +68,42 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected OAuth2Error readInternal(Class<? extends OAuth2Error> clazz, HttpInputMessage inputMessage)
 			throws HttpMessageNotReadableException {
-
 		try {
-			// gh-8157
-			// Parse parameter values as Object in order to handle potential JSON Object and then convert values to String
-			@SuppressWarnings("unchecked")
-			Map<String, Object> errorParameters = (Map<String, Object>) this.jsonMessageConverter.read(
-					PARAMETERIZED_RESPONSE_TYPE.getType(), null, inputMessage);
-			return this.errorConverter.convert(
-					errorParameters.entrySet().stream()
-							.collect(Collectors.toMap(
-									Map.Entry::getKey,
-									entry -> String.valueOf(entry.getValue()))));
-		} catch (Exception ex) {
-			throw new HttpMessageNotReadableException("An error occurred reading the OAuth 2.0 Error: " +
-					ex.getMessage(), ex, inputMessage);
+			// gh-8157: Parse parameter values as Object in order to handle potential JSON
+			// Object and then convert values to String
+			Map<String, Object> errorParameters = (Map<String, Object>) this.jsonMessageConverter
+					.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
+			return this.errorConverter.convert(errorParameters.entrySet().stream()
+					.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> String.valueOf(entry.getValue()))));
+		}
+		catch (Exception ex) {
+			throw new HttpMessageNotReadableException(
+					"An error occurred reading the OAuth 2.0 Error: " + ex.getMessage(), ex, inputMessage);
 		}
 	}
 
 	@Override
 	protected void writeInternal(OAuth2Error oauth2Error, HttpOutputMessage outputMessage)
 			throws HttpMessageNotWritableException {
-
 		try {
 			Map<String, String> errorParameters = this.errorParametersConverter.convert(oauth2Error);
-			this.jsonMessageConverter.write(
-					errorParameters, PARAMETERIZED_RESPONSE_TYPE.getType(), MediaType.APPLICATION_JSON, outputMessage);
-		} catch (Exception ex) {
-			throw new HttpMessageNotWritableException("An error occurred writing the OAuth 2.0 Error: " + ex.getMessage(), ex);
+			this.jsonMessageConverter.write(errorParameters, STRING_OBJECT_MAP.getType(), MediaType.APPLICATION_JSON,
+					outputMessage);
+		}
+		catch (Exception ex) {
+			throw new HttpMessageNotWritableException(
+					"An error occurred writing the OAuth 2.0 Error: " + ex.getMessage(), ex);
 		}
 	}
 
 	/**
-	 * Sets the {@link Converter} used for converting the OAuth 2.0 Error parameters
-	 * to an {@link OAuth2Error}.
-	 *
-	 * @param errorConverter the {@link Converter} used for converting to an {@link OAuth2Error}
+	 * Sets the {@link Converter} used for converting the OAuth 2.0 Error parameters to an
+	 * {@link OAuth2Error}.
+	 * @param errorConverter the {@link Converter} used for converting to an
+	 * {@link OAuth2Error}
 	 */
 	public final void setErrorConverter(Converter<Map<String, String>, OAuth2Error> errorConverter) {
 		Assert.notNull(errorConverter, "errorConverter cannot be null");
@@ -111,19 +111,20 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 	}
 
 	/**
-	 * Sets the {@link Converter} used for converting the {@link OAuth2Error}
-	 * to a {@code Map} representation of the OAuth 2.0 Error parameters.
-	 *
-	 * @param errorParametersConverter the {@link Converter} used for converting to a {@code Map} representation of the Error parameters
+	 * Sets the {@link Converter} used for converting the {@link OAuth2Error} to a
+	 * {@code Map} representation of the OAuth 2.0 Error parameters.
+	 * @param errorParametersConverter the {@link Converter} used for converting to a
+	 * {@code Map} representation of the Error parameters
 	 */
-	public final void setErrorParametersConverter(Converter<OAuth2Error, Map<String, String>> errorParametersConverter) {
+	public final void setErrorParametersConverter(
+			Converter<OAuth2Error, Map<String, String>> errorParametersConverter) {
 		Assert.notNull(errorParametersConverter, "errorParametersConverter cannot be null");
 		this.errorParametersConverter = errorParametersConverter;
 	}
 
 	/**
-	 * A {@link Converter} that converts the provided
-	 * OAuth 2.0 Error parameters to an {@link OAuth2Error}.
+	 * A {@link Converter} that converts the provided OAuth 2.0 Error parameters to an
+	 * {@link OAuth2Error}.
 	 */
 	private static class OAuth2ErrorConverter implements Converter<Map<String, String>, OAuth2Error> {
 
@@ -132,21 +133,20 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 			String errorCode = parameters.get(OAuth2ParameterNames.ERROR);
 			String errorDescription = parameters.get(OAuth2ParameterNames.ERROR_DESCRIPTION);
 			String errorUri = parameters.get(OAuth2ParameterNames.ERROR_URI);
-
 			return new OAuth2Error(errorCode, errorDescription, errorUri);
 		}
+
 	}
 
 	/**
-	 * A {@link Converter} that converts the provided {@link OAuth2Error}
-	 * to a {@code Map} representation of OAuth 2.0 Error parameters.
+	 * A {@link Converter} that converts the provided {@link OAuth2Error} to a {@code Map}
+	 * representation of OAuth 2.0 Error parameters.
 	 */
 	private static class OAuth2ErrorParametersConverter implements Converter<OAuth2Error, Map<String, String>> {
 
 		@Override
 		public Map<String, String> convert(OAuth2Error oauth2Error) {
 			Map<String, String> parameters = new HashMap<>();
-
 			parameters.put(OAuth2ParameterNames.ERROR, oauth2Error.getErrorCode());
 			if (StringUtils.hasText(oauth2Error.getDescription())) {
 				parameters.put(OAuth2ParameterNames.ERROR_DESCRIPTION, oauth2Error.getDescription());
@@ -154,8 +154,9 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 			if (StringUtils.hasText(oauth2Error.getUri())) {
 				parameters.put(OAuth2ParameterNames.ERROR_URI, oauth2Error.getUri());
 			}
-
 			return parameters;
 		}
+
 	}
+
 }

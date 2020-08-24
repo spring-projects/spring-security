@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.doc;
 
-import org.springframework.core.io.ClassPathResource;
+package org.springframework.security.config.doc;
 
 import java.io.IOException;
 import java.util.Map;
+
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * Support for ensuring preparing the givens in {@link XsdDocumentedTests}
@@ -26,12 +27,12 @@ import java.util.Map;
  * @author Josh Cummings
  */
 public class XmlSupport {
+
 	private XmlParser parser;
 
 	public XmlNode parse(String location) throws IOException {
 		ClassPathResource resource = new ClassPathResource(location);
 		this.parser = new XmlParser(resource.getInputStream());
-
 		return this.parser.parse();
 	}
 
@@ -41,8 +42,9 @@ public class XmlSupport {
 	}
 
 	public void close() throws IOException {
-		if ( this.parser != null ) {
+		if (this.parser != null) {
 			this.parser.close();
 		}
 	}
+
 }

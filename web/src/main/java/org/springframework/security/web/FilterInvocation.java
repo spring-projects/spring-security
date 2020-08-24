@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.Assert;
 
 /**
  * Holds objects associated with a HTTP filter.
@@ -53,28 +54,19 @@ import org.springframework.security.web.util.UrlUtils;
  * @author Rob Winch
  */
 public class FilterInvocation {
-	// ~ Static fields
-	// ==================================================================================================
+
 	static final FilterChain DUMMY_CHAIN = (req, res) -> {
 		throw new UnsupportedOperationException("Dummy filter chain");
 	};
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private FilterChain chain;
+
 	private HttpServletRequest request;
+
 	private HttpServletResponse response;
 
-	// ~ Constructors
-	// ===================================================================================================
-
-	public FilterInvocation(ServletRequest request, ServletResponse response,
-			FilterChain chain) {
-		if ((request == null) || (response == null) || (chain == null)) {
-			throw new IllegalArgumentException("Cannot pass null values to constructor");
-		}
-
+	public FilterInvocation(ServletRequest request, ServletResponse response, FilterChain chain) {
+		Assert.isTrue(request != null && response != null && chain != null, "Cannot pass null values to constructor");
 		this.request = (HttpServletRequest) request;
 		this.response = (HttpServletResponse) response;
 		this.chain = chain;
@@ -88,24 +80,17 @@ public class FilterInvocation {
 		this(contextPath, servletPath, null, null, method);
 	}
 
-	public FilterInvocation(String contextPath, String servletPath, String pathInfo,
-			String query, String method) {
+	public FilterInvocation(String contextPath, String servletPath, String pathInfo, String query, String method) {
 		DummyRequest request = new DummyRequest();
-		if (contextPath == null) {
-			contextPath = "/cp";
-		}
+		contextPath = (contextPath != null) ? contextPath : "/cp";
 		request.setContextPath(contextPath);
 		request.setServletPath(servletPath);
-		request.setRequestURI(
-				contextPath + servletPath + (pathInfo == null ? "" : pathInfo));
+		request.setRequestURI(contextPath + servletPath + ((pathInfo != null) ? pathInfo : ""));
 		request.setPathInfo(pathInfo);
 		request.setQueryString(query);
 		request.setMethod(method);
 		this.request = request;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public FilterChain getChain() {
 		return this.chain;
@@ -116,7 +101,6 @@ public class FilterInvocation {
 	 * <p>
 	 * The returned URL does <b>not</b> reflect the port number determined from a
 	 * {@link org.springframework.security.web.PortResolver}.
-	 *
 	 * @return the full URL of this request
 	 */
 	public String getFullRequestUrl() {
@@ -133,7 +117,6 @@ public class FilterInvocation {
 
 	/**
 	 * Obtains the web application-specific fragment of the URL.
-	 *
 	 * @return the URL, excluding any server name, context path or servlet path
 	 */
 	public String getRequestUrl() {
@@ -152,188 +135,191 @@ public class FilterInvocation {
 	public String toString() {
 		return "FilterInvocation: URL: " + getRequestUrl();
 	}
-}
 
-class DummyRequest extends HttpServletRequestWrapper {
-	private static final HttpServletRequest UNSUPPORTED_REQUEST = (HttpServletRequest) Proxy
-			.newProxyInstance(DummyRequest.class.getClassLoader(),
-					new Class[] { HttpServletRequest.class },
-					new UnsupportedOperationExceptionInvocationHandler());
+	static class DummyRequest extends HttpServletRequestWrapper {
 
-	private String requestURI;
-	private String contextPath = "";
-	private String servletPath;
-	private String pathInfo;
-	private String queryString;
-	private String method;
-	private final HttpHeaders headers = new HttpHeaders();
-	private final Map<String, String[]> parameters = new LinkedHashMap<>();
+		private static final HttpServletRequest UNSUPPORTED_REQUEST = (HttpServletRequest) Proxy.newProxyInstance(
+				DummyRequest.class.getClassLoader(), new Class[] { HttpServletRequest.class },
+				new UnsupportedOperationExceptionInvocationHandler());
 
-	DummyRequest() {
-		super(UNSUPPORTED_REQUEST);
-	}
+		private String requestURI;
 
-	public String getCharacterEncoding() {
-		return "UTF-8";
-	}
+		private String contextPath = "";
 
-	public Object getAttribute(String attributeName) {
-		return null;
-	}
+		private String servletPath;
 
-	public void setRequestURI(String requestURI) {
-		this.requestURI = requestURI;
-	}
+		private String pathInfo;
 
-	public void setPathInfo(String pathInfo) {
-		this.pathInfo = pathInfo;
-	}
+		private String queryString;
 
-	@Override
-	public String getRequestURI() {
-		return this.requestURI;
-	}
+		private String method;
 
-	public void setContextPath(String contextPath) {
-		this.contextPath = contextPath;
-	}
+		private final HttpHeaders headers = new HttpHeaders();
 
-	@Override
-	public String getContextPath() {
-		return this.contextPath;
-	}
+		private final Map<String, String[]> parameters = new LinkedHashMap<>();
 
-	public void setServletPath(String servletPath) {
-		this.servletPath = servletPath;
-	}
-
-	@Override
-	public String getServletPath() {
-		return this.servletPath;
-	}
-
-	public void setMethod(String method) {
-		this.method = method;
-	}
-
-	@Override
-	public String getMethod() {
-		return this.method;
-	}
-
-	@Override
-	public String getPathInfo() {
-		return this.pathInfo;
-	}
-
-	@Override
-	public String getQueryString() {
-		return this.queryString;
-	}
-
-	public void setQueryString(String queryString) {
-		this.queryString = queryString;
-	}
-
-	@Override
-	public String getServerName() {
-		return null;
-	}
-
-	@Override
-	public String getHeader(String name) {
-		return this.headers.getFirst(name);
-	}
-
-	@Override
-	public Enumeration<String> getHeaders(String name) {
-		return Collections.enumeration(this.headers.get(name));
-	}
-
-	@Override
-	public Enumeration<String> getHeaderNames() {
-		return Collections.enumeration(this.headers.keySet());
-	}
-
-	@Override
-	public int getIntHeader(String name) {
-		String value = this.headers.getFirst(name);
-		if (value == null ) {
-			return -1;
+		DummyRequest() {
+			super(UNSUPPORTED_REQUEST);
 		}
-		else {
+
+		@Override
+		public String getCharacterEncoding() {
+			return "UTF-8";
+		}
+
+		@Override
+		public Object getAttribute(String attributeName) {
+			return null;
+		}
+
+		void setRequestURI(String requestURI) {
+			this.requestURI = requestURI;
+		}
+
+		void setPathInfo(String pathInfo) {
+			this.pathInfo = pathInfo;
+		}
+
+		@Override
+		public String getRequestURI() {
+			return this.requestURI;
+		}
+
+		void setContextPath(String contextPath) {
+			this.contextPath = contextPath;
+		}
+
+		@Override
+		public String getContextPath() {
+			return this.contextPath;
+		}
+
+		void setServletPath(String servletPath) {
+			this.servletPath = servletPath;
+		}
+
+		@Override
+		public String getServletPath() {
+			return this.servletPath;
+		}
+
+		void setMethod(String method) {
+			this.method = method;
+		}
+
+		@Override
+		public String getMethod() {
+			return this.method;
+		}
+
+		@Override
+		public String getPathInfo() {
+			return this.pathInfo;
+		}
+
+		@Override
+		public String getQueryString() {
+			return this.queryString;
+		}
+
+		void setQueryString(String queryString) {
+			this.queryString = queryString;
+		}
+
+		@Override
+		public String getServerName() {
+			return null;
+		}
+
+		@Override
+		public String getHeader(String name) {
+			return this.headers.getFirst(name);
+		}
+
+		@Override
+		public Enumeration<String> getHeaders(String name) {
+			return Collections.enumeration(this.headers.get(name));
+		}
+
+		@Override
+		public Enumeration<String> getHeaderNames() {
+			return Collections.enumeration(this.headers.keySet());
+		}
+
+		@Override
+		public int getIntHeader(String name) {
+			String value = this.headers.getFirst(name);
+			if (value == null) {
+				return -1;
+			}
 			return Integer.parseInt(value);
 		}
-	}
 
-	public void addHeader(String name, String value) {
-		this.headers.add(name, value);
-	}
-
-	@Override
-	public String getParameter(String name) {
-		String[] arr = this.parameters.get(name);
-		return (arr != null && arr.length > 0 ? arr[0] : null);
-	}
-
-	@Override
-	public Map<String, String[]> getParameterMap() {
-		return Collections.unmodifiableMap(this.parameters);
-	}
-
-	@Override
-	public Enumeration<String> getParameterNames() {
-		return Collections.enumeration(this.parameters.keySet());
-	}
-
-	@Override
-	public String[] getParameterValues(String name) {
-		return this.parameters.get(name);
-	}
-
-	public void setParameter(String name, String... values) {
-		this.parameters.put(name, values);
-	}
-}
-
-final class UnsupportedOperationExceptionInvocationHandler implements InvocationHandler {
-	private static final float JAVA_VERSION = Float.parseFloat(System.getProperty("java.class.version", "52"));
-
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		if (method.isDefault()) {
-			return invokeDefaultMethod(proxy, method, args);
+		void addHeader(String name, String value) {
+			this.headers.add(name, value);
 		}
-		throw new UnsupportedOperationException(method + " is not supported");
-	}
 
-	private Object invokeDefaultMethod(Object proxy, Method method, Object[] args) throws Throwable {
-		if (isJdk8OrEarlier()) {
-			return invokeDefaultMethodForJdk8(proxy, method, args);
+		@Override
+		public String getParameter(String name) {
+			String[] array = this.parameters.get(name);
+			return (array != null && array.length > 0) ? array[0] : null;
 		}
-		return MethodHandles.lookup()
-				.findSpecial(
-					method.getDeclaringClass(),
-					method.getName(),
-					MethodType.methodType(method.getReturnType(), new Class[0]),
-					method.getDeclaringClass()
-				)
-				.bindTo(proxy)
-				.invokeWithArguments(args);
+
+		@Override
+		public Map<String, String[]> getParameterMap() {
+			return Collections.unmodifiableMap(this.parameters);
+		}
+
+		@Override
+		public Enumeration<String> getParameterNames() {
+			return Collections.enumeration(this.parameters.keySet());
+		}
+
+		@Override
+		public String[] getParameterValues(String name) {
+			return this.parameters.get(name);
+		}
+
+		void setParameter(String name, String... values) {
+			this.parameters.put(name, values);
+		}
+
 	}
 
-	private Object invokeDefaultMethodForJdk8(Object proxy, Method method, Object[] args) throws Throwable {
-		Constructor<Lookup> constructor = Lookup.class.getDeclaredConstructor(Class.class);
-		constructor.setAccessible(true);
+	static final class UnsupportedOperationExceptionInvocationHandler implements InvocationHandler {
 
-		Class<?> clazz = method.getDeclaringClass();
-		return constructor.newInstance(clazz)
-				.in(clazz)
-				.unreflectSpecial(method, clazz)
-				.bindTo(proxy)
-				.invokeWithArguments(args);
+		private static final float JAVA_VERSION = Float.parseFloat(System.getProperty("java.class.version", "52"));
+
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			if (method.isDefault()) {
+				return invokeDefaultMethod(proxy, method, args);
+			}
+			throw new UnsupportedOperationException(method + " is not supported");
+		}
+
+		private Object invokeDefaultMethod(Object proxy, Method method, Object[] args) throws Throwable {
+			if (isJdk8OrEarlier()) {
+				return invokeDefaultMethodForJdk8(proxy, method, args);
+			}
+			return MethodHandles.lookup()
+					.findSpecial(method.getDeclaringClass(), method.getName(),
+							MethodType.methodType(method.getReturnType(), new Class[0]), method.getDeclaringClass())
+					.bindTo(proxy).invokeWithArguments(args);
+		}
+
+		private Object invokeDefaultMethodForJdk8(Object proxy, Method method, Object[] args) throws Throwable {
+			Constructor<Lookup> constructor = Lookup.class.getDeclaredConstructor(Class.class);
+			constructor.setAccessible(true);
+			Class<?> clazz = method.getDeclaringClass();
+			return constructor.newInstance(clazz).in(clazz).unreflectSpecial(method, clazz).bindTo(proxy)
+					.invokeWithArguments(args);
+		}
+
+		private boolean isJdk8OrEarlier() {
+			return JAVA_VERSION <= 52;
+		}
+
 	}
 
-	private boolean isJdk8OrEarlier() {
-		return JAVA_VERSION <= 52;
-	}
 }

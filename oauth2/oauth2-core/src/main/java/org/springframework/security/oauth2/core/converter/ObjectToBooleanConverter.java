@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.core.converter;
 
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.convert.converter.GenericConverter;
+package org.springframework.security.oauth2.core.converter;
 
 import java.util.Collections;
 import java.util.Set;
+
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.GenericConverter;
 
 /**
  * @author Joe Grandja
@@ -42,4 +43,5 @@ final class ObjectToBooleanConverter implements GenericConverter {
 		}
 		return Boolean.valueOf(source.toString());
 	}
+
 }

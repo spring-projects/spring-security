@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.authentication.configuration;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Configuration;
@@ -81,10 +84,11 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
  * @author Rob Winch
  *
  */
-@Retention(value = java.lang.annotation.RetentionPolicy.RUNTIME)
-@Target(value = { java.lang.annotation.ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 @Documented
 @Import(AuthenticationConfiguration.class)
 @Configuration
 public @interface EnableGlobalAuthentication {
+
 }

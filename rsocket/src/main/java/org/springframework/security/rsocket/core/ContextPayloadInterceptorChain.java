@@ -16,18 +16,20 @@
 
 package org.springframework.security.rsocket.core;
 
-import org.springframework.security.rsocket.api.PayloadExchange;
-import org.springframework.security.rsocket.api.PayloadInterceptor;
-import org.springframework.security.rsocket.api.PayloadInterceptorChain;
-import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
-
 import java.util.List;
 import java.util.ListIterator;
 
+import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
+
+import org.springframework.security.rsocket.api.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadInterceptor;
+import org.springframework.security.rsocket.api.PayloadInterceptorChain;
+
 /**
- * A {@link PayloadInterceptorChain} which exposes the Reactor {@link Context} via a member variable.
- * This class is not Thread safe, so a new instance must be created for each Thread.
+ * A {@link PayloadInterceptorChain} which exposes the Reactor {@link Context} via a
+ * member variable. This class is not Thread safe, so a new instance must be created for
+ * each Thread.
  *
  * Internally {@code ContextPayloadInterceptorChain} is used to ensure that the Reactor
  * {@code Context} is captured so it can be transferred to subscribers outside of this
@@ -71,14 +73,10 @@ class ContextPayloadInterceptorChain implements PayloadInterceptorChain {
 		this.next = next;
 	}
 
+	@Override
 	public Mono<Void> next(PayloadExchange exchange) {
-		return Mono.defer(() ->
-				shouldIntercept() ?
-						this.currentInterceptor.intercept(exchange, this.next) :
-						Mono.subscriberContext()
-							.doOnNext(c -> this.context = c)
-							.then()
-		);
+		return Mono.defer(() -> shouldIntercept() ? this.currentInterceptor.intercept(exchange, this.next)
+				: Mono.subscriberContext().doOnNext((c) -> this.context = c).then());
 	}
 
 	Context getContext() {
@@ -96,4 +94,5 @@ class ContextPayloadInterceptorChain implements PayloadInterceptorChain {
 	public String toString() {
 		return getClass().getSimpleName() + "[currentInterceptor=" + this.currentInterceptor + "]";
 	}
+
 }

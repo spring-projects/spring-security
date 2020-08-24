@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.web.server;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
@@ -29,24 +31,23 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
 
 /**
- * Converts from a {@link ServerWebExchange} to an {@link OAuth2AuthorizationCodeAuthenticationToken} that can be authenticated. The
+ * Converts from a {@link ServerWebExchange} to an
+ * {@link OAuth2AuthorizationCodeAuthenticationToken} that can be authenticated. The
  * converter does not validate any errors it only performs a conversion.
+ *
  * @author Rob Winch
  * @since 5.1
  * @see org.springframework.security.web.server.authentication.AuthenticationWebFilter#setServerAuthenticationConverter(ServerAuthenticationConverter)
  */
-public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter
-		implements ServerAuthenticationConverter {
+public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter implements ServerAuthenticationConverter {
 
 	static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 
 	static final String CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE = "client_registration_not_found";
 
-	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
-			new WebSessionOAuth2ServerAuthorizationRequestRepository();
+	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
 
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
@@ -69,9 +70,11 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter
 
 	@Override
 	public Mono<Authentication> convert(ServerWebExchange serverWebExchange) {
+		// @formatter:off
 		return this.authorizationRequestRepository.removeAuthorizationRequest(serverWebExchange)
-			.switchIfEmpty(oauth2AuthorizationException(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE))
-			.flatMap(authorizationRequest -> authenticationRequest(serverWebExchange, authorizationRequest));
+				.switchIfEmpty(oauth2AuthorizationException(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE))
+				.flatMap((authorizationRequest) -> authenticationRequest(serverWebExchange, authorizationRequest));
+		// @formatter:on
 	}
 
 	private <T> Mono<T> oauth2AuthorizationException(String errorCode) {
@@ -81,10 +84,11 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter
 		});
 	}
 
-	private Mono<OAuth2AuthorizationCodeAuthenticationToken> authenticationRequest(ServerWebExchange exchange, OAuth2AuthorizationRequest authorizationRequest) {
+	private Mono<OAuth2AuthorizationCodeAuthenticationToken> authenticationRequest(ServerWebExchange exchange,
+			OAuth2AuthorizationRequest authorizationRequest) {
+		// @formatter:off
 		return Mono.just(authorizationRequest)
-				.map(OAuth2AuthorizationRequest::getAttributes)
-				.flatMap(attributes -> {
+				.map(OAuth2AuthorizationRequest::getAttributes).flatMap((attributes) -> {
 					String id = (String) attributes.get(OAuth2ParameterNames.REGISTRATION_ID);
 					if (id == null) {
 						return oauth2AuthorizationException(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
@@ -92,19 +96,19 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter
 					return this.clientRegistrationRepository.findByRegistrationId(id);
 				})
 				.switchIfEmpty(oauth2AuthorizationException(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE))
-				.map(clientRegistration -> {
+				.map((clientRegistration) -> {
 					OAuth2AuthorizationResponse authorizationResponse = convertResponse(exchange);
 					OAuth2AuthorizationCodeAuthenticationToken authenticationRequest = new OAuth2AuthorizationCodeAuthenticationToken(
-							clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
+							clientRegistration,
+							new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
 					return authenticationRequest;
 				});
+		// @formatter:on
 	}
 
 	private static OAuth2AuthorizationResponse convertResponse(ServerWebExchange exchange) {
-		String redirectUri = UriComponentsBuilder.fromUri(exchange.getRequest().getURI())
-				.build()
-				.toUriString();
-		return OAuth2AuthorizationResponseUtils
-				.convert(exchange.getRequest().getQueryParams(), redirectUri);
+		String redirectUri = UriComponentsBuilder.fromUri(exchange.getRequest().getURI()).build().toUriString();
+		return OAuth2AuthorizationResponseUtils.convert(exchange.getRequest().getQueryParams(), redirectUri);
 	}
+
 }

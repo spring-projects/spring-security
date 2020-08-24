@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
@@ -24,11 +25,12 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 
@@ -45,13 +47,16 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.0
  */
-public class SimpleUrlAuthenticationFailureHandler implements
-		AuthenticationFailureHandler {
+public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFailureHandler {
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private String defaultFailureUrl;
+
 	private boolean forwardToDestination = false;
+
 	private boolean allowSessionCreation = true;
+
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	public SimpleUrlAuthenticationFailureHandler() {
@@ -68,29 +73,22 @@ public class SimpleUrlAuthenticationFailureHandler implements
 	 * If redirecting or forwarding, {@code saveException} will be called to cache the
 	 * exception for use in the target view.
 	 */
-	public void onAuthenticationFailure(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException exception)
-			throws IOException, ServletException {
-
-		if (defaultFailureUrl == null) {
-			logger.debug("No failure URL set, sending 401 Unauthorized error");
-
-			response.sendError(HttpStatus.UNAUTHORIZED.value(),
-				HttpStatus.UNAUTHORIZED.getReasonPhrase());
+	@Override
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) throws IOException, ServletException {
+		if (this.defaultFailureUrl == null) {
+			this.logger.debug("No failure URL set, sending 401 Unauthorized error");
+			response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
+			return;
+		}
+		saveException(request, exception);
+		if (this.forwardToDestination) {
+			this.logger.debug("Forwarding to " + this.defaultFailureUrl);
+			request.getRequestDispatcher(this.defaultFailureUrl).forward(request, response);
 		}
 		else {
-			saveException(request, exception);
-
-			if (forwardToDestination) {
-				logger.debug("Forwarding to " + defaultFailureUrl);
-
-				request.getRequestDispatcher(defaultFailureUrl)
-						.forward(request, response);
-			}
-			else {
-				logger.debug("Redirecting to " + defaultFailureUrl);
-				redirectStrategy.sendRedirect(request, response, defaultFailureUrl);
-			}
+			this.logger.debug("Redirecting to " + this.defaultFailureUrl);
+			this.redirectStrategy.sendRedirect(request, response, this.defaultFailureUrl);
 		}
 	}
 
@@ -102,24 +100,19 @@ public class SimpleUrlAuthenticationFailureHandler implements
 	 * session and {@code allowSessionCreation} is {@code true} a session will be created.
 	 * Otherwise the exception will not be stored.
 	 */
-	protected final void saveException(HttpServletRequest request,
-			AuthenticationException exception) {
-		if (forwardToDestination) {
+	protected final void saveException(HttpServletRequest request, AuthenticationException exception) {
+		if (this.forwardToDestination) {
 			request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);
+			return;
 		}
-		else {
-			HttpSession session = request.getSession(false);
-
-			if (session != null || allowSessionCreation) {
-				request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION,
-						exception);
-			}
+		HttpSession session = request.getSession(false);
+		if (session != null || this.allowSessionCreation) {
+			request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);
 		}
 	}
 
 	/**
 	 * The URL which will be used as the failure destination.
-	 *
 	 * @param defaultFailureUrl the failure URL, for example "/loginFailed.jsp".
 	 */
 	public void setDefaultFailureUrl(String defaultFailureUrl) {
@@ -129,7 +122,7 @@ public class SimpleUrlAuthenticationFailureHandler implements
 	}
 
 	protected boolean isUseForward() {
-		return forwardToDestination;
+		return this.forwardToDestination;
 	}
 
 	/**
@@ -148,14 +141,15 @@ public class SimpleUrlAuthenticationFailureHandler implements
 	}
 
 	protected RedirectStrategy getRedirectStrategy() {
-		return redirectStrategy;
+		return this.redirectStrategy;
 	}
 
 	protected boolean isAllowSessionCreation() {
-		return allowSessionCreation;
+		return this.allowSessionCreation;
 	}
 
 	public void setAllowSessionCreation(boolean allowSessionCreation) {
 		this.allowSessionCreation = allowSessionCreation;
 	}
+
 }

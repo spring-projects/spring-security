@@ -16,8 +16,12 @@
 
 package org.springframework.security.oauth2.server.resource.web.access;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -25,11 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 
-import java.util.Collections;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Tests for {@link BearerTokenAccessDeniedHandlerTests}
@@ -37,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * @author Josh Cummings
  */
 public class BearerTokenAccessDeniedHandlerTests {
+
 	private BearerTokenAccessDeniedHandler accessDeniedHandler;
 
 	@Before
@@ -45,34 +46,24 @@ public class BearerTokenAccessDeniedHandlerTests {
 	}
 
 	@Test
-	public void handleWhenNotOAuth2AuthenticatedThenStatus403()
-			throws Exception {
-
+	public void handleWhenNotOAuth2AuthenticatedThenStatus403() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		Authentication authentication = new TestingAuthenticationToken("user", "pass");
 		request.setUserPrincipal(authentication);
-
 		this.accessDeniedHandler.handle(request, response, null);
-
 		assertThat(response.getStatus()).isEqualTo(403);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer");
 	}
 
 	@Test
-	public void handleWhenNotOAuth2AuthenticatedAndRealmSetThenStatus403AndAuthHeaderWithRealm()
-			throws Exception {
-
+	public void handleWhenNotOAuth2AuthenticatedAndRealmSetThenStatus403AndAuthHeaderWithRealm() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		Authentication authentication = new TestingAuthenticationToken("user", "pass");
 		request.setUserPrincipal(authentication);
-
 		this.accessDeniedHandler.setRealmName("test");
 		this.accessDeniedHandler.handle(request, response, null);
-
 		assertThat(response.getStatus()).isEqualTo(403);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer realm=\"test\"");
 	}
@@ -80,25 +71,23 @@ public class BearerTokenAccessDeniedHandlerTests {
 	@Test
 	public void handleWhenOAuth2AuthenticatedThenStatus403AndAuthHeaderWithInsufficientScopeErrorAttribute()
 			throws Exception {
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		Authentication token = new TestingOAuth2TokenAuthenticationToken(Collections.emptyMap());
 		request.setUserPrincipal(token);
-
 		this.accessDeniedHandler.handle(request, response, null);
-
 		assertThat(response.getStatus()).isEqualTo(403);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\", " +
-				"error_description=\"The request requires higher privileges than provided by the access token.\", " +
-				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
+		// @formatter:off
+		assertThat(response.getHeader("WWW-Authenticate"))
+				.isEqualTo("Bearer error=\"insufficient_scope\", "
+						+ "error_description=\"The request requires higher privileges than provided by the access token.\", "
+						+ "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
+		// @formatter:on
 	}
 
 	@Test
 	public void setRealmNameWhenNullRealmNameThenNoExceptionThrown() {
-		assertThatCode(() -> this.accessDeniedHandler.setRealmName(null))
-				.doesNotThrowAnyException();
+		this.accessDeniedHandler.setRealmName(null);
 	}
 
 	static class TestingOAuth2TokenAuthenticationToken
@@ -117,9 +106,13 @@ public class BearerTokenAccessDeniedHandlerTests {
 		}
 
 		static class TestingOAuth2Token extends AbstractOAuth2Token {
+
 			TestingOAuth2Token(String tokenValue) {
 				super(tokenValue);
 			}
+
 		}
+
 	}
+
 }

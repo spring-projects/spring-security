@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication;
 
-import static org.mockito.Mockito.*;
+package org.springframework.security.web.authentication;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -31,8 +31,13 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:org/springframework/security/web/authentication/DelegatingAuthenticationEntryPointTest-context.xml")
+@ContextConfiguration(
+		locations = "classpath:org/springframework/security/web/authentication/DelegatingAuthenticationEntryPointTest-context.xml")
 public class DelegatingAuthenticationEntryPointContextTests {
 
 	@Autowired
@@ -52,11 +57,10 @@ public class DelegatingAuthenticationEntryPointContextTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRemoteAddr("192.168.1.10");
 		request.addHeader("User-Agent", "Mozilla/5.0");
-		daep.commence(request, null, null);
-		verify(firstAEP).commence(request, null, null);
-		verify(defaultAEP, never()).commence(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AuthenticationException.class));
-
+		this.daep.commence(request, null, null);
+		verify(this.firstAEP).commence(request, null, null);
+		verify(this.defaultAEP, never()).commence(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(AuthenticationException.class));
 	}
 
 	@Test
@@ -64,11 +68,10 @@ public class DelegatingAuthenticationEntryPointContextTests {
 	public void testDefaultAEP() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRemoteAddr("192.168.1.10");
-		daep.commence(request, null, null);
-		verify(defaultAEP).commence(request, null, null);
-		verify(firstAEP, never()).commence(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AuthenticationException.class));
-
+		this.daep.commence(request, null, null);
+		verify(this.defaultAEP).commence(request, null, null);
+		verify(this.firstAEP, never()).commence(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(AuthenticationException.class));
 	}
 
 }

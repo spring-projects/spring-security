@@ -16,21 +16,20 @@
 
 package org.springframework.security.taglibs.authz;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.util.TextEscapeUtils;
-
-import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.BeansException;
-import org.springframework.web.util.TagUtils;
-
 import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
+
+import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.BeansException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.TextEscapeUtils;
+import org.springframework.web.util.TagUtils;
 
 /**
  * An {@link javax.servlet.jsp.tagext.Tag} implementation that allows convenient access to
@@ -43,17 +42,15 @@ import javax.servlet.jsp.tagext.TagSupport;
  */
 public class AuthenticationTag extends TagSupport {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private String var;
-	private String property;
-	private int scope;
-	private boolean scopeSpecified;
-	private boolean htmlEscape = true;
 
-	// ~ Methods
-	// ========================================================================================================
+	private String property;
+
+	private int scope;
+
+	private boolean scopeSpecified;
+
+	private boolean htmlEscape = true;
 
 	public AuthenticationTag() {
 		init();
@@ -61,9 +58,9 @@ public class AuthenticationTag extends TagSupport {
 
 	// resets local state
 	private void init() {
-		var = null;
-		scopeSpecified = false;
-		scope = PageContext.PAGE_SCOPE;
+		this.var = null;
+		this.scopeSpecified = false;
+		this.scope = PageContext.PAGE_SCOPE;
 	}
 
 	public void setVar(String var) {
@@ -79,55 +76,53 @@ public class AuthenticationTag extends TagSupport {
 		this.scopeSpecified = true;
 	}
 
+	@Override
 	public int doStartTag() throws JspException {
 		return super.doStartTag();
 	}
 
+	@Override
 	public int doEndTag() throws JspException {
 		Object result = null;
 		// determine the value by...
-		if (property != null) {
+		if (this.property != null) {
 			if ((SecurityContextHolder.getContext() == null)
 					|| !(SecurityContextHolder.getContext() instanceof SecurityContext)
 					|| (SecurityContextHolder.getContext().getAuthentication() == null)) {
 				return Tag.EVAL_PAGE;
 			}
-
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
 			if (auth.getPrincipal() == null) {
 				return Tag.EVAL_PAGE;
 			}
-
 			try {
 				BeanWrapperImpl wrapper = new BeanWrapperImpl(auth);
-				result = wrapper.getPropertyValue(property);
+				result = wrapper.getPropertyValue(this.property);
 			}
-			catch (BeansException e) {
-				throw new JspException(e);
+			catch (BeansException ex) {
+				throw new JspException(ex);
 			}
 		}
-
-		if (var != null) {
+		if (this.var != null) {
 			/*
 			 * Store the result, letting an IllegalArgumentException propagate back if the
 			 * scope is invalid (e.g., if an attempt is made to store something in the
 			 * session without any HttpSession existing).
 			 */
 			if (result != null) {
-				pageContext.setAttribute(var, result, scope);
+				this.pageContext.setAttribute(this.var, result, this.scope);
 			}
 			else {
-				if (scopeSpecified) {
-					pageContext.removeAttribute(var, scope);
+				if (this.scopeSpecified) {
+					this.pageContext.removeAttribute(this.var, this.scope);
 				}
 				else {
-					pageContext.removeAttribute(var);
+					this.pageContext.removeAttribute(this.var);
 				}
 			}
 		}
 		else {
-			if (htmlEscape) {
+			if (this.htmlEscape) {
 				writeMessage(TextEscapeUtils.escapeEntities(String.valueOf(result)));
 			}
 			else {
@@ -139,7 +134,7 @@ public class AuthenticationTag extends TagSupport {
 
 	protected void writeMessage(String msg) throws JspException {
 		try {
-			pageContext.getOut().write(String.valueOf(msg));
+			this.pageContext.getOut().write(String.valueOf(msg));
 		}
 		catch (IOException ioe) {
 			throw new JspException(ioe);
@@ -158,6 +153,7 @@ public class AuthenticationTag extends TagSupport {
 	 * overridden.
 	 */
 	protected boolean isHtmlEscape() {
-		return htmlEscape;
+		return this.htmlEscape;
 	}
+
 }

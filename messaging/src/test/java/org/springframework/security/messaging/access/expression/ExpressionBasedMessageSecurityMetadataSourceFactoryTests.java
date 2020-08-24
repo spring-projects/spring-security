@@ -13,34 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.access.expression;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.springframework.security.messaging.access.expression.ExpressionBasedMessageSecurityMetadataSourceFactory.*;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.messaging.Message;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.messaging.access.intercept.MessageSecurityMetadataSource;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
+
 	@Mock
 	MessageMatcher<Object> matcher1;
+
 	@Mock
 	MessageMatcher<Object> matcher2;
+
 	@Mock
 	Message<Object> message;
+
 	@Mock
 	Authentication authentication;
 
@@ -56,49 +61,42 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 
 	@Before
 	public void setup() {
-		expression1 = "permitAll";
-		expression2 = "denyAll";
-		matcherToExpression = new LinkedHashMap<>();
-		matcherToExpression.put(matcher1, expression1);
-		matcherToExpression.put(matcher2, expression2);
-
-		source = createExpressionMessageMetadataSource(matcherToExpression);
-		rootObject = new MessageSecurityExpressionRoot(authentication, message);
+		this.expression1 = "permitAll";
+		this.expression2 = "denyAll";
+		this.matcherToExpression = new LinkedHashMap<>();
+		this.matcherToExpression.put(this.matcher1, this.expression1);
+		this.matcherToExpression.put(this.matcher2, this.expression2);
+		this.source = ExpressionBasedMessageSecurityMetadataSourceFactory
+				.createExpressionMessageMetadataSource(this.matcherToExpression);
+		this.rootObject = new MessageSecurityExpressionRoot(this.authentication, this.message);
 	}
 
 	@Test
 	public void createExpressionMessageMetadataSourceNoMatch() {
-
-		Collection<ConfigAttribute> attrs = source.getAttributes(message);
-
+		Collection<ConfigAttribute> attrs = this.source.getAttributes(this.message);
 		assertThat(attrs).isNull();
 	}
 
 	@Test
 	public void createExpressionMessageMetadataSourceMatchFirst() {
-		when(matcher1.matches(message)).thenReturn(true);
-
-		Collection<ConfigAttribute> attrs = source.getAttributes(message);
-
+		given(this.matcher1.matches(this.message)).willReturn(true);
+		Collection<ConfigAttribute> attrs = this.source.getAttributes(this.message);
 		assertThat(attrs).hasSize(1);
 		ConfigAttribute attr = attrs.iterator().next();
 		assertThat(attr).isInstanceOf(MessageExpressionConfigAttribute.class);
-		assertThat(
-				((MessageExpressionConfigAttribute) attr).getAuthorizeExpression()
-						.getValue(rootObject)).isEqualTo(true);
+		assertThat(((MessageExpressionConfigAttribute) attr).getAuthorizeExpression().getValue(this.rootObject))
+				.isEqualTo(true);
 	}
 
 	@Test
 	public void createExpressionMessageMetadataSourceMatchSecond() {
-		when(matcher2.matches(message)).thenReturn(true);
-
-		Collection<ConfigAttribute> attrs = source.getAttributes(message);
-
+		given(this.matcher2.matches(this.message)).willReturn(true);
+		Collection<ConfigAttribute> attrs = this.source.getAttributes(this.message);
 		assertThat(attrs).hasSize(1);
 		ConfigAttribute attr = attrs.iterator().next();
 		assertThat(attr).isInstanceOf(MessageExpressionConfigAttribute.class);
-		assertThat(
-				((MessageExpressionConfigAttribute) attr).getAuthorizeExpression()
-						.getValue(rootObject)).isEqualTo(false);
+		assertThat(((MessageExpressionConfigAttribute) attr).getAuthorizeExpression().getValue(this.rootObject))
+				.isEqualTo(false);
 	}
+
 }

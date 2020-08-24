@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication.logout;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+package org.springframework.security.web.authentication.logout;
 
 import javax.servlet.http.Cookie;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Luke Taylor
@@ -51,8 +53,7 @@ public class CookieClearingLogoutHandlerTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setContextPath("/app");
-		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler(
-				"my_cookie", "my_cookie_too");
+		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie", "my_cookie_too");
 		handler.logout(request, response, mock(Authentication.class));
 		assertThat(response.getCookies()).hasSize(2);
 		for (Cookie c : response.getCookies()) {
@@ -106,7 +107,7 @@ public class CookieClearingLogoutHandlerTests {
 		}
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void invalidAge() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -117,4 +118,5 @@ public class CookieClearingLogoutHandlerTests {
 		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler(cookie1);
 		handler.logout(request, response, mock(Authentication.class));
 	}
+
 }

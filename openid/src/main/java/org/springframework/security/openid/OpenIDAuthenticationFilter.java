@@ -16,7 +16,22 @@
 
 package org.springframework.security.openid;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.openid4java.consumer.ConsumerException;
+
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -24,15 +39,6 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.*;
 
 /**
  * Filter which processes OpenID authentication requests.
@@ -59,58 +65,47 @@ import java.util.*;
  * where it should (normally) be processed by an <tt>OpenIDAuthenticationProvider</tt> in
  * order to load the authorities for the user.
  *
- * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
  * @author Robin Bramley
  * @author Ray Krueger
  * @author Luke Taylor
  * @since 2.0
  * @see OpenIDAuthenticationProvider
+ * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-	// ~ Static fields/initializers
-	// =====================================================================================
 
 	public static final String DEFAULT_CLAIMED_IDENTITY_FIELD = "openid_identifier";
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private OpenIDConsumer consumer;
-	private String claimedIdentityFieldName = DEFAULT_CLAIMED_IDENTITY_FIELD;
-	private Map<String, String> realmMapping = Collections.emptyMap();
-	private Set<String> returnToUrlParameters = Collections.emptySet();
 
-	// ~ Constructors
-	// ===================================================================================================
+	private String claimedIdentityFieldName = DEFAULT_CLAIMED_IDENTITY_FIELD;
+
+	private Map<String, String> realmMapping = Collections.emptyMap();
+
+	private Set<String> returnToUrlParameters = Collections.emptySet();
 
 	public OpenIDAuthenticationFilter() {
 		super("/login/openid");
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Override
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();
-
-		if (consumer == null) {
+		if (this.consumer == null) {
 			try {
-				consumer = new OpenID4JavaConsumer();
+				this.consumer = new OpenID4JavaConsumer();
 			}
-			catch (ConsumerException e) {
-				throw new IllegalArgumentException("Failed to initialize OpenID", e);
+			catch (ConsumerException ex) {
+				throw new IllegalArgumentException("Failed to initialize OpenID", ex);
 			}
 		}
-
-		if (returnToUrlParameters.isEmpty()
-				&& getRememberMeServices() instanceof AbstractRememberMeServices) {
-			returnToUrlParameters = new HashSet<>();
-			returnToUrlParameters
-					.add(((AbstractRememberMeServices) getRememberMeServices())
-							.getParameter());
+		if (this.returnToUrlParameters.isEmpty() && getRememberMeServices() instanceof AbstractRememberMeServices) {
+			this.returnToUrlParameters = new HashSet<>();
+			this.returnToUrlParameters.add(((AbstractRememberMeServices) getRememberMeServices()).getParameter());
 		}
 	}
 
@@ -124,109 +119,88 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	 * </ol>
 	 */
 	@Override
-	public Authentication attemptAuthentication(HttpServletRequest request,
-			HttpServletResponse response) throws AuthenticationException, IOException {
+	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+			throws AuthenticationException, IOException {
 		OpenIDAuthenticationToken token;
-
 		String identity = request.getParameter("openid.identity");
-
 		if (!StringUtils.hasText(identity)) {
 			String claimedIdentity = obtainUsername(request);
-
 			try {
 				String returnToUrl = buildReturnToUrl(request);
 				String realm = lookupRealm(returnToUrl);
-				String openIdUrl = consumer.beginConsumption(request, claimedIdentity,
-						returnToUrl, realm);
-				if (logger.isDebugEnabled()) {
-					logger.debug("return_to is '" + returnToUrl + "', realm is '" + realm
-							+ "'");
-					logger.debug("Redirecting to " + openIdUrl);
+				String openIdUrl = this.consumer.beginConsumption(request, claimedIdentity, returnToUrl, realm);
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug("return_to is '" + returnToUrl + "', realm is '" + realm + "'");
+					this.logger.debug("Redirecting to " + openIdUrl);
 				}
 				response.sendRedirect(openIdUrl);
-
 				// Indicate to parent class that authentication is continuing.
 				return null;
 			}
-			catch (OpenIDConsumerException e) {
-				logger.debug("Failed to consume claimedIdentity: " + claimedIdentity, e);
+			catch (OpenIDConsumerException ex) {
+				this.logger.debug("Failed to consume claimedIdentity: " + claimedIdentity, ex);
 				throw new AuthenticationServiceException(
 						"Unable to process claimed identity '" + claimedIdentity + "'");
 			}
 		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Supplied OpenID identity is " + identity);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Supplied OpenID identity is " + identity);
 		}
-
 		try {
-			token = consumer.endConsumption(request);
+			token = this.consumer.endConsumption(request);
 		}
-		catch (OpenIDConsumerException oice) {
-			throw new AuthenticationServiceException("Consumer error", oice);
+		catch (OpenIDConsumerException ex) {
+			throw new AuthenticationServiceException("Consumer error", ex);
 		}
-
-		token.setDetails(authenticationDetailsSource.buildDetails(request));
-
+		token.setDetails(this.authenticationDetailsSource.buildDetails(request));
 		// delegate to the authentication provider
-		Authentication authentication = this.getAuthenticationManager().authenticate(
-				token);
-
+		Authentication authentication = this.getAuthenticationManager().authenticate(token);
 		return authentication;
 	}
 
 	protected String lookupRealm(String returnToUrl) {
-		String mapping = realmMapping.get(returnToUrl);
-
+		String mapping = this.realmMapping.get(returnToUrl);
 		if (mapping == null) {
 			try {
 				URL url = new URL(returnToUrl);
 				int port = url.getPort();
-
-				StringBuilder realmBuffer = new StringBuilder(returnToUrl.length())
-						.append(url.getProtocol()).append("://").append(url.getHost());
+				StringBuilder realmBuffer = new StringBuilder(returnToUrl.length()).append(url.getProtocol())
+						.append("://").append(url.getHost());
 				if (port > 0) {
 					realmBuffer.append(":").append(port);
 				}
 				realmBuffer.append("/");
 				mapping = realmBuffer.toString();
 			}
-			catch (MalformedURLException e) {
-				logger.warn("returnToUrl was not a valid URL: [" + returnToUrl + "]", e);
+			catch (MalformedURLException ex) {
+				this.logger.warn("returnToUrl was not a valid URL: [" + returnToUrl + "]", ex);
 			}
 		}
-
 		return mapping;
 	}
 
 	/**
 	 * Builds the <tt>return_to</tt> URL that will be sent to the OpenID service provider.
 	 * By default returns the URL of the current request.
-	 *
 	 * @param request the current request which is being processed by this filter
 	 * @return The <tt>return_to</tt> URL.
 	 */
 	protected String buildReturnToUrl(HttpServletRequest request) {
 		StringBuffer sb = request.getRequestURL();
-
-		Iterator<String> iterator = returnToUrlParameters.iterator();
+		Iterator<String> iterator = this.returnToUrlParameters.iterator();
 		boolean isFirst = true;
-
 		while (iterator.hasNext()) {
 			String name = iterator.next();
 			// Assume for simplicity that there is only one value
 			String value = request.getParameter(name);
-
 			if (value == null) {
 				continue;
 			}
-
 			if (isFirst) {
 				sb.append("?");
 				isFirst = false;
 			}
 			sb.append(utf8UrlEncode(name)).append("=").append(utf8UrlEncode(value));
-
 			if (iterator.hasNext()) {
 				sb.append("&");
 			}
@@ -238,13 +212,11 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	 * Reads the <tt>claimedIdentityFieldName</tt> from the submitted request.
 	 */
 	protected String obtainUsername(HttpServletRequest req) {
-		String claimedIdentity = req.getParameter(claimedIdentityFieldName);
-
+		String claimedIdentity = req.getParameter(this.claimedIdentityFieldName);
 		if (!StringUtils.hasText(claimedIdentity)) {
-			logger.error("No claimed identity supplied in authentication request");
+			this.logger.error("No claimed identity supplied in authentication request");
 			return "";
 		}
-
 		return claimedIdentity.trim();
 	}
 
@@ -259,7 +231,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	 * protocol, hostname and port followed by a trailing slash. This means that
 	 * <tt>https://foo.example.com/login/openid</tt> will automatically become
 	 * <tt>http://foo.example.com:80/</tt>
-	 *
 	 * @param realmMapping containing returnToUrl -&gt; realm mappings
 	 */
 	public void setRealmMapping(Map<String, String> realmMapping) {
@@ -269,7 +240,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	/**
 	 * The name of the request parameter containing the OpenID identity, as submitted from
 	 * the initial login form.
-	 *
 	 * @param claimedIdentityFieldName defaults to "openid_identifier"
 	 */
 	public void setClaimedIdentityFieldName(String claimedIdentityFieldName) {
@@ -284,7 +254,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	 * Specifies any extra parameters submitted along with the identity field which should
 	 * be appended to the {@code return_to} URL which is assembled by
 	 * {@link #buildReturnToUrl}.
-	 *
 	 * @param returnToUrlParameters the set of parameter names. If not set, it will
 	 * default to the parameter name used by the {@code RememberMeServices} obtained from
 	 * the parent class (if one is set).
@@ -296,7 +265,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 
 	/**
 	 * Performs URL encoding with UTF-8
-	 *
 	 * @param value the value to URL encode
 	 * @return the encoded value
 	 */
@@ -304,11 +272,12 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 		try {
 			return URLEncoder.encode(value, "UTF-8");
 		}
-		catch (UnsupportedEncodingException e) {
+		catch (UnsupportedEncodingException ex) {
 			Error err = new AssertionError(
 					"The Java platform guarantees UTF-8 support, but it seemingly is not present.");
-			err.initCause(e);
+			err.initCause(ex);
 			throw err;
 		}
 	}
+
 }

@@ -23,21 +23,24 @@ import org.junit.Before;
 import org.junit.Test;
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.web.server.authorization.ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult;
 import org.springframework.web.server.ServerWebExchange;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.web.server.authorization.ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.match;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.notMatch;
 
 public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
+
 	private ServerWebExchangeDelegatingServerAccessDeniedHandler delegator;
+
 	private List<ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry> entries;
+
 	private ServerAccessDeniedHandler accessDeniedHandler;
+
 	private ServerWebExchange exchange;
 
 	@Before
@@ -51,16 +54,13 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
 	public void handleWhenNothingMatchesThenOnlyDefaultHandlerInvoked() {
 		ServerAccessDeniedHandler handler = mock(ServerAccessDeniedHandler.class);
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
-		when(matcher.matches(this.exchange)).thenReturn(notMatch());
-		when(handler.handle(this.exchange, null)).thenReturn(Mono.empty());
-		when(this.accessDeniedHandler.handle(this.exchange, null)).thenReturn(Mono.empty());
-
+		given(matcher.matches(this.exchange)).willReturn(MatchResult.notMatch());
+		given(handler.handle(this.exchange, null)).willReturn(Mono.empty());
+		given(this.accessDeniedHandler.handle(this.exchange, null)).willReturn(Mono.empty());
 		this.entries.add(new DelegateEntry(matcher, handler));
 		this.delegator = new ServerWebExchangeDelegatingServerAccessDeniedHandler(this.entries);
 		this.delegator.setDefaultAccessDeniedHandler(this.accessDeniedHandler);
-
 		this.delegator.handle(this.exchange, null).block();
-
 		verify(this.accessDeniedHandler).handle(this.exchange, null);
 		verify(handler, never()).handle(this.exchange, null);
 	}
@@ -71,17 +71,14 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
 		ServerWebExchangeMatcher firstMatcher = mock(ServerWebExchangeMatcher.class);
 		ServerAccessDeniedHandler secondHandler = mock(ServerAccessDeniedHandler.class);
 		ServerWebExchangeMatcher secondMatcher = mock(ServerWebExchangeMatcher.class);
-		when(firstMatcher.matches(this.exchange)).thenReturn(match());
-		when(firstHandler.handle(this.exchange, null)).thenReturn(Mono.empty());
-		when(secondHandler.handle(this.exchange, null)).thenReturn(Mono.empty());
-
+		given(firstMatcher.matches(this.exchange)).willReturn(MatchResult.match());
+		given(firstHandler.handle(this.exchange, null)).willReturn(Mono.empty());
+		given(secondHandler.handle(this.exchange, null)).willReturn(Mono.empty());
 		this.entries.add(new DelegateEntry(firstMatcher, firstHandler));
 		this.entries.add(new DelegateEntry(secondMatcher, secondHandler));
 		this.delegator = new ServerWebExchangeDelegatingServerAccessDeniedHandler(this.entries);
 		this.delegator.setDefaultAccessDeniedHandler(this.accessDeniedHandler);
-
 		this.delegator.handle(this.exchange, null).block();
-
 		verify(firstHandler).handle(this.exchange, null);
 		verify(secondHandler, never()).handle(this.exchange, null);
 		verify(this.accessDeniedHandler, never()).handle(this.exchange, null);
@@ -94,19 +91,17 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
 		ServerWebExchangeMatcher firstMatcher = mock(ServerWebExchangeMatcher.class);
 		ServerAccessDeniedHandler secondHandler = mock(ServerAccessDeniedHandler.class);
 		ServerWebExchangeMatcher secondMatcher = mock(ServerWebExchangeMatcher.class);
-		when(firstMatcher.matches(this.exchange)).thenReturn(notMatch());
-		when(secondMatcher.matches(this.exchange)).thenReturn(match());
-		when(firstHandler.handle(this.exchange, null)).thenReturn(Mono.empty());
-		when(secondHandler.handle(this.exchange, null)).thenReturn(Mono.empty());
-
+		given(firstMatcher.matches(this.exchange)).willReturn(MatchResult.notMatch());
+		given(secondMatcher.matches(this.exchange)).willReturn(MatchResult.match());
+		given(firstHandler.handle(this.exchange, null)).willReturn(Mono.empty());
+		given(secondHandler.handle(this.exchange, null)).willReturn(Mono.empty());
 		this.entries.add(new DelegateEntry(firstMatcher, firstHandler));
 		this.entries.add(new DelegateEntry(secondMatcher, secondHandler));
 		this.delegator = new ServerWebExchangeDelegatingServerAccessDeniedHandler(this.entries);
-
 		this.delegator.handle(this.exchange, null).block();
-
 		verify(secondHandler).handle(this.exchange, null);
 		verify(firstHandler, never()).handle(this.exchange, null);
 		verify(this.accessDeniedHandler, never()).handle(this.exchange, null);
 	}
+
 }

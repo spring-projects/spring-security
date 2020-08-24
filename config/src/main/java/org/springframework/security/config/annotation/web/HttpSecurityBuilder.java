@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web;
 
 import javax.servlet.Filter;
@@ -44,36 +45,29 @@ import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 
 /**
- *
- * @author Rob Winch
- *
  * @param <H>
+ * @author Rob Winch
  */
-public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends
-		SecurityBuilder<DefaultSecurityFilterChain> {
+public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>>
+		extends SecurityBuilder<DefaultSecurityFilterChain> {
 
 	/**
 	 * Gets the {@link SecurityConfigurer} by its class name or <code>null</code> if not
 	 * found. Note that object hierarchies are not considered.
-	 *
 	 * @param clazz the Class of the {@link SecurityConfigurer} to attempt to get.
 	 */
-	<C extends SecurityConfigurer<DefaultSecurityFilterChain, H>> C getConfigurer(
-			Class<C> clazz);
+	<C extends SecurityConfigurer<DefaultSecurityFilterChain, H>> C getConfigurer(Class<C> clazz);
 
 	/**
 	 * Removes the {@link SecurityConfigurer} by its class name or <code>null</code> if
 	 * not found. Note that object hierarchies are not considered.
-	 *
 	 * @param clazz the Class of the {@link SecurityConfigurer} to attempt to remove.
 	 * @return the {@link SecurityConfigurer} that was removed or null if not found
 	 */
-	<C extends SecurityConfigurer<DefaultSecurityFilterChain, H>> C removeConfigurer(
-			Class<C> clazz);
+	<C extends SecurityConfigurer<DefaultSecurityFilterChain, H>> C removeConfigurer(Class<C> clazz);
 
 	/**
 	 * Sets an object that is shared by multiple {@link SecurityConfigurer}.
-	 *
 	 * @param sharedType the Class to key the shared object by.
 	 * @param object the Object to store
 	 */
@@ -81,7 +75,6 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends
 
 	/**
 	 * Gets a shared Object. Note that object heirarchies are not considered.
-	 *
 	 * @param sharedType the type of the shared Object
 	 * @return the shared Object or null if it is not found
 	 */
@@ -89,7 +82,6 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends
 
 	/**
 	 * Allows adding an additional {@link AuthenticationProvider} to be used
-	 *
 	 * @param authenticationProvider the {@link AuthenticationProvider} to be added
 	 * @return the {@link HttpSecurity} for further customizations
 	 */
@@ -97,7 +89,6 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends
 
 	/**
 	 * Allows adding an additional {@link UserDetailsService} to be used
-	 *
 	 * @param userDetailsService the {@link UserDetailsService} to be added
 	 * @return the {@link HttpSecurity} for further customizations
 	 */
@@ -108,7 +99,6 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends
 	 * known {@link Filter} instances are either a {@link Filter} listed in
 	 * {@link #addFilter(Filter)} or a {@link Filter} that has already been added using
 	 * {@link #addFilterAfter(Filter, Class)} or {@link #addFilterBefore(Filter, Class)}.
-	 *
 	 * @param filter the {@link Filter} to register after the type {@code afterFilter}
 	 * @param afterFilter the Class of the known {@link Filter}.
 	 * @return the {@link HttpSecurity} for further customizations
@@ -120,7 +110,6 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends
 	 * known {@link Filter} instances are either a {@link Filter} listed in
 	 * {@link #addFilter(Filter)} or a {@link Filter} that has already been added using
 	 * {@link #addFilterAfter(Filter, Class)} or {@link #addFilterBefore(Filter, Class)}.
-	 *
 	 * @param filter the {@link Filter} to register before the type {@code beforeFilter}
 	 * @param beforeFilter the Class of the known {@link Filter}.
 	 * @return the {@link HttpSecurity} for further customizations
@@ -140,7 +129,8 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends
 	 * <li>{@link LogoutFilter}</li>
 	 * <li>{@link X509AuthenticationFilter}</li>
 	 * <li>{@link AbstractPreAuthenticatedProcessingFilter}</li>
-	 * <li><a href="{@docRoot}/org/springframework/security/cas/web/CasAuthenticationFilter.html">CasAuthenticationFilter</a></li>
+	 * <li><a href="
+	 * {@docRoot}/org/springframework/security/cas/web/CasAuthenticationFilter.html">CasAuthenticationFilter</a></li>
 	 * <li>{@link UsernamePasswordAuthenticationFilter}</li>
 	 * <li>{@link OpenIDAuthenticationFilter}</li>
 	 * <li>{@link org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter}</li>
@@ -159,9 +149,9 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends
 	 * <li>{@link FilterSecurityInterceptor}</li>
 	 * <li>{@link SwitchUserFilter}</li>
 	 * </ul>
-	 *
 	 * @param filter the {@link Filter} to add
 	 * @return the {@link HttpSecurity} for further customizations
 	 */
 	H addFilter(Filter filter);
+
 }

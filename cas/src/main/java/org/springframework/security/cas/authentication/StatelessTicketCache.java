@@ -59,7 +59,6 @@ package org.springframework.security.cas.authentication;
  * @author Ben Alex
  */
 public interface StatelessTicketCache {
-	// ~ Methods ================================================================
 
 	/**
 	 * Retrieves the <code>CasAuthenticationToken</code> associated with the specified
@@ -68,7 +67,6 @@ public interface StatelessTicketCache {
 	 * <P>
 	 * If not found, returns a <code>null</code><code>CasAuthenticationToken</code>.
 	 * </p>
-	 *
 	 * @return the fully populated authentication token
 	 */
 	CasAuthenticationToken getByTicketId(String serviceTicket);
@@ -80,7 +78,6 @@ public interface StatelessTicketCache {
 	 * The {@link CasAuthenticationToken#getCredentials()} method is used to retrieve the
 	 * service ticket number.
 	 * </p>
-	 *
 	 * @param token to be added to the cache
 	 */
 	void putTicketInCache(CasAuthenticationToken token);
@@ -91,10 +88,9 @@ public interface StatelessTicketCache {
 	 *
 	 * <P>
 	 * Implementations should use {@link CasAuthenticationToken#getCredentials()} to
-	 * obtain the ticket and then delegate to the
-	 * {@link #removeTicketFromCache(String)} method.
+	 * obtain the ticket and then delegate to the {@link #removeTicketFromCache(String)}
+	 * method.
 	 * </p>
-	 *
 	 * @param token to be removed
 	 */
 	void removeTicketFromCache(CasAuthenticationToken token);
@@ -107,8 +103,8 @@ public interface StatelessTicketCache {
 	 * This is in case applications wish to provide a session termination capability for
 	 * their stateless clients.
 	 * </p>
-	 *
 	 * @param serviceTicket to be removed
 	 */
 	void removeTicketFromCache(String serviceTicket);
+
 }

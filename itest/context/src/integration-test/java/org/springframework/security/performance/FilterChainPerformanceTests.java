@@ -13,10 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.performance;
 
-import org.junit.*;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.http.HttpSession;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mock.web.MockFilterChain;
@@ -33,24 +43,24 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StopWatch;
 
-import javax.servlet.http.HttpSession;
-import java.util.*;
-
 /**
- *
  * @author Luke Taylor
  * @since 2.0
  */
 @ContextConfiguration(locations = { "/filter-chain-performance-app-context.xml" })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class FilterChainPerformanceTests {
+
 	// Adjust as required
 	private static final int N_INVOCATIONS = 1; // 1000
+
 	private static final int N_AUTHORITIES = 2; // 200
+
 	private static StopWatch sw = new StopWatch("Filter Chain Performance Tests");
 
-	private final UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(
-			"bob", "bobspassword", createRoles(N_AUTHORITIES));
+	private final UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken("bob",
+			"bobspassword", createRoles(N_AUTHORITIES));
+
 	private HttpSession session;
 
 	@Autowired
@@ -63,10 +73,9 @@ public class FilterChainPerformanceTests {
 
 	@Before
 	public void createAuthenticatedSession() {
-		session = new MockHttpSession();
-		SecurityContextHolder.getContext().setAuthentication(user);
-		session.setAttribute(
-				HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+		this.session = new MockHttpSession();
+		SecurityContextHolder.getContext().setAuthentication(this.user);
+		this.session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				SecurityContextHolder.getContext());
 		SecurityContextHolder.clearContext();
 	}
@@ -83,7 +92,7 @@ public class FilterChainPerformanceTests {
 
 	private MockHttpServletRequest createRequest(String url) {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setSession(session);
+		request.setSession(this.session);
 		request.setServletPath(url);
 		request.setMethod("GET");
 		return request;
@@ -93,21 +102,21 @@ public class FilterChainPerformanceTests {
 		for (int i = 0; i < N_INVOCATIONS; i++) {
 			MockHttpServletRequest request = createRequest("/somefile.html");
 			stack.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
-			session = request.getSession();
+			this.session = request.getSession();
 		}
 	}
 
 	@Test
 	public void minimalStackInvocation() throws Exception {
 		sw.start("Run with Minimal Filter Stack");
-		runWithStack(minimalStack);
+		runWithStack(this.minimalStack);
 		sw.stop();
 	}
 
 	@Test
 	public void fullStackInvocation() throws Exception {
 		sw.start("Run with Full Filter Stack");
-		runWithStack(fullStack);
+		runWithStack(this.fullStack);
 		sw.stop();
 	}
 
@@ -119,16 +128,14 @@ public class FilterChainPerformanceTests {
 	public void provideDataOnScalingWithNumberOfAuthoritiesUserHas() throws Exception {
 		StopWatch sw = new StopWatch("Scaling with nAuthorities");
 		for (int user = 0; user < N_AUTHORITIES / 10; user++) {
-			int nAuthorities = user == 0 ? 1 : user * 10;
+			int nAuthorities = (user != 0) ? user * 10 : 1;
 			SecurityContextHolder.getContext().setAuthentication(
-					new UsernamePasswordAuthenticationToken("bob", "bobspassword",
-							createRoles(nAuthorities)));
-			session.setAttribute(
-					HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+					new UsernamePasswordAuthenticationToken("bob", "bobspassword", createRoles(nAuthorities)));
+			this.session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 					SecurityContextHolder.getContext());
 			SecurityContextHolder.clearContext();
 			sw.start(nAuthorities + " authorities");
-			runWithStack(minimalStack);
+			runWithStack(this.minimalStack);
 			System.out.println(sw.shortSummary());
 			sw.stop();
 		}
@@ -146,4 +153,5 @@ public class FilterChainPerformanceTests {
 
 		return Arrays.asList(roles);
 	}
+
 }

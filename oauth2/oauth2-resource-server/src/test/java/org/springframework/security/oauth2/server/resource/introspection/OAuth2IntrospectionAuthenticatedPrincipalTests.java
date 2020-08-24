@@ -16,9 +16,6 @@
 
 package org.springframework.security.oauth2.server.resource.introspection;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,9 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2IntrospectionAuthenticatedPrincipal}
@@ -38,37 +39,58 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
  * @author David Kovac
  */
 public class OAuth2IntrospectionAuthenticatedPrincipalTests {
+
 	private static final String AUTHORITY = "SCOPE_read";
+
 	private static final Collection<GrantedAuthority> AUTHORITIES = AuthorityUtils.createAuthorityList(AUTHORITY);
 
 	private static final String SUBJECT = "test-subject";
 
 	private static final String ACTIVE_CLAIM = "active";
+
 	private static final String CLIENT_ID_CLAIM = "client_id";
+
 	private static final String USERNAME_CLAIM = "username";
+
 	private static final String TOKEN_TYPE_CLAIM = "token_type";
+
 	private static final String EXP_CLAIM = "exp";
+
 	private static final String IAT_CLAIM = "iat";
+
 	private static final String NBF_CLAIM = "nbf";
+
 	private static final String SUB_CLAIM = "sub";
+
 	private static final String AUD_CLAIM = "aud";
+
 	private static final String ISS_CLAIM = "iss";
+
 	private static final String JTI_CLAIM = "jti";
 
 	private static final boolean ACTIVE_VALUE = true;
+
 	private static final String CLIENT_ID_VALUE = "client-id-1";
+
 	private static final String USERNAME_VALUE = "username-1";
+
 	private static final String TOKEN_TYPE_VALUE = "token-type-1";
+
 	private static final long EXP_VALUE = Instant.now().plusSeconds(60).getEpochSecond();
+
 	private static final long IAT_VALUE = Instant.now().getEpochSecond();
+
 	private static final long NBF_VALUE = Instant.now().plusSeconds(5).getEpochSecond();
+
 	private static final String SUB_VALUE = "subject1";
+
 	private static final List<String> AUD_VALUE = Arrays.asList("aud1", "aud2");
+
 	private static final String ISS_VALUE = "https://provider.com";
+
 	private static final String JTI_VALUE = "jwt-id-1";
 
 	private static final Map<String, Object> CLAIMS;
-
 	static {
 		CLAIMS = new HashMap<>();
 		CLAIMS.put(ACTIVE_CLAIM, ACTIVE_VALUE);
@@ -86,36 +108,32 @@ public class OAuth2IntrospectionAuthenticatedPrincipalTests {
 
 	@Test
 	public void constructorWhenAttributesIsNullOrEmptyThenIllegalArgumentException() {
-		assertThatCode(() -> new OAuth2IntrospectionAuthenticatedPrincipal(null, AUTHORITIES))
-				.isInstanceOf(IllegalArgumentException.class);
-
-		assertThatCode(() -> new OAuth2IntrospectionAuthenticatedPrincipal(Collections.emptyMap(), AUTHORITIES))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2IntrospectionAuthenticatedPrincipal(null, AUTHORITIES));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2IntrospectionAuthenticatedPrincipal(Collections.emptyMap(), AUTHORITIES));
 	}
 
 	@Test
 	public void constructorWhenAuthoritiesIsNullOrEmptyThenNoAuthorities() {
-		Collection<? extends GrantedAuthority> authorities =
-				new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS, null).getAuthorities();
+		Collection<? extends GrantedAuthority> authorities = new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS, null)
+				.getAuthorities();
 		assertThat(authorities).isEmpty();
-
-		authorities = new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS,
-				Collections.emptyList()).getAuthorities();
+		authorities = new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS, Collections.emptyList()).getAuthorities();
 		assertThat(authorities).isEmpty();
 	}
 
 	@Test
 	public void constructorWhenNameIsNullThenFallsbackToSubAttribute() {
-		OAuth2AuthenticatedPrincipal principal =
-				new OAuth2IntrospectionAuthenticatedPrincipal(null, CLAIMS, AUTHORITIES);
+		OAuth2AuthenticatedPrincipal principal = new OAuth2IntrospectionAuthenticatedPrincipal(null, CLAIMS,
+				AUTHORITIES);
 		assertThat(principal.getName()).isEqualTo(CLAIMS.get(SUB_CLAIM));
 	}
 
 	@Test
 	public void constructorWhenAttributesAuthoritiesProvidedThenCreated() {
-		OAuth2IntrospectionAuthenticatedPrincipal principal =
-				new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS, AUTHORITIES);
-
+		OAuth2IntrospectionAuthenticatedPrincipal principal = new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS,
+				AUTHORITIES);
 		assertThat(principal.getName()).isEqualTo(CLAIMS.get(SUB_CLAIM));
 		assertThat(principal.getAttributes()).isEqualTo(CLAIMS);
 		assertThat(principal.getClaims()).isEqualTo(CLAIMS);
@@ -136,9 +154,8 @@ public class OAuth2IntrospectionAuthenticatedPrincipalTests {
 
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
-		OAuth2IntrospectionAuthenticatedPrincipal principal =
-				new OAuth2IntrospectionAuthenticatedPrincipal(SUBJECT, CLAIMS, AUTHORITIES);
-
+		OAuth2IntrospectionAuthenticatedPrincipal principal = new OAuth2IntrospectionAuthenticatedPrincipal(SUBJECT,
+				CLAIMS, AUTHORITIES);
 		assertThat(principal.getName()).isEqualTo(SUBJECT);
 		assertThat(principal.getAttributes()).isEqualTo(CLAIMS);
 		assertThat(principal.getClaims()).isEqualTo(CLAIMS);
@@ -159,26 +176,30 @@ public class OAuth2IntrospectionAuthenticatedPrincipalTests {
 
 	@Test
 	public void getNameWhenInConstructorThenReturns() {
-		OAuth2AuthenticatedPrincipal principal =
-				new OAuth2IntrospectionAuthenticatedPrincipal(SUB_VALUE, CLAIMS, AUTHORITIES);
+		OAuth2AuthenticatedPrincipal principal = new OAuth2IntrospectionAuthenticatedPrincipal(SUB_VALUE, CLAIMS,
+				AUTHORITIES);
 		assertThat(principal.getName()).isEqualTo(SUB_VALUE);
 	}
 
 	@Test
 	public void getAttributeWhenGivenKeyThenReturnsValue() {
-		OAuth2AuthenticatedPrincipal principal =
-				new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS, AUTHORITIES);
-
-		assertThat((Object) principal.getAttribute(ACTIVE_CLAIM)).isEqualTo(ACTIVE_VALUE);
-		assertThat((Object) principal.getAttribute(CLIENT_ID_CLAIM)).isEqualTo(CLIENT_ID_VALUE);
-		assertThat((Object) principal.getAttribute(USERNAME_CLAIM)).isEqualTo(USERNAME_VALUE);
-		assertThat((Object) principal.getAttribute(TOKEN_TYPE_CLAIM)).isEqualTo(TOKEN_TYPE_VALUE);
-		assertThat((Object) principal.getAttribute(EXP_CLAIM)).isEqualTo(EXP_VALUE);
-		assertThat((Object) principal.getAttribute(IAT_CLAIM)).isEqualTo(IAT_VALUE);
-		assertThat((Object) principal.getAttribute(NBF_CLAIM)).isEqualTo(NBF_VALUE);
-		assertThat((Object) principal.getAttribute(SUB_CLAIM)).isEqualTo(SUB_VALUE);
-		assertThat((Object) principal.getAttribute(AUD_CLAIM)).isEqualTo(AUD_VALUE);
-		assertThat((Object) principal.getAttribute(ISS_CLAIM)).isEqualTo(ISS_VALUE);
-		assertThat((Object) principal.getAttribute(JTI_CLAIM)).isEqualTo(JTI_VALUE);
+		OAuth2AuthenticatedPrincipal principal = new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS, AUTHORITIES);
+		assertHasEqualAttribute(principal, ACTIVE_CLAIM, ACTIVE_VALUE);
+		assertHasEqualAttribute(principal, CLIENT_ID_CLAIM, CLIENT_ID_VALUE);
+		assertHasEqualAttribute(principal, USERNAME_CLAIM, USERNAME_VALUE);
+		assertHasEqualAttribute(principal, TOKEN_TYPE_CLAIM, TOKEN_TYPE_VALUE);
+		assertHasEqualAttribute(principal, EXP_CLAIM, EXP_VALUE);
+		assertHasEqualAttribute(principal, IAT_CLAIM, IAT_VALUE);
+		assertHasEqualAttribute(principal, NBF_CLAIM, NBF_VALUE);
+		assertHasEqualAttribute(principal, SUB_CLAIM, SUB_VALUE);
+		assertHasEqualAttribute(principal, AUD_CLAIM, AUD_VALUE);
+		assertHasEqualAttribute(principal, ISS_CLAIM, ISS_VALUE);
+		assertHasEqualAttribute(principal, JTI_CLAIM, JTI_VALUE);
 	}
+
+	private void assertHasEqualAttribute(OAuth2AuthenticatedPrincipal principal, String name, Object expected) {
+		Object value = principal.getAttribute(name);
+		assertThat(value).isEqualTo(expected);
+	}
+
 }

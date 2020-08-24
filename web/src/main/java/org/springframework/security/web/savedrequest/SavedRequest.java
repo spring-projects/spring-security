@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.savedrequest;
 
 import java.util.Collection;
@@ -51,4 +52,5 @@ public interface SavedRequest extends java.io.Serializable {
 	String[] getParameterValues(String name);
 
 	Map<String, String[]> getParameterMap();
+
 }

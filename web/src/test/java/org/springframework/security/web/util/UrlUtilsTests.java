@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.util;
 
-import static org.assertj.core.api.Assertions.*;
+package org.springframework.security.web.util;
 
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
- *
  * @author Luke Taylor
  */
 public class UrlUtilsTests {

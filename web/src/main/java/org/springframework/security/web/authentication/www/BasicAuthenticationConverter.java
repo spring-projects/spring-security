@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication.www;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+package org.springframework.security.web.authentication.www;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -23,6 +22,7 @@ import java.util.Base64;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,10 +32,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Converts from a HttpServletRequest to
- * {@link UsernamePasswordAuthenticationToken} that can be authenticated. Null
- * authentication possible if there was no Authorization header with Basic
- * authentication scheme.
+ * Converts from a HttpServletRequest to {@link UsernamePasswordAuthenticationToken} that
+ * can be authenticated. Null authentication possible if there was no Authorization header
+ * with Basic authentication scheme.
  *
  * @author Sergey Bespalov
  * @since 5.2.0
@@ -77,40 +76,37 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 
 	@Override
 	public UsernamePasswordAuthenticationToken convert(HttpServletRequest request) {
-		String header = request.getHeader(AUTHORIZATION);
+		String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 		if (header == null) {
 			return null;
 		}
-
 		header = header.trim();
 		if (!StringUtils.startsWithIgnoreCase(header, AUTHENTICATION_SCHEME_BASIC)) {
 			return null;
 		}
-
 		if (header.equalsIgnoreCase(AUTHENTICATION_SCHEME_BASIC)) {
 			throw new BadCredentialsException("Empty basic authentication token");
 		}
-
 		byte[] base64Token = header.substring(6).getBytes(StandardCharsets.UTF_8);
-		byte[] decoded;
-		try {
-			decoded = Base64.getDecoder().decode(base64Token);
-		}
-		catch (IllegalArgumentException e) {
-			throw new BadCredentialsException(
-					"Failed to decode basic authentication token");
-		}
-
+		byte[] decoded = decode(base64Token);
 		String token = new String(decoded, getCredentialsCharset(request));
-
 		int delim = token.indexOf(":");
-
 		if (delim == -1) {
 			throw new BadCredentialsException("Invalid basic authentication token");
 		}
-		UsernamePasswordAuthenticationToken result  = new UsernamePasswordAuthenticationToken(token.substring(0, delim), token.substring(delim + 1));
+		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(token.substring(0, delim),
+				token.substring(delim + 1));
 		result.setDetails(this.authenticationDetailsSource.buildDetails(request));
 		return result;
+	}
+
+	private byte[] decode(byte[] base64Token) {
+		try {
+			return Base64.getDecoder().decode(base64Token);
+		}
+		catch (IllegalArgumentException ex) {
+			throw new BadCredentialsException("Failed to decode basic authentication token");
+		}
 	}
 
 	protected Charset getCredentialsCharset(HttpServletRequest request) {

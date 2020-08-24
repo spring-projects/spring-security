@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.authentication;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.util.Assert;
 
 /**
@@ -28,30 +29,25 @@ import org.springframework.util.Assert;
  */
 public class AccountStatusUserDetailsChecker implements UserDetailsChecker, MessageSourceAware {
 
-	protected MessageSourceAccessor messages = SpringSecurityMessageSource
-			.getAccessor();
+	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
+	@Override
 	public void check(UserDetails user) {
 		if (!user.isAccountNonLocked()) {
-			throw new LockedException(messages.getMessage(
-					"AccountStatusUserDetailsChecker.locked", "User account is locked"));
+			throw new LockedException(
+					this.messages.getMessage("AccountStatusUserDetailsChecker.locked", "User account is locked"));
 		}
-
 		if (!user.isEnabled()) {
-			throw new DisabledException(messages.getMessage(
-					"AccountStatusUserDetailsChecker.disabled", "User is disabled"));
+			throw new DisabledException(
+					this.messages.getMessage("AccountStatusUserDetailsChecker.disabled", "User is disabled"));
 		}
-
 		if (!user.isAccountNonExpired()) {
 			throw new AccountExpiredException(
-					messages.getMessage("AccountStatusUserDetailsChecker.expired",
-							"User account has expired"));
+					this.messages.getMessage("AccountStatusUserDetailsChecker.expired", "User account has expired"));
 		}
-
 		if (!user.isCredentialsNonExpired()) {
-			throw new CredentialsExpiredException(messages.getMessage(
-					"AccountStatusUserDetailsChecker.credentialsExpired",
-					"User credentials have expired"));
+			throw new CredentialsExpiredException(this.messages
+					.getMessage("AccountStatusUserDetailsChecker.credentialsExpired", "User credentials have expired"));
 		}
 	}
 
@@ -63,4 +59,5 @@ public class AccountStatusUserDetailsChecker implements UserDetailsChecker, Mess
 		Assert.notNull(messageSource, "messageSource cannot be null");
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
+
 }

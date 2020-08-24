@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Websphere-specific pre-authentication classes.
  */
 package org.springframework.security.web.authentication.preauth.websphere;
-

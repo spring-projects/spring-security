@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.bind.annotation;
 
 import java.lang.annotation.Documented;
@@ -28,8 +29,8 @@ import org.springframework.security.core.Authentication;
  * {@link Authentication#getPrincipal()}. This is necessary to signal that the argument
  * should be resolved to the current user rather than a user that might be edited on a
  * form.
- *
- * @deprecated Use {@link org.springframework.security.core.annotation.AuthenticationPrincipal} instead.
+ * @deprecated Use
+ * {@link org.springframework.security.core.annotation.AuthenticationPrincipal} instead.
  *
  * @author Rob Winch
  * @since 3.2
@@ -43,8 +44,8 @@ public @interface AuthenticationPrincipal {
 	/**
 	 * True if a {@link ClassCastException} should be thrown when the current
 	 * {@link Authentication#getPrincipal()} is the incorrect type. Default is false.
-	 *
 	 * @return
 	 */
 	boolean errorOnInvalidType() default false;
+
 }

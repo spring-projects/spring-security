@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.http;
 
 import org.springframework.beans.factory.xml.ParserContext;
@@ -26,17 +27,18 @@ import org.springframework.util.StringUtils;
  * @author Luke Taylor
  * @author Ben Alex
  */
-abstract class WebConfigUtils {
+final class WebConfigUtils {
 
-	public static int countNonEmpty(String[] objects) {
+	private WebConfigUtils() {
+	}
+
+	static int countNonEmpty(String[] objects) {
 		int nonNulls = 0;
-
 		for (String object : objects) {
 			if (StringUtils.hasText(object)) {
 				nonNulls++;
 			}
 		}
-
 		return nonNulls;
 	}
 
@@ -46,13 +48,11 @@ abstract class WebConfigUtils {
 	 * SpEL), "/" or "http" it will raise an error.
 	 */
 	static void validateHttpRedirect(String url, ParserContext pc, Object source) {
-		if (!StringUtils.hasText(url) || UrlUtils.isValidRedirectUrl(url)
-				|| url.startsWith("$") || url.startsWith("#")) {
+		if (!StringUtils.hasText(url) || UrlUtils.isValidRedirectUrl(url) || url.startsWith("$")
+				|| url.startsWith("#")) {
 			return;
 		}
-		pc.getReaderContext().warning(
-				url + " is not a valid redirect URL (must start with '/' or http(s))",
-				source);
+		pc.getReaderContext().warning(url + " is not a valid redirect URL (must start with '/' or http(s))", source);
 	}
 
 }

@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.core.converter;
 
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.convert.converter.ConditionalGenericConverter;
+package org.springframework.security.oauth2.core.converter;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.ConditionalGenericConverter;
 
 /**
  * @author Joe Grandja
@@ -36,8 +37,8 @@ final class ObjectToMapStringObjectConverter implements ConditionalGenericConver
 
 	@Override
 	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (targetType.getElementTypeDescriptor() == null ||
-				targetType.getMapKeyTypeDescriptor().getType().equals(String.class)) {
+		if (targetType.getElementTypeDescriptor() == null
+				|| targetType.getMapKeyTypeDescriptor().getType().equals(String.class)) {
 			return true;
 		}
 		return false;
@@ -59,4 +60,5 @@ final class ObjectToMapStringObjectConverter implements ConditionalGenericConver
 		sourceMap.forEach((k, v) -> result.put(k.toString(), v));
 		return result;
 	}
+
 }

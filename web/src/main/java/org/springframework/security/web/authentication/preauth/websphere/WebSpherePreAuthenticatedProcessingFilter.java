@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.preauth.websphere;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 /**
@@ -27,8 +29,8 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
  * @author Ruud Senden
  * @since 2.0
  */
-public class WebSpherePreAuthenticatedProcessingFilter extends
-		AbstractPreAuthenticatedProcessingFilter {
+public class WebSpherePreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
+
 	private final WASUsernameAndGroupsExtractor wasHelper;
 
 	/**
@@ -47,11 +49,10 @@ public class WebSpherePreAuthenticatedProcessingFilter extends
 	/**
 	 * Return the WebSphere user name.
 	 */
+	@Override
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
-		Object principal = wasHelper.getCurrentUserName();
-		if (logger.isDebugEnabled()) {
-			logger.debug("PreAuthenticated WebSphere principal: " + principal);
-		}
+		Object principal = this.wasHelper.getCurrentUserName();
+		this.logger.debug(LogMessage.format("PreAuthenticated WebSphere principal: %s", principal));
 		return principal;
 	}
 
@@ -59,7 +60,9 @@ public class WebSpherePreAuthenticatedProcessingFilter extends
 	 * For J2EE container-based authentication there is no generic way to retrieve the
 	 * credentials, as such this method returns a fixed dummy value.
 	 */
+	@Override
 	protected Object getPreAuthenticatedCredentials(HttpServletRequest httpRequest) {
 		return "N/A";
 	}
+
 }

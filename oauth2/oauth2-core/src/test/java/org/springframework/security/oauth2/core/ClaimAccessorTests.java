@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.core;
 
-import org.junit.Before;
-import org.junit.Test;
+package org.springframework.security.oauth2.core;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -25,8 +23,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.assertThatObject;
 
 /**
  * Tests for {@link ClaimAccessor}.
@@ -34,7 +35,9 @@ import static org.assertj.core.api.Assertions.catchThrowable;
  * @author Joe Grandja
  */
 public class ClaimAccessorTests {
+
 	private Map<String, Object> claims = new HashMap<>();
+
 	private ClaimAccessor claimAccessor = (() -> this.claims);
 
 	@Before
@@ -48,9 +51,8 @@ public class ClaimAccessorTests {
 		Instant expectedClaimValue = Instant.now();
 		String claimName = "date";
 		this.claims.put(claimName, Date.from(expectedClaimValue));
-
-		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
-				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
+				expectedClaimValue.plusSeconds(1));
 	}
 
 	// gh-5191
@@ -59,9 +61,8 @@ public class ClaimAccessorTests {
 		Instant expectedClaimValue = Instant.now();
 		String claimName = "longSeconds";
 		this.claims.put(claimName, expectedClaimValue.getEpochSecond());
-
-		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
-				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
+				expectedClaimValue.plusSeconds(1));
 	}
 
 	@Test
@@ -69,9 +70,8 @@ public class ClaimAccessorTests {
 		Instant expectedClaimValue = Instant.now();
 		String claimName = "instant";
 		this.claims.put(claimName, expectedClaimValue);
-
-		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
-				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
+				expectedClaimValue.plusSeconds(1));
 	}
 
 	// gh-5250
@@ -80,9 +80,8 @@ public class ClaimAccessorTests {
 		Instant expectedClaimValue = Instant.now();
 		String claimName = "integerSeconds";
 		this.claims.put(claimName, Long.valueOf(expectedClaimValue.getEpochSecond()).intValue());
-
-		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
-				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
+				expectedClaimValue.plusSeconds(1));
 	}
 
 	// gh-5250
@@ -91,9 +90,8 @@ public class ClaimAccessorTests {
 		Instant expectedClaimValue = Instant.now();
 		String claimName = "doubleSeconds";
 		this.claims.put(claimName, Long.valueOf(expectedClaimValue.getEpochSecond()).doubleValue());
-
-		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
-				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
+				expectedClaimValue.plusSeconds(1));
 	}
 
 	// gh-5608
@@ -101,7 +99,6 @@ public class ClaimAccessorTests {
 	public void getClaimAsStringWhenValueIsNullThenReturnNull() {
 		String claimName = "claim-with-null-value";
 		this.claims.put(claimName, null);
-
 		assertThat(this.claimAccessor.getClaimAsString(claimName)).isNull();
 	}
 
@@ -117,9 +114,7 @@ public class ClaimAccessorTests {
 		List<String> expectedClaimValue = Arrays.asList("item1", "item2");
 		String claimName = "list";
 		this.claims.put(claimName, expectedClaimValue);
-
 		List<String> actualClaimValue = this.claimAccessor.getClaim(claimName);
-
 		assertThat(actualClaimValue).containsOnlyElementsOf(expectedClaimValue);
 	}
 
@@ -128,9 +123,7 @@ public class ClaimAccessorTests {
 		boolean expectedClaimValue = true;
 		String claimName = "boolean";
 		this.claims.put(claimName, expectedClaimValue);
-
 		boolean actualClaimValue = this.claimAccessor.getClaim(claimName);
-
 		assertThat(actualClaimValue).isEqualTo(expectedClaimValue);
 	}
 
@@ -139,9 +132,7 @@ public class ClaimAccessorTests {
 		String expectedClaimValue = "true";
 		String claimName = "boolean";
 		this.claims.put(claimName, expectedClaimValue);
-
-		Throwable thrown = catchThrowable(() -> { boolean actualClaimValue = this.claimAccessor.getClaim(claimName); });
-
-		assertThat(thrown).isInstanceOf(ClassCastException.class);
+		assertThatObject(this.claimAccessor.getClaim(claimName)).isNotInstanceOf(Boolean.class);
 	}
+
 }

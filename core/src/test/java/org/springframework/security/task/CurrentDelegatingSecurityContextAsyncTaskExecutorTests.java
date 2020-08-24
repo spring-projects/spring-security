@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.task;
 
 import org.junit.Before;
+
+import org.springframework.security.core.context.SecurityContext;
 
 /**
  * Tests using the current {@link SecurityContext} on
@@ -25,8 +28,8 @@ import org.junit.Before;
  * @since 3.2
  *
  */
-public class CurrentDelegatingSecurityContextAsyncTaskExecutorTests extends
-		AbstractDelegatingSecurityContextAsyncTaskExecutorTests {
+public class CurrentDelegatingSecurityContextAsyncTaskExecutorTests
+		extends AbstractDelegatingSecurityContextAsyncTaskExecutorTests {
 
 	@Before
 	public void setUp() throws Exception {
@@ -35,7 +38,7 @@ public class CurrentDelegatingSecurityContextAsyncTaskExecutorTests extends
 
 	@Override
 	protected DelegatingSecurityContextAsyncTaskExecutor create() {
-		return new DelegatingSecurityContextAsyncTaskExecutor(taskExecutorDelegate);
+		return new DelegatingSecurityContextAsyncTaskExecutor(this.taskExecutorDelegate);
 	}
 
 }

@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -30,39 +32,45 @@ import org.springframework.security.authentication.event.AbstractAuthenticationF
  * @since 3.1
  */
 public class CollectingAppListener implements ApplicationListener {
+
 	Set<ApplicationEvent> events = new HashSet<>();
+
 	Set<AbstractAuthenticationEvent> authenticationEvents = new HashSet<>();
+
 	Set<AbstractAuthenticationFailureEvent> authenticationFailureEvents = new HashSet<>();
+
 	Set<AbstractAuthorizationEvent> authorizationEvents = new HashSet<>();
 
+	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof AbstractAuthenticationEvent) {
-			events.add(event);
-			authenticationEvents.add((AbstractAuthenticationEvent) event);
+			this.events.add(event);
+			this.authenticationEvents.add((AbstractAuthenticationEvent) event);
 		}
 		if (event instanceof AbstractAuthenticationFailureEvent) {
-			events.add(event);
-			authenticationFailureEvents.add((AbstractAuthenticationFailureEvent) event);
+			this.events.add(event);
+			this.authenticationFailureEvents.add((AbstractAuthenticationFailureEvent) event);
 		}
 		if (event instanceof AbstractAuthorizationEvent) {
-			events.add(event);
-			authorizationEvents.add((AbstractAuthorizationEvent) event);
+			this.events.add(event);
+			this.authorizationEvents.add((AbstractAuthorizationEvent) event);
 		}
 	}
 
 	public Set<ApplicationEvent> getEvents() {
-		return events;
+		return this.events;
 	}
 
 	public Set<AbstractAuthenticationEvent> getAuthenticationEvents() {
-		return authenticationEvents;
+		return this.authenticationEvents;
 	}
 
 	public Set<AbstractAuthenticationFailureEvent> getAuthenticationFailureEvents() {
-		return authenticationFailureEvents;
+		return this.authenticationFailureEvents;
 	}
 
 	public Set<AbstractAuthorizationEvent> getAuthorizationEvents() {
-		return authorizationEvents;
+		return this.authorizationEvents;
 	}
+
 }

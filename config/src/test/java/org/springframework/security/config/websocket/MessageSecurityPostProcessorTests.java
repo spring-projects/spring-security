@@ -13,22 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.websocket;
 
 import org.junit.Test;
+
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 
-public class MessageSecurityPostProcessorTest {
+public class MessageSecurityPostProcessorTests {
 
-	private WebSocketMessageBrokerSecurityBeanDefinitionParser.MessageSecurityPostProcessor postProcessor =
-		new WebSocketMessageBrokerSecurityBeanDefinitionParser.MessageSecurityPostProcessor("id", false);
+	private WebSocketMessageBrokerSecurityBeanDefinitionParser.MessageSecurityPostProcessor postProcessor = new WebSocketMessageBrokerSecurityBeanDefinitionParser.MessageSecurityPostProcessor(
+			"id", false);
 
 	@Test
 	public void handlesBeansWithoutClass() {
 		BeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
 		registry.registerBeanDefinition("beanWithoutClass", new GenericBeanDefinition());
-		postProcessor.postProcessBeanDefinitionRegistry(registry);
+		this.postProcessor.postProcessBeanDefinitionRegistry(registry);
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers.openid;
 
 import java.util.ArrayList;
@@ -118,16 +119,22 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * </ul>
  *
  * @author Rob Winch
- * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- *  <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- *  to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
  * @since 3.2
+ * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  */
-public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractAuthenticationFilterConfigurer<H, OpenIDLoginConfigurer<H>, OpenIDAuthenticationFilter> {
+@Deprecated
+public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractAuthenticationFilterConfigurer<H, OpenIDLoginConfigurer<H>, OpenIDAuthenticationFilter> {
+
 	private OpenIDConsumer openIDConsumer;
+
 	private ConsumerManager consumerManager;
+
 	private AuthenticationUserDetailsService<OpenIDAuthenticationToken> authenticationUserDetailsService;
+
 	private List<AttributeExchangeConfigurer> attributeExchangeConfigurers = new ArrayList<>();
 
 	/**
@@ -139,29 +146,27 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 
 	/**
 	 * Sets up OpenID attribute exchange for OpenID's matching the specified pattern.
-	 *
 	 * @param identifierPattern the regular expression for matching on OpenID's (i.e.
 	 * "https://www.google.com/.*", ".*yahoo.com.*", etc)
 	 * @return a {@link AttributeExchangeConfigurer} for further customizations of the
 	 * attribute exchange
 	 */
 	public AttributeExchangeConfigurer attributeExchange(String identifierPattern) {
-		AttributeExchangeConfigurer attributeExchangeConfigurer = new AttributeExchangeConfigurer(
-				identifierPattern);
+		AttributeExchangeConfigurer attributeExchangeConfigurer = new AttributeExchangeConfigurer(identifierPattern);
 		this.attributeExchangeConfigurers.add(attributeExchangeConfigurer);
 		return attributeExchangeConfigurer;
 	}
 
 	/**
-	 * Sets up OpenID attribute exchange for OpenIDs matching the specified pattern.
-	 * The default pattern is &quot;.*&quot;, it can be specified using
+	 * Sets up OpenID attribute exchange for OpenIDs matching the specified pattern. The
+	 * default pattern is &quot;.*&quot;, it can be specified using
 	 * {@link AttributeExchangeConfigurer#identifierPattern(String)}
-	 *
-	 * @param attributeExchangeCustomizer the {@link Customizer} to provide more options for
-	 * the {@link AttributeExchangeConfigurer}
+	 * @param attributeExchangeCustomizer the {@link Customizer} to provide more options
+	 * for the {@link AttributeExchangeConfigurer}
 	 * @return a {@link OpenIDLoginConfigurer} for further customizations
 	 */
-	public OpenIDLoginConfigurer<H> attributeExchange(Customizer<AttributeExchangeConfigurer> attributeExchangeCustomizer) {
+	public OpenIDLoginConfigurer<H> attributeExchange(
+			Customizer<AttributeExchangeConfigurer> attributeExchangeCustomizer) {
 		AttributeExchangeConfigurer attributeExchangeConfigurer = new AttributeExchangeConfigurer(".*");
 		attributeExchangeCustomizer.customize(attributeExchangeConfigurer);
 		this.attributeExchangeConfigurers.add(attributeExchangeConfigurer);
@@ -171,7 +176,6 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	/**
 	 * Allows specifying the {@link OpenIDConsumer} to be used. The default is using an
 	 * {@link OpenID4JavaConsumer}.
-	 *
 	 * @param consumer the {@link OpenIDConsumer} to be used
 	 * @return the {@link OpenIDLoginConfigurer} for further customizations
 	 */
@@ -188,7 +192,6 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	 * This is a shortcut for specifying the {@link OpenID4JavaConsumer} with a specific
 	 * {@link ConsumerManager} on {@link #consumer(OpenIDConsumer)}.
 	 * </p>
-	 *
 	 * @param consumerManager the {@link ConsumerManager} to use. Cannot be null.
 	 * @return the {@link OpenIDLoginConfigurer} for further customizations
 	 */
@@ -201,7 +204,6 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	 * The {@link AuthenticationUserDetailsService} to use. By default a
 	 * {@link UserDetailsByNameServiceWrapper} is used with the {@link UserDetailsService}
 	 * shared object found with {@link HttpSecurity#getSharedObject(Class)}.
-	 *
 	 * @param authenticationUserDetailsService the {@link AuthenticationDetailsSource} to
 	 * use
 	 * @return the {@link OpenIDLoginConfigurer} for further customizations
@@ -216,7 +218,6 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	 * Specifies the URL used to authenticate OpenID requests. If the
 	 * {@link HttpServletRequest} matches this URL the {@link OpenIDAuthenticationFilter}
 	 * will attempt to authenticate the request. The default is "/login/openid".
-	 *
 	 * @param loginProcessingUrl the URL used to perform authentication
 	 * @return the {@link OpenIDLoginConfigurer} for additional customization
 	 */
@@ -267,7 +268,6 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	 * <li>/authenticate?error GET - redirect here for failed authentication attempts</li>
 	 * <li>/authenticate?logout GET - redirect here after successfully logging out</li>
 	 * </ul>
-	 *
 	 * @param loginPage the login page to redirect to if authentication is required (i.e.
 	 * "/login")
 	 * @return the {@link FormLoginConfigurer} for additional customization
@@ -280,13 +280,10 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	@Override
 	public void init(H http) throws Exception {
 		super.init(http);
-
 		OpenIDAuthenticationProvider authenticationProvider = new OpenIDAuthenticationProvider();
-		authenticationProvider.setAuthenticationUserDetailsService(
-				getAuthenticationUserDetailsService(http));
+		authenticationProvider.setAuthenticationUserDetailsService(getAuthenticationUserDetailsService(http));
 		authenticationProvider = postProcess(authenticationProvider);
 		http.authenticationProvider(authenticationProvider);
-
 		initDefaultLoginFilter(http);
 	}
 
@@ -296,13 +293,6 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 		super.configure(http);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.config.annotation.web.configurers.
-	 * AbstractAuthenticationFilterConfigurer
-	 * #createLoginProcessingUrlMatcher(java.lang.String)
-	 */
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
 		return new AntPathRequestMatcher(loginProcessingUrl);
@@ -316,8 +306,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	 */
 	private OpenIDConsumer getConsumer() throws ConsumerException {
 		if (this.openIDConsumer == null) {
-			this.openIDConsumer = new OpenID4JavaConsumer(getConsumerManager(),
-					attributesToFetchFactory());
+			this.openIDConsumer = new OpenID4JavaConsumer(getConsumerManager(), attributesToFetchFactory());
 		}
 		return this.openIDConsumer;
 	}
@@ -337,7 +326,6 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	/**
 	 * Creates an {@link RegexBasedAxFetchListFactory} using the attributes populated by
 	 * {@link AttributeExchangeConfigurer}
-	 *
 	 * @return the {@link AxFetchListFactory} to use
 	 */
 	private AxFetchListFactory attributesToFetchFactory() {
@@ -352,23 +340,19 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	 * Gets the {@link AuthenticationUserDetailsService} that was configured or defaults
 	 * to {@link UserDetailsByNameServiceWrapper} that uses a {@link UserDetailsService}
 	 * looked up using {@link HttpSecurity#getSharedObject(Class)}
-	 *
 	 * @param http the current {@link HttpSecurity}
 	 * @return the {@link AuthenticationUserDetailsService}.
 	 */
-	private AuthenticationUserDetailsService<OpenIDAuthenticationToken> getAuthenticationUserDetailsService(
-			H http) {
+	private AuthenticationUserDetailsService<OpenIDAuthenticationToken> getAuthenticationUserDetailsService(H http) {
 		if (this.authenticationUserDetailsService != null) {
 			return this.authenticationUserDetailsService;
 		}
-		return new UserDetailsByNameServiceWrapper<>(
-				http.getSharedObject(UserDetailsService.class));
+		return new UserDetailsByNameServiceWrapper<>(http.getSharedObject(UserDetailsService.class));
 	}
 
 	/**
 	 * If available, initializes the {@link DefaultLoginPageGeneratingFilter} shared
 	 * object.
-	 *
 	 * @param http the {@link HttpSecurityBuilder} to use
 	 */
 	private void initDefaultLoginFilter(H http) {
@@ -382,8 +366,8 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 				loginPageGeneratingFilter.setLoginPageUrl(getLoginPage());
 				loginPageGeneratingFilter.setFailureUrl(getFailureUrl());
 			}
-			loginPageGeneratingFilter.setOpenIDusernameParameter(
-					OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD);
+			loginPageGeneratingFilter
+					.setOpenIDusernameParameter(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD);
 		}
 	}
 
@@ -393,8 +377,11 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	 * @author Rob Winch
 	 */
 	public final class AttributeExchangeConfigurer {
+
 		private String identifier;
+
 		private List<OpenIDAttribute> attributes = new ArrayList<>();
+
 		private List<AttributeConfigurer> attributeConfigurers = new ArrayList<>();
 
 		/**
@@ -418,7 +405,6 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 		/**
 		 * Sets the regular expression for matching on OpenID's (i.e.
 		 * "https://www.google.com/.*", ".*yahoo.com.*", etc)
-		 *
 		 * @param identifierPattern the regular expression for matching on OpenID's
 		 * @return the {@link AttributeExchangeConfigurer} for further customization of
 		 * attribute exchange
@@ -453,9 +439,8 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 		}
 
 		/**
-		 * Adds an {@link OpenIDAttribute} named &quot;default-attribute&quot;.
-		 * The name can by updated using {@link AttributeConfigurer#name(String)}.
-		 *
+		 * Adds an {@link OpenIDAttribute} named &quot;default-attribute&quot;. The name
+		 * can by updated using {@link AttributeConfigurer#name(String)}.
 		 * @param attributeCustomizer the {@link Customizer} to provide more options for
 		 * the {@link AttributeConfigurer}
 		 * @return a {@link AttributeExchangeConfigurer} for further customizations
@@ -486,14 +471,18 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 		 * @since 3.2
 		 */
 		public final class AttributeConfigurer {
+
 			private String name;
+
 			private int count = 1;
+
 			private boolean required = false;
+
 			private String type;
 
 			/**
-			 * Creates a new instance named "default-attribute".
-			 * The name can by updated using {@link #name(String)}.
+			 * Creates a new instance named "default-attribute". The name can by updated
+			 * using {@link #name(String)}.
 			 *
 			 * @see AttributeExchangeConfigurer#attribute(String)
 			 */
@@ -525,7 +514,6 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 			 * <code>false</code>. Note that as outlined in the OpenID specification,
 			 * required attributes are not validated by the OpenID Provider. Developers
 			 * should perform any validation in custom code.
-			 *
 			 * @param required specifies the attribute is required
 			 * @return the {@link AttributeConfigurer} for further customization
 			 */
@@ -557,7 +545,6 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 			/**
 			 * Gets the {@link AttributeExchangeConfigurer} for further customization of
 			 * the attributes
-			 *
 			 * @return the {@link AttributeConfigurer}
 			 */
 			public AttributeExchangeConfigurer and() {
@@ -574,6 +561,9 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 				attribute.setRequired(this.required);
 				return attribute;
 			}
+
 		}
+
 	}
+
 }

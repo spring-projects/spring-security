@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.parameters;
 
 import java.lang.annotation.Documented;
@@ -41,4 +42,5 @@ public @interface P {
 	 * @return
 	 */
 	String value();
+
 }

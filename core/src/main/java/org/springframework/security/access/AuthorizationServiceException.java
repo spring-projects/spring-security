@@ -25,13 +25,10 @@ package org.springframework.security.access;
  * @author Ben Alex
  */
 public class AuthorizationServiceException extends AccessDeniedException {
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructs an <code>AuthorizationServiceException</code> with the specified
 	 * message.
-	 *
 	 * @param msg the detail message
 	 */
 	public AuthorizationServiceException(String msg) {
@@ -41,11 +38,11 @@ public class AuthorizationServiceException extends AccessDeniedException {
 	/**
 	 * Constructs an <code>AuthorizationServiceException</code> with the specified message
 	 * and root cause.
-	 *
 	 * @param msg the detail message
-	 * @param t root cause
+	 * @param cause root cause
 	 */
-	public AuthorizationServiceException(String msg, Throwable t) {
-		super(msg, t);
+	public AuthorizationServiceException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
+
 }

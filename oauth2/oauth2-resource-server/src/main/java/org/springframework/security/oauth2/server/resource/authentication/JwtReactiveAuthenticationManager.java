@@ -39,10 +39,11 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public final class JwtReactiveAuthenticationManager implements ReactiveAuthenticationManager {
+
 	private final ReactiveJwtDecoder jwtDecoder;
 
-	private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter
-			= new ReactiveJwtAuthenticationConverterAdapter(new JwtAuthenticationConverter());
+	private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter = new ReactiveJwtAuthenticationConverterAdapter(
+			new JwtAuthenticationConverter());
 
 	public JwtReactiveAuthenticationManager(ReactiveJwtDecoder jwtDecoder) {
 		Assert.notNull(jwtDecoder, "jwtDecoder cannot be null");
@@ -51,33 +52,34 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
+		// @formatter:off
 		return Mono.justOrEmpty(authentication)
-				.filter(a -> a instanceof  BearerTokenAuthenticationToken)
+				.filter((a) -> a instanceof BearerTokenAuthenticationToken)
 				.cast(BearerTokenAuthenticationToken.class)
 				.map(BearerTokenAuthenticationToken::getToken)
 				.flatMap(this.jwtDecoder::decode)
 				.flatMap(this.jwtAuthenticationConverter::convert)
 				.cast(Authentication.class)
 				.onErrorMap(JwtException.class, this::onError);
+		// @formatter:on
 	}
 
 	/**
-	 * Use the given {@link Converter} for converting a {@link Jwt} into an {@link AbstractAuthenticationToken}.
-	 *
+	 * Use the given {@link Converter} for converting a {@link Jwt} into an
+	 * {@link AbstractAuthenticationToken}.
 	 * @param jwtAuthenticationConverter the {@link Converter} to use
 	 */
 	public void setJwtAuthenticationConverter(
 			Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter) {
-
 		Assert.notNull(jwtAuthenticationConverter, "jwtAuthenticationConverter cannot be null");
 		this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 	}
 
-	private AuthenticationException onError(JwtException e) {
-		if (e instanceof BadJwtException) {
-			return new InvalidBearerTokenException(e.getMessage(), e);
-		} else {
-			return new AuthenticationServiceException(e.getMessage(), e);
+	private AuthenticationException onError(JwtException ex) {
+		if (ex instanceof BadJwtException) {
+			return new InvalidBearerTokenException(ex.getMessage(), ex);
 		}
+		return new AuthenticationServiceException(ex.getMessage(), ex);
 	}
+
 }

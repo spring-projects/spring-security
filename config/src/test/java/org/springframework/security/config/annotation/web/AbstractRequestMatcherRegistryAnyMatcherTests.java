@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web;
 
 import org.junit.Test;
@@ -30,33 +31,11 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  *
  * @author Ankur Pathak
  */
-public class AbstractRequestMatcherRegistryAnyMatcherTests{
-
-	@EnableWebSecurity
-	static class AntMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.authorizeRequests()
-				.anyRequest().authenticated()
-				.antMatchers("/demo/**").permitAll();
-
-		}
-	}
+public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
 	@Test(expected = BeanCreationException.class)
-	public void antMatchersCanNotWorkAfterAnyRequest(){
+	public void antMatchersCanNotWorkAfterAnyRequest() {
 		loadConfig(AntMatchersAfterAnyRequestConfig.class);
-	}
-
-	@EnableWebSecurity
-	static class MvcMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.authorizeRequests()
-				.anyRequest().authenticated()
-				.mvcMatchers("/demo/**").permitAll();
-
-		}
 	}
 
 	@Test(expected = BeanCreationException.class)
@@ -64,47 +43,14 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 		loadConfig(MvcMatchersAfterAnyRequestConfig.class);
 	}
 
-	@EnableWebSecurity
-	static class RegexMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.authorizeRequests()
-				.anyRequest().authenticated()
-				.regexMatchers(".*").permitAll();
-
-		}
-	}
-
 	@Test(expected = BeanCreationException.class)
 	public void regexMatchersCanNotWorkAfterAnyRequest() {
 		loadConfig(RegexMatchersAfterAnyRequestConfig.class);
 	}
 
-	@EnableWebSecurity
-	static class AnyRequestAfterItselfConfig extends WebSecurityConfigurerAdapter {
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.authorizeRequests()
-				.anyRequest().authenticated()
-				.anyRequest().permitAll();
-
-		}
-	}
-
 	@Test(expected = BeanCreationException.class)
 	public void anyRequestCanNotWorkAfterItself() {
 		loadConfig(AnyRequestAfterItselfConfig.class);
-	}
-
-	@EnableWebSecurity
-	static class RequestMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.authorizeRequests()
-				.anyRequest().authenticated()
-				.requestMatchers(new AntPathRequestMatcher("/**")).permitAll();
-
-		}
 	}
 
 	@Test(expected = BeanCreationException.class)
@@ -119,4 +65,80 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 		context.setServletContext(new MockServletContext());
 		context.refresh();
 	}
+
+	@EnableWebSecurity
+	static class AntMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+				.anyRequest().authenticated()
+				.antMatchers("/demo/**").permitAll();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class MvcMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+				.anyRequest().authenticated()
+				.mvcMatchers("/demo/**").permitAll();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RegexMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+				.anyRequest().authenticated()
+				.regexMatchers(".*").permitAll();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class AnyRequestAfterItselfConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+				.anyRequest().authenticated()
+				.anyRequest().permitAll();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RequestMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+				.anyRequest().authenticated()
+				.requestMatchers(new AntPathRequestMatcher("/**")).permitAll();
+			// @formatter:on
+		}
+
+	}
+
 }

@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.servlet.request;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,7 +47,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 	// SEC-3836
 	@Test
 	public void findCookieCsrfTokenRepository() {
-		MockHttpServletRequest request = post("/").buildRequest(wac.getServletContext());
+		MockHttpServletRequest request = post("/").buildRequest(this.wac.getServletContext());
 		CsrfTokenRepository csrfTokenRepository = WebTestUtils.getCsrfTokenRepository(request);
 		assertThat(csrfTokenRepository).isNotNull();
 		assertThat(csrfTokenRepository).isEqualTo(Config.cookieCsrfTokenRepository);
@@ -53,6 +55,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
+
 		static CsrfTokenRepository cookieCsrfTokenRepository = new CookieCsrfTokenRepository();
 
 		@Override
@@ -65,5 +68,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 			// Enable the DebugFilter
 			web.debug(true);
 		}
+
 	}
+
 }

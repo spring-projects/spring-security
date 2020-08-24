@@ -21,34 +21,28 @@ import java.time.Instant;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.EXP;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.IAT;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OidcUserInfo}
  */
 public class OidcIdTokenBuilderTests {
+
 	@Test
 	public void buildWhenCalledTwiceThenGeneratesTwoOidcIdTokens() {
 		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token");
-
-		OidcIdToken first = idTokenBuilder
-				.tokenValue("V1")
+		// @formatter:off
+		OidcIdToken first = idTokenBuilder.tokenValue("V1")
 				.claim("TEST_CLAIM_1", "C1")
 				.build();
-
-		OidcIdToken second = idTokenBuilder
-				.tokenValue("V2")
+		OidcIdToken second = idTokenBuilder.tokenValue("V2")
 				.claim("TEST_CLAIM_1", "C2")
 				.claim("TEST_CLAIM_2", "C3")
 				.build();
-
+		// @formatter:on
 		assertThat(first.getClaims()).hasSize(1);
 		assertThat(first.getClaims().get("TEST_CLAIM_1")).isEqualTo("C1");
 		assertThat(first.getTokenValue()).isEqualTo("V1");
-
 		assertThat(second.getClaims()).hasSize(2);
 		assertThat(second.getClaims().get("TEST_CLAIM_1")).isEqualTo("C2");
 		assertThat(second.getClaims().get("TEST_CLAIM_2")).isEqualTo("C3");
@@ -58,82 +52,67 @@ public class OidcIdTokenBuilderTests {
 	@Test
 	public void expiresAtWhenUsingGenericOrNamedClaimMethodRequiresInstant() {
 		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token");
-
 		Instant now = Instant.now();
-
-		OidcIdToken idToken = idTokenBuilder
-				.expiresAt(now).build();
+		OidcIdToken idToken = idTokenBuilder.expiresAt(now).build();
 		assertThat(idToken.getExpiresAt()).isSameAs(now);
-
-		idToken = idTokenBuilder
-				.expiresAt(now).build();
+		idToken = idTokenBuilder.expiresAt(now).build();
 		assertThat(idToken.getExpiresAt()).isSameAs(now);
-
-		assertThatCode(() -> idTokenBuilder
-				.claim(EXP, "not an instant").build())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> idTokenBuilder.claim(IdTokenClaimNames.EXP, "not an instant").build());
 	}
 
 	@Test
 	public void issuedAtWhenUsingGenericOrNamedClaimMethodRequiresInstant() {
 		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token");
-
 		Instant now = Instant.now();
-
-		OidcIdToken idToken = idTokenBuilder
-				.issuedAt(now).build();
+		OidcIdToken idToken = idTokenBuilder.issuedAt(now).build();
 		assertThat(idToken.getIssuedAt()).isSameAs(now);
-
-		idToken = idTokenBuilder
-				.issuedAt(now).build();
+		idToken = idTokenBuilder.issuedAt(now).build();
 		assertThat(idToken.getIssuedAt()).isSameAs(now);
-
-		assertThatCode(() -> idTokenBuilder
-				.claim(IAT, "not an instant").build())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> idTokenBuilder.claim(IdTokenClaimNames.IAT, "not an instant").build());
 	}
 
 	@Test
 	public void subjectWhenUsingGenericOrNamedClaimMethodThenLastOneWins() {
 		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token");
-
 		String generic = new String("sub");
 		String named = new String("sub");
-
+		// @formatter:off
 		OidcIdToken idToken = idTokenBuilder
 				.subject(named)
-				.claim(SUB, generic).build();
+				.claim(IdTokenClaimNames.SUB, generic)
+				.build();
+		// @formatter:on
 		assertThat(idToken.getSubject()).isSameAs(generic);
-
-		idToken = idTokenBuilder
-				.claim(SUB, generic)
-				.subject(named).build();
+		idToken = idTokenBuilder.claim(IdTokenClaimNames.SUB, generic).subject(named).build();
 		assertThat(idToken.getSubject()).isSameAs(named);
 	}
 
 	@Test
 	public void claimsWhenRemovingAClaimThenIsNotPresent() {
+		// @formatter:off
 		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token")
 				.claim("needs", "a claim");
-
-		OidcIdToken idToken = idTokenBuilder
-				.subject("sub")
-				.claims(claims -> claims.remove(SUB))
+		OidcIdToken idToken = idTokenBuilder.subject("sub")
+				.claims((claims) -> claims.remove(IdTokenClaimNames.SUB))
 				.build();
+		// @formatter:on
 		assertThat(idToken.getSubject()).isNull();
 	}
 
 	@Test
 	public void claimsWhenAddingAClaimThenIsPresent() {
 		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token");
-
 		String name = new String("name");
 		String value = new String("value");
+		// @formatter:off
 		OidcIdToken idToken = idTokenBuilder
-				.claims(claims -> claims.put(name, value))
+				.claims((claims) -> claims.put(name, value))
 				.build();
-
+		// @formatter:on
 		assertThat(idToken.getClaims()).hasSize(1);
 		assertThat(idToken.getClaims().get(name)).isSameAs(value);
 	}
+
 }

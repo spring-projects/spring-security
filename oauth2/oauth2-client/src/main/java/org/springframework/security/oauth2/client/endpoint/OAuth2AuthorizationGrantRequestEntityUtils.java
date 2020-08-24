@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.endpoint;
+
+import java.util.Collections;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
@@ -22,15 +25,11 @@ import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
-import java.util.Collections;
-
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-
 /**
- * Utility methods used by the {@link Converter}'s that convert
- * from an implementation of an {@link AbstractOAuth2AuthorizationGrantRequest}
- * to a {@link RequestEntity} representation of an OAuth 2.0 Access Token Request
- * for the specific Authorization Grant.
+ * Utility methods used by the {@link Converter}'s that convert from an implementation of
+ * an {@link AbstractOAuth2AuthorizationGrantRequest} to a {@link RequestEntity}
+ * representation of an OAuth 2.0 Access Token Request for the specific Authorization
+ * Grant.
  *
  * @author Joe Grandja
  * @since 5.1
@@ -38,7 +37,11 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
  * @see OAuth2ClientCredentialsGrantRequestEntityConverter
  */
 final class OAuth2AuthorizationGrantRequestEntityUtils {
+
 	private static HttpHeaders DEFAULT_TOKEN_REQUEST_HEADERS = getDefaultTokenRequestHeaders();
+
+	private OAuth2AuthorizationGrantRequestEntityUtils() {
+	}
 
 	static HttpHeaders getTokenRequestHeaders(ClientRegistration clientRegistration) {
 		HttpHeaders headers = new HttpHeaders();
@@ -52,8 +55,9 @@ final class OAuth2AuthorizationGrantRequestEntityUtils {
 	private static HttpHeaders getDefaultTokenRequestHeaders() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
-		final MediaType contentType = MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+		final MediaType contentType = MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 		headers.setContentType(contentType);
 		return headers;
 	}
+
 }

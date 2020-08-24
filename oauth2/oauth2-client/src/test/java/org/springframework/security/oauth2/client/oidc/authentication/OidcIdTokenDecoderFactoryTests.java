@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.oidc.authentication;
+
+import java.util.Map;
+import java.util.function.Function;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -30,12 +35,13 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.util.Map;
-import java.util.function.Function;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Joe Grandja
@@ -44,8 +50,11 @@ import static org.mockito.Mockito.*;
  */
 public class OidcIdTokenDecoderFactoryTests {
 
-	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration()
+	// @formatter:off
+	private ClientRegistration.Builder registration = TestClientRegistrations
+			.clientRegistration()
 			.scope("openid");
+	// @formatter:on
 
 	private OidcIdTokenDecoderFactory idTokenDecoderFactory;
 
@@ -56,7 +65,8 @@ public class OidcIdTokenDecoderFactoryTests {
 
 	@Test
 	public void createDefaultClaimTypeConvertersWhenCalledThenDefaultsAreCorrect() {
-		Map<String, Converter<Object, ?>> claimTypeConverters = OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters();
+		Map<String, Converter<Object, ?>> claimTypeConverters = OidcIdTokenDecoderFactory
+				.createDefaultClaimTypeConverters();
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.ISS);
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.AUD);
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.NONCE);
@@ -71,85 +81,78 @@ public class OidcIdTokenDecoderFactoryTests {
 
 	@Test
 	public void setJwtValidatorFactoryWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.setJwtValidatorFactory(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.idTokenDecoderFactory.setJwtValidatorFactory(null));
 	}
 
 	@Test
 	public void setJwsAlgorithmResolverWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.setJwsAlgorithmResolver(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.idTokenDecoderFactory.setJwsAlgorithmResolver(null));
 	}
 
 	@Test
 	public void setClaimTypeConverterFactoryWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.setClaimTypeConverterFactory(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.idTokenDecoderFactory.setClaimTypeConverterFactory(null));
 	}
 
 	@Test
 	public void createDecoderWhenClientRegistrationNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(null));
 	}
 
 	@Test
 	public void createDecoderWhenJwsAlgorithmDefaultAndJwkSetUriEmptyThenThrowOAuth2AuthenticationException() {
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier " +
-						"for Client Registration: 'registration-id'. " +
-						"Check to ensure you have configured the JwkSet URI.");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
+				.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+						+ "for Client Registration: 'registration-id'. "
+						+ "Check to ensure you have configured the JwkSet URI.");
 	}
 
 	@Test
 	public void createDecoderWhenJwsAlgorithmEcAndJwkSetUriEmptyThenThrowOAuth2AuthenticationException() {
-		this.idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> SignatureAlgorithm.ES256);
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier " +
-						"for Client Registration: 'registration-id'. " +
-						"Check to ensure you have configured the JwkSet URI.");
+		this.idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> SignatureAlgorithm.ES256);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
+				.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+						+ "for Client Registration: 'registration-id'. "
+						+ "Check to ensure you have configured the JwkSet URI.");
 	}
 
 	@Test
 	public void createDecoderWhenJwsAlgorithmHmacAndClientSecretNullThenThrowOAuth2AuthenticationException() {
-		this.idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> MacAlgorithm.HS256);
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.clientSecret(null).build()))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier " +
-						"for Client Registration: 'registration-id'. " +
-						"Check to ensure you have configured the client secret.");
+		this.idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> MacAlgorithm.HS256);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(
+						() -> this.idTokenDecoderFactory.createDecoder(this.registration.clientSecret(null).build()))
+				.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+						+ "for Client Registration: 'registration-id'. "
+						+ "Check to ensure you have configured the client secret.");
 	}
 
 	@Test
 	public void createDecoderWhenJwsAlgorithmNullThenThrowOAuth2AuthenticationException() {
-		this.idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> null);
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.build()))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier " +
-						"for Client Registration: 'registration-id'. " +
-						"Check to ensure you have configured a valid JWS Algorithm: 'null'");
+		this.idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> null);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.build()))
+				.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+						+ "for Client Registration: 'registration-id'. "
+						+ "Check to ensure you have configured a valid JWS Algorithm: 'null'");
 	}
 
 	@Test
 	public void createDecoderWhenClientRegistrationValidThenReturnDecoder() {
-		assertThat(this.idTokenDecoderFactory.createDecoder(this.registration.build()))
-				.isNotNull();
+		assertThat(this.idTokenDecoderFactory.createDecoder(this.registration.build())).isNotNull();
 	}
 
 	@Test
 	public void createDecoderWhenCustomJwtValidatorFactorySetThenApplied() {
 		Function<ClientRegistration, OAuth2TokenValidator<Jwt>> customJwtValidatorFactory = mock(Function.class);
 		this.idTokenDecoderFactory.setJwtValidatorFactory(customJwtValidatorFactory);
-
 		ClientRegistration clientRegistration = this.registration.build();
-
-		when(customJwtValidatorFactory.apply(same(clientRegistration)))
-				.thenReturn(new OidcIdTokenValidator(clientRegistration));
-
+		given(customJwtValidatorFactory.apply(same(clientRegistration)))
+				.willReturn(new OidcIdTokenValidator(clientRegistration));
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
-
 		verify(customJwtValidatorFactory).apply(same(clientRegistration));
 	}
 
@@ -157,29 +160,22 @@ public class OidcIdTokenDecoderFactoryTests {
 	public void createDecoderWhenCustomJwsAlgorithmResolverSetThenApplied() {
 		Function<ClientRegistration, JwsAlgorithm> customJwsAlgorithmResolver = mock(Function.class);
 		this.idTokenDecoderFactory.setJwsAlgorithmResolver(customJwsAlgorithmResolver);
-
 		ClientRegistration clientRegistration = this.registration.build();
-
-		when(customJwsAlgorithmResolver.apply(same(clientRegistration)))
-				.thenReturn(MacAlgorithm.HS256);
-
+		given(customJwsAlgorithmResolver.apply(same(clientRegistration))).willReturn(MacAlgorithm.HS256);
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
-
 		verify(customJwsAlgorithmResolver).apply(same(clientRegistration));
 	}
 
 	@Test
 	public void createDecoderWhenCustomClaimTypeConverterFactorySetThenApplied() {
-		Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> customClaimTypeConverterFactory = mock(Function.class);
+		Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> customClaimTypeConverterFactory = mock(
+				Function.class);
 		this.idTokenDecoderFactory.setClaimTypeConverterFactory(customClaimTypeConverterFactory);
-
 		ClientRegistration clientRegistration = this.registration.build();
-
-		when(customClaimTypeConverterFactory.apply(same(clientRegistration)))
-				.thenReturn(new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
-
+		given(customClaimTypeConverterFactory.apply(same(clientRegistration)))
+				.willReturn(new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
-
 		verify(customClaimTypeConverterFactory).apply(same(clientRegistration));
 	}
+
 }

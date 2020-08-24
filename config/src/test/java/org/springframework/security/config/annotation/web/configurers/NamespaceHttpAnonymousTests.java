@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.Optional;
@@ -39,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests to verify that all the functionality of <anonymous> attributes is present
+ * Tests to verify that all the functionality of &lt;anonymous&gt; attributes is present
  *
  * @author Rob Winch
  * @author Josh Cummings
@@ -57,12 +58,36 @@ public class NamespaceHttpAnonymousTests {
 	public void anonymousRequestWhenUsingDefaultAnonymousConfigurationThenUsesAnonymousAuthentication()
 			throws Exception {
 		this.spring.register(AnonymousConfig.class, AnonymousController.class).autowire();
-		this.mvc.perform(get("/type"))
-				.andExpect(content().string(AnonymousAuthenticationToken.class.getSimpleName()));
+		this.mvc.perform(get("/type")).andExpect(content().string(AnonymousAuthenticationToken.class.getSimpleName()));
+	}
+
+	@Test
+	public void anonymousRequestWhenDisablingAnonymousThenDenies() throws Exception {
+		this.spring.register(AnonymousDisabledConfig.class, AnonymousController.class).autowire();
+		this.mvc.perform(get("/type")).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void requestWhenAnonymousThenSendsAnonymousConfiguredAuthorities() throws Exception {
+		this.spring.register(AnonymousGrantedAuthorityConfig.class, AnonymousController.class).autowire();
+		this.mvc.perform(get("/type")).andExpect(content().string(AnonymousAuthenticationToken.class.getSimpleName()));
+	}
+
+	@Test
+	public void anonymousRequestWhenAnonymousKeyConfiguredThenKeyIsUsed() throws Exception {
+		this.spring.register(AnonymousKeyConfig.class, AnonymousController.class).autowire();
+		this.mvc.perform(get("/key")).andExpect(content().string(String.valueOf("AnonymousKeyConfig".hashCode())));
+	}
+
+	@Test
+	public void anonymousRequestWhenAnonymousUsernameConfiguredThenUsernameIsUsed() throws Exception {
+		this.spring.register(AnonymousUsernameConfig.class, AnonymousController.class).autowire();
+		this.mvc.perform(get("/principal")).andExpect(content().string("AnonymousUsernameConfig"));
 	}
 
 	@EnableWebSecurity
 	static class AnonymousConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -72,18 +97,12 @@ public class NamespaceHttpAnonymousTests {
 					.anyRequest().denyAll();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void anonymousRequestWhenDisablingAnonymousThenDenies()
-			throws Exception {
-		this.spring.register(AnonymousDisabledConfig.class, AnonymousController.class).autowire();
-		this.mvc.perform(get("/type"))
-				.andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity
 	static class AnonymousDisabledConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -95,6 +114,7 @@ public class NamespaceHttpAnonymousTests {
 			// @formatter:on
 		}
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -103,18 +123,12 @@ public class NamespaceHttpAnonymousTests {
 					.withUser(PasswordEncodedUser.admin());
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void requestWhenAnonymousThenSendsAnonymousConfiguredAuthorities()
-			throws Exception {
-		this.spring.register(AnonymousGrantedAuthorityConfig.class, AnonymousController.class).autowire();
-		this.mvc.perform(get("/type"))
-				.andExpect(content().string(AnonymousAuthenticationToken.class.getSimpleName()));
 	}
 
 	@EnableWebSecurity
 	static class AnonymousGrantedAuthorityConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -127,17 +141,12 @@ public class NamespaceHttpAnonymousTests {
 					.authorities("ROLE_ANON");
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void anonymousRequestWhenAnonymousKeyConfiguredThenKeyIsUsed() throws Exception {
-		this.spring.register(AnonymousKeyConfig.class, AnonymousController.class).autowire();
-		this.mvc.perform(get("/key"))
-				.andExpect(content().string(String.valueOf("AnonymousKeyConfig".hashCode())));
 	}
 
 	@EnableWebSecurity
 	static class AnonymousKeyConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -149,17 +158,12 @@ public class NamespaceHttpAnonymousTests {
 				.anonymous().key("AnonymousKeyConfig");
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void anonymousRequestWhenAnonymousUsernameConfiguredThenUsernameIsUsed() throws Exception {
-		this.spring.register(AnonymousUsernameConfig.class, AnonymousController.class).autowire();
-		this.mvc.perform(get("/principal"))
-				.andExpect(content().string("AnonymousUsernameConfig"));
 	}
 
 	@EnableWebSecurity
 	static class AnonymousUsernameConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -171,39 +175,33 @@ public class NamespaceHttpAnonymousTests {
 				.anonymous().principal("AnonymousUsernameConfig");
 			// @formatter:on
 		}
+
 	}
 
 	@RestController
 	static class AnonymousController {
+
 		@GetMapping("/type")
 		String type() {
-			return anonymousToken()
-					.map(AnonymousAuthenticationToken::getClass)
-					.map(Class::getSimpleName)
-					.orElse(null);
+			return anonymousToken().map(AnonymousAuthenticationToken::getClass).map(Class::getSimpleName).orElse(null);
 		}
 
 		@GetMapping("/key")
 		String key() {
-			return anonymousToken()
-					.map(AnonymousAuthenticationToken::getKeyHash)
-					.map(String::valueOf)
-					.orElse(null);
+			return anonymousToken().map(AnonymousAuthenticationToken::getKeyHash).map(String::valueOf).orElse(null);
 		}
 
 		@GetMapping("/principal")
 		String principal() {
-			return anonymousToken()
-					.map(AnonymousAuthenticationToken::getName)
-					.orElse(null);
+			return anonymousToken().map(AnonymousAuthenticationToken::getName).orElse(null);
 		}
 
 		Optional<AnonymousAuthenticationToken> anonymousToken() {
-			return Optional.of(SecurityContextHolder.getContext())
-					.map(SecurityContext::getAuthentication)
-					.filter(a -> a instanceof AnonymousAuthenticationToken)
+			return Optional.of(SecurityContextHolder.getContext()).map(SecurityContext::getAuthentication)
+					.filter((a) -> a instanceof AnonymousAuthenticationToken)
 					.map(AnonymousAuthenticationToken.class::cast);
 		}
+
 	}
 
 }

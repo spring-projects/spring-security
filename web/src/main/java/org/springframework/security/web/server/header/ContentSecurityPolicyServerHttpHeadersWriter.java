@@ -18,6 +18,7 @@ package org.springframework.security.web.server.header;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.web.server.header.StaticServerHttpHeadersWriter.Builder;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -28,8 +29,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Vedran Pavic
  * @since 5.1
  */
-public final class ContentSecurityPolicyServerHttpHeadersWriter
-		implements ServerHttpHeadersWriter {
+public final class ContentSecurityPolicyServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 
 	public static final String CONTENT_SECURITY_POLICY = "Content-Security-Policy";
 
@@ -43,8 +43,7 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter
 
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		return (this.delegate != null) ? this.delegate.writeHttpHeaders(exchange)
-				: Mono.empty();
+		return (this.delegate != null) ? this.delegate.writeHttpHeaders(exchange) : Mono.empty();
 	}
 
 	/**
@@ -69,16 +68,12 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter
 	}
 
 	private ServerHttpHeadersWriter createDelegate() {
-		if (this.policyDirectives != null) {
-			// @formatter:off
-		return StaticServerHttpHeadersWriter.builder()
-				.header(resolveHeader(this.reportOnly), this.policyDirectives)
-				.build();
-		// @formatter:on
-		}
-		else {
+		if (this.policyDirectives == null) {
 			return null;
 		}
+		Builder builder = StaticServerHttpHeadersWriter.builder();
+		builder.header(resolveHeader(this.reportOnly), this.policyDirectives);
+		return builder.build();
 	}
 
 	private static String resolveHeader(boolean reportOnly) {

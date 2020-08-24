@@ -16,11 +16,15 @@
 
 package org.springframework.security.oauth2.client.userinfo;
 
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.nimbusds.oauth2.sdk.ErrorObject;
+import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
+import net.minidev.json.JSONObject;
+import reactor.core.publisher.Mono;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
@@ -42,21 +46,18 @@ import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.nimbusds.oauth2.sdk.ErrorObject;
-import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
-
-import net.minidev.json.JSONObject;
-import reactor.core.publisher.Mono;
-
 /**
- * An implementation of an {@link ReactiveOAuth2UserService} that supports standard OAuth 2.0 Provider's.
+ * An implementation of an {@link ReactiveOAuth2UserService} that supports standard OAuth
+ * 2.0 Provider's.
  * <p>
  * For standard OAuth 2.0 Provider's, the attribute name used to access the user's name
  * from the UserInfo response is required and therefore must be available via
- * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails.UserInfoEndpoint#getUserNameAttributeName() UserInfoEndpoint.getUserNameAttributeName()}.
+ * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails.UserInfoEndpoint#getUserNameAttributeName()
+ * UserInfoEndpoint.getUserNameAttributeName()}.
  * <p>
- * <b>NOTE:</b> Attribute names are <b>not</b> standardized between providers and therefore will vary.
- * Please consult the provider's API documentation for the set of supported user attribute names.
+ * <b>NOTE:</b> Attribute names are <b>not</b> standardized between providers and
+ * therefore will vary. Please consult the provider's API documentation for the set of
+ * supported user attribute names.
  *
  * @author Rob Winch
  * @since 5.1
@@ -66,71 +67,60 @@ import reactor.core.publisher.Mono;
  * @see DefaultOAuth2User
  */
 public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> {
+
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
+
 	private static final String MISSING_USER_INFO_URI_ERROR_CODE = "missing_user_info_uri";
+
 	private static final String MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE = "missing_user_name_attribute";
+
+	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
+	};
+
+	private static final ParameterizedTypeReference<Map<String, String>> STRING_STRING_MAP = new ParameterizedTypeReference<Map<String, String>>() {
+	};
 
 	private WebClient webClient = WebClient.create();
 
 	@Override
-	public Mono<OAuth2User> loadUser(OAuth2UserRequest userRequest)
-			throws OAuth2AuthenticationException {
+	public Mono<OAuth2User> loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		return Mono.defer(() -> {
 			Assert.notNull(userRequest, "userRequest cannot be null");
-
-			String userInfoUri = userRequest.getClientRegistration().getProviderDetails()
-					.getUserInfoEndpoint().getUri();
-			if (!StringUtils.hasText(
-					userInfoUri)) {
-				OAuth2Error oauth2Error = new OAuth2Error(
-						MISSING_USER_INFO_URI_ERROR_CODE,
+			String userInfoUri = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
+					.getUri();
+			if (!StringUtils.hasText(userInfoUri)) {
+				OAuth2Error oauth2Error = new OAuth2Error(MISSING_USER_INFO_URI_ERROR_CODE,
 						"Missing required UserInfo Uri in UserInfoEndpoint for Client Registration: "
 								+ userRequest.getClientRegistration().getRegistrationId(),
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
-					.getUserNameAttributeName();
+			String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
+					.getUserInfoEndpoint().getUserNameAttributeName();
 			if (!StringUtils.hasText(userNameAttributeName)) {
-				OAuth2Error oauth2Error = new OAuth2Error(
-						MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE,
+				OAuth2Error oauth2Error = new OAuth2Error(MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE,
 						"Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: "
 								+ userRequest.getClientRegistration().getRegistrationId(),
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-
-			ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
-			};
-
 			AuthenticationMethod authenticationMethod = userRequest.getClientRegistration().getProviderDetails()
 					.getUserInfoEndpoint().getAuthenticationMethod();
-			WebClient.RequestHeadersSpec<?> requestHeadersSpec;
-			if (AuthenticationMethod.FORM.equals(authenticationMethod)) {
-				requestHeadersSpec = this.webClient.post()
-						.uri(userInfoUri)
-						.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-						.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-						.syncBody("access_token=" + userRequest.getAccessToken().getTokenValue());
-			} else {
-				requestHeadersSpec = this.webClient.get()
-						.uri(userInfoUri)
-						.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-						.headers(headers -> headers.setBearerAuth(userRequest.getAccessToken().getTokenValue()));
-			}
-			Mono<Map<String, Object>> userAttributes = requestHeadersSpec
-					.retrieve()
-					.onStatus(s -> s != HttpStatus.OK, response -> parse(response).map(userInfoErrorResponse -> {
-						String description = userInfoErrorResponse.getErrorObject().getDescription();
-						OAuth2Error oauth2Error = new OAuth2Error(
-								INVALID_USER_INFO_RESPONSE_ERROR_CODE, description,
-								null);
-						throw new OAuth2AuthenticationException(oauth2Error,
-								oauth2Error.toString());
-					}))
-					.bodyToMono(typeReference);
-
-			return userAttributes.map(attrs -> {
+			WebClient.RequestHeadersSpec<?> requestHeadersSpec = getRequestHeaderSpec(userRequest, userInfoUri,
+					authenticationMethod);
+			// @formatter:off
+			Mono<Map<String, Object>> userAttributes = requestHeadersSpec.retrieve()
+					.onStatus((s) -> s != HttpStatus.OK, (response) ->
+						parse(response)
+							.map((userInfoErrorResponse) -> {
+								String description = userInfoErrorResponse.getErrorObject().getDescription();
+								OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE, description,
+									null);
+								throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+							})
+					)
+					.bodyToMono(DefaultReactiveOAuth2UserService.STRING_OBJECT_MAP);
+			return userAttributes.map((attrs) -> {
 				GrantedAuthority authority = new OAuth2UserAuthority(attrs);
 				Set<GrantedAuthority> authorities = new HashSet<>();
 				authorities.add(authority);
@@ -141,24 +131,53 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 
 				return new DefaultOAuth2User(authorities, attrs, userNameAttributeName);
 			})
-			.onErrorMap(IOException.class, e -> new AuthenticationServiceException("Unable to access the userInfoEndpoint " + userInfoUri, e))
-			.onErrorMap(UnsupportedMediaTypeException.class, e -> {
-				String errorMessage = "An error occurred while attempting to retrieve the UserInfo Resource from '" +
-						userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri() +
-						"': response contains invalid content type '" + e.getContentType().toString() + "'. " +
-						"The UserInfo Response should return a JSON object (content type 'application/json') " +
-						"that contains a collection of name and value pairs of the claims about the authenticated End-User. " +
-						"Please ensure the UserInfo Uri in UserInfoEndpoint for Client Registration '" +
-						userRequest.getClientRegistration().getRegistrationId() + "' conforms to the UserInfo Endpoint, " +
-						"as defined in OpenID Connect 1.0: 'https://openid.net/specs/openid-connect-core-1_0.html#UserInfo'";
-				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE, errorMessage, null);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), e);
+			.onErrorMap(IOException.class,
+					(ex) -> new AuthenticationServiceException("Unable to access the userInfoEndpoint " + userInfoUri,
+							ex)
+			)
+			.onErrorMap(UnsupportedMediaTypeException.class, (ex) -> {
+				String errorMessage = "An error occurred while attempting to retrieve the UserInfo Resource from '"
+						+ userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
+								.getUri()
+						+ "': response contains invalid content type '" + ex.getContentType().toString() + "'. "
+						+ "The UserInfo Response should return a JSON object (content type 'application/json') "
+						+ "that contains a collection of name and value pairs of the claims about the authenticated End-User. "
+						+ "Please ensure the UserInfo Uri in UserInfoEndpoint for Client Registration '"
+						+ userRequest.getClientRegistration().getRegistrationId()
+						+ "' conforms to the UserInfo Endpoint, "
+						+ "as defined in OpenID Connect 1.0: 'https://openid.net/specs/openid-connect-core-1_0.html#UserInfo'";
+				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE, errorMessage,
+						null);
+				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 			})
-			.onErrorMap(t -> !(t instanceof AuthenticationServiceException), t -> {
-				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,  "An error occurred reading the UserInfo Success response: " + t.getMessage(), null);
+			.onErrorMap((t) -> !(t instanceof AuthenticationServiceException), (t) -> {
+				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
+						"An error occurred reading the UserInfo Success response: " + t.getMessage(), null);
 				return new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), t);
 			});
 		});
+		// @formatter:on
+	}
+
+	private WebClient.RequestHeadersSpec<?> getRequestHeaderSpec(OAuth2UserRequest userRequest, String userInfoUri,
+			AuthenticationMethod authenticationMethod) {
+		if (AuthenticationMethod.FORM.equals(authenticationMethod)) {
+			// @formatter:off
+			return this.webClient.post()
+					.uri(userInfoUri)
+					.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+					.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+					.bodyValue("access_token=" + userRequest.getAccessToken().getTokenValue());
+			// @formatter:on
+		}
+		// @formatter:off
+		return this.webClient.get()
+				.uri(userInfoUri)
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+				.headers((headers) -> headers
+						.setBearerAuth(userRequest.getAccessToken().getTokenValue())
+				);
+		// @formatter:on
 	}
 
 	/**
@@ -171,19 +190,14 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 	}
 
 	private static Mono<UserInfoErrorResponse> parse(ClientResponse httpResponse) {
-
 		String wwwAuth = httpResponse.headers().asHttpHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE);
-
 		if (!StringUtils.isEmpty(wwwAuth)) {
 			// Bearer token error?
 			return Mono.fromCallable(() -> UserInfoErrorResponse.parse(wwwAuth));
 		}
-
-		ParameterizedTypeReference<Map<String, String>> typeReference =
-				new ParameterizedTypeReference<Map<String, String>>() {};
 		// Other error?
-		return httpResponse
-			.bodyToMono(typeReference)
-			.map(body -> new UserInfoErrorResponse(ErrorObject.parse(new JSONObject(body))));
+		return httpResponse.bodyToMono(STRING_STRING_MAP)
+				.map((body) -> new UserInfoErrorResponse(ErrorObject.parse(new JSONObject(body))));
 	}
+
 }

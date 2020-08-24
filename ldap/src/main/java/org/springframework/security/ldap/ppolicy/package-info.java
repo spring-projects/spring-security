@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
- * Implementation of password policy functionality based on the
- * <a href="https://tools.ietf.org/draft/draft-behera-ldap-password-policy/draft-behera-ldap-password-policy-09.txt">
+ * Implementation of password policy functionality based on the <a href=
+ * "https://tools.ietf.org/draft/draft-behera-ldap-password-policy/draft-behera-ldap-password-policy-09.txt">
  * Password Policy for LDAP Directories</a>.
  * <p>
- * This code will not work with servers such as Active Directory, which do not implement this standard.
+ * This code will not work with servers such as Active Directory, which do not implement
+ * this standard.
  */
 package org.springframework.security.ldap.ppolicy;
-

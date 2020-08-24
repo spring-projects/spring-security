@@ -34,21 +34,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0
  */
 abstract class AbstractMockServerConfigurersTests {
+
 	protected PrincipalController controller = new PrincipalController();
+
 	protected SecurityContextController securityContextController = new SecurityContextController();
 
-	protected User.UserBuilder userBuilder = User
-		.withUsername("user")
-		.password("password")
-		.roles("USER");
+	protected User.UserBuilder userBuilder = User.withUsername("user").password("password").roles("USER");
 
 	protected void assertPrincipalCreatedFromUserDetails(Principal principal, UserDetails originalUserDetails) {
 		assertThat(principal).isInstanceOf(UsernamePasswordAuthenticationToken.class);
-
 		UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) principal;
 		assertThat(authentication.getCredentials()).isEqualTo(originalUserDetails.getPassword());
 		assertThat(authentication.getAuthorities()).containsOnlyElementsOf(originalUserDetails.getAuthorities());
-
 		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 		assertThat(userDetails.getPassword()).isEqualTo(authentication.getCredentials());
 		assertThat(authentication.getAuthorities()).containsOnlyElementsOf(userDetails.getAuthorities());
@@ -56,6 +53,7 @@ abstract class AbstractMockServerConfigurersTests {
 
 	@RestController
 	protected static class PrincipalController {
+
 		volatile Principal principal;
 
 		@RequestMapping("/**")
@@ -74,10 +72,12 @@ abstract class AbstractMockServerConfigurersTests {
 			assertThat(this.principal).isEqualTo(expected);
 			this.principal = null;
 		}
+
 	}
 
 	@RestController
 	protected static class SecurityContextController {
+
 		volatile SecurityContext securityContext;
 
 		@RequestMapping("/**")
@@ -91,5 +91,7 @@ abstract class AbstractMockServerConfigurersTests {
 			this.securityContext = null;
 			return result;
 		}
+
 	}
+
 }

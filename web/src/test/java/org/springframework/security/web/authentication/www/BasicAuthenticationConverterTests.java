@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication.www;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+package org.springframework.security.web.authentication.www;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,10 +24,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * @author Sergey Bespalov
@@ -42,11 +44,12 @@ public class BasicAuthenticationConverterTests {
 
 	@Mock
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
+
 	private BasicAuthenticationConverter converter;
 
 	@Before
 	public void setup() {
-		converter = new BasicAuthenticationConverter(authenticationDetailsSource);
+		this.converter = new BasicAuthenticationConverter(this.authenticationDetailsSource);
 	}
 
 	@Test
@@ -54,9 +57,8 @@ public class BasicAuthenticationConverterTests {
 		String token = "rod:koala";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-		UsernamePasswordAuthenticationToken authentication = converter.convert(request);
-
-		verify(authenticationDetailsSource).buildDetails(any());
+		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
+		verify(this.authenticationDetailsSource).buildDetails(any());
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.getName()).isEqualTo("rod");
 	}
@@ -66,9 +68,8 @@ public class BasicAuthenticationConverterTests {
 		String token = "rod:koala";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "BaSiC " + new String(Base64.encodeBase64(token.getBytes())));
-		UsernamePasswordAuthenticationToken authentication = converter.convert(request);
-
-		verify(authenticationDetailsSource).buildDetails(any());
+		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
+		verify(this.authenticationDetailsSource).buildDetails(any());
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.getName()).isEqualTo("rod");
 	}
@@ -77,9 +78,8 @@ public class BasicAuthenticationConverterTests {
 	public void testWhenUnsupportedAuthorizationHeaderThenIgnored() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer someOtherToken");
-		UsernamePasswordAuthenticationToken authentication = converter.convert(request);
-
-		verifyZeroInteractions(authenticationDetailsSource);
+		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
+		verifyZeroInteractions(this.authenticationDetailsSource);
 		assertThat(authentication).isNull();
 	}
 
@@ -88,15 +88,14 @@ public class BasicAuthenticationConverterTests {
 		String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-		converter.convert(request);
+		this.converter.convert(request);
 	}
 
 	@Test(expected = BadCredentialsException.class)
 	public void testWhenInvalidBase64ThenError() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic NOT_VALID_BASE64");
-
-		converter.convert(request);
+		this.converter.convert(request);
 	}
 
 	@Test
@@ -104,9 +103,8 @@ public class BasicAuthenticationConverterTests {
 		String token = "rod:";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-		UsernamePasswordAuthenticationToken authentication = converter.convert(request);
-
-		verify(authenticationDetailsSource).buildDetails(any());
+		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
+		verify(this.authenticationDetailsSource).buildDetails(any());
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.getName()).isEqualTo("rod");
 		assertThat(authentication.getCredentials()).isEqualTo("");
@@ -116,7 +114,7 @@ public class BasicAuthenticationConverterTests {
 	public void requestWhenEmptyBasicAuthorizationHeaderTokenThenError() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic ");
-		converter.convert(request);
+		this.converter.convert(request);
 	}
 
 }

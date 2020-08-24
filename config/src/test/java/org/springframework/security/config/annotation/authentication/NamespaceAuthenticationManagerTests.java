@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.authentication;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +36,7 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
  * @author Rob Winch
  */
 public class NamespaceAuthenticationManagerTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -42,65 +46,74 @@ public class NamespaceAuthenticationManagerTests {
 	@Test
 	public void authenticationMangerWhenDefaultThenEraseCredentialsIsTrue() throws Exception {
 		this.spring.register(EraseCredentialsTrueDefaultConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withAuthentication(a-> assertThat(a.getCredentials()).isNull()));
-
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withAuthentication(a-> assertThat(a.getCredentials()).isNull()));
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher nullCredentials = authenticated()
+				.withAuthentication((a) -> assertThat(a.getCredentials()).isNull());
+		this.mockMvc.perform(formLogin()).andExpect(nullCredentials);
+		this.mockMvc.perform(formLogin()).andExpect(nullCredentials);
 		// no exception due to username being cleared out
-	}
-
-	@EnableWebSecurity
-	static class EraseCredentialsTrueDefaultConfig extends WebSecurityConfigurerAdapter {
-		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-		}
 	}
 
 	@Test
 	public void authenticationMangerWhenEraseCredentialsIsFalseThenCredentialsNotNull() throws Exception {
 		this.spring.register(EraseCredentialsFalseConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withAuthentication(a-> assertThat(a.getCredentials()).isNotNull()));
-
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withAuthentication(a-> assertThat(a.getCredentials()).isNotNull()));
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher notNullCredentials = authenticated()
+				.withAuthentication((a) -> assertThat(a.getCredentials()).isNotNull());
+		this.mockMvc.perform(formLogin()).andExpect(notNullCredentials);
+		this.mockMvc.perform(formLogin()).andExpect(notNullCredentials);
 		// no exception due to username being cleared out
-	}
-
-	@EnableWebSecurity
-	static class EraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
-		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.eraseCredentials(false)
-				.inMemoryAuthentication()
-				.withUser(PasswordEncodedUser.user());
-		}
 	}
 
 	@Test
 	// SEC-2533
 	public void authenticationManagerWhenGlobalAndEraseCredentialsIsFalseThenCredentialsNotNull() throws Exception {
 		this.spring.register(GlobalEraseCredentialsFalseConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withAuthentication(a-> assertThat(a.getCredentials()).isNotNull()));
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher notNullCredentials = authenticated()
+				.withAuthentication((a) -> assertThat(a.getCredentials()).isNotNull());
+		this.mockMvc.perform(formLogin()).andExpect(notNullCredentials);
 	}
 
 	@EnableWebSecurity
-	static class GlobalEraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
+	static class EraseCredentialsTrueDefaultConfig extends WebSecurityConfigurerAdapter {
+
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class EraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		public void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.eraseCredentials(false)
 				.inMemoryAuthentication()
 				.withUser(PasswordEncodedUser.user());
+			// @formatter:on
 		}
+
 	}
+
+	@EnableWebSecurity
+	static class GlobalEraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
+
+		@Autowired
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.eraseCredentials(false)
+				.inMemoryAuthentication()
+				.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
 }

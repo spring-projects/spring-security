@@ -16,10 +16,11 @@
 
 package org.springframework.security.access.intercept;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.security.access.SecurityConfig;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link NullRunAsManager}.
@@ -27,8 +28,6 @@ import org.springframework.security.access.SecurityConfig;
  * @author Ben Alex
  */
 public class NullRunAsManagerTests {
-	// ~ Methods
-	// ========================================================================================================
 
 	@Test
 	public void testAlwaysReturnsNull() {
@@ -47,4 +46,5 @@ public class NullRunAsManagerTests {
 		NullRunAsManager runAs = new NullRunAsManager();
 		assertThat(runAs.supports(new SecurityConfig("X"))).isFalse();
 	}
+
 }

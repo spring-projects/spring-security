@@ -17,6 +17,7 @@
 package org.springframework.security.rsocket.core;
 
 import io.rsocket.Payload;
+
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadExchangeType;
 import org.springframework.util.Assert;
@@ -69,4 +70,5 @@ public class DefaultPayloadExchange implements PayloadExchange {
 	public MimeType getDataMimeType() {
 		return this.dataMimeType;
 	}
+
 }

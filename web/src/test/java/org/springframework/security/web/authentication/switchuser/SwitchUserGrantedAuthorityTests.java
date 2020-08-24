@@ -13,35 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.switchuser;
 
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- *
  * @author Clement Ng
  *
  */
 public class SwitchUserGrantedAuthorityTests {
 
-	/**
-	 */
 	@Test
 	public void authorityWithNullRoleFailsAssertion() {
-		assertThatThrownBy(() -> new SwitchUserGrantedAuthority(null, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("role cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> new SwitchUserGrantedAuthority(null, null))
+				.withMessage("role cannot be null");
 	}
 
-	/**
-	 */
 	@Test
 	public void authorityWithNullSourceFailsAssertion() {
-		assertThatThrownBy(() -> new SwitchUserGrantedAuthority("role", null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("source cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> new SwitchUserGrantedAuthority("role", null))
+				.withMessage("source cannot be null");
 	}
+
 }

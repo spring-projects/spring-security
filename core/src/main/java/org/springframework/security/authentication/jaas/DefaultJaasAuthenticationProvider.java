@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.authentication.jaas;
 
 import javax.security.auth.callback.CallbackHandler;
@@ -84,15 +85,9 @@ import org.springframework.util.Assert;
  * @see AbstractJaasAuthenticationProvider
  * @see InMemoryConfiguration
  */
-public class DefaultJaasAuthenticationProvider
-		extends AbstractJaasAuthenticationProvider {
-	// ~ Instance fields
-	// ================================================================================================
+public class DefaultJaasAuthenticationProvider extends AbstractJaasAuthenticationProvider {
 
 	private Configuration configuration;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -105,8 +100,7 @@ public class DefaultJaasAuthenticationProvider
 	 * {@link #setConfiguration(Configuration)}.
 	 */
 	@Override
-	protected LoginContext createLoginContext(CallbackHandler handler)
-			throws LoginException {
+	protected LoginContext createLoginContext(CallbackHandler handler) throws LoginException {
 		return new LoginContext(getLoginContextName(), null, handler, getConfiguration());
 	}
 
@@ -116,11 +110,11 @@ public class DefaultJaasAuthenticationProvider
 
 	/**
 	 * Sets the Configuration to use for Authentication.
-	 *
 	 * @param configuration the Configuration that is used when
 	 * {@link #createLoginContext(CallbackHandler)} is called.
 	 */
 	public void setConfiguration(Configuration configuration) {
 		this.configuration = configuration;
 	}
+
 }

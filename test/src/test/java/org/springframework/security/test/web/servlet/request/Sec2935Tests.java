@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.test.web.servlet.request;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+package org.springframework.security.test.web.servlet.request;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -40,11 +35,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 /**
  * @author Rob Winch
  */
-
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
@@ -57,89 +57,55 @@ public class Sec2935Tests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context)
-				.apply(springSecurity())
-				.build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity()).build();
 	}
 
 	// SEC-2935
 	@Test
 	public void postProcessorUserNoUser() throws Exception {
-		mvc
-			.perform(get("/admin/abc").with(user("user").roles("ADMIN", "USER")))
-			.andExpect(status().isNotFound())
-			.andExpect(authenticated().withUsername("user"));
-
-		mvc
-			.perform(get("/admin/abc"))
-			.andExpect(status().isUnauthorized())
-			.andExpect(unauthenticated());
+		this.mvc.perform(get("/admin/abc").with(user("user").roles("ADMIN", "USER"))).andExpect(status().isNotFound())
+				.andExpect(authenticated().withUsername("user"));
+		this.mvc.perform(get("/admin/abc")).andExpect(status().isUnauthorized()).andExpect(unauthenticated());
 	}
 
 	@Test
 	public void postProcessorUserOtherUser() throws Exception {
-		mvc
-			.perform(get("/admin/abc").with(user("user1").roles("ADMIN", "USER")))
-			.andExpect(status().isNotFound())
-			.andExpect(authenticated().withUsername("user1"));
-
-		mvc
-			.perform(get("/admin/abc").with(user("user2").roles("USER")))
-			.andExpect(status().isForbidden())
-			.andExpect(authenticated().withUsername("user2"));
+		this.mvc.perform(get("/admin/abc").with(user("user1").roles("ADMIN", "USER"))).andExpect(status().isNotFound())
+				.andExpect(authenticated().withUsername("user1"));
+		this.mvc.perform(get("/admin/abc").with(user("user2").roles("USER"))).andExpect(status().isForbidden())
+				.andExpect(authenticated().withUsername("user2"));
 	}
 
 	@WithMockUser
 	@Test
 	public void postProcessorUserWithMockUser() throws Exception {
-		mvc
-			.perform(get("/admin/abc").with(user("user1").roles("ADMIN", "USER")))
-			.andExpect(status().isNotFound())
-			.andExpect(authenticated().withUsername("user1"));
-
-		mvc
-			.perform(get("/admin/abc"))
-			.andExpect(status().isForbidden())
-			.andExpect(authenticated().withUsername("user"));
+		this.mvc.perform(get("/admin/abc").with(user("user1").roles("ADMIN", "USER"))).andExpect(status().isNotFound())
+				.andExpect(authenticated().withUsername("user1"));
+		this.mvc.perform(get("/admin/abc")).andExpect(status().isForbidden())
+				.andExpect(authenticated().withUsername("user"));
 	}
 
 	// SEC-2941
 	@Test
 	public void defaultRequest() throws Exception {
-		mvc = MockMvcBuilders.webAppContextSetup(context)
-				.apply(springSecurity())
-				.defaultRequest(get("/").with(user("default")))
-				.build();
-
-		mvc
-			.perform(get("/admin/abc").with(user("user1").roles("ADMIN", "USER")))
-			.andExpect(status().isNotFound())
-			.andExpect(authenticated().withUsername("user1"));
-
-		mvc
-			.perform(get("/admin/abc"))
-			.andExpect(status().isForbidden())
-			.andExpect(authenticated().withUsername("default"));
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity())
+				.defaultRequest(get("/").with(user("default"))).build();
+		this.mvc.perform(get("/admin/abc").with(user("user1").roles("ADMIN", "USER"))).andExpect(status().isNotFound())
+				.andExpect(authenticated().withUsername("user1"));
+		this.mvc.perform(get("/admin/abc")).andExpect(status().isForbidden())
+				.andExpect(authenticated().withUsername("default"));
 	}
 
 	@Ignore
 	@WithMockUser
 	@Test
 	public void defaultRequestOverridesWithMockUser() throws Exception {
-		mvc = MockMvcBuilders.webAppContextSetup(context)
-				.apply(springSecurity())
-				.defaultRequest(get("/").with(user("default")))
-				.build();
-
-		mvc
-			.perform(get("/admin/abc").with(user("user1").roles("ADMIN", "USER")))
-			.andExpect(status().isNotFound())
-			.andExpect(authenticated().withUsername("user1"));
-
-		mvc
-			.perform(get("/admin/abc"))
-			.andExpect(status().isForbidden())
-			.andExpect(authenticated().withUsername("default"));
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity())
+				.defaultRequest(get("/").with(user("default"))).build();
+		this.mvc.perform(get("/admin/abc").with(user("user1").roles("ADMIN", "USER"))).andExpect(status().isNotFound())
+				.andExpect(authenticated().withUsername("user1"));
+		this.mvc.perform(get("/admin/abc")).andExpect(status().isForbidden())
+				.andExpect(authenticated().withUsername("default"));
 	}
 
 	@EnableWebSecurity
@@ -148,17 +114,21 @@ public class Sec2935Tests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					.and()
 				.httpBasic();
+			// @formatter:on
 		}
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			auth.inMemoryAuthentication();
 		}
+
 	}
+
 }

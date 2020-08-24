@@ -13,26 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.core;
 
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *  https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+package org.springframework.security.core;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -78,13 +60,14 @@ import java.util.Stack;
  * </ul>
  * </p>
  *
- * @see <a
- * href="https://cwiki.apache.org/confluence/display/MAVENOLD/Versioning">"Versioning" on
- * Maven Wiki</a>
- * @author <a href="mailto:kenney@apache.org">Kenney Westerhof</a>
- * @author <a href="mailto:hboutemy@apache.org">HervÃ© Boutemy</a>
+ * @author Kenney Westerhof
+ * @author Hervé Boutemy
+ * @see <a href=
+ * "https://cwiki.apache.org/confluence/display/MAVENOLD/Versioning">"Versioning" on Maven
+ * Wiki</a>
  */
 class ComparableVersion implements Comparable<ComparableVersion> {
+
 	private String value;
 
 	private String canonical;
@@ -92,8 +75,11 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 	private ListItem items;
 
 	private interface Item {
+
 		int INTEGER_ITEM = 0;
+
 		int STRING_ITEM = 1;
+
 		int LIST_ITEM = 2;
 
 		int compareTo(Item item);
@@ -101,12 +87,14 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		int getType();
 
 		boolean isNull();
+
 	}
 
 	/**
 	 * Represents a numeric item in the version item list.
 	 */
 	private static class IntegerItem implements Item {
+
 		private static final BigInteger BigInteger_ZERO = new BigInteger("0");
 
 		private final BigInteger value;
@@ -128,18 +116,18 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 		@Override
 		public boolean isNull() {
-			return BigInteger_ZERO.equals(value);
+			return BigInteger_ZERO.equals(this.value);
 		}
 
 		@Override
 		public int compareTo(Item item) {
 			if (item == null) {
-				return BigInteger_ZERO.equals(value) ? 0 : 1; // 1.0 == 1, 1.1 > 1
+				return BigInteger_ZERO.equals(this.value) ? 0 : 1; // 1.0 == 1, 1.1 > 1
 			}
 
 			switch (item.getType()) {
 			case INTEGER_ITEM:
-				return value.compareTo(((IntegerItem) item).value);
+				return this.value.compareTo(((IntegerItem) item).value);
 
 			case STRING_ITEM:
 				return 1; // 1.1 > 1-sp
@@ -154,16 +142,17 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 		@Override
 		public String toString() {
-			return value.toString();
+			return this.value.toString();
 		}
+
 	}
 
 	/**
 	 * Represents a string in the version item list, usually a qualifier.
 	 */
 	private static class StringItem implements Item {
-		private static final String[] QUALIFIERS = { "alpha", "beta", "milestone", "rc",
-				"snapshot", "", "sp" };
+
+		private static final String[] QUALIFIERS = { "alpha", "beta", "milestone", "rc", "snapshot", "", "sp" };
 
 		private static final List<String> _QUALIFIERS = Arrays.asList(QUALIFIERS);
 
@@ -179,8 +168,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		 * determine if a given qualifier makes the version older than one without a
 		 * qualifier, or more recent.
 		 */
-		private static final String RELEASE_VERSION_INDEX = String.valueOf(_QUALIFIERS
-				.indexOf(""));
+		private static final String RELEASE_VERSION_INDEX = String.valueOf(_QUALIFIERS.indexOf(""));
 
 		private String value;
 
@@ -209,7 +197,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 		@Override
 		public boolean isNull() {
-			return (comparableQualifier(value).compareTo(RELEASE_VERSION_INDEX) == 0);
+			return (comparableQualifier(this.value).compareTo(RELEASE_VERSION_INDEX) == 0);
 		}
 
 		/**
@@ -222,7 +210,6 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		 * if/then/else to check for -1 or QUALIFIERS.size and then resort to lexical
 		 * ordering. Most comparisons are decided by the first character, so this is still
 		 * fast. If more characters are needed then it requires a lexical sort anyway.
-		 *
 		 * @param qualifier
 		 * @return an equivalent value that can be used with lexical comparison
 		 */
@@ -236,15 +223,14 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		public int compareTo(Item item) {
 			if (item == null) {
 				// 1-rc < 1, 1-ga > 1
-				return comparableQualifier(value).compareTo(RELEASE_VERSION_INDEX);
+				return comparableQualifier(this.value).compareTo(RELEASE_VERSION_INDEX);
 			}
 			switch (item.getType()) {
 			case INTEGER_ITEM:
 				return -1; // 1.any < 1.1 ?
 
 			case STRING_ITEM:
-				return comparableQualifier(value).compareTo(
-						comparableQualifier(((StringItem) item).value));
+				return comparableQualifier(this.value).compareTo(comparableQualifier(((StringItem) item).value));
 
 			case LIST_ITEM:
 				return -1; // 1.any < 1-1
@@ -256,8 +242,9 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 		@Override
 		public String toString() {
-			return value;
+			return this.value;
 		}
+
 	}
 
 	/**
@@ -265,6 +252,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 	 * and for sub-lists (which start with '-(number)' in the version specification).
 	 */
 	private static class ListItem extends ArrayList<Item> implements Item {
+
 		@Override
 		public int getType() {
 			return LIST_ITEM;
@@ -276,8 +264,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 
 		void normalize() {
-			for (ListIterator<Item> iterator = listIterator(size()); iterator
-					.hasPrevious();) {
+			for (ListIterator<Item> iterator = listIterator(size()); iterator.hasPrevious();) {
 				Item item = iterator.previous();
 				if (item.isNull()) {
 					iterator.remove(); // remove null trailing items: 0, "", empty list
@@ -339,6 +326,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 			buffer.append(')');
 			return buffer.toString();
 		}
+
 	}
 
 	ComparableVersion(String version) {
@@ -348,11 +336,11 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 	public final void parseVersion(String version) {
 		this.value = version;
 
-		items = new ListItem();
+		this.items = new ListItem();
 
 		version = version.toLowerCase(Locale.ENGLISH);
 
-		ListItem list = items;
+		ListItem list = this.items;
 
 		Stack<Item> stack = new Stack<>();
 		stack.push(list);
@@ -385,8 +373,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 				if (isDigit) {
 					list.normalize(); // 1.0-* = 1-*
 
-					if ((i + 1 < version.length())
-							&& Character.isDigit(version.charAt(i + 1))) {
+					if ((i + 1 < version.length()) && Character.isDigit(version.charAt(i + 1))) {
 						// new ListItem only if previous were digits and new char is a
 						// digit,
 						// ie need to differentiate only 1.1 from 1-1
@@ -423,7 +410,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 			list.normalize();
 		}
 
-		canonical = items.toString();
+		this.canonical = this.items.toString();
 	}
 
 	private static Item parseItem(boolean isDigit, String buf) {
@@ -432,22 +419,22 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 	@Override
 	public int compareTo(ComparableVersion o) {
-		return items.compareTo(o.items);
+		return this.items.compareTo(o.items);
 	}
 
 	@Override
 	public String toString() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		return (o instanceof ComparableVersion)
-				&& canonical.equals(((ComparableVersion) o).canonical);
+		return (o instanceof ComparableVersion) && this.canonical.equals(((ComparableVersion) o).canonical);
 	}
 
 	@Override
 	public int hashCode() {
-		return canonical.hashCode();
+		return this.canonical.hashCode();
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.jwt;
 
 import org.junit.Test;
@@ -20,39 +21,37 @@ import org.junit.Test;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Josh Cummings
  * @since 5.1
  */
 public class JwtIssuerValidatorTests {
+
 	private static final String ISSUER = "https://issuer";
 
 	private final JwtIssuerValidator validator = new JwtIssuerValidator(ISSUER);
 
 	@Test
 	public void validateWhenIssuerMatchesThenReturnsSuccess() {
-		Jwt jwt = jwt().claim("iss", ISSUER).build();
-
+		Jwt jwt = TestJwts.jwt().claim("iss", ISSUER).build();
+		// @formatter:off
 		assertThat(this.validator.validate(jwt))
 				.isEqualTo(OAuth2TokenValidatorResult.success());
+		// @formatter:on
 	}
 
 	@Test
 	public void validateWhenIssuerMismatchesThenReturnsError() {
-		Jwt jwt = jwt().claim(JwtClaimNames.ISS, "https://other").build();
-
+		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "https://other").build();
 		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
-
 		assertThat(result.getErrors()).isNotEmpty();
 	}
 
 	@Test
 	public void validateWhenJwtHasNoIssuerThenReturnsError() {
-		Jwt jwt = jwt().claim(JwtClaimNames.AUD, "https://aud").build();
-
+		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.AUD, "https://aud").build();
 		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
 		assertThat(result.getErrors()).isNotEmpty();
 	}
@@ -60,22 +59,28 @@ public class JwtIssuerValidatorTests {
 	// gh-6073
 	@Test
 	public void validateWhenIssuerMatchesAndIsNotAUriThenReturnsSuccess() {
-		Jwt jwt = jwt().claim(JwtClaimNames.ISS, "issuer").build();
+		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "issuer").build();
 		JwtIssuerValidator validator = new JwtIssuerValidator("issuer");
-
+		// @formatter:off
 		assertThat(validator.validate(jwt))
 				.isEqualTo(OAuth2TokenValidatorResult.success());
+		// @formatter:on
 	}
 
 	@Test
 	public void validateWhenJwtIsNullThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> this.validator.validate(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.validator.validate(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenNullIssuerIsGivenThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> new JwtIssuerValidator(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtIssuerValidator(null));
+		// @formatter:on
 	}
+
 }

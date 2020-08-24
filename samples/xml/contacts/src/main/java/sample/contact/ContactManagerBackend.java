@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.contact;
 
 import org.springframework.security.acls.domain.BasePermission;
@@ -49,15 +50,12 @@ import java.util.Random;
 @Transactional
 public class ContactManagerBackend extends ApplicationObjectSupport implements
 		ContactManager, InitializingBean {
-	// ~ Instance fields
-	// ================================================================================================
+
 
 	private ContactDao contactDao;
 	private MutableAclService mutableAclService;
 	private int counter = 1000;
 
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(contactDao, "contactDao required");

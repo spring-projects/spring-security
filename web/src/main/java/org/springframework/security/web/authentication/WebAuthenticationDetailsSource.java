@@ -16,9 +16,9 @@
 
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.authentication.AuthenticationDetailsSource;
-
 import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 
 /**
  * Implementation of {@link AuthenticationDetailsSource} which builds the details object
@@ -27,18 +27,17 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Ben Alex
  */
-public class WebAuthenticationDetailsSource implements
-		AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> {
-
-	// ~ Methods
-	// ========================================================================================================
+public class WebAuthenticationDetailsSource
+		implements AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> {
 
 	/**
 	 * @param context the {@code HttpServletRequest} object.
 	 * @return the {@code WebAuthenticationDetails} containing information about the
 	 * current request
 	 */
+	@Override
 	public WebAuthenticationDetails buildDetails(HttpServletRequest context) {
 		return new WebAuthenticationDetails(context);
 	}
+
 }

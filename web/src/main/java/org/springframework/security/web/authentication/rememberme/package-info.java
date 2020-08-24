@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Support for remembering a user between different web sessions.
  * <p>
- * Comes with two default implementations. See the
- * <a href="https://docs.spring.io/spring-security/site/docs/3.0.x/reference/remember-me.html">Remember-Me
+ * Comes with two default implementations. See the <a href=
+ * "https://docs.spring.io/spring-security/site/docs/3.0.x/reference/remember-me.html">Remember-Me
  * Authentication</a> chapter of the reference manual.
  */
 package org.springframework.security.web.authentication.rememberme;
-

@@ -34,78 +34,78 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ServerHttpBasicAuthenticationConverterTests {
 
 	ServerHttpBasicAuthenticationConverter converter = new ServerHttpBasicAuthenticationConverter();
+
 	MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/");
 
 	@Test
 	public void applyWhenNoAuthorizationHeaderThenEmpty() {
 		Mono<Authentication> result = apply(this.request);
-
 		assertThat(result.block()).isNull();
 	}
 
 	@Test
 	public void applyWhenEmptyAuthorizationHeaderThenEmpty() {
 		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, ""));
-
 		assertThat(result.block()).isNull();
 	}
 
 	@Test
 	public void applyWhenOnlyBasicAuthorizationHeaderThenEmpty() {
 		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "Basic "));
-
 		assertThat(result.block()).isNull();
 	}
 
 	@Test
 	public void applyWhenNotBase64ThenEmpty() {
 		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "Basic z"));
-
 		assertThat(result.block()).isNull();
 	}
 
 	@Test
 	public void applyWhenNoSemicolonThenEmpty() {
 		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "Basic dXNlcg=="));
-
 		assertThat(result.block()).isNull();
 	}
 
 	@Test
 	public void applyWhenUserPasswordThenAuthentication() {
-		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "Basic dXNlcjpwYXNzd29yZA=="));
-
-		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class).block();
+		Mono<Authentication> result = apply(
+				this.request.header(HttpHeaders.AUTHORIZATION, "Basic dXNlcjpwYXNzd29yZA=="));
+		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class)
+				.block();
 		assertThat(authentication.getPrincipal()).isEqualTo("user");
 		assertThat(authentication.getCredentials()).isEqualTo("password");
 	}
 
 	@Test
 	public void applyWhenUserPasswordHasColonThenAuthentication() {
-		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "Basic dXNlcjpwYXNzOndvcmQ="));
-
-		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class).block();
+		Mono<Authentication> result = apply(
+				this.request.header(HttpHeaders.AUTHORIZATION, "Basic dXNlcjpwYXNzOndvcmQ="));
+		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class)
+				.block();
 		assertThat(authentication.getPrincipal()).isEqualTo("user");
 		assertThat(authentication.getCredentials()).isEqualTo("pass:word");
 	}
 
 	@Test
 	public void applyWhenLowercaseSchemeThenAuthentication() {
-		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "basic dXNlcjpwYXNzd29yZA=="));
-
-		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class).block();
+		Mono<Authentication> result = apply(
+				this.request.header(HttpHeaders.AUTHORIZATION, "basic dXNlcjpwYXNzd29yZA=="));
+		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class)
+				.block();
 		assertThat(authentication.getPrincipal()).isEqualTo("user");
 		assertThat(authentication.getCredentials()).isEqualTo("password");
 	}
 
 	@Test
 	public void applyWhenWrongSchemeThenEmpty() {
-		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "token dXNlcjpwYXNzd29yZA=="));
-
+		Mono<Authentication> result = apply(
+				this.request.header(HttpHeaders.AUTHORIZATION, "token dXNlcjpwYXNzd29yZA=="));
 		assertThat(result.block()).isNull();
 	}
 
 	private Mono<Authentication> apply(MockServerHttpRequest.BaseBuilder<?> request) {
 		return this.converter.convert(MockServerWebExchange.from(this.request.build()));
 	}
+
 }

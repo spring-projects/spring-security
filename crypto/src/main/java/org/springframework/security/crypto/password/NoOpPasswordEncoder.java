@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.password;
 
 /**
@@ -23,19 +24,26 @@ package org.springframework.security.crypto.password;
  * passwords may be preferred.
  *
  * @author Keith Donald
- * @deprecated This PasswordEncoder is not secure. Instead use an
- * adaptive one way function like BCryptPasswordEncoder, Pbkdf2PasswordEncoder, or
- * SCryptPasswordEncoder. Even better use {@link DelegatingPasswordEncoder} which supports
- * password upgrades. There are no plans to remove this support. It is deprecated to indicate that
- * this is a legacy implementation and using it is considered insecure.
+ * @deprecated This PasswordEncoder is not secure. Instead use an adaptive one way
+ * function like BCryptPasswordEncoder, Pbkdf2PasswordEncoder, or SCryptPasswordEncoder.
+ * Even better use {@link DelegatingPasswordEncoder} which supports password upgrades.
+ * There are no plans to remove this support. It is deprecated to indicate that this is a
+ * legacy implementation and using it is considered insecure.
  */
 @Deprecated
 public final class NoOpPasswordEncoder implements PasswordEncoder {
 
+	private static final PasswordEncoder INSTANCE = new NoOpPasswordEncoder();
+
+	private NoOpPasswordEncoder() {
+	}
+
+	@Override
 	public String encode(CharSequence rawPassword) {
 		return rawPassword.toString();
 	}
 
+	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		return rawPassword.toString().equals(encodedPassword);
 	}
@@ -45,11 +53,6 @@ public final class NoOpPasswordEncoder implements PasswordEncoder {
 	 */
 	public static PasswordEncoder getInstance() {
 		return INSTANCE;
-	}
-
-	private static final PasswordEncoder INSTANCE = new NoOpPasswordEncoder();
-
-	private NoOpPasswordEncoder() {
 	}
 
 }

@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.header.writers;
 
-import static org.assertj.core.api.Assertions.assertThat;
+package org.springframework.security.web.header.writers;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
@@ -36,17 +38,16 @@ public class XContentTypeOptionsHeaderWriterTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		writer = new XContentTypeOptionsHeaderWriter();
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.writer = new XContentTypeOptionsHeaderWriter();
 	}
 
 	@Test
 	public void writeHeaders() {
-		writer.writeHeaders(request, response);
-
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeaderValues("X-Content-Type-Options")).containsExactly(
-				"nosniff");
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeaderValues("X-Content-Type-Options")).containsExactly("nosniff");
 	}
+
 }

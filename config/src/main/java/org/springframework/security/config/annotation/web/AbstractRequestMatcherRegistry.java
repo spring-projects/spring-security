@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
@@ -28,22 +33,17 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * A base class for registering {@link RequestMatcher}'s. For example, it might allow for
  * specifying which {@link RequestMatcher} require a certain level of authorization.
  *
- *
  * @param <C> The object that is returned or Chained after creating the RequestMatcher
- *
  * @author Rob Winch
  * @author Ankur Pathak
  * @since 3.2
  */
 public abstract class AbstractRequestMatcherRegistry<C> {
+
 	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
 
 	private static final RequestMatcher ANY_REQUEST = AnyRequestMatcher.INSTANCE;
@@ -58,7 +58,6 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	/**
 	 * Gets the {@link ApplicationContext}
-	 *
 	 * @return the {@link ApplicationContext}
 	 */
 	protected final ApplicationContext getApplicationContext() {
@@ -67,7 +66,6 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	/**
 	 * Maps any request.
-	 *
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C anyRequest() {
@@ -81,10 +79,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * Maps a {@link List} of
 	 * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher}
 	 * instances.
-	 *
-	 * @param method the {@link HttpMethod} to use for any
-	 * {@link HttpMethod}.
-	 *
+	 * @param method the {@link HttpMethod} to use for any {@link HttpMethod}.
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C antMatchers(HttpMethod method) {
@@ -95,12 +90,11 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * Maps a {@link List} of
 	 * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher}
 	 * instances.
-	 *
 	 * @param method the {@link HttpMethod} to use or {@code null} for any
 	 * {@link HttpMethod}.
-	 * @param antPatterns the ant patterns to create. If {@code null} or empty, then matches on nothing.
+	 * @param antPatterns the ant patterns to create. If {@code null} or empty, then
+	 * matches on nothing.
 	 * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher} from
-	 *
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C antMatchers(HttpMethod method, String... antPatterns) {
@@ -112,10 +106,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * Maps a {@link List} of
 	 * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher}
 	 * instances that do not care which {@link HttpMethod} is used.
-	 *
 	 * @param antPatterns the ant patterns to create
 	 * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher} from
-	 *
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C antMatchers(String... antPatterns) {
@@ -134,7 +126,6 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * If the current request will not be processed by Spring MVC, a reasonable default
 	 * using the pattern as a ant pattern will be used.
 	 * </p>
-	 *
 	 * @param mvcPatterns the patterns to match on. The rules for matching are defined by
 	 * Spring MVC
 	 * @return the object that is chained after creating the {@link RequestMatcher}.
@@ -152,7 +143,6 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * If the current request will not be processed by Spring MVC, a reasonable default
 	 * using the pattern as a ant pattern will be used.
 	 * </p>
-	 *
 	 * @param method the HTTP method to match on
 	 * @param mvcPatterns the patterns to match on. The rules for matching are defined by
 	 * Spring MVC
@@ -162,27 +152,24 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	/**
 	 * Creates {@link MvcRequestMatcher} instances for the method and patterns passed in
-	 *
 	 * @param method the HTTP method to use or null if any should be used
 	 * @param mvcPatterns the Spring MVC patterns to match on
 	 * @return a List of {@link MvcRequestMatcher} instances
 	 */
-	protected final List<MvcRequestMatcher> createMvcMatchers(HttpMethod method,
-			String... mvcPatterns) {
+	protected final List<MvcRequestMatcher> createMvcMatchers(HttpMethod method, String... mvcPatterns) {
 		Assert.state(!this.anyRequestConfigured, "Can't configure mvcMatchers after anyRequest");
 		ObjectPostProcessor<Object> opp = this.context.getBean(ObjectPostProcessor.class);
 		if (!this.context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
-			throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME +" of type " + HandlerMappingIntrospector.class.getName()
-				+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
+			throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME
+					+ " of type " + HandlerMappingIntrospector.class.getName()
+					+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
 		}
 		HandlerMappingIntrospector introspector = this.context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
-			HandlerMappingIntrospector.class);
-		List<MvcRequestMatcher> matchers = new ArrayList<>(
-				mvcPatterns.length);
+				HandlerMappingIntrospector.class);
+		List<MvcRequestMatcher> matchers = new ArrayList<>(mvcPatterns.length);
 		for (String mvcPattern : mvcPatterns) {
 			MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
 			opp.postProcess(matcher);
-
 			if (method != null) {
 				matcher.setMethod(method);
 			}
@@ -195,12 +182,10 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * Maps a {@link List} of
 	 * {@link org.springframework.security.web.util.matcher.RegexRequestMatcher}
 	 * instances.
-	 *
 	 * @param method the {@link HttpMethod} to use or {@code null} for any
 	 * {@link HttpMethod}.
 	 * @param regexPatterns the regular expressions to create
 	 * {@link org.springframework.security.web.util.matcher.RegexRequestMatcher} from
-	 *
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C regexMatchers(HttpMethod method, String... regexPatterns) {
@@ -212,10 +197,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * Create a {@link List} of
 	 * {@link org.springframework.security.web.util.matcher.RegexRequestMatcher} instances
 	 * that do not specify an {@link HttpMethod}.
-	 *
 	 * @param regexPatterns the regular expressions to create
 	 * {@link org.springframework.security.web.util.matcher.RegexRequestMatcher} from
-	 *
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C regexMatchers(String... regexPatterns) {
@@ -226,9 +209,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	/**
 	 * Associates a list of {@link RequestMatcher} instances with the
 	 * {@link AbstractConfigAttributeRequestMatcherRegistry}
-	 *
 	 * @param requestMatchers the {@link RequestMatcher} instances
-	 *
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C requestMatchers(RequestMatcher... requestMatchers) {
@@ -239,7 +220,6 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	/**
 	 * Subclasses should implement this method for returning the object that is chained to
 	 * the creation of the {@link RequestMatcher} instances.
-	 *
 	 * @param requestMatchers the {@link RequestMatcher} instances that were created
 	 * @return the chained Object for the subclass which allows association of something
 	 * else to the {@link RequestMatcher}
@@ -254,19 +234,19 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 */
 	private static final class RequestMatchers {
 
+		private RequestMatchers() {
+		}
+
 		/**
 		 * Create a {@link List} of {@link AntPathRequestMatcher} instances.
-		 *
 		 * @param httpMethod the {@link HttpMethod} to use or {@code null} for any
 		 * {@link HttpMethod}.
 		 * @param antPatterns the ant patterns to create {@link AntPathRequestMatcher}
 		 * from
-		 *
 		 * @return a {@link List} of {@link AntPathRequestMatcher} instances
 		 */
-		public static List<RequestMatcher> antMatchers(HttpMethod httpMethod,
-				String... antPatterns) {
-			String method = httpMethod == null ? null : httpMethod.toString();
+		static List<RequestMatcher> antMatchers(HttpMethod httpMethod, String... antPatterns) {
+			String method = (httpMethod != null) ? httpMethod.toString() : null;
 			List<RequestMatcher> matchers = new ArrayList<>();
 			for (String pattern : antPatterns) {
 				matchers.add(new AntPathRequestMatcher(pattern, method));
@@ -277,29 +257,24 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		/**
 		 * Create a {@link List} of {@link AntPathRequestMatcher} instances that do not
 		 * specify an {@link HttpMethod}.
-		 *
 		 * @param antPatterns the ant patterns to create {@link AntPathRequestMatcher}
 		 * from
-		 *
 		 * @return a {@link List} of {@link AntPathRequestMatcher} instances
 		 */
-		public static List<RequestMatcher> antMatchers(String... antPatterns) {
+		static List<RequestMatcher> antMatchers(String... antPatterns) {
 			return antMatchers(null, antPatterns);
 		}
 
 		/**
 		 * Create a {@link List} of {@link RegexRequestMatcher} instances.
-		 *
 		 * @param httpMethod the {@link HttpMethod} to use or {@code null} for any
 		 * {@link HttpMethod}.
 		 * @param regexPatterns the regular expressions to create
 		 * {@link RegexRequestMatcher} from
-		 *
 		 * @return a {@link List} of {@link RegexRequestMatcher} instances
 		 */
-		public static List<RequestMatcher> regexMatchers(HttpMethod httpMethod,
-				String... regexPatterns) {
-			String method = httpMethod == null ? null : httpMethod.toString();
+		static List<RequestMatcher> regexMatchers(HttpMethod httpMethod, String... regexPatterns) {
+			String method = (httpMethod != null) ? httpMethod.toString() : null;
 			List<RequestMatcher> matchers = new ArrayList<>();
 			for (String pattern : regexPatterns) {
 				matchers.add(new RegexRequestMatcher(pattern, method));
@@ -310,18 +285,14 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		/**
 		 * Create a {@link List} of {@link RegexRequestMatcher} instances that do not
 		 * specify an {@link HttpMethod}.
-		 *
 		 * @param regexPatterns the regular expressions to create
 		 * {@link RegexRequestMatcher} from
-		 *
 		 * @return a {@link List} of {@link RegexRequestMatcher} instances
 		 */
-		public static List<RequestMatcher> regexMatchers(String... regexPatterns) {
+		static List<RequestMatcher> regexMatchers(String... regexPatterns) {
 			return regexMatchers(null, regexPatterns);
 		}
 
-		private RequestMatchers() {
-		}
 	}
 
 }

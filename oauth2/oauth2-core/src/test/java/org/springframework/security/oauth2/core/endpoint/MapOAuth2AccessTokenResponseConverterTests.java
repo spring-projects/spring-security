@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.endpoint;
 
 import java.time.Duration;
@@ -32,7 +33,7 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
  *
  * @author Nikita Konev
  */
-public class MapOAuth2AccessTokenResponseConverterTest {
+public class MapOAuth2AccessTokenResponseConverterTests {
 
 	private MapOAuth2AccessTokenResponseConverter messageConverter;
 
@@ -40,7 +41,6 @@ public class MapOAuth2AccessTokenResponseConverterTest {
 	public void setup() {
 		this.messageConverter = new MapOAuth2AccessTokenResponseConverter();
 	}
-
 
 	@Test
 	public void shouldConvertFull() {
@@ -52,7 +52,7 @@ public class MapOAuth2AccessTokenResponseConverterTest {
 		map.put("refresh_token", "refresh-token-1234");
 		map.put("custom_parameter_1", "custom-value-1");
 		map.put("custom_parameter_2", "custom-value-2");
-		OAuth2AccessTokenResponse converted = messageConverter.convert(map);
+		OAuth2AccessTokenResponse converted = this.messageConverter.convert(map);
 		OAuth2AccessToken accessToken = converted.getAccessToken();
 		Assert.assertNotNull(accessToken);
 		Assert.assertEquals("access-token-1234", accessToken.getTokenValue());
@@ -63,11 +63,9 @@ public class MapOAuth2AccessTokenResponseConverterTest {
 		Assert.assertTrue(scopes.contains("read"));
 		Assert.assertTrue(scopes.contains("write"));
 		Assert.assertEquals(3600, Duration.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()).getSeconds());
-
 		OAuth2RefreshToken refreshToken = converted.getRefreshToken();
 		Assert.assertNotNull(refreshToken);
 		Assert.assertEquals("refresh-token-1234", refreshToken.getTokenValue());
-
 		Map<String, Object> additionalParameters = converted.getAdditionalParameters();
 		Assert.assertNotNull(additionalParameters);
 		Assert.assertEquals(2, additionalParameters.size());
@@ -80,7 +78,7 @@ public class MapOAuth2AccessTokenResponseConverterTest {
 		Map<String, String> map = new HashMap<>();
 		map.put("access_token", "access-token-1234");
 		map.put("token_type", "bearer");
-		OAuth2AccessTokenResponse converted = messageConverter.convert(map);
+		OAuth2AccessTokenResponse converted = this.messageConverter.convert(map);
 		OAuth2AccessToken accessToken = converted.getAccessToken();
 		Assert.assertNotNull(accessToken);
 		Assert.assertEquals("access-token-1234", accessToken.getTokenValue());
@@ -88,12 +86,9 @@ public class MapOAuth2AccessTokenResponseConverterTest {
 		Set<String> scopes = accessToken.getScopes();
 		Assert.assertNotNull(scopes);
 		Assert.assertEquals(0, scopes.size());
-
 		Assert.assertEquals(1, Duration.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()).getSeconds());
-
 		OAuth2RefreshToken refreshToken = converted.getRefreshToken();
 		Assert.assertNull(refreshToken);
-
 		Map<String, Object> additionalParameters = converted.getAdditionalParameters();
 		Assert.assertNotNull(additionalParameters);
 		Assert.assertEquals(0, additionalParameters.size());
@@ -105,7 +100,7 @@ public class MapOAuth2AccessTokenResponseConverterTest {
 		map.put("access_token", "access-token-1234");
 		map.put("token_type", "bearer");
 		map.put("expires_in", "2100-01-01-abc");
-		OAuth2AccessTokenResponse converted = messageConverter.convert(map);
+		OAuth2AccessTokenResponse converted = this.messageConverter.convert(map);
 		OAuth2AccessToken accessToken = converted.getAccessToken();
 		Assert.assertNotNull(accessToken);
 		Assert.assertEquals("access-token-1234", accessToken.getTokenValue());
@@ -113,14 +108,12 @@ public class MapOAuth2AccessTokenResponseConverterTest {
 		Set<String> scopes = accessToken.getScopes();
 		Assert.assertNotNull(scopes);
 		Assert.assertEquals(0, scopes.size());
-
 		Assert.assertEquals(1, Duration.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()).getSeconds());
-
 		OAuth2RefreshToken refreshToken = converted.getRefreshToken();
 		Assert.assertNull(refreshToken);
-
 		Map<String, Object> additionalParameters = converted.getAdditionalParameters();
 		Assert.assertNotNull(additionalParameters);
 		Assert.assertEquals(0, additionalParameters.size());
 	}
+
 }

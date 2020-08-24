@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.core.oidc;
 
-import org.junit.Test;
+package org.springframework.security.oauth2.core.oidc;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class DefaultAddressStandardClaimTests {
+
 	static final String FORMATTED_FIELD_NAME = "formatted";
 	static final String STREET_ADDRESS_FIELD_NAME = "street_address";
 	static final String LOCALITY_FIELD_NAME = "locality";
@@ -43,16 +45,16 @@ public class DefaultAddressStandardClaimTests {
 
 	@Test
 	public void buildWhenAllAttributesProvidedThenAllAttributesAreSet() {
-		AddressStandardClaim addressStandardClaim =
-			new DefaultAddressStandardClaim.Builder()
-			.formatted(FORMATTED)
-			.streetAddress(STREET_ADDRESS)
-			.locality(LOCALITY)
-			.region(REGION)
-			.postalCode(POSTAL_CODE)
-			.country(COUNTRY)
-			.build();
-
+		// @formatter:off
+		AddressStandardClaim addressStandardClaim = new DefaultAddressStandardClaim.Builder()
+				.formatted(FORMATTED)
+				.streetAddress(STREET_ADDRESS)
+				.locality(LOCALITY)
+				.region(REGION)
+				.postalCode(POSTAL_CODE)
+				.country(COUNTRY)
+				.build();
+		// @formatter:on
 		assertThat(addressStandardClaim.getFormatted()).isEqualTo(FORMATTED);
 		assertThat(addressStandardClaim.getStreetAddress()).isEqualTo(STREET_ADDRESS);
 		assertThat(addressStandardClaim.getLocality()).isEqualTo(LOCALITY);
@@ -70,11 +72,7 @@ public class DefaultAddressStandardClaimTests {
 		addressFields.put(REGION_FIELD_NAME, REGION);
 		addressFields.put(POSTAL_CODE_FIELD_NAME, POSTAL_CODE);
 		addressFields.put(COUNTRY_FIELD_NAME, COUNTRY);
-
-		AddressStandardClaim addressStandardClaim =
-			new DefaultAddressStandardClaim.Builder(addressFields)
-			.build();
-
+		AddressStandardClaim addressStandardClaim = new DefaultAddressStandardClaim.Builder(addressFields).build();
 		assertThat(addressStandardClaim.getFormatted()).isEqualTo(FORMATTED);
 		assertThat(addressStandardClaim.getStreetAddress()).isEqualTo(STREET_ADDRESS);
 		assertThat(addressStandardClaim.getLocality()).isEqualTo(LOCALITY);
@@ -82,4 +80,5 @@ public class DefaultAddressStandardClaimTests {
 		assertThat(addressStandardClaim.getPostalCode()).isEqualTo(POSTAL_CODE);
 		assertThat(addressStandardClaim.getCountry()).isEqualTo(COUNTRY);
 	}
+
 }

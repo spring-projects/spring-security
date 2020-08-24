@@ -28,8 +28,6 @@ import org.springframework.security.core.session.SessionCreationEvent;
  * @author Luke Taylor
  */
 public class HttpSessionCreatedEvent extends SessionCreationEvent {
-	// ~ Constructors
-	// ===================================================================================================
 
 	public HttpSessionCreatedEvent(HttpSession session) {
 		super(session);
@@ -38,4 +36,5 @@ public class HttpSessionCreatedEvent extends SessionCreationEvent {
 	public HttpSession getSession() {
 		return (HttpSession) getSource();
 	}
+
 }

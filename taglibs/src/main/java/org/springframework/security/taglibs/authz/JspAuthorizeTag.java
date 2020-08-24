@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.taglibs.authz;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
@@ -43,8 +44,8 @@ import org.springframework.security.web.FilterInvocation;
  * A JSP {@link Tag} implementation of {@link AbstractAuthorizeTag}.
  *
  * @author Rossen Stoyanchev
- * @see AbstractAuthorizeTag
  * @since 3.1.0
+ * @see AbstractAuthorizeTag
  */
 public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 
@@ -61,105 +62,101 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	/**
 	 * Invokes the base class {@link AbstractAuthorizeTag#authorize()} method to decide if
 	 * the body of the tag should be skipped or not.
-	 *
 	 * @return {@link Tag#SKIP_BODY} or {@link Tag#EVAL_BODY_INCLUDE}
 	 */
+	@Override
 	public int doStartTag() throws JspException {
 		try {
-			authorized = super.authorize();
-
-			if (!authorized && TagLibConfig.isUiSecurityDisabled()) {
-				pageContext.getOut().write(TagLibConfig.getSecuredUiPrefix());
+			this.authorized = super.authorize();
+			if (!this.authorized && TagLibConfig.isUiSecurityDisabled()) {
+				this.pageContext.getOut().write(TagLibConfig.getSecuredUiPrefix());
 			}
-
-			if (var != null) {
-				pageContext.setAttribute(var, authorized, PageContext.PAGE_SCOPE);
+			if (this.var != null) {
+				this.pageContext.setAttribute(this.var, this.authorized, PageContext.PAGE_SCOPE);
 			}
-
-			return TagLibConfig.evalOrSkip(authorized);
-
+			return TagLibConfig.evalOrSkip(this.authorized);
 		}
-		catch (IOException e) {
-			throw new JspException(e);
+		catch (IOException ex) {
+			throw new JspException(ex);
 		}
 	}
 
 	@Override
-	protected EvaluationContext createExpressionEvaluationContext(
-			SecurityExpressionHandler<FilterInvocation> handler) {
-		return new PageContextVariableLookupEvaluationContext(
-				super.createExpressionEvaluationContext(handler));
+	protected EvaluationContext createExpressionEvaluationContext(SecurityExpressionHandler<FilterInvocation> handler) {
+		return new PageContextVariableLookupEvaluationContext(super.createExpressionEvaluationContext(handler));
 	}
 
 	/**
 	 * Default processing of the end tag returning EVAL_PAGE.
-	 *
 	 * @return EVAL_PAGE
 	 * @see Tag#doEndTag()
 	 */
+	@Override
 	public int doEndTag() throws JspException {
 		try {
-			if (!authorized && TagLibConfig.isUiSecurityDisabled()) {
-				pageContext.getOut().write(TagLibConfig.getSecuredUiSuffix());
+			if (!this.authorized && TagLibConfig.isUiSecurityDisabled()) {
+				this.pageContext.getOut().write(TagLibConfig.getSecuredUiSuffix());
 			}
 		}
-		catch (IOException e) {
-			throw new JspException(e);
+		catch (IOException ex) {
+			throw new JspException(ex);
 		}
-
 		return EVAL_PAGE;
 	}
 
 	public String getId() {
-		return id;
+		return this.id;
 	}
 
 	public void setId(String id) {
 		this.id = id;
 	}
 
+	@Override
 	public Tag getParent() {
-		return parent;
+		return this.parent;
 	}
 
+	@Override
 	public void setParent(Tag parent) {
 		this.parent = parent;
 	}
 
 	public String getVar() {
-		return var;
+		return this.var;
 	}
 
 	public void setVar(String var) {
 		this.var = var;
 	}
 
+	@Override
 	public void release() {
-		parent = null;
-		id = null;
+		this.parent = null;
+		this.id = null;
 	}
 
+	@Override
 	public void setPageContext(PageContext pageContext) {
 		this.pageContext = pageContext;
 	}
 
 	@Override
 	protected ServletRequest getRequest() {
-		return pageContext.getRequest();
+		return this.pageContext.getRequest();
 	}
 
 	@Override
 	protected ServletResponse getResponse() {
-		return pageContext.getResponse();
+		return this.pageContext.getResponse();
 	}
 
 	@Override
 	protected ServletContext getServletContext() {
-		return pageContext.getServletContext();
+		return this.pageContext.getServletContext();
 	}
 
-	private final class PageContextVariableLookupEvaluationContext implements
-			EvaluationContext {
+	private final class PageContextVariableLookupEvaluationContext implements EvaluationContext {
 
 		private EvaluationContext delegate;
 
@@ -167,54 +164,65 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 			this.delegate = delegate;
 		}
 
+		@Override
 		public TypedValue getRootObject() {
-			return delegate.getRootObject();
+			return this.delegate.getRootObject();
 		}
 
+		@Override
 		public List<ConstructorResolver> getConstructorResolvers() {
-			return delegate.getConstructorResolvers();
+			return this.delegate.getConstructorResolvers();
 		}
 
+		@Override
 		public List<MethodResolver> getMethodResolvers() {
-			return delegate.getMethodResolvers();
+			return this.delegate.getMethodResolvers();
 		}
 
+		@Override
 		public List<PropertyAccessor> getPropertyAccessors() {
-			return delegate.getPropertyAccessors();
+			return this.delegate.getPropertyAccessors();
 		}
 
+		@Override
 		public TypeLocator getTypeLocator() {
-			return delegate.getTypeLocator();
+			return this.delegate.getTypeLocator();
 		}
 
+		@Override
 		public TypeConverter getTypeConverter() {
-			return delegate.getTypeConverter();
+			return this.delegate.getTypeConverter();
 		}
 
+		@Override
 		public TypeComparator getTypeComparator() {
-			return delegate.getTypeComparator();
+			return this.delegate.getTypeComparator();
 		}
 
+		@Override
 		public OperatorOverloader getOperatorOverloader() {
-			return delegate.getOperatorOverloader();
+			return this.delegate.getOperatorOverloader();
 		}
 
+		@Override
 		public BeanResolver getBeanResolver() {
-			return delegate.getBeanResolver();
+			return this.delegate.getBeanResolver();
 		}
 
+		@Override
 		public void setVariable(String name, Object value) {
-			delegate.setVariable(name, value);
+			this.delegate.setVariable(name, value);
 		}
 
+		@Override
 		public Object lookupVariable(String name) {
-			Object result = delegate.lookupVariable(name);
-
+			Object result = this.delegate.lookupVariable(name);
 			if (result == null) {
-				result = pageContext.findAttribute(name);
+				result = JspAuthorizeTag.this.pageContext.findAttribute(name);
 			}
 			return result;
 		}
+
 	}
 
 }

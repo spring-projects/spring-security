@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.samples.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class SecurityConfigTests {
 		Saml2WebSsoAuthenticationFilter filter = (Saml2WebSsoAuthenticationFilter) filters
 				.stream()
 				.filter(
-						f -> f instanceof Saml2WebSsoAuthenticationFilter
+						(f) -> f instanceof Saml2WebSsoAuthenticationFilter
 				)
 				.findFirst()
 				.get();

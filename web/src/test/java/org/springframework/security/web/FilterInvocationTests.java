@@ -16,18 +16,19 @@
 
 package org.springframework.security.web;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.FilterInvocation.DummyRequest;
 import org.springframework.security.web.util.UrlUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests {@link FilterInvocation}.
@@ -36,9 +37,6 @@ import org.springframework.security.web.util.UrlUtils;
  * @author colin sampaleanu
  */
 public class FilterInvocationTests {
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Test
 	public void testGettersAndStringMethods() {
@@ -50,7 +48,6 @@ public class FilterInvocationTests {
 		request.setServerPort(80);
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/HelloWorld/some/more/segments.html");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
 		FilterInvocation fi = new FilterInvocation(request, response, chain);
@@ -68,21 +65,18 @@ public class FilterInvocationTests {
 	public void testRejectsNullFilterChain() {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		new FilterInvocation(request, response, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRejectsNullServletRequest() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		new FilterInvocation(null, response, mock(FilterChain.class));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRejectsNullServletResponse() {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
-
 		new FilterInvocation(request, null, mock(FilterChain.class));
 	}
 
@@ -96,10 +90,8 @@ public class FilterInvocationTests {
 		request.setServerPort(80);
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/HelloWorld");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld?foo=bar");
 		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld?foo=bar");
 		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld?foo=bar");
@@ -114,10 +106,8 @@ public class FilterInvocationTests {
 		request.setServerPort(80);
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/HelloWorld");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld");
 		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld");
 		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld");
@@ -125,8 +115,7 @@ public class FilterInvocationTests {
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void dummyChainRejectsInvocation() throws Exception {
-		FilterInvocation.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class),
-				mock(HttpServletResponse.class));
+		FilterInvocation.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class));
 	}
 
 	@Test

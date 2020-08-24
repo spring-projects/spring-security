@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.annotation.sec2150;
 
 import org.springframework.security.access.annotation.Secured;
@@ -28,4 +29,5 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @Secured("ROLE_PERSON")
 @PreAuthorize("hasRole('ROLE_PERSON')")
 public interface PersonRepository extends CrudRepository {
+
 }

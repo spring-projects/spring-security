@@ -16,9 +16,9 @@
 
 package org.springframework.security.web;
 
-import org.springframework.util.Assert;
-
 import javax.servlet.ServletRequest;
+
+import org.springframework.util.Assert;
 
 /**
  * Concrete implementation of {@link PortResolver} that obtains the port from
@@ -35,42 +35,34 @@ import javax.servlet.ServletRequest;
  * @author Ben Alex
  */
 public class PortResolverImpl implements PortResolver {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private PortMapper portMapper = new PortMapperImpl();
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public PortMapper getPortMapper() {
-		return portMapper;
+		return this.portMapper;
 	}
 
+	@Override
 	public int getServerPort(ServletRequest request) {
 		int serverPort = request.getServerPort();
-		Integer portLookup = null;
-
 		String scheme = request.getScheme().toLowerCase();
+		Integer mappedPort = getMappedPort(serverPort, scheme);
+		return (mappedPort != null) ? mappedPort : serverPort;
+	}
 
+	private Integer getMappedPort(int serverPort, String scheme) {
 		if ("http".equals(scheme)) {
-			portLookup = portMapper.lookupHttpPort(serverPort);
-
+			return this.portMapper.lookupHttpPort(serverPort);
 		}
-		else if ("https".equals(scheme)) {
-			portLookup = portMapper.lookupHttpsPort(serverPort);
+		if ("https".equals(scheme)) {
+			return this.portMapper.lookupHttpsPort(serverPort);
 		}
-
-		if (portLookup != null) {
-			// IE 6 bug
-			serverPort = portLookup;
-		}
-
-		return serverPort;
+		return null;
 	}
 
 	public void setPortMapper(PortMapper portMapper) {
 		Assert.notNull(portMapper, "portMapper cannot be null");
 		this.portMapper = portMapper;
 	}
+
 }

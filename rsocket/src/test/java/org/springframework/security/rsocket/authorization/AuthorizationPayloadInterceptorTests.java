@@ -20,28 +20,30 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authorization.ReactiveAuthorizationManager;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.test.publisher.PublisherProbe;
 import reactor.util.context.Context;
-import org.springframework.security.rsocket.api.PayloadInterceptorChain;
-import org.springframework.security.rsocket.api.PayloadExchange;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager.authenticated;
-import static org.springframework.security.authorization.AuthorityReactiveAuthorizationManager.hasRole;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager;
+import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
+import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.rsocket.api.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadInterceptorChain;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationPayloadInterceptorTests {
+
 	@Mock
 	private ReactiveAuthorizationManager<PayloadExchange> authorizationManager;
 
@@ -57,61 +59,44 @@ public class AuthorizationPayloadInterceptorTests {
 
 	@Test
 	public void interceptWhenAuthenticationEmptyAndSubscribedThenException() {
-		when(this.chain.next(any())).thenReturn(this.chainResult.mono());
-
-		AuthorizationPayloadInterceptor interceptor =
-				new AuthorizationPayloadInterceptor(authenticated());
-
+		given(this.chain.next(any())).willReturn(this.chainResult.mono());
+		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(
+				AuthenticatedReactiveAuthorizationManager.authenticated());
 		StepVerifier.create(interceptor.intercept(this.exchange, this.chain))
-			.then(() -> this.chainResult.assertWasNotSubscribed())
-			.verifyError(AuthenticationCredentialsNotFoundException.class);
+				.then(() -> this.chainResult.assertWasNotSubscribed())
+				.verifyError(AuthenticationCredentialsNotFoundException.class);
 	}
 
 	@Test
 	public void interceptWhenAuthenticationNotSubscribedAndEmptyThenCompletes() {
-		when(this.chain.next(any())).thenReturn(this.chainResult.mono());
-		when(this.authorizationManager.verify(any(), any()))
-			.thenReturn(this.managerResult.mono());
-
-		AuthorizationPayloadInterceptor interceptor =
-				new AuthorizationPayloadInterceptor(this.authorizationManager);
-
+		given(this.chain.next(any())).willReturn(this.chainResult.mono());
+		given(this.authorizationManager.verify(any(), any())).willReturn(this.managerResult.mono());
+		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(this.authorizationManager);
 		StepVerifier.create(interceptor.intercept(this.exchange, this.chain))
-				.then(() -> this.chainResult.assertWasSubscribed())
-				.verifyComplete();
+				.then(() -> this.chainResult.assertWasSubscribed()).verifyComplete();
 	}
 
 	@Test
 	public void interceptWhenNotAuthorizedThenException() {
-		when(this.chain.next(any())).thenReturn(this.chainResult.mono());
-
-		AuthorizationPayloadInterceptor interceptor =
-				new AuthorizationPayloadInterceptor(hasRole("USER"));
+		given(this.chain.next(any())).willReturn(this.chainResult.mono());
+		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(
+				AuthorityReactiveAuthorizationManager.hasRole("USER"));
 		Context userContext = ReactiveSecurityContextHolder
 				.withAuthentication(new TestingAuthenticationToken("user", "password"));
-
-		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain)
-				.subscriberContext(userContext);
-
-		StepVerifier.create(intercept)
-				.then(() -> this.chainResult.assertWasNotSubscribed())
+		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).subscriberContext(userContext);
+		StepVerifier.create(intercept).then(() -> this.chainResult.assertWasNotSubscribed())
 				.verifyError(AccessDeniedException.class);
 	}
 
 	@Test
 	public void interceptWhenAuthorizedThenContinues() {
-		when(this.chain.next(any())).thenReturn(this.chainResult.mono());
-
-		AuthorizationPayloadInterceptor interceptor =
-				new AuthorizationPayloadInterceptor(authenticated());
+		given(this.chain.next(any())).willReturn(this.chainResult.mono());
+		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(
+				AuthenticatedReactiveAuthorizationManager.authenticated());
 		Context userContext = ReactiveSecurityContextHolder
 				.withAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-
-		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain)
-				.subscriberContext(userContext);
-
-		StepVerifier.create(intercept)
-				.then(() -> this.chainResult.assertWasSubscribed())
-				.verifyComplete();
+		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).subscriberContext(userContext);
+		StepVerifier.create(intercept).then(() -> this.chainResult.assertWasSubscribed()).verifyComplete();
 	}
+
 }

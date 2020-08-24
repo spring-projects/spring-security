@@ -16,8 +16,13 @@
 
 package org.springframework.security.htmlunit.server;
 
+import java.net.URI;
+import java.time.Duration;
+
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -28,10 +33,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import reactor.core.publisher.Mono;
-
-import java.net.URI;
-import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,26 +44,39 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 
 	@Test
 	public void helloWorld() {
-		WebTestClient webTestClient = WebTestClient
-			.bindToController(new HelloWorldController())
-			.build();
+		WebTestClient webTestClient = WebTestClient.bindToController(new HelloWorldController()).build();
+		// @formatter:off
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
-			.webTestClientSetup(webTestClient).build();
-
+				.webTestClientSetup(webTestClient)
+				.build();
+		// @formatter:on
 		driver.get("http://localhost/");
-
 		assertThat(driver.getPageSource()).contains("Hello World");
 	}
 
-	/**
-	 * @author Rob Winch
-	 * @since 5.0
-	 */
+	@Test
+	public void cookies() {
+		// @formatter:off
+		WebTestClient webTestClient = WebTestClient
+				.bindToController(new CookieController())
+				.build();
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+		// @formatter:on
+		driver.get("http://localhost/cookie");
+		assertThat(driver.getPageSource()).contains("theCookie");
+		driver.get("http://localhost/cookie/delete");
+		assertThat(driver.getPageSource()).contains("null");
+	}
+
 	@Controller
 	class HelloWorldController {
+
 		@ResponseBody
 		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
-		public String index() {
+		String index() {
+			// @formatter:off
 			return "<html>\n"
 				+ "<head>\n"
 				+ "<title>Hello World</title>\n"
@@ -71,43 +85,33 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 				+ "<h1>Hello World</h1>\n"
 				+ "</body>\n"
 				+ "</html>";
+			// @formatter:on
 		}
-	}
 
-	@Test
-	public void cookies() {
-		WebTestClient webTestClient = WebTestClient
-			.bindToController(new CookieController())
-			.build();
-		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
-			.webTestClientSetup(webTestClient).build();
-
-		driver.get("http://localhost/cookie");
-
-		assertThat(driver.getPageSource()).contains("theCookie");
-
-		driver.get("http://localhost/cookie/delete");
-
-		assertThat(driver.getPageSource()).contains("null");
 	}
 
 	@Controller
 	@ResponseBody
 	class CookieController {
+
 		@GetMapping(path = "/", produces = MediaType.TEXT_HTML_VALUE)
-		public String view(@CookieValue(required = false) String cookieName) {
+		String view(@CookieValue(required = false) String cookieName) {
+			// @formatter:off
 			return "<html>\n"
 				+ "<head>\n"
 				+ "<title>Hello World</title>\n"
 				+ "</head>\n"
 				+ "<body>\n"
-				+ "<h1>" + TextEscapeUtils.escapeEntities(cookieName) + "</h1>\n"
+				+ "<h1>"
+				+ TextEscapeUtils.escapeEntities(cookieName)
+				+ "</h1>\n"
 				+ "</body>\n"
 				+ "</html>";
+			// @formatter:on
 		}
 
 		@GetMapping("/cookie")
-		public Mono<Void> setCookie(ServerHttpResponse response) {
+		Mono<Void> setCookie(ServerHttpResponse response) {
 			response.addCookie(ResponseCookie.from("cookieName", "theCookie").build());
 			return redirect(response);
 		}
@@ -119,10 +123,11 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 		}
 
 		@GetMapping("/cookie/delete")
-		public Mono<Void> deleteCookie(ServerHttpResponse response) {
-			response.addCookie(
-				ResponseCookie.from("cookieName", "").maxAge(Duration.ofSeconds(0)).build());
+		Mono<Void> deleteCookie(ServerHttpResponse response) {
+			response.addCookie(ResponseCookie.from("cookieName", "").maxAge(Duration.ofSeconds(0)).build());
 			return redirect(response);
 		}
+
 	}
+
 }

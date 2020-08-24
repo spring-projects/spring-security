@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.logout;
 
 import org.junit.Test;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -36,9 +37,7 @@ public class LogoutSuccessEventPublishingLogoutHandlerTests {
 		LogoutSuccessEventPublishingLogoutHandler handler = new LogoutSuccessEventPublishingLogoutHandler();
 		LogoutAwareEventPublisher eventPublisher = new LogoutAwareEventPublisher();
 		handler.setApplicationEventPublisher(eventPublisher);
-
 		handler.logout(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(Authentication.class));
-
 		assertThat(eventPublisher.flag).isTrue();
 	}
 
@@ -47,9 +46,7 @@ public class LogoutSuccessEventPublishingLogoutHandlerTests {
 		LogoutSuccessEventPublishingLogoutHandler handler = new LogoutSuccessEventPublishingLogoutHandler();
 		LogoutAwareEventPublisher eventPublisher = new LogoutAwareEventPublisher();
 		handler.setApplicationEventPublisher(eventPublisher);
-
 		handler.logout(new MockHttpServletRequest(), new MockHttpServletResponse(), null);
-
 		assertThat(eventPublisher.flag).isFalse();
 	}
 
@@ -60,8 +57,10 @@ public class LogoutSuccessEventPublishingLogoutHandlerTests {
 		@Override
 		public void publishEvent(Object event) {
 			if (LogoutSuccessEvent.class.isAssignableFrom(event.getClass())) {
-				flag = true;
+				this.flag = true;
 			}
 		}
+
 	}
+
 }

@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.web;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.util.Assert;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.util.Assert;
 
 /**
  * An implementation of an {@link OAuth2AuthorizedClientRepository} that stores
@@ -35,14 +37,16 @@ import java.util.Map;
  * @see OAuth2AuthorizedClient
  */
 public final class HttpSessionOAuth2AuthorizedClientRepository implements OAuth2AuthorizedClientRepository {
-	private static final String DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME =
-			HttpSessionOAuth2AuthorizedClientRepository.class.getName() +  ".AUTHORIZED_CLIENTS";
+
+	private static final String DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME = HttpSessionOAuth2AuthorizedClientRepository.class
+			.getName() + ".AUTHORIZED_CLIENTS";
+
 	private final String sessionAttributeName = DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME;
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, Authentication principal,
-																		HttpServletRequest request) {
+	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId,
+			Authentication principal, HttpServletRequest request) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.notNull(request, "request cannot be null");
 		return (T) this.getAuthorizedClients(request).get(clientRegistrationId);
@@ -50,7 +54,7 @@ public final class HttpSessionOAuth2AuthorizedClientRepository implements OAuth2
 
 	@Override
 	public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal,
-										HttpServletRequest request, HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response) {
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
@@ -61,7 +65,7 @@ public final class HttpSessionOAuth2AuthorizedClientRepository implements OAuth2
 
 	@Override
 	public void removeAuthorizedClient(String clientRegistrationId, Authentication principal,
-										HttpServletRequest request, HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.notNull(request, "request cannot be null");
 		Map<String, OAuth2AuthorizedClient> authorizedClients = this.getAuthorizedClients(request);
@@ -69,7 +73,8 @@ public final class HttpSessionOAuth2AuthorizedClientRepository implements OAuth2
 			if (authorizedClients.remove(clientRegistrationId) != null) {
 				if (!authorizedClients.isEmpty()) {
 					request.getSession().setAttribute(this.sessionAttributeName, authorizedClients);
-				} else {
+				}
+				else {
 					request.getSession().removeAttribute(this.sessionAttributeName);
 				}
 			}
@@ -79,11 +84,12 @@ public final class HttpSessionOAuth2AuthorizedClientRepository implements OAuth2
 	@SuppressWarnings("unchecked")
 	private Map<String, OAuth2AuthorizedClient> getAuthorizedClients(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
-		Map<String, OAuth2AuthorizedClient> authorizedClients = session == null ? null :
-				(Map<String, OAuth2AuthorizedClient>) session.getAttribute(this.sessionAttributeName);
+		Map<String, OAuth2AuthorizedClient> authorizedClients = (session != null)
+				? (Map<String, OAuth2AuthorizedClient>) session.getAttribute(this.sessionAttributeName) : null;
 		if (authorizedClients == null) {
 			authorizedClients = new HashMap<>();
 		}
 		return authorizedClients;
 	}
+
 }

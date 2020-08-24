@@ -19,13 +19,14 @@ package org.springframework.security.core.userdetails.cache;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests
@@ -36,10 +37,9 @@ import static org.assertj.core.api.Assertions.*;
  *
  */
 public class SpringCacheBasedUserCacheTests {
+
 	private static CacheManager cacheManager;
 
-	// ~ Methods
-	// ========================================================================================================
 	@BeforeClass
 	public static void initCacheManaer() {
 		cacheManager = new ConcurrentMapCacheManager();
@@ -64,15 +64,12 @@ public class SpringCacheBasedUserCacheTests {
 	@Test
 	public void cacheOperationsAreSuccessful() throws Exception {
 		SpringCacheBasedUserCache cache = new SpringCacheBasedUserCache(getCache());
-
 		// Check it gets stored in the cache
 		cache.putUserInCache(getUser());
 		assertThat(getUser().getPassword()).isEqualTo(cache.getUserFromCache(getUser().getUsername()).getPassword());
-
 		// Check it gets removed from the cache
 		cache.removeUserFromCache(getUser());
 		assertThat(cache.getUserFromCache(getUser().getUsername())).isNull();
-
 		// Check it doesn't return values for null or unknown users
 		assertThat(cache.getUserFromCache(null)).isNull();
 		assertThat(cache.getUserFromCache("UNKNOWN_USER")).isNull();
@@ -82,4 +79,5 @@ public class SpringCacheBasedUserCacheTests {
 	public void startupDetectsMissingCache() throws Exception {
 		new SpringCacheBasedUserCache(null);
 	}
+
 }

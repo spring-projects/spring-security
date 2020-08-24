@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.context.support;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -35,16 +36,14 @@ import org.springframework.util.StringUtils;
  * A {@link WithUserDetailsSecurityContextFactory} that works with {@link WithUserDetails}
  * .
  *
- * @see WithUserDetails
- *
  * @author Rob Winch
  * @since 4.0
+ * @see WithUserDetails
  */
+final class WithUserDetailsSecurityContextFactory implements WithSecurityContextFactory<WithUserDetails> {
 
-final class WithUserDetailsSecurityContextFactory implements
-		WithSecurityContextFactory<WithUserDetails> {
-
-	private static final boolean reactorPresent = ClassUtils.isPresent("reactor.core.publisher.Mono", WithUserDetailsSecurityContextFactory.class.getClassLoader());
+	private static final boolean reactorPresent = ClassUtils.isPresent("reactor.core.publisher.Mono",
+			WithUserDetailsSecurityContextFactory.class.getClassLoader());
 
 	private BeanFactory beans;
 
@@ -53,14 +52,15 @@ final class WithUserDetailsSecurityContextFactory implements
 		this.beans = beans;
 	}
 
+	@Override
 	public SecurityContext createSecurityContext(WithUserDetails withUser) {
 		String beanName = withUser.userDetailsServiceBeanName();
 		UserDetailsService userDetailsService = findUserDetailsService(beanName);
 		String username = withUser.value();
 		Assert.hasLength(username, "value() must be non empty String");
 		UserDetails principal = userDetailsService.loadUserByUsername(username);
-		Authentication authentication = new UsernamePasswordAuthenticationToken(
-				principal, principal.getPassword(), principal.getAuthorities());
+		Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(),
+				principal.getAuthorities());
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authentication);
 		return context;
@@ -73,35 +73,35 @@ final class WithUserDetailsSecurityContextFactory implements
 				return reactive;
 			}
 		}
-		return StringUtils.hasLength(beanName)
-			? this.beans.getBean(beanName, UserDetailsService.class)
-			: this.beans.getBean(UserDetailsService.class);
+		return StringUtils.hasLength(beanName) ? this.beans.getBean(beanName, UserDetailsService.class)
+				: this.beans.getBean(UserDetailsService.class);
 	}
 
-	public UserDetailsService findAndAdaptReactiveUserDetailsService(String beanName) {
+	UserDetailsService findAndAdaptReactiveUserDetailsService(String beanName) {
 		try {
-			ReactiveUserDetailsService reactiveUserDetailsService = StringUtils
-				.hasLength(beanName) ?
-				this.beans.getBean(beanName, ReactiveUserDetailsService.class) :
-				this.beans.getBean(ReactiveUserDetailsService.class);
+			ReactiveUserDetailsService reactiveUserDetailsService = StringUtils.hasLength(beanName)
+					? this.beans.getBean(beanName, ReactiveUserDetailsService.class)
+					: this.beans.getBean(ReactiveUserDetailsService.class);
 			return new ReactiveUserDetailsServiceAdapter(reactiveUserDetailsService);
-		} catch(NoSuchBeanDefinitionException | BeanNotOfRequiredTypeException notReactive) {
+		}
+		catch (NoSuchBeanDefinitionException | BeanNotOfRequiredTypeException ex) {
 			return null;
 		}
 	}
 
-	private class ReactiveUserDetailsServiceAdapter implements UserDetailsService {
+	private final class ReactiveUserDetailsServiceAdapter implements UserDetailsService {
+
 		private final ReactiveUserDetailsService userDetailsService;
 
-		private ReactiveUserDetailsServiceAdapter(
-			ReactiveUserDetailsService userDetailsService) {
+		private ReactiveUserDetailsServiceAdapter(ReactiveUserDetailsService userDetailsService) {
 			this.userDetailsService = userDetailsService;
 		}
 
 		@Override
-		public UserDetails loadUserByUsername(String username)
-			throws UsernameNotFoundException {
+		public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 			return this.userDetailsService.findByUsername(username).block();
 		}
+
 	}
+
 }

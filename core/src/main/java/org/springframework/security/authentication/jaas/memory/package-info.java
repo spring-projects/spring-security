@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * An in memory JAAS implementation.
  */
 package org.springframework.security.authentication.jaas.memory;
-

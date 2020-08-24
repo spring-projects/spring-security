@@ -32,8 +32,8 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
-	private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter
-			= new JwtGrantedAuthoritiesConverter();
+
+	private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 
 	private String principalClaimName;
 
@@ -43,14 +43,13 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 		if (this.principalClaimName == null) {
 			return new JwtAuthenticationToken(jwt, authorities);
 		}
-
 		String name = jwt.getClaim(this.principalClaimName);
 		return new JwtAuthenticationToken(jwt, authorities, name);
 	}
 
 	/**
-	 * Extracts the {@link GrantedAuthority}s from scope attributes typically found in a {@link Jwt}
-	 *
+	 * Extracts the {@link GrantedAuthority}s from scope attributes typically found in a
+	 * {@link Jwt}
 	 * @param jwt The token
 	 * @return The collection of {@link GrantedAuthority}s found on the token
 	 * @deprecated Since 5.2. Use your own custom converter instead
@@ -63,22 +62,20 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 	}
 
 	/**
-	 * Sets the {@link Converter Converter&lt;Jwt, Collection&lt;GrantedAuthority&gt;&gt;} to use.
-	 * Defaults to {@link JwtGrantedAuthoritiesConverter}.
-	 *
+	 * Sets the {@link Converter Converter&lt;Jwt, Collection&lt;GrantedAuthority&gt;&gt;}
+	 * to use. Defaults to {@link JwtGrantedAuthoritiesConverter}.
 	 * @param jwtGrantedAuthoritiesConverter The converter
 	 * @since 5.2
 	 * @see JwtGrantedAuthoritiesConverter
 	 */
-	public void setJwtGrantedAuthoritiesConverter(Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter) {
+	public void setJwtGrantedAuthoritiesConverter(
+			Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter) {
 		Assert.notNull(jwtGrantedAuthoritiesConverter, "jwtGrantedAuthoritiesConverter cannot be null");
 		this.jwtGrantedAuthoritiesConverter = jwtGrantedAuthoritiesConverter;
 	}
 
 	/**
-	 * Sets the principal claim name.
-	 * Defaults to {@link JwtClaimNames#SUB}.
-	 *
+	 * Sets the principal claim name. Defaults to {@link JwtClaimNames#SUB}.
 	 * @param principalClaimName The principal claim name
 	 * @since 5.4
 	 */
@@ -86,4 +83,5 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 		Assert.hasText(principalClaimName, "principalClaimName cannot be empty");
 		this.principalClaimName = principalClaimName;
 	}
+
 }

@@ -24,25 +24,21 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 
 /**
- *
  * @author Ben Alex
  */
 @SuppressWarnings("unchecked")
 public class MockFilterConfig implements FilterConfig {
-	// ~ Instance fields
-	// ================================================================================================
+
 	private Map map = new HashMap();
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public String getFilterName() {
 		throw new UnsupportedOperationException("mock method not implemented");
 	}
 
+	@Override
 	public String getInitParameter(String arg0) {
-		Object result = map.get(arg0);
-
+		Object result = this.map.get(arg0);
 		if (result != null) {
 			return (String) result;
 		}
@@ -51,15 +47,18 @@ public class MockFilterConfig implements FilterConfig {
 		}
 	}
 
+	@Override
 	public Enumeration getInitParameterNames() {
 		throw new UnsupportedOperationException("mock method not implemented");
 	}
 
+	@Override
 	public ServletContext getServletContext() {
 		throw new UnsupportedOperationException("mock method not implemented");
 	}
 
 	public void setInitParmeter(String parameter, String value) {
-		map.put(parameter, value);
+		this.map.put(parameter, value);
 	}
+
 }

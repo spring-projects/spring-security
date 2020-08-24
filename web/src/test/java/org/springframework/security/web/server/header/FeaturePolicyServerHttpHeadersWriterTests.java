@@ -48,7 +48,6 @@ public class FeaturePolicyServerHttpHeadersWriterTests {
 	@Test
 	public void writeHeadersWhenUsingDefaultsThenDoesNotWrite() {
 		this.writer.writeHttpHeaders(this.exchange);
-
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).isEmpty();
 	}
@@ -57,7 +56,6 @@ public class FeaturePolicyServerHttpHeadersWriterTests {
 	public void writeHeadersWhenUsingPolicyThenWritesPolicy() {
 		this.writer.setPolicyDirectives(DEFAULT_POLICY_DIRECTIVES);
 		this.writer.writeHttpHeaders(this.exchange);
-
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(FeaturePolicyServerHttpHeadersWriter.FEATURE_POLICY))
@@ -68,14 +66,11 @@ public class FeaturePolicyServerHttpHeadersWriterTests {
 	public void writeHeadersWhenAlreadyWrittenThenWritesHeader() {
 		this.writer.setPolicyDirectives(DEFAULT_POLICY_DIRECTIVES);
 		String headerValue = "camera: 'self'";
-		this.exchange.getResponse().getHeaders()
-				.set(FeaturePolicyServerHttpHeadersWriter.FEATURE_POLICY, headerValue);
+		this.exchange.getResponse().getHeaders().set(FeaturePolicyServerHttpHeadersWriter.FEATURE_POLICY, headerValue);
 		this.writer.writeHttpHeaders(this.exchange);
-
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(FeaturePolicyServerHttpHeadersWriter.FEATURE_POLICY))
-				.containsOnly(headerValue);
+		assertThat(headers.get(FeaturePolicyServerHttpHeadersWriter.FEATURE_POLICY)).containsOnly(headerValue);
 	}
 
 }

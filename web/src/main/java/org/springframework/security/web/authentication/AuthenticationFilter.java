@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -36,26 +38,24 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * A {@link Filter} that performs authentication of a particular request. An
- * outline of the logic:
+ * A {@link Filter} that performs authentication of a particular request. An outline of
+ * the logic:
  *
  * <ul>
  * <li>A request comes in and if it does not match
- * {@link #setRequestMatcher(RequestMatcher)}, then this filter does nothing and
- * the {@link FilterChain} is continued. If it does match then...</li>
- * <li>An attempt to convert the {@link HttpServletRequest} into an
- * {@link Authentication} is made. If the result is empty, then the filter does
- * nothing more and the {@link FilterChain} is continued. If it does create an
- * {@link Authentication}...</li>
+ * {@link #setRequestMatcher(RequestMatcher)}, then this filter does nothing and the
+ * {@link FilterChain} is continued. If it does match then...</li>
+ * <li>An attempt to convert the {@link HttpServletRequest} into an {@link Authentication}
+ * is made. If the result is empty, then the filter does nothing more and the
+ * {@link FilterChain} is continued. If it does create an {@link Authentication}...</li>
  * <li>The {@link AuthenticationManager} specified in
- * {@link #GenericAuthenticationFilter(AuthenticationManager)} is used to
- * perform authentication.</li>
- * <li>The {@link AuthenticationManagerResolver} specified in
- * {@link #GenericAuthenticationFilter(AuthenticationManagerResolver)} is used
- * to resolve the appropriate authentication manager from context to perform
+ * {@link #GenericAuthenticationFilter(AuthenticationManager)} is used to perform
  * authentication.</li>
- * <li>If authentication is successful, {@link AuthenticationSuccessHandler} is
- * invoked and the authentication is set on {@link SecurityContextHolder}, else
+ * <li>The {@link AuthenticationManagerResolver} specified in
+ * {@link #GenericAuthenticationFilter(AuthenticationManagerResolver)} is used to resolve
+ * the appropriate authentication manager from context to perform authentication.</li>
+ * <li>If authentication is successful, {@link AuthenticationSuccessHandler} is invoked
+ * and the authentication is set on {@link SecurityContextHolder}, else
  * {@link AuthenticationFailureHandler} is invoked</li>
  * </ul>
  *
@@ -65,22 +65,25 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class AuthenticationFilter extends OncePerRequestFilter {
 
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
+
 	private AuthenticationConverter authenticationConverter;
+
 	private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+
 	private AuthenticationFailureHandler failureHandler = new AuthenticationEntryPointFailureHandler(
 			new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+
 	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
 	public AuthenticationFilter(AuthenticationManager authenticationManager,
 			AuthenticationConverter authenticationConverter) {
-		this((AuthenticationManagerResolver<HttpServletRequest>) r -> authenticationManager, authenticationConverter);
+		this((AuthenticationManagerResolver<HttpServletRequest>) (r) -> authenticationManager, authenticationConverter);
 	}
 
 	public AuthenticationFilter(AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver,
 			AuthenticationConverter authenticationConverter) {
 		Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
-
 		this.authenticationManagerResolver = authenticationManagerResolver;
 		this.authenticationConverter = authenticationConverter;
 	}
@@ -138,22 +141,20 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-
 		try {
 			Authentication authenticationResult = attemptAuthentication(request, response);
 			if (authenticationResult == null) {
 				filterChain.doFilter(request, response);
 				return;
 			}
-
 			HttpSession session = request.getSession(false);
 			if (session != null) {
 				request.changeSessionId();
 			}
-
 			successfulAuthentication(request, response, filterChain, authenticationResult);
-		} catch (AuthenticationException e) {
-			unsuccessfulAuthentication(request, response, e);
+		}
+		catch (AuthenticationException ex) {
+			unsuccessfulAuthentication(request, response, ex);
 		}
 	}
 
@@ -177,13 +178,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		if (authentication == null) {
 			return null;
 		}
-
 		AuthenticationManager authenticationManager = this.authenticationManagerResolver.resolve(request);
 		Authentication authenticationResult = authenticationManager.authenticate(authentication);
 		if (authenticationResult == null) {
 			throw new ServletException("AuthenticationManager should not return null Authentication object.");
 		}
-
 		return authenticationResult;
 	}
 

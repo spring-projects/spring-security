@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation;
 
 import java.util.ArrayList;
@@ -44,18 +45,18 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * filters necessary for session management, form based login, authorization, etc.
  * </p>
  *
- * @see WebSecurity
- *
- * @author Rob Winch
- *
  * @param <O> The object that this builder returns
  * @param <B> The type of this builder (that is returned by the base class)
+ * @author Rob Winch
+ * @see WebSecurity
  */
 public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBuilder<O>>
 		extends AbstractSecurityBuilder<O> {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>> configurers = new LinkedHashMap<>();
+
 	private final List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<>();
 
 	private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
@@ -70,11 +71,9 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * Creates a new instance with the provided {@link ObjectPostProcessor}. This post
 	 * processor must support Object since there are many types of objects that may be
 	 * post processed.
-	 *
 	 * @param objectPostProcessor the {@link ObjectPostProcessor} to use
 	 */
-	protected AbstractConfiguredSecurityBuilder(
-			ObjectPostProcessor<Object> objectPostProcessor) {
+	protected AbstractConfiguredSecurityBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
 		this(objectPostProcessor, false);
 	}
 
@@ -82,13 +81,11 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * Creates a new instance with the provided {@link ObjectPostProcessor}. This post
 	 * processor must support Object since there are many types of objects that may be
 	 * post processed.
-	 *
 	 * @param objectPostProcessor the {@link ObjectPostProcessor} to use
 	 * @param allowConfigurersOfSameType if true, will not override other
 	 * {@link SecurityConfigurer}'s when performing apply
 	 */
-	protected AbstractConfiguredSecurityBuilder(
-			ObjectPostProcessor<Object> objectPostProcessor,
+	protected AbstractConfiguredSecurityBuilder(ObjectPostProcessor<Object> objectPostProcessor,
 			boolean allowConfigurersOfSameType) {
 		Assert.notNull(objectPostProcessor, "objectPostProcessor cannot be null");
 		this.objectPostProcessor = objectPostProcessor;
@@ -98,37 +95,32 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	/**
 	 * Similar to {@link #build()} and {@link #getObject()} but checks the state to
 	 * determine if {@link #build()} needs to be called first.
-	 *
 	 * @return the result of {@link #build()} or {@link #getObject()}. If an error occurs
 	 * while building, returns null.
 	 */
 	public O getOrBuild() {
-		if (isUnbuilt()) {
-			try {
-				return build();
-			}
-			catch (Exception e) {
-				logger.debug("Failed to perform build. Returning null", e);
-				return null;
-			}
-		}
-		else {
+		if (!isUnbuilt()) {
 			return getObject();
+		}
+		try {
+			return build();
+		}
+		catch (Exception ex) {
+			this.logger.debug("Failed to perform build. Returning null", ex);
+			return null;
 		}
 	}
 
 	/**
 	 * Applies a {@link SecurityConfigurerAdapter} to this {@link SecurityBuilder} and
 	 * invokes {@link SecurityConfigurerAdapter#setBuilder(SecurityBuilder)}.
-	 *
 	 * @param configurer
 	 * @return the {@link SecurityConfigurerAdapter} for further customizations
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public <C extends SecurityConfigurerAdapter<O, B>> C apply(C configurer)
-			throws Exception {
-		configurer.addObjectPostProcessor(objectPostProcessor);
+	public <C extends SecurityConfigurerAdapter<O, B>> C apply(C configurer) throws Exception {
+		configurer.addObjectPostProcessor(this.objectPostProcessor);
 		configurer.setBuilder((B) this);
 		add(configurer);
 		return configurer;
@@ -138,7 +130,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * Applies a {@link SecurityConfigurer} to this {@link SecurityBuilder} overriding any
 	 * {@link SecurityConfigurer} of the exact same class. Note that object hierarchies
 	 * are not considered.
-	 *
 	 * @param configurer
 	 * @return the {@link SecurityConfigurerAdapter} for further customizations
 	 * @throws Exception
@@ -150,7 +141,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
 	/**
 	 * Sets an object that is shared by multiple {@link SecurityConfigurer}.
-	 *
 	 * @param sharedType the Class to key the shared object by.
 	 * @param object the Object to store
 	 */
@@ -161,7 +151,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
 	/**
 	 * Gets a shared Object. Note that object heirarchies are not considered.
-	 *
 	 * @param sharedType the type of the shared Object
 	 * @return the shared Object or null if it is not found
 	 */
@@ -181,28 +170,25 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	/**
 	 * Adds {@link SecurityConfigurer} ensuring that it is allowed and invoking
 	 * {@link SecurityConfigurer#init(SecurityBuilder)} immediately if necessary.
-	 *
 	 * @param configurer the {@link SecurityConfigurer} to add
 	 */
 	@SuppressWarnings("unchecked")
 	private <C extends SecurityConfigurer<O, B>> void add(C configurer) {
 		Assert.notNull(configurer, "configurer cannot be null");
-
 		Class<? extends SecurityConfigurer<O, B>> clazz = (Class<? extends SecurityConfigurer<O, B>>) configurer
 				.getClass();
-		synchronized (configurers) {
-			if (buildState.isConfigured()) {
-				throw new IllegalStateException("Cannot apply " + configurer
-						+ " to already built object");
+		synchronized (this.configurers) {
+			if (this.buildState.isConfigured()) {
+				throw new IllegalStateException("Cannot apply " + configurer + " to already built object");
 			}
-			List<SecurityConfigurer<O, B>> configs = allowConfigurersOfSameType ? this.configurers
-					.get(clazz) : null;
-			if (configs == null) {
-				configs = new ArrayList<>(1);
+			List<SecurityConfigurer<O, B>> configs = null;
+			if (this.allowConfigurersOfSameType) {
+				configs = this.configurers.get(clazz);
 			}
+			configs = (configs != null) ? configs : new ArrayList<>(1);
 			configs.add(configurer);
 			this.configurers.put(clazz, configs);
-			if (buildState.isInitializing()) {
+			if (this.buildState.isInitializing()) {
 				this.configurersAddedInInitializing.add(configurer);
 			}
 		}
@@ -211,7 +197,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	/**
 	 * Gets all the {@link SecurityConfigurer} instances by its class name or an empty
 	 * List if not found. Note that object hierarchies are not considered.
-	 *
 	 * @param clazz the {@link SecurityConfigurer} class to look for
 	 * @return a list of {@link SecurityConfigurer}s for further customization
 	 */
@@ -227,7 +212,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	/**
 	 * Removes all the {@link SecurityConfigurer} instances by its class name or an empty
 	 * List if not found. Note that object hierarchies are not considered.
-	 *
 	 * @param clazz the {@link SecurityConfigurer} class to look for
 	 * @return a list of {@link SecurityConfigurer}s for further customization
 	 */
@@ -243,7 +227,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	/**
 	 * Gets the {@link SecurityConfigurer} by its class name or <code>null</code> if not
 	 * found. Note that object hierarchies are not considered.
-	 *
 	 * @param clazz
 	 * @return the {@link SecurityConfigurer} for further customizations
 	 */
@@ -253,17 +236,14 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		if (configs == null) {
 			return null;
 		}
-		if (configs.size() != 1) {
-			throw new IllegalStateException("Only one configurer expected for type "
-					+ clazz + ", but got " + configs);
-		}
+		Assert.state(configs.size() == 1,
+				() -> "Only one configurer expected for type " + clazz + ", but got " + configs);
 		return (C) configs.get(0);
 	}
 
 	/**
 	 * Removes and returns the {@link SecurityConfigurer} by its class name or
 	 * <code>null</code> if not found. Note that object hierarchies are not considered.
-	 *
 	 * @param clazz
 	 * @return
 	 */
@@ -273,10 +253,8 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		if (configs == null) {
 			return null;
 		}
-		if (configs.size() != 1) {
-			throw new IllegalStateException("Only one configurer expected for type "
-					+ clazz + ", but got " + configs);
-		}
+		Assert.state(configs.size() == 1,
+				() -> "Only one configurer expected for type " + clazz + ", but got " + configs);
 		return (C) configs.get(0);
 	}
 
@@ -295,7 +273,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	/**
 	 * Performs post processing of an object. The default is to delegate to the
 	 * {@link ObjectPostProcessor}.
-	 *
 	 * @param object the Object to post process
 	 * @return the possibly modified Object to use
 	 */
@@ -317,23 +294,16 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 */
 	@Override
 	protected final O doBuild() throws Exception {
-		synchronized (configurers) {
-			buildState = BuildState.INITIALIZING;
-
+		synchronized (this.configurers) {
+			this.buildState = BuildState.INITIALIZING;
 			beforeInit();
 			init();
-
-			buildState = BuildState.CONFIGURING;
-
+			this.buildState = BuildState.CONFIGURING;
 			beforeConfigure();
 			configure();
-
-			buildState = BuildState.BUILDING;
-
+			this.buildState = BuildState.BUILDING;
 			O result = performBuild();
-
-			buildState = BuildState.BUILT;
-
+			this.buildState = BuildState.BUILT;
 			return result;
 		}
 	}
@@ -357,7 +327,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
 	/**
 	 * Subclasses must implement this method to build the object that is being returned.
-	 *
 	 * @return the Object to be buit or null if the implementation allows it
 	 */
 	protected abstract O performBuild() throws Exception;
@@ -365,12 +334,10 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	@SuppressWarnings("unchecked")
 	private void init() throws Exception {
 		Collection<SecurityConfigurer<O, B>> configurers = getConfigurers();
-
 		for (SecurityConfigurer<O, B> configurer : configurers) {
 			configurer.init((B) this);
 		}
-
-		for (SecurityConfigurer<O, B> configurer : configurersAddedInInitializing) {
+		for (SecurityConfigurer<O, B> configurer : this.configurersAddedInInitializing) {
 			configurer.init((B) this);
 		}
 	}
@@ -378,7 +345,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	@SuppressWarnings("unchecked")
 	private void configure() throws Exception {
 		Collection<SecurityConfigurer<O, B>> configurers = getConfigurers();
-
 		for (SecurityConfigurer<O, B> configurer : configurers) {
 			configurer.configure((B) this);
 		}
@@ -397,8 +363,8 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @return true, if unbuilt else false
 	 */
 	private boolean isUnbuilt() {
-		synchronized (configurers) {
-			return buildState == BuildState.UNBUILT;
+		synchronized (this.configurers) {
+			return this.buildState == BuildState.UNBUILT;
 		}
 	}
 
@@ -409,6 +375,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @since 3.2
 	 */
 	private enum BuildState {
+
 		/**
 		 * This is the state before the {@link Builder#build()} is invoked
 		 */
@@ -447,7 +414,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		}
 
 		public boolean isInitializing() {
-			return INITIALIZING.order == order;
+			return INITIALIZING.order == this.order;
 		}
 
 		/**
@@ -455,7 +422,9 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		 * @return
 		 */
 		public boolean isConfigured() {
-			return order >= CONFIGURING.order;
+			return this.order >= CONFIGURING.order;
 		}
+
 	}
+
 }

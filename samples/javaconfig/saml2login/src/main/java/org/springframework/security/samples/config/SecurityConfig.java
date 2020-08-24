@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.samples.config;
 
 import java.io.ByteArrayInputStream;
@@ -56,11 +57,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return RelyingPartyRegistration.withRegistrationId(registrationId)
 				.entityId(localEntityIdTemplate)
 				.assertionConsumerServiceLocation(acsUrlTemplate)
-				.signingX509Credentials(c -> c.add(signingCredential))
-				.assertingPartyDetails(config -> config
+				.signingX509Credentials((c) -> c.add(signingCredential))
+				.assertingPartyDetails((config) -> config
 						.entityId(idpEntityId)
 						.singleSignOnServiceLocation(webSsoEndpoint)
-						.verificationX509Credentials(c -> c.add(idpVerificationCertificate)))
+						.verificationX509Credentials((c) -> c.add(idpVerificationCertificate)))
 				.build();
 	}
 

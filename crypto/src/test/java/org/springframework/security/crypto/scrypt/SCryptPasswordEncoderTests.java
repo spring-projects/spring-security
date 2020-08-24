@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.scrypt;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Shazin Sadakath
@@ -67,7 +68,6 @@ public class SCryptPasswordEncoderTests {
 	public void samePasswordWithDifferentParams() {
 		SCryptPasswordEncoder oldEncoder = new SCryptPasswordEncoder(16384, 8, 1, 32, 64);
 		SCryptPasswordEncoder newEncoder = new SCryptPasswordEncoder();
-
 		String password = "secret";
 		String oldEncodedPassword = oldEncoder.encode(password);
 		assertThat(newEncoder.matches(password, oldEncodedPassword)).isTrue();
@@ -139,10 +139,8 @@ public class SCryptPasswordEncoderTests {
 	public void upgradeEncodingWhenWeakerToStrongerThenFalse() {
 		SCryptPasswordEncoder weakEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 10), 4, 1, 32, 64);
 		SCryptPasswordEncoder strongEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 16), 8, 1, 32, 64);
-
 		String weakPassword = weakEncoder.encode("password");
 		String strongPassword = strongEncoder.encode("password");
-
 		assertThat(weakEncoder.upgradeEncoding(strongPassword)).isFalse();
 	}
 
@@ -150,10 +148,8 @@ public class SCryptPasswordEncoderTests {
 	public void upgradeEncodingWhenStrongerToWeakerThenTrue() {
 		SCryptPasswordEncoder weakEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 10), 4, 1, 32, 64);
 		SCryptPasswordEncoder strongEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 16), 8, 1, 32, 64);
-
 		String weakPassword = weakEncoder.encode("password");
 		String strongPassword = strongEncoder.encode("password");
-
 		assertThat(strongEncoder.upgradeEncoding(weakPassword)).isTrue();
 	}
 
@@ -161,5 +157,5 @@ public class SCryptPasswordEncoderTests {
 	public void upgradeEncodingWhenInvalidInputThenException() {
 		new SCryptPasswordEncoder().upgradeEncoding("not-a-scrypt-password");
 	}
-}
 
+}

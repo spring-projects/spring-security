@@ -13,27 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+package org.springframework.security.authentication;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
-import org.springframework.security.core.userdetails.User;
-
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -41,18 +42,24 @@ import reactor.test.StepVerifier;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ReactiveUserDetailsServiceAuthenticationManagerTests {
-	@Mock ReactiveUserDetailsService repository;
+
+	@Mock
+	ReactiveUserDetailsService repository;
+
 	@Mock
 	PasswordEncoder passwordEncoder;
+
 	UserDetailsRepositoryReactiveAuthenticationManager manager;
+
 	String username;
+
 	String password;
 
 	@Before
 	public void setup() {
-		manager = new UserDetailsRepositoryReactiveAuthenticationManager(repository);
-		username = "user";
-		password = "pass";
+		this.manager = new UserDetailsRepositoryReactiveAuthenticationManager(this.repository);
+		this.username = "user";
+		this.password = "pass";
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -63,77 +70,77 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenUserNotFoundThenBadCredentials() {
-		when(repository.findByUsername(username)).thenReturn(Mono.empty());
-
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-		Mono<Authentication> authentication = manager.authenticate(token);
-
-		StepVerifier
-			.create(authentication)
-			.expectError(BadCredentialsException.class)
-			.verify();
+		given(this.repository.findByUsername(this.username)).willReturn(Mono.empty());
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+				this.password);
+		Mono<Authentication> authentication = this.manager.authenticate(token);
+		// @formatter:off
+		StepVerifier.create(authentication)
+				.expectError(BadCredentialsException.class)
+				.verify();
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenPasswordNotEqualThenBadCredentials() {
+		// @formatter:off
 		UserDetails user = PasswordEncodedUser.withUsername(this.username)
 			.password(this.password)
 			.roles("USER")
 			.build();
-		when(repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
-
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, this.password + "INVALID");
-		Mono<Authentication> authentication = manager.authenticate(token);
-
-		StepVerifier
-			.create(authentication)
-			.expectError(BadCredentialsException.class)
-			.verify();
+		// @formatter:on
+		given(this.repository.findByUsername(user.getUsername())).willReturn(Mono.just(user));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+				this.password + "INVALID");
+		Mono<Authentication> authentication = this.manager.authenticate(token);
+		// @formatter:off
+		StepVerifier.create(authentication)
+				.expectError(BadCredentialsException.class)
+				.verify();
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenSuccessThenSuccess() {
+		// @formatter:off
 		UserDetails user = PasswordEncodedUser.withUsername(this.username)
 			.password(this.password)
 			.roles("USER")
 			.build();
-		when(repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
-
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-		Authentication authentication = manager.authenticate(token).block();
-
+		// @formatter:on
+		given(this.repository.findByUsername(user.getUsername())).willReturn(Mono.just(user));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+				this.password);
+		Authentication authentication = this.manager.authenticate(token).block();
 		assertThat(authentication).isEqualTo(authentication);
 	}
 
 	@Test
 	public void authenticateWhenPasswordEncoderAndSuccessThenSuccess() {
 		this.manager.setPasswordEncoder(this.passwordEncoder);
-		when(this.passwordEncoder.matches(any(), any())).thenReturn(true);
+		given(this.passwordEncoder.matches(any(), any())).willReturn(true);
 		User user = new User(this.username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER"));
-		when(this.repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
-
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-			this.username, this.password);
+		given(this.repository.findByUsername(user.getUsername())).willReturn(Mono.just(user));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+				this.password);
 		Authentication authentication = this.manager.authenticate(token).block();
-
 		assertThat(authentication).isEqualTo(authentication);
 	}
 
 	@Test
 	public void authenticateWhenPasswordEncoderAndFailThenFail() {
 		this.manager.setPasswordEncoder(this.passwordEncoder);
-		when(this.passwordEncoder.matches(any(), any())).thenReturn(false);
+		given(this.passwordEncoder.matches(any(), any())).willReturn(false);
 		User user = new User(this.username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER"));
-		when(this.repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
-
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-			this.username, this.password);
-
+		given(this.repository.findByUsername(user.getUsername())).willReturn(Mono.just(user));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+				this.password);
 		Mono<Authentication> authentication = this.manager.authenticate(token);
-
-		StepVerifier
-			.create(authentication)
-			.expectError(BadCredentialsException.class)
-			.verify();
+		// @formatter:off
+		StepVerifier.create(authentication)
+				.expectError(BadCredentialsException.class)
+				.verify();
+		// @formatter:on
 	}
+
 }

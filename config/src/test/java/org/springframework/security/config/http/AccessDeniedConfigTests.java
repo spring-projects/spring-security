@@ -13,12 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.http;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
@@ -31,23 +36,19 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- *
  * @author Luke Taylor
  * @author Josh Cummings
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SecurityTestExecutionListeners
 public class AccessDeniedConfigTests {
-	private static final String CONFIG_LOCATION_PREFIX =
-			"classpath:org/springframework/security/config/http/AccessDeniedConfigTests";
+
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/AccessDeniedConfigTests";
 
 	@Autowired
 	MockMvc mvc;
@@ -58,30 +59,22 @@ public class AccessDeniedConfigTests {
 	@Test
 	public void configureWhenAccessDeniedHandlerIsMissingLeadingSlashThenException() {
 		SpringTestContext context = this.spring.configLocations(this.xml("NoLeadingSlash"));
-
-		assertThatThrownBy(() -> context.autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasMessageContaining("errorPage must begin with '/'");
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> context.autowire())
+				.withMessageContaining("errorPage must begin with '/'");
 	}
 
 	@Test
 	@WithMockUser
-	public void configureWhenAccessDeniedHandlerRefThenAutowire()
-		throws Exception {
-
+	public void configureWhenAccessDeniedHandlerRefThenAutowire() throws Exception {
 		this.spring.configLocations(this.xml("AccessDeniedHandler")).autowire();
-
-		this.mvc.perform(get("/"))
-				.andExpect(status().is(HttpStatus.GONE_410));
+		this.mvc.perform(get("/")).andExpect(status().is(HttpStatus.GONE_410));
 	}
 
 	@Test
 	public void configureWhenAccessDeniedHandlerUsesPathAndRefThenException() {
 		SpringTestContext context = this.spring.configLocations(this.xml("UsesPathAndRef"));
-
-		assertThatThrownBy(() -> context.autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class)
-				.hasMessageContaining("attribute error-page cannot be used together with the 'ref' attribute");
+		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() -> context.autowire())
+				.withMessageContaining("attribute error-page cannot be used together with the 'ref' attribute");
 	}
 
 	private String xml(String configName) {
@@ -91,11 +84,11 @@ public class AccessDeniedConfigTests {
 	public static class GoneAccessDeniedHandler implements AccessDeniedHandler {
 
 		@Override
-		public void handle(HttpServletRequest request,
-							HttpServletResponse response,
-							AccessDeniedException accessDeniedException) {
-
+		public void handle(HttpServletRequest request, HttpServletResponse response,
+				AccessDeniedException accessDeniedException) {
 			response.setStatus(HttpStatus.GONE_410);
 		}
+
 	}
+
 }

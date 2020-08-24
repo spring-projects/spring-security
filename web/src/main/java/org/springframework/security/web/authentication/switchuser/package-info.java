@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Provides HTTP-based "switch user" (su) capabilities.
  */
 package org.springframework.security.web.authentication.switchuser;
-

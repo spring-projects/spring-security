@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.preauth.j2ee;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -30,17 +32,19 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ResourceLoaderAware;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.security.core.authority.mapping.MappableAttributesRetriever;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ResourceLoaderAware;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.security.core.authority.mapping.MappableAttributesRetriever;
+import org.springframework.util.Assert;
 
 /**
  * This <tt>MappableAttributesRetriever</tt> implementation reads the list of defined J2EE
@@ -51,19 +55,23 @@ import org.xml.sax.SAXException;
  * @author Luke Taylor
  * @since 2.0
  */
-public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
-		MappableAttributesRetriever, InitializingBean {
+public class WebXmlMappableAttributesRetriever
+		implements ResourceLoaderAware, MappableAttributesRetriever, InitializingBean {
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private ResourceLoader resourceLoader;
+
 	private Set<String> mappableAttributes;
 
+	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
 		this.resourceLoader = resourceLoader;
 	}
 
+	@Override
 	public Set<String> getMappableAttributes() {
-		return mappableAttributes;
+		return this.mappableAttributes;
 	}
 
 	/**
@@ -71,57 +79,54 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 	 * role-name elements from it, using these as the set of <tt>mappableAttributes</tt>.
 	 */
 
+	@Override
 	public void afterPropertiesSet() throws Exception {
-		Resource webXml = resourceLoader.getResource("/WEB-INF/web.xml");
+		Resource webXml = this.resourceLoader.getResource("/WEB-INF/web.xml");
 		Document doc = getDocument(webXml.getInputStream());
 		NodeList webApp = doc.getElementsByTagName("web-app");
-		if (webApp.getLength() != 1) {
-			throw new IllegalArgumentException(
-					"Failed to find 'web-app' element in resource" + webXml);
-		}
-		NodeList securityRoles = ((Element) webApp.item(0))
-				.getElementsByTagName("security-role");
+		Assert.isTrue(webApp.getLength() == 1, () -> "Failed to find 'web-app' element in resource" + webXml);
+		NodeList securityRoles = ((Element) webApp.item(0)).getElementsByTagName("security-role");
+		List<String> roleNames = getRoleNames(webXml, securityRoles);
+		this.mappableAttributes = Collections.unmodifiableSet(new HashSet<>(roleNames));
+	}
 
+	private List<String> getRoleNames(Resource webXml, NodeList securityRoles) {
 		ArrayList<String> roleNames = new ArrayList<>();
-
 		for (int i = 0; i < securityRoles.getLength(); i++) {
-			Element secRoleElt = (Element) securityRoles.item(i);
-			NodeList roles = secRoleElt.getElementsByTagName("role-name");
-
+			Element securityRoleElement = (Element) securityRoles.item(i);
+			NodeList roles = securityRoleElement.getElementsByTagName("role-name");
 			if (roles.getLength() > 0) {
 				String roleName = roles.item(0).getTextContent().trim();
 				roleNames.add(roleName);
-				logger.info("Retrieved role-name '" + roleName + "' from web.xml");
+				this.logger.info("Retrieved role-name '" + roleName + "' from web.xml");
 			}
 			else {
-				logger.info("No security-role elements found in " + webXml);
+				this.logger.info("No security-role elements found in " + webXml);
 			}
 		}
-
-		mappableAttributes = Collections.unmodifiableSet(new HashSet<>(roleNames));
+		return roleNames;
 	}
 
 	/**
 	 * @return Document for the specified InputStream
 	 */
 	private Document getDocument(InputStream aStream) {
-		Document doc;
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setValidating(false);
-			DocumentBuilder db = factory.newDocumentBuilder();
-			db.setEntityResolver(new MyEntityResolver());
-			doc = db.parse(aStream);
-			return doc;
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			builder.setEntityResolver(new MyEntityResolver());
+			return builder.parse(aStream);
 		}
-		catch (FactoryConfigurationError | IOException | SAXException | ParserConfigurationException e) {
-			throw new RuntimeException("Unable to parse document object", e);
-		} finally {
+		catch (FactoryConfigurationError | IOException | SAXException | ParserConfigurationException ex) {
+			throw new RuntimeException("Unable to parse document object", ex);
+		}
+		finally {
 			try {
 				aStream.close();
 			}
-			catch (IOException e) {
-				logger.warn("Failed to close input stream for web.xml", e);
+			catch (IOException ex) {
+				this.logger.warn("Failed to close input stream for web.xml", ex);
 			}
 		}
 	}
@@ -130,8 +135,12 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 	 * We do not need to resolve external entities, so just return an empty String.
 	 */
 	private static final class MyEntityResolver implements EntityResolver {
+
+		@Override
 		public InputSource resolveEntity(String publicId, String systemId) {
 			return new InputSource(new StringReader(""));
 		}
+
 	}
+
 }

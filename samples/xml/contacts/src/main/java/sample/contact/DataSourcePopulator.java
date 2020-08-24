@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.contact;
 
 import java.util.Random;
@@ -43,8 +44,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class DataSourcePopulator implements InitializingBean {
-	// ~ Instance fields
-	// ================================================================================================
+
 
 	JdbcTemplate template;
 	private MutableAclService mutableAclService;
@@ -60,8 +60,6 @@ public class DataSourcePopulator implements InitializingBean {
 			"Parklin", "Findlay", "Robinson", "Giugni", "Lang", "Chi", "Carmichael" };
 	private int createEntities = 50;
 
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(mutableAclService, "mutableAclService required");
@@ -164,7 +162,7 @@ public class DataSourcePopulator implements InitializingBean {
 		for (int i = 1; i < createEntities; i++) {
 			final ObjectIdentity objectIdentity = new ObjectIdentityImpl(Contact.class,
 					(long) i);
-			tt.execute(arg0 -> {
+			tt.execute((arg0) -> {
 				mutableAclService.createAcl(objectIdentity);
 
 				return null;
@@ -269,7 +267,7 @@ public class DataSourcePopulator implements InitializingBean {
 	}
 
 	private void updateAclInTransaction(final MutableAcl acl) {
-		tt.execute(arg0 -> {
+		tt.execute((arg0) -> {
 			mutableAclService.updateAcl(acl);
 
 			return null;

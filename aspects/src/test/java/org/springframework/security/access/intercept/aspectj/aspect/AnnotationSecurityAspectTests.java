@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.access.intercept.aspectj.aspect;
 
-import static org.assertj.core.api.Assertions.*;
+package org.springframework.security.access.intercept.aspectj.aspect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,39 +48,44 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
 /**
- *
  * @author Luke Taylor
  * @since 3.0.3
  */
 public class AnnotationSecurityAspectTests {
+
 	private AffirmativeBased adm;
-	private @Mock AuthenticationManager authman;
-	private TestingAuthenticationToken anne = new TestingAuthenticationToken("anne", "",
-			"ROLE_A");
+
+	@Mock
+	private AuthenticationManager authman;
+
+	private TestingAuthenticationToken anne = new TestingAuthenticationToken("anne", "", "ROLE_A");
+
 	// private TestingAuthenticationToken bob = new TestingAuthenticationToken("bob", "",
 	// "ROLE_B");
 	private AspectJMethodSecurityInterceptor interceptor;
+
 	private SecuredImpl secured = new SecuredImpl();
+
 	private SecuredImplSubclass securedSub = new SecuredImplSubclass();
+
 	private PrePostSecured prePostSecured = new PrePostSecured();
 
 	@Before
 	public final void setUp() {
 		MockitoAnnotations.initMocks(this);
-		interceptor = new AspectJMethodSecurityInterceptor();
-		AccessDecisionVoter[] voters = new AccessDecisionVoter[] {
-				new RoleVoter(),
-				new PreInvocationAuthorizationAdviceVoter(
-						new ExpressionBasedPreInvocationAdvice()) };
-		adm = new AffirmativeBased(
-				Arrays.<AccessDecisionVoter<? extends Object>> asList(voters));
-		interceptor.setAccessDecisionManager(adm);
-		interceptor.setAuthenticationManager(authman);
-		interceptor
-				.setSecurityMetadataSource(new SecuredAnnotationSecurityMetadataSource());
+		this.interceptor = new AspectJMethodSecurityInterceptor();
+		AccessDecisionVoter[] voters = new AccessDecisionVoter[] { new RoleVoter(),
+				new PreInvocationAuthorizationAdviceVoter(new ExpressionBasedPreInvocationAdvice()) };
+		this.adm = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(voters));
+		this.interceptor.setAccessDecisionManager(this.adm);
+		this.interceptor.setAuthenticationManager(this.authman);
+		this.interceptor.setSecurityMetadataSource(new SecuredAnnotationSecurityMetadataSource());
 		AnnotationSecurityAspect secAspect = AnnotationSecurityAspect.aspectOf();
-		secAspect.setSecurityInterceptor(interceptor);
+		secAspect.setSecurityInterceptor(this.interceptor);
 	}
 
 	@After
@@ -91,59 +95,57 @@ public class AnnotationSecurityAspectTests {
 
 	@Test
 	public void securedInterfaceMethodAllowsAllAccess() {
-		secured.securedMethod();
+		this.secured.securedMethod();
 	}
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
 	public void securedClassMethodDeniesUnauthenticatedAccess() {
-		secured.securedClassMethod();
+		this.secured.securedClassMethod();
 	}
 
 	@Test
 	public void securedClassMethodAllowsAccessToRoleA() {
-		SecurityContextHolder.getContext().setAuthentication(anne);
-		secured.securedClassMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.anne);
+		this.secured.securedClassMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void internalPrivateCallIsIntercepted() {
-		SecurityContextHolder.getContext().setAuthentication(anne);
-
+		SecurityContextHolder.getContext().setAuthentication(this.anne);
 		try {
-			secured.publicCallsPrivate();
+			this.secured.publicCallsPrivate();
 			fail("Expected AccessDeniedException");
 		}
 		catch (AccessDeniedException expected) {
 		}
-		securedSub.publicCallsPrivate();
+		this.securedSub.publicCallsPrivate();
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void protectedMethodIsIntercepted() {
-		SecurityContextHolder.getContext().setAuthentication(anne);
-
-		secured.protectedMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.anne);
+		this.secured.protectedMethod();
 	}
 
 	@Test
 	public void overriddenProtectedMethodIsNotIntercepted() {
 		// AspectJ doesn't inherit annotations
-		securedSub.protectedMethod();
+		this.securedSub.protectedMethod();
 	}
 
 	// SEC-1262
 	@Test(expected = AccessDeniedException.class)
 	public void denyAllPreAuthorizeDeniesAccess() {
 		configureForElAnnotations();
-		SecurityContextHolder.getContext().setAuthentication(anne);
-		prePostSecured.denyAllMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.anne);
+		this.prePostSecured.denyAllMethod();
 	}
 
 	@Test
 	public void postFilterIsApplied() {
 		configureForElAnnotations();
-		SecurityContextHolder.getContext().setAuthentication(anne);
-		List<String> objects = prePostSecured.postFilterMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.anne);
+		List<String> objects = this.prePostSecured.postFilterMethod();
 		assertThat(objects).hasSize(2);
 		assertThat(objects.contains("apple")).isTrue();
 		assertThat(objects.contains("aubergine")).isTrue();
@@ -151,64 +153,73 @@ public class AnnotationSecurityAspectTests {
 
 	private void configureForElAnnotations() {
 		DefaultMethodSecurityExpressionHandler eh = new DefaultMethodSecurityExpressionHandler();
-		interceptor
-				.setSecurityMetadataSource(new PrePostAnnotationSecurityMetadataSource(
-						new ExpressionBasedAnnotationAttributeFactory(eh)));
-		interceptor.setAccessDecisionManager(adm);
+		this.interceptor.setSecurityMetadataSource(
+				new PrePostAnnotationSecurityMetadataSource(new ExpressionBasedAnnotationAttributeFactory(eh)));
+		this.interceptor.setAccessDecisionManager(this.adm);
 		AfterInvocationProviderManager aim = new AfterInvocationProviderManager();
-		aim.setProviders(Arrays.asList(new PostInvocationAdviceProvider(
-				new ExpressionBasedPostInvocationAdvice(eh))));
-		interceptor.setAfterInvocationManager(aim);
-	}
-}
-
-interface SecuredInterface {
-	@Secured("ROLE_X")
-	void securedMethod();
-}
-
-class SecuredImpl implements SecuredInterface {
-	// Not really secured because AspectJ doesn't inherit annotations from interfaces
-	public void securedMethod() {
+		aim.setProviders(Arrays.asList(new PostInvocationAdviceProvider(new ExpressionBasedPostInvocationAdvice(eh))));
+		this.interceptor.setAfterInvocationManager(aim);
 	}
 
-	@Secured("ROLE_A")
-	public void securedClassMethod() {
+	interface SecuredInterface {
+
+		@Secured("ROLE_X")
+		void securedMethod();
+
 	}
 
-	@Secured("ROLE_X")
-	private void privateMethod() {
+	static class SecuredImpl implements SecuredInterface {
+
+		// Not really secured because AspectJ doesn't inherit annotations from interfaces
+		@Override
+		public void securedMethod() {
+		}
+
+		@Secured("ROLE_A")
+		public void securedClassMethod() {
+		}
+
+		@Secured("ROLE_X")
+		private void privateMethod() {
+		}
+
+		@Secured("ROLE_X")
+		protected void protectedMethod() {
+		}
+
+		@Secured("ROLE_X")
+		public void publicCallsPrivate() {
+			privateMethod();
+		}
+
 	}
 
-	@Secured("ROLE_X")
-	protected void protectedMethod() {
+	static class SecuredImplSubclass extends SecuredImpl {
+
+		@Override
+		protected void protectedMethod() {
+		}
+
+		@Override
+		public void publicCallsPrivate() {
+			super.publicCallsPrivate();
+		}
+
 	}
 
-	@Secured("ROLE_X")
-	public void publicCallsPrivate() {
-		privateMethod();
-	}
-}
+	static class PrePostSecured {
 
-class SecuredImplSubclass extends SecuredImpl {
-	protected void protectedMethod() {
-	}
+		@PreAuthorize("denyAll")
+		public void denyAllMethod() {
+		}
 
-	public void publicCallsPrivate() {
-		super.publicCallsPrivate();
-	}
-}
+		@PostFilter("filterObject.startsWith('a')")
+		public List<String> postFilterMethod() {
+			ArrayList<String> objects = new ArrayList<>();
+			objects.addAll(Arrays.asList(new String[] { "apple", "banana", "aubergine", "orange" }));
+			return objects;
+		}
 
-class PrePostSecured {
-	@PreAuthorize("denyAll")
-	public void denyAllMethod() {
 	}
 
-	@PostFilter("filterObject.startsWith('a')")
-	public List<String> postFilterMethod() {
-		ArrayList<String> objects = new ArrayList<>();
-		objects.addAll(Arrays.asList(new String[] { "apple", "banana", "aubergine",
-				"orange" }));
-		return objects;
-	}
 }

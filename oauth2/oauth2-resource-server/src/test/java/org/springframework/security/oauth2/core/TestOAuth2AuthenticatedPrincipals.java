@@ -36,9 +36,14 @@ import org.springframework.security.oauth2.server.resource.introspection.OAuth2I
  *
  * @author Josh Cummings
  */
-public class TestOAuth2AuthenticatedPrincipals {
+public final class TestOAuth2AuthenticatedPrincipals {
+
+	private TestOAuth2AuthenticatedPrincipals() {
+	}
+
 	public static OAuth2AuthenticatedPrincipal active() {
-		return active(attributes -> {});
+		return active((attributes) -> {
+		});
 	}
 
 	public static OAuth2AuthenticatedPrincipal active(Consumer<Map<String, Object>> attributesConsumer) {
@@ -53,18 +58,18 @@ public class TestOAuth2AuthenticatedPrincipals {
 		attributes.put(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis");
 		attributes.put(OAuth2IntrospectionClaimNames.USERNAME, "jdoe");
 		attributesConsumer.accept(attributes);
-
-		Collection<GrantedAuthority> authorities =
-				Arrays.asList(new SimpleGrantedAuthority("SCOPE_read"),
-						new SimpleGrantedAuthority("SCOPE_write"), new SimpleGrantedAuthority("SCOPE_dolphin"));
+		Collection<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("SCOPE_read"),
+				new SimpleGrantedAuthority("SCOPE_write"), new SimpleGrantedAuthority("SCOPE_dolphin"));
 		return new OAuth2IntrospectionAuthenticatedPrincipal(attributes, authorities);
 	}
 
 	private static URL url(String url) {
 		try {
 			return new URL(url);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
+		}
+		catch (IOException ex) {
+			throw new UncheckedIOException(ex);
 		}
 	}
+
 }

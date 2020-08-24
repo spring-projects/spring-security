@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.server.header;
 
-import static org.assertj.core.api.Assertions.assertThat;
+package org.springframework.security.web.server.header;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
@@ -36,36 +38,31 @@ public class XFrameOptionsServerHttpHeadersWriterTests {
 
 	@Before
 	public void setup() {
-		writer = new XFrameOptionsServerHttpHeadersWriter();
+		this.writer = new XFrameOptionsServerHttpHeadersWriter();
 	}
 
 	@Test
 	public void writeHeadersWhenUsingDefaultsThenWritesDeny() {
-		writer.writeHttpHeaders(exchange);
-
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		this.writer.writeHttpHeaders(this.exchange);
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly("DENY");
 	}
 
 	@Test
 	public void writeHeadersWhenUsingExplicitDenyThenWritesDeny() {
-		writer.setMode(XFrameOptionsServerHttpHeadersWriter.Mode.DENY);
-
-		writer.writeHttpHeaders(exchange);
-
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		this.writer.setMode(XFrameOptionsServerHttpHeadersWriter.Mode.DENY);
+		this.writer.writeHttpHeaders(this.exchange);
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly("DENY");
 	}
 
 	@Test
 	public void writeHeadersWhenUsingSameOriginThenWritesSameOrigin() {
-		writer.setMode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN);
-
-		writer.writeHttpHeaders(exchange);
-
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		this.writer.setMode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN);
+		this.writer.writeHttpHeaders(this.exchange);
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly("SAMEORIGIN");
 	}
@@ -73,11 +70,9 @@ public class XFrameOptionsServerHttpHeadersWriterTests {
 	@Test
 	public void writeHeadersWhenAlreadyWrittenThenWritesHeader() {
 		String headerValue = "other";
-		exchange.getResponse().getHeaders().set(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, headerValue);
-
-		writer.writeHttpHeaders(exchange);
-
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		this.exchange.getResponse().getHeaders().set(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, headerValue);
+		this.writer.writeHttpHeaders(this.exchange);
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly(headerValue);
 	}
@@ -85,4 +80,5 @@ public class XFrameOptionsServerHttpHeadersWriterTests {
 	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {
 		return MockServerWebExchange.from(request.build());
 	}
+
 }

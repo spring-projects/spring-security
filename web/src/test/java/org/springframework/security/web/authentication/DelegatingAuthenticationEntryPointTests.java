@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication;
 
-import static org.mockito.Mockito.*;
+package org.springframework.security.web.authentication;
 
 import java.util.LinkedHashMap;
 
@@ -23,9 +22,15 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * Test class for {@link DelegatingAuthenticationEntryPoint}
@@ -37,29 +42,30 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public class DelegatingAuthenticationEntryPointTests {
 
 	private DelegatingAuthenticationEntryPoint daep;
+
 	private LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
+
 	private AuthenticationEntryPoint defaultEntryPoint;
+
 	private HttpServletRequest request = new MockHttpServletRequest();
 
 	@Before
 	public void before() {
-		defaultEntryPoint = mock(AuthenticationEntryPoint.class);
-		entryPoints = new LinkedHashMap<>();
-		daep = new DelegatingAuthenticationEntryPoint(entryPoints);
-		daep.setDefaultEntryPoint(defaultEntryPoint);
+		this.defaultEntryPoint = mock(AuthenticationEntryPoint.class);
+		this.entryPoints = new LinkedHashMap<>();
+		this.daep = new DelegatingAuthenticationEntryPoint(this.entryPoints);
+		this.daep.setDefaultEntryPoint(this.defaultEntryPoint);
 	}
 
 	@Test
 	public void testDefaultEntryPoint() throws Exception {
 		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher firstRM = mock(RequestMatcher.class);
-		when(firstRM.matches(request)).thenReturn(false);
-		entryPoints.put(firstRM, firstAEP);
-
-		daep.commence(request, null, null);
-
-		verify(defaultEntryPoint).commence(request, null, null);
-		verify(firstAEP, never()).commence(request, null, null);
+		given(firstRM.matches(this.request)).willReturn(false);
+		this.entryPoints.put(firstRM, firstAEP);
+		this.daep.commence(this.request, null, null);
+		verify(this.defaultEntryPoint).commence(this.request, null, null);
+		verify(firstAEP, never()).commence(this.request, null, null);
 	}
 
 	@Test
@@ -68,16 +74,14 @@ public class DelegatingAuthenticationEntryPointTests {
 		RequestMatcher firstRM = mock(RequestMatcher.class);
 		AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher secondRM = mock(RequestMatcher.class);
-		when(firstRM.matches(request)).thenReturn(true);
-		entryPoints.put(firstRM, firstAEP);
-		entryPoints.put(secondRM, secondAEP);
-
-		daep.commence(request, null, null);
-
-		verify(firstAEP).commence(request, null, null);
-		verify(secondAEP, never()).commence(request, null, null);
-		verify(defaultEntryPoint, never()).commence(request, null, null);
-		verify(secondRM, never()).matches(request);
+		given(firstRM.matches(this.request)).willReturn(true);
+		this.entryPoints.put(firstRM, firstAEP);
+		this.entryPoints.put(secondRM, secondAEP);
+		this.daep.commence(this.request, null, null);
+		verify(firstAEP).commence(this.request, null, null);
+		verify(secondAEP, never()).commence(this.request, null, null);
+		verify(this.defaultEntryPoint, never()).commence(this.request, null, null);
+		verify(secondRM, never()).matches(this.request);
 	}
 
 	@Test
@@ -86,16 +90,14 @@ public class DelegatingAuthenticationEntryPointTests {
 		RequestMatcher firstRM = mock(RequestMatcher.class);
 		AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher secondRM = mock(RequestMatcher.class);
-		when(firstRM.matches(request)).thenReturn(false);
-		when(secondRM.matches(request)).thenReturn(true);
-		entryPoints.put(firstRM, firstAEP);
-		entryPoints.put(secondRM, secondAEP);
-
-		daep.commence(request, null, null);
-
-		verify(secondAEP).commence(request, null, null);
-		verify(firstAEP, never()).commence(request, null, null);
-		verify(defaultEntryPoint, never()).commence(request, null, null);
+		given(firstRM.matches(this.request)).willReturn(false);
+		given(secondRM.matches(this.request)).willReturn(true);
+		this.entryPoints.put(firstRM, firstAEP);
+		this.entryPoints.put(secondRM, secondAEP);
+		this.daep.commence(this.request, null, null);
+		verify(secondAEP).commence(this.request, null, null);
+		verify(firstAEP, never()).commence(this.request, null, null);
+		verify(this.defaultEntryPoint, never()).commence(this.request, null, null);
 	}
 
 }

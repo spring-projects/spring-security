@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.context;
 
 import org.junit.Before;
@@ -20,16 +21,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.SmartApplicationListener;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingApplicationListenerTests {
+
 	@Mock
 	SmartApplicationListener delegate;
 
@@ -39,46 +42,42 @@ public class DelegatingApplicationListenerTests {
 
 	@Before
 	public void setup() {
-		event = new ApplicationEvent(this) {
+		this.event = new ApplicationEvent(this) {
 		};
-		listener = new DelegatingApplicationListener();
-		listener.addListener(delegate);
+		this.listener = new DelegatingApplicationListener();
+		this.listener.addListener(this.delegate);
 	}
 
 	@Test
 	public void processEventNull() {
-		listener.onApplicationEvent(null);
-
-		verify(delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
+		this.listener.onApplicationEvent(null);
+		verify(this.delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
 	}
 
 	@Test
 	public void processEventSuccess() {
-		when(delegate.supportsEventType(event.getClass())).thenReturn(true);
-		when(delegate.supportsSourceType(event.getSource().getClass())).thenReturn(true);
-		listener.onApplicationEvent(event);
-
-		verify(delegate).onApplicationEvent(event);
+		given(this.delegate.supportsEventType(this.event.getClass())).willReturn(true);
+		given(this.delegate.supportsSourceType(this.event.getSource().getClass())).willReturn(true);
+		this.listener.onApplicationEvent(this.event);
+		verify(this.delegate).onApplicationEvent(this.event);
 	}
 
 	@Test
 	public void processEventEventTypeNotSupported() {
-		listener.onApplicationEvent(event);
-
-		verify(delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
+		this.listener.onApplicationEvent(this.event);
+		verify(this.delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
 	}
 
 	@Test
 	public void processEventSourceTypeNotSupported() {
-		when(delegate.supportsEventType(event.getClass())).thenReturn(true);
-		listener.onApplicationEvent(event);
-
-		verify(delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
+		given(this.delegate.supportsEventType(this.event.getClass())).willReturn(true);
+		this.listener.onApplicationEvent(this.event);
+		verify(this.delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void addNull() {
-		listener.addListener(null);
+		this.listener.addListener(null);
 	}
 
 }

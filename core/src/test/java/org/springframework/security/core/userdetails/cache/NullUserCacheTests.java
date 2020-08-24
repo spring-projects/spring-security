@@ -16,11 +16,12 @@
 
 package org.springframework.security.core.userdetails.cache;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link NullUserCache}.
@@ -28,9 +29,6 @@ import org.springframework.security.core.userdetails.User;
  * @author Ben Alex
  */
 public class NullUserCacheTests {
-
-	// ~ Methods
-	// ========================================================================================================
 
 	private User getUser() {
 		return new User("john", "password", true, true, true, true,
@@ -44,4 +42,5 @@ public class NullUserCacheTests {
 		assertThat(cache.getUserFromCache(null)).isNull();
 		cache.removeUserFromCache(null);
 	}
+
 }

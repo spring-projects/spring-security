@@ -13,42 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.method;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
+
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.util.SimpleMethodInvocation;
 
-import java.lang.reflect.Method;
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Luke Taylor
  */
 @SuppressWarnings({ "unchecked" })
 public class DelegatingMethodSecurityMetadataSourceTests {
+
 	DelegatingMethodSecurityMetadataSource mds;
 
 	@Test
 	public void returnsEmptyListIfDelegateReturnsNull() throws Exception {
 		List sources = new ArrayList();
 		MethodSecurityMetadataSource delegate = mock(MethodSecurityMetadataSource.class);
-		when(delegate.getAttributes(ArgumentMatchers.<Method> any(), ArgumentMatchers.any(Class.class)))
-				.thenReturn(null);
+		given(delegate.getAttributes(ArgumentMatchers.<Method>any(), ArgumentMatchers.any(Class.class)))
+				.willReturn(null);
 		sources.add(delegate);
-		mds = new DelegatingMethodSecurityMetadataSource(sources);
-		assertThat(mds.getMethodSecurityMetadataSources()).isSameAs(sources);
-		assertThat(mds.getAllConfigAttributes().isEmpty()).isTrue();
-		MethodInvocation mi = new SimpleMethodInvocation(null,
-				String.class.getMethod("toString"));
-		assertThat(mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
+		this.mds = new DelegatingMethodSecurityMetadataSource(sources);
+		assertThat(this.mds.getMethodSecurityMetadataSources()).isSameAs(sources);
+		assertThat(this.mds.getAllConfigAttributes().isEmpty()).isTrue();
+		MethodInvocation mi = new SimpleMethodInvocation(null, String.class.getMethod("toString"));
+		assertThat(this.mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
 		// Exercise the cached case
-		assertThat(mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
+		assertThat(this.mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
 	}
 
 	@Test
@@ -58,17 +64,17 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 		ConfigAttribute ca = mock(ConfigAttribute.class);
 		List attributes = Arrays.asList(ca);
 		Method toString = String.class.getMethod("toString");
-		when(delegate.getAttributes(toString, String.class)).thenReturn(attributes);
+		given(delegate.getAttributes(toString, String.class)).willReturn(attributes);
 		sources.add(delegate);
-		mds = new DelegatingMethodSecurityMetadataSource(sources);
-		assertThat(mds.getMethodSecurityMetadataSources()).isSameAs(sources);
-		assertThat(mds.getAllConfigAttributes().isEmpty()).isTrue();
+		this.mds = new DelegatingMethodSecurityMetadataSource(sources);
+		assertThat(this.mds.getMethodSecurityMetadataSources()).isSameAs(sources);
+		assertThat(this.mds.getAllConfigAttributes().isEmpty()).isTrue();
 		MethodInvocation mi = new SimpleMethodInvocation("", toString);
-		assertThat(mds.getAttributes(mi)).isSameAs(attributes);
+		assertThat(this.mds.getAttributes(mi)).isSameAs(attributes);
 		// Exercise the cached case
-		assertThat(mds.getAttributes(mi)).isSameAs(attributes);
-		assertThat(mds.getAttributes(
-				new SimpleMethodInvocation(null, String.class.getMethod("length")))).isEmpty();
+		assertThat(this.mds.getAttributes(mi)).isSameAs(attributes);
+		assertThat(this.mds.getAttributes(new SimpleMethodInvocation(null, String.class.getMethod("length"))))
+				.isEmpty();
 	}
 
 }

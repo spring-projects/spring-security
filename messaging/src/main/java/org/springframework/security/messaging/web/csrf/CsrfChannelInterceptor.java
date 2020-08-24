@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.web.csrf;
 
 import java.util.Map;
@@ -37,31 +38,27 @@ import org.springframework.security.web.csrf.MissingCsrfTokenException;
  * @since 4.0
  */
 public final class CsrfChannelInterceptor extends ChannelInterceptorAdapter {
-	private final MessageMatcher<Object> matcher = new SimpMessageTypeMatcher(
-			SimpMessageType.CONNECT);
+
+	private final MessageMatcher<Object> matcher = new SimpMessageTypeMatcher(SimpMessageType.CONNECT);
 
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
-		if (!matcher.matches(message)) {
+		if (!this.matcher.matches(message)) {
 			return message;
 		}
-
-		Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor
-				.getSessionAttributes(message.getHeaders());
-		CsrfToken expectedToken = sessionAttributes == null ? null
-				: (CsrfToken) sessionAttributes.get(CsrfToken.class.getName());
-
+		Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor.getSessionAttributes(message.getHeaders());
+		CsrfToken expectedToken = (sessionAttributes != null)
+				? (CsrfToken) sessionAttributes.get(CsrfToken.class.getName()) : null;
 		if (expectedToken == null) {
 			throw new MissingCsrfTokenException(null);
 		}
-
 		String actualTokenValue = SimpMessageHeaderAccessor.wrap(message)
 				.getFirstNativeHeader(expectedToken.getHeaderName());
-
 		boolean csrfCheckPassed = expectedToken.getToken().equals(actualTokenValue);
-		if (csrfCheckPassed) {
-			return message;
+		if (!csrfCheckPassed) {
+			throw new InvalidCsrfTokenException(expectedToken, actualTokenValue);
 		}
-		throw new InvalidCsrfTokenException(expectedToken, actualTokenValue);
+		return message;
 	}
+
 }

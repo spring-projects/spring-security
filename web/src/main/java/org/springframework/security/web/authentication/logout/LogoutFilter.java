@@ -25,11 +25,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
@@ -51,16 +52,11 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class LogoutFilter extends GenericFilterBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private RequestMatcher logoutRequestMatcher;
 
 	private final LogoutHandler handler;
-	private final LogoutSuccessHandler logoutSuccessHandler;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private final LogoutSuccessHandler logoutSuccessHandler;
 
 	/**
 	 * Constructor which takes a <tt>LogoutSuccessHandler</tt> instance to determine the
@@ -68,8 +64,7 @@ public class LogoutFilter extends GenericFilterBean {
 	 * intended to perform the actual logout functionality (such as clearing the security
 	 * context, invalidating the session, etc.).
 	 */
-	public LogoutFilter(LogoutSuccessHandler logoutSuccessHandler,
-			LogoutHandler... handlers) {
+	public LogoutFilter(LogoutSuccessHandler logoutSuccessHandler, LogoutHandler... handlers) {
 		this.handler = new CompositeLogoutHandler(handlers);
 		Assert.notNull(logoutSuccessHandler, "logoutSuccessHandler cannot be null");
 		this.logoutSuccessHandler = logoutSuccessHandler;
@@ -78,55 +73,42 @@ public class LogoutFilter extends GenericFilterBean {
 
 	public LogoutFilter(String logoutSuccessUrl, LogoutHandler... handlers) {
 		this.handler = new CompositeLogoutHandler(handlers);
-		Assert.isTrue(
-				!StringUtils.hasLength(logoutSuccessUrl)
-						|| UrlUtils.isValidRedirectUrl(logoutSuccessUrl),
+		Assert.isTrue(!StringUtils.hasLength(logoutSuccessUrl) || UrlUtils.isValidRedirectUrl(logoutSuccessUrl),
 				() -> logoutSuccessUrl + " isn't a valid redirect URL");
 		SimpleUrlLogoutSuccessHandler urlLogoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
 		if (StringUtils.hasText(logoutSuccessUrl)) {
 			urlLogoutSuccessHandler.setDefaultTargetUrl(logoutSuccessUrl);
 		}
-		logoutSuccessHandler = urlLogoutSuccessHandler;
+		this.logoutSuccessHandler = urlLogoutSuccessHandler;
 		setFilterProcessesUrl("/logout");
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+	}
 
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		if (requiresLogout(request, response)) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Logging out user '" + auth
-						+ "' and transferring to logout destination");
-			}
-
+			this.logger.debug(LogMessage.format("Logging out user '%s' and transferring to logout destination", auth));
 			this.handler.logout(request, response, auth);
-
-			logoutSuccessHandler.onLogoutSuccess(request, response, auth);
-
+			this.logoutSuccessHandler.onLogoutSuccess(request, response, auth);
 			return;
 		}
-
 		chain.doFilter(request, response);
 	}
 
 	/**
 	 * Allow subclasses to modify when a logout should take place.
-	 *
 	 * @param request the request
 	 * @param response the response
-	 *
 	 * @return <code>true</code> if logout should occur, <code>false</code> otherwise
 	 */
-	protected boolean requiresLogout(HttpServletRequest request,
-			HttpServletResponse response) {
-		return logoutRequestMatcher.matches(request);
+	protected boolean requiresLogout(HttpServletRequest request, HttpServletResponse response) {
+		return this.logoutRequestMatcher.matches(request);
 	}
 
 	public void setLogoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
@@ -137,4 +119,5 @@ public class LogoutFilter extends GenericFilterBean {
 	public void setFilterProcessesUrl(String filterProcessesUrl) {
 		this.logoutRequestMatcher = new AntPathRequestMatcher(filterProcessesUrl);
 	}
+
 }

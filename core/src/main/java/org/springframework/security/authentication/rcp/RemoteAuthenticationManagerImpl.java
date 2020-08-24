@@ -33,38 +33,33 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationManager,
-		InitializingBean {
-	// ~ Instance fields
-	// ================================================================================================
+public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationManager, InitializingBean {
 
 	private AuthenticationManager authenticationManager;
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.authenticationManager, "authenticationManager is required");
 	}
 
-	public Collection<? extends GrantedAuthority> attemptAuthentication(String username,
-			String password) throws RemoteAuthenticationException {
-		UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(
-				username, password);
-
+	@Override
+	public Collection<? extends GrantedAuthority> attemptAuthentication(String username, String password)
+			throws RemoteAuthenticationException {
+		UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(username, password);
 		try {
-			return authenticationManager.authenticate(request).getAuthorities();
+			return this.authenticationManager.authenticate(request).getAuthorities();
 		}
-		catch (AuthenticationException authEx) {
-			throw new RemoteAuthenticationException(authEx.getMessage());
+		catch (AuthenticationException ex) {
+			throw new RemoteAuthenticationException(ex.getMessage());
 		}
 	}
 
 	protected AuthenticationManager getAuthenticationManager() {
-		return authenticationManager;
+		return this.authenticationManager;
 	}
 
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
+
 }

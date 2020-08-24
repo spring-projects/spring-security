@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 
 /**
  * Tests for {@link OAuth2AuthorizedClient}.
@@ -31,15 +32,18 @@ import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.no
  * @author Joe Grandja
  */
 public class OAuth2AuthorizedClientTests {
+
 	private ClientRegistration clientRegistration;
+
 	private String principalName;
+
 	private OAuth2AccessToken accessToken;
 
 	@Before
 	public void setUp() {
-		this.clientRegistration = clientRegistration().build();
+		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.principalName = "principal";
-		this.accessToken = noScopes();
+		this.accessToken = TestOAuth2AccessTokens.noScopes();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -59,11 +63,11 @@ public class OAuth2AuthorizedClientTests {
 
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-			this.clientRegistration, this.principalName, this.accessToken);
-
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
+				this.principalName, this.accessToken);
 		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principalName);
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(this.accessToken);
 	}
+
 }

@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.http;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.apache.http.HttpStatus;
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -25,23 +30,18 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- *
  * @author Rob Winch
  * @author Josh Cummings
  */
 public class HttpConfigTests {
 
-	private static final String CONFIG_LOCATION_PREFIX =
-			"classpath:org/springframework/security/config/http/HttpConfigTests";
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/HttpConfigTests";
 
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -50,38 +50,32 @@ public class HttpConfigTests {
 	MockMvc mvc;
 
 	@Test
-	public void getWhenUsingMinimalConfigurationThenRedirectsToLogin()
-		throws Exception {
-
+	public void getWhenUsingMinimalConfigurationThenRedirectsToLogin() throws Exception {
 		this.spring.configLocations(this.xml("Minimal")).autowire();
-
+		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"));
+		// @formatter:on
 	}
 
 	@Test
-	public void getWhenUsingMinimalConfigurationThenPreventsSessionAsUrlParameter()
-		throws Exception {
-
+	public void getWhenUsingMinimalConfigurationThenPreventsSessionAsUrlParameter() throws Exception {
 		this.spring.configLocations(this.xml("Minimal")).autowire();
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
-
-		proxy.doFilter(
-				request,
-				new EncodeUrlDenyingHttpServletResponseWrapper(response),
-				(req, resp) -> {});
-
+		proxy.doFilter(request, new EncodeUrlDenyingHttpServletResponseWrapper(response), (req, resp) -> {
+		});
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/login");
 	}
 
-	private static class EncodeUrlDenyingHttpServletResponseWrapper
-			extends HttpServletResponseWrapper {
+	private String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
+	private static class EncodeUrlDenyingHttpServletResponseWrapper extends HttpServletResponseWrapper {
 
 		EncodeUrlDenyingHttpServletResponseWrapper(HttpServletResponse response) {
 			super(response);
@@ -106,9 +100,7 @@ public class HttpConfigTests {
 		public String encodeRedirectUrl(String url) {
 			throw new RuntimeException("Unexpected invocation of encodeURL");
 		}
+
 	}
 
-	private String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
-	}
 }

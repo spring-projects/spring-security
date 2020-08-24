@@ -22,22 +22,15 @@ package org.springframework.security.access.vote;
  * @author Ben Alex
  */
 public class SomeDomainObject {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private String identity;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public SomeDomainObject(String identity) {
 		this.identity = identity;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public String getParent() {
-		return "parentOf" + identity;
+		return "parentOf" + this.identity;
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.List;
@@ -57,8 +58,9 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
  * @author Rob Winch
  * @since 3.2
  */
-public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractHttpConfigurer<ServletApiConfigurer<H>, H> {
+public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractHttpConfigurer<ServletApiConfigurer<H>, H> {
+
 	private SecurityContextHolderAwareRequestFilter securityContextRequestFilter = new SecurityContextHolderAwareRequestFilter();
 
 	/**
@@ -69,39 +71,36 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extend
 	}
 
 	public ServletApiConfigurer<H> rolePrefix(String rolePrefix) {
-		securityContextRequestFilter.setRolePrefix(rolePrefix);
+		this.securityContextRequestFilter.setRolePrefix(rolePrefix);
 		return this;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public void configure(H http) {
-		securityContextRequestFilter.setAuthenticationManager(http
-				.getSharedObject(AuthenticationManager.class));
-		ExceptionHandlingConfigurer<H> exceptionConf = http
-				.getConfigurer(ExceptionHandlingConfigurer.class);
-		AuthenticationEntryPoint authenticationEntryPoint = exceptionConf == null ? null
-				: exceptionConf.getAuthenticationEntryPoint(http);
-		securityContextRequestFilter
-				.setAuthenticationEntryPoint(authenticationEntryPoint);
+		this.securityContextRequestFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
+		ExceptionHandlingConfigurer<H> exceptionConf = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		AuthenticationEntryPoint authenticationEntryPoint = (exceptionConf != null)
+				? exceptionConf.getAuthenticationEntryPoint(http) : null;
+		this.securityContextRequestFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
 		LogoutConfigurer<H> logoutConf = http.getConfigurer(LogoutConfigurer.class);
-		List<LogoutHandler> logoutHandlers = logoutConf == null ? null : logoutConf
-				.getLogoutHandlers();
-		securityContextRequestFilter.setLogoutHandlers(logoutHandlers);
-		AuthenticationTrustResolver trustResolver = http
-				.getSharedObject(AuthenticationTrustResolver.class);
+		List<LogoutHandler> logoutHandlers = (logoutConf != null) ? logoutConf.getLogoutHandlers() : null;
+		this.securityContextRequestFilter.setLogoutHandlers(logoutHandlers);
+		AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
 		if (trustResolver != null) {
-			securityContextRequestFilter.setTrustResolver(trustResolver);
+			this.securityContextRequestFilter.setTrustResolver(trustResolver);
 		}
 		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
 		if (context != null) {
 			String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
 			if (grantedAuthorityDefaultsBeanNames.length == 1) {
-				GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
-				securityContextRequestFilter.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
+				GrantedAuthorityDefaults grantedAuthorityDefaults = context
+						.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
+				this.securityContextRequestFilter.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 			}
 		}
-		securityContextRequestFilter = postProcess(securityContextRequestFilter);
-		http.addFilter(securityContextRequestFilter);
+		this.securityContextRequestFilter = postProcess(this.securityContextRequestFilter);
+		http.addFilter(this.securityContextRequestFilter);
 	}
+
 }

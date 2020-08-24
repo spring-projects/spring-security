@@ -25,23 +25,16 @@ import org.springframework.security.core.Authentication;
  * @author Ray Krueger
  */
 public class JaasAuthenticationFailedEvent extends JaasAuthenticationEvent {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final Exception exception;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public JaasAuthenticationFailedEvent(Authentication auth, Exception exception) {
 		super(auth);
 		this.exception = exception;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public Exception getException() {
-		return exception;
+		return this.exception;
 	}
+
 }

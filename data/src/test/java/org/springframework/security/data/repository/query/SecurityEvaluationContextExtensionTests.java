@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.data.repository.query;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,11 +27,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SecurityEvaluationContextExtensionTests {
+
 	SecurityEvaluationContextExtension securityExtension;
 
 	@Before
 	public void setup() {
-		securityExtension = new SecurityEvaluationContextExtension();
+		this.securityExtension = new SecurityEvaluationContextExtension();
 	}
 
 	@After
@@ -44,36 +47,29 @@ public class SecurityEvaluationContextExtensionTests {
 
 	@Test
 	public void getRootObjectSecurityContextHolderAuthentication() {
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
-				"user", "password", "ROLE_USER");
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-
 		assertThat(getRoot().getAuthentication()).isSameAs(authentication);
 	}
 
 	@Test
 	public void getRootObjectExplicitAuthenticationOverridesSecurityContextHolder() {
-		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit",
-				"password", "ROLE_EXPLICIT");
-		securityExtension = new SecurityEvaluationContextExtension(explicit);
-
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
-				"user", "password", "ROLE_USER");
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-
 		assertThat(getRoot().getAuthentication()).isSameAs(explicit);
 	}
 
 	@Test
 	public void getRootObjectExplicitAuthentication() {
-		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit",
-				"password", "ROLE_EXPLICIT");
-		securityExtension = new SecurityEvaluationContextExtension(explicit);
-
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
 		assertThat(getRoot().getAuthentication()).isSameAs(explicit);
 	}
 
 	private SecurityExpressionRoot getRoot() {
-		return (SecurityExpressionRoot) securityExtension.getRootObject();
+		return this.securityExtension.getRootObject();
 	}
+
 }

@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.http;
+
+import org.w3c.dom.Element;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -25,7 +28,6 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
-import org.w3c.dom.Element;
 
 /**
  * Defines the {@link RequestMatcher} types supported by the namespace.
@@ -34,8 +36,9 @@ import org.w3c.dom.Element;
  * @since 3.1
  */
 public enum MatcherType {
-	ant(AntPathRequestMatcher.class), regex(RegexRequestMatcher.class), ciRegex(
-			RegexRequestMatcher.class), mvc(MvcRequestMatcher.class);
+
+	ant(AntPathRequestMatcher.class), regex(RegexRequestMatcher.class), ciRegex(RegexRequestMatcher.class), mvc(
+			MvcRequestMatcher.class);
 
 	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
 
@@ -55,14 +58,10 @@ public enum MatcherType {
 		if (("/**".equals(path) || "**".equals(path)) && method == null) {
 			return new RootBeanDefinition(AnyRequestMatcher.class);
 		}
-
-		BeanDefinitionBuilder matcherBldr = BeanDefinitionBuilder
-				.rootBeanDefinition(type);
-
+		BeanDefinitionBuilder matcherBldr = BeanDefinitionBuilder.rootBeanDefinition(this.type);
 		if (this == mvc) {
 			matcherBldr.addConstructorArgValue(new RootBeanDefinition(HandlerMappingIntrospectorFactoryBean.class));
 		}
-
 		matcherBldr.addConstructorArgValue(path);
 		if (this == mvc) {
 			matcherBldr.addPropertyValue("method", method);
@@ -71,11 +70,9 @@ public enum MatcherType {
 		else {
 			matcherBldr.addConstructorArgValue(method);
 		}
-
 		if (this == ciRegex) {
 			matcherBldr.addConstructorArgValue(true);
 		}
-
 		return matcherBldr.getBeanDefinition();
 	}
 
@@ -86,4 +83,5 @@ public enum MatcherType {
 
 		return ant;
 	}
+
 }

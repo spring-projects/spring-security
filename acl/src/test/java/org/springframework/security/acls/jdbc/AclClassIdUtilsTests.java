@@ -13,15 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.jdbc;
-
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.core.convert.ConversionService;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -29,22 +22,34 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import org.springframework.core.convert.ConversionService;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 /**
  * Tests for {@link AclClassIdUtils}.
+ *
  * @author paulwheeler
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AclClassIdUtilsTest {
+public class AclClassIdUtilsTests {
 
 	private static final Long DEFAULT_IDENTIFIER = 999L;
+
 	private static final BigInteger BIGINT_IDENTIFIER = new BigInteger("999");
+
 	private static final String DEFAULT_IDENTIFIER_AS_STRING = DEFAULT_IDENTIFIER.toString();
 
 	@Mock
 	private ResultSet resultSet;
+
 	@Mock
 	private ConversionService conversionService;
 
@@ -52,124 +57,82 @@ public class AclClassIdUtilsTest {
 
 	@Before
 	public void setUp() {
-		aclClassIdUtils = new AclClassIdUtils();
+		this.aclClassIdUtils = new AclClassIdUtils();
 	}
 
 	@Test
 	public void shouldReturnLongIfIdentifierIsLong() throws SQLException {
-		// when
-		Serializable newIdentifier = aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER, resultSet);
-
-		// then
+		Serializable newIdentifier = this.aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER, this.resultSet);
 		assertThat(newIdentifier).isEqualTo(DEFAULT_IDENTIFIER);
 	}
 
 	@Test
 	public void shouldReturnLongIfIdentifierIsBigInteger() throws SQLException {
-		// when
-		Serializable newIdentifier = aclClassIdUtils.identifierFrom(BIGINT_IDENTIFIER, resultSet);
-
-		// then
+		Serializable newIdentifier = this.aclClassIdUtils.identifierFrom(BIGINT_IDENTIFIER, this.resultSet);
 		assertThat(newIdentifier).isEqualTo(DEFAULT_IDENTIFIER);
 	}
 
 	@Test
 	public void shouldReturnLongIfClassIdTypeIsNull() throws SQLException {
-		// given
-		given(resultSet.getString("class_id_type")).willReturn(null);
-
-		// when
-		Serializable newIdentifier = aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER_AS_STRING, resultSet);
-
-		// then
+		given(this.resultSet.getString("class_id_type")).willReturn(null);
+		Serializable newIdentifier = this.aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER_AS_STRING, this.resultSet);
 		assertThat(newIdentifier).isEqualTo(DEFAULT_IDENTIFIER);
 	}
 
 	@Test
 	public void shouldReturnLongIfNoClassIdTypeColumn() throws SQLException {
-		// given
-		given(resultSet.getString("class_id_type")).willThrow(SQLException.class);
-
-		// when
-		Serializable newIdentifier = aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER_AS_STRING, resultSet);
-
-		// then
+		given(this.resultSet.getString("class_id_type")).willThrow(SQLException.class);
+		Serializable newIdentifier = this.aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER_AS_STRING, this.resultSet);
 		assertThat(newIdentifier).isEqualTo(DEFAULT_IDENTIFIER);
 	}
 
 	@Test
 	public void shouldReturnLongIfTypeClassNotFound() throws SQLException {
-		// given
-		given(resultSet.getString("class_id_type")).willReturn("com.example.UnknownType");
-
-		// when
-		Serializable newIdentifier = aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER_AS_STRING, resultSet);
-
-		// then
+		given(this.resultSet.getString("class_id_type")).willReturn("com.example.UnknownType");
+		Serializable newIdentifier = this.aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER_AS_STRING, this.resultSet);
 		assertThat(newIdentifier).isEqualTo(DEFAULT_IDENTIFIER);
 	}
 
 	@Test
 	public void shouldReturnLongEvenIfCustomConversionServiceDoesNotSupportLongConversion() throws SQLException {
-		// given
-		given(resultSet.getString("class_id_type")).willReturn("java.lang.Long");
-		given(conversionService.canConvert(String.class, Long.class)).willReturn(false);
-		aclClassIdUtils.setConversionService(conversionService);
-
-		// when
-		Serializable newIdentifier = aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER_AS_STRING, resultSet);
-
-		// then
+		given(this.resultSet.getString("class_id_type")).willReturn("java.lang.Long");
+		given(this.conversionService.canConvert(String.class, Long.class)).willReturn(false);
+		this.aclClassIdUtils.setConversionService(this.conversionService);
+		Serializable newIdentifier = this.aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER_AS_STRING, this.resultSet);
 		assertThat(newIdentifier).isEqualTo(DEFAULT_IDENTIFIER);
 	}
 
 	@Test
 	public void shouldReturnLongWhenLongClassIdType() throws SQLException {
-		// given
-		given(resultSet.getString("class_id_type")).willReturn("java.lang.Long");
-
-		// when
-		Serializable newIdentifier = aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER_AS_STRING, resultSet);
-
-		// then
+		given(this.resultSet.getString("class_id_type")).willReturn("java.lang.Long");
+		Serializable newIdentifier = this.aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER_AS_STRING, this.resultSet);
 		assertThat(newIdentifier).isEqualTo(DEFAULT_IDENTIFIER);
 	}
 
 	@Test
 	public void shouldReturnUUIDWhenUUIDClassIdType() throws SQLException {
-		// given
 		UUID identifier = UUID.randomUUID();
-		given(resultSet.getString("class_id_type")).willReturn("java.util.UUID");
-
-		// when
-		Serializable newIdentifier = aclClassIdUtils.identifierFrom(identifier.toString(), resultSet);
-
-		// then
+		given(this.resultSet.getString("class_id_type")).willReturn("java.util.UUID");
+		Serializable newIdentifier = this.aclClassIdUtils.identifierFrom(identifier.toString(), this.resultSet);
 		assertThat(newIdentifier).isEqualTo(identifier);
 	}
 
 	@Test
 	public void shouldReturnStringWhenStringClassIdType() throws SQLException {
-		// given
 		String identifier = "MY_STRING_IDENTIFIER";
-		given(resultSet.getString("class_id_type")).willReturn("java.lang.String");
-
-		// when
-		Serializable newIdentifier = aclClassIdUtils.identifierFrom(identifier, resultSet);
-
-		// then
+		given(this.resultSet.getString("class_id_type")).willReturn("java.lang.String");
+		Serializable newIdentifier = this.aclClassIdUtils.identifierFrom(identifier, this.resultSet);
 		assertThat(newIdentifier).isEqualTo(identifier);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldNotAcceptNullConversionServiceInConstruction() {
-		// when
 		new AclClassIdUtils(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldNotAcceptNullConversionServiceInSetter() {
-		// when
-		aclClassIdUtils.setConversionService(null);
+		this.aclClassIdUtils.setConversionService(null);
 	}
+
 }

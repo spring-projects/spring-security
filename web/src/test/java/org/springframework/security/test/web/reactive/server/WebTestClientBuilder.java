@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.reactive.server;
 
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,10 @@ import org.springframework.web.server.WebFilter;
  * @since 5.0
  *
  */
-public class WebTestClientBuilder {
+public final class WebTestClientBuilder {
+
+	private WebTestClientBuilder() {
+	}
 
 	public static Builder bindToWebFilters(WebFilter... webFilters) {
 		return WebTestClient.bindToController(new Http200RestController()).webFilter(webFilters).configureClient();
@@ -47,17 +51,20 @@ public class WebTestClientBuilder {
 		return WebTestClient.bindToController(controller).webFilter(webFilters).configureClient();
 	}
 
-	public static Builder bindToControllerAndWebFilters(Class<?> controller, SecurityWebFilterChain securityWebFilterChain) {
+	public static Builder bindToControllerAndWebFilters(Class<?> controller,
+			SecurityWebFilterChain securityWebFilterChain) {
 		return bindToControllerAndWebFilters(controller, new WebFilterChainProxy(securityWebFilterChain));
 	}
 
 	@RestController
 	public static class Http200RestController {
+
 		@RequestMapping("/**")
 		@ResponseStatus(HttpStatus.OK)
 		public String ok() {
 			return "ok";
 		}
+
 	}
 
 }

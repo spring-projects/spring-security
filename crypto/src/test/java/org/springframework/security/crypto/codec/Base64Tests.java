@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.codec;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.Test;
 
-import org.junit.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor
@@ -27,17 +28,13 @@ public class Base64Tests {
 
 	@Test
 	public void isBase64ReturnsTrueForValidBase64() {
-		new Base64(); // unused
-
-		assertThat(Base64.isBase64(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C',
-				(byte) 'D' })).isTrue();
+		assertThat(Base64.isBase64(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D' })).isTrue();
 	}
 
 	@Test
 	public void isBase64ReturnsFalseForInvalidBase64() {
 		// Include invalid '`' character
-		assertThat(Base64.isBase64(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C',
-				(byte) '`' })).isFalse();
+		assertThat(Base64.isBase64(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C', (byte) '`' })).isFalse();
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -49,4 +46,5 @@ public class Base64Tests {
 	public void isBase64RejectsInvalidLength() {
 		Base64.isBase64(new byte[] { (byte) 'A' });
 	}
+
 }

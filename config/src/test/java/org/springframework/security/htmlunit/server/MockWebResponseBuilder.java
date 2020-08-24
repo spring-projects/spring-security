@@ -35,12 +35,12 @@ import org.springframework.util.Assert;
  * @since 5.0
  */
 final class MockWebResponseBuilder {
+
 	private final long startTime;
 
 	private final WebRequest webRequest;
 
 	private final FluxExchangeResult<String> exchangeResult;
-
 
 	MockWebResponseBuilder(long startTime, WebRequest webRequest, FluxExchangeResult<String> exchangeResult) {
 		Assert.notNull(webRequest, "WebRequest must not be null");
@@ -50,8 +50,7 @@ final class MockWebResponseBuilder {
 		this.exchangeResult = exchangeResult;
 	}
 
-
-	public WebResponse build() throws IOException {
+	WebResponse build() throws IOException {
 		WebResponseData webResponseData = webResponseData();
 		long endTime = System.currentTimeMillis();
 		return new WebResponse(webResponseData, this.webRequest, endTime - this.startTime);
@@ -60,17 +59,15 @@ final class MockWebResponseBuilder {
 	private WebResponseData webResponseData() {
 		List<NameValuePair> responseHeaders = responseHeaders();
 		HttpStatus status = this.exchangeResult.getStatus();
-		return new WebResponseData(this.exchangeResult.getResponseBodyContent(), status.value(), status.getReasonPhrase(), responseHeaders);
+		return new WebResponseData(this.exchangeResult.getResponseBodyContent(), status.value(),
+				status.getReasonPhrase(), responseHeaders);
 	}
 
 	private List<NameValuePair> responseHeaders() {
 		HttpHeaders responseHeaders = this.exchangeResult.getResponseHeaders();
 		List<NameValuePair> result = new ArrayList<>(responseHeaders.size());
-		responseHeaders.forEach( (headerName, headerValues) ->
-			headerValues.forEach( headerValue ->
-				result.add(new NameValuePair(headerName, headerValue))
-			)
-		);
+		responseHeaders.forEach((headerName, headerValues) -> headerValues
+				.forEach((headerValue) -> result.add(new NameValuePair(headerName, headerValue))));
 		return result;
 	}
 

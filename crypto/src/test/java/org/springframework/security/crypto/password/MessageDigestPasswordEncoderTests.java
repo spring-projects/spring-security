@@ -32,14 +32,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SuppressWarnings("deprecation")
 public class MessageDigestPasswordEncoderTests {
-	// ~ Methods
-	// ========================================================================================================
 
 	@Test
 	public void md5BasicFunctionality() {
 		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("MD5");
 		String raw = "abc123";
-		assertThat(pe.matches( raw, "{THIS_IS_A_SALT}a68aafd90299d0b137de28fb4bb68573")).isTrue();
+		assertThat(pe.matches(raw, "{THIS_IS_A_SALT}a68aafd90299d0b137de28fb4bb68573")).isTrue();
 	}
 
 	@Test
@@ -97,7 +95,6 @@ public class MessageDigestPasswordEncoderTests {
 		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("SHA-1");
 		String raw = "abc123";
 		assertThat(pe.matches(raw, "{THIS_IS_A_SALT}b2f50ffcbd3407fe9415c062d55f54731f340d32"));
-
 	}
 
 	@Test
@@ -119,4 +116,5 @@ public class MessageDigestPasswordEncoderTests {
 	public void testInvalidStrength() {
 		new MessageDigestPasswordEncoder("SHA-666");
 	}
+
 }

@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.jackson2;
+
+import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.springframework.security.authentication.BadCredentialsException;
 
-import java.io.IOException;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,20 +41,20 @@ public class BadCredentialsExceptionMixinTests extends AbstractMixinTests {
 		+ "\"suppressed\": [\"[Ljava.lang.Throwable;\",[]]"
 		+ "}";
 	// @formatter:on
-
 	@Test
 	public void serializeBadCredentialsExceptionMixinTest() throws JsonProcessingException, JSONException {
 		BadCredentialsException exception = new BadCredentialsException("message");
-		String serializedJson = mapper.writeValueAsString(exception);
+		String serializedJson = this.mapper.writeValueAsString(exception);
 		JSONAssert.assertEquals(EXCEPTION_JSON, serializedJson, true);
 	}
 
 	@Test
 	public void deserializeBadCredentialsExceptionMixinTest() throws IOException {
-		BadCredentialsException exception = mapper.readValue(EXCEPTION_JSON, BadCredentialsException.class);
+		BadCredentialsException exception = this.mapper.readValue(EXCEPTION_JSON, BadCredentialsException.class);
 		assertThat(exception).isNotNull();
 		assertThat(exception.getCause()).isNull();
 		assertThat(exception.getMessage()).isEqualTo("message");
 		assertThat(exception.getLocalizedMessage()).isEqualTo("message");
 	}
+
 }

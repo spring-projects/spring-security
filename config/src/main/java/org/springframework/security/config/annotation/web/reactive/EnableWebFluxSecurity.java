@@ -16,15 +16,15 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 
 /**
  * Add this annotation to a {@code Configuration} class to have Spring Security WebFlux
@@ -47,6 +47,7 @@ import java.lang.annotation.Target;
  *          return new MapReactiveUserDetailsService(user);
  *     }
  * }
+ * </pre>
  *
  * Below is the same as our minimal configuration, but explicitly declaring the
  * {@code ServerHttpSecurity}.
@@ -54,7 +55,6 @@ import java.lang.annotation.Target;
  * <pre class="code">
  * &#064;EnableWebFluxSecurity
  * public class MyExplicitSecurityConfiguration {
- *     // @formatter:off
  *     &#064;Bean
  *     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
  *          http
@@ -65,9 +65,7 @@ import java.lang.annotation.Target;
  *                    .formLogin();
  *          return http.build();
  *     }
- *     // @formatter:on
  *
- *     // @formatter:off
  *     &#064;Bean
  *     public MapReactiveUserDetailsService userDetailsService() {
  *          UserDetails user = User.withDefaultPasswordEncoder()
@@ -77,8 +75,8 @@ import java.lang.annotation.Target;
  *               .build();
  *          return new MapReactiveUserDetailsService(user);
  *     }
- *     // @formatter:on
  * }
+ * </pre>
  *
  * @author Rob Winch
  * @since 5.0
@@ -86,8 +84,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({ServerHttpSecurityConfiguration.class, WebFluxSecurityConfiguration.class,
-		ReactiveOAuth2ClientImportSelector.class})
+@Import({ ServerHttpSecurityConfiguration.class, WebFluxSecurityConfiguration.class,
+		ReactiveOAuth2ClientImportSelector.class })
 @Configuration
 public @interface EnableWebFluxSecurity {
+
 }

@@ -22,6 +22,7 @@ import java.util.Base64;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.remoting.httpinvoker.SimpleHttpInvokerRequestExecutor;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -34,32 +35,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Ben Alex
  * @author Rob Winch
  */
-public class AuthenticationSimpleHttpInvokerRequestExecutor extends
-		SimpleHttpInvokerRequestExecutor {
-	// ~ Static fields/initializers
-	// =====================================================================================
+public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpInvokerRequestExecutor {
 
-	private static final Log logger = LogFactory
-			.getLog(AuthenticationSimpleHttpInvokerRequestExecutor.class);
-
-	// ~ Instance fields
-	// ================================================================================================
+	private static final Log logger = LogFactory.getLog(AuthenticationSimpleHttpInvokerRequestExecutor.class);
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Provided so subclasses can perform additional configuration if required (eg set
 	 * additional request headers for non-security related information etc).
-	 *
 	 * @param con the HTTP connection to prepare
 	 * @param contentLength the length of the content to send
 	 *
 	 */
-	protected void doPrepareConnection(HttpURLConnection con, int contentLength)
-			throws IOException {
+	protected void doPrepareConnection(HttpURLConnection con, int contentLength) throws IOException {
 	}
 
 	/**
@@ -73,20 +62,18 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends
 	 * The <code>SecurityContextHolder</code> is used to obtain the relevant principal and
 	 * credentials.
 	 * </p>
-	 *
 	 * @param con the HTTP connection to prepare
 	 * @param contentLength the length of the content to send
-	 *
 	 * @throws IOException if thrown by HttpURLConnection methods
 	 */
-	protected void prepareConnection(HttpURLConnection con, int contentLength)
-			throws IOException {
+	@Override
+	protected void prepareConnection(HttpURLConnection con, int contentLength) throws IOException {
 		super.prepareConnection(con, contentLength);
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 		if ((auth != null) && (auth.getName() != null) && (auth.getCredentials() != null)
-				&& !trustResolver.isAnonymous(auth)) {
+				&& !this.trustResolver.isAnonymous(auth)) {
 			String base64 = auth.getName() + ":" + auth.getCredentials().toString();
 			con.setRequestProperty("Authorization",
 					"Basic " + new String(Base64.getEncoder().encode(base64.getBytes())));
@@ -105,4 +92,5 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends
 
 		doPrepareConnection(con, contentLength);
 	}
+
 }

@@ -22,6 +22,7 @@ import java.util.List;
 import io.rsocket.core.RSocketServer;
 import io.rsocket.exceptions.ApplicationErrorException;
 import io.rsocket.frame.decoder.PayloadDecoder;
+import io.rsocket.metadata.WellKnownMimeType;
 import io.rsocket.transport.netty.server.CloseableChannel;
 import io.rsocket.transport.netty.server.TcpServerTransport;
 import org.junit.After;
@@ -50,9 +51,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 
-import static io.rsocket.metadata.WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -60,6 +60,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 @ContextConfiguration
 @RunWith(SpringRunner.class)
 public class SimpleAuthenticationITests {
+
 	@Autowired
 	RSocketMessageHandler handler;
 
@@ -75,14 +76,16 @@ public class SimpleAuthenticationITests {
 
 	@Before
 	public void setup() {
+		// @formatter:off
 		this.server = RSocketServer.create()
 				.payloadDecoder(PayloadDecoder.ZERO_COPY)
-				.interceptors((registry) -> {
-					registry.forSocketAcceptor(this.interceptor);
-				})
+				.interceptors((registry) ->
+					registry.forSocketAcceptor(this.interceptor)
+				)
 				.acceptor(this.handler.responder())
 				.bind(TcpServerTransport.create("localhost", 0))
 				.block();
+		// @formatter:on
 	}
 
 	@After
@@ -94,38 +97,42 @@ public class SimpleAuthenticationITests {
 
 	@Test
 	public void retrieveMonoWhenSecureThenDenied() throws Exception {
+		// @formatter:off
 		this.requester = RSocketRequester.builder()
-				.rsocketStrategies(this.handler.getRSocketStrategies())
-				.connectTcp("localhost", this.server.address().getPort())
-				.block();
-
+			.rsocketStrategies(this.handler.getRSocketStrategies())
+			.connectTcp("localhost", this.server.address().getPort())
+			.block();
+		// @formatter:on
 		String data = "rob";
-		assertThatCode(() -> this.requester.route("secure.retrieve-mono")
-				.data(data)
-				.retrieveMono(String.class)
+		// @formatter:off
+		assertThatExceptionOfType(ApplicationErrorException.class)
+			.isThrownBy(() -> this.requester.route("secure.retrieve-mono")
+				.data(data).retrieveMono(String.class)
 				.block()
-			)
-			.isInstanceOf(ApplicationErrorException.class);
+			);
+		// @formatter:on
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
 	@Test
 	public void retrieveMonoWhenAuthorizedThenGranted() {
-		MimeType authenticationMimeType = MimeTypeUtils.parseMimeType(MESSAGE_RSOCKET_AUTHENTICATION.getString());
-
+		MimeType authenticationMimeType = MimeTypeUtils
+				.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("rob", "password");
+		// @formatter:off
 		this.requester = RSocketRequester.builder()
-				.setupMetadata(credentials, authenticationMimeType)
-				.rsocketStrategies(this.handler.getRSocketStrategies())
-				.connectTcp("localhost", this.server.address().getPort())
-				.block();
+			.setupMetadata(credentials, authenticationMimeType)
+			.rsocketStrategies(this.handler.getRSocketStrategies())
+			.connectTcp("localhost", this.server.address().getPort())
+			.block();
+		// @formatter:on
 		String data = "rob";
+		// @formatter:off
 		String hiRob = this.requester.route("secure.retrieve-mono")
-				.metadata(credentials, authenticationMimeType)
-				.data(data)
-				.retrieveMono(String.class)
-				.block();
-
+			.metadata(credentials, authenticationMimeType)
+			.data(data).retrieveMono(String.class)
+			.block();
+		// @formatter:on
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
 	}
@@ -135,49 +142,46 @@ public class SimpleAuthenticationITests {
 	static class Config {
 
 		@Bean
-		public ServerController controller() {
+		ServerController controller() {
 			return new ServerController();
 		}
 
 		@Bean
-		public RSocketMessageHandler messageHandler() {
+		RSocketMessageHandler messageHandler() {
 			RSocketMessageHandler handler = new RSocketMessageHandler();
 			handler.setRSocketStrategies(rsocketStrategies());
 			return handler;
 		}
 
 		@Bean
-		public RSocketStrategies rsocketStrategies() {
-			return RSocketStrategies.builder()
-					.encoder(new SimpleAuthenticationEncoder())
-					.build();
+		RSocketStrategies rsocketStrategies() {
+			return RSocketStrategies.builder().encoder(new SimpleAuthenticationEncoder()).build();
 		}
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
-			rsocket
-					.authorizePayload(authorize ->
-							authorize
-									.anyRequest().authenticated()
-									.anyExchange().permitAll()
-					)
+			rsocket.authorizePayload((authorize) -> authorize.anyRequest().authenticated().anyExchange().permitAll())
 					.simpleAuthentication(Customizer.withDefaults());
 			return rsocket.build();
 		}
 
 		@Bean
 		MapReactiveUserDetailsService uds() {
+			// @formatter:off
 			UserDetails rob = User.withDefaultPasswordEncoder()
 					.username("rob")
 					.password("password")
 					.roles("USER", "ADMIN")
 					.build();
+			// @formatter:on
 			return new MapReactiveUserDetailsService(rob);
 		}
+
 	}
 
 	@Controller
 	static class ServerController {
+
 		private List<String> payloads = new ArrayList<>();
 
 		@MessageMapping("**")
@@ -189,6 +193,7 @@ public class SimpleAuthenticationITests {
 		private void add(String p) {
 			this.payloads.add(p);
 		}
+
 	}
 
 }

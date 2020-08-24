@@ -46,13 +46,13 @@ public class WebfluxFormSecurityConfig {
 	@Bean
 	SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 		http
-			.authorizeExchange(exchanges ->
+			.authorizeExchange((exchanges) -> 
 				exchanges
 					.pathMatchers("/login").permitAll()
 					.anyExchange().authenticated()
 			)
 			.httpBasic(withDefaults())
-			.formLogin(formLogin ->
+			.formLogin((formLogin) -> 
 				formLogin
 					.loginPage("/login")
 			);

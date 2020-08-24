@@ -41,16 +41,13 @@ import org.springframework.util.Assert;
  * <li>{@link HttpServletRequestWrapper#getRemoteUser()}.</li>
  * </ul>
  *
- * @see SecurityContextHolderAwareRequestFilter
- *
  * @author Orlando Garcia Carmona
  * @author Ben Alex
  * @author Luke Taylor
  * @author Rob Winch
+ * @see SecurityContextHolderAwareRequestFilter
  */
 public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final AuthenticationTrustResolver trustResolver;
 
@@ -60,23 +57,17 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	 */
 	private final String rolePrefix;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Creates a new instance with {@link AuthenticationTrustResolverImpl}.
-	 *
 	 * @param request
 	 * @param rolePrefix
 	 */
-	public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request,
-			String rolePrefix) {
+	public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request, String rolePrefix) {
 		this(request, new AuthenticationTrustResolverImpl(), rolePrefix);
 	}
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param request the original {@link HttpServletRequest}
 	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
 	 * null.
@@ -91,86 +82,64 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 		this.trustResolver = trustResolver;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Obtain the current active <code>Authentication</code>
-	 *
 	 * @return the authentication object or <code>null</code>
 	 */
 	private Authentication getAuthentication() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-		if (!trustResolver.isAnonymous(auth)) {
-			return auth;
-		}
-
-		return null;
+		return (!this.trustResolver.isAnonymous(auth)) ? auth : null;
 	}
 
 	/**
 	 * Returns the principal's name, as obtained from the
 	 * <code>SecurityContextHolder</code>. Properly handles both <code>String</code>-based
 	 * and <code>UserDetails</code>-based principals.
-	 *
 	 * @return the username or <code>null</code> if unavailable
 	 */
 	@Override
 	public String getRemoteUser() {
 		Authentication auth = getAuthentication();
-
 		if ((auth == null) || (auth.getPrincipal() == null)) {
 			return null;
 		}
-
 		if (auth.getPrincipal() instanceof UserDetails) {
 			return ((UserDetails) auth.getPrincipal()).getUsername();
 		}
-
 		return auth.getPrincipal().toString();
 	}
 
 	/**
 	 * Returns the <code>Authentication</code> (which is a subclass of
 	 * <code>Principal</code>), or <code>null</code> if unavailable.
-	 *
 	 * @return the <code>Authentication</code>, or <code>null</code>
 	 */
 	@Override
 	public Principal getUserPrincipal() {
 		Authentication auth = getAuthentication();
-
 		if ((auth == null) || (auth.getPrincipal() == null)) {
 			return null;
 		}
-
 		return auth;
 	}
 
 	private boolean isGranted(String role) {
 		Authentication auth = getAuthentication();
-
-		if (rolePrefix != null && role != null && !role.startsWith(rolePrefix)) {
-			role = rolePrefix + role;
+		if (this.rolePrefix != null && role != null && !role.startsWith(this.rolePrefix)) {
+			role = this.rolePrefix + role;
 		}
-
 		if ((auth == null) || (auth.getPrincipal() == null)) {
 			return false;
 		}
-
 		Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
-
 		if (authorities == null) {
 			return false;
 		}
-
 		for (GrantedAuthority grantedAuthority : authorities) {
 			if (role.equals(grantedAuthority.getAuthority())) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -181,10 +150,8 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	 * Will always return <code>false</code> if the <code>SecurityContextHolder</code>
 	 * contains an <code>Authentication</code> with <code>null</code>
 	 * <code>principal</code> and/or <code>GrantedAuthority[]</code> objects.
-	 *
 	 * @param role the <code>GrantedAuthority</code><code>String</code> representation to
 	 * check for
-	 *
 	 * @return <code>true</code> if an <b>exact</b> (case sensitive) matching granted
 	 * authority is located, <code>false</code> otherwise
 	 */
@@ -197,4 +164,5 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	public String toString() {
 		return "SecurityContextHolderAwareRequestWrapper[ " + getRequest() + "]";
 	}
+
 }

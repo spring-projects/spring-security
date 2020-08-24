@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -98,21 +100,37 @@ import org.springframework.util.CollectionUtils;
  */
 public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<SessionManagementConfigurer<H>, H> {
+
 	private final SessionAuthenticationStrategy DEFAULT_SESSION_FIXATION_STRATEGY = createDefaultSessionFixationProtectionStrategy();
+
 	private SessionAuthenticationStrategy sessionFixationAuthenticationStrategy = this.DEFAULT_SESSION_FIXATION_STRATEGY;
+
 	private SessionAuthenticationStrategy sessionAuthenticationStrategy;
+
 	private SessionAuthenticationStrategy providedSessionAuthenticationStrategy;
+
 	private InvalidSessionStrategy invalidSessionStrategy;
+
 	private SessionInformationExpiredStrategy expiredSessionStrategy;
+
 	private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<>();
+
 	private SessionRegistry sessionRegistry;
+
 	private Integer maximumSessions;
+
 	private String expiredUrl;
+
 	private boolean maxSessionsPreventsLogin;
+
 	private SessionCreationPolicy sessionPolicy;
+
 	private boolean enableSessionUrlRewriting;
+
 	private String invalidSessionUrl;
+
 	private String sessionAuthenticationErrorUrl;
+
 	private AuthenticationFailureHandler sessionAuthenticationFailureHandler;
 
 	/**
@@ -127,7 +145,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@link SimpleRedirectInvalidSessionStrategy} configured with the attribute value.
 	 * When an invalid session ID is submitted, the strategy will be invoked, redirecting
 	 * to the configured URL.
-	 *
 	 * @param invalidSessionUrl the URL to redirect to when an invalid session is detected
 	 * @return the {@link SessionManagementConfigurer} for further customization
 	 */
@@ -144,8 +161,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * submitted.
 	 * @return the {@link SessionManagementConfigurer} for further customization
 	 */
-	public SessionManagementConfigurer<H> invalidSessionStrategy(
-			InvalidSessionStrategy invalidSessionStrategy) {
+	public SessionManagementConfigurer<H> invalidSessionStrategy(InvalidSessionStrategy invalidSessionStrategy) {
 		Assert.notNull(invalidSessionStrategy, "invalidSessionStrategy");
 		this.invalidSessionStrategy = invalidSessionStrategy;
 		return this;
@@ -157,12 +173,10 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * (402) error code will be returned to the client. Note that this attribute doesn't
 	 * apply if the error occurs during a form-based login, where the URL for
 	 * authentication failure will take precedence.
-	 *
 	 * @param sessionAuthenticationErrorUrl the URL to redirect to
 	 * @return the {@link SessionManagementConfigurer} for further customization
 	 */
-	public SessionManagementConfigurer<H> sessionAuthenticationErrorUrl(
-			String sessionAuthenticationErrorUrl) {
+	public SessionManagementConfigurer<H> sessionAuthenticationErrorUrl(String sessionAuthenticationErrorUrl) {
 		this.sessionAuthenticationErrorUrl = sessionAuthenticationErrorUrl;
 		return this;
 	}
@@ -173,7 +187,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * (402) error code will be returned to the client. Note that this attribute doesn't
 	 * apply if the error occurs during a form-based login, where the URL for
 	 * authentication failure will take precedence.
-	 *
 	 * @param sessionAuthenticationFailureHandler the handler to use
 	 * @return the {@link SessionManagementConfigurer} for further customization
 	 */
@@ -188,14 +201,12 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@link HttpServletResponse#encodeRedirectURL(String)} or
 	 * {@link HttpServletResponse#encodeURL(String)}, otherwise disallows HTTP sessions to
 	 * be included in the URL. This prevents leaking information to external domains.
-	 *
 	 * @param enableSessionUrlRewriting true if should allow the JSESSIONID to be
 	 * rewritten into the URLs, else false (default)
 	 * @return the {@link SessionManagementConfigurer} for further customization
 	 * @see HttpSessionSecurityContextRepository#setDisableUrlRewriting(boolean)
 	 */
-	public SessionManagementConfigurer<H> enableSessionUrlRewriting(
-			boolean enableSessionUrlRewriting) {
+	public SessionManagementConfigurer<H> enableSessionUrlRewriting(boolean enableSessionUrlRewriting) {
 		this.enableSessionUrlRewriting = enableSessionUrlRewriting;
 		return this;
 	}
@@ -205,29 +216,27 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @param sessionCreationPolicy the {@link SessionCreationPolicy} to use. Cannot be
 	 * null.
 	 * @return the {@link SessionManagementConfigurer} for further customizations
-	 * @see SessionCreationPolicy
 	 * @throws IllegalArgumentException if {@link SessionCreationPolicy} is null.
+	 * @see SessionCreationPolicy
 	 */
-	public SessionManagementConfigurer<H> sessionCreationPolicy(
-			SessionCreationPolicy sessionCreationPolicy) {
+	public SessionManagementConfigurer<H> sessionCreationPolicy(SessionCreationPolicy sessionCreationPolicy) {
 		Assert.notNull(sessionCreationPolicy, "sessionCreationPolicy cannot be null");
 		this.sessionPolicy = sessionCreationPolicy;
 		return this;
 	}
 
 	/**
-	 * Allows explicitly specifying the {@link SessionAuthenticationStrategy}.
-	 * The default is to use {@link ChangeSessionIdAuthenticationStrategy}.
-	 * If restricting the maximum number of sessions is configured, then
+	 * Allows explicitly specifying the {@link SessionAuthenticationStrategy}. The default
+	 * is to use {@link ChangeSessionIdAuthenticationStrategy}. If restricting the maximum
+	 * number of sessions is configured, then
 	 * {@link CompositeSessionAuthenticationStrategy} delegating to
-	 * {@link ConcurrentSessionControlAuthenticationStrategy},
-	 * the default OR supplied {@code SessionAuthenticationStrategy} and
+	 * {@link ConcurrentSessionControlAuthenticationStrategy}, the default OR supplied
+	 * {@code SessionAuthenticationStrategy} and
 	 * {@link RegisterSessionAuthenticationStrategy}.
 	 *
 	 * <p>
 	 * NOTE: Supplying a custom {@link SessionAuthenticationStrategy} will override the
 	 * default session fixation strategy.
-	 *
 	 * @param sessionAuthenticationStrategy
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 */
@@ -240,7 +249,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Adds an additional {@link SessionAuthenticationStrategy} to be used within the
 	 * {@link CompositeSessionAuthenticationStrategy}.
-	 *
 	 * @param sessionAuthenticationStrategy
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 */
@@ -252,7 +260,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Allows changing the default {@link SessionFixationProtectionStrategy}.
-	 *
 	 * @return the {@link SessionFixationConfigurer} for further customizations
 	 */
 	public SessionFixationConfigurer sessionFixation() {
@@ -261,12 +268,12 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Allows configuring session fixation protection.
-	 *
 	 * @param sessionFixationCustomizer the {@link Customizer} to provide more options for
 	 * the {@link SessionFixationConfigurer}
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 */
-	public SessionManagementConfigurer<H> sessionFixation(Customizer<SessionFixationConfigurer> sessionFixationCustomizer) {
+	public SessionManagementConfigurer<H> sessionFixation(
+			Customizer<SessionFixationConfigurer> sessionFixationCustomizer) {
 		sessionFixationCustomizer.customize(new SessionFixationConfigurer());
 		return this;
 	}
@@ -285,12 +292,12 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Controls the maximum number of sessions for a user. The default is to allow any
 	 * number of users.
-	 *
-	 * @param sessionConcurrencyCustomizer the {@link Customizer} to provide more options for
-	 * the {@link ConcurrencyControlConfigurer}
+	 * @param sessionConcurrencyCustomizer the {@link Customizer} to provide more options
+	 * for the {@link ConcurrencyControlConfigurer}
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 */
-	public SessionManagementConfigurer<H> sessionConcurrency(Customizer<ConcurrencyControlConfigurer> sessionConcurrencyCustomizer) {
+	public SessionManagementConfigurer<H> sessionConcurrency(
+			Customizer<ConcurrencyControlConfigurer> sessionConcurrencyCustomizer) {
 		sessionConcurrencyCustomizer.customize(new ConcurrencyControlConfigurer());
 		return this;
 	}
@@ -302,207 +309,46 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	private void setSessionFixationAuthenticationStrategy(
 			SessionAuthenticationStrategy sessionFixationAuthenticationStrategy) {
-		this.sessionFixationAuthenticationStrategy = postProcess(
-				sessionFixationAuthenticationStrategy);
-	}
-
-	/**
-	 * Allows configuring SessionFixation protection
-	 *
-	 * @author Rob Winch
-	 */
-	public final class SessionFixationConfigurer {
-		/**
-		 * Specifies that a new session should be created, but the session attributes from
-		 * the original {@link HttpSession} should not be retained.
-		 *
-		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 */
-		public SessionManagementConfigurer<H> newSession() {
-			SessionFixationProtectionStrategy sessionFixationProtectionStrategy = new SessionFixationProtectionStrategy();
-			sessionFixationProtectionStrategy.setMigrateSessionAttributes(false);
-			setSessionFixationAuthenticationStrategy(sessionFixationProtectionStrategy);
-			return SessionManagementConfigurer.this;
-		}
-
-		/**
-		 * Specifies that a new session should be created and the session attributes from
-		 * the original {@link HttpSession} should be retained.
-		 *
-		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 */
-		public SessionManagementConfigurer<H> migrateSession() {
-			setSessionFixationAuthenticationStrategy(
-					new SessionFixationProtectionStrategy());
-			return SessionManagementConfigurer.this;
-		}
-
-		/**
-		 * Specifies that the Servlet container-provided session fixation protection
-		 * should be used. When a session authenticates, the Servlet method
-		 * {@code HttpServletRequest#changeSessionId()} is called to change the session ID
-		 * and retain all session attributes.
-		 *
-		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 */
-		public SessionManagementConfigurer<H> changeSessionId() {
-			setSessionFixationAuthenticationStrategy(
-					new ChangeSessionIdAuthenticationStrategy());
-			return SessionManagementConfigurer.this;
-		}
-
-		/**
-		 * Specifies that no session fixation protection should be enabled. This may be
-		 * useful when utilizing other mechanisms for protecting against session fixation.
-		 * For example, if application container session fixation protection is already in
-		 * use. Otherwise, this option is not recommended.
-		 *
-		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 */
-		public SessionManagementConfigurer<H> none() {
-			setSessionFixationAuthenticationStrategy(
-					new NullAuthenticatedSessionStrategy());
-			return SessionManagementConfigurer.this;
-		}
-	}
-
-	/**
-	 * Allows configuring controlling of multiple sessions.
-	 *
-	 * @author Rob Winch
-	 */
-	public final class ConcurrencyControlConfigurer {
-
-		/**
-		 * Controls the maximum number of sessions for a user. The default is to allow any
-		 * number of users.
-		 *
-		 * @param maximumSessions the maximum number of sessions for a user
-		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
-		 */
-		public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
-			SessionManagementConfigurer.this.maximumSessions = maximumSessions;
-			return this;
-		}
-
-		/**
-		 * The URL to redirect to if a user tries to access a resource and their session
-		 * has been expired due to too many sessions for the current user. The default is
-		 * to write a simple error message to the response.
-		 *
-		 * @param expiredUrl the URL to redirect to
-		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
-		 */
-		public ConcurrencyControlConfigurer expiredUrl(String expiredUrl) {
-			SessionManagementConfigurer.this.expiredUrl = expiredUrl;
-			return this;
-		}
-
-		/**
-		 * Determines the behaviour when an expired session is detected.
-		 *
-		 * @param expiredSessionStrategy the {@link SessionInformationExpiredStrategy} to
-		 * use when an expired session is detected.
-		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
-		 */
-		public ConcurrencyControlConfigurer expiredSessionStrategy(
-				SessionInformationExpiredStrategy expiredSessionStrategy) {
-			SessionManagementConfigurer.this.expiredSessionStrategy = expiredSessionStrategy;
-			return this;
-		}
-
-		/**
-		 * If true, prevents a user from authenticating when the
-		 * {@link #maximumSessions(int)} has been reached. Otherwise (default), the user
-		 * who authenticates is allowed access and an existing user's session is expired.
-		 * The user's who's session is forcibly expired is sent to
-		 * {@link #expiredUrl(String)}. The advantage of this approach is if a user
-		 * accidentally does not log out, there is no need for an administrator to
-		 * intervene or wait till their session expires.
-		 *
-		 * @param maxSessionsPreventsLogin true to have an error at time of
-		 * authentication, else false (default)
-		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
-		 */
-		public ConcurrencyControlConfigurer maxSessionsPreventsLogin(
-				boolean maxSessionsPreventsLogin) {
-			SessionManagementConfigurer.this.maxSessionsPreventsLogin = maxSessionsPreventsLogin;
-			return this;
-		}
-
-		/**
-		 * Controls the {@link SessionRegistry} implementation used. The default is
-		 * {@link SessionRegistryImpl} which is an in memory implementation.
-		 *
-		 * @param sessionRegistry the {@link SessionRegistry} to use
-		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
-		 */
-		public ConcurrencyControlConfigurer sessionRegistry(
-				SessionRegistry sessionRegistry) {
-			SessionManagementConfigurer.this.sessionRegistry = sessionRegistry;
-			return this;
-		}
-
-		/**
-		 * Used to chain back to the {@link SessionManagementConfigurer}
-		 *
-		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 */
-		public SessionManagementConfigurer<H> and() {
-			return SessionManagementConfigurer.this;
-		}
-
-		private ConcurrencyControlConfigurer() {
-		}
+		this.sessionFixationAuthenticationStrategy = postProcess(sessionFixationAuthenticationStrategy);
 	}
 
 	@Override
 	public void init(H http) {
-		SecurityContextRepository securityContextRepository = http
-				.getSharedObject(SecurityContextRepository.class);
+		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
 		boolean stateless = isStateless();
-
 		if (securityContextRepository == null) {
 			if (stateless) {
-				http.setSharedObject(SecurityContextRepository.class,
-						new NullSecurityContextRepository());
+				http.setSharedObject(SecurityContextRepository.class, new NullSecurityContextRepository());
 			}
 			else {
 				HttpSessionSecurityContextRepository httpSecurityRepository = new HttpSessionSecurityContextRepository();
-				httpSecurityRepository
-						.setDisableUrlRewriting(!this.enableSessionUrlRewriting);
+				httpSecurityRepository.setDisableUrlRewriting(!this.enableSessionUrlRewriting);
 				httpSecurityRepository.setAllowSessionCreation(isAllowSessionCreation());
-				AuthenticationTrustResolver trustResolver = http
-						.getSharedObject(AuthenticationTrustResolver.class);
+				AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
 				if (trustResolver != null) {
 					httpSecurityRepository.setTrustResolver(trustResolver);
 				}
-				http.setSharedObject(SecurityContextRepository.class,
-						httpSecurityRepository);
+				http.setSharedObject(SecurityContextRepository.class, httpSecurityRepository);
 			}
 		}
-
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
 		if (requestCache == null) {
 			if (stateless) {
 				http.setSharedObject(RequestCache.class, new NullRequestCache());
 			}
 		}
-		http.setSharedObject(SessionAuthenticationStrategy.class,
-				getSessionAuthenticationStrategy(http));
+		http.setSharedObject(SessionAuthenticationStrategy.class, getSessionAuthenticationStrategy(http));
 		http.setSharedObject(InvalidSessionStrategy.class, getInvalidSessionStrategy());
 	}
 
 	@Override
 	public void configure(H http) {
-		SecurityContextRepository securityContextRepository = http
-				.getSharedObject(SecurityContextRepository.class);
-		SessionManagementFilter sessionManagementFilter = new SessionManagementFilter(
-				securityContextRepository, getSessionAuthenticationStrategy(http));
+		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
+		SessionManagementFilter sessionManagementFilter = new SessionManagementFilter(securityContextRepository,
+				getSessionAuthenticationStrategy(http));
 		if (this.sessionAuthenticationErrorUrl != null) {
 			sessionManagementFilter.setAuthenticationFailureHandler(
-					new SimpleUrlAuthenticationFailureHandler(
-							this.sessionAuthenticationErrorUrl));
+					new SimpleUrlAuthenticationFailureHandler(this.sessionAuthenticationErrorUrl));
 		}
 		InvalidSessionStrategy strategy = getInvalidSessionStrategy();
 		if (strategy != null) {
@@ -512,13 +358,11 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (failureHandler != null) {
 			sessionManagementFilter.setAuthenticationFailureHandler(failureHandler);
 		}
-		AuthenticationTrustResolver trustResolver = http
-				.getSharedObject(AuthenticationTrustResolver.class);
+		AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
 		if (trustResolver != null) {
 			sessionManagementFilter.setTrustResolver(trustResolver);
 		}
 		sessionManagementFilter = postProcess(sessionManagementFilter);
-
 		http.addFilter(sessionManagementFilter);
 		if (isConcurrentSessionControlEnabled()) {
 			ConcurrentSessionFilter concurrentSessionFilter = createConcurrencyFilter(http);
@@ -531,12 +375,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private ConcurrentSessionFilter createConcurrencyFilter(H http) {
 		SessionInformationExpiredStrategy expireStrategy = getExpiredSessionStrategy();
 		SessionRegistry sessionRegistry = getSessionRegistry(http);
-		ConcurrentSessionFilter concurrentSessionFilter;
-		if (expireStrategy == null) {
-			concurrentSessionFilter = new ConcurrentSessionFilter(sessionRegistry);
-		} else {
-			concurrentSessionFilter = new ConcurrentSessionFilter(sessionRegistry, expireStrategy);
-		}
+		ConcurrentSessionFilter concurrentSessionFilter = (expireStrategy != null)
+				? new ConcurrentSessionFilter(sessionRegistry, expireStrategy)
+				: new ConcurrentSessionFilter(sessionRegistry);
 		LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
 		if (logoutConfigurer != null) {
 			List<LogoutHandler> logoutHandlers = logoutConfigurer.getLogoutHandlers();
@@ -551,20 +392,16 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * Gets the {@link InvalidSessionStrategy} to use. If null and
 	 * {@link #invalidSessionUrl} is not null defaults to
 	 * {@link SimpleRedirectInvalidSessionStrategy}.
-	 *
 	 * @return the {@link InvalidSessionStrategy} to use
 	 */
 	InvalidSessionStrategy getInvalidSessionStrategy() {
 		if (this.invalidSessionStrategy != null) {
 			return this.invalidSessionStrategy;
 		}
-
 		if (this.invalidSessionUrl == null) {
 			return null;
 		}
-
-		this.invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(
-					this.invalidSessionUrl);
+		this.invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(this.invalidSessionUrl);
 		return this.invalidSessionStrategy;
 	}
 
@@ -572,13 +409,10 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.expiredSessionStrategy != null) {
 			return this.expiredSessionStrategy;
 		}
-
 		if (this.expiredUrl == null) {
 			return null;
 		}
-
-		this.expiredSessionStrategy = new SimpleRedirectSessionInformationExpiredStrategy(
-				this.expiredUrl);
+		this.expiredSessionStrategy = new SimpleRedirectSessionInformationExpiredStrategy(this.expiredUrl);
 		return this.expiredSessionStrategy;
 	}
 
@@ -586,11 +420,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.sessionAuthenticationFailureHandler != null) {
 			return this.sessionAuthenticationFailureHandler;
 		}
-
 		if (this.sessionAuthenticationErrorUrl == null) {
 			return null;
 		}
-
 		this.sessionAuthenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler(
 				this.sessionAuthenticationErrorUrl);
 		return this.sessionAuthenticationFailureHandler;
@@ -604,11 +436,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.sessionPolicy != null) {
 			return this.sessionPolicy;
 		}
-
-		SessionCreationPolicy sessionPolicy =
-				getBuilder().getSharedObject(SessionCreationPolicy.class);
-		return sessionPolicy == null ?
-				SessionCreationPolicy.IF_REQUIRED : sessionPolicy;
+		SessionCreationPolicy sessionPolicy = getBuilder().getSharedObject(SessionCreationPolicy.class);
+		return (sessionPolicy != null) ? sessionPolicy : SessionCreationPolicy.IF_REQUIRED;
 	}
 
 	/**
@@ -618,8 +447,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	private boolean isAllowSessionCreation() {
 		SessionCreationPolicy sessionPolicy = getSessionCreationPolicy();
-		return SessionCreationPolicy.ALWAYS == sessionPolicy
-				|| SessionCreationPolicy.IF_REQUIRED == sessionPolicy;
+		return SessionCreationPolicy.ALWAYS == sessionPolicy || SessionCreationPolicy.IF_REQUIRED == sessionPolicy;
 	}
 
 	/**
@@ -635,7 +463,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * Gets the customized {@link SessionAuthenticationStrategy} if
 	 * {@link #sessionAuthenticationStrategy(SessionAuthenticationStrategy)} was
 	 * specified. Otherwise creates a default {@link SessionAuthenticationStrategy}.
-	 *
 	 * @return the {@link SessionAuthenticationStrategy} to use
 	 */
 	private SessionAuthenticationStrategy getSessionAuthenticationStrategy(H http) {
@@ -647,8 +474,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.providedSessionAuthenticationStrategy == null) {
 			// If the user did not provide a SessionAuthenticationStrategy
 			// then default to sessionFixationAuthenticationStrategy
-			defaultSessionAuthenticationStrategy = postProcess(
-					this.sessionFixationAuthenticationStrategy);
+			defaultSessionAuthenticationStrategy = postProcess(this.sessionFixationAuthenticationStrategy);
 		}
 		else {
 			defaultSessionAuthenticationStrategy = this.providedSessionAuthenticationStrategy;
@@ -658,10 +484,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlStrategy = new ConcurrentSessionControlAuthenticationStrategy(
 					sessionRegistry);
 			concurrentSessionControlStrategy.setMaximumSessions(this.maximumSessions);
-			concurrentSessionControlStrategy
-					.setExceptionIfMaximumExceeded(this.maxSessionsPreventsLogin);
-			concurrentSessionControlStrategy = postProcess(
-					concurrentSessionControlStrategy);
+			concurrentSessionControlStrategy.setExceptionIfMaximumExceeded(this.maxSessionsPreventsLogin);
+			concurrentSessionControlStrategy = postProcess(concurrentSessionControlStrategy);
 
 			RegisterSessionAuthenticationStrategy registerSessionStrategy = new RegisterSessionAuthenticationStrategy(
 					sessionRegistry);
@@ -690,14 +514,12 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		return this.sessionRegistry;
 	}
 
-	private void registerDelegateApplicationListener(H http,
-			ApplicationListener<?> delegate) {
+	private void registerDelegateApplicationListener(H http, ApplicationListener<?> delegate) {
 		DelegatingApplicationListener delegating = getBeanOrNull(DelegatingApplicationListener.class);
 		if (delegating == null) {
 			return;
 		}
-		SmartApplicationListener smartListener = new GenericApplicationListenerAdapter(
-				delegate);
+		SmartApplicationListener smartListener = new GenericApplicationListenerAdapter(delegate);
 		delegating.addListener(smartListener);
 	}
 
@@ -714,7 +536,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the default {@link SessionAuthenticationStrategy} for session fixation
 	 */
 	private static SessionAuthenticationStrategy createDefaultSessionFixationProtectionStrategy() {
-			return new ChangeSessionIdAuthenticationStrategy();
+		return new ChangeSessionIdAuthenticationStrategy();
 	}
 
 	private <T> T getBeanOrNull(Class<T> type) {
@@ -725,8 +547,147 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		try {
 			return context.getBean(type);
 		}
-		catch (NoSuchBeanDefinitionException e) {
+		catch (NoSuchBeanDefinitionException ex) {
 			return null;
 		}
 	}
+
+	/**
+	 * Allows configuring SessionFixation protection
+	 *
+	 * @author Rob Winch
+	 */
+	public final class SessionFixationConfigurer {
+
+		/**
+		 * Specifies that a new session should be created, but the session attributes from
+		 * the original {@link HttpSession} should not be retained.
+		 * @return the {@link SessionManagementConfigurer} for further customizations
+		 */
+		public SessionManagementConfigurer<H> newSession() {
+			SessionFixationProtectionStrategy sessionFixationProtectionStrategy = new SessionFixationProtectionStrategy();
+			sessionFixationProtectionStrategy.setMigrateSessionAttributes(false);
+			setSessionFixationAuthenticationStrategy(sessionFixationProtectionStrategy);
+			return SessionManagementConfigurer.this;
+		}
+
+		/**
+		 * Specifies that a new session should be created and the session attributes from
+		 * the original {@link HttpSession} should be retained.
+		 * @return the {@link SessionManagementConfigurer} for further customizations
+		 */
+		public SessionManagementConfigurer<H> migrateSession() {
+			setSessionFixationAuthenticationStrategy(new SessionFixationProtectionStrategy());
+			return SessionManagementConfigurer.this;
+		}
+
+		/**
+		 * Specifies that the Servlet container-provided session fixation protection
+		 * should be used. When a session authenticates, the Servlet method
+		 * {@code HttpServletRequest#changeSessionId()} is called to change the session ID
+		 * and retain all session attributes.
+		 * @return the {@link SessionManagementConfigurer} for further customizations
+		 */
+		public SessionManagementConfigurer<H> changeSessionId() {
+			setSessionFixationAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
+			return SessionManagementConfigurer.this;
+		}
+
+		/**
+		 * Specifies that no session fixation protection should be enabled. This may be
+		 * useful when utilizing other mechanisms for protecting against session fixation.
+		 * For example, if application container session fixation protection is already in
+		 * use. Otherwise, this option is not recommended.
+		 * @return the {@link SessionManagementConfigurer} for further customizations
+		 */
+		public SessionManagementConfigurer<H> none() {
+			setSessionFixationAuthenticationStrategy(new NullAuthenticatedSessionStrategy());
+			return SessionManagementConfigurer.this;
+		}
+
+	}
+
+	/**
+	 * Allows configuring controlling of multiple sessions.
+	 *
+	 * @author Rob Winch
+	 */
+	public final class ConcurrencyControlConfigurer {
+
+		private ConcurrencyControlConfigurer() {
+		}
+
+		/**
+		 * Controls the maximum number of sessions for a user. The default is to allow any
+		 * number of users.
+		 * @param maximumSessions the maximum number of sessions for a user
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
+		public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
+			SessionManagementConfigurer.this.maximumSessions = maximumSessions;
+			return this;
+		}
+
+		/**
+		 * The URL to redirect to if a user tries to access a resource and their session
+		 * has been expired due to too many sessions for the current user. The default is
+		 * to write a simple error message to the response.
+		 * @param expiredUrl the URL to redirect to
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
+		public ConcurrencyControlConfigurer expiredUrl(String expiredUrl) {
+			SessionManagementConfigurer.this.expiredUrl = expiredUrl;
+			return this;
+		}
+
+		/**
+		 * Determines the behaviour when an expired session is detected.
+		 * @param expiredSessionStrategy the {@link SessionInformationExpiredStrategy} to
+		 * use when an expired session is detected.
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
+		public ConcurrencyControlConfigurer expiredSessionStrategy(
+				SessionInformationExpiredStrategy expiredSessionStrategy) {
+			SessionManagementConfigurer.this.expiredSessionStrategy = expiredSessionStrategy;
+			return this;
+		}
+
+		/**
+		 * If true, prevents a user from authenticating when the
+		 * {@link #maximumSessions(int)} has been reached. Otherwise (default), the user
+		 * who authenticates is allowed access and an existing user's session is expired.
+		 * The user's who's session is forcibly expired is sent to
+		 * {@link #expiredUrl(String)}. The advantage of this approach is if a user
+		 * accidentally does not log out, there is no need for an administrator to
+		 * intervene or wait till their session expires.
+		 * @param maxSessionsPreventsLogin true to have an error at time of
+		 * authentication, else false (default)
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
+		public ConcurrencyControlConfigurer maxSessionsPreventsLogin(boolean maxSessionsPreventsLogin) {
+			SessionManagementConfigurer.this.maxSessionsPreventsLogin = maxSessionsPreventsLogin;
+			return this;
+		}
+
+		/**
+		 * Controls the {@link SessionRegistry} implementation used. The default is
+		 * {@link SessionRegistryImpl} which is an in memory implementation.
+		 * @param sessionRegistry the {@link SessionRegistry} to use
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
+		public ConcurrencyControlConfigurer sessionRegistry(SessionRegistry sessionRegistry) {
+			SessionManagementConfigurer.this.sessionRegistry = sessionRegistry;
+			return this;
+		}
+
+		/**
+		 * Used to chain back to the {@link SessionManagementConfigurer}
+		 * @return the {@link SessionManagementConfigurer} for further customizations
+		 */
+		public SessionManagementConfigurer<H> and() {
+			return SessionManagementConfigurer.this;
+		}
+
+	}
+
 }

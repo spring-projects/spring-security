@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.domain;
 
 import org.springframework.security.acls.model.Permission;
@@ -28,10 +29,15 @@ import org.springframework.security.acls.model.Permission;
  * @author Ben Alex
  */
 public class BasePermission extends AbstractPermission {
+
 	public static final Permission READ = new BasePermission(1 << 0, 'R'); // 1
+
 	public static final Permission WRITE = new BasePermission(1 << 1, 'W'); // 2
+
 	public static final Permission CREATE = new BasePermission(1 << 2, 'C'); // 4
+
 	public static final Permission DELETE = new BasePermission(1 << 3, 'D'); // 8
+
 	public static final Permission ADMINISTRATION = new BasePermission(1 << 4, 'A'); // 16
 
 	protected BasePermission(int mask) {
@@ -41,4 +47,5 @@ public class BasePermission extends AbstractPermission {
 	protected BasePermission(int mask, char code) {
 		super(mask, code);
 	}
+
 }

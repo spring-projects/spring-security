@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.authentication.ldap;
 
+import java.util.Collections;
+
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -27,13 +29,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders;
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static java.util.Collections.singleton;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 
 public class LdapAuthenticationProviderConfigurerTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -41,7 +45,8 @@ public class LdapAuthenticationProviderConfigurerTests {
 	private MockMvc mockMvc;
 
 	@Test
-	public void authenticationManagerSupportMultipleDefaultLdapContextsWithPortsDynamicallyAllocated() throws Exception {
+	public void authenticationManagerSupportMultipleDefaultLdapContextsWithPortsDynamicallyAllocated()
+			throws Exception {
 		this.spring.register(MultiLdapAuthenticationProvidersConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
@@ -52,39 +57,68 @@ public class LdapAuthenticationProviderConfigurerTests {
 	public void authenticationManagerSupportMultipleLdapContextWithDefaultRolePrefix() throws Exception {
 		this.spring.register(MultiLdapAuthenticationProvidersConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
+		// @formatter:off
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin()
+				.user("bob")
+				.password("bobspassword");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated()
+				.withUsername("bob")
+				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS")));
+		// @formatter:on
+		this.mockMvc.perform(request).andExpect(expectedUser);
 	}
 
 	@Test
 	public void authenticationManagerSupportMultipleLdapContextWithCustomRolePrefix() throws Exception {
 		this.spring.register(MultiLdapWithCustomRolePrefixAuthenticationProvidersConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROL_DEVELOPERS"))));
+		// @formatter:off
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin()
+				.user("bob")
+				.password("bobspassword");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated()
+				.withUsername("bob")
+				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROL_DEVELOPERS")));
+		// @formatter:on
+		this.mockMvc.perform(request).andExpect(expectedUser);
 	}
 
 	@Test
 	public void authenticationManagerWhenPortZeroThenAuthenticates() throws Exception {
 		this.spring.register(LdapWithRandomPortConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob"));
+		// @formatter:off
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin()
+				.user("bob")
+				.password("bobspassword");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated()
+				.withUsername("bob");
+		// @formatter:on
+		this.mockMvc.perform(request).andExpect(expectedUser);
 	}
 
 	@Test
 	public void authenticationManagerWhenSearchSubtreeThenNestedGroupFound() throws Exception {
 		this.spring.register(GroupSubtreeSearchConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("ben").password("benspassword"))
-				.andExpect(authenticated().withUsername("ben").withAuthorities(
-						AuthorityUtils.createAuthorityList("ROLE_SUBMANAGERS", "ROLE_MANAGERS", "ROLE_DEVELOPERS")));
+		// @formatter:off
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin()
+				.user("ben")
+				.password("benspassword");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated()
+				.withUsername("ben")
+				.withAuthorities(
+						AuthorityUtils.createAuthorityList("ROLE_SUBMANAGERS", "ROLE_MANAGERS", "ROLE_DEVELOPERS"));
+		// @formatter:on
+		this.mockMvc.perform(request).andExpect(expectedUser);
 	}
 
 	@EnableWebSecurity
 	static class MultiLdapAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
-		// @formatter:off
+
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupSearchBase("ou=groups")
@@ -95,14 +129,17 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.groupSearchBase("ou=groups")
 					.groupSearchFilter("(member={0})")
 					.userDnPatterns("uid={0},ou=people");
+			// @formatter:on
 		}
-		// @formatter:on
+
 	}
 
 	@EnableWebSecurity
 	static class MultiLdapWithCustomRolePrefixAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
-		// @formatter:off
+
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupSearchBase("ou=groups")
@@ -115,14 +152,17 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.groupSearchFilter("(member={0})")
 					.userDnPatterns("uid={0},ou=people")
 					.rolePrefix("RUOLO_");
+			// @formatter:on
 		}
-		// @formatter:on
+
 	}
 
 	@EnableWebSecurity
 	static class LdapWithRandomPortConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupSearchBase("ou=groups")
@@ -130,20 +170,26 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.userDnPatterns("uid={0},ou=people")
 					.contextSource()
 						.port(0);
+			// @formatter:on
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
-		// @formatter:off
+
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupSearchBase("ou=groups")
 					.groupSearchFilter("(member={0})")
 					.groupSearchSubtree(true)
 					.userDnPatterns("uid={0},ou=people");
+			// @formatter:on
 		}
-		// @formatter:on
+
 	}
+
 }

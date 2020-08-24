@@ -16,32 +16,32 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.util.Collection;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
-import java.util.Collection;
-
 /**
- * An implementation of an {@link AbstractAuthenticationToken}
- * that represents an authenticated SAML 2.0 {@link Authentication}.
+ * An implementation of an {@link AbstractAuthenticationToken} that represents an
+ * authenticated SAML 2.0 {@link Authentication}.
  * <p>
- * The {@link Authentication} associates valid SAML assertion
- * data with a Spring Security authentication object
- * The complete assertion is contained in the object in String format,
- * {@link Saml2Authentication#getSaml2Response()}
+ * The {@link Authentication} associates valid SAML assertion data with a Spring Security
+ * authentication object The complete assertion is contained in the object in String
+ * format, {@link Saml2Authentication#getSaml2Response()}
+ *
  * @since 5.2
  * @see AbstractAuthenticationToken
  */
 public class Saml2Authentication extends AbstractAuthenticationToken {
 
 	private final AuthenticatedPrincipal principal;
+
 	private final String saml2Response;
 
-	public Saml2Authentication(AuthenticatedPrincipal principal,
-			String saml2Response,
+	public Saml2Authentication(AuthenticatedPrincipal principal, String saml2Response,
 			Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 		Assert.notNull(principal, "principal cannot be null");

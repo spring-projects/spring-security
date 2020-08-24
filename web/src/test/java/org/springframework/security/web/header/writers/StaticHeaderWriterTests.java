@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header.writers;
 
 import java.util.Arrays;
@@ -36,13 +37,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 3.2
  */
 public class StaticHeaderWriterTests {
+
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -52,7 +55,7 @@ public class StaticHeaderWriterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyHeaders() {
-		new StaticHeadersWriter(Collections.<Header> emptyList());
+		new StaticHeadersWriter(Collections.<Header>emptyList());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -75,27 +78,19 @@ public class StaticHeaderWriterTests {
 		String headerName = "X-header";
 		String headerValue = "foo";
 		StaticHeadersWriter factory = new StaticHeadersWriter(headerName, headerValue);
-
-		factory.writeHeaders(request, response);
-		assertThat(response.getHeaderValues(headerName)).isEqualTo(
-				Arrays.asList(headerValue));
+		factory.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeaderValues(headerName)).isEqualTo(Arrays.asList(headerValue));
 	}
 
 	@Test
 	public void writeHeadersMulti() {
 		Header pragma = new Header("Pragma", "no-cache");
-		Header cacheControl = new Header("Cache-Control", "no-cache", "no-store",
-				"must-revalidate");
-		StaticHeadersWriter factory = new StaticHeadersWriter(Arrays.asList(pragma,
-				cacheControl));
-
-		factory.writeHeaders(request, response);
-
-		assertThat(response.getHeaderNames()).hasSize(2);
-		assertThat(response.getHeaderValues(pragma.getName())).isEqualTo(
-				pragma.getValues());
-		assertThat(response.getHeaderValues(cacheControl.getName())).isEqualTo(
-				cacheControl.getValues());
+		Header cacheControl = new Header("Cache-Control", "no-cache", "no-store", "must-revalidate");
+		StaticHeadersWriter factory = new StaticHeadersWriter(Arrays.asList(pragma, cacheControl));
+		factory.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeaderNames()).hasSize(2);
+		assertThat(this.response.getHeaderValues(pragma.getName())).isEqualTo(pragma.getValues());
+		assertThat(this.response.getHeaderValues(cacheControl.getName())).isEqualTo(cacheControl.getValues());
 	}
 
 	@Test
@@ -105,15 +100,12 @@ public class StaticHeaderWriterTests {
 		this.response.setHeader("Pragma", pragmaValue);
 		this.response.setHeader("Cache-Control", cacheControlValue);
 		Header pragma = new Header("Pragma", "no-cache");
-		Header cacheControl = new Header("Cache-Control", "no-cache", "no-store",
-				"must-revalidate");
-		StaticHeadersWriter factory = new StaticHeadersWriter(Arrays.asList(pragma,
-				cacheControl));
+		Header cacheControl = new Header("Cache-Control", "no-cache", "no-store", "must-revalidate");
+		StaticHeadersWriter factory = new StaticHeadersWriter(Arrays.asList(pragma, cacheControl));
 		factory.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(2);
 		assertThat(this.response.getHeader("Pragma")).isSameAs(pragmaValue);
 		assertThat(this.response.getHeader("Cache-Control")).isSameAs(cacheControlValue);
-
 	}
+
 }

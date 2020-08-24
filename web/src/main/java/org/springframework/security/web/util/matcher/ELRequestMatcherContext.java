@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.util.matcher;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,20 +29,12 @@ class ELRequestMatcherContext {
 	}
 
 	public boolean hasIpAddress(String ipAddress) {
-		return (new IpAddressMatcher(ipAddress).matches(request));
+		return (new IpAddressMatcher(ipAddress).matches(this.request));
 	}
 
 	public boolean hasHeader(String headerName, String value) {
-		String header = request.getHeader(headerName);
-		if (!StringUtils.hasText(header)) {
-			return false;
-		}
-
-		if (header.contains(value)) {
-			return true;
-		}
-
-		return false;
+		String header = this.request.getHeader(headerName);
+		return StringUtils.hasText(header) && header.contains(value);
 	}
 
 }

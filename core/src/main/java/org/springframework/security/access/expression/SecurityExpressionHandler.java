@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.expression;
 
 import org.springframework.aop.framework.AopInfrastructureBean;
@@ -28,6 +29,7 @@ import org.springframework.security.core.Authentication;
  * @since 3.1
  */
 public interface SecurityExpressionHandler<T> extends AopInfrastructureBean {
+
 	/**
 	 * @return an expression parser for the expressions used by the implementation.
 	 */
@@ -38,4 +40,5 @@ public interface SecurityExpressionHandler<T> extends AopInfrastructureBean {
 	 * invocation type.
 	 */
 	EvaluationContext createEvaluationContext(Authentication authentication, T invocation);
+
 }

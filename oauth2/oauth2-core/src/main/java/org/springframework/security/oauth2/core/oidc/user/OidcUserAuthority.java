@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.oidc.user;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.util.Assert;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A {@link GrantedAuthority} that may be associated to an {@link OidcUser}.
@@ -32,12 +33,13 @@ import java.util.Map;
  * @see OidcUser
  */
 public class OidcUserAuthority extends OAuth2UserAuthority {
+
 	private final OidcIdToken idToken;
+
 	private final OidcUserInfo userInfo;
 
 	/**
 	 * Constructs a {@code OidcUserAuthority} using the provided parameters.
-	 *
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
 	 */
 	public OidcUserAuthority(OidcIdToken idToken) {
@@ -45,11 +47,11 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	}
 
 	/**
-	 * Constructs a {@code OidcUserAuthority} using the provided parameters
-	 * and defaults {@link #getAuthority()} to {@code ROLE_USER}.
-	 *
+	 * Constructs a {@code OidcUserAuthority} using the provided parameters and defaults
+	 * {@link #getAuthority()} to {@code ROLE_USER}.
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
-	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user, may be {@code null}
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
+	 * may be {@code null}
 	 */
 	public OidcUserAuthority(OidcIdToken idToken, OidcUserInfo userInfo) {
 		this("ROLE_USER", idToken, userInfo);
@@ -57,10 +59,10 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 
 	/**
 	 * Constructs a {@code OidcUserAuthority} using the provided parameters.
-	 *
 	 * @param authority the authority granted to the user
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
-	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user, may be {@code null}
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
+	 * may be {@code null}
 	 */
 	public OidcUserAuthority(String authority, OidcIdToken idToken, OidcUserInfo userInfo) {
 		super(authority, collectClaims(idToken, userInfo));
@@ -70,7 +72,6 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 
 	/**
 	 * Returns the {@link OidcIdToken ID Token} containing claims about the user.
-	 *
 	 * @return the {@link OidcIdToken} containing claims about the user.
 	 */
 	public OidcIdToken getIdToken() {
@@ -78,8 +79,8 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	}
 
 	/**
-	 * Returns the {@link OidcUserInfo UserInfo} containing claims about the user, may be {@code null}.
-	 *
+	 * Returns the {@link OidcUserInfo UserInfo} containing claims about the user, may be
+	 * {@code null}.
 	 * @return the {@link OidcUserInfo} containing claims about the user, or {@code null}
 	 */
 	public OidcUserInfo getUserInfo() {
@@ -97,22 +98,19 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 		if (!super.equals(obj)) {
 			return false;
 		}
-
 		OidcUserAuthority that = (OidcUserAuthority) obj;
-
 		if (!this.getIdToken().equals(that.getIdToken())) {
 			return false;
 		}
-		return this.getUserInfo() != null ?
-			this.getUserInfo().equals(that.getUserInfo()) :
-			that.getUserInfo() == null;
+		return (this.getUserInfo() != null) ? this.getUserInfo().equals(that.getUserInfo())
+				: that.getUserInfo() == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = super.hashCode();
 		result = 31 * result + this.getIdToken().hashCode();
-		result = 31 * result + (this.getUserInfo() != null ? this.getUserInfo().hashCode() : 0);
+		result = 31 * result + ((this.getUserInfo() != null) ? this.getUserInfo().hashCode() : 0);
 		return result;
 	}
 
@@ -125,4 +123,5 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 		claims.putAll(idToken.getClaims());
 		return claims;
 	}
+
 }

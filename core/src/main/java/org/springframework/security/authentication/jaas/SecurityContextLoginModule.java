@@ -16,18 +16,18 @@
 
 package org.springframework.security.authentication.jaas;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Map;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * An implementation of {@link LoginModule} that uses a Spring Security
@@ -52,65 +52,53 @@ import javax.security.auth.spi.LoginModule;
  * @author Ray Krueger
  */
 public class SecurityContextLoginModule implements LoginModule {
-	// ~ Static fields/initializers
-	// =====================================================================================
 
 	private static final Log log = LogFactory.getLog(SecurityContextLoginModule.class);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private Authentication authen;
-	private Subject subject;
-	private boolean ignoreMissingAuthentication = false;
 
-	// ~ Methods
-	// ========================================================================================================
+	private Subject subject;
+
+	private boolean ignoreMissingAuthentication = false;
 
 	/**
 	 * Abort the authentication process by forgetting the Spring Security
 	 * <code>Authentication</code>.
-	 *
 	 * @return true if this method succeeded, or false if this <code>LoginModule</code>
 	 * should be ignored.
-	 *
 	 * @exception LoginException if the abort fails
 	 */
+	@Override
 	public boolean abort() {
-		if (authen == null) {
+		if (this.authen == null) {
 			return false;
 		}
-
-		authen = null;
-
+		this.authen = null;
 		return true;
 	}
 
 	/**
 	 * Authenticate the <code>Subject</code> (phase two) by adding the Spring Security
 	 * <code>Authentication</code> to the <code>Subject</code>'s principals.
-	 *
 	 * @return true if this method succeeded, or false if this <code>LoginModule</code>
 	 * should be ignored.
-	 *
 	 * @exception LoginException if the commit fails
 	 */
+	@Override
 	public boolean commit() {
-		if (authen == null) {
+		if (this.authen == null) {
 			return false;
 		}
-
-		subject.getPrincipals().add(authen);
-
+		this.subject.getPrincipals().add(this.authen);
 		return true;
 	}
 
 	Authentication getAuthentication() {
-		return authen;
+		return this.authen;
 	}
 
 	Subject getSubject() {
-		return subject;
+		return this.subject;
 	}
 
 	/**
@@ -118,67 +106,55 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * code establishing the <code>LoginContext</code> likely won't provide one that
 	 * understands Spring Security. Also ignores the <code>sharedState</code> and
 	 * <code>options</code> parameters, since none are recognized.
-	 *
 	 * @param subject the <code>Subject</code> to be authenticated.
 	 * @param callbackHandler is ignored
 	 * @param sharedState is ignored
 	 * @param options are ignored
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
-	public void initialize(Subject subject, CallbackHandler callbackHandler,
-			Map sharedState, Map options) {
+	public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
 		this.subject = subject;
-
 		if (options != null) {
-			ignoreMissingAuthentication = "true".equals(options
-					.get("ignoreMissingAuthentication"));
+			this.ignoreMissingAuthentication = "true".equals(options.get("ignoreMissingAuthentication"));
 		}
 	}
 
 	/**
 	 * Authenticate the <code>Subject</code> (phase one) by extracting the Spring Security
 	 * <code>Authentication</code> from the current <code>SecurityContext</code>.
-	 *
 	 * @return true if the authentication succeeded, or false if this
 	 * <code>LoginModule</code> should be ignored.
-	 *
 	 * @throws LoginException if the authentication fails
 	 */
+	@Override
 	public boolean login() throws LoginException {
-		authen = SecurityContextHolder.getContext().getAuthentication();
-
-		if (authen == null) {
-			String msg = "Login cannot complete, authentication not found in security context";
-
-			if (ignoreMissingAuthentication) {
-				log.warn(msg);
-
-				return false;
-			}
-			else {
-				throw new LoginException(msg);
-			}
+		this.authen = SecurityContextHolder.getContext().getAuthentication();
+		if (this.authen != null) {
+			return true;
 		}
-
-		return true;
+		String msg = "Login cannot complete, authentication not found in security context";
+		if (!this.ignoreMissingAuthentication) {
+			throw new LoginException(msg);
+		}
+		log.warn(msg);
+		return false;
 	}
 
 	/**
 	 * Log out the <code>Subject</code>.
-	 *
 	 * @return true if this method succeeded, or false if this <code>LoginModule</code>
 	 * should be ignored.
-	 *
 	 * @exception LoginException if the logout fails
 	 */
+	@Override
 	public boolean logout() {
-		if (authen == null) {
+		if (this.authen == null) {
 			return false;
 		}
-
-		subject.getPrincipals().remove(authen);
-		authen = null;
-
+		this.subject.getPrincipals().remove(this.authen);
+		this.authen = null;
 		return true;
 	}
+
 }

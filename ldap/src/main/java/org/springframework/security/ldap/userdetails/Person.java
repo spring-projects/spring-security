@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.userdetails;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.util.Assert;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.ldap.LdapUtils;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
+import org.springframework.util.Assert;
 
 /**
  * UserDetails implementation whose properties are based on the LDAP schema for
@@ -39,41 +38,44 @@ public class Person extends LdapUserDetailsImpl {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	private String givenName;
+
 	private String sn;
+
 	private String description;
+
 	private String telephoneNumber;
+
 	private List<String> cn = new ArrayList<>();
 
 	protected Person() {
 	}
 
 	public String getGivenName() {
-		return givenName;
+		return this.givenName;
 	}
 
 	public String getSn() {
-		return sn;
+		return this.sn;
 	}
 
 	public String[] getCn() {
-		return cn.toArray(new String[0]);
+		return this.cn.toArray(new String[0]);
 	}
 
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	public String getTelephoneNumber() {
-		return telephoneNumber;
+		return this.telephoneNumber;
 	}
 
 	protected void populateContext(DirContextAdapter adapter) {
-		adapter.setAttributeValue("givenName", givenName);
-		adapter.setAttributeValue("sn", sn);
+		adapter.setAttributeValue("givenName", this.givenName);
+		adapter.setAttributeValue("sn", this.sn);
 		adapter.setAttributeValues("cn", getCn());
 		adapter.setAttributeValue("description", getDescription());
 		adapter.setAttributeValue("telephoneNumber", getTelephoneNumber());
-
 		if (getPassword() != null) {
 			adapter.setAttributeValue("userPassword", getPassword());
 		}
@@ -92,11 +94,9 @@ public class Person extends LdapUserDetailsImpl {
 			setSn(ctx.getStringAttribute("sn"));
 			setDescription(ctx.getStringAttribute("description"));
 			setTelephoneNumber(ctx.getStringAttribute("telephoneNumber"));
-			Object passo = ctx.getObjectAttribute("userPassword");
-
-			if (passo != null) {
-				String password = LdapUtils.convertPasswordToString(passo);
-				setPassword(password);
+			Object password = ctx.getObjectAttribute("userPassword");
+			if (password != null) {
+				setPassword(LdapUtils.convertPasswordToString(password));
 			}
 		}
 
@@ -106,37 +106,39 @@ public class Person extends LdapUserDetailsImpl {
 			setSn(copyMe.sn);
 			setDescription(copyMe.getDescription());
 			setTelephoneNumber(copyMe.getTelephoneNumber());
-			((Person) instance).cn = new ArrayList<>(copyMe.cn);
+			((Person) this.instance).cn = new ArrayList<>(copyMe.cn);
 		}
 
+		@Override
 		protected LdapUserDetailsImpl createTarget() {
 			return new Person();
 		}
 
 		public void setGivenName(String givenName) {
-			((Person) instance).givenName = givenName;
+			((Person) this.instance).givenName = givenName;
 		}
 
 		public void setSn(String sn) {
-			((Person) instance).sn = sn;
+			((Person) this.instance).sn = sn;
 		}
 
 		public void setCn(String[] cn) {
-			((Person) instance).cn = Arrays.asList(cn);
+			((Person) this.instance).cn = Arrays.asList(cn);
 		}
 
 		public void addCn(String value) {
-			((Person) instance).cn.add(value);
+			((Person) this.instance).cn.add(value);
 		}
 
 		public void setTelephoneNumber(String tel) {
-			((Person) instance).telephoneNumber = tel;
+			((Person) this.instance).telephoneNumber = tel;
 		}
 
 		public void setDescription(String desc) {
-			((Person) instance).description = desc;
+			((Person) this.instance).description = desc;
 		}
 
+		@Override
 		public LdapUserDetails createUserDetails() {
 			Person p = (Person) super.createUserDetails();
 			Assert.notNull(p.cn, "person.sn cannot be null");
@@ -144,5 +146,7 @@ public class Person extends LdapUserDetailsImpl {
 			// TODO: Check contents for null entries
 			return p;
 		}
+
 	}
+
 }

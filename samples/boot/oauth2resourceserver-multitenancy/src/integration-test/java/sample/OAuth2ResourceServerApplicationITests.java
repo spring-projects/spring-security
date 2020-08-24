@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import org.junit.Test;
@@ -60,8 +61,6 @@ public class OAuth2ResourceServerApplicationITests {
 				.andExpect(content().string(containsString("Hello, subject for tenant one!")));
 	}
 
-	// -- tests with scopes
-
 	@Test
 	public void tenantOnePerformWhenValidBearerTokenThenScopedRequestsAlsoWork()
 			throws Exception {
@@ -95,8 +94,6 @@ public class OAuth2ResourceServerApplicationITests {
 				.andExpect(status().isOk())
 				.andExpect(content().string(containsString("Hello, subject for tenant two!")));
 	}
-
-	// -- tests with scopes
 
 	@Test
 	public void tenantTwoPerformWhenValidBearerTokenThenScopedRequestsAlsoWork()

@@ -13,64 +13,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.header;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
 public class XXssProtectionServerHttpHeadersWriterTests {
+
 	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
-	HttpHeaders headers = exchange.getResponse().getHeaders();
+	HttpHeaders headers = this.exchange.getResponse().getHeaders();
 
 	XXssProtectionServerHttpHeadersWriter writer = new XXssProtectionServerHttpHeadersWriter();
 
 	@Test
 	public void writeHeadersWhenNoHeadersThenWriteHeaders() {
-		writer.writeHttpHeaders(exchange);
-
-		assertThat(headers).hasSize(1);
-		assertThat(headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("1 ; mode=block");
+		this.writer.writeHttpHeaders(this.exchange);
+		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION))
+				.containsOnly("1 ; mode=block");
 	}
 
 	@Test
 	public void writeHeadersWhenBlockFalseThenWriteHeaders() {
-		writer.setBlock(false);
-
-		writer.writeHttpHeaders(exchange);
-
-		assertThat(headers).hasSize(1);
-		assertThat(headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("1");
+		this.writer.setBlock(false);
+		this.writer.writeHttpHeaders(this.exchange);
+		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("1");
 	}
 
 	@Test
 	public void writeHeadersWhenEnabledFalseThenWriteHeaders() {
-		writer.setEnabled(false);
-
-		writer.writeHttpHeaders(exchange);
-
-		assertThat(headers).hasSize(1);
-		assertThat(headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("0");
+		this.writer.setEnabled(false);
+		this.writer.writeHttpHeaders(this.exchange);
+		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("0");
 	}
 
 	@Test
 	public void writeHeadersWhenHeaderWrittenThenDoesNotOverrride() {
 		String headerValue = "value";
-		headers.set(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, headerValue);
-
-		writer.writeHttpHeaders(exchange);
-
-		assertThat(headers).hasSize(1);
-		assertThat(headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly(headerValue);
+		this.headers.set(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, headerValue);
+		this.writer.writeHttpHeaders(this.exchange);
+		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly(headerValue);
 	}
 
 }

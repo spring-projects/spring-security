@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.concurrent;
 
 import org.junit.Before;
+
+import org.springframework.security.core.context.SecurityContext;
 
 /**
  * Tests using the current {@link SecurityContext} on
@@ -25,8 +28,7 @@ import org.junit.Before;
  * @since 3.2
  *
  */
-public class CurrentDelegatingSecurityContextExecutorTests extends
-		AbstractDelegatingSecurityContextExecutorTests {
+public class CurrentDelegatingSecurityContextExecutorTests extends AbstractDelegatingSecurityContextExecutorTests {
 
 	@Before
 	public void setUp() throws Exception {
@@ -37,4 +39,5 @@ public class CurrentDelegatingSecurityContextExecutorTests extends
 	protected DelegatingSecurityContextExecutor create() {
 		return new DelegatingSecurityContextExecutor(getExecutor());
 	}
+
 }

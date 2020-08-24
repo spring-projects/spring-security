@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.cas.userdetails;
 
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.util.Assert;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jasig.cas.client.validation.Assertion;
 
-import java.util.List;
-import java.util.ArrayList;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.Assert;
 
 /**
  * Populates the {@link org.springframework.security.core.GrantedAuthority}s for a user by
@@ -34,8 +36,8 @@ import java.util.ArrayList;
  * @author Scott Battaglia
  * @since 3.0
  */
-public final class GrantedAuthorityFromAssertionAttributesUserDetailsService extends
-		AbstractCasAssertionUserDetailsService {
+public final class GrantedAuthorityFromAssertionAttributesUserDetailsService
+		extends AbstractCasAssertionUserDetailsService {
 
 	private static final String NON_EXISTENT_PASSWORD_VALUE = "NO_PASSWORD";
 
@@ -43,54 +45,43 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService ext
 
 	private boolean convertToUpperCase = true;
 
-	public GrantedAuthorityFromAssertionAttributesUserDetailsService(
-			final String[] attributes) {
+	public GrantedAuthorityFromAssertionAttributesUserDetailsService(final String[] attributes) {
 		Assert.notNull(attributes, "attributes cannot be null.");
-		Assert.isTrue(attributes.length > 0,
-				"At least one attribute is required to retrieve roles from.");
+		Assert.isTrue(attributes.length > 0, "At least one attribute is required to retrieve roles from.");
 		this.attributes = attributes;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected UserDetails loadUserDetails(final Assertion assertion) {
-		final List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-
-		for (final String attribute : this.attributes) {
-			final Object value = assertion.getPrincipal().getAttributes().get(attribute);
-
-			if (value == null) {
-				continue;
-			}
-
-			if (value instanceof List) {
-				final List list = (List) value;
-
-				for (final Object o : list) {
-					grantedAuthorities.add(new SimpleGrantedAuthority(
-							this.convertToUpperCase ? o.toString().toUpperCase() : o
-									.toString()));
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+		for (String attribute : this.attributes) {
+			Object value = assertion.getPrincipal().getAttributes().get(attribute);
+			if (value != null) {
+				if (value instanceof List) {
+					for (Object o : (List<?>) value) {
+						grantedAuthorities.add(createSimpleGrantedAuthority(o));
+					}
 				}
-
+				else {
+					grantedAuthorities.add(createSimpleGrantedAuthority(value));
+				}
 			}
-			else {
-				grantedAuthorities.add(new SimpleGrantedAuthority(
-						this.convertToUpperCase ? value.toString().toUpperCase() : value
-								.toString()));
-			}
-
 		}
+		return new User(assertion.getPrincipal().getName(), NON_EXISTENT_PASSWORD_VALUE, true, true, true, true,
+				grantedAuthorities);
+	}
 
-		return new User(assertion.getPrincipal().getName(), NON_EXISTENT_PASSWORD_VALUE,
-				true, true, true, true, grantedAuthorities);
+	private SimpleGrantedAuthority createSimpleGrantedAuthority(Object o) {
+		return new SimpleGrantedAuthority(this.convertToUpperCase ? o.toString().toUpperCase() : o.toString());
 	}
 
 	/**
 	 * Converts the returned attribute values to uppercase values.
-	 *
 	 * @param convertToUpperCase true if it should convert, false otherwise.
 	 */
 	public void setConvertToUpperCase(final boolean convertToUpperCase) {
 		this.convertToUpperCase = convertToUpperCase;
 	}
+
 }

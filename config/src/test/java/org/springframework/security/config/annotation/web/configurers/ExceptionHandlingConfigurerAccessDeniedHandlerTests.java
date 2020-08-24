@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import org.junit.Rule;
@@ -43,6 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @SecurityTestExecutionListeners
 public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
+
 	@Autowired
 	MockMvc mvc;
 
@@ -51,22 +53,33 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 
 	@Test
 	@WithMockUser(roles = "ANYTHING")
-	public void getWhenAccessDeniedOverriddenThenCustomizesResponseByRequest()
-			throws Exception {
+	public void getWhenAccessDeniedOverriddenThenCustomizesResponseByRequest() throws Exception {
 		this.spring.register(RequestMatcherBasedAccessDeniedHandlerConfig.class).autowire();
+		this.mvc.perform(get("/hello")).andExpect(status().isIAmATeapot());
+		this.mvc.perform(get("/goodbye")).andExpect(status().isForbidden());
+	}
 
-		this.mvc.perform(get("/hello"))
-				.andExpect(status().isIAmATeapot());
+	@Test
+	@WithMockUser(roles = "ANYTHING")
+	public void getWhenAccessDeniedOverriddenInLambdaThenCustomizesResponseByRequest() throws Exception {
+		this.spring.register(RequestMatcherBasedAccessDeniedHandlerInLambdaConfig.class).autowire();
+		this.mvc.perform(get("/hello")).andExpect(status().isIAmATeapot());
+		this.mvc.perform(get("/goodbye")).andExpect(status().isForbidden());
+	}
 
-		this.mvc.perform(get("/goodbye"))
-				.andExpect(status().isForbidden());
+	@Test
+	@WithMockUser(roles = "ANYTHING")
+	public void getWhenAccessDeniedOverriddenByOnlyOneHandlerThenAllRequestsUseThatHandler() throws Exception {
+		this.spring.register(SingleRequestMatcherAccessDeniedHandlerConfig.class).autowire();
+		this.mvc.perform(get("/hello")).andExpect(status().isIAmATeapot());
+		this.mvc.perform(get("/goodbye")).andExpect(status().isIAmATeapot());
 	}
 
 	@EnableWebSecurity
 	static class RequestMatcherBasedAccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
-		AccessDeniedHandler teapotDeniedHandler =
-				(request, response, exception) ->
-						response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
+
+		AccessDeniedHandler teapotDeniedHandler = (request, response, exception) -> response
+				.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -84,36 +97,24 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 							AnyRequestMatcher.INSTANCE);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	@WithMockUser(roles = "ANYTHING")
-	public void getWhenAccessDeniedOverriddenInLambdaThenCustomizesResponseByRequest()
-			throws Exception {
-		this.spring.register(RequestMatcherBasedAccessDeniedHandlerInLambdaConfig.class).autowire();
-
-		this.mvc.perform(get("/hello"))
-				.andExpect(status().isIAmATeapot());
-
-		this.mvc.perform(get("/goodbye"))
-				.andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity
 	static class RequestMatcherBasedAccessDeniedHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
-		AccessDeniedHandler teapotDeniedHandler =
-				(request, response, exception) ->
-						response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
+
+		AccessDeniedHandler teapotDeniedHandler = (request, response, exception) -> response
+				.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().denyAll()
 				)
-				.exceptionHandling(exceptionHandling ->
+				.exceptionHandling((exceptionHandling) ->
 					exceptionHandling
 						.defaultAccessDeniedHandlerFor(
 								this.teapotDeniedHandler,
@@ -126,26 +127,14 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	@WithMockUser(roles = "ANYTHING")
-	public void getWhenAccessDeniedOverriddenByOnlyOneHandlerThenAllRequestsUseThatHandler()
-			throws Exception {
-		this.spring.register(SingleRequestMatcherAccessDeniedHandlerConfig.class).autowire();
-
-		this.mvc.perform(get("/hello"))
-				.andExpect(status().isIAmATeapot());
-
-		this.mvc.perform(get("/goodbye"))
-				.andExpect(status().isIAmATeapot());
 	}
 
 	@EnableWebSecurity
 	static class SingleRequestMatcherAccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
-		AccessDeniedHandler teapotDeniedHandler =
-				(request, response, exception) ->
-						response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
+
+		AccessDeniedHandler teapotDeniedHandler = (request, response, exception) -> response
+				.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -160,5 +149,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 							new AntPathRequestMatcher("/hello/**"));
 			// @formatter:on
 		}
+
 	}
+
 }

@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication.preauth.header;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+package org.springframework.security.web.authentication.preauth.header;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
+
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -31,8 +30,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
 /**
- *
  * @author Luke Taylor
  */
 public class RequestHeaderAuthenticationFilterTests {
@@ -49,7 +52,6 @@ public class RequestHeaderAuthenticationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
-
 		filter.doFilter(request, response, chain);
 	}
 
@@ -61,7 +63,6 @@ public class RequestHeaderAuthenticationFilterTests {
 		MockFilterChain chain = new MockFilterChain();
 		RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("cat");
@@ -77,7 +78,6 @@ public class RequestHeaderAuthenticationFilterTests {
 		RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		filter.setPrincipalRequestHeader("myUsernameHeader");
-
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("wolfman");
@@ -93,15 +93,13 @@ public class RequestHeaderAuthenticationFilterTests {
 		filter.setCredentialsRequestHeader("myCredentialsHeader");
 		request.addHeader("SM_USER", "cat");
 		request.addHeader("myCredentialsHeader", "catspassword");
-
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("catspassword");
 	}
 
 	@Test
-	public void userIsReauthenticatedIfPrincipalChangesAndCheckForPrincipalChangesIsSet()
-			throws Exception {
+	public void userIsReauthenticatedIfPrincipalChangesAndCheckForPrincipalChangesIsSet() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
@@ -129,13 +127,11 @@ public class RequestHeaderAuthenticationFilterTests {
 		MockFilterChain chain = new MockFilterChain();
 		RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-
 		filter.doFilter(request, response, chain);
 	}
 
 	@Test
-	public void missingHeaderIsIgnoredIfExceptionIfHeaderMissingIsFalse()
-			throws Exception {
+	public void missingHeaderIsIgnoredIfExceptionIfHeaderMissingIsFalse() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
@@ -150,9 +146,9 @@ public class RequestHeaderAuthenticationFilterTests {
 	 */
 	private AuthenticationManager createAuthenticationManager() {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenAnswer(
-				(Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
-
+		given(am.authenticate(any(Authentication.class)))
+				.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
 		return am;
 	}
+
 }

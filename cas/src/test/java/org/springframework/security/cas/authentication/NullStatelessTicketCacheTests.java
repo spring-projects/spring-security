@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.cas.authentication;
 
 import org.junit.Test;
-import org.springframework.security.cas.authentication.CasAuthenticationToken;
-import org.springframework.security.cas.authentication.NullStatelessTicketCache;
-import org.springframework.security.cas.authentication.StatelessTicketCache;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test cases for the @link {@link NullStatelessTicketCache}
@@ -34,14 +32,15 @@ public class NullStatelessTicketCacheTests extends AbstractStatelessTicketCacheT
 
 	@Test
 	public void testGetter() {
-		assertThat(cache.getByTicketId(null)).isNull();
-		assertThat(cache.getByTicketId("test")).isNull();
+		assertThat(this.cache.getByTicketId(null)).isNull();
+		assertThat(this.cache.getByTicketId("test")).isNull();
 	}
 
 	@Test
 	public void testInsertAndGet() {
 		final CasAuthenticationToken token = getToken();
-		cache.putTicketInCache(token);
-		assertThat(cache.getByTicketId((String) token.getCredentials())).isNull();
+		this.cache.putTicketInCache(token);
+		assertThat(this.cache.getByTicketId((String) token.getCredentials())).isNull();
 	}
+
 }

@@ -18,31 +18,24 @@ package org.springframework.security.authentication.jaas;
 
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.springframework.security.authentication.jaas.JaasGrantedAuthority;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- *
  * @author Clement Ng
  *
  */
 public class JaasGrantedAuthorityTests {
 
-	/**
-	 */
 	@Test
 	public void authorityWithNullRoleFailsAssertion() {
-		assertThatThrownBy(() -> new JaasGrantedAuthority(null, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("role cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> new JaasGrantedAuthority(null, null))
+				.withMessageContaining("role cannot be null");
 	}
 
-	/**
-	 */
 	@Test
 	public void authorityWithNullPrincipleFailsAssertion() {
-		assertThatThrownBy(() -> new JaasGrantedAuthority("role", null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("principal cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> new JaasGrantedAuthority("role", null))
+				.withMessageContaining("principal cannot be null");
 	}
+
 }

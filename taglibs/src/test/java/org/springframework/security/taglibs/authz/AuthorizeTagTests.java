@@ -16,9 +16,6 @@
 
 package org.springframework.security.taglibs.authz;
 
-import static org.mockito.Mockito.*;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 
@@ -28,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -42,43 +40,41 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.StaticWebApplicationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+
 /**
  * @author Francois Beausoleil
  * @author Luke Taylor
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizeTagTests {
-	// ~ Instance fields
-	// ================================================================================================
 
 	@Mock
 	private PermissionEvaluator permissionEvaluator;
-	private JspAuthorizeTag authorizeTag;
-	private MockHttpServletRequest request = new MockHttpServletRequest();
-	private final TestingAuthenticationToken currentUser = new TestingAuthenticationToken(
-			"abc", "123", "ROLE SUPERVISOR", "ROLE_TELLER");
 
-	// ~ Methods
-	// ========================================================================================================
+	private JspAuthorizeTag authorizeTag;
+
+	private MockHttpServletRequest request = new MockHttpServletRequest();
+
+	private final TestingAuthenticationToken currentUser = new TestingAuthenticationToken("abc", "123",
+			"ROLE SUPERVISOR", "ROLE_TELLER");
 
 	@Before
 	public void setUp() {
-		SecurityContextHolder.getContext().setAuthentication(currentUser);
+		SecurityContextHolder.getContext().setAuthentication(this.currentUser);
 		StaticWebApplicationContext ctx = new StaticWebApplicationContext();
-
 		BeanDefinitionBuilder webExpressionHandler = BeanDefinitionBuilder
 				.rootBeanDefinition(DefaultWebSecurityExpressionHandler.class);
-		webExpressionHandler.addPropertyValue("permissionEvaluator", permissionEvaluator);
-
-		ctx.registerBeanDefinition("expressionHandler",
-				webExpressionHandler.getBeanDefinition());
+		webExpressionHandler.addPropertyValue("permissionEvaluator", this.permissionEvaluator);
+		ctx.registerBeanDefinition("expressionHandler", webExpressionHandler.getBeanDefinition());
 		ctx.registerSingleton("wipe", MockWebInvocationPrivilegeEvaluator.class);
 		MockServletContext servletCtx = new MockServletContext();
-		servletCtx.setAttribute(
-				WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
-		authorizeTag = new JspAuthorizeTag();
-		authorizeTag.setPageContext(new MockPageContext(servletCtx, request,
-				new MockHttpServletResponse()));
+		servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
+		this.authorizeTag = new JspAuthorizeTag();
+		this.authorizeTag.setPageContext(new MockPageContext(servletCtx, this.request, new MockHttpServletResponse()));
 	}
 
 	@After
@@ -87,83 +83,81 @@ public class AuthorizeTagTests {
 	}
 
 	// access attribute tests
-
 	@Test
 	public void taglibsDocumentationHasPermissionOr() throws Exception {
 		Object domain = new Object();
-		request.setAttribute("domain", domain);
-		authorizeTag
-				.setAccess("hasPermission(#domain,'read') or hasPermission(#domain,'write')");
-		when(permissionEvaluator.hasPermission(eq(currentUser), eq(domain), anyString()))
-				.thenReturn(true);
-
-		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
+		this.request.setAttribute("domain", domain);
+		this.authorizeTag.setAccess("hasPermission(#domain,'read') or hasPermission(#domain,'write')");
+		given(this.permissionEvaluator.hasPermission(eq(this.currentUser), eq(domain), anyString())).willReturn(true);
+		assertThat(this.authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 	}
 
 	@Test
 	public void skipsBodyIfNoAuthenticationPresent() throws Exception {
 		SecurityContextHolder.clearContext();
-		authorizeTag.setAccess("permitAll");
-		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
+		this.authorizeTag.setAccess("permitAll");
+		assertThat(this.authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 	}
 
 	@Test
 	public void skipsBodyIfAccessExpressionDeniesAccess() throws Exception {
-		authorizeTag.setAccess("denyAll");
-		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
+		this.authorizeTag.setAccess("denyAll");
+		assertThat(this.authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 	}
 
 	@Test
 	public void showsBodyIfAccessExpressionAllowsAccess() throws Exception {
-		authorizeTag.setAccess("permitAll");
-		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
+		this.authorizeTag.setAccess("permitAll");
+		assertThat(this.authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 	}
 
 	@Test
 	public void requestAttributeIsResolvedAsElVariable() throws JspException {
-		request.setAttribute("blah", "blah");
-		authorizeTag.setAccess("#blah == 'blah'");
-		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
+		this.request.setAttribute("blah", "blah");
+		this.authorizeTag.setAccess("#blah == 'blah'");
+		assertThat(this.authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 	}
 
 	// url attribute tests
 	@Test
 	public void skipsBodyWithUrlSetIfNoAuthenticationPresent() throws Exception {
 		SecurityContextHolder.clearContext();
-		authorizeTag.setUrl("/something");
-		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
+		this.authorizeTag.setUrl("/something");
+		assertThat(this.authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 	}
 
 	@Test
 	public void skipsBodyIfUrlIsNotAllowed() throws Exception {
-		authorizeTag.setUrl("/notallowed");
-		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
+		this.authorizeTag.setUrl("/notallowed");
+		assertThat(this.authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 	}
 
 	@Test
 	public void evaluatesBodyIfUrlIsAllowed() throws Exception {
-		authorizeTag.setUrl("/allowed");
-		authorizeTag.setMethod("GET");
-		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
+		this.authorizeTag.setUrl("/allowed");
+		this.authorizeTag.setMethod("GET");
+		assertThat(this.authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 	}
 
 	@Test
 	public void skipsBodyIfMethodIsNotAllowed() throws Exception {
-		authorizeTag.setUrl("/allowed");
-		authorizeTag.setMethod("POST");
-		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
+		this.authorizeTag.setUrl("/allowed");
+		this.authorizeTag.setMethod("POST");
+		assertThat(this.authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 	}
 
-	public static class MockWebInvocationPrivilegeEvaluator implements
-			WebInvocationPrivilegeEvaluator {
+	public static class MockWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
 
+		@Override
 		public boolean isAllowed(String uri, Authentication authentication) {
 			return "/allowed".equals(uri);
 		}
 
-		public boolean isAllowed(String contextPath, String uri, String method,
-				Authentication authentication) {
+		@Override
+		public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
 			return "/allowed".equals(uri) && (method == null || "GET".equals(method));
 		}
+
 	}
+
 }

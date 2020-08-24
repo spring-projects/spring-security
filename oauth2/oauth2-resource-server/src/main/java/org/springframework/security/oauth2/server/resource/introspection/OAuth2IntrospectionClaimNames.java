@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.server.resource.introspection;
 
 /**
  * The names of the &quot;Introspection Claims&quot; defined by an
- * <a target="_blank" href="https://tools.ietf.org/html/rfc7662#section-2.2">Introspection Response</a>.
+ * <a target="_blank" href="https://tools.ietf.org/html/rfc7662#section-2.2">Introspection
+ * Response</a>.
  *
  * @author Josh Cummings
  * @since 5.2
@@ -40,7 +42,8 @@ public interface OAuth2IntrospectionClaimNames {
 	String CLIENT_ID = "client_id";
 
 	/**
-	 * {@code username} - A human-readable identifier for the resource owner that authorized the token
+	 * {@code username} - A human-readable identifier for the resource owner that
+	 * authorized the token
 	 */
 	String USERNAME = "username";
 
@@ -65,7 +68,8 @@ public interface OAuth2IntrospectionClaimNames {
 	String NOT_BEFORE = "nbf";
 
 	/**
-	 * {@code sub} - Usually a machine-readable identifier of the resource owner who authorized the token
+	 * {@code sub} - Usually a machine-readable identifier of the resource owner who
+	 * authorized the token
 	 */
 	String SUBJECT = "sub";
 
@@ -83,4 +87,5 @@ public interface OAuth2IntrospectionClaimNames {
 	 * {@code jti} - The identifier for the token
 	 */
 	String JTI = "jti";
+
 }

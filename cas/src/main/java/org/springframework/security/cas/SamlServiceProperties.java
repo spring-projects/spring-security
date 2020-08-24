@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.cas;
 
 /**
@@ -32,4 +33,5 @@ public final class SamlServiceProperties extends ServiceProperties {
 		super.setArtifactParameter(DEFAULT_SAML_ARTIFACT_PARAMETER);
 		super.setServiceParameter(DEFAULT_SAML_SERVICE_PARAMETER);
 	}
+
 }

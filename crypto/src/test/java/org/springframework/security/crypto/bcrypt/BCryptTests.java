@@ -11,27 +11,30 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
 package org.springframework.security.crypto.bcrypt;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * JUnit unit tests for BCrypt routines
+ *
  * @author Damien Miller
  */
 public class BCryptTests {
 
 	private static class TestObject<T> {
+
 		private final T password;
+
 		private final String salt;
+
 		private final String expected;
 
 		private TestObject(T password, String salt, String expected) {
@@ -39,6 +42,7 @@ public class BCryptTests {
 			this.salt = salt;
 			this.expected = expected;
 		}
+
 	}
 
 	private static void print(String s) {
@@ -136,23 +140,22 @@ public class BCryptTests {
 				"$2y$06$sYDFHqOcXTjBgOsqC0WCKeMd3T1UhHuWQSxncLGtXDLMrcE6vFDti"));
 		testObjectsString.add(new TestObject<>("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2y$06$6Xm0gCw4g7ZNDCEp4yTise",
 				"$2y$06$6Xm0gCw4g7ZNDCEp4yTisez0kSdpXEl66MvdxGidnmChIe8dFmMnq"));
-
 		testObjectsByteArray = new ArrayList<>();
-		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2a$06$fPIsBO8qRqkjj273rfaOI.",
+		testObjectsByteArray.add(new TestObject<>(new byte[] {}, "$2a$06$fPIsBO8qRqkjj273rfaOI.",
 				"$2a$06$fPIsBO8qRqkjj273rfaOI.uiVGfgi6Z1Iz.vZr11mi/38o09TUVCy"));
-		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2a$08$Eq2r4G/76Wv39MzSX262hu",
+		testObjectsByteArray.add(new TestObject<>(new byte[] {}, "$2a$08$Eq2r4G/76Wv39MzSX262hu",
 				"$2a$08$Eq2r4G/76Wv39MzSX262hu2lrqIItOWKIkPsMMvm5LAFD.iVB7Nmm"));
-		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2a$10$LgfYWkbzEvQ4JakH7rOvHe",
+		testObjectsByteArray.add(new TestObject<>(new byte[] {}, "$2a$10$LgfYWkbzEvQ4JakH7rOvHe",
 				"$2a$10$LgfYWkbzEvQ4JakH7rOvHeU6pINYiHnazYxe4GikGWx9MaUr27Vpa"));
-		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2a$12$WApznUOJfkEGSmYRfnkrPO",
+		testObjectsByteArray.add(new TestObject<>(new byte[] {}, "$2a$12$WApznUOJfkEGSmYRfnkrPO",
 				"$2a$12$WApznUOJfkEGSmYRfnkrPONS3wcUvmKuh3LpjxSs6g78T77gZta3W"));
-		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2b$06$FGWA8OlY6RtQhXBXuCJ8Wu",
+		testObjectsByteArray.add(new TestObject<>(new byte[] {}, "$2b$06$FGWA8OlY6RtQhXBXuCJ8Wu",
 				"$2b$06$FGWA8OlY6RtQhXBXuCJ8Wu5oPJaT8BeCRmS273I6cpp5RwwjAWn7S"));
-		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2b$06$G6aYU7UhUEUDJBdTgq3CRe",
+		testObjectsByteArray.add(new TestObject<>(new byte[] {}, "$2b$06$G6aYU7UhUEUDJBdTgq3CRe",
 				"$2b$06$G6aYU7UhUEUDJBdTgq3CRebzUYAyG8MCS3WdBk0CcPb9bfj1.3cSG"));
-		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2y$06$sYDFHqOcXTjBgOsqC0WCKe",
+		testObjectsByteArray.add(new TestObject<>(new byte[] {}, "$2y$06$sYDFHqOcXTjBgOsqC0WCKe",
 				"$2y$06$sYDFHqOcXTjBgOsqC0WCKeOv88fqPKkuV1yGVh./TROmn1mL8gYh2"));
-		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2y$06$6Xm0gCw4g7ZNDCEp4yTise",
+		testObjectsByteArray.add(new TestObject<>(new byte[] {}, "$2y$06$6Xm0gCw4g7ZNDCEp4yTise",
 				"$2y$06$6Xm0gCw4g7ZNDCEp4yTisecBqTHmLJBHxTNZa8w2hupJKsIhPWOgG"));
 		testObjectsByteArray.add(new TestObject<>(new byte[] { -11 }, "$2a$06$fPIsBO8qRqkjj273rfaOI.",
 				"$2a$06$fPIsBO8qRqkjj273rfaOI.AyMTPwvUEmZ2EdJM/p0S0eP3UQpBas."));
@@ -310,11 +313,9 @@ public class BCryptTests {
 		print("BCrypt.hashpw w/ international chars: ");
 		String pw1 = "ππππππππ";
 		String pw2 = "????????";
-
 		String h1 = BCrypt.hashpw(pw1, BCrypt.gensalt());
 		assertThat(BCrypt.checkpw(pw2, h1)).isFalse();
 		print(".");
-
 		String h2 = BCrypt.hashpw(pw2, BCrypt.gensalt());
 		assertThat(BCrypt.checkpw(pw1, h2)).isFalse();
 		print(".");
@@ -342,8 +343,7 @@ public class BCryptTests {
 		BCrypt.decode_base64("", 0);
 	}
 
-	private static String encode_base64(byte d[], int len)
-			throws IllegalArgumentException {
+	private static String encode_base64(byte d[], int len) throws IllegalArgumentException {
 		StringBuilder rs = new StringBuilder();
 		BCrypt.encode_base64(d, len, rs);
 		return rs.toString();
@@ -353,7 +353,7 @@ public class BCryptTests {
 	public void testBase64EncodeSimpleByteArrays() {
 		assertThat(encode_base64(new byte[] { 0 }, 1)).isEqualTo("..");
 		assertThat(encode_base64(new byte[] { 0, 0 }, 2)).isEqualTo("...");
-		assertThat(encode_base64(new byte[] { 0, 0 , 0 }, 3)).isEqualTo("....");
+		assertThat(encode_base64(new byte[] { 0, 0, 0 }, 3)).isEqualTo("....");
 	}
 
 	@Test
@@ -382,15 +382,12 @@ public class BCryptTests {
 	@Test
 	public void testBase64EncodeDecode() {
 		byte[] ba = new byte[3];
-
 		for (int b = 0; b <= 0xFF; b++) {
 			for (int i = 0; i < ba.length; i++) {
 				Arrays.fill(ba, (byte) 0);
 				ba[i] = (byte) b;
-
 				String s = encode_base64(ba, 3);
 				assertThat(s.length()).isEqualTo(4);
-
 				byte[] decoded = BCrypt.decode_base64(s, 3);
 				assertThat(decoded).isEqualTo(ba);
 			}
@@ -435,8 +432,8 @@ public class BCryptTests {
 
 	@Test
 	public void hashpwWorksWithOldRevision() {
-		assertThat(BCrypt.hashpw("password", "$2$05$......................")).isEqualTo(
-				"$2$05$......................bvpG2UfzdyW/S0ny/4YyEZrmczoJfVm");
+		assertThat(BCrypt.hashpw("password", "$2$05$......................"))
+				.isEqualTo("$2$05$......................bvpG2UfzdyW/S0ny/4YyEZrmczoJfVm");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -448,10 +445,9 @@ public class BCryptTests {
 	public void equalsOnStringsIsCorrect() {
 		assertThat(BCrypt.equalsNoEarlyReturn("", "")).isTrue();
 		assertThat(BCrypt.equalsNoEarlyReturn("test", "test")).isTrue();
-
 		assertThat(BCrypt.equalsNoEarlyReturn("test", "")).isFalse();
 		assertThat(BCrypt.equalsNoEarlyReturn("", "test")).isFalse();
-
 		assertThat(BCrypt.equalsNoEarlyReturn("test", "pass")).isFalse();
 	}
+
 }

@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.endpoint;
+
+import java.util.Collections;
+import java.util.Set;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -23,12 +27,9 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import java.util.Collections;
-import java.util.Set;
-
 /**
- * An implementation of a {@link ReactiveOAuth2AccessTokenResponseClient} that &quot;exchanges&quot;
- * an authorization code credential for an access token credential
+ * An implementation of a {@link ReactiveOAuth2AccessTokenResponseClient} that
+ * &quot;exchanges&quot; an authorization code credential for an access token credential
  * at the Authorization Server's Token Endpoint.
  *
  * <p>
@@ -39,13 +40,20 @@ import java.util.Set;
  * @see ReactiveOAuth2AccessTokenResponseClient
  * @see OAuth2AuthorizationCodeGrantRequest
  * @see OAuth2AccessTokenResponse
- * @see <a target="_blank" href="https://connect2id.com/products/nimbus-oauth-openid-connect-sdk">Nimbus OAuth 2.0 SDK</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request (Authorization Code Grant)</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response (Authorization Code Grant)</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.2">Section 4.2 Client Creates the Code Challenge</a>
+ * @see <a target="_blank" href=
+ * "https://connect2id.com/products/nimbus-oauth-openid-connect-sdk">Nimbus OAuth 2.0
+ * SDK</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request
+ * (Authorization Code Grant)</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response
+ * (Authorization Code Grant)</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.2">Section
+ * 4.2 Client Creates the Code Challenge</a>
  */
-public class WebClientReactiveAuthorizationCodeTokenResponseClient extends
-		AbstractWebClientReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
+public class WebClientReactiveAuthorizationCodeTokenResponseClient
+		extends AbstractWebClientReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
 
 	@Override
 	ClientRegistration clientRegistration(OAuth2AuthorizationCodeGrantRequest grantRequest) {
@@ -63,8 +71,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClient extends
 	}
 
 	@Override
-	BodyInserters.FormInserter<String> populateTokenRequestBody(
-			OAuth2AuthorizationCodeGrantRequest grantRequest,
+	BodyInserters.FormInserter<String> populateTokenRequestBody(OAuth2AuthorizationCodeGrantRequest grantRequest,
 			BodyInserters.FormInserter<String> body) {
 		super.populateTokenRequestBody(grantRequest, body);
 		OAuth2AuthorizationExchange authorizationExchange = grantRequest.getAuthorizationExchange();
@@ -74,10 +81,12 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClient extends
 		if (redirectUri != null) {
 			body.with(OAuth2ParameterNames.REDIRECT_URI, redirectUri);
 		}
-		String codeVerifier = authorizationExchange.getAuthorizationRequest().getAttribute(PkceParameterNames.CODE_VERIFIER);
+		String codeVerifier = authorizationExchange.getAuthorizationRequest()
+				.getAttribute(PkceParameterNames.CODE_VERIFIER);
 		if (codeVerifier != null) {
 			body.with(PkceParameterNames.CODE_VERIFIER, codeVerifier);
 		}
 		return body;
 	}
+
 }

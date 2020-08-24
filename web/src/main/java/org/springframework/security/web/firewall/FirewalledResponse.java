@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.firewall;
 
 import java.io.IOException;
@@ -21,6 +22,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import org.springframework.util.Assert;
+
 /**
  * @author Luke Taylor
  * @author Eddú Meléndez
@@ -28,7 +31,9 @@ import javax.servlet.http.HttpServletResponseWrapper;
  * @author Luke Butters
  */
 class FirewalledResponse extends HttpServletResponseWrapper {
+
 	private static final String LOCATION_HEADER = "Location";
+
 	private static final String SET_COOKIE_HEADER = "Set-Cookie";
 
 	FirewalledResponse(HttpServletResponse response) {
@@ -68,13 +73,11 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 	}
 
 	void validateCrlf(String name, String value) {
-		if (hasCrlf(name) || hasCrlf(value)) {
-			throw new IllegalArgumentException(
-					"Invalid characters (CR/LF) in header " + name);
-		}
+		Assert.isTrue(!hasCrlf(name) && !hasCrlf(value), () -> "Invalid characters (CR/LF) in header " + name);
 	}
 
 	private boolean hasCrlf(String value) {
 		return value != null && (value.indexOf('\n') != -1 || value.indexOf('\r') != -1);
 	}
+
 }

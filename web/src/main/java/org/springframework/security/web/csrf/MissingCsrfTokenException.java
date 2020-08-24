@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.csrf;
 
 /**
@@ -27,4 +28,5 @@ public class MissingCsrfTokenException extends CsrfException {
 	public MissingCsrfTokenException(String actualToken) {
 		super("Could not verify the provided CSRF token because your session was not found.");
 	}
+
 }

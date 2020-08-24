@@ -13,15 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.test.web.servlet.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+package org.springframework.security.test.web.servlet.request;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,9 +25,11 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -42,12 +37,21 @@ import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.context.SecurityContextRepository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(WebTestUtils.class)
-@PowerMockIgnore({"javax.security.auth.*", "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*"})
+@PowerMockIgnore({ "javax.security.auth.*", "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*",
+		"javax.xml.parsers.*" })
 public class SecurityMockMvcRequestPostProcessorsAuthenticationTests {
+
 	@Captor
 	private ArgumentCaptor<SecurityContext> contextCaptor;
+
 	@Mock
 	private SecurityContextRepository repository;
 
@@ -58,7 +62,7 @@ public class SecurityMockMvcRequestPostProcessorsAuthenticationTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
+		this.request = new MockHttpServletRequest();
 		mockWebTestUtils();
 	}
 
@@ -69,16 +73,16 @@ public class SecurityMockMvcRequestPostProcessorsAuthenticationTests {
 
 	@Test
 	public void userDetails() {
-		authentication(authentication).postProcessRequest(request);
-
-		verify(repository).saveContext(contextCaptor.capture(), eq(request),
+		authentication(this.authentication).postProcessRequest(this.request);
+		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
-		SecurityContext context = contextCaptor.getValue();
-		assertThat(context.getAuthentication()).isSameAs(authentication);
+		SecurityContext context = this.contextCaptor.getValue();
+		assertThat(context.getAuthentication()).isSameAs(this.authentication);
 	}
 
 	private void mockWebTestUtils() {
-		spy(WebTestUtils.class);
-		when(WebTestUtils.getSecurityContextRepository(request)).thenReturn(repository);
+		PowerMockito.spy(WebTestUtils.class);
+		PowerMockito.when(WebTestUtils.getSecurityContextRepository(this.request)).thenReturn(this.repository);
 	}
+
 }

@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.core;
 
-import org.junit.Test;
+package org.springframework.security.core;
 
 import java.io.DataInputStream;
 import java.io.InputStream;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author Rob Winch
  *
  */
@@ -47,4 +47,5 @@ public class JavaVersionTests {
 			assertThat(major).isEqualTo(JDK8_CLASS_VERSION);
 		}
 	}
+
 }

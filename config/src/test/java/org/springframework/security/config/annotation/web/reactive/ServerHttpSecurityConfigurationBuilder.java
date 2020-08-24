@@ -26,17 +26,21 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerHttpSecurityConfigurationBuilder {
+public final class ServerHttpSecurityConfigurationBuilder {
+
+	private ServerHttpSecurityConfigurationBuilder() {
+	}
+
 	public static ServerHttpSecurity http() {
 		return new ServerHttpSecurityConfiguration().httpSecurity();
 	}
 
 	public static ServerHttpSecurity httpWithDefaultAuthentication() {
 		ReactiveUserDetailsService reactiveUserDetailsService = ReactiveAuthenticationTestConfiguration
-			.userDetailsService();
+				.userDetailsService();
 		ReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
-			reactiveUserDetailsService);
-		return http()
-			.authenticationManager(authenticationManager);
+				reactiveUserDetailsService);
+		return http().authenticationManager(authenticationManager);
 	}
+
 }

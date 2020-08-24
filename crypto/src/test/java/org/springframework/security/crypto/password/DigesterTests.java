@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.password;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
-import org.springframework.security.crypto.password.Digester;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DigesterTests {
 

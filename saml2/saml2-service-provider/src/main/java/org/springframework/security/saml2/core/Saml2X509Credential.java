@@ -13,50 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.saml2.core;
 
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.util.Assert;
 
-import static java.util.Arrays.asList;
-import static org.springframework.util.Assert.notEmpty;
-import static org.springframework.util.Assert.notNull;
-import static org.springframework.util.Assert.state;
-
 /**
- * An object for holding a public certificate, any associated private key, and its intended
- * <a href="https://www.oasis-open.org/committees/download.php/8958/sstc-saml-implementation-guidelines-draft-01.pdf">
- * usages
- * </a>
- * (Line 584, Section 4.3 Credentials).
+ * An object for holding a public certificate, any associated private key, and its
+ * intended <a href=
+ * "https://www.oasis-open.org/committees/download.php/8958/sstc-saml-implementation-guidelines-draft-01.pdf">
+ * usages </a> (Line 584, Section 4.3 Credentials).
  *
- * @since 5.4
  * @author Filip Hanik
  * @author Josh Cummings
+ * @since 5.4
  */
 public final class Saml2X509Credential {
-	public enum Saml2X509CredentialType {
-		VERIFICATION,
-		ENCRYPTION,
-		SIGNING,
-		DECRYPTION,
-	}
 
 	private final PrivateKey privateKey;
+
 	private final X509Certificate certificate;
+
 	private final Set<Saml2X509CredentialType> credentialTypes;
 
 	/**
 	 * Creates a {@link Saml2X509Credential} using the provided parameters
-	 *
 	 * @param certificate the credential's public certificiate
-	 * @param types the credential's intended usages, must be one of {@link Saml2X509CredentialType#VERIFICATION} or
-	 *               {@link Saml2X509CredentialType#ENCRYPTION} or both.
+	 * @param types the credential's intended usages, must be one of
+	 * {@link Saml2X509CredentialType#VERIFICATION} or
+	 * {@link Saml2X509CredentialType#ENCRYPTION} or both.
 	 */
 	public Saml2X509Credential(X509Certificate certificate, Saml2X509CredentialType... types) {
 		this(null, false, certificate, types);
@@ -65,11 +57,11 @@ public final class Saml2X509Credential {
 
 	/**
 	 * Creates a {@link Saml2X509Credential} using the provided parameters
-	 *
 	 * @param privateKey the credential's private key
 	 * @param certificate the credential's public certificate
-	 * @param types the credential's intended usages, must be one of {@link Saml2X509CredentialType#SIGNING} or
-	 *               {@link Saml2X509CredentialType#DECRYPTION} or both.
+	 * @param types the credential's intended usages, must be one of
+	 * {@link Saml2X509CredentialType#SIGNING} or
+	 * {@link Saml2X509CredentialType#DECRYPTION} or both.
 	 */
 	public Saml2X509Credential(PrivateKey privateKey, X509Certificate certificate, Saml2X509CredentialType... types) {
 		this(privateKey, true, certificate, types);
@@ -78,7 +70,6 @@ public final class Saml2X509Credential {
 
 	/**
 	 * Creates a {@link Saml2X509Credential} using the provided parameters
-	 *
 	 * @param privateKey the credential's private key
 	 * @param certificate the credential's public certificate
 	 * @param types the credential's intended usages
@@ -125,26 +116,22 @@ public final class Saml2X509Credential {
 		return new Saml2X509Credential(privateKey, certificate, Saml2X509Credential.Saml2X509CredentialType.SIGNING);
 	}
 
-	private Saml2X509Credential(
-			PrivateKey privateKey,
-			boolean keyRequired,
-			X509Certificate certificate,
+	private Saml2X509Credential(PrivateKey privateKey, boolean keyRequired, X509Certificate certificate,
 			Saml2X509CredentialType... types) {
-		notNull(certificate, "certificate cannot be null");
-		notEmpty(types, "credentials types cannot be empty");
+		Assert.notNull(certificate, "certificate cannot be null");
+		Assert.notEmpty(types, "credentials types cannot be empty");
 		if (keyRequired) {
-			notNull(privateKey, "privateKey cannot be null");
+			Assert.notNull(privateKey, "privateKey cannot be null");
 		}
 		this.privateKey = privateKey;
 		this.certificate = certificate;
-		this.credentialTypes = new LinkedHashSet<>(asList(types));
+		this.credentialTypes = new LinkedHashSet<>(Arrays.asList(types));
 	}
 
 	/**
 	 * Get the private key for this credential
-	 *
 	 * @return the private key, may be null
-	 * @see {@link #Saml2X509Credential(PrivateKey, X509Certificate, Saml2X509CredentialType...)}
+	 * @see #Saml2X509Credential(PrivateKey, X509Certificate, Saml2X509CredentialType...)
 	 */
 	public PrivateKey getPrivateKey() {
 		return this.privateKey;
@@ -152,7 +139,6 @@ public final class Saml2X509Credential {
 
 	/**
 	 * Get the public certificate for this credential
-	 *
 	 * @return the public certificate
 	 */
 	public X509Certificate getCertificate() {
@@ -161,7 +147,6 @@ public final class Saml2X509Credential {
 
 	/**
 	 * Indicate whether this credential can be used for signing
-	 *
 	 * @return true if the credential has a {@link Saml2X509CredentialType#SIGNING} type
 	 */
 	public boolean isSigningCredential() {
@@ -170,8 +155,8 @@ public final class Saml2X509Credential {
 
 	/**
 	 * Indicate whether this credential can be used for decryption
-	 *
-	 * @return true if the credential has a {@link Saml2X509CredentialType#DECRYPTION} type
+	 * @return true if the credential has a {@link Saml2X509CredentialType#DECRYPTION}
+	 * type
 	 */
 	public boolean isDecryptionCredential() {
 		return getCredentialTypes().contains(Saml2X509CredentialType.DECRYPTION);
@@ -179,8 +164,8 @@ public final class Saml2X509Credential {
 
 	/**
 	 * Indicate whether this credential can be used for verification
-	 *
-	 * @return true if the credential has a {@link Saml2X509CredentialType#VERIFICATION} type
+	 * @return true if the credential has a {@link Saml2X509CredentialType#VERIFICATION}
+	 * type
 	 */
 	public boolean isVerificationCredential() {
 		return getCredentialTypes().contains(Saml2X509CredentialType.VERIFICATION);
@@ -188,8 +173,8 @@ public final class Saml2X509Credential {
 
 	/**
 	 * Indicate whether this credential can be used for encryption
-	 *
-	 * @return true if the credential has a {@link Saml2X509CredentialType#ENCRYPTION} type
+	 * @return true if the credential has a {@link Saml2X509CredentialType#ENCRYPTION}
+	 * type
 	 */
 	public boolean isEncryptionCredential() {
 		return getCredentialTypes().contains(Saml2X509CredentialType.ENCRYPTION);
@@ -197,7 +182,6 @@ public final class Saml2X509Credential {
 
 	/**
 	 * List all this credential's intended usages
-	 *
 	 * @return the set of this credential's intended usages
 	 */
 	public Set<Saml2X509CredentialType> getCredentialTypes() {
@@ -206,12 +190,15 @@ public final class Saml2X509Credential {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		Saml2X509Credential that = (Saml2X509Credential) o;
-		return Objects.equals(this.privateKey, that.privateKey) &&
-				this.certificate.equals(that.certificate) &&
-				this.credentialTypes.equals(that.credentialTypes);
+		return Objects.equals(this.privateKey, that.privateKey) && this.certificate.equals(that.certificate)
+				&& this.credentialTypes.equals(that.credentialTypes);
 	}
 
 	@Override
@@ -228,7 +215,20 @@ public final class Saml2X509Credential {
 					break;
 				}
 			}
-			state(valid, () -> usage +" is not a valid usage for this credential");
+			Assert.state(valid, () -> usage + " is not a valid usage for this credential");
 		}
 	}
+
+	public enum Saml2X509CredentialType {
+
+		VERIFICATION,
+
+		ENCRYPTION,
+
+		SIGNING,
+
+		DECRYPTION,
+
+	}
+
 }

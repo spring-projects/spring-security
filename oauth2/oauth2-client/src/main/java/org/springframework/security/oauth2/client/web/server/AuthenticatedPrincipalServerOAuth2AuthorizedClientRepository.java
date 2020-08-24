@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.web.server;
+
+import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -25,15 +28,14 @@ import org.springframework.security.oauth2.client.web.HttpSessionOAuth2Authorize
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 /**
- * An implementation of an {@link ServerOAuth2AuthorizedClientRepository} that
- * delegates to the provided {@link ServerOAuth2AuthorizedClientRepository} if the current
- * {@code Principal} is authenticated, otherwise,
- * to the default (or provided) {@link ServerOAuth2AuthorizedClientRepository}
- * if the current request is unauthenticated (or anonymous).
- * The default {@code ReactiveOAuth2AuthorizedClientRepository} is
+ * An implementation of an {@link ServerOAuth2AuthorizedClientRepository} that delegates
+ * to the provided {@link ServerOAuth2AuthorizedClientRepository} if the current
+ * {@code Principal} is authenticated, otherwise, to the default (or provided)
+ * {@link ServerOAuth2AuthorizedClientRepository} if the current request is
+ * unauthenticated (or anonymous). The default
+ * {@code ReactiveOAuth2AuthorizedClientRepository} is
  * {@link WebSessionServerOAuth2AuthorizedClientRepository}.
  *
  * @author Rob Winch
@@ -45,25 +47,29 @@ import reactor.core.publisher.Mono;
  */
 public final class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository
 		implements ServerOAuth2AuthorizedClientRepository {
+
 	private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
+
 	private final ReactiveOAuth2AuthorizedClientService authorizedClientService;
+
 	private ServerOAuth2AuthorizedClientRepository anonymousAuthorizedClientRepository = new WebSessionServerOAuth2AuthorizedClientRepository();
 
 	/**
 	 * Creates an instance
-	 *
 	 * @param authorizedClientService the authorized client service
 	 */
-	public AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(ReactiveOAuth2AuthorizedClientService authorizedClientService) {
+	public AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(
+			ReactiveOAuth2AuthorizedClientService authorizedClientService) {
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
 		this.authorizedClientService = authorizedClientService;
 	}
 
 	/**
-	 * Sets the {@link ServerOAuth2AuthorizedClientRepository} used for requests that are unauthenticated (or anonymous).
-	 * The default is {@link WebSessionServerOAuth2AuthorizedClientRepository}.
-	 *
-	 * @param anonymousAuthorizedClientRepository the repository used for requests that are unauthenticated (or anonymous)
+	 * Sets the {@link ServerOAuth2AuthorizedClientRepository} used for requests that are
+	 * unauthenticated (or anonymous). The default is
+	 * {@link WebSessionServerOAuth2AuthorizedClientRepository}.
+	 * @param anonymousAuthorizedClientRepository the repository used for requests that
+	 * are unauthenticated (or anonymous)
 	 */
 	public void setAnonymousAuthorizedClientRepository(
 			ServerOAuth2AuthorizedClientRepository anonymousAuthorizedClientRepository) {
@@ -72,13 +78,12 @@ public final class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository
 	}
 
 	@Override
-	public <T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(String clientRegistrationId, Authentication principal,
-																		ServerWebExchange exchange) {
+	public <T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(String clientRegistrationId,
+			Authentication principal, ServerWebExchange exchange) {
 		if (this.isPrincipalAuthenticated(principal)) {
 			return this.authorizedClientService.loadAuthorizedClient(clientRegistrationId, principal.getName());
-		} else {
-			return this.anonymousAuthorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principal, exchange);
 		}
+		return this.anonymousAuthorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principal, exchange);
 	}
 
 	@Override
@@ -86,9 +91,8 @@ public final class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository
 			ServerWebExchange exchange) {
 		if (this.isPrincipalAuthenticated(principal)) {
 			return this.authorizedClientService.saveAuthorizedClient(authorizedClient, principal);
-		} else {
-			return this.anonymousAuthorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, exchange);
 		}
+		return this.anonymousAuthorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, exchange);
 	}
 
 	@Override
@@ -96,14 +100,14 @@ public final class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository
 			ServerWebExchange exchange) {
 		if (this.isPrincipalAuthenticated(principal)) {
 			return this.authorizedClientService.removeAuthorizedClient(clientRegistrationId, principal.getName());
-		} else {
-			return this.anonymousAuthorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal, exchange);
 		}
+		return this.anonymousAuthorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
+				exchange);
 	}
 
 	private boolean isPrincipalAuthenticated(Authentication authentication) {
-		return authentication != null &&
-				!this.authenticationTrustResolver.isAnonymous(authentication) &&
-				authentication.isAuthenticated();
+		return authentication != null && !this.authenticationTrustResolver.isAnonymous(authentication)
+				&& authentication.isAuthenticated();
 	}
+
 }

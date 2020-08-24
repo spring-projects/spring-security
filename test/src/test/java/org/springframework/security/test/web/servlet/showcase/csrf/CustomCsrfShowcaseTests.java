@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.test.web.servlet.showcase.csrf;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+package org.springframework.security.test.web.servlet.showcase.csrf;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -41,6 +36,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = CustomCsrfShowcaseTests.Config.class)
 @WebAppConfiguration
@@ -56,47 +58,49 @@ public class CustomCsrfShowcaseTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context)
-				.defaultRequest(get("/").with(csrf())).apply(springSecurity()).build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).defaultRequest(get("/").with(csrf()))
+				.apply(springSecurity()).build();
 	}
 
 	@Test
 	public void postWithCsrfWorks() throws Exception {
-		mvc.perform(post("/").with(csrf())).andExpect(status().isNotFound());
+		this.mvc.perform(post("/").with(csrf())).andExpect(status().isNotFound());
 	}
 
 	@Test
 	public void postWithCsrfWorksWithPut() throws Exception {
-		mvc.perform(put("/").with(csrf())).andExpect(status().isNotFound());
+		this.mvc.perform(put("/").with(csrf())).andExpect(status().isNotFound());
 	}
 
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
 
-		// @formatter:off
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.csrf()
 					.csrfTokenRepository(repo());
+			// @formatter:on
 		}
-		// @formatter:on
 
-		// @formatter:off
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER");
+			// @formatter:on
 		}
-		// @formatter:on
 
 		@Bean
-		public CsrfTokenRepository repo() {
+		CsrfTokenRepository repo() {
 			HttpSessionCsrfTokenRepository repo = new HttpSessionCsrfTokenRepository();
 			repo.setParameterName("custom_csrf");
 			return repo;
 		}
+
 	}
+
 }

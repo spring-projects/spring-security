@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.logout;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 /**
- *
  * @author Luke Taylor
  */
 public class SimpleUrlLogoutSuccessHandlerTests {

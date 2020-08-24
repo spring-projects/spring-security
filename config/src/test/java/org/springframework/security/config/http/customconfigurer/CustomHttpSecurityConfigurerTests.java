@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.http.customconfigurer;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.config.http.customconfigurer.CustomConfigurer.customConfigurer;
+package org.springframework.security.config.http.customconfigurer;
 
 import java.util.Properties;
 
@@ -25,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -38,11 +37,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.FilterChainProxy;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Rob Winch
  *
  */
 public class CustomHttpSecurityConfigurerTests {
+
 	@Autowired
 	ConfigurableApplicationContext context;
 
@@ -50,64 +52,57 @@ public class CustomHttpSecurityConfigurerTests {
 	FilterChainProxy springSecurityFilterChain;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest("GET", "");
-		response = new MockHttpServletResponse();
-		chain = new MockFilterChain();
-		request.setMethod("GET");
+		this.request = new MockHttpServletRequest("GET", "");
+		this.response = new MockHttpServletResponse();
+		this.chain = new MockFilterChain();
+		this.request.setMethod("GET");
 	}
 
 	@After
 	public void cleanup() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
 	@Test
 	public void customConfiguerPermitAll() throws Exception {
 		loadContext(Config.class);
-
-		request.setPathInfo("/public/something");
-
-		springSecurityFilterChain.doFilter(request, response, chain);
-
-		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+		this.request.setPathInfo("/public/something");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
 	@Test
 	public void customConfiguerFormLogin() throws Exception {
 		loadContext(Config.class);
-		request.setPathInfo("/requires-authentication");
-
-		springSecurityFilterChain.doFilter(request, response, chain);
-
-		assertThat(response.getRedirectedUrl()).endsWith("/custom");
+		this.request.setPathInfo("/requires-authentication");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getRedirectedUrl()).endsWith("/custom");
 	}
 
 	@Test
 	public void customConfiguerCustomizeDisablesCsrf() throws Exception {
 		loadContext(ConfigCustomize.class);
-		request.setPathInfo("/public/something");
-		request.setMethod("POST");
-
-		springSecurityFilterChain.doFilter(request, response, chain);
-
-		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+		this.request.setPathInfo("/public/something");
+		this.request.setMethod("POST");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
 	@Test
 	public void customConfiguerCustomizeFormLogin() throws Exception {
 		loadContext(ConfigCustomize.class);
-		request.setPathInfo("/requires-authentication");
-
-		springSecurityFilterChain.doFilter(request, response, chain);
-
-		assertThat(response.getRedirectedUrl()).endsWith("/other");
+		this.request.setPathInfo("/requires-authentication");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getRedirectedUrl()).endsWith("/other");
 	}
 
 	private void loadContext(Class<?> clazz) {
@@ -120,21 +115,23 @@ public class CustomHttpSecurityConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
-				.apply(customConfigurer())
+				.apply(CustomConfigurer.customConfigurer())
 					.loginPage("/custom");
+			// @formatter:on
 		}
 
 		@Bean
-		public static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
+		static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
 			// Typically externalize this as a properties file
 			Properties properties = new Properties();
 			properties.setProperty("permitAllPattern", "/public/**");
-
 			PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
 			propertyPlaceholderConfigurer.setProperties(properties);
 			return propertyPlaceholderConfigurer;
 		}
+
 	}
 
 	@EnableWebSecurity
@@ -142,23 +139,26 @@ public class CustomHttpSecurityConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
-				.apply(customConfigurer())
+				.apply(CustomConfigurer.customConfigurer())
 					.and()
 				.csrf().disable()
 				.formLogin()
 					.loginPage("/other");
+			// @formatter:on
 		}
 
 		@Bean
-		public static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
+		static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
 			// Typically externalize this as a properties file
 			Properties properties = new Properties();
 			properties.setProperty("permitAllPattern", "/public/**");
-
 			PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
 			propertyPlaceholderConfigurer.setProperties(properties);
 			return propertyPlaceholderConfigurer;
 		}
+
 	}
+
 }

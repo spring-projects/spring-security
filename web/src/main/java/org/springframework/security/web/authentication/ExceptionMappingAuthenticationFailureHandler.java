@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
@@ -40,16 +41,14 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.0
  */
-public class ExceptionMappingAuthenticationFailureHandler extends
-		SimpleUrlAuthenticationFailureHandler {
+public class ExceptionMappingAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
+
 	private final Map<String, String> failureUrlMap = new HashMap<>();
 
 	@Override
-	public void onAuthenticationFailure(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException exception)
-			throws IOException, ServletException {
-		String url = failureUrlMap.get(exception.getClass().getName());
-
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) throws IOException, ServletException {
+		String url = this.failureUrlMap.get(exception.getClass().getName());
 		if (url != null) {
 			getRedirectStrategy().sendRedirect(request, response, url);
 		}
@@ -60,10 +59,8 @@ public class ExceptionMappingAuthenticationFailureHandler extends
 
 	/**
 	 * Sets the map of exception types (by name) to URLs.
-	 *
 	 * @param failureUrlMap the map keyed by the fully-qualified name of the exception
 	 * class, with the corresponding failure URL as the value.
-	 *
 	 * @throws IllegalArgumentException if the entries are not Strings or the URL is not
 	 * valid.
 	 */
@@ -72,12 +69,11 @@ public class ExceptionMappingAuthenticationFailureHandler extends
 		for (Map.Entry<?, ?> entry : failureUrlMap.entrySet()) {
 			Object exception = entry.getKey();
 			Object url = entry.getValue();
-			Assert.isInstanceOf(String.class, exception,
-					"Exception key must be a String (the exception classname).");
+			Assert.isInstanceOf(String.class, exception, "Exception key must be a String (the exception classname).");
 			Assert.isInstanceOf(String.class, url, "URL must be a String");
-			Assert.isTrue(UrlUtils.isValidRedirectUrl((String) url),
-					() -> "Not a valid redirect URL: " + url);
+			Assert.isTrue(UrlUtils.isValidRedirectUrl((String) url), () -> "Not a valid redirect URL: " + url);
 			this.failureUrlMap.put((String) exception, (String) url);
 		}
 	}
+
 }

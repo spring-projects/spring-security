@@ -38,9 +38,9 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2Authorization
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -48,6 +48,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
+
 	@Mock
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
@@ -59,8 +60,7 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 
 	private OAuth2AuthorizationResponse.Builder authorizationResponse = TestOAuth2AuthorizationResponses.success();
 
-	private OAuth2AccessTokenResponse.Builder tokenResponse = TestOAuth2AccessTokenResponses
-			.accessTokenResponse();
+	private OAuth2AccessTokenResponse.Builder tokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse();
 
 	@Before
 	public void setup() {
@@ -70,48 +70,42 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenErrorThenOAuth2AuthorizationException() {
 		this.authorizationResponse = TestOAuth2AuthorizationResponses.error();
-		assertThatCode(() -> authenticate())
-				.isInstanceOf(OAuth2AuthorizationException.class);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> authenticate());
 	}
 
 	@Test
 	public void authenticateWhenStateNotEqualThenOAuth2AuthorizationException() {
 		this.authorizationRequest.state("notequal");
-		assertThatCode(() -> authenticate())
-				.isInstanceOf(OAuth2AuthorizationException.class);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> authenticate());
 	}
 
 	@Test
 	public void authenticateWhenValidThenSuccess() {
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(this.tokenResponse.build()));
-
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(this.tokenResponse.build()));
 		OAuth2AuthorizationCodeAuthenticationToken result = authenticate();
-
 		assertThat(result).isNotNull();
 	}
 
 	@Test
 	public void authenticateWhenEmptyThenEmpty() {
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.empty());
-
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.empty());
 		OAuth2AuthorizationCodeAuthenticationToken result = authenticate();
-
 		assertThat(result).isNull();
 	}
 
 	@Test
 	public void authenticateWhenOAuth2AuthorizationExceptionThenOAuth2AuthorizationException() {
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.error(() -> new OAuth2AuthorizationException(new OAuth2Error("error"))));
-
-		assertThatCode(() -> authenticate())
-				.isInstanceOf(OAuth2AuthorizationException.class);
+		given(this.accessTokenResponseClient.getTokenResponse(any()))
+				.willReturn(Mono.error(() -> new OAuth2AuthorizationException(new OAuth2Error("error"))));
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> authenticate());
 	}
 
 	private OAuth2AuthorizationCodeAuthenticationToken authenticate() {
-		OAuth2AuthorizationExchange exchange = new OAuth2AuthorizationExchange(
-				this.authorizationRequest.build(), this.authorizationResponse.build());
+		OAuth2AuthorizationExchange exchange = new OAuth2AuthorizationExchange(this.authorizationRequest.build(),
+				this.authorizationResponse.build());
 		OAuth2AuthorizationCodeAuthenticationToken token = new OAuth2AuthorizationCodeAuthenticationToken(
 				this.registration.build(), exchange);
 		return (OAuth2AuthorizationCodeAuthenticationToken) this.manager.authenticate(token).block();
 	}
+
 }

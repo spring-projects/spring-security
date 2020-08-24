@@ -16,12 +16,13 @@
 
 package org.springframework.security.core.context;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextImpl;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link SecurityContextHolder}.
@@ -30,12 +31,9 @@ import org.springframework.security.core.context.SecurityContextImpl;
  */
 public class SecurityContextHolderTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Before
 	public final void setUp() {
-		SecurityContextHolder
-				.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+		SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
 	}
 
 	@Test
@@ -62,7 +60,7 @@ public class SecurityContextHolderTests {
 			fail("Should have rejected null");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
+
 }

@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.concurrent;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+package org.springframework.security.concurrent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+
 /**
  * Abstract class for testing {@link DelegatingSecurityContextExecutorService} which
  * allows customization of how {@link DelegatingSecurityContextExecutorService} and its
@@ -39,10 +40,12 @@ import org.mockito.Mock;
  * @see CurrentDelegatingSecurityContextExecutorServiceTests
  * @see ExplicitDelegatingSecurityContextExecutorServiceTests
  */
-public abstract class AbstractDelegatingSecurityContextExecutorServiceTests extends
-		AbstractDelegatingSecurityContextExecutorTests {
+public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
+		extends AbstractDelegatingSecurityContextExecutorTests {
+
 	@Mock
 	private Future<Object> expectedFutureObject;
+
 	@Mock
 	private Object resultArg;
 
@@ -50,9 +53,10 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests exte
 
 	@Before
 	public final void setUpExecutorService() {
-		executor = create();
+		this.executor = create();
 	}
 
+	@Override
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullDelegate() {
 		new DelegatingSecurityContextExecutorService(null);
@@ -60,112 +64,108 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests exte
 
 	@Test
 	public void shutdown() {
-		executor.shutdown();
-		verify(delegate).shutdown();
+		this.executor.shutdown();
+		verify(this.delegate).shutdown();
 	}
 
 	@Test
 	public void shutdownNow() {
-		List<Runnable> result = executor.shutdownNow();
-		verify(delegate).shutdownNow();
-		assertThat(result).isEqualTo(delegate.shutdownNow()).isNotNull();
+		List<Runnable> result = this.executor.shutdownNow();
+		verify(this.delegate).shutdownNow();
+		assertThat(result).isEqualTo(this.delegate.shutdownNow()).isNotNull();
 	}
 
 	@Test
 	public void isShutdown() {
-		boolean result = executor.isShutdown();
-		verify(delegate).isShutdown();
-		assertThat(result).isEqualTo(delegate.isShutdown()).isNotNull();
+		boolean result = this.executor.isShutdown();
+		verify(this.delegate).isShutdown();
+		assertThat(result).isEqualTo(this.delegate.isShutdown()).isNotNull();
 	}
 
 	@Test
 	public void isTerminated() {
-		boolean result = executor.isTerminated();
-		verify(delegate).isTerminated();
-		assertThat(result).isEqualTo(delegate.isTerminated()).isNotNull();
+		boolean result = this.executor.isTerminated();
+		verify(this.delegate).isTerminated();
+		assertThat(result).isEqualTo(this.delegate.isTerminated()).isNotNull();
 	}
 
 	@Test
 	public void awaitTermination() throws InterruptedException {
-		boolean result = executor.awaitTermination(1, TimeUnit.SECONDS);
-		verify(delegate).awaitTermination(1, TimeUnit.SECONDS);
-		assertThat(result).isEqualTo(delegate.awaitTermination(1, TimeUnit.SECONDS))
-				.isNotNull();
+		boolean result = this.executor.awaitTermination(1, TimeUnit.SECONDS);
+		verify(this.delegate).awaitTermination(1, TimeUnit.SECONDS);
+		assertThat(result).isEqualTo(this.delegate.awaitTermination(1, TimeUnit.SECONDS)).isNotNull();
 	}
 
 	@Test
 	public void submitCallable() {
-		when(delegate.submit(wrappedCallable)).thenReturn(expectedFutureObject);
-		Future<Object> result = executor.submit(callable);
-		verify(delegate).submit(wrappedCallable);
-		assertThat(result).isEqualTo(expectedFutureObject);
+		given(this.delegate.submit(this.wrappedCallable)).willReturn(this.expectedFutureObject);
+		Future<Object> result = this.executor.submit(this.callable);
+		verify(this.delegate).submit(this.wrappedCallable);
+		assertThat(result).isEqualTo(this.expectedFutureObject);
 	}
 
 	@Test
 	public void submitRunnableWithResult() {
-		when(delegate.submit(wrappedRunnable, resultArg))
-				.thenReturn(expectedFutureObject);
-		Future<Object> result = executor.submit(runnable, resultArg);
-		verify(delegate).submit(wrappedRunnable, resultArg);
-		assertThat(result).isEqualTo(expectedFutureObject);
+		given(this.delegate.submit(this.wrappedRunnable, this.resultArg)).willReturn(this.expectedFutureObject);
+		Future<Object> result = this.executor.submit(this.runnable, this.resultArg);
+		verify(this.delegate).submit(this.wrappedRunnable, this.resultArg);
+		assertThat(result).isEqualTo(this.expectedFutureObject);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void submitRunnable() {
-		when((Future<Object>) delegate.submit(wrappedRunnable)).thenReturn(
-				expectedFutureObject);
-		Future<?> result = executor.submit(runnable);
-		verify(delegate).submit(wrappedRunnable);
-		assertThat(result).isEqualTo(expectedFutureObject);
+		given((Future<Object>) this.delegate.submit(this.wrappedRunnable)).willReturn(this.expectedFutureObject);
+		Future<?> result = this.executor.submit(this.runnable);
+		verify(this.delegate).submit(this.wrappedRunnable);
+		assertThat(result).isEqualTo(this.expectedFutureObject);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void invokeAll() throws Exception {
-		List<Future<Object>> exectedResult = Arrays.asList(expectedFutureObject);
-		List<Callable<Object>> wrappedCallables = Arrays.asList(wrappedCallable);
-		when(delegate.invokeAll(wrappedCallables)).thenReturn(exectedResult);
-		List<Future<Object>> result = executor.invokeAll(Arrays.asList(callable));
-		verify(delegate).invokeAll(wrappedCallables);
+		List<Future<Object>> exectedResult = Arrays.asList(this.expectedFutureObject);
+		List<Callable<Object>> wrappedCallables = Arrays.asList(this.wrappedCallable);
+		given(this.delegate.invokeAll(wrappedCallables)).willReturn(exectedResult);
+		List<Future<Object>> result = this.executor.invokeAll(Arrays.asList(this.callable));
+		verify(this.delegate).invokeAll(wrappedCallables);
 		assertThat(result).isEqualTo(exectedResult);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void invokeAllTimeout() throws Exception {
-		List<Future<Object>> exectedResult = Arrays.asList(expectedFutureObject);
-		List<Callable<Object>> wrappedCallables = Arrays.asList(wrappedCallable);
-		when(delegate.invokeAll(wrappedCallables, 1, TimeUnit.SECONDS)).thenReturn(
-				exectedResult);
-		List<Future<Object>> result = executor.invokeAll(Arrays.asList(callable), 1,
-				TimeUnit.SECONDS);
-		verify(delegate).invokeAll(wrappedCallables, 1, TimeUnit.SECONDS);
+		List<Future<Object>> exectedResult = Arrays.asList(this.expectedFutureObject);
+		List<Callable<Object>> wrappedCallables = Arrays.asList(this.wrappedCallable);
+		given(this.delegate.invokeAll(wrappedCallables, 1, TimeUnit.SECONDS)).willReturn(exectedResult);
+		List<Future<Object>> result = this.executor.invokeAll(Arrays.asList(this.callable), 1, TimeUnit.SECONDS);
+		verify(this.delegate).invokeAll(wrappedCallables, 1, TimeUnit.SECONDS);
 		assertThat(result).isEqualTo(exectedResult);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void invokeAny() throws Exception {
-		List<Future<Object>> exectedResult = Arrays.asList(expectedFutureObject);
-		List<Callable<Object>> wrappedCallables = Arrays.asList(wrappedCallable);
-		when(delegate.invokeAny(wrappedCallables)).thenReturn(exectedResult);
-		Object result = executor.invokeAny(Arrays.asList(callable));
-		verify(delegate).invokeAny(wrappedCallables);
+		List<Future<Object>> exectedResult = Arrays.asList(this.expectedFutureObject);
+		List<Callable<Object>> wrappedCallables = Arrays.asList(this.wrappedCallable);
+		given(this.delegate.invokeAny(wrappedCallables)).willReturn(exectedResult);
+		Object result = this.executor.invokeAny(Arrays.asList(this.callable));
+		verify(this.delegate).invokeAny(wrappedCallables);
 		assertThat(result).isEqualTo(exectedResult);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void invokeAnyTimeout() throws Exception {
-		List<Future<Object>> exectedResult = Arrays.asList(expectedFutureObject);
-		List<Callable<Object>> wrappedCallables = Arrays.asList(wrappedCallable);
-		when(delegate.invokeAny(wrappedCallables, 1, TimeUnit.SECONDS)).thenReturn(
-				exectedResult);
-		Object result = executor.invokeAny(Arrays.asList(callable), 1, TimeUnit.SECONDS);
-		verify(delegate).invokeAny(wrappedCallables, 1, TimeUnit.SECONDS);
+		List<Future<Object>> exectedResult = Arrays.asList(this.expectedFutureObject);
+		List<Callable<Object>> wrappedCallables = Arrays.asList(this.wrappedCallable);
+		given(this.delegate.invokeAny(wrappedCallables, 1, TimeUnit.SECONDS)).willReturn(exectedResult);
+		Object result = this.executor.invokeAny(Arrays.asList(this.callable), 1, TimeUnit.SECONDS);
+		verify(this.delegate).invokeAny(wrappedCallables, 1, TimeUnit.SECONDS);
 		assertThat(result).isEqualTo(exectedResult);
 	}
 
+	@Override
 	protected abstract DelegatingSecurityContextExecutorService create();
+
 }

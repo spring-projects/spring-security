@@ -16,25 +16,26 @@
 
 package org.springframework.security.web.server.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.server.WebFilterExchange;
-import reactor.core.publisher.Mono;
-import reactor.test.publisher.PublisherProbe;
-
 import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+import reactor.test.publisher.PublisherProbe;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.server.WebFilterExchange;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -42,12 +43,15 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingServerAuthenticationSuccessHandlerTests {
+
 	@Mock
 	private ServerAuthenticationSuccessHandler delegate1;
 
 	@Mock
 	private ServerAuthenticationSuccessHandler delegate2;
+
 	private PublisherProbe<Void> delegate1Result = PublisherProbe.empty();
+
 	private PublisherProbe<Void> delegate2Result = PublisherProbe.empty();
 
 	@Mock
@@ -58,29 +62,27 @@ public class DelegatingServerAuthenticationSuccessHandlerTests {
 
 	@Before
 	public void setup() {
-		when(this.delegate1.onAuthenticationSuccess(any(), any())).thenReturn(this.delegate1Result.mono());
-		when(this.delegate2.onAuthenticationSuccess(any(), any())).thenReturn(this.delegate2Result.mono());
+		given(this.delegate1.onAuthenticationSuccess(any(), any())).willReturn(this.delegate1Result.mono());
+		given(this.delegate2.onAuthenticationSuccess(any(), any())).willReturn(this.delegate2Result.mono());
 	}
 
 	@Test
 	public void constructorWhenNullThenIllegalArgumentException() {
-		assertThatThrownBy(() -> new DelegatingServerAuthenticationSuccessHandler((ServerAuthenticationSuccessHandler[]) null))
-			.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new DelegatingServerAuthenticationSuccessHandler((ServerAuthenticationSuccessHandler[]) null));
 	}
 
 	@Test
 	public void constructorWhenEmptyThenIllegalArgumentException() {
-		assertThatThrownBy(() -> new DelegatingServerAuthenticationSuccessHandler(new ServerAuthenticationSuccessHandler[0]))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new DelegatingServerAuthenticationSuccessHandler(new ServerAuthenticationSuccessHandler[0]));
 	}
 
 	@Test
 	public void onAuthenticationSuccessWhenSingleThenExecuted() {
 		DelegatingServerAuthenticationSuccessHandler handler = new DelegatingServerAuthenticationSuccessHandler(
 				this.delegate1);
-
 		handler.onAuthenticationSuccess(this.exchange, this.authentication).block();
-
 		this.delegate1Result.assertWasSubscribed();
 	}
 
@@ -88,9 +90,7 @@ public class DelegatingServerAuthenticationSuccessHandlerTests {
 	public void onAuthenticationSuccessWhenMultipleThenExecuted() {
 		DelegatingServerAuthenticationSuccessHandler handler = new DelegatingServerAuthenticationSuccessHandler(
 				this.delegate1, this.delegate2);
-
 		handler.onAuthenticationSuccess(this.exchange, this.authentication).block();
-
 		this.delegate1Result.assertWasSubscribed();
 		this.delegate2Result.assertWasSubscribed();
 	}
@@ -99,21 +99,17 @@ public class DelegatingServerAuthenticationSuccessHandlerTests {
 	public void onAuthenticationSuccessSequential() throws Exception {
 		AtomicBoolean slowDone = new AtomicBoolean();
 		CountDownLatch latch = new CountDownLatch(1);
-		ServerAuthenticationSuccessHandler slow = (exchange, authentication) ->
-				Mono.delay(Duration.ofMillis(100))
-						.doOnSuccess(__ -> slowDone.set(true))
-						.then();
-		ServerAuthenticationSuccessHandler second = (exchange, authentication) ->
-				Mono.fromRunnable(() -> {
-					latch.countDown();
-					assertThat(slowDone.get())
-							.describedAs("ServerAuthenticationSuccessHandler should be executed sequentially")
-							.isTrue();
-				});
-		DelegatingServerAuthenticationSuccessHandler handler = new DelegatingServerAuthenticationSuccessHandler(slow, second);
-
+		ServerAuthenticationSuccessHandler slow = (exchange, authentication) -> Mono.delay(Duration.ofMillis(100))
+				.doOnSuccess((__) -> slowDone.set(true)).then();
+		ServerAuthenticationSuccessHandler second = (exchange, authentication) -> Mono.fromRunnable(() -> {
+			latch.countDown();
+			assertThat(slowDone.get()).describedAs("ServerAuthenticationSuccessHandler should be executed sequentially")
+					.isTrue();
+		});
+		DelegatingServerAuthenticationSuccessHandler handler = new DelegatingServerAuthenticationSuccessHandler(slow,
+				second);
 		handler.onAuthenticationSuccess(this.exchange, this.authentication).block();
-
 		assertThat(latch.await(3, TimeUnit.SECONDS)).isTrue();
 	}
+
 }

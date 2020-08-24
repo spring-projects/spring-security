@@ -19,6 +19,7 @@ package org.springframework.security.web.authentication.logout;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -39,20 +40,16 @@ public class ForwardLogoutSuccessHandlerTests {
 	@Test
 	public void invalidTargetUrl() {
 		String targetUrl = "not.valid";
-
 		this.thrown.expect(IllegalArgumentException.class);
 		this.thrown.expectMessage("'" + targetUrl + "' is not a valid target URL");
-
 		new ForwardLogoutSuccessHandler(targetUrl);
 	}
 
 	@Test
 	public void emptyTargetUrl() {
 		String targetUrl = " ";
-
 		this.thrown.expect(IllegalArgumentException.class);
 		this.thrown.expectMessage("'" + targetUrl + "' is not a valid target URL");
-
 		new ForwardLogoutSuccessHandler(targetUrl);
 	}
 
@@ -60,13 +57,10 @@ public class ForwardLogoutSuccessHandlerTests {
 	public void logoutSuccessIsHandled() throws Exception {
 		String targetUrl = "/login?logout";
 		ForwardLogoutSuccessHandler handler = new ForwardLogoutSuccessHandler(targetUrl);
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		Authentication authentication = mock(Authentication.class);
-
 		handler.onLogoutSuccess(request, response, authentication);
-
 		assertThat(response.getForwardedUrl()).isEqualTo(targetUrl);
 	}
 

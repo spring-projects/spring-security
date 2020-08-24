@@ -13,10 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configuration;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
+import reactor.core.CoreSubscriber;
+import reactor.core.publisher.Hooks;
+import reactor.core.publisher.Operators;
+import reactor.util.context.Context;
+
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
@@ -26,28 +40,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import reactor.core.CoreSubscriber;
-import reactor.core.publisher.Hooks;
-import reactor.core.publisher.Operators;
-import reactor.util.context.Context;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
-import static org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration.SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES;
 
 /**
- * {@link Configuration} that (potentially) adds a "decorating" {@code Publisher}
- * for the last operator created in every {@code Mono} or {@code Flux}.
+ * {@link Configuration} that (potentially) adds a "decorating" {@code Publisher} for the
+ * last operator created in every {@code Mono} or {@code Flux}.
  *
  * <p>
- * The {@code Publisher} is solely responsible for adding
- * the current {@code HttpServletRequest}, {@code HttpServletResponse} and {@code Authentication}
- * to the Reactor {@code Context} so that it's accessible in every flow, if required.
+ * The {@code Publisher} is solely responsible for adding the current
+ * {@code HttpServletRequest}, {@code HttpServletResponse} and {@code Authentication} to
+ * the Reactor {@code Context} so that it's accessible in every flow, if required.
  *
  * @author Joe Grandja
  * @author Roman Matiushchenko
@@ -63,14 +64,14 @@ class SecurityReactorContextConfiguration {
 	}
 
 	static class SecurityReactorContextSubscriberRegistrar implements InitializingBean, DisposableBean {
+
 		private static final String SECURITY_REACTOR_CONTEXT_OPERATOR_KEY = "org.springframework.security.SECURITY_REACTOR_CONTEXT_OPERATOR";
 
 		@Override
 		public void afterPropertiesSet() throws Exception {
-			Function<? super Publisher<Object>, ? extends Publisher<Object>> lifter =
-					Operators.liftPublisher((pub, sub) -> createSubscriberIfNecessary(sub));
-
-			Hooks.onLastOperator(SECURITY_REACTOR_CONTEXT_OPERATOR_KEY, pub -> {
+			Function<? super Publisher<Object>, ? extends Publisher<Object>> lifter = Operators
+					.liftPublisher((pub, sub) -> createSubscriberIfNecessary(sub));
+			Hooks.onLastOperator(SECURITY_REACTOR_CONTEXT_OPERATOR_KEY, (pub) -> {
 				if (!contextAttributesAvailable()) {
 					// No need to decorate so return original Publisher
 					return pub;
@@ -85,7 +86,7 @@ class SecurityReactorContextConfiguration {
 		}
 
 		<T> CoreSubscriber<T> createSubscriberIfNecessary(CoreSubscriber<T> delegate) {
-			if (delegate.currentContext().hasKey(SECURITY_CONTEXT_ATTRIBUTES)) {
+			if (delegate.currentContext().hasKey(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES)) {
 				// Already enriched. No need to create Subscriber so return original
 				return delegate;
 			}
@@ -93,8 +94,8 @@ class SecurityReactorContextConfiguration {
 		}
 
 		private static boolean contextAttributesAvailable() {
-			return SecurityContextHolder.getContext().getAuthentication() != null ||
-					RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes;
+			return SecurityContextHolder.getContext().getAuthentication() != null
+					|| RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes;
 		}
 
 		private static Map<Object, Object> getContextAttributes() {
@@ -104,13 +105,12 @@ class SecurityReactorContextConfiguration {
 			if (requestAttributes instanceof ServletRequestAttributes) {
 				ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
 				servletRequest = servletRequestAttributes.getRequest();
-				servletResponse = servletRequestAttributes.getResponse();	// possible null
+				servletResponse = servletRequestAttributes.getResponse(); // possible null
 			}
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			if (authentication == null && servletRequest == null) {
 				return Collections.emptyMap();
 			}
-
 			Map<Object, Object> contextAttributes = new HashMap<>();
 			if (servletRequest != null) {
 				contextAttributes.put(HttpServletRequest.class, servletRequest);
@@ -124,23 +124,28 @@ class SecurityReactorContextConfiguration {
 
 			return contextAttributes;
 		}
+
 	}
 
 	static class SecurityReactorContextSubscriber<T> implements CoreSubscriber<T> {
+
 		static final String SECURITY_CONTEXT_ATTRIBUTES = "org.springframework.security.SECURITY_CONTEXT_ATTRIBUTES";
+
 		private final CoreSubscriber<T> delegate;
+
 		private final Context context;
 
 		SecurityReactorContextSubscriber(CoreSubscriber<T> delegate, Map<Object, Object> attributes) {
 			this.delegate = delegate;
-			Context currentContext = this.delegate.currentContext();
-			Context context;
-			if (currentContext.hasKey(SECURITY_CONTEXT_ATTRIBUTES)) {
-				context = currentContext;
-			} else {
-				context = currentContext.put(SECURITY_CONTEXT_ATTRIBUTES, attributes);
-			}
+			Context context = getOrPutContext(attributes, this.delegate.currentContext());
 			this.context = context;
+		}
+
+		private Context getOrPutContext(Map<Object, Object> attributes, Context currentContext) {
+			if (currentContext.hasKey(SECURITY_CONTEXT_ATTRIBUTES)) {
+				return currentContext;
+			}
+			return currentContext.put(SECURITY_CONTEXT_ATTRIBUTES, attributes);
 		}
 
 		@Override
@@ -159,13 +164,15 @@ class SecurityReactorContextConfiguration {
 		}
 
 		@Override
-		public void onError(Throwable t) {
-			this.delegate.onError(t);
+		public void onError(Throwable ex) {
+			this.delegate.onError(ex);
 		}
 
 		@Override
 		public void onComplete() {
 			this.delegate.onComplete();
 		}
+
 	}
+
 }

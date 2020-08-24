@@ -13,14 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.debug;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+package org.springframework.security.web.debug;
 
 import java.util.Collections;
 
@@ -37,31 +31,45 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.debug.DebugFilter.DebugRequestWrapper;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(Logger.class)
-public class DebugFilterTest {
+public class DebugFilterTests {
+
 	@Captor
 	private ArgumentCaptor<HttpServletRequest> requestCaptor;
+
 	@Captor
 	private ArgumentCaptor<String> logCaptor;
 
 	@Mock
 	private HttpServletRequest request;
+
 	@Mock
 	private HttpServletResponse response;
+
 	@Mock
 	private FilterChain filterChain;
+
 	@Mock
 	private FilterChainProxy fcp;
+
 	@Mock
 	private Logger logger;
 
@@ -71,47 +79,40 @@ public class DebugFilterTest {
 
 	@Before
 	public void setUp() {
-		when(request.getHeaderNames()).thenReturn(
-				Collections.enumeration(Collections.<String> emptyList()));
-		when(request.getServletPath()).thenReturn("/login");
-		filter = new DebugFilter(fcp);
-		ReflectionTestUtils.setField(filter, "logger", logger);
-		requestAttr = DebugFilter.ALREADY_FILTERED_ATTR_NAME;
+		given(this.request.getHeaderNames()).willReturn(Collections.enumeration(Collections.<String>emptyList()));
+		given(this.request.getServletPath()).willReturn("/login");
+		this.filter = new DebugFilter(this.fcp);
+		ReflectionTestUtils.setField(this.filter, "logger", this.logger);
+		this.requestAttr = DebugFilter.ALREADY_FILTERED_ATTR_NAME;
 	}
 
 	@Test
 	public void doFilterProcessesRequests() throws Exception {
-		filter.doFilter(request, response, filterChain);
-
-		verify(logger).info(anyString());
-		verify(request).setAttribute(requestAttr, Boolean.TRUE);
-		verify(fcp).doFilter(requestCaptor.capture(), eq(response), eq(filterChain));
-		assertThat(requestCaptor.getValue().getClass()).isEqualTo(DebugRequestWrapper.class);
-		verify(request).removeAttribute(requestAttr);
+		this.filter.doFilter(this.request, this.response, this.filterChain);
+		verify(this.logger).info(anyString());
+		verify(this.request).setAttribute(this.requestAttr, Boolean.TRUE);
+		verify(this.fcp).doFilter(this.requestCaptor.capture(), eq(this.response), eq(this.filterChain));
+		assertThat(this.requestCaptor.getValue().getClass()).isEqualTo(DebugRequestWrapper.class);
+		verify(this.request).removeAttribute(this.requestAttr);
 	}
 
 	// SEC-1901
 	@Test
 	public void doFilterProcessesForwardedRequests() throws Exception {
-		when(request.getAttribute(requestAttr)).thenReturn(Boolean.TRUE);
+		given(this.request.getAttribute(this.requestAttr)).willReturn(Boolean.TRUE);
 		HttpServletRequest request = new DebugRequestWrapper(this.request);
-
-		filter.doFilter(request, response, filterChain);
-
-		verify(logger).info(anyString());
-		verify(fcp).doFilter(request, response, filterChain);
-		verify(this.request, never()).removeAttribute(requestAttr);
+		this.filter.doFilter(request, this.response, this.filterChain);
+		verify(this.logger).info(anyString());
+		verify(this.fcp).doFilter(request, this.response, this.filterChain);
+		verify(this.request, never()).removeAttribute(this.requestAttr);
 	}
 
 	@Test
 	public void doFilterDoesNotWrapWithDebugRequestWrapperAgain() throws Exception {
-		when(request.getAttribute(requestAttr)).thenReturn(Boolean.TRUE);
-		HttpServletRequest fireWalledRequest = new HttpServletRequestWrapper(
-				new DebugRequestWrapper(this.request));
-
-		filter.doFilter(fireWalledRequest, response, filterChain);
-
-		verify(fcp).doFilter(fireWalledRequest, response, filterChain);
+		given(this.request.getAttribute(this.requestAttr)).willReturn(Boolean.TRUE);
+		HttpServletRequest fireWalledRequest = new HttpServletRequestWrapper(new DebugRequestWrapper(this.request));
+		this.filter.doFilter(fireWalledRequest, this.response, this.filterChain);
+		verify(this.fcp).doFilter(fireWalledRequest, this.response, this.filterChain);
 	}
 
 	@Test
@@ -123,15 +124,11 @@ public class DebugFilterTest {
 		request.addHeader("A", "A Value");
 		request.addHeader("A", "Another Value");
 		request.addHeader("B", "B Value");
-
-		filter.doFilter(request, response, filterChain);
-
-		verify(logger).info(logCaptor.capture());
-
-		assertThat(logCaptor.getValue()).isEqualTo(
-				"Request received for GET '/path/':\n" + "\n" + request + "\n" + "\n"
-						+ "servletPath:/path\n" + "pathInfo:/\n" + "headers: \n"
-						+ "A: A Value, Another Value\n" + "B: B Value\n" + "\n" + "\n"
-						+ "Security filter chain: no match");
+		this.filter.doFilter(request, this.response, this.filterChain);
+		verify(this.logger).info(this.logCaptor.capture());
+		assertThat(this.logCaptor.getValue()).isEqualTo("Request received for GET '/path/':\n" + "\n" + request + "\n"
+				+ "\n" + "servletPath:/path\n" + "pathInfo:/\n" + "headers: \n" + "A: A Value, Another Value\n"
+				+ "B: B Value\n" + "\n" + "\n" + "Security filter chain: no match");
 	}
+
 }

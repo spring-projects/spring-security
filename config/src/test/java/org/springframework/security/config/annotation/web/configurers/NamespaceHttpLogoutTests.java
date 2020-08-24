@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
+
 import javax.servlet.http.HttpSession;
 
 import org.assertj.core.api.Condition;
@@ -38,6 +40,7 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -48,7 +51,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests to verify that all the functionality of <logout> attributes is present
+ * Tests to verify that all the functionality of &lt;logout&gt; attributes is present
  *
  * @author Rob Winch
  * @author Josh Cummings
@@ -70,36 +73,21 @@ public class NamespaceHttpLogoutTests {
 	@WithMockUser
 	public void logoutWhenUsingDefaultsThenMatchesNamespace() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
-
+		// @formatter:off
 		this.mvc.perform(post("/logout").with(csrf()))
 				.andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/login?logout"))
 				.andExpect(noCookies())
 				.andExpect(session(Objects::isNull));
-	}
-
-	@EnableWebSecurity
-	static class HttpLogoutConfig extends WebSecurityConfigurerAdapter {
-		@Override
-		protected void configure(HttpSecurity http) {
-		}
+		// @formatter:on
 	}
 
 	@Test
 	@WithMockUser
 	public void logoutWhenDisabledInLambdaThenRespondsWithNotFound() throws Exception {
 		this.spring.register(HttpLogoutDisabledInLambdaConfig.class).autowire();
-
-		this.mvc.perform(post("/logout").with(csrf()).with(user("user")))
-				.andExpect(status().isNotFound());
-	}
-
-	@EnableWebSecurity
-	static class HttpLogoutDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http.logout(AbstractHttpConfigurer::disable);
-		}
+		MockHttpServletRequestBuilder logoutRequest = post("/logout").with(csrf()).with(user("user"));
+		this.mvc.perform(logoutRequest).andExpect(status().isNotFound());
 	}
 
 	/**
@@ -109,55 +97,28 @@ public class NamespaceHttpLogoutTests {
 	@WithMockUser
 	public void logoutWhenUsingVariousCustomizationsMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpLogoutConfig.class).autowire();
-
+		// @formatter:off
 		this.mvc.perform(post("/custom-logout").with(csrf()))
 				.andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/logout-success"))
-				.andExpect(result -> assertThat(result.getResponse().getCookies()).hasSize(1))
+				.andExpect((result) -> assertThat(result.getResponse().getCookies()).hasSize(1))
 				.andExpect(cookie().maxAge("remove", 0))
 				.andExpect(session(Objects::nonNull));
-	}
-
-	@EnableWebSecurity
-	static class CustomHttpLogoutConfig extends WebSecurityConfigurerAdapter {
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.logout()
-					.deleteCookies("remove") // logout@delete-cookies
-					.invalidateHttpSession(false) // logout@invalidate-session=false (default is true)
-					.logoutUrl("/custom-logout") // logout@logout-url (default is /logout)
-					.logoutSuccessUrl("/logout-success"); // logout@success-url (default is /login?logout)
-		}
+		// @formatter:on
 	}
 
 	@Test
 	@WithMockUser
 	public void logoutWhenUsingVariousCustomizationsInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpLogoutInLambdaConfig.class).autowire();
-
+		// @formatter:off
 		this.mvc.perform(post("/custom-logout").with(csrf()))
 				.andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/logout-success"))
-				.andExpect(result -> assertThat(result.getResponse().getCookies()).hasSize(1))
+				.andExpect((result) -> assertThat(result.getResponse().getCookies()).hasSize(1))
 				.andExpect(cookie().maxAge("remove", 0))
 				.andExpect(session(Objects::nonNull));
-	}
-
-	@EnableWebSecurity
-	static class CustomHttpLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.logout(logout ->
-						logout.deleteCookies("remove")
-							.invalidateHttpSession(false)
-							.logoutUrl("/custom-logout")
-							.logoutSuccessUrl("/logout-success")
-				);
-			// @formatter:on
-		}
+		// @formatter:on
 	}
 
 	/**
@@ -167,67 +128,125 @@ public class NamespaceHttpLogoutTests {
 	@WithMockUser
 	public void logoutWhenUsingSuccessHandlerRefThenMatchesNamespace() throws Exception {
 		this.spring.register(SuccessHandlerRefHttpLogoutConfig.class).autowire();
-
+		// @formatter:off
 		this.mvc.perform(post("/logout").with(csrf()))
 				.andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig"))
 				.andExpect(noCookies())
 				.andExpect(session(Objects::isNull));
-	}
-
-	@EnableWebSecurity
-	static class SuccessHandlerRefHttpLogoutConfig extends WebSecurityConfigurerAdapter {
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			SimpleUrlLogoutSuccessHandler logoutSuccessHandler =
-					new SimpleUrlLogoutSuccessHandler();
-			logoutSuccessHandler.setDefaultTargetUrl("/SuccessHandlerRefHttpLogoutConfig");
-
-			http
-				.logout()
-					.logoutSuccessHandler(logoutSuccessHandler);
-		}
+		// @formatter:on
 	}
 
 	@Test
 	@WithMockUser
 	public void logoutWhenUsingSuccessHandlerRefInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(SuccessHandlerRefHttpLogoutInLambdaConfig.class).autowire();
-
+		// @formatter:off
 		this.mvc.perform(post("/logout").with(csrf()))
 				.andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig"))
 				.andExpect(noCookies())
 				.andExpect(session(Objects::isNull));
+		// @formatter:on
+	}
+
+	ResultMatcher authenticated(boolean authenticated) {
+		return (result) -> assertThat(Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+				.map(Authentication::isAuthenticated).orElse(false)).isEqualTo(authenticated);
+	}
+
+	ResultMatcher noCookies() {
+		return (result) -> assertThat(result.getResponse().getCookies()).isEmpty();
+	}
+
+	ResultMatcher session(Predicate<HttpSession> sessionPredicate) {
+		return (result) -> assertThat(result.getRequest().getSession(false))
+				.is(new Condition<>(sessionPredicate, "sessionPredicate failed"));
 	}
 
 	@EnableWebSecurity
-	static class SuccessHandlerRefHttpLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class HttpLogoutConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) {
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class HttpLogoutDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http.logout(AbstractHttpConfigurer::disable);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class CustomHttpLogoutConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout()
+					.deleteCookies("remove") // logout@delete-cookies
+					.invalidateHttpSession(false) // logout@invalidate-session=false (default is true)
+					.logoutUrl("/custom-logout") // logout@logout-url (default is /logout)
+					.logoutSuccessUrl("/logout-success"); // logout@success-url (default is /login?logout)
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class CustomHttpLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout((logout) ->
+						logout.deleteCookies("remove")
+							.invalidateHttpSession(false)
+							.logoutUrl("/custom-logout")
+							.logoutSuccessUrl("/logout-success")
+				);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class SuccessHandlerRefHttpLogoutConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			SimpleUrlLogoutSuccessHandler logoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
 			logoutSuccessHandler.setDefaultTargetUrl("/SuccessHandlerRefHttpLogoutConfig");
-
 			// @formatter:off
 			http
-				.logout(logout -> logout.logoutSuccessHandler(logoutSuccessHandler));
+				.logout()
+					.logoutSuccessHandler(logoutSuccessHandler);
 			// @formatter:on
 		}
+
 	}
 
-	ResultMatcher authenticated(boolean authenticated) {
-		return result -> assertThat(
-				Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-						.map(Authentication::isAuthenticated)
-						.orElse(false)).isEqualTo(authenticated);
+	@EnableWebSecurity
+	static class SuccessHandlerRefHttpLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			SimpleUrlLogoutSuccessHandler logoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
+			logoutSuccessHandler.setDefaultTargetUrl("/SuccessHandlerRefHttpLogoutConfig");
+			// @formatter:off
+			http
+				.logout((logout) -> logout.logoutSuccessHandler(logoutSuccessHandler));
+			// @formatter:on
+		}
+
 	}
 
-	ResultMatcher noCookies() {
-		return result -> assertThat(result.getResponse().getCookies()).isEmpty();
-	}
-
-	ResultMatcher session(Predicate<HttpSession> sessionPredicate) {
-		return result -> assertThat(result.getRequest().getSession(false))
-				.is(new Condition<HttpSession>(sessionPredicate, "sessionPredicate failed"));
-	}
 }

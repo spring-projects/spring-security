@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.rsocket;
 
 import io.rsocket.ConnectionSetupPayload;
@@ -26,15 +27,15 @@ public class HelloHandler implements SocketAcceptor {
 
 	@Override
 	public Mono<RSocket> accept(ConnectionSetupPayload setup, RSocket sendingSocket) {
-		return Mono.just(
-				new RSocket() {
-					@Override
-					public Mono<Payload> requestResponse(Payload payload) {
-						String data = payload.getDataUtf8();
-						payload.release();
-						System.out.println("Got " + data);
-						return Mono.just(ByteBufPayload.create("Hello " + data));
-					}
-				});
+		return Mono.just(new RSocket() {
+			@Override
+			public Mono<Payload> requestResponse(Payload payload) {
+				String data = payload.getDataUtf8();
+				payload.release();
+				System.out.println("Got " + data);
+				return Mono.just(ByteBufPayload.create("Hello " + data));
+			}
+		});
 	}
+
 }

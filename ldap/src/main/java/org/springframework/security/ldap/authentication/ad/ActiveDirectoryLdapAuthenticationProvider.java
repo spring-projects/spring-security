@@ -13,8 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.authentication.ad;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.naming.AuthenticationException;
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.OperationNotSupportedException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.ldap.InitialLdapContext;
+
+import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.CommunicationException;
 import org.springframework.ldap.core.DirContextOperations;
@@ -37,24 +58,12 @@ import org.springframework.security.ldap.authentication.AbstractLdapAuthenticati
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import javax.naming.AuthenticationException;
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.OperationNotSupportedException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.ldap.InitialLdapContext;
-import java.io.Serializable;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * Specialized LDAP authentication provider which uses Active Directory configuration
  * conventions.
  * <p>
- * It will authenticate using the Active Directory <a
- * href="https://msdn.microsoft.com/en-us/library/ms680857%28VS.85%29.aspx">
+ * It will authenticate using the Active Directory
+ * <a href="https://msdn.microsoft.com/en-us/library/ms680857%28VS.85%29.aspx">
  * {@code userPrincipalName}</a> or a custom {@link #setSearchFilter(String) searchFilter}
  * in the form {@code username@domain}. If the username does not already end with the
  * domain name, the {@code userPrincipalName} will be built by appending the configured
@@ -90,26 +99,37 @@ import java.util.regex.Pattern;
  * @author Rob Winch
  * @since 3.1
  */
-public final class ActiveDirectoryLdapAuthenticationProvider extends
-		AbstractLdapAuthenticationProvider {
-	private static final Pattern SUB_ERROR_CODE = Pattern
-			.compile(".*data\\s([0-9a-f]{3,4}).*");
+public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLdapAuthenticationProvider {
+
+	private static final Pattern SUB_ERROR_CODE = Pattern.compile(".*data\\s([0-9a-f]{3,4}).*");
 
 	// Error codes
 	private static final int USERNAME_NOT_FOUND = 0x525;
+
 	private static final int INVALID_PASSWORD = 0x52e;
+
 	private static final int NOT_PERMITTED = 0x530;
+
 	private static final int PASSWORD_EXPIRED = 0x532;
+
 	private static final int ACCOUNT_DISABLED = 0x533;
+
 	private static final int ACCOUNT_EXPIRED = 0x701;
+
 	private static final int PASSWORD_NEEDS_RESET = 0x773;
+
 	private static final int ACCOUNT_LOCKED = 0x775;
 
 	private final String domain;
+
 	private final String rootDn;
+
 	private final String url;
+
 	private boolean convertSubErrorCodesToExceptions;
+
 	private String searchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
+
 	private Map<String, Object> contextEnvironmentProperties = new HashMap<>();
 
 	// Only used to allow tests to substitute a mock LdapContext
@@ -120,8 +140,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	 * @param url an LDAP url (or multiple URLs)
 	 * @param rootDn the root DN (may be null or empty)
 	 */
-	public ActiveDirectoryLdapAuthenticationProvider(String domain, String url,
-			String rootDn) {
+	public ActiveDirectoryLdapAuthenticationProvider(String domain, String url, String rootDn) {
 		Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
 		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
 		this.url = url;
@@ -136,27 +155,24 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
 		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
 		this.url = url;
-		rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
+		this.rootDn = (this.domain != null) ? rootDnFromDomain(this.domain) : null;
 	}
 
 	@Override
-	protected DirContextOperations doAuthentication(
-			UsernamePasswordAuthenticationToken auth) {
+	protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth) {
 		String username = auth.getName();
 		String password = (String) auth.getCredentials();
 		DirContext ctx = null;
-
 		try {
 			ctx = bindAsUser(username, password);
 			return searchForUser(ctx, username);
 		}
-		catch (CommunicationException e) {
-			throw badLdapConnection(e);
+		catch (CommunicationException ex) {
+			throw badLdapConnection(ex);
 		}
-		catch (NamingException e) {
-			logger.error("Failed to locate directory entry for authenticated user: "
-					+ username, e);
-			throw badCredentials(e);
+		catch (NamingException ex) {
+			this.logger.error("Failed to locate directory entry for authenticated user: " + username, ex);
+			throw badCredentials(ex);
 		}
 		finally {
 			LdapUtils.closeContext(ctx);
@@ -168,35 +184,26 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	 * obtained from the user's Active Directory entry.
 	 */
 	@Override
-	protected Collection<? extends GrantedAuthority> loadUserAuthorities(
-			DirContextOperations userData, String username, String password) {
+	protected Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username,
+			String password) {
 		String[] groups = userData.getStringAttributes("memberOf");
-
 		if (groups == null) {
-			logger.debug("No values for 'memberOf' attribute.");
-
+			this.logger.debug("No values for 'memberOf' attribute.");
 			return AuthorityUtils.NO_AUTHORITIES;
 		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("'memberOf' attribute values: " + Arrays.asList(groups));
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("'memberOf' attribute values: " + Arrays.asList(groups));
 		}
-
-		ArrayList<GrantedAuthority> authorities = new ArrayList<>(
-				groups.length);
-
+		List<GrantedAuthority> authorities = new ArrayList<>(groups.length);
 		for (String group : groups) {
-			authorities.add(new SimpleGrantedAuthority(new DistinguishedName(group)
-					.removeLast().getValue()));
+			authorities.add(new SimpleGrantedAuthority(new DistinguishedName(group).removeLast().getValue()));
 		}
-
 		return authorities;
 	}
 
 	private DirContext bindAsUser(String username, String password) {
 		// TODO. add DNS lookup based on domain
-		final String bindUrl = url;
-
+		final String bindUrl = this.url;
 		Hashtable<String, Object> env = new Hashtable<>();
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		String bindPrincipal = createBindPrincipal(username);
@@ -206,39 +213,29 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.OBJECT_FACTORIES, DefaultDirObjectFactory.class.getName());
 		env.putAll(this.contextEnvironmentProperties);
-
 		try {
-			return contextFactory.createContext(env);
+			return this.contextFactory.createContext(env);
 		}
-		catch (NamingException e) {
-			if ((e instanceof AuthenticationException)
-					|| (e instanceof OperationNotSupportedException)) {
-				handleBindException(bindPrincipal, e);
-				throw badCredentials(e);
-			} else {
-				throw LdapUtils.convertLdapException(e);
+		catch (NamingException ex) {
+			if ((ex instanceof AuthenticationException) || (ex instanceof OperationNotSupportedException)) {
+				handleBindException(bindPrincipal, ex);
+				throw badCredentials(ex);
 			}
+			throw LdapUtils.convertLdapException(ex);
 		}
 	}
 
 	private void handleBindException(String bindPrincipal, NamingException exception) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication for " + bindPrincipal + " failed:" + exception);
-		}
-
+		this.logger.debug(LogMessage.format("Authentication for %s failed:%s", bindPrincipal, exception));
 		handleResolveObj(exception);
-
 		int subErrorCode = parseSubErrorCode(exception.getMessage());
-
 		if (subErrorCode <= 0) {
-			logger.debug("Failed to locate AD-specific sub-error code in message");
+			this.logger.debug("Failed to locate AD-specific sub-error code in message");
 			return;
 		}
-
-		logger.info("Active Directory authentication failed: "
-				+ subCodeToLogMessage(subErrorCode));
-
-		if (convertSubErrorCodesToExceptions) {
+		this.logger.info(
+				LogMessage.of(() -> "Active Directory authentication failed: " + subCodeToLogMessage(subErrorCode)));
+		if (this.convertSubErrorCodesToExceptions) {
 			raiseExceptionForErrorCode(subErrorCode, exception);
 		}
 	}
@@ -252,34 +249,29 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	}
 
 	private int parseSubErrorCode(String message) {
-		Matcher m = SUB_ERROR_CODE.matcher(message);
-
-		if (m.matches()) {
-			return Integer.parseInt(m.group(1), 16);
+		Matcher matcher = SUB_ERROR_CODE.matcher(message);
+		if (matcher.matches()) {
+			return Integer.parseInt(matcher.group(1), 16);
 		}
-
 		return -1;
 	}
 
 	private void raiseExceptionForErrorCode(int code, NamingException exception) {
 		String hexString = Integer.toHexString(code);
-		Throwable cause = new ActiveDirectoryAuthenticationException(hexString,
-				exception.getMessage(), exception);
+		Throwable cause = new ActiveDirectoryAuthenticationException(hexString, exception.getMessage(), exception);
 		switch (code) {
 		case PASSWORD_EXPIRED:
-			throw new CredentialsExpiredException(messages.getMessage(
-					"LdapAuthenticationProvider.credentialsExpired",
-					"User credentials have expired"), cause);
+			throw new CredentialsExpiredException(this.messages.getMessage(
+					"LdapAuthenticationProvider.credentialsExpired", "User credentials have expired"), cause);
 		case ACCOUNT_DISABLED:
-			throw new DisabledException(messages.getMessage(
-					"LdapAuthenticationProvider.disabled", "User is disabled"), cause);
+			throw new DisabledException(
+					this.messages.getMessage("LdapAuthenticationProvider.disabled", "User is disabled"), cause);
 		case ACCOUNT_EXPIRED:
-			throw new AccountExpiredException(messages.getMessage(
-					"LdapAuthenticationProvider.expired", "User account has expired"),
-					cause);
+			throw new AccountExpiredException(
+					this.messages.getMessage("LdapAuthenticationProvider.expired", "User account has expired"), cause);
 		case ACCOUNT_LOCKED:
-			throw new LockedException(messages.getMessage(
-					"LdapAuthenticationProvider.locked", "User account is locked"), cause);
+			throw new LockedException(
+					this.messages.getMessage("LdapAuthenticationProvider.locked", "User account is locked"), cause);
 		default:
 			throw badCredentials(cause);
 		}
@@ -304,13 +296,12 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		case ACCOUNT_LOCKED:
 			return "Account locked";
 		}
-
 		return "Unknown (error code " + Integer.toHexString(code) + ")";
 	}
 
 	private BadCredentialsException badCredentials() {
-		return new BadCredentialsException(messages.getMessage(
-				"LdapAuthenticationProvider.badCredentials", "Bad credentials"));
+		return new BadCredentialsException(
+				this.messages.getMessage("LdapAuthenticationProvider.badCredentials", "Bad credentials"));
 	}
 
 	private BadCredentialsException badCredentials(Throwable cause) {
@@ -318,74 +309,62 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	}
 
 	private InternalAuthenticationServiceException badLdapConnection(Throwable cause) {
-		return new InternalAuthenticationServiceException(messages.getMessage(
-				"LdapAuthenticationProvider.badLdapConnection",
-				"Connection to LDAP server failed."), cause);
+		return new InternalAuthenticationServiceException(this.messages.getMessage(
+				"LdapAuthenticationProvider.badLdapConnection", "Connection to LDAP server failed."), cause);
 	}
 
-	private DirContextOperations searchForUser(DirContext context, String username)
-			throws NamingException {
+	private DirContextOperations searchForUser(DirContext context, String username) throws NamingException {
 		SearchControls searchControls = new SearchControls();
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
 		String bindPrincipal = createBindPrincipal(username);
-		String searchRoot = rootDn != null ? rootDn
-				: searchRootFromPrincipal(bindPrincipal);
+		String searchRoot = (this.rootDn != null) ? this.rootDn : searchRootFromPrincipal(bindPrincipal);
 
 		try {
-			return SpringSecurityLdapTemplate.searchForSingleEntryInternal(context,
-					searchControls, searchRoot, searchFilter,
-					new Object[] { bindPrincipal, username });
+			return SpringSecurityLdapTemplate.searchForSingleEntryInternal(context, searchControls, searchRoot,
+					this.searchFilter, new Object[] { bindPrincipal, username });
 		}
-		catch (CommunicationException ldapCommunicationException) {
-			throw badLdapConnection(ldapCommunicationException);
+		catch (CommunicationException ex) {
+			throw badLdapConnection(ex);
 		}
-		catch (IncorrectResultSizeDataAccessException incorrectResults) {
-			// Search should never return multiple results if properly configured - just
-			// rethrow
-			if (incorrectResults.getActualSize() != 0) {
-				throw incorrectResults;
+		catch (IncorrectResultSizeDataAccessException ex) {
+			// Search should never return multiple results if properly configured -
+			if (ex.getActualSize() != 0) {
+				throw ex;
 			}
 			// If we found no results, then the username/password did not match
 			UsernameNotFoundException userNameNotFoundException = new UsernameNotFoundException(
-					"User " + username + " not found in directory.", incorrectResults);
+					"User " + username + " not found in directory.", ex);
 			throw badCredentials(userNameNotFoundException);
 		}
 	}
 
 	private String searchRootFromPrincipal(String bindPrincipal) {
 		int atChar = bindPrincipal.lastIndexOf('@');
-
 		if (atChar < 0) {
-			logger.debug("User principal '" + bindPrincipal
+			this.logger.debug("User principal '" + bindPrincipal
 					+ "' does not contain the domain, and no domain has been configured");
 			throw badCredentials();
 		}
-
-		return rootDnFromDomain(bindPrincipal.substring(atChar + 1,
-				bindPrincipal.length()));
+		return rootDnFromDomain(bindPrincipal.substring(atChar + 1, bindPrincipal.length()));
 	}
 
 	private String rootDnFromDomain(String domain) {
 		String[] tokens = StringUtils.tokenizeToStringArray(domain, ".");
 		StringBuilder root = new StringBuilder();
-
 		for (String token : tokens) {
 			if (root.length() > 0) {
 				root.append(',');
 			}
 			root.append("dc=").append(token);
 		}
-
 		return root.toString();
 	}
 
 	String createBindPrincipal(String username) {
-		if (domain == null || username.toLowerCase().endsWith(domain)) {
+		if (this.domain == null || username.toLowerCase().endsWith(this.domain)) {
 			return username;
 		}
-
-		return username + "@" + domain;
+		return username + "@" + this.domain;
 	}
 
 	/**
@@ -398,12 +377,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	 * {@link AccountExpiredException} or {@link LockedException} will be thrown for the
 	 * corresponding codes. All other codes will result in the default
 	 * {@code BadCredentialsException}.
-	 *
 	 * @param convertSubErrorCodesToExceptions {@code true} to raise an exception based on
 	 * the AD error code.
 	 */
-	public void setConvertSubErrorCodesToExceptions(
-			boolean convertSubErrorCodesToExceptions) {
+	public void setConvertSubErrorCodesToExceptions(boolean convertSubErrorCodesToExceptions) {
 		this.convertSubErrorCodesToExceptions = convertSubErrorCodesToExceptions;
 	}
 
@@ -414,7 +391,6 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	 * <p>
 	 * Defaults to: {@code (&(objectClass=user)(userPrincipalName={0}))}
 	 * </p>
-	 *
 	 * @param searchFilter the filter string
 	 *
 	 * @since 3.2.6
@@ -426,8 +402,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 
 	/**
 	 * Allows a custom environment properties to be used to create initial LDAP context.
-	 *
-	 * @param environment the additional environment parameters to use when creating the LDAP Context
+	 * @param environment the additional environment parameters to use when creating the
+	 * LDAP Context
 	 */
 	public void setContextEnvironmentProperties(Map<String, Object> environment) {
 		Assert.notEmpty(environment, "environment must not be empty");
@@ -435,8 +411,11 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	}
 
 	static class ContextFactory {
+
 		DirContext createContext(Hashtable<?, ?> env) throws NamingException {
 			return new InitialLdapContext(env, null);
 		}
+
 	}
+
 }

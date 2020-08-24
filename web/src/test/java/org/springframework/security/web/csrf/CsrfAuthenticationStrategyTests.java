@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.csrf;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,9 +32,9 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CsrfAuthenticationStrategyTests {
+
 	@Mock
 	private CsrfTokenRepository csrfTokenRepository;
 
@@ -71,61 +73,44 @@ public class CsrfAuthenticationStrategyTests {
 
 	@Test
 	public void logoutRemovesCsrfTokenAndSavesNew() {
-		when(this.csrfTokenRepository.loadToken(this.request))
-				.thenReturn(this.existingToken);
-		when(this.csrfTokenRepository.generateToken(this.request))
-				.thenReturn(this.generatedToken);
-		this.strategy.onAuthentication(
-				new TestingAuthenticationToken("user", "password", "ROLE_USER"),
-				this.request, this.response);
-
+		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
+		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
+		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
+				this.response);
 		verify(this.csrfTokenRepository).saveToken(null, this.request, this.response);
-		verify(this.csrfTokenRepository).saveToken(eq(this.generatedToken),
-				any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(this.csrfTokenRepository).saveToken(eq(this.generatedToken), any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
 		// SEC-2404, SEC-2832
-		CsrfToken tokenInRequest = (CsrfToken) this.request
-				.getAttribute(CsrfToken.class.getName());
+		CsrfToken tokenInRequest = (CsrfToken) this.request.getAttribute(CsrfToken.class.getName());
 		assertThat(tokenInRequest.getToken()).isSameAs(this.generatedToken.getToken());
-		assertThat(tokenInRequest.getHeaderName())
-				.isSameAs(this.generatedToken.getHeaderName());
-		assertThat(tokenInRequest.getParameterName())
-				.isSameAs(this.generatedToken.getParameterName());
-		assertThat(this.request.getAttribute(this.generatedToken.getParameterName()))
-				.isSameAs(tokenInRequest);
+		assertThat(tokenInRequest.getHeaderName()).isSameAs(this.generatedToken.getHeaderName());
+		assertThat(tokenInRequest.getParameterName()).isSameAs(this.generatedToken.getParameterName());
+		assertThat(this.request.getAttribute(this.generatedToken.getParameterName())).isSameAs(tokenInRequest);
 	}
 
 	// SEC-2872
 	@Test
 	public void delaySavingCsrf() {
-		this.strategy = new CsrfAuthenticationStrategy(
-				new LazyCsrfTokenRepository(this.csrfTokenRepository));
-
-		when(this.csrfTokenRepository.loadToken(this.request))
-				.thenReturn(this.existingToken);
-		when(this.csrfTokenRepository.generateToken(this.request))
-				.thenReturn(this.generatedToken);
-		this.strategy.onAuthentication(
-				new TestingAuthenticationToken("user", "password", "ROLE_USER"),
-				this.request, this.response);
-
+		this.strategy = new CsrfAuthenticationStrategy(new LazyCsrfTokenRepository(this.csrfTokenRepository));
+		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
+		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
+		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
+				this.response);
 		verify(this.csrfTokenRepository).saveToken(null, this.request, this.response);
-		verify(this.csrfTokenRepository, never()).saveToken(eq(this.generatedToken),
-				any(HttpServletRequest.class), any(HttpServletResponse.class));
-
-		CsrfToken tokenInRequest = (CsrfToken) this.request
-				.getAttribute(CsrfToken.class.getName());
+		verify(this.csrfTokenRepository, never()).saveToken(eq(this.generatedToken), any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
+		CsrfToken tokenInRequest = (CsrfToken) this.request.getAttribute(CsrfToken.class.getName());
 		tokenInRequest.getToken();
-		verify(this.csrfTokenRepository).saveToken(eq(this.generatedToken),
-				any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(this.csrfTokenRepository).saveToken(eq(this.generatedToken), any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
 	}
 
 	@Test
 	public void logoutRemovesNoActionIfNullToken() {
-		this.strategy.onAuthentication(
-				new TestingAuthenticationToken("user", "password", "ROLE_USER"),
-				this.request, this.response);
-
-		verify(this.csrfTokenRepository, never()).saveToken(any(CsrfToken.class),
-				any(HttpServletRequest.class), any(HttpServletResponse.class));
+		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
+				this.response);
+		verify(this.csrfTokenRepository, never()).saveToken(any(CsrfToken.class), any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
 	}
+
 }

@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.registration;
 
-import org.springframework.util.Assert;
+package org.springframework.security.oauth2.client.registration;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,8 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.util.Assert;
+
 /**
- * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) in-memory.
+ * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s)
+ * in-memory.
  *
  * @author Joe Grandja
  * @author Rob Winch
@@ -34,12 +36,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see ClientRegistrationRepository
  * @see ClientRegistration
  */
-public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository, Iterable<ClientRegistration> {
+public final class InMemoryClientRegistrationRepository
+		implements ClientRegistrationRepository, Iterable<ClientRegistration> {
+
 	private final Map<String, ClientRegistration> registrations;
 
 	/**
-	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided parameters.
-	 *
+	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided
+	 * parameters.
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryClientRegistrationRepository(ClientRegistration... registrations) {
@@ -47,8 +51,8 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 	}
 
 	/**
-	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided parameters.
-	 *
+	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided
+	 * parameters.
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryClientRegistrationRepository(List<ClientRegistration> registrations) {
@@ -63,21 +67,19 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 	private static Map<String, ClientRegistration> toUnmodifiableConcurrentMap(List<ClientRegistration> registrations) {
 		ConcurrentHashMap<String, ClientRegistration> result = new ConcurrentHashMap<>();
 		for (ClientRegistration registration : registrations) {
-			if (result.containsKey(registration.getRegistrationId())) {
-				throw new IllegalStateException(String.format("Duplicate key %s",
-						registration.getRegistrationId()));
-			}
+			Assert.state(!result.containsKey(registration.getRegistrationId()),
+					() -> String.format("Duplicate key %s", registration.getRegistrationId()));
 			result.put(registration.getRegistrationId(), registration);
 		}
 		return Collections.unmodifiableMap(result);
 	}
 
 	/**
-	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided {@code Map}
-	 * of {@link ClientRegistration#getRegistrationId() registration id} to {@link ClientRegistration}.
-	 *
-	 * @since 5.2
+	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided
+	 * {@code Map} of {@link ClientRegistration#getRegistrationId() registration id} to
+	 * {@link ClientRegistration}.
 	 * @param registrations the {@code Map} of client registration(s)
+	 * @since 5.2
 	 */
 	public InMemoryClientRegistrationRepository(Map<String, ClientRegistration> registrations) {
 		Assert.notNull(registrations, "registrations cannot be null");
@@ -92,11 +94,11 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 
 	/**
 	 * Returns an {@code Iterator} of {@link ClientRegistration}.
-	 *
 	 * @return an {@code Iterator<ClientRegistration>}
 	 */
 	@Override
 	public Iterator<ClientRegistration> iterator() {
 		return this.registrations.values().iterator();
 	}
+
 }

@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.preauth;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.util.*;
+import java.util.List;
 
 import org.junit.Test;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
- *
  * @author TSARDD
  * @since 18-okt-2007
  */
@@ -35,8 +36,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetUserDetailsInvalidType() {
 		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
-		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(
-				"dummy", "dummy");
+		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("dummy", "dummy");
 		token.setDetails(new Object());
 		svc.loadUserDetails(token);
 	}
@@ -44,8 +44,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetUserDetailsNoDetails() {
 		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
-		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(
-				"dummy", "dummy");
+		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("dummy", "dummy");
 		token.setDetails(null);
 		svc.loadUserDetails(token);
 	}
@@ -62,11 +61,9 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 		testGetUserDetails(userName, AuthorityUtils.createAuthorityList("Role1", "Role2"));
 	}
 
-	private void testGetUserDetails(final String userName,
-			final List<GrantedAuthority> gas) {
+	private void testGetUserDetails(final String userName, final List<GrantedAuthority> gas) {
 		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
-		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(
-				userName, "dummy");
+		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(userName, "dummy");
 		token.setDetails((GrantedAuthoritiesContainer) () -> gas);
 		UserDetails ud = svc.loadUserDetails(token);
 		assertThat(ud.isAccountNonExpired()).isTrue();
@@ -74,13 +71,12 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 		assertThat(ud.isCredentialsNonExpired()).isTrue();
 		assertThat(ud.isEnabled()).isTrue();
 		assertThat(userName).isEqualTo(ud.getUsername());
-
 		// Password is not saved by
 		// PreAuthenticatedGrantedAuthoritiesUserDetailsService
 		// assertThat(password).isEqualTo(ud.getPassword());
-
-		assertThat(gas.containsAll(ud.getAuthorities())
-						&& ud.getAuthorities().containsAll(gas)).withFailMessage("GrantedAuthority collections do not match; result: "+ ud.getAuthorities() + ", expected: " + gas).isTrue();
+		assertThat(gas.containsAll(ud.getAuthorities()) && ud.getAuthorities().containsAll(gas)).withFailMessage(
+				"GrantedAuthority collections do not match; result: " + ud.getAuthorities() + ", expected: " + gas)
+				.isTrue();
 	}
 
 }

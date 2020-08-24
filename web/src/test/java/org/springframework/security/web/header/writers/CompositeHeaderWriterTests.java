@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header.writers;
 
-import org.junit.Test;
-import org.springframework.security.web.header.HeaderWriter;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.junit.Test;
+
+import org.springframework.security.web.header.HeaderWriter;
+
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -41,10 +44,7 @@ public class CompositeHeaderWriterTests {
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		HeaderWriter one = mock(HeaderWriter.class);
 		HeaderWriter two = mock(HeaderWriter.class);
-
-		CompositeHeaderWriter headerWriter = new CompositeHeaderWriter(
-				Arrays.asList(one, two));
-
+		CompositeHeaderWriter headerWriter = new CompositeHeaderWriter(Arrays.asList(one, two));
 		headerWriter.writeHeaders(request, response);
 		verify(one).writeHeaders(request, response);
 		verify(two).writeHeaders(request, response);
@@ -52,7 +52,7 @@ public class CompositeHeaderWriterTests {
 
 	@Test
 	public void constructorWhenPassingEmptyListThenThrowsException() {
-		assertThatCode(() -> new CompositeHeaderWriter(Collections.emptyList()))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new CompositeHeaderWriter(Collections.emptyList()));
 	}
+
 }

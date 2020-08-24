@@ -16,9 +16,19 @@
 
 package org.springframework.security.config.test;
 
+import java.io.Closeable;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlWebApplicationContext;
 import org.springframework.test.context.web.GenericXmlWebContextLoader;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,15 +42,6 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.Closeable;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.springframework.security.config.BeanIds.SPRING_SECURITY_FILTER_CHAIN;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 /**
@@ -48,6 +49,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
  * @since 5.0
  */
 public class SpringTestContext implements Closeable {
+
 	private Object test;
 
 	private ConfigurableWebApplicationContext context;
@@ -62,7 +64,9 @@ public class SpringTestContext implements Closeable {
 	public void close() {
 		try {
 			this.context.close();
-		} catch(Exception e) {}
+		}
+		catch (Exception ex) {
+		}
 	}
 
 	public SpringTestContext context(ConfigurableWebApplicationContext context) {
@@ -79,8 +83,7 @@ public class SpringTestContext implements Closeable {
 
 	public SpringTestContext testConfigLocations(String... configLocations) {
 		GenericXmlWebContextLoader loader = new GenericXmlWebContextLoader();
-		String[] locations = loader.processLocations(this.test.getClass(),
-			configLocations);
+		String[] locations = loader.processLocations(this.test.getClass(), configLocations);
 		return configLocations(locations);
 	}
 
@@ -100,8 +103,8 @@ public class SpringTestContext implements Closeable {
 	public SpringTestContext mockMvcAfterSpringSecurityOk() {
 		return addFilter(new OncePerRequestFilter() {
 			@Override
-			protected void doFilterInternal(HttpServletRequest request,
-				HttpServletResponse response, FilterChain filterChain) {
+			protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+					FilterChain filterChain) {
 				response.setStatus(HttpServletResponse.SC_OK);
 			}
 		});
@@ -125,25 +128,29 @@ public class SpringTestContext implements Closeable {
 		this.context.setServletContext(new MockServletContext());
 		this.context.setServletConfig(new MockServletConfig());
 		this.context.refresh();
-
-		if (this.context.containsBean(SPRING_SECURITY_FILTER_CHAIN)) {
-			MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.context)
-				.apply(springSecurity())
-				.apply(new AddFilter()).build();
-			this.context.getBeanFactory()
-				.registerResolvableDependency(MockMvc.class, mockMvc);
+		if (this.context.containsBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN)) {
+			// @formatter:off
+			MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.context).
+					apply(springSecurity())
+					.apply(new AddFilter())
+					.build();
+			// @formatter:on
+			this.context.getBeanFactory().registerResolvableDependency(MockMvc.class, mockMvc);
 		}
-
 		AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
 		bpp.setBeanFactory(this.context.getBeanFactory());
 		bpp.processInjection(this.test);
 	}
 
 	private class AddFilter implements MockMvcConfigurer {
-		public RequestPostProcessor beforeMockMvcCreated(
-			ConfigurableMockMvcBuilder<?> builder, WebApplicationContext context) {
+
+		@Override
+		public RequestPostProcessor beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder,
+				WebApplicationContext context) {
 			builder.addFilters(SpringTestContext.this.filters.toArray(new Filter[0]));
 			return null;
 		}
+
 	}
+
 }

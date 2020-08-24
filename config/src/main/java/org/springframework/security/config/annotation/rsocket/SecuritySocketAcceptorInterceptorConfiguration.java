@@ -31,29 +31,31 @@ import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcher.
  */
 @Configuration(proxyBeanMethods = false)
 class SecuritySocketAcceptorInterceptorConfiguration {
+
 	@Bean
 	SecuritySocketAcceptorInterceptor securitySocketAcceptorInterceptor(
-			ObjectProvider<PayloadSocketAcceptorInterceptor> rsocketInterceptor, ObjectProvider<RSocketSecurity> rsocketSecurity) {
+			ObjectProvider<PayloadSocketAcceptorInterceptor> rsocketInterceptor,
+			ObjectProvider<RSocketSecurity> rsocketSecurity) {
 		PayloadSocketAcceptorInterceptor delegate = rsocketInterceptor
 				.getIfAvailable(() -> defaultInterceptor(rsocketSecurity));
 		return new SecuritySocketAcceptorInterceptor(delegate);
 	}
 
-	private PayloadSocketAcceptorInterceptor defaultInterceptor(
-			ObjectProvider<RSocketSecurity> rsocketSecurity) {
+	private PayloadSocketAcceptorInterceptor defaultInterceptor(ObjectProvider<RSocketSecurity> rsocketSecurity) {
 		RSocketSecurity rsocket = rsocketSecurity.getIfAvailable();
 		if (rsocket == null) {
 			throw new NoSuchBeanDefinitionException("No RSocketSecurity defined");
 		}
-		rsocket
-			.basicAuthentication(Customizer.withDefaults())
+		// @formatter:off
+		rsocket.basicAuthentication(Customizer.withDefaults())
 			.simpleAuthentication(Customizer.withDefaults())
-			.authorizePayload(authz ->
-				authz
-					.setup().authenticated()
-					.anyRequest().authenticated()
-					.matcher(e -> MatchResult.match()).permitAll()
+			.authorizePayload((authz) -> authz
+				.setup().authenticated()
+				.anyRequest().authenticated()
+				.matcher((e) -> MatchResult.match()).permitAll()
 			);
+		// @formatter:on
 		return rsocket.build();
 	}
+
 }

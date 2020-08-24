@@ -22,10 +22,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jasig.cas.client.util.CommonUtils;
+
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 /**
@@ -42,10 +43,8 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @author Scott Battaglia
  */
-public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint,
-		InitializingBean {
-	// ~ Instance fields
-	// ================================================================================================
+public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+
 	private ServiceProperties serviceProperties;
 
 	private String loginUrl;
@@ -61,25 +60,19 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint,
 	 */
 	private boolean encodeServiceUrlWithSessionId = true;
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public void afterPropertiesSet() {
 		Assert.hasLength(this.loginUrl, "loginUrl must be specified");
 		Assert.notNull(this.serviceProperties, "serviceProperties must be specified");
-		Assert.notNull(this.serviceProperties.getService(),
-				"serviceProperties.getService() cannot be null.");
+		Assert.notNull(this.serviceProperties.getService(), "serviceProperties.getService() cannot be null.");
 	}
 
-	public final void commence(final HttpServletRequest servletRequest,
-			final HttpServletResponse response,
-			final AuthenticationException authenticationException) throws IOException {
-
-		final String urlEncodedService = createServiceUrl(servletRequest, response);
-		final String redirectUrl = createRedirectUrl(urlEncodedService);
-
+	@Override
+	public final void commence(final HttpServletRequest servletRequest, HttpServletResponse response,
+			AuthenticationException authenticationException) throws IOException {
+		String urlEncodedService = createServiceUrl(servletRequest, response);
+		String redirectUrl = createRedirectUrl(urlEncodedService);
 		preCommence(servletRequest, response);
-
 		response.sendRedirect(redirectUrl);
 	}
 
@@ -90,42 +83,34 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint,
 	 * @param response the HttpServlet Response
 	 * @return the constructed service url. CANNOT be NULL.
 	 */
-	protected String createServiceUrl(final HttpServletRequest request,
-			final HttpServletResponse response) {
-		return CommonUtils.constructServiceUrl(null, response,
-				this.serviceProperties.getService(), null,
-				this.serviceProperties.getArtifactParameter(),
-				this.encodeServiceUrlWithSessionId);
+	protected String createServiceUrl(HttpServletRequest request, HttpServletResponse response) {
+		return CommonUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null,
+				this.serviceProperties.getArtifactParameter(), this.encodeServiceUrlWithSessionId);
 	}
 
 	/**
 	 * Constructs the Url for Redirection to the CAS server. Default implementation relies
 	 * on the CAS client to do the bulk of the work.
-	 *
 	 * @param serviceUrl the service url that should be included.
 	 * @return the redirect url. CANNOT be NULL.
 	 */
-	protected String createRedirectUrl(final String serviceUrl) {
-		return CommonUtils.constructRedirectUrl(this.loginUrl,
-				this.serviceProperties.getServiceParameter(), serviceUrl,
+	protected String createRedirectUrl(String serviceUrl) {
+		return CommonUtils.constructRedirectUrl(this.loginUrl, this.serviceProperties.getServiceParameter(), serviceUrl,
 				this.serviceProperties.isSendRenew(), false);
 	}
 
 	/**
 	 * Template method for you to do your own pre-processing before the redirect occurs.
-	 *
 	 * @param request the HttpServletRequest
 	 * @param response the HttpServletResponse
 	 */
-	protected void preCommence(final HttpServletRequest request,
-			final HttpServletResponse response) {
+	protected void preCommence(HttpServletRequest request, HttpServletResponse response) {
 
 	}
 
 	/**
 	 * The enterprise-wide CAS login URL. Usually something like
 	 * <code>https://www.mycompany.com/cas/login</code>.
-	 *
 	 * @return the enterprise-wide CAS login URL
 	 */
 	public final String getLoginUrl() {
@@ -136,22 +121,20 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint,
 		return this.serviceProperties;
 	}
 
-	public final void setLoginUrl(final String loginUrl) {
+	public final void setLoginUrl(String loginUrl) {
 		this.loginUrl = loginUrl;
 	}
 
-	public final void setServiceProperties(final ServiceProperties serviceProperties) {
+	public final void setServiceProperties(ServiceProperties serviceProperties) {
 		this.serviceProperties = serviceProperties;
 	}
 
 	/**
 	 * Sets whether to encode the service url with the session id or not.
-	 *
 	 * @param encodeServiceUrlWithSessionId whether to encode the service url with the
 	 * session id or not.
 	 */
-	public final void setEncodeServiceUrlWithSessionId(
-			final boolean encodeServiceUrlWithSessionId) {
+	public final void setEncodeServiceUrlWithSessionId(boolean encodeServiceUrlWithSessionId) {
 		this.encodeServiceUrlWithSessionId = encodeServiceUrlWithSessionId;
 	}
 
@@ -163,4 +146,5 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint,
 	protected boolean getEncodeServiceUrlWithSessionId() {
 		return this.encodeServiceUrlWithSessionId;
 	}
+
 }

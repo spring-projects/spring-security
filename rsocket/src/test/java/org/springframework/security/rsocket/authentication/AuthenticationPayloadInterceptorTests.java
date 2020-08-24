@@ -16,6 +16,8 @@
 
 package org.springframework.security.rsocket.authentication;
 
+import java.util.Map;
+
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.CompositeByteBuf;
 import io.rsocket.Payload;
@@ -28,6 +30,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import reactor.test.publisher.PublisherProbe;
+
 import org.springframework.core.ResolvableType;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -37,33 +43,31 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadExchangeType;
+import org.springframework.security.rsocket.api.PayloadInterceptorChain;
+import org.springframework.security.rsocket.core.DefaultPayloadExchange;
 import org.springframework.security.rsocket.metadata.BasicAuthenticationEncoder;
 import org.springframework.security.rsocket.metadata.UsernamePasswordMetadata;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
-import reactor.test.publisher.PublisherProbe;
-import org.springframework.security.rsocket.core.DefaultPayloadExchange;
-import org.springframework.security.rsocket.api.PayloadInterceptorChain;
-import org.springframework.security.rsocket.api.PayloadExchange;
 
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticationPayloadInterceptorTests {
-	static final MimeType COMPOSITE_METADATA = MimeTypeUtils.parseMimeType(
-			WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+
+	static final MimeType COMPOSITE_METADATA = MimeTypeUtils
+			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+
 	@Mock
 	ReactiveAuthenticationManager authenticationManager;
 
@@ -72,76 +76,55 @@ public class AuthenticationPayloadInterceptorTests {
 
 	@Test
 	public void constructorWhenAuthenticationManagerNullThenException() {
-		assertThatCode(() -> new AuthenticationPayloadInterceptor(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AuthenticationPayloadInterceptor(null));
 	}
 
 	@Test
 	public void interceptWhenBasicCredentialsThenAuthenticates() {
-		AuthenticationPayloadInterceptor interceptor = new AuthenticationPayloadInterceptor(
-				this.authenticationManager);
+		AuthenticationPayloadInterceptor interceptor = new AuthenticationPayloadInterceptor(this.authenticationManager);
 		PayloadExchange exchange = createExchange();
-		TestingAuthenticationToken expectedAuthentication =
-				new TestingAuthenticationToken("user", "password");
-		when(this.authenticationManager.authenticate(any())).thenReturn(Mono.just(
-				expectedAuthentication));
-
+		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password");
+		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(expectedAuthentication));
 		AuthenticationPayloadInterceptorChain authenticationPayloadChain = new AuthenticationPayloadInterceptorChain();
-		interceptor.intercept(exchange, authenticationPayloadChain)
-			.block();
-
+		interceptor.intercept(exchange, authenticationPayloadChain).block();
 		Authentication authentication = authenticationPayloadChain.getAuthentication();
-
 		verify(this.authenticationManager).authenticate(this.authenticationArg.capture());
-		assertThat(this.authenticationArg.getValue()).isEqualToComparingFieldByField(new UsernamePasswordAuthenticationToken("user", "password"));
+		assertThat(this.authenticationArg.getValue())
+				.isEqualToComparingFieldByField(new UsernamePasswordAuthenticationToken("user", "password"));
 		assertThat(authentication).isEqualTo(expectedAuthentication);
 	}
 
 	@Test
 	public void interceptWhenAuthenticationSuccessThenChainSubscribedOnce() {
-		AuthenticationPayloadInterceptor interceptor = new AuthenticationPayloadInterceptor(
-				this.authenticationManager);
-
+		AuthenticationPayloadInterceptor interceptor = new AuthenticationPayloadInterceptor(this.authenticationManager);
 		PayloadExchange exchange = createExchange();
-		TestingAuthenticationToken expectedAuthentication =
-				new TestingAuthenticationToken("user", "password");
-		when(this.authenticationManager.authenticate(any())).thenReturn(Mono.just(
-				expectedAuthentication));
-
+		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password");
+		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(expectedAuthentication));
 		PublisherProbe<Void> voidResult = PublisherProbe.empty();
 		PayloadInterceptorChain chain = mock(PayloadInterceptorChain.class);
-		when(chain.next(any())).thenReturn(voidResult.mono());
-
-
+		given(chain.next(any())).willReturn(voidResult.mono());
 		StepVerifier.create(interceptor.intercept(exchange, chain))
-			.then(() -> assertThat(voidResult.subscribeCount()).isEqualTo(1))
-			.verifyComplete();
+				.then(() -> assertThat(voidResult.subscribeCount()).isEqualTo(1)).verifyComplete();
 	}
 
 	private Payload createRequestPayload() {
-
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
 		BasicAuthenticationEncoder encoder = new BasicAuthenticationEncoder();
 		DefaultDataBufferFactory factory = new DefaultDataBufferFactory();
-		ResolvableType elementType = ResolvableType
-				.forClass(UsernamePasswordMetadata.class);
+		ResolvableType elementType = ResolvableType.forClass(UsernamePasswordMetadata.class);
 		MimeType mimeType = UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE;
 		Map<String, Object> hints = null;
-		DataBuffer dataBuffer = encoder.encodeValue(credentials, factory,
-				elementType, mimeType, hints);
-
+		DataBuffer dataBuffer = encoder.encodeValue(credentials, factory, elementType, mimeType, hints);
 		ByteBufAllocator allocator = ByteBufAllocator.DEFAULT;
 		CompositeByteBuf metadata = allocator.compositeBuffer();
-		CompositeMetadataCodec.encodeAndAddMetadata(
-				metadata, allocator, mimeType.toString(), NettyDataBufferFactory.toByteBuf(dataBuffer));
-
-		return DefaultPayload.create(allocator.buffer(),
-				metadata);
+		CompositeMetadataCodec.encodeAndAddMetadata(metadata, allocator, mimeType.toString(),
+				NettyDataBufferFactory.toByteBuf(dataBuffer));
+		return DefaultPayload.create(allocator.buffer(), metadata);
 	}
 
 	private PayloadExchange createExchange() {
-		return new DefaultPayloadExchange(PayloadExchangeType.REQUEST_RESPONSE, createRequestPayload(), COMPOSITE_METADATA,
-				MediaType.APPLICATION_JSON);
+		return new DefaultPayloadExchange(PayloadExchangeType.REQUEST_RESPONSE, createRequestPayload(),
+				COMPOSITE_METADATA, MediaType.APPLICATION_JSON);
 	}
 
 }

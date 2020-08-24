@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.servlet.support.csrf;
 
 import java.util.Collections;
@@ -33,8 +34,8 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  * @since 3.2
  */
 public final class CsrfRequestDataValueProcessor implements RequestDataValueProcessor {
-	private Pattern DISABLE_CSRF_TOKEN_PATTERN = Pattern
-			.compile("(?i)^(GET|HEAD|TRACE|OPTIONS)$");
+
+	private Pattern DISABLE_CSRF_TOKEN_PATTERN = Pattern.compile("(?i)^(GET|HEAD|TRACE|OPTIONS)$");
 
 	private String DISABLE_CSRF_TOKEN_ATTR = "DISABLE_CSRF_TOKEN_ATTR";
 
@@ -42,27 +43,28 @@ public final class CsrfRequestDataValueProcessor implements RequestDataValueProc
 		return action;
 	}
 
+	@Override
 	public String processAction(HttpServletRequest request, String action, String method) {
-		if (method != null && DISABLE_CSRF_TOKEN_PATTERN.matcher(method).matches()) {
-			request.setAttribute(DISABLE_CSRF_TOKEN_ATTR, Boolean.TRUE);
+		if (method != null && this.DISABLE_CSRF_TOKEN_PATTERN.matcher(method).matches()) {
+			request.setAttribute(this.DISABLE_CSRF_TOKEN_ATTR, Boolean.TRUE);
 		}
 		else {
-			request.removeAttribute(DISABLE_CSRF_TOKEN_ATTR);
+			request.removeAttribute(this.DISABLE_CSRF_TOKEN_ATTR);
 		}
 		return action;
 	}
 
-	public String processFormFieldValue(HttpServletRequest request, String name,
-			String value, String type) {
+	@Override
+	public String processFormFieldValue(HttpServletRequest request, String name, String value, String type) {
 		return value;
 	}
 
+	@Override
 	public Map<String, String> getExtraHiddenFields(HttpServletRequest request) {
-		if (Boolean.TRUE.equals(request.getAttribute(DISABLE_CSRF_TOKEN_ATTR))) {
-			request.removeAttribute(DISABLE_CSRF_TOKEN_ATTR);
+		if (Boolean.TRUE.equals(request.getAttribute(this.DISABLE_CSRF_TOKEN_ATTR))) {
+			request.removeAttribute(this.DISABLE_CSRF_TOKEN_ATTR);
 			return Collections.emptyMap();
 		}
-
 		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 		if (token == null) {
 			return Collections.emptyMap();
@@ -72,7 +74,9 @@ public final class CsrfRequestDataValueProcessor implements RequestDataValueProc
 		return hiddenFields;
 	}
 
+	@Override
 	public String processUrl(HttpServletRequest request, String url) {
 		return url;
 	}
+
 }

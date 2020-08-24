@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
+
+import java.util.Collections;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -21,11 +27,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
 import org.springframework.security.web.csrf.CsrfToken;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Adds a Filter that will generate a login page if one is not specified otherwise when
@@ -49,7 +50,8 @@ import java.util.function.Function;
  *
  * <h2>Shared Objects Created</h2>
  *
- * No shared objects are created. isLogoutRequest <h2>Shared Objects Used</h2>
+ * No shared objects are created. isLogoutRequest
+ * <h2>Shared Objects Used</h2>
  *
  * The following shared objects are used:
  *
@@ -60,13 +62,12 @@ import java.util.function.Function;
  * {@link DefaultLoginPageConfigurer} should be added and how to configure it.</li>
  * </ul>
  *
- * @see WebSecurityConfigurerAdapter
- *
  * @author Rob Winch
  * @since 3.2
+ * @see WebSecurityConfigurerAdapter
  */
-public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractHttpConfigurer<DefaultLoginPageConfigurer<H>, H> {
+public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractHttpConfigurer<DefaultLoginPageConfigurer<H>, H> {
 
 	private DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = new DefaultLoginPageGeneratingFilter();
 
@@ -74,32 +75,28 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> 
 
 	@Override
 	public void init(H http) {
-		Function<HttpServletRequest, Map<String, String>> hiddenInputs = request -> {
-			CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-			if (token == null) {
-				return Collections.emptyMap();
-			}
-			return Collections.singletonMap(token.getParameterName(), token.getToken());
-		};
-		this.loginPageGeneratingFilter.setResolveHiddenInputs(hiddenInputs);
-		this.logoutPageGeneratingFilter.setResolveHiddenInputs(hiddenInputs);
-		http.setSharedObject(DefaultLoginPageGeneratingFilter.class,
-				loginPageGeneratingFilter);
+		this.loginPageGeneratingFilter.setResolveHiddenInputs(DefaultLoginPageConfigurer.this::hiddenInputs);
+		this.logoutPageGeneratingFilter.setResolveHiddenInputs(DefaultLoginPageConfigurer.this::hiddenInputs);
+		http.setSharedObject(DefaultLoginPageGeneratingFilter.class, this.loginPageGeneratingFilter);
+	}
+
+	private Map<String, String> hiddenInputs(HttpServletRequest request) {
+		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+		return (token != null) ? Collections.singletonMap(token.getParameterName(), token.getToken())
+				: Collections.emptyMap();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public void configure(H http) {
 		AuthenticationEntryPoint authenticationEntryPoint = null;
-		ExceptionHandlingConfigurer<?> exceptionConf = http
-				.getConfigurer(ExceptionHandlingConfigurer.class);
+		ExceptionHandlingConfigurer<?> exceptionConf = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptionConf != null) {
 			authenticationEntryPoint = exceptionConf.getAuthenticationEntryPoint();
 		}
-
-		if (loginPageGeneratingFilter.isEnabled() && authenticationEntryPoint == null) {
-			loginPageGeneratingFilter = postProcess(loginPageGeneratingFilter);
-			http.addFilter(loginPageGeneratingFilter);
+		if (this.loginPageGeneratingFilter.isEnabled() && authenticationEntryPoint == null) {
+			this.loginPageGeneratingFilter = postProcess(this.loginPageGeneratingFilter);
+			http.addFilter(this.loginPageGeneratingFilter);
 			http.addFilter(this.logoutPageGeneratingFilter);
 		}
 	}

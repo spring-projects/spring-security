@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication.preauth;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+package org.springframework.security.web.authentication.preauth;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
+
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -29,8 +28,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
 /**
- *
  * @author Milan Sevcik
  */
 public class RequestAttributeAuthenticationFilterTests {
@@ -47,7 +50,6 @@ public class RequestAttributeAuthenticationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
-
 		filter.doFilter(request, response, chain);
 	}
 
@@ -59,14 +61,10 @@ public class RequestAttributeAuthenticationFilterTests {
 		MockFilterChain chain = new MockFilterChain();
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
-				.isEqualTo("cat");
-		assertThat(
-				SecurityContextHolder.getContext().getAuthentication().getCredentials())
-						.isEqualTo("N/A");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("cat");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("N/A");
 	}
 
 	@Test
@@ -78,11 +76,9 @@ public class RequestAttributeAuthenticationFilterTests {
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		filter.setPrincipalEnvironmentVariable("myUsernameVariable");
-
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
-				.isEqualTo("wolfman");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("wolfman");
 	}
 
 	@Test
@@ -95,17 +91,13 @@ public class RequestAttributeAuthenticationFilterTests {
 		filter.setCredentialsEnvironmentVariable("myCredentialsVariable");
 		request.setAttribute("REMOTE_USER", "cat");
 		request.setAttribute("myCredentialsVariable", "catspassword");
-
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(
-				SecurityContextHolder.getContext().getAuthentication().getCredentials())
-						.isEqualTo("catspassword");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("catspassword");
 	}
 
 	@Test
-	public void userIsReauthenticatedIfPrincipalChangesAndCheckForPrincipalChangesIsSet()
-			throws Exception {
+	public void userIsReauthenticatedIfPrincipalChangesAndCheckForPrincipalChangesIsSet() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
@@ -134,13 +126,11 @@ public class RequestAttributeAuthenticationFilterTests {
 		MockFilterChain chain = new MockFilterChain();
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-
 		filter.doFilter(request, response, chain);
 	}
 
 	@Test
-	public void missingHeaderIsIgnoredIfExceptionIfHeaderMissingIsFalse()
-			throws Exception {
+	public void missingHeaderIsIgnoredIfExceptionIfHeaderMissingIsFalse() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
@@ -155,9 +145,9 @@ public class RequestAttributeAuthenticationFilterTests {
 	 */
 	private AuthenticationManager createAuthenticationManager() {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class)))
-				.thenAnswer((Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
-
+		given(am.authenticate(any(Authentication.class)))
+				.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
 		return am;
 	}
+
 }

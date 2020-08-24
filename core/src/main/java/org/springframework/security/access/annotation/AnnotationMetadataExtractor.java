@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.annotation;
 
-import org.springframework.security.access.ConfigAttribute;
-
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.Collection;
+
+import org.springframework.security.access.ConfigAttribute;
 
 /**
  * Strategy to process a custom security annotation to extract the relevant
@@ -31,4 +32,5 @@ import java.util.*;
 public interface AnnotationMetadataExtractor<A extends Annotation> {
 
 	Collection<? extends ConfigAttribute> extractAttributes(A securityAnnotation);
+
 }

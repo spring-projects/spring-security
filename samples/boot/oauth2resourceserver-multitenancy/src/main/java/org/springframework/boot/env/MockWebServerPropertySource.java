@@ -156,10 +156,10 @@ public class MockWebServerPropertySource extends PropertySource<MockWebServer> i
 
 		if ("/introspect".equals(request.getPath())) {
 			return Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION))
-					.filter(authorization -> isAuthorized(authorization, "client", "secret"))
-					.map(authorization -> parseBody(request.getBody()))
-					.map(parameters -> parameters.get("token"))
-					.map(token -> {
+					.filter((authorization) -> isAuthorized(authorization, "client", "secret"))
+					.map((authorization) -> parseBody(request.getBody()))
+					.map((parameters) -> parameters.get("token"))
+					.map((token) -> {
 						if ("00ed5855-1869-47a0-b0c9-0f3ce520aee7".equals(token)) {
 							return NO_SCOPES_RESPONSE;
 						} else if ("b43d1500-c405-4dc9-b9c9-6cfd966c34c9".equals(token)) {
@@ -181,8 +181,8 @@ public class MockWebServerPropertySource extends PropertySource<MockWebServer> i
 
 	private Map<String, Object> parseBody(Buffer body) {
 		return Stream.of(body.readUtf8().split("&"))
-				.map(parameter -> parameter.split("="))
-				.collect(Collectors.toMap(parts -> parts[0], parts -> parts[1]));
+				.map((parameter) -> parameter.split("="))
+				.collect(Collectors.toMap((parts) -> parts[0], (parts) -> parts[1]));
 	}
 
 	private static MockResponse response(String body, int status) {

@@ -16,12 +16,12 @@
 
 package org.springframework.security.access.vote;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
-
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Implementation of an {@link AccessDecisionVoter} for unit testing.
@@ -34,34 +34,26 @@ import java.util.Iterator;
  * @author Ben Alex
  */
 public class DenyAgainVoter implements AccessDecisionVoter<Object> {
-	// ~ Methods
-	// ========================================================================================================
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
-		if ("DENY_AGAIN_FOR_SURE".equals(attribute.getAttribute())) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return "DENY_AGAIN_FOR_SURE".equals(attribute.getAttribute());
 	}
 
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}
 
-	public int vote(Authentication authentication, Object object,
-			Collection<ConfigAttribute> attributes) {
+	@Override
+	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 		Iterator<ConfigAttribute> iter = attributes.iterator();
-
 		while (iter.hasNext()) {
 			ConfigAttribute attribute = iter.next();
-
 			if (this.supports(attribute)) {
 				return ACCESS_DENIED;
 			}
 		}
-
 		return ACCESS_ABSTAIN;
 	}
 

@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.userdetails;
 
 import java.util.Collection;
 
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DirContextAdapter;
 
 /**
  * Operations to map a UserDetails object to and from a Spring LDAP
@@ -36,7 +37,6 @@ public interface UserDetailsContextMapper {
 
 	/**
 	 * Creates a fully populated UserDetails object for use by the security framework.
-	 *
 	 * @param ctx the context object which contains the user information.
 	 * @param username the user's supplied login name.
 	 * @param authorities
@@ -50,4 +50,5 @@ public interface UserDetailsContextMapper {
 	 * object. Called when saving a user, for example.
 	 */
 	void mapUserToContext(UserDetails user, DirContextAdapter ctx);
+
 }

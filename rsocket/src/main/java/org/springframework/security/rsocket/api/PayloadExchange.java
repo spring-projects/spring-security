@@ -17,6 +17,7 @@
 package org.springframework.security.rsocket.api;
 
 import io.rsocket.Payload;
+
 import org.springframework.util.MimeType;
 
 /**
@@ -26,6 +27,7 @@ import org.springframework.util.MimeType;
  * @since 5.2
  */
 public interface PayloadExchange {
+
 	PayloadExchangeType getType();
 
 	Payload getPayload();
@@ -33,4 +35,5 @@ public interface PayloadExchange {
 	MimeType getDataMimeType();
 
 	MimeType getMetadataMimeType();
+
 }

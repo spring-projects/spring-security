@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.access.expression;
 
 import org.springframework.messaging.Message;
@@ -29,22 +30,19 @@ import org.springframework.util.Assert;
  * {@link MessageSecurityExpressionRoot}.
  *
  * @param <T> the type for the body of the Message
- *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
-public class DefaultMessageSecurityExpressionHandler<T> extends
-		AbstractSecurityExpressionHandler<Message<T>> {
+public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurityExpressionHandler<Message<T>> {
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
 	@Override
-	protected SecurityExpressionOperations createSecurityExpressionRoot(
-			Authentication authentication, Message<T> invocation) {
-		MessageSecurityExpressionRoot root = new MessageSecurityExpressionRoot(
-				authentication, invocation);
+	protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+			Message<T> invocation) {
+		MessageSecurityExpressionRoot root = new MessageSecurityExpressionRoot(authentication, invocation);
 		root.setPermissionEvaluator(getPermissionEvaluator());
-		root.setTrustResolver(trustResolver);
+		root.setTrustResolver(this.trustResolver);
 		root.setRoleHierarchy(getRoleHierarchy());
 		return root;
 	}
@@ -53,4 +51,5 @@ public class DefaultMessageSecurityExpressionHandler<T> extends
 		Assert.notNull(trustResolver, "trustResolver cannot be null");
 		this.trustResolver = trustResolver;
 	}
+
 }

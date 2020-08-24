@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.authentication;
 
 import java.util.Collections;
@@ -25,23 +26,23 @@ import org.junit.Test;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses.accessTokenResponse;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.error;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeAuthenticationProvider}.
@@ -49,24 +50,27 @@ import static org.springframework.security.oauth2.core.endpoint.TestOAuth2Author
  * @author Joe Grandja
  */
 public class OAuth2AuthorizationCodeAuthenticationProviderTests {
+
 	private ClientRegistration clientRegistration;
+
 	private OAuth2AuthorizationRequest authorizationRequest;
+
 	private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
+
 	private OAuth2AuthorizationCodeAuthenticationProvider authenticationProvider;
 
 	@Before
 	@SuppressWarnings("unchecked")
 	public void setUp() {
-		this.clientRegistration = clientRegistration().build();
-		this.authorizationRequest = request().build();
+		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
+		this.authorizationRequest = TestOAuth2AuthorizationRequests.request().build();
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 		this.authenticationProvider = new OAuth2AuthorizationCodeAuthenticationProvider(this.accessTokenResponseClient);
 	}
 
 	@Test
 	public void constructorWhenAccessTokenResponseClientIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationProvider(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationProvider(null));
 	}
 
 	@Test
@@ -76,41 +80,38 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAuthorizationErrorResponseThenThrowOAuth2AuthorizationException() {
-		OAuth2AuthorizationResponse authorizationResponse = error().errorCode(OAuth2ErrorCodes.INVALID_REQUEST).build();
-		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
-				this.authorizationRequest, authorizationResponse);
-
-		assertThatThrownBy(() -> {
-			this.authenticationProvider.authenticate(
-					new OAuth2AuthorizationCodeAuthenticationToken(
-							this.clientRegistration, authorizationExchange));
-		}).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining(OAuth2ErrorCodes.INVALID_REQUEST);
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.error()
+				.errorCode(OAuth2ErrorCodes.INVALID_REQUEST).build();
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
+				authorizationResponse);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(
+						new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange)))
+				.withMessageContaining(OAuth2ErrorCodes.INVALID_REQUEST);
 	}
 
 	@Test
 	public void authenticateWhenAuthorizationResponseStateNotEqualAuthorizationRequestStateThenThrowOAuth2AuthorizationException() {
-		OAuth2AuthorizationResponse authorizationResponse = success().state("67890").build();
-		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
-				this.authorizationRequest, authorizationResponse);
-
-		assertThatThrownBy(() -> {
-			this.authenticationProvider.authenticate(
-					new OAuth2AuthorizationCodeAuthenticationToken(
-							this.clientRegistration, authorizationExchange));
-		}).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("invalid_state_parameter");
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success().state("67890")
+				.build();
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
+				authorizationResponse);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(
+						new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange)))
+				.withMessageContaining("invalid_state_parameter");
 	}
 
 	@Test
 	public void authenticateWhenAuthorizationSuccessResponseThenExchangedForAccessToken() {
-		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().refreshToken("refresh").build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
-
-		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
-				this.authorizationRequest, success().build());
-		OAuth2AuthorizationCodeAuthenticationToken authenticationResult =
-			(OAuth2AuthorizationCodeAuthenticationToken) this.authenticationProvider.authenticate(
-				new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
-
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
+				.refreshToken("refresh").build();
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
+				TestOAuth2AuthorizationResponses.success().build());
+		OAuth2AuthorizationCodeAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeAuthenticationToken) this.authenticationProvider
+				.authenticate(
+						new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
 		assertThat(authenticationResult.isAuthenticated()).isTrue();
 		assertThat(authenticationResult.getPrincipal()).isEqualTo(this.clientRegistration.getClientId());
 		assertThat(authenticationResult.getCredentials())
@@ -128,19 +129,16 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
-
-		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().additionalParameters(additionalParameters)
-				.build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
-
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
+				.additionalParameters(additionalParameters).build();
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
-				success().build());
-
+				TestOAuth2AuthorizationResponses.success().build());
 		OAuth2AuthorizationCodeAuthenticationToken authentication = (OAuth2AuthorizationCodeAuthenticationToken) this.authenticationProvider
 				.authenticate(
 						new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
-
 		assertThat(authentication.getAdditionalParameters())
 				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
 	}
+
 }

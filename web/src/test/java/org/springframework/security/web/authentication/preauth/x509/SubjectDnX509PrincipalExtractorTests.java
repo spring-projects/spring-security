@@ -13,59 +13,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.preauth.x509;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 
-import org.junit.Test;
-import org.junit.Before;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor
  */
 public class SubjectDnX509PrincipalExtractorTests {
+
 	SubjectDnX509PrincipalExtractor extractor;
 
 	@Before
 	public void setUp() {
-		extractor = new SubjectDnX509PrincipalExtractor();
-		extractor.setMessageSource(new SpringSecurityMessageSource());
+		this.extractor = new SubjectDnX509PrincipalExtractor();
+		this.extractor.setMessageSource(new SpringSecurityMessageSource());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void invalidRegexFails() {
-		extractor.setSubjectDnRegex("CN=(.*?,"); // missing closing bracket on group
+		this.extractor.setSubjectDnRegex("CN=(.*?,"); // missing closing bracket on group
 	}
 
 	@Test
 	public void defaultCNPatternReturnsExcpectedPrincipal() throws Exception {
-		Object principal = extractor.extractPrincipal(X509TestUtils
-				.buildTestCertificate());
+		Object principal = this.extractor.extractPrincipal(X509TestUtils.buildTestCertificate());
 		assertThat(principal).isEqualTo("Luke Taylor");
 	}
 
 	@Test
 	public void matchOnEmailReturnsExpectedPrincipal() throws Exception {
-		extractor.setSubjectDnRegex("emailAddress=(.*?),");
-		Object principal = extractor.extractPrincipal(X509TestUtils
-				.buildTestCertificate());
+		this.extractor.setSubjectDnRegex("emailAddress=(.*?),");
+		Object principal = this.extractor.extractPrincipal(X509TestUtils.buildTestCertificate());
 		assertThat(principal).isEqualTo("luke@monkeymachine");
 	}
 
 	@Test(expected = BadCredentialsException.class)
 	public void matchOnShoeSizeThrowsBadCredentials() throws Exception {
-		extractor.setSubjectDnRegex("shoeSize=(.*?),");
-		extractor.extractPrincipal(X509TestUtils.buildTestCertificate());
+		this.extractor.setSubjectDnRegex("shoeSize=(.*?),");
+		this.extractor.extractPrincipal(X509TestUtils.buildTestCertificate());
 	}
 
 	@Test
 	public void defaultCNPatternReturnsPrincipalAtEndOfDNString() throws Exception {
-		Object principal = extractor.extractPrincipal(X509TestUtils
-				.buildTestCertificateWithCnAtEnd());
+		Object principal = this.extractor.extractPrincipal(X509TestUtils.buildTestCertificateWithCnAtEnd());
 		assertThat(principal).isEqualTo("Duke");
 	}
+
 }

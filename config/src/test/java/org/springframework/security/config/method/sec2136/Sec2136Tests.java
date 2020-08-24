@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.method.sec2136;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- *
  * @author Rob Winch
  * @since 3.2
  */
@@ -31,6 +32,6 @@ public class Sec2136Tests {
 
 	@Test
 	public void configurationLoads() {
-
 	}
+
 }

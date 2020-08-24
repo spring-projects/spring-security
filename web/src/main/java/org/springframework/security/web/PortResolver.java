@@ -30,15 +30,12 @@ import javax.servlet.ServletRequest;
  * @author Ben Alex
  */
 public interface PortResolver {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Indicates the port the <code>ServletRequest</code> was received on.
-	 *
 	 * @param request that the method should lookup the port for
-	 *
 	 * @return the port the request was received on
 	 */
 	int getServerPort(ServletRequest request);
+
 }

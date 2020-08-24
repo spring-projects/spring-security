@@ -42,44 +42,44 @@ import org.springframework.web.util.UriComponentsBuilder;
  *
  * @author Josh Cummings
  * @since 5.2
- * @see <a href="https://openid.net/specs/openid-connect-session-1_0.html#RPLogout">RP-Initiated Logout</a>
+ * @see <a href=
+ * "https://openid.net/specs/openid-connect-session-1_0.html#RPLogout">RP-Initiated
+ * Logout</a>
  * @see org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler
  */
-public class OidcClientInitiatedServerLogoutSuccessHandler
-		implements ServerLogoutSuccessHandler {
+public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogoutSuccessHandler {
 
 	private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
-	private final RedirectServerLogoutSuccessHandler serverLogoutSuccessHandler
-			= new RedirectServerLogoutSuccessHandler();
+
+	private final RedirectServerLogoutSuccessHandler serverLogoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
+
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
 	private String postLogoutRedirectUri;
 
 	/**
-	 * Constructs an {@link OidcClientInitiatedServerLogoutSuccessHandler} with the provided parameters
-	 *
-	 * @param clientRegistrationRepository The {@link ReactiveClientRegistrationRepository} to use to derive
-	 * the end_session_endpoint value
+	 * Constructs an {@link OidcClientInitiatedServerLogoutSuccessHandler} with the
+	 * provided parameters
+	 * @param clientRegistrationRepository The
+	 * {@link ReactiveClientRegistrationRepository} to use to derive the
+	 * end_session_endpoint value
 	 */
-	public OidcClientInitiatedServerLogoutSuccessHandler
-			(ReactiveClientRegistrationRepository clientRegistrationRepository) {
-
+	public OidcClientInitiatedServerLogoutSuccessHandler(
+			ReactiveClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Mono<Void> onLogoutSuccess(WebFilterExchange exchange, Authentication authentication) {
+		// @formatter:off
 		return Mono.just(authentication)
 				.filter(OAuth2AuthenticationToken.class::isInstance)
-				.filter(token -> authentication.getPrincipal() instanceof OidcUser)
+				.filter((token) -> authentication.getPrincipal() instanceof OidcUser)
 				.map(OAuth2AuthenticationToken.class::cast)
 				.map(OAuth2AuthenticationToken::getAuthorizedClientRegistrationId)
 				.flatMap(this.clientRegistrationRepository::findByRegistrationId)
-				.flatMap(clientRegistration -> {
+				.flatMap((clientRegistration) -> {
 					URI endSessionEndpoint = endSessionEndpoint(clientRegistration);
 					if (endSessionEndpoint == null) {
 						return Mono.empty();
@@ -88,22 +88,22 @@ public class OidcClientInitiatedServerLogoutSuccessHandler
 					URI postLogoutRedirectUri = postLogoutRedirectUri(exchange.getExchange().getRequest());
 					return Mono.just(endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri));
 				})
-				.switchIfEmpty(this.serverLogoutSuccessHandler
-						.onLogoutSuccess(exchange, authentication).then(Mono.empty()))
-				.flatMap(endpointUri -> this.redirectStrategy.sendRedirect(exchange.getExchange(), endpointUri));
+				.switchIfEmpty(
+						this.serverLogoutSuccessHandler.onLogoutSuccess(exchange, authentication).then(Mono.empty())
+				)
+				.flatMap((endpointUri) -> this.redirectStrategy.sendRedirect(exchange.getExchange(), endpointUri));
+		// @formatter:on
 	}
 
 	private URI endSessionEndpoint(ClientRegistration clientRegistration) {
-		URI result = null;
 		if (clientRegistration != null) {
 			Object endSessionEndpoint = clientRegistration.getProviderDetails().getConfigurationMetadata()
 					.get("end_session_endpoint");
 			if (endSessionEndpoint != null) {
-				result = URI.create(endSessionEndpoint.toString());
+				return URI.create(endSessionEndpoint.toString());
 			}
 		}
-
-		return result;
+		return null;
 	}
 
 	private URI endpointUri(URI endSessionEndpoint, String idToken, URI postLogoutRedirectUri) {
@@ -123,6 +123,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler
 		if (this.postLogoutRedirectUri == null) {
 			return null;
 		}
+		// @formatter:off
 		UriComponents uriComponents = UriComponentsBuilder.fromUri(request.getURI())
 				.replacePath(request.getPath().contextPath().value())
 				.replaceQuery(null)
@@ -131,12 +132,13 @@ public class OidcClientInitiatedServerLogoutSuccessHandler
 		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
 				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
 				.toUri();
+		// @formatter:on
 	}
 
 	/**
 	 * Set the post logout redirect uri to use
-	 *
-	 * @param postLogoutRedirectUri - A valid URL to which the OP should redirect after logging out the user
+	 * @param postLogoutRedirectUri - A valid URL to which the OP should redirect after
+	 * logging out the user
 	 * @deprecated {@link #setPostLogoutRedirectUri(String)}
 	 */
 	@Deprecated
@@ -153,11 +155,10 @@ public class OidcClientInitiatedServerLogoutSuccessHandler
 	 * 	handler.setPostLogoutRedirectUri("{baseUrl}");
 	 * </pre>
 	 *
-	 * will make so that {@code post_logout_redirect_uri} will be set to the base url for the client
-	 * application.
-	 *
-	 * @param postLogoutRedirectUri - A template for creating the {@code post_logout_redirect_uri}
-	 * query parameter
+	 * will make so that {@code post_logout_redirect_uri} will be set to the base url for
+	 * the client application.
+	 * @param postLogoutRedirectUri - A template for creating the
+	 * {@code post_logout_redirect_uri} query parameter
 	 * @since 5.3
 	 */
 	public void setPostLogoutRedirectUri(String postLogoutRedirectUri) {
@@ -166,12 +167,13 @@ public class OidcClientInitiatedServerLogoutSuccessHandler
 	}
 
 	/**
-	 * The URL to redirect to after successfully logging out when not originally an OIDC login
-	 *
+	 * The URL to redirect to after successfully logging out when not originally an OIDC
+	 * login
 	 * @param logoutSuccessUrl the url to redirect to. Default is "/login?logout".
 	 */
 	public void setLogoutSuccessUrl(URI logoutSuccessUrl) {
 		Assert.notNull(logoutSuccessUrl, "logoutSuccessUrl cannot be null");
 		this.serverLogoutSuccessHandler.setLogoutSuccessUrl(logoutSuccessUrl);
 	}
+
 }

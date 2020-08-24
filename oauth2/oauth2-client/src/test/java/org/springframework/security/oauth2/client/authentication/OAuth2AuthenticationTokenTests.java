@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+package org.springframework.security.oauth2.client.authentication;
 
 import java.util.Collection;
 import java.util.Collections;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,8 +34,11 @@ import static org.mockito.Mockito.mock;
  * @author Joe Grandja
  */
 public class OAuth2AuthenticationTokenTests {
+
 	private OAuth2User principal;
+
 	private Collection<? extends GrantedAuthority> authorities;
+
 	private String authorizedClientRegistrationId;
 
 	@Before
@@ -65,13 +70,13 @@ public class OAuth2AuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
-		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
-			this.principal, this.authorities, this.authorizedClientRegistrationId);
-
+		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(this.principal, this.authorities,
+				this.authorizedClientRegistrationId);
 		assertThat(authentication.getPrincipal()).isEqualTo(this.principal);
 		assertThat(authentication.getCredentials()).isEqualTo("");
 		assertThat(authentication.getAuthorities()).isEqualTo(this.authorities);
 		assertThat(authentication.getAuthorizedClientRegistrationId()).isEqualTo(this.authorizedClientRegistrationId);
 		assertThat(authentication.isAuthenticated()).isEqualTo(true);
 	}
+
 }

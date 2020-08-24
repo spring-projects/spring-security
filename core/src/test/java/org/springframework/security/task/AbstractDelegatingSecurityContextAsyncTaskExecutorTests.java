@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.task;
 
-import static org.mockito.Mockito.verify;
+package org.springframework.security.task;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.security.concurrent.AbstractDelegatingSecurityContextExecutorTests;
+
+import static org.mockito.Mockito.verify;
 
 /**
  * Abstract class for testing {@link DelegatingSecurityContextAsyncTaskExecutor} which
@@ -33,8 +35,9 @@ import org.springframework.security.concurrent.AbstractDelegatingSecurityContext
  * @see CurrentDelegatingSecurityContextAsyncTaskExecutorTests
  * @see ExplicitDelegatingSecurityContextAsyncTaskExecutorTests
  */
-public abstract class AbstractDelegatingSecurityContextAsyncTaskExecutorTests extends
-		AbstractDelegatingSecurityContextExecutorTests {
+public abstract class AbstractDelegatingSecurityContextAsyncTaskExecutorTests
+		extends AbstractDelegatingSecurityContextExecutorTests {
+
 	@Mock
 	protected AsyncTaskExecutor taskExecutorDelegate;
 
@@ -42,30 +45,33 @@ public abstract class AbstractDelegatingSecurityContextAsyncTaskExecutorTests ex
 
 	@Before
 	public final void setUpExecutor() {
-		executor = create();
+		this.executor = create();
 	}
 
 	@Test
 	public void executeStartTimeout() {
-		executor.execute(runnable, 1);
-		verify(getExecutor()).execute(wrappedRunnable, 1);
+		this.executor.execute(this.runnable, 1);
+		verify(getExecutor()).execute(this.wrappedRunnable, 1);
 	}
 
 	@Test
 	public void submit() {
-		executor.submit(runnable);
-		verify(getExecutor()).submit(wrappedRunnable);
+		this.executor.submit(this.runnable);
+		verify(getExecutor()).submit(this.wrappedRunnable);
 	}
 
 	@Test
 	public void submitCallable() {
-		executor.submit(callable);
-		verify(getExecutor()).submit(wrappedCallable);
+		this.executor.submit(this.callable);
+		verify(getExecutor()).submit(this.wrappedCallable);
 	}
 
+	@Override
 	protected AsyncTaskExecutor getExecutor() {
-		return taskExecutorDelegate;
+		return this.taskExecutorDelegate;
 	}
 
+	@Override
 	protected abstract DelegatingSecurityContextAsyncTaskExecutor create();
+
 }

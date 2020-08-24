@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.reactive.result.method.annotation;
 
 import java.lang.annotation.Annotation;
@@ -64,17 +65,11 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 		this.beanResolver = beanResolver;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return findMethodAnnotation(CurrentSecurityContext.class, parameter) != null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Mono<Object> resolveArgument(MethodParameter parameter, BindingContext bindingContext,
 			ServerWebExchange exchange) {
@@ -83,47 +78,40 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 		if (reactiveSecurityContext == null) {
 			return null;
 		}
-		return reactiveSecurityContext.flatMap( a -> {
-			Object p = resolveSecurityContext(parameter, a);
-			Mono<Object> o = Mono.justOrEmpty(p);
-			return adapter == null ? o : Mono.just(adapter.fromPublisher(o));
+		return reactiveSecurityContext.flatMap((securityContext) -> {
+			Mono<Object> resolvedSecurityContext = Mono.justOrEmpty(resolveSecurityContext(parameter, securityContext));
+			return (adapter != null) ? Mono.just(adapter.fromPublisher(resolvedSecurityContext))
+					: resolvedSecurityContext;
 		});
 
 	}
 
 	/**
-	 * resolve the expression from {@link CurrentSecurityContext} annotation to get the value.
+	 * resolve the expression from {@link CurrentSecurityContext} annotation to get the
+	 * value.
 	 * @param parameter the method parameter.
 	 * @param securityContext the security context.
 	 * @return the resolved object from expression.
 	 */
 	private Object resolveSecurityContext(MethodParameter parameter, SecurityContext securityContext) {
-		CurrentSecurityContext securityContextAnnotation = findMethodAnnotation(
-				CurrentSecurityContext.class, parameter);
-
+		CurrentSecurityContext annotation = findMethodAnnotation(CurrentSecurityContext.class, parameter);
 		Object securityContextResult = securityContext;
-
-		String expressionToParse = securityContextAnnotation.expression();
+		String expressionToParse = annotation.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(securityContext);
 			context.setVariable("this", securityContext);
-			context.setBeanResolver(beanResolver);
-
+			context.setBeanResolver(this.beanResolver);
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			securityContextResult = expression.getValue(context);
 		}
-
 		if (isInvalidType(parameter, securityContextResult)) {
-			if (securityContextAnnotation.errorOnInvalidType()) {
-				throw new ClassCastException(securityContextResult + " is not assignable to "
-						+ parameter.getParameterType());
+			if (annotation.errorOnInvalidType()) {
+				throw new ClassCastException(
+						securityContextResult + " is not assignable to " + parameter.getParameterType());
 			}
-			else {
-				return null;
-			}
+			return null;
 		}
-
 		return securityContextResult;
 	}
 
@@ -152,22 +140,19 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 
 	/**
 	 * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
-	 *
 	 * @param annotationClass the class of the {@link Annotation} to find on the
 	 * {@link MethodParameter}
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass,
-			MethodParameter parameter) {
+	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
 		T annotation = parameter.getParameterAnnotation(annotationClass);
 		if (annotation != null) {
 			return annotation;
 		}
 		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
 		for (Annotation toSearch : annotationsToSearch) {
-			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(),
-				annotationClass);
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
 			if (annotation != null) {
 				return annotation;
 			}

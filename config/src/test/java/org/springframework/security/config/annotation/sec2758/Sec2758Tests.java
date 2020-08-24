@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.sec2758;
+
+import javax.annotation.security.RolesAllowed;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -39,9 +44,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.security.RolesAllowed;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -65,44 +67,33 @@ public class Sec2758Tests {
 	@WithMockUser(authorities = "CUSTOM")
 	@Test
 	public void requestWhenNullifyingRolePrefixThenPassivityRestored() throws Exception {
-
 		this.spring.register(SecurityConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk());
 	}
 
 	@WithMockUser(authorities = "CUSTOM")
 	@Test
 	public void methodSecurityWhenNullifyingRolePrefixThenPassivityRestored() {
-
 		this.spring.register(SecurityConfig.class).autowire();
-
-		assertThatCode(() -> service.doJsr250())
-			.doesNotThrowAnyException();
-
-		assertThatCode(() -> service.doPreAuthorize())
-			.doesNotThrowAnyException();
+		this.service.doJsr250();
+		this.service.doPreAuthorize();
 	}
 
 	@EnableWebSecurity
-	@EnableGlobalMethodSecurity(prePostEnabled=true, jsr250Enabled = true)
+	@EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
 	static class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-		@RestController
-		static class RootController {
-			@GetMapping("/")
-			public String ok() { return "ok"; }
-		}
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().access("hasAnyRole('CUSTOM')");
+			.authorizeRequests()
+			.anyRequest().access("hasAnyRole('CUSTOM')");
+			// @formatter:on
 		}
 
 		@Bean
-		public Service service() {
+		Service service() {
 			return new Service();
 		}
 
@@ -111,14 +102,28 @@ public class Sec2758Tests {
 			return new DefaultRolesPrefixPostProcessor();
 		}
 
+		@RestController
+		static class RootController {
+
+			@GetMapping("/")
+			String ok() {
+				return "ok";
+			}
+
+		}
+
 	}
 
 	static class Service {
+
 		@PreAuthorize("hasRole('CUSTOM')")
-		public void doPreAuthorize() {}
+		void doPreAuthorize() {
+		}
 
 		@RolesAllowed("CUSTOM")
-		public void doJsr250() {}
+		void doJsr250() {
+		}
+
 	}
 
 	static class DefaultRolesPrefixPostProcessor implements BeanPostProcessor, PriorityOrdered {
@@ -144,7 +149,9 @@ public class Sec2758Tests {
 
 		@Override
 		public int getOrder() {
-			return PriorityOrdered.HIGHEST_PRECEDENCE;
+			return Ordered.HIGHEST_PRECEDENCE;
 		}
+
 	}
+
 }

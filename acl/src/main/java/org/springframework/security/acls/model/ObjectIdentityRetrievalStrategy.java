@@ -21,11 +21,9 @@ package org.springframework.security.acls.model;
  * will be returned for a particular domain object
  *
  * @author Ben Alex
- *
  */
 public interface ObjectIdentityRetrievalStrategy {
-	// ~ Methods
-	// ========================================================================================================
 
 	ObjectIdentity getObjectIdentity(Object domainObject);
+
 }

@@ -24,11 +24,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.springframework.security.oauth2.jose.jws.JwsAlgorithms.RS256;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link JwtAuthenticationToken}
@@ -42,7 +42,6 @@ public class JwtAuthenticationTokenTests {
 	public void getNameWhenJwtHasSubjectThenReturnsSubject() {
 		Jwt jwt = builder().subject("Carl").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
-
 		assertThat(token.getName()).isEqualTo("Carl");
 	}
 
@@ -50,15 +49,13 @@ public class JwtAuthenticationTokenTests {
 	public void getNameWhenJwtHasNoSubjectThenReturnsNull() {
 		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
-
 		assertThat(token.getName()).isNull();
 	}
 
 	@Test
 	public void constructorWhenJwtIsNullThenThrowsException() {
-		assertThatCode(() -> new JwtAuthenticationToken(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("token cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> new JwtAuthenticationToken(null))
+				.withMessageContaining("token cannot be null");
 	}
 
 	@Test
@@ -66,7 +63,6 @@ public class JwtAuthenticationTokenTests {
 		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
 		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
-
 		assertThat(token.getAuthorities()).isEqualTo(authorities);
 		assertThat(token.getPrincipal()).isEqualTo(jwt);
 		assertThat(token.getCredentials()).isEqualTo(jwt);
@@ -79,7 +75,6 @@ public class JwtAuthenticationTokenTests {
 	public void constructorWhenUsingOnlyJwtThenConstructedCorrectly() {
 		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
-
 		assertThat(token.getAuthorities()).isEmpty();
 		assertThat(token.getPrincipal()).isEqualTo(jwt);
 		assertThat(token.getCredentials()).isEqualTo(jwt);
@@ -92,7 +87,6 @@ public class JwtAuthenticationTokenTests {
 	public void getNameWhenConstructedWithJwtThenReturnsSubject() {
 		Jwt jwt = builder().subject("Hayden").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
-
 		assertThat(token.getName()).isEqualTo("Hayden");
 	}
 
@@ -101,7 +95,6 @@ public class JwtAuthenticationTokenTests {
 		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
 		Jwt jwt = builder().subject("Hayden").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
-
 		assertThat(token.getName()).isEqualTo("Hayden");
 	}
 
@@ -110,7 +103,6 @@ public class JwtAuthenticationTokenTests {
 		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
 		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities, "Hayden");
-
 		assertThat(token.getName()).isEqualTo("Hayden");
 	}
 
@@ -118,13 +110,13 @@ public class JwtAuthenticationTokenTests {
 	public void getNameWhenConstructedWithNoSubjectThenReturnsNull() {
 		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
 		Jwt jwt = builder().claim("claim", "value").build();
-
 		assertThat(new JwtAuthenticationToken(jwt, authorities, null).getName()).isNull();
 		assertThat(new JwtAuthenticationToken(jwt, authorities).getName()).isNull();
 		assertThat(new JwtAuthenticationToken(jwt).getName()).isNull();
 	}
 
 	private Jwt.Builder builder() {
-		return Jwt.withTokenValue("token").header("alg", RS256);
+		return Jwt.withTokenValue("token").header("alg", JwsAlgorithms.RS256);
 	}
+
 }

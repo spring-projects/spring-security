@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.web.server;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -31,14 +32,15 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.web.server.ServerWebExchange;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
  */
 public class UnAuthenticatedServerOAuth2AuthorizedClientRepositoryTests {
-	private UnAuthenticatedServerOAuth2AuthorizedClientRepository repository =
-		new UnAuthenticatedServerOAuth2AuthorizedClientRepository();
+
+	private UnAuthenticatedServerOAuth2AuthorizedClientRepository repository = new UnAuthenticatedServerOAuth2AuthorizedClientRepository();
 
 	private ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials().build();
 
@@ -46,7 +48,8 @@ public class UnAuthenticatedServerOAuth2AuthorizedClientRepositoryTests {
 
 	private ServerWebExchange exchange;
 
-	private Authentication anonymous = new AnonymousAuthenticationToken("key", "anonymous", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+	private Authentication anonymous = new AnonymousAuthenticationToken("key", "anonymous",
+			AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
 	private Authentication authentication;
 
@@ -59,112 +62,110 @@ public class UnAuthenticatedServerOAuth2AuthorizedClientRepositoryTests {
 	}
 
 	// loadAuthorizedClient
-
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationIdNullThenIllegalArgumentException() {
 		this.clientRegistrationId = null;
-		assertThatThrownBy(() -> this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository
+				.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block());
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenAuthenticationNotNullThenIllegalArgumentException() {
 		this.authentication = new TestingAuthenticationToken("a", "b", "ROLE_USER");
-		assertThatThrownBy(() -> this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository
+				.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block());
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenServerWebExchangeNotNullThenIllegalArgumentException() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-		assertThatThrownBy(() -> this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository
+				.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block());
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenNotFoundThenEmpty() {
-		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block()).isNull();
+		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange)
+				.block()).isNull();
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenFoundThenFound() {
 		this.repository.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block();
-
-		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block()).isEqualTo(this.authorizedClient);
+		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange)
+				.block()).isEqualTo(this.authorizedClient);
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenMultipleThenFound() {
 		ClientRegistration otherClientRegistration = TestClientRegistrations.clientRegistration()
-				.registrationId("other-client-registration")
-				.build();
-		OAuth2AuthorizedClient otherAuthorizedClient = new OAuth2AuthorizedClient(otherClientRegistration, "anonymousUser", this.authorizedClient.getAccessToken());
-
+				.registrationId("other-client-registration").build();
+		OAuth2AuthorizedClient otherAuthorizedClient = new OAuth2AuthorizedClient(otherClientRegistration,
+				"anonymousUser", this.authorizedClient.getAccessToken());
 		this.repository.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block();
 		this.repository.saveAuthorizedClient(otherAuthorizedClient, this.authentication, this.exchange).block();
-
-		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block()).isEqualTo(this.authorizedClient);
+		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange)
+				.block()).isEqualTo(this.authorizedClient);
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenAnonymousThenFound() {
 		this.authentication = this.anonymous;
 		this.repository.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block();
-
-		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block()).isEqualTo(this.authorizedClient);
+		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange)
+				.block()).isEqualTo(this.authorizedClient);
 	}
 
 	// saveAuthorizedClient
-
 	@Test
 	public void saveAuthorizedClientWhenAuthorizedClientNullThenIllegalArgumentException() {
 		this.authorizedClient = null;
-		assertThatThrownBy(() -> this.repository.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository
+				.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block());
 	}
 
 	@Test
 	public void saveAuthorizedClientWhenAuthenticationNotNullThenIllegalArgumentException() {
 		this.authentication = new TestingAuthenticationToken("a", "b", "ROLE_USER");
-		assertThatThrownBy(() -> this.repository.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository
+				.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block());
 	}
 
 	@Test
 	public void saveAuthorizedClientWhenServerWebExchangeNotNullThenIllegalArgumentException() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-		assertThatThrownBy(() -> this.repository.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository
+				.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block());
 	}
 
 	// removeAuthorizedClient
-
 	@Test
 	public void removeAuthorizedClientWhenClientRegistrationIdNullThenIllegalArgumentException() {
 		this.clientRegistrationId = null;
-		assertThatThrownBy(() -> this.repository.removeAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository
+				.removeAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block());
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenAuthenticationNotNullThenIllegalArgumentException() {
 		this.authentication = new TestingAuthenticationToken("a", "b", "ROLE_USER");
-		assertThatThrownBy(() -> this.repository.removeAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository
+				.removeAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block());
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenServerWebExchangeNotNullThenIllegalArgumentException() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-		assertThatThrownBy(() -> this.repository.removeAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository
+				.removeAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block());
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenFoundThenFound() {
 		this.repository.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block();
 		this.repository.removeAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block();
-
-		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block()).isNull();
+		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange)
+				.block()).isNull();
 	}
+
 }

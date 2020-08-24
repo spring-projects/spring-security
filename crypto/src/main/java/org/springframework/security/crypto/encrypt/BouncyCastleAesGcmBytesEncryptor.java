@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.crypto.encrypt;
 
-import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
-import static org.springframework.security.crypto.util.EncodingUtils.subArray;
+package org.springframework.security.crypto.encrypt;
 
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.modes.AEADBlockCipher;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.AEADParameters;
+
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
+import org.springframework.security.crypto.util.EncodingUtils;
 
 /**
- * An Encryptor equivalent to {@link AesBytesEncryptor} using
- * {@link CipherAlgorithm#GCM} that uses Bouncy Castle instead of JCE. The
- * algorithm is equivalent to "AES/GCM/NoPadding".
+ * An Encryptor equivalent to {@link AesBytesEncryptor} using {@link CipherAlgorithm#GCM}
+ * that uses Bouncy Castle instead of JCE. The algorithm is equivalent to
+ * "AES/GCM/NoPadding".
  *
  * @author William Tran
  *
@@ -39,32 +39,27 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 		super(password, salt);
 	}
 
-	public BouncyCastleAesGcmBytesEncryptor(String password, CharSequence salt,
-			BytesKeyGenerator ivGenerator) {
+	public BouncyCastleAesGcmBytesEncryptor(String password, CharSequence salt, BytesKeyGenerator ivGenerator) {
 		super(password, salt, ivGenerator);
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public byte[] encrypt(byte[] bytes) {
 		byte[] iv = this.ivGenerator.generateKey();
-
-		@SuppressWarnings("deprecation")
 		GCMBlockCipher blockCipher = new GCMBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine());
-		blockCipher.init(true, new AEADParameters(secretKey, 128, iv, null));
-
+		blockCipher.init(true, new AEADParameters(this.secretKey, 128, iv, null));
 		byte[] encrypted = process(blockCipher, bytes);
-		return iv != null ? concatenate(iv, encrypted) : encrypted;
+		return (iv != null) ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public byte[] decrypt(byte[] encryptedBytes) {
-		byte[] iv = subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
-		encryptedBytes = subArray(encryptedBytes, this.ivGenerator.getKeyLength(),
-				encryptedBytes.length);
-
-		@SuppressWarnings("deprecation")
+		byte[] iv = EncodingUtils.subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
+		encryptedBytes = EncodingUtils.subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
 		GCMBlockCipher blockCipher = new GCMBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine());
-		blockCipher.init(false, new AEADParameters(secretKey, 128, iv, null));
+		blockCipher.init(false, new AEADParameters(this.secretKey, 128, iv, null));
 		return process(blockCipher, encryptedBytes);
 	}
 
@@ -74,8 +69,8 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 		try {
 			bytesWritten += blockCipher.doFinal(buf, bytesWritten);
 		}
-		catch (InvalidCipherTextException e) {
-			throw new IllegalStateException("unable to encrypt/decrypt", e);
+		catch (InvalidCipherTextException ex) {
+			throw new IllegalStateException("unable to encrypt/decrypt", ex);
 		}
 		if (bytesWritten == buf.length) {
 			return buf;

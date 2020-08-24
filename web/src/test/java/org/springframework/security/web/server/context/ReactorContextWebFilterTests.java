@@ -21,6 +21,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import reactor.test.publisher.TestPublisher;
+import reactor.util.context.Context;
+
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.core.Authentication;
@@ -31,14 +36,10 @@ import org.springframework.security.test.web.reactive.server.WebTestHandler;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
-import reactor.test.publisher.TestPublisher;
-import reactor.util.context.Context;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -46,6 +47,7 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ReactorContextWebFilterTests {
+
 	@Mock
 	private Authentication principal;
 
@@ -60,12 +62,11 @@ public class ReactorContextWebFilterTests {
 
 	private WebTestHandler handler;
 
-
 	@Before
 	public void setup() {
 		this.filter = new ReactorContextWebFilter(this.repository);
 		this.handler = WebTestHandler.bindToWebFilters(this.filter);
-		when(this.repository.load(any())).thenReturn(this.securityContext.mono());
+		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -77,7 +78,6 @@ public class ReactorContextWebFilterTests {
 	@Test
 	public void filterWhenNoPrincipalAccessThenNoInteractions() {
 		this.handler.exchange(this.exchange);
-
 		this.securityContext.assertWasNotSubscribed();
 	}
 
@@ -87,25 +87,18 @@ public class ReactorContextWebFilterTests {
 			ReactiveSecurityContextHolder.getContext();
 			return c.filter(e);
 		});
-
 		this.handler.exchange(this.exchange);
-
 		this.securityContext.assertWasNotSubscribed();
 	}
 
 	@Test
 	public void filterWhenPrincipalAndGetPrincipalThenInteractAndUseOriginalPrincipal() {
 		SecurityContextImpl context = new SecurityContextImpl(this.principal);
-		when(this.repository.load(any())).thenReturn(Mono.just(context));
-		this.handler = WebTestHandler.bindToWebFilters(this.filter, (e, c) ->
-			ReactiveSecurityContextHolder.getContext()
-				.map(SecurityContext::getAuthentication)
-				.doOnSuccess( p -> assertThat(p).isSameAs(this.principal))
-				.flatMap(p -> c.filter(e))
-		);
-
+		given(this.repository.load(any())).willReturn(Mono.just(context));
+		this.handler = WebTestHandler.bindToWebFilters(this.filter,
+				(e, c) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
+						.doOnSuccess((p) -> assertThat(p).isSameAs(this.principal)).flatMap((p) -> c.filter(e)));
 		WebTestHandler.WebHandlerResult result = this.handler.exchange(this.exchange);
-
 		this.securityContext.assertWasNotSubscribed();
 	}
 
@@ -113,16 +106,10 @@ public class ReactorContextWebFilterTests {
 	// gh-4962
 	public void filterWhenMainContextThenDoesNotOverride() {
 		String contextKey = "main";
-		WebFilter mainContextWebFilter = (e, c) -> c
-			.filter(e)
-			.subscriberContext(Context.of(contextKey, true));
-
-		WebFilterChain chain = new DefaultWebFilterChain(e -> Mono.empty(), mainContextWebFilter, this.filter);
+		WebFilter mainContextWebFilter = (e, c) -> c.filter(e).subscriberContext(Context.of(contextKey, true));
+		WebFilterChain chain = new DefaultWebFilterChain((e) -> Mono.empty(), mainContextWebFilter, this.filter);
 		Mono<Void> filter = chain.filter(MockServerWebExchange.from(this.exchange.build()));
-		StepVerifier.create(filter)
-			.expectAccessibleContext()
-			.hasKey(contextKey)
-			.then()
-			.verifyComplete();
+		StepVerifier.create(filter).expectAccessibleContext().hasKey(contextKey).then().verifyComplete();
 	}
+
 }

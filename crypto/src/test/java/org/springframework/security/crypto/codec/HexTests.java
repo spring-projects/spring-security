@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.codec;
 
 import org.junit.Rule;
@@ -33,8 +34,8 @@ public class HexTests {
 
 	@Test
 	public void encode() {
-		assertThat(Hex.encode(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C',
-				(byte) 'D' })).isEqualTo(new char[] {'4', '1', '4', '2', '4', '3', '4', '4'});
+		assertThat(Hex.encode(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D' }))
+				.isEqualTo(new char[] { '4', '1', '4', '2', '4', '3', '4', '4' });
 	}
 
 	@Test
@@ -44,8 +45,7 @@ public class HexTests {
 
 	@Test
 	public void decode() {
-		assertThat(Hex.decode("41424344")).isEqualTo(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C',
-			(byte) 'D' });
+		assertThat(Hex.decode("41424344")).isEqualTo(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D' });
 	}
 
 	@Test
@@ -55,29 +55,29 @@ public class HexTests {
 
 	@Test
 	public void decodeNotEven() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Hex-encoded string must have an even number of characters");
+		this.expectedException.expect(IllegalArgumentException.class);
+		this.expectedException.expectMessage("Hex-encoded string must have an even number of characters");
 		Hex.decode("414243444");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtFirst() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Detected a Non-hex character at 1 or 2 position");
+		this.expectedException.expect(IllegalArgumentException.class);
+		this.expectedException.expectMessage("Detected a Non-hex character at 1 or 2 position");
 		Hex.decode("G0");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtSecond() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Detected a Non-hex character at 3 or 4 position");
+		this.expectedException.expect(IllegalArgumentException.class);
+		this.expectedException.expectMessage("Detected a Non-hex character at 3 or 4 position");
 		Hex.decode("410G");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtBoth() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Detected a Non-hex character at 5 or 6 position");
+		this.expectedException.expect(IllegalArgumentException.class);
+		this.expectedException.expectMessage("Detected a Non-hex character at 5 or 6 position");
 		Hex.decode("4142GG");
 	}
 

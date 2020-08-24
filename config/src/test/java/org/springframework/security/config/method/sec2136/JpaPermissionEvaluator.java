@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.method.sec2136;
 
 import java.io.Serializable;
@@ -24,11 +25,11 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 
 /**
- *
  * @author Rob Winch
  *
  */
 public class JpaPermissionEvaluator implements PermissionEvaluator {
+
 	@Autowired
 	private EntityManager entityManager;
 
@@ -36,13 +37,15 @@ public class JpaPermissionEvaluator implements PermissionEvaluator {
 		System.out.println("initializing " + this);
 	}
 
-	public boolean hasPermission(Authentication authentication,
-			Object targetDomainObject, Object permission) {
+	@Override
+	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
 		return true;
 	}
 
-	public boolean hasPermission(Authentication authentication, Serializable targetId,
-			String targetType, Object permission) {
+	@Override
+	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+			Object permission) {
 		return true;
 	}
+
 }

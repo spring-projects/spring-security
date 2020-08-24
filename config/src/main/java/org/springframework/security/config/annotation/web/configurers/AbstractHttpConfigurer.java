@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -27,7 +28,6 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
  * {@link HttpSecurity}.
  *
  * @author Rob Winch
- *
  */
 public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T, B>, B extends HttpSecurityBuilder<B>>
 		extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, B> {
@@ -35,7 +35,6 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 	/**
 	 * Disables the {@link AbstractHttpConfigurer} by removing it. After doing so a fresh
 	 * version of the configuration can be applied.
-	 *
 	 * @return the {@link HttpSecurityBuilder} for additional customizations
 	 */
 	@SuppressWarnings("unchecked")
@@ -49,4 +48,5 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 		addObjectPostProcessor(objectPostProcessor);
 		return (T) this;
 	}
+
 }

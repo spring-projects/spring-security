@@ -30,37 +30,33 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public class AuthenticationTrustResolverImpl implements AuthenticationTrustResolver {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private Class<? extends Authentication> anonymousClass = AnonymousAuthenticationToken.class;
+
 	private Class<? extends Authentication> rememberMeClass = RememberMeAuthenticationToken.class;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	Class<? extends Authentication> getAnonymousClass() {
-		return anonymousClass;
+		return this.anonymousClass;
 	}
 
 	Class<? extends Authentication> getRememberMeClass() {
-		return rememberMeClass;
+		return this.rememberMeClass;
 	}
 
+	@Override
 	public boolean isAnonymous(Authentication authentication) {
-		if ((anonymousClass == null) || (authentication == null)) {
+		if ((this.anonymousClass == null) || (authentication == null)) {
 			return false;
 		}
-
-		return anonymousClass.isAssignableFrom(authentication.getClass());
+		return this.anonymousClass.isAssignableFrom(authentication.getClass());
 	}
 
+	@Override
 	public boolean isRememberMe(Authentication authentication) {
-		if ((rememberMeClass == null) || (authentication == null)) {
+		if ((this.rememberMeClass == null) || (authentication == null)) {
 			return false;
 		}
-
-		return rememberMeClass.isAssignableFrom(authentication.getClass());
+		return this.rememberMeClass.isAssignableFrom(authentication.getClass());
 	}
 
 	public void setAnonymousClass(Class<? extends Authentication> anonymousClass) {
@@ -70,4 +66,5 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
 	public void setRememberMeClass(Class<? extends Authentication> rememberMeClass) {
 		this.rememberMeClass = rememberMeClass;
 	}
+
 }

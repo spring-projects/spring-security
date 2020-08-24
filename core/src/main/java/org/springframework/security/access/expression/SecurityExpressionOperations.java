@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.expression;
 
 import org.springframework.security.core.Authentication;
@@ -59,7 +60,6 @@ public interface SecurityExpressionOperations {
 	 * implementation may convert it to use "ROLE_USER" instead. The way in which the role
 	 * is converted may depend on the implementation settings.
 	 * </p>
-	 *
 	 * @param role the authority to test (i.e. "USER")
 	 * @return true if the authority is found, else false
 	 */
@@ -71,12 +71,11 @@ public interface SecurityExpressionOperations {
 	 * within {@link Authentication#getAuthorities()}.
 	 * </p>
 	 * <p>
-	 * This is a similar to hasAnyAuthority except that this method implies
-	 * that the String passed in is a role. For example, if "USER" is passed in the
-	 * implementation may convert it to use "ROLE_USER" instead. The way in which the role
-	 * is converted may depend on the implementation settings.
+	 * This is a similar to hasAnyAuthority except that this method implies that the
+	 * String passed in is a role. For example, if "USER" is passed in the implementation
+	 * may convert it to use "ROLE_USER" instead. The way in which the role is converted
+	 * may depend on the implementation settings.
 	 * </p>
-	 *
 	 * @param roles the authorities to test (i.e. "USER", "ADMIN")
 	 * @return true if any of the authorities is found, else false
 	 */

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.http;
 
 import org.junit.Rule;
@@ -35,8 +36,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author Josh Cummings
  */
 public class SessionManagementConfigTransientAuthenticationTests {
-	private static final String CONFIG_LOCATION_PREFIX =
-			"classpath:org/springframework/security/config/http/SessionManagementConfigTransientAuthenticationTests";
+
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/SessionManagementConfigTransientAuthenticationTests";
 
 	@Autowired
 	MockMvc mvc;
@@ -45,21 +46,21 @@ public class SessionManagementConfigTransientAuthenticationTests {
 	public final SpringTestRule spring = new SpringTestRule();
 
 	@Test
-	public void postWhenTransientAuthenticationThenNoSessionCreated()
-			throws Exception {
-
+	public void postWhenTransientAuthenticationThenNoSessionCreated() throws Exception {
 		this.spring.configLocations(this.xml("WithTransientAuthentication")).autowire();
 		MvcResult result = this.mvc.perform(post("/login")).andReturn();
 		assertThat(result.getRequest().getSession(false)).isNull();
 	}
 
 	@Test
-	public void postWhenTransientAuthenticationThenAlwaysSessionOverrides()
-			throws Exception {
-
+	public void postWhenTransientAuthenticationThenAlwaysSessionOverrides() throws Exception {
 		this.spring.configLocations(this.xml("CreateSessionAlwaysWithTransientAuthentication")).autowire();
 		MvcResult result = this.mvc.perform(post("/login")).andReturn();
 		assertThat(result.getRequest().getSession(false)).isNotNull();
+	}
+
+	private String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
 	static class TransientAuthenticationProvider implements AuthenticationProvider {
@@ -73,10 +74,12 @@ public class SessionManagementConfigTransientAuthenticationTests {
 		public boolean supports(Class<?> authentication) {
 			return true;
 		}
+
 	}
 
 	@Transient
 	static class SomeTransientAuthentication extends AbstractAuthenticationToken {
+
 		SomeTransientAuthentication() {
 			super(null);
 		}
@@ -90,9 +93,7 @@ public class SessionManagementConfigTransientAuthenticationTests {
 		public Object getPrincipal() {
 			return null;
 		}
+
 	}
 
-	private String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
-	}
 }

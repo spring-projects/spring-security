@@ -23,12 +23,9 @@ package org.springframework.security.authentication;
  * @author Ben Alex
  */
 public class AccountExpiredException extends AccountStatusException {
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructs a <code>AccountExpiredException</code> with the specified message.
-	 *
 	 * @param msg the detail message
 	 */
 	public AccountExpiredException(String msg) {
@@ -38,11 +35,11 @@ public class AccountExpiredException extends AccountStatusException {
 	/**
 	 * Constructs a <code>AccountExpiredException</code> with the specified message and
 	 * root cause.
-	 *
 	 * @param msg the detail message
-	 * @param t root cause
+	 * @param cause root cause
 	 */
-	public AccountExpiredException(String msg, Throwable t) {
-		super(msg, t);
+	public AccountExpiredException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
+
 }

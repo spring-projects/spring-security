@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,13 +44,15 @@ import org.springframework.util.Assert;
  * The following configuration options are available:
  *
  * <ul>
- * <li>{@link #authorizationCodeGrant()} - support for the OAuth 2.0 Authorization Code Grant</li>
+ * <li>{@link #authorizationCodeGrant()} - support for the OAuth 2.0 Authorization Code
+ * Grant</li>
  * </ul>
  *
  * <p>
- * Defaults are provided for all configuration options with the only required configuration
- * being {@link #clientRegistrationRepository(ClientRegistrationRepository)}.
- * Alternatively, a {@link ClientRegistrationRepository} {@code @Bean} may be registered instead.
+ * Defaults are provided for all configuration options with the only required
+ * configuration being
+ * {@link #clientRegistrationRepository(ClientRegistrationRepository)}. Alternatively, a
+ * {@link ClientRegistrationRepository} {@code @Bean} may be registered instead.
  *
  * <h2>Security Filters</h2>
  *
@@ -87,18 +90,18 @@ import org.springframework.util.Assert;
  * @see OAuth2AuthorizedClientRepository
  * @see AbstractHttpConfigurer
  */
-public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> extends
-	AbstractHttpConfigurer<OAuth2ClientConfigurer<B>, B> {
+public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
+		extends AbstractHttpConfigurer<OAuth2ClientConfigurer<B>, B> {
 
 	private AuthorizationCodeGrantConfigurer authorizationCodeGrantConfigurer = new AuthorizationCodeGrantConfigurer();
 
 	/**
 	 * Sets the repository of client registrations.
-	 *
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @return the {@link OAuth2ClientConfigurer} for further configuration
 	 */
-	public OAuth2ClientConfigurer<B> clientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
+	public OAuth2ClientConfigurer<B> clientRegistrationRepository(
+			ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
 		return this;
@@ -106,11 +109,11 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 
 	/**
 	 * Sets the repository for authorized client(s).
-	 *
 	 * @param authorizedClientRepository the authorized client repository
 	 * @return the {@link OAuth2ClientConfigurer} for further configuration
 	 */
-	public OAuth2ClientConfigurer<B> authorizedClientRepository(OAuth2AuthorizedClientRepository authorizedClientRepository) {
+	public OAuth2ClientConfigurer<B> authorizedClientRepository(
+			OAuth2AuthorizedClientRepository authorizedClientRepository) {
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.getBuilder().setSharedObject(OAuth2AuthorizedClientRepository.class, authorizedClientRepository);
 		return this;
@@ -118,19 +121,19 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 
 	/**
 	 * Sets the service for authorized client(s).
-	 *
 	 * @param authorizedClientService the authorized client service
 	 * @return the {@link OAuth2ClientConfigurer} for further configuration
 	 */
 	public OAuth2ClientConfigurer<B> authorizedClientService(OAuth2AuthorizedClientService authorizedClientService) {
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
-		this.authorizedClientRepository(new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService));
+		this.authorizedClientRepository(
+				new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService));
 		return this;
 	}
 
 	/**
-	 * Returns the {@link AuthorizationCodeGrantConfigurer} for configuring the OAuth 2.0 Authorization Code Grant.
-	 *
+	 * Returns the {@link AuthorizationCodeGrantConfigurer} for configuring the OAuth 2.0
+	 * Authorization Code Grant.
 	 * @return the {@link AuthorizationCodeGrantConfigurer}
 	 */
 	public AuthorizationCodeGrantConfigurer authorizationCodeGrant() {
@@ -139,22 +142,35 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 
 	/**
 	 * Configures the OAuth 2.0 Authorization Code Grant.
-	 *
-	 * @param authorizationCodeGrantCustomizer the {@link Customizer} to provide more options for
-	 * the {@link AuthorizationCodeGrantConfigurer}
+	 * @param authorizationCodeGrantCustomizer the {@link Customizer} to provide more
+	 * options for the {@link AuthorizationCodeGrantConfigurer}
 	 * @return the {@link OAuth2ClientConfigurer} for further customizations
 	 */
-	public OAuth2ClientConfigurer<B> authorizationCodeGrant(Customizer<AuthorizationCodeGrantConfigurer> authorizationCodeGrantCustomizer) {
+	public OAuth2ClientConfigurer<B> authorizationCodeGrant(
+			Customizer<AuthorizationCodeGrantConfigurer> authorizationCodeGrantCustomizer) {
 		authorizationCodeGrantCustomizer.customize(this.authorizationCodeGrantConfigurer);
 		return this;
+	}
+
+	@Override
+	public void init(B builder) {
+		this.authorizationCodeGrantConfigurer.init(builder);
+	}
+
+	@Override
+	public void configure(B builder) {
+		this.authorizationCodeGrantConfigurer.configure(builder);
 	}
 
 	/**
 	 * Configuration options for the OAuth 2.0 Authorization Code Grant.
 	 */
-	public class AuthorizationCodeGrantConfigurer {
+	public final class AuthorizationCodeGrantConfigurer {
+
 		private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
+
 		private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
+
 		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
 		private AuthorizationCodeGrantConfigurer() {
@@ -162,11 +178,12 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 
 		/**
 		 * Sets the resolver used for resolving {@link OAuth2AuthorizationRequest}'s.
-		 *
-		 * @param authorizationRequestResolver the resolver used for resolving {@link OAuth2AuthorizationRequest}'s
+		 * @param authorizationRequestResolver the resolver used for resolving
+		 * {@link OAuth2AuthorizationRequest}'s
 		 * @return the {@link AuthorizationCodeGrantConfigurer} for further configuration
 		 */
-		public AuthorizationCodeGrantConfigurer authorizationRequestResolver(OAuth2AuthorizationRequestResolver authorizationRequestResolver) {
+		public AuthorizationCodeGrantConfigurer authorizationRequestResolver(
+				OAuth2AuthorizationRequestResolver authorizationRequestResolver) {
 			Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");
 			this.authorizationRequestResolver = authorizationRequestResolver;
 			return this;
@@ -174,27 +191,26 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 
 		/**
 		 * Sets the repository used for storing {@link OAuth2AuthorizationRequest}'s.
-		 *
-		 * @param authorizationRequestRepository the repository used for storing {@link OAuth2AuthorizationRequest}'s
+		 * @param authorizationRequestRepository the repository used for storing
+		 * {@link OAuth2AuthorizationRequest}'s
 		 * @return the {@link AuthorizationCodeGrantConfigurer} for further configuration
 		 */
 		public AuthorizationCodeGrantConfigurer authorizationRequestRepository(
 				AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
-
 			Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 			this.authorizationRequestRepository = authorizationRequestRepository;
 			return this;
 		}
 
 		/**
-		 * Sets the client used for requesting the access token credential from the Token Endpoint.
-		 *
-		 * @param accessTokenResponseClient the client used for requesting the access token credential from the Token Endpoint
+		 * Sets the client used for requesting the access token credential from the Token
+		 * Endpoint.
+		 * @param accessTokenResponseClient the client used for requesting the access
+		 * token credential from the Token Endpoint
 		 * @return the {@link AuthorizationCodeGrantConfigurer} for further configuration
 		 */
 		public AuthorizationCodeGrantConfigurer accessTokenResponseClient(
 				OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
-
 			Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 			this.accessTokenResponseClient = accessTokenResponseClient;
 			return this;
@@ -202,7 +218,6 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 
 		/**
 		 * Returns the {@link OAuth2ClientConfigurer} for further configuration.
-		 *
 		 * @return the {@link OAuth2ClientConfigurer}
 		 */
 		public OAuth2ClientConfigurer<B> and() {
@@ -210,25 +225,27 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 		}
 
 		private void init(B builder) {
-			OAuth2AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider =
-					new OAuth2AuthorizationCodeAuthenticationProvider(getAccessTokenResponseClient());
+			OAuth2AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider = new OAuth2AuthorizationCodeAuthenticationProvider(
+					getAccessTokenResponseClient());
 			builder.authenticationProvider(postProcess(authorizationCodeAuthenticationProvider));
 		}
 
 		private void configure(B builder) {
-			OAuth2AuthorizationRequestRedirectFilter authorizationRequestRedirectFilter = createAuthorizationRequestRedirectFilter(builder);
+			OAuth2AuthorizationRequestRedirectFilter authorizationRequestRedirectFilter = createAuthorizationRequestRedirectFilter(
+					builder);
 			builder.addFilter(postProcess(authorizationRequestRedirectFilter));
-			OAuth2AuthorizationCodeGrantFilter authorizationCodeGrantFilter = createAuthorizationCodeGrantFilter(builder);
+			OAuth2AuthorizationCodeGrantFilter authorizationCodeGrantFilter = createAuthorizationCodeGrantFilter(
+					builder);
 			builder.addFilter(postProcess(authorizationCodeGrantFilter));
 		}
 
 		private OAuth2AuthorizationRequestRedirectFilter createAuthorizationRequestRedirectFilter(B builder) {
 			OAuth2AuthorizationRequestResolver resolver = getAuthorizationRequestResolver();
-			OAuth2AuthorizationRequestRedirectFilter authorizationRequestRedirectFilter =
-					new OAuth2AuthorizationRequestRedirectFilter(resolver);
-
+			OAuth2AuthorizationRequestRedirectFilter authorizationRequestRedirectFilter = new OAuth2AuthorizationRequestRedirectFilter(
+					resolver);
 			if (this.authorizationRequestRepository != null) {
-				authorizationRequestRedirectFilter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
+				authorizationRequestRedirectFilter
+						.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 			}
 			RequestCache requestCache = builder.getSharedObject(RequestCache.class);
 			if (requestCache != null) {
@@ -251,9 +268,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 			AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
 			OAuth2AuthorizationCodeGrantFilter authorizationCodeGrantFilter = new OAuth2AuthorizationCodeGrantFilter(
 					OAuth2ClientConfigurerUtils.getClientRegistrationRepository(builder),
-					OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(builder),
-					authenticationManager);
-
+					OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(builder), authenticationManager);
 			if (this.authorizationRequestRepository != null) {
 				authorizationCodeGrantFilter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 			}
@@ -270,15 +285,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 			}
 			return new DefaultAuthorizationCodeTokenResponseClient();
 		}
+
 	}
 
-	@Override
-	public void init(B builder) {
-		this.authorizationCodeGrantConfigurer.init(builder);
-	}
-
-	@Override
-	public void configure(B builder) {
-		this.authorizationCodeGrantConfigurer.configure(builder);
-	}
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.samples.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,14 +43,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(
 			HttpSecurity http) throws Exception {
 		http
-			.authorizeRequests(authorizeRequests ->
+			.authorizeRequests((authorizeRequests) -> 
 				authorizeRequests
 					.anyRequest().authenticated()
 			)
 			.formLogin(withDefaults())
-			.sessionManagement(sessionManagement ->
+			.sessionManagement((sessionManagement) -> 
 				sessionManagement
-					.sessionConcurrency(sessionConcurrency ->
+					.sessionConcurrency((sessionConcurrency) -> 
 						sessionConcurrency
 							.maximumSessions(1)
 							.expiredUrl("/login?expired")

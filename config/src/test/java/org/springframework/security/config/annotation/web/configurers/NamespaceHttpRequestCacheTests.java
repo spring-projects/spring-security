@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +43,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests to verify that all the functionality of <request-cache> attributes is present
+ * Tests to verify that all the functionality of &lt;request-cache&gt; attributes is
+ * present
  *
  * @author Rob Winch
  * @author Josh Cummings
@@ -59,65 +61,77 @@ public class NamespaceHttpRequestCacheTests {
 	@Test
 	public void requestWhenCustomRequestCacheThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(RequestCacheRefConfig.class).autowire();
-		this.mvc.perform(get("/"))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/")).andExpect(status().isForbidden());
 		verifyBean(RequestCache.class).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
+	@Test
+	public void requestWhenDefaultConfigurationThenUsesHttpSessionRequestCache() throws Exception {
+		this.spring.register(DefaultRequestCacheRefConfig.class).autowire();
+		MvcResult result = this.mvc.perform(get("/")).andExpect(status().isForbidden()).andReturn();
+		HttpSession session = result.getRequest().getSession(false);
+		assertThat(session).isNotNull();
+		assertThat(session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")).isNotNull();
+	}
+
+	private <T> T verifyBean(Class<T> beanClass) {
+		return verify(this.spring.getContext().getBean(beanClass));
 	}
 
 	@EnableWebSecurity
 	static class RequestCacheRefConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.requestCache()
 					.requestCache(requestCache());
+			// @formatter:on
 		}
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 					.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user())
 					.withUser(PasswordEncodedUser.admin());
+			// @formatter:on
 		}
 
 		@Bean
-		public RequestCache requestCache() {
+		RequestCache requestCache() {
 			return mock(RequestCache.class);
 		}
-	}
 
-	@Test
-	public void requestWhenDefaultConfigurationThenUsesHttpSessionRequestCache() throws Exception {
-		this.spring.register(DefaultRequestCacheRefConfig.class).autowire();
-
-		MvcResult result = this.mvc.perform(get("/"))
-				.andExpect(status().isForbidden())
-				.andReturn();
-
-		HttpSession session = result.getRequest().getSession(false);
-		assertThat(session).isNotNull();
-		assertThat(session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")).isNotNull();
 	}
 
 	@EnableWebSecurity
 	static class DefaultRequestCacheRefConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated();
+			// @formatter:on
 		}
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user())
 					.withUser(PasswordEncodedUser.admin());
+			// @formatter:on
 		}
+
 	}
 
-	private <T> T verifyBean(Class<T> beanClass) {
-		return verify(this.spring.getContext().getBean(beanClass));
-	}
 }

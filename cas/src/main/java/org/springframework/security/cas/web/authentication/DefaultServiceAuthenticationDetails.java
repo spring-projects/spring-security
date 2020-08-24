@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.cas.web.authentication;
 
 import java.net.MalformedURLException;
@@ -34,15 +35,10 @@ import org.springframework.util.Assert;
  */
 final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 		implements ServiceAuthenticationDetails {
+
 	private static final long serialVersionUID = 6192409090610517700L;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final String serviceUrl;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Creates a new instance
@@ -52,33 +48,23 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	 * string from containing the artifact name and value. This can be created using
 	 * {@link #createArtifactPattern(String)}.
 	 */
-	DefaultServiceAuthenticationDetails(String casService, HttpServletRequest request,
-			Pattern artifactPattern) throws MalformedURLException {
+	DefaultServiceAuthenticationDetails(String casService, HttpServletRequest request, Pattern artifactPattern)
+			throws MalformedURLException {
 		super(request);
 		URL casServiceUrl = new URL(casService);
 		int port = getServicePort(casServiceUrl);
 		final String query = getQueryString(request, artifactPattern);
-		this.serviceUrl = UrlUtils.buildFullRequestUrl(casServiceUrl.getProtocol(),
-				casServiceUrl.getHost(), port, request.getRequestURI(), query);
+		this.serviceUrl = UrlUtils.buildFullRequestUrl(casServiceUrl.getProtocol(), casServiceUrl.getHost(), port,
+				request.getRequestURI(), query);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Returns the current URL minus the artifact parameter and its value, if present.
 	 * @see org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails#getServiceUrl()
 	 */
-	public String getServiceUrl() {
-		return serviceUrl;
-	}
-
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + serviceUrl.hashCode();
-		return result;
+	public String getServiceUrl() {
+		return this.serviceUrl;
 	}
 
 	@Override
@@ -90,7 +76,15 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 			return false;
 		}
 		ServiceAuthenticationDetails that = (ServiceAuthenticationDetails) obj;
-		return serviceUrl.equals(that.getServiceUrl());
+		return this.serviceUrl.equals(that.getServiceUrl());
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + this.serviceUrl.hashCode();
+		return result;
 	}
 
 	@Override
@@ -98,7 +92,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 		StringBuilder result = new StringBuilder();
 		result.append(super.toString());
 		result.append("ServiceUrl: ");
-		result.append(serviceUrl);
+		result.append(this.serviceUrl);
 		return result.toString();
 	}
 
@@ -109,13 +103,12 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	 * @return the query String minus the artifactParameterName and the corresponding
 	 * value.
 	 */
-	private String getQueryString(final HttpServletRequest request,
-			final Pattern artifactPattern) {
+	private String getQueryString(final HttpServletRequest request, final Pattern artifactPattern) {
 		final String query = request.getQueryString();
 		if (query == null) {
 			return null;
 		}
-		final String result = artifactPattern.matcher(query).replaceFirst("");
+		String result = artifactPattern.matcher(query).replaceFirst("");
 		if (result.length() == 0) {
 			return null;
 		}
@@ -127,7 +120,6 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	 * Creates a {@link Pattern} that can be passed into the constructor. This allows the
 	 * {@link Pattern} to be reused for every instance of
 	 * {@link DefaultServiceAuthenticationDetails}.
-	 *
 	 * @param artifactParameterName
 	 * @return
 	 */
@@ -150,4 +142,5 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 		}
 		return port;
 	}
+
 }

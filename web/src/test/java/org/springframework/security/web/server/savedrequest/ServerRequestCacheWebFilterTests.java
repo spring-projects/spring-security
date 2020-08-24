@@ -23,6 +23,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -30,12 +32,11 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link ServerRequestCacheWebFilter}
@@ -44,6 +45,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ServerRequestCacheWebFilterTests {
+
 	private ServerRequestCacheWebFilter requestCacheFilter;
 
 	@Mock
@@ -58,8 +60,8 @@ public class ServerRequestCacheWebFilterTests {
 	@Before
 	public void setup() {
 		this.requestCacheFilter = new ServerRequestCacheWebFilter();
-		this.requestCacheFilter.setRequestCache(requestCache);
-		when(this.chain.filter(any(ServerWebExchange.class))).thenReturn(Mono.empty());
+		this.requestCacheFilter.setRequestCache(this.requestCache);
+		given(this.chain.filter(any(ServerWebExchange.class))).willReturn(Mono.empty());
 	}
 
 	@Test
@@ -67,12 +69,10 @@ public class ServerRequestCacheWebFilterTests {
 		ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
 		ServerHttpRequest savedRequest = MockServerHttpRequest.get("/")
 				.header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML.getType()).build();
-		when(this.requestCache.removeMatchingRequest(any())).thenReturn(Mono.just(savedRequest));
-
+		given(this.requestCache.removeMatchingRequest(any())).willReturn(Mono.just(savedRequest));
 		this.requestCacheFilter.filter(exchange, this.chain).block();
-
-		verify(chain).filter(exchangeCaptor.capture());
-		ServerWebExchange updatedExchange = exchangeCaptor.getValue();
+		verify(this.chain).filter(this.exchangeCaptor.capture());
+		ServerWebExchange updatedExchange = this.exchangeCaptor.getValue();
 		assertThat(updatedExchange.getRequest()).isEqualTo(savedRequest);
 	}
 
@@ -80,12 +80,11 @@ public class ServerRequestCacheWebFilterTests {
 	public void filterWhenRequestDoesNotMatchThenRequestDoesNotChange() {
 		MockServerHttpRequest initialRequest = MockServerHttpRequest.get("/").build();
 		ServerWebExchange exchange = MockServerWebExchange.from(initialRequest);
-		when(this.requestCache.removeMatchingRequest(any())).thenReturn(Mono.empty());
-
+		given(this.requestCache.removeMatchingRequest(any())).willReturn(Mono.empty());
 		this.requestCacheFilter.filter(exchange, this.chain).block();
-
-		verify(chain).filter(exchangeCaptor.capture());
-		ServerWebExchange updatedExchange = exchangeCaptor.getValue();
+		verify(this.chain).filter(this.exchangeCaptor.capture());
+		ServerWebExchange updatedExchange = this.exchangeCaptor.getValue();
 		assertThat(updatedExchange.getRequest()).isEqualTo(initialRequest);
 	}
+
 }

@@ -38,13 +38,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.2
  */
 public class UserDeserializerTests extends AbstractMixinTests {
+
 	public static final String USER_PASSWORD = "\"1234\"";
 
 	// @formatter:off
 	public static final String USER_JSON = "{"
 		+ "\"@class\": \"org.springframework.security.core.userdetails.User\", "
 		+ "\"username\": \"admin\","
-		+ " \"password\": "+ USER_PASSWORD +", "
+		+ " \"password\": " + USER_PASSWORD + ", "
 		+ "\"accountNonExpired\": true, "
 		+ "\"accountNonLocked\": true, "
 		+ "\"credentialsNonExpired\": true, "
@@ -52,33 +53,31 @@ public class UserDeserializerTests extends AbstractMixinTests {
 		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON
 	+ "}";
 	// @formatter:on
-
 	@Test
 	public void serializeUserTest() throws JsonProcessingException, JSONException {
 		User user = createDefaultUser();
-		String userJson = mapper.writeValueAsString(user);
+		String userJson = this.mapper.writeValueAsString(user);
 		JSONAssert.assertEquals(userWithPasswordJson(user.getPassword()), userJson, true);
 	}
 
 	@Test
 	public void serializeUserWithoutAuthority() throws JsonProcessingException, JSONException {
 		User user = new User("admin", "1234", Collections.<GrantedAuthority>emptyList());
-		String userJson = mapper.writeValueAsString(user);
+		String userJson = this.mapper.writeValueAsString(user);
 		JSONAssert.assertEquals(userWithNoAuthoritiesJson(), userJson, true);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void deserializeUserWithNullPasswordEmptyAuthorityTest() throws IOException {
-		String userJsonWithoutPasswordString = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON, "[]");
-
-		mapper.readValue(userJsonWithoutPasswordString, User.class);
+		String userJsonWithoutPasswordString = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
+				"[]");
+		this.mapper.readValue(userJsonWithoutPasswordString, User.class);
 	}
 
 	@Test
 	public void deserializeUserWithNullPasswordNoAuthorityTest() throws Exception {
-		String userJsonWithoutPasswordString = removeNode(userWithNoAuthoritiesJson(), mapper, "password");
-
-		User user = mapper.readValue(userJsonWithoutPasswordString, User.class);
+		String userJsonWithoutPasswordString = removeNode(userWithNoAuthoritiesJson(), this.mapper, "password");
+		User user = this.mapper.readValue(userJsonWithoutPasswordString, User.class);
 		assertThat(user).isNotNull();
 		assertThat(user.getUsername()).isEqualTo("admin");
 		assertThat(user.getPassword()).isNull();
@@ -88,13 +87,14 @@ public class UserDeserializerTests extends AbstractMixinTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void deserializeUserWithNoClassIdInAuthoritiesTest() throws Exception {
-		String userJson = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,  "[{\"authority\": \"ROLE_USER\"}]");
-		mapper.readValue(userJson, User.class);
+		String userJson = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
+				"[{\"authority\": \"ROLE_USER\"}]");
+		this.mapper.readValue(userJson, User.class);
 	}
 
 	@Test
 	public void deserializeUserWithClassIdInAuthoritiesTest() throws IOException {
-		User user = mapper.readValue(userJson(), User.class);
+		User user = this.mapper.readValue(userJson(), User.class);
 		assertThat(user).isNotNull();
 		assertThat(user.getUsername()).isEqualTo("admin");
 		assertThat(user.getPassword()).isEqualTo("1234");
@@ -104,7 +104,6 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	private String removeNode(String json, ObjectMapper mapper, String toRemove) throws Exception {
 		ObjectNode node = mapper.getFactory().createParser(json).readValueAsTree();
 		node.remove(toRemove);
-
 		String result = mapper.writeValueAsString(node);
 		JSONAssert.assertNotEquals(json, result, false);
 		return result;
@@ -115,10 +114,12 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	}
 
 	public static String userWithPasswordJson(String password) {
-		return userJson().replaceAll(Pattern.quote(USER_PASSWORD), "\""+ password +"\"");
+		return userJson().replaceAll(Pattern.quote(USER_PASSWORD), "\"" + password + "\"");
 	}
 
 	public static String userWithNoAuthoritiesJson() {
-		return userJson().replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON, SimpleGrantedAuthorityMixinTests.NO_AUTHORITIES_SET_JSON);
+		return userJson().replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
+				SimpleGrantedAuthorityMixinTests.NO_AUTHORITIES_SET_JSON);
 	}
+
 }

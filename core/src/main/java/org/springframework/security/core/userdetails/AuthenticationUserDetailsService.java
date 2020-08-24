@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.userdetails;
 
 import org.springframework.security.core.Authentication;
@@ -27,11 +28,11 @@ import org.springframework.security.core.Authentication;
 public interface AuthenticationUserDetailsService<T extends Authentication> {
 
 	/**
-	 *
 	 * @param token The pre-authenticated authentication token
 	 * @return UserDetails for the given authentication token, never null.
 	 * @throws UsernameNotFoundException if no user details can be found for the given
 	 * authentication token
 	 */
 	UserDetails loadUserDetails(T token) throws UsernameNotFoundException;
+
 }

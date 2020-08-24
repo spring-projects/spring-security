@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.scheduling;
 
 import org.junit.Before;
+
 import org.springframework.security.core.context.SecurityContext;
 
 /**
@@ -26,16 +28,17 @@ import org.springframework.security.core.context.SecurityContext;
  * @since 3.2
  *
  */
-public class ExplicitSecurityContextSchedulingTaskExecutorTests extends
-		AbstractSecurityContextSchedulingTaskExecutorTests {
+public class ExplicitSecurityContextSchedulingTaskExecutorTests
+		extends AbstractSecurityContextSchedulingTaskExecutorTests {
 
 	@Before
 	public void setUp() throws Exception {
 		explicitSecurityContextPowermockSetup();
 	}
 
+	@Override
 	protected DelegatingSecurityContextSchedulingTaskExecutor create() {
-		return new DelegatingSecurityContextSchedulingTaskExecutor(taskExecutorDelegate,
-				securityContext);
+		return new DelegatingSecurityContextSchedulingTaskExecutor(this.taskExecutorDelegate, this.securityContext);
 	}
+
 }

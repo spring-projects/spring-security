@@ -27,25 +27,20 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public interface AccessDecisionManager {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Resolves an access control decision for the passed parameters.
-	 *
 	 * @param authentication the caller invoking the method (not null)
 	 * @param object the secured object being called
 	 * @param configAttributes the configuration attributes associated with the secured
 	 * object being invoked
-	 *
 	 * @throws AccessDeniedException if access is denied as the authentication does not
 	 * hold a required authority or ACL privilege
 	 * @throws InsufficientAuthenticationException if access is denied as the
 	 * authentication does not provide a sufficient level of trust
 	 */
-	void decide(Authentication authentication, Object object,
-			Collection<ConfigAttribute> configAttributes) throws AccessDeniedException,
-			InsufficientAuthenticationException;
+	void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
+			throws AccessDeniedException, InsufficientAuthenticationException;
 
 	/**
 	 * Indicates whether this <code>AccessDecisionManager</code> is able to process
@@ -56,10 +51,8 @@ public interface AccessDecisionManager {
 	 * <code>AccessDecisionManager</code> and/or <code>RunAsManager</code> and/or
 	 * <code>AfterInvocationManager</code>.
 	 * </p>
-	 *
 	 * @param attribute a configuration attribute that has been configured against the
 	 * <code>AbstractSecurityInterceptor</code>
-	 *
 	 * @return true if this <code>AccessDecisionManager</code> can support the passed
 	 * configuration attribute
 	 */
@@ -68,10 +61,9 @@ public interface AccessDecisionManager {
 	/**
 	 * Indicates whether the <code>AccessDecisionManager</code> implementation is able to
 	 * provide access control decisions for the indicated secured object type.
-	 *
 	 * @param clazz the class that is being queried
-	 *
 	 * @return <code>true</code> if the implementation can process the indicated class
 	 */
 	boolean supports(Class<?> clazz);
+
 }

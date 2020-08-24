@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.http;
+
+import java.util.Arrays;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -32,24 +36,20 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- *
  * @author Rob Winch
  * @author Tim Ysewyn
  * @author Josh Cummings
  */
 public class HttpCorsConfigTests {
 
-	private static final String CONFIG_LOCATION_PREFIX =
-			"classpath:org/springframework/security/config/http/HttpCorsConfigTests";
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/HttpCorsConfigTests";
 
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -59,78 +59,49 @@ public class HttpCorsConfigTests {
 
 	@Test
 	public void autowireWhenMissingMvcThenGivesInformativeError() {
-		assertThatThrownBy(() ->
-				this.spring.configLocations(this.xml("RequiresMvc")).autowire())
-			.isInstanceOf(BeanCreationException.class)
-			.hasMessageContaining("Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("RequiresMvc")).autowire())
+				.withMessageContaining(
+						"Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
 	}
 
 	@Test
-	public void getWhenUsingCorsThenDoesSpringSecurityCorsHandshake()
-		throws Exception {
-
+	public void getWhenUsingCorsThenDoesSpringSecurityCorsHandshake() throws Exception {
 		this.spring.configLocations(this.xml("WithCors")).autowire();
-
+		// @formatter:off
 		this.mvc.perform(get("/").with(this.approved()))
 				.andExpect(corsResponseHeaders())
 				.andExpect((status().isIAmATeapot()));
-
 		this.mvc.perform(options("/").with(this.preflight()))
 				.andExpect(corsResponseHeaders())
 				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	@Test
-	public void getWhenUsingCustomCorsConfigurationSourceThenDoesSpringSecurityCorsHandshake()
-			throws Exception {
-
+	public void getWhenUsingCustomCorsConfigurationSourceThenDoesSpringSecurityCorsHandshake() throws Exception {
 		this.spring.configLocations(this.xml("WithCorsConfigurationSource")).autowire();
-
+		// @formatter:off
 		this.mvc.perform(get("/").with(this.approved()))
 				.andExpect(corsResponseHeaders())
 				.andExpect((status().isIAmATeapot()));
-
 		this.mvc.perform(options("/").with(this.preflight()))
 				.andExpect(corsResponseHeaders())
 				.andExpect(status().isOk());
+		// @formatter:on
 	}
 
 	@Test
-	public void getWhenUsingCustomCorsFilterThenDoesSPringSecurityCorsHandshake()
-			throws Exception {
-
+	public void getWhenUsingCustomCorsFilterThenDoesSPringSecurityCorsHandshake() throws Exception {
 		this.spring.configLocations(this.xml("WithCorsFilter")).autowire();
-
+		// @formatter:off
 		this.mvc.perform(get("/").with(this.approved()))
 				.andExpect(corsResponseHeaders())
 				.andExpect((status().isIAmATeapot()));
-
 		this.mvc.perform(options("/").with(this.preflight()))
 				.andExpect(corsResponseHeaders())
 				.andExpect(status().isOk());
-	}
-
-	@RestController
-	@CrossOrigin(methods = {
-			RequestMethod.GET, RequestMethod.POST
-	})
-	static class CorsController {
-		@RequestMapping("/")
-		String hello() {
-			return "Hello";
-		}
-	}
-
-	static class MyCorsConfigurationSource extends UrlBasedCorsConfigurationSource {
-		MyCorsConfigurationSource() {
-			CorsConfiguration configuration = new CorsConfiguration();
-			configuration.setAllowedOrigins(Arrays.asList("*"));
-			configuration.setAllowedMethods(Arrays.asList(RequestMethod.GET.name(), RequestMethod.POST.name()));
-
-			super.registerCorsConfiguration(
-					"/**",
-					configuration);
-		}
+		// @formatter:on
 	}
 
 	private String xml(String configName) {
@@ -148,21 +119,41 @@ public class HttpCorsConfigTests {
 	private RequestPostProcessor cors(boolean preflight) {
 		return (request) -> {
 			request.addHeader(HttpHeaders.ORIGIN, "https://example.com");
-
-			if ( preflight ) {
+			if (preflight) {
 				request.setMethod(HttpMethod.OPTIONS.name());
 				request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name());
 			}
-
 			return request;
 		};
 	}
 
 	private ResultMatcher corsResponseHeaders() {
-		return result -> {
+		return (result) -> {
 			header().exists("Access-Control-Allow-Origin").match(result);
 			header().exists("X-Content-Type-Options").match(result);
 		};
+	}
+
+	@RestController
+	@CrossOrigin(methods = { RequestMethod.GET, RequestMethod.POST })
+	static class CorsController {
+
+		@RequestMapping("/")
+		String hello() {
+			return "Hello";
+		}
+
+	}
+
+	static class MyCorsConfigurationSource extends UrlBasedCorsConfigurationSource {
+
+		MyCorsConfigurationSource() {
+			CorsConfiguration configuration = new CorsConfiguration();
+			configuration.setAllowedOrigins(Arrays.asList("*"));
+			configuration.setAllowedMethods(Arrays.asList(RequestMethod.GET.name(), RequestMethod.POST.name()));
+			super.registerCorsConfiguration("/**", configuration);
+		}
+
 	}
 
 }

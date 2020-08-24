@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.configurers;
 import org.apache.http.HttpHeaders;
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -34,8 +35,9 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -65,13 +67,241 @@ public class LogoutConfigurerTests {
 
 	@Test
 	public void configureWhenDefaultLogoutSuccessHandlerForHasNullLogoutHandlerThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void configureWhenDefaultLogoutSuccessHandlerForHasNullLogoutHandlerInLambdaThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerInLambdaConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void configureWhenDefaultLogoutSuccessHandlerForHasNullMatcherThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullMatcherConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void configureWhenDefaultLogoutSuccessHandlerForHasNullMatcherInLambdaThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullMatcherInLambdaConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnLogoutFilter() {
+		this.spring.register(ObjectPostProcessorConfig.class).autowire();
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(LogoutFilter.class));
+	}
+
+	@Test
+	public void logoutWhenInvokedTwiceThenUsesOriginalLogoutUrl() throws Exception {
+		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
+		MockHttpServletRequestBuilder logoutRequest = post("/custom/logout").with(csrf());
+		// @formatter:off
+		this.mvc.perform(logoutRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	// SEC-2311
+	@Test
+	public void logoutWhenGetRequestAndCsrfDisabledThenRedirectsToLogin() throws Exception {
+		this.spring.register(CsrfDisabledConfig.class).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	@Test
+	public void logoutWhenPostRequestAndCsrfDisabledThenRedirectsToLogin() throws Exception {
+		this.spring.register(CsrfDisabledConfig.class).autowire();
+		// @formatter:off
+		this.mvc.perform(post("/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	@Test
+	public void logoutWhenPutRequestAndCsrfDisabledThenRedirectsToLogin() throws Exception {
+		this.spring.register(CsrfDisabledConfig.class).autowire();
+		// @formatter:off
+		this.mvc.perform(put("/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	@Test
+	public void logoutWhenDeleteRequestAndCsrfDisabledThenRedirectsToLogin() throws Exception {
+		this.spring.register(CsrfDisabledConfig.class).autowire();
+		// @formatter:off
+		this.mvc.perform(delete("/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	@Test
+	public void logoutWhenGetRequestAndCsrfDisabledAndCustomLogoutUrlThenRedirectsToLogin() throws Exception {
+		this.spring.register(CsrfDisabledAndCustomLogoutConfig.class).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/custom/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	@Test
+	public void logoutWhenPostRequestAndCsrfDisabledAndCustomLogoutUrlThenRedirectsToLogin() throws Exception {
+		this.spring.register(CsrfDisabledAndCustomLogoutConfig.class).autowire();
+		// @formatter:off
+		this.mvc.perform(post("/custom/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	@Test
+	public void logoutWhenPutRequestAndCsrfDisabledAndCustomLogoutUrlThenRedirectsToLogin() throws Exception {
+		this.spring.register(CsrfDisabledAndCustomLogoutConfig.class).autowire();
+		// @formatter:off
+		this.mvc.perform(put("/custom/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	@Test
+	public void logoutWhenDeleteRequestAndCsrfDisabledAndCustomLogoutUrlThenRedirectsToLogin() throws Exception {
+		this.spring.register(CsrfDisabledAndCustomLogoutConfig.class).autowire();
+		// @formatter:off
+		this.mvc.perform(delete("/custom/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	@Test
+	public void logoutWhenCustomLogoutUrlInLambdaThenRedirectsToLogin() throws Exception {
+		this.spring.register(CsrfDisabledAndCustomLogoutInLambdaConfig.class).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/custom/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	// SEC-3170
+	@Test
+	public void configureWhenLogoutHandlerNullThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullLogoutHandlerConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void configureWhenLogoutHandlerNullInLambdaThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullLogoutHandlerInLambdaConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	// SEC-3170
+	@Test
+	public void rememberMeWhenRememberMeServicesNotLogoutHandlerThenRedirectsToLogin() throws Exception {
+		this.spring.register(RememberMeNoLogoutHandler.class).autowire();
+		this.mvc.perform(post("/logout").with(csrf())).andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+	}
+
+	@Test
+	public void logoutWhenAcceptTextHtmlThenRedirectsToLogin() throws Exception {
+		this.spring.register(BasicSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder logoutRequest = post("/logout")
+				.with(csrf())
+				.with(user("user"))
+				.header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML_VALUE);
+		this.mvc.perform(logoutRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	// gh-3282
+	@Test
+	public void logoutWhenAcceptApplicationJsonThenReturnsStatusNoContent() throws Exception {
+		this.spring.register(BasicSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/logout")
+				.with(csrf())
+				.with(user("user"))
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+		// @formatter:on
+		this.mvc.perform(request).andExpect(status().isNoContent());
+	}
+
+	// gh-4831
+	@Test
+	public void logoutWhenAcceptAllThenReturnsStatusNoContent() throws Exception {
+		this.spring.register(BasicSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder logoutRequest = post("/logout")
+				.with(csrf())
+				.with(user("user"))
+				.header(HttpHeaders.ACCEPT, MediaType.ALL_VALUE);
+		// @formatter:on
+		this.mvc.perform(logoutRequest).andExpect(status().isNoContent());
+	}
+
+	// gh-3902
+	@Test
+	public void logoutWhenAcceptFromChromeThenRedirectsToLogin() throws Exception {
+		this.spring.register(BasicSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/logout")
+				.with(csrf())
+				.with(user("user"))
+				.header(HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+		this.mvc.perform(request)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	// gh-3997
+	@Test
+	public void logoutWhenXMLHttpRequestThenReturnsStatusNoContent() throws Exception {
+		this.spring.register(BasicSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/logout")
+				.with(csrf())
+				.with(user("user"))
+				.header(HttpHeaders.ACCEPT, "text/html,application/json")
+				.header("X-Requested-With", "XMLHttpRequest");
+		// @formatter:on
+		this.mvc.perform(request).andExpect(status().isNoContent());
+	}
+
+	@Test
+	public void logoutWhenDisabledThenLogoutUrlNotFound() throws Exception {
+		this.spring.register(LogoutDisabledConfig.class).autowire();
+		this.mvc.perform(post("/logout").with(csrf())).andExpect(status().isNotFound());
 	}
 
 	@EnableWebSecurity
 	static class NullLogoutSuccessHandlerConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -80,37 +310,27 @@ public class LogoutConfigurerTests {
 					.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class));
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void configureWhenDefaultLogoutSuccessHandlerForHasNullLogoutHandlerInLambdaThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerInLambdaConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@EnableWebSecurity
 	static class NullLogoutSuccessHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout(logout ->
+				.logout((logout) ->
 					logout.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class))
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void configureWhenDefaultLogoutSuccessHandlerForHasNullMatcherThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullMatcherConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@EnableWebSecurity
 	static class NullMatcherConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -119,38 +339,27 @@ public class LogoutConfigurerTests {
 					.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void configureWhenDefaultLogoutSuccessHandlerForHasNullMatcherInLambdaThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullMatcherInLambdaConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@EnableWebSecurity
 	static class NullMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout(logout ->
+				.logout((logout) ->
 					logout.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null)
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnLogoutFilter() {
-		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(LogoutFilter.class));
 	}
 
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
 		@Override
@@ -165,27 +374,21 @@ public class LogoutConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
 		}
-	}
 
-	@Test
-	public void logoutWhenInvokedTwiceThenUsesOriginalLogoutUrl() throws Exception {
-		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
-
-		this.mvc.perform(post("/custom/logout")
-				.with(csrf()))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
 	}
 
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -204,43 +407,7 @@ public class LogoutConfigurerTests {
 				.inMemoryAuthentication();
 			// @formatter:on
 		}
-	}
 
-	// SEC-2311
-	@Test
-	public void logoutWhenGetRequestAndCsrfDisabledThenRedirectsToLogin() throws Exception {
-		this.spring.register(CsrfDisabledConfig.class).autowire();
-
-		this.mvc.perform(get("/logout"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
-	}
-
-	@Test
-	public void logoutWhenPostRequestAndCsrfDisabledThenRedirectsToLogin() throws Exception {
-		this.spring.register(CsrfDisabledConfig.class).autowire();
-
-		this.mvc.perform(post("/logout"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
-	}
-
-	@Test
-	public void logoutWhenPutRequestAndCsrfDisabledThenRedirectsToLogin() throws Exception {
-		this.spring.register(CsrfDisabledConfig.class).autowire();
-
-		this.mvc.perform(put("/logout"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
-	}
-
-	@Test
-	public void logoutWhenDeleteRequestAndCsrfDisabledThenRedirectsToLogin() throws Exception {
-		this.spring.register(CsrfDisabledConfig.class).autowire();
-
-		this.mvc.perform(delete("/logout"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
 	}
 
 	@EnableWebSecurity
@@ -255,42 +422,7 @@ public class LogoutConfigurerTests {
 				.logout();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void logoutWhenGetRequestAndCsrfDisabledAndCustomLogoutUrlThenRedirectsToLogin() throws Exception {
-		this.spring.register(CsrfDisabledAndCustomLogoutConfig.class).autowire();
-
-		this.mvc.perform(get("/custom/logout"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
-	}
-
-	@Test
-	public void logoutWhenPostRequestAndCsrfDisabledAndCustomLogoutUrlThenRedirectsToLogin() throws Exception {
-		this.spring.register(CsrfDisabledAndCustomLogoutConfig.class).autowire();
-
-		this.mvc.perform(post("/custom/logout"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
-	}
-
-	@Test
-	public void logoutWhenPutRequestAndCsrfDisabledAndCustomLogoutUrlThenRedirectsToLogin() throws Exception {
-		this.spring.register(CsrfDisabledAndCustomLogoutConfig.class).autowire();
-
-		this.mvc.perform(put("/custom/logout"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
-	}
-
-	@Test
-	public void logoutWhenDeleteRequestAndCsrfDisabledAndCustomLogoutUrlThenRedirectsToLogin() throws Exception {
-		this.spring.register(CsrfDisabledAndCustomLogoutConfig.class).autowire();
-
-		this.mvc.perform(delete("/custom/logout"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
 	}
 
 	@EnableWebSecurity
@@ -306,15 +438,7 @@ public class LogoutConfigurerTests {
 					.logoutUrl("/custom/logout");
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void logoutWhenCustomLogoutUrlInLambdaThenRedirectsToLogin() throws Exception {
-		this.spring.register(CsrfDisabledAndCustomLogoutInLambdaConfig.class).autowire();
-
-		this.mvc.perform(get("/custom/logout"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
 	}
 
 	@EnableWebSecurity
@@ -326,21 +450,15 @@ public class LogoutConfigurerTests {
 			http
 				.csrf()
 					.disable()
-				.logout(logout -> logout.logoutUrl("/custom/logout"));
+				.logout((logout) -> logout.logoutUrl("/custom/logout"));
 			// @formatter:on
 		}
-	}
 
-	// SEC-3170
-	@Test
-	public void configureWhenLogoutHandlerNullThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullLogoutHandlerConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@EnableWebSecurity
 	static class NullLogoutHandlerConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -349,39 +467,25 @@ public class LogoutConfigurerTests {
 					.addLogoutHandler(null);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void configureWhenLogoutHandlerNullInLambdaThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullLogoutHandlerInLambdaConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@EnableWebSecurity
 	static class NullLogoutHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout(logout -> logout.addLogoutHandler(null));
+				.logout((logout) -> logout.addLogoutHandler(null));
 			// @formatter:on
 		}
-	}
 
-	// SEC-3170
-	@Test
-	public void rememberMeWhenRememberMeServicesNotLogoutHandlerThenRedirectsToLogin() throws Exception {
-		this.spring.register(RememberMeNoLogoutHandler.class).autowire();
-
-		this.mvc.perform(post("/logout")
-				.with(csrf()))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
 	}
 
 	@EnableWebSecurity
 	static class RememberMeNoLogoutHandler extends WebSecurityConfigurerAdapter {
+
 		static RememberMeServices REMEMBER_ME = mock(RememberMeServices.class);
 
 		@Override
@@ -392,84 +496,17 @@ public class LogoutConfigurerTests {
 					.rememberMeServices(REMEMBER_ME);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void logoutWhenAcceptTextHtmlThenRedirectsToLogin() throws Exception {
-		this.spring.register(BasicSecurityConfig.class).autowire();
-
-		this.mvc.perform(post("/logout")
-				.with(csrf())
-				.with(user("user"))
-				.header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML_VALUE))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
-	}
-
-	// gh-3282
-	@Test
-	public void logoutWhenAcceptApplicationJsonThenReturnsStatusNoContent() throws Exception {
-		this.spring.register(BasicSecurityConfig.class).autowire();
-
-		this.mvc.perform(post("/logout")
-				.with(csrf())
-				.with(user("user"))
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
-				.andExpect(status().isNoContent());
-	}
-
-	// gh-4831
-	@Test
-	public void logoutWhenAcceptAllThenReturnsStatusNoContent() throws Exception {
-		this.spring.register(BasicSecurityConfig.class).autowire();
-
-		this.mvc.perform(post("/logout")
-				.with(csrf())
-				.with(user("user"))
-				.header(HttpHeaders.ACCEPT, MediaType.ALL_VALUE))
-				.andExpect(status().isNoContent());
-	}
-
-	// gh-3902
-	@Test
-	public void logoutWhenAcceptFromChromeThenRedirectsToLogin() throws Exception {
-		this.spring.register(BasicSecurityConfig.class).autowire();
-
-		this.mvc.perform(post("/logout")
-				.with(csrf()).with(user("user"))
-				.header(HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
-	}
-
-	// gh-3997
-	@Test
-	public void logoutWhenXMLHttpRequestThenReturnsStatusNoContent() throws Exception {
-		this.spring.register(BasicSecurityConfig.class).autowire();
-
-		this.mvc.perform(post("/logout")
-				.with(csrf())
-				.with(user("user"))
-				.header(HttpHeaders.ACCEPT, "text/html,application/json")
-				.header("X-Requested-With", "XMLHttpRequest"))
-				.andExpect(status().isNoContent());
 	}
 
 	@EnableWebSecurity
 	static class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
-	}
 
-	@Test
-	public void logoutWhenDisabledThenLogoutUrlNotFound() throws Exception {
-		this.spring.register(LogoutDisabledConfig.class).autowire();
-
-		this.mvc.perform(post("/logout")
-				.with(csrf()))
-				.andExpect(status().isNotFound());
 	}
 
 	@EnableWebSecurity
 	static class LogoutDisabledConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -478,5 +515,7 @@ public class LogoutConfigurerTests {
 					.disable();
 			// @formatter:on
 		}
+
 	}
+
 }

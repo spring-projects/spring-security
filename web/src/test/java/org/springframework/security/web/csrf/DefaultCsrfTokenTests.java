@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.csrf;
 
 import org.junit.Test;
@@ -22,37 +23,41 @@ import org.junit.Test;
  *
  */
 public class DefaultCsrfTokenTests {
+
 	private final String headerName = "headerName";
+
 	private final String parameterName = "parameterName";
+
 	private final String tokenValue = "tokenValue";
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullHeaderName() {
-		new DefaultCsrfToken(null, parameterName, tokenValue);
+		new DefaultCsrfToken(null, this.parameterName, this.tokenValue);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyHeaderName() {
-		new DefaultCsrfToken("", parameterName, tokenValue);
+		new DefaultCsrfToken("", this.parameterName, this.tokenValue);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullParameterName() {
-		new DefaultCsrfToken(headerName, null, tokenValue);
+		new DefaultCsrfToken(this.headerName, null, this.tokenValue);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyParameterName() {
-		new DefaultCsrfToken(headerName, "", tokenValue);
+		new DefaultCsrfToken(this.headerName, "", this.tokenValue);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullTokenValue() {
-		new DefaultCsrfToken(headerName, parameterName, null);
+		new DefaultCsrfToken(this.headerName, this.parameterName, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyTokenValue() {
-		new DefaultCsrfToken(headerName, parameterName, "");
+		new DefaultCsrfToken(this.headerName, this.parameterName, "");
 	}
+
 }

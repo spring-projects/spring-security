@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.firewall;
 
 import java.io.IOException;
@@ -23,13 +24,17 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
+
 /**
- * A simple implementation of {@link RequestRejectedHandler} that sends an error with configurable status code.
+ * A simple implementation of {@link RequestRejectedHandler} that sends an error with
+ * configurable status code.
  *
  * @author Leonard Brünings
  * @since 5.4
  */
 public class HttpStatusRequestRejectedHandler implements RequestRejectedHandler {
+
 	private static final Log logger = LogFactory.getLog(HttpStatusRequestRejectedHandler.class);
 
 	private final int httpError;
@@ -38,7 +43,7 @@ public class HttpStatusRequestRejectedHandler implements RequestRejectedHandler 
 	 * Constructs an instance which uses {@code 400} as response code.
 	 */
 	public HttpStatusRequestRejectedHandler() {
-		httpError = HttpServletResponse.SC_BAD_REQUEST;
+		this.httpError = HttpServletResponse.SC_BAD_REQUEST;
 	}
 
 	/**
@@ -52,10 +57,9 @@ public class HttpStatusRequestRejectedHandler implements RequestRejectedHandler 
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			RequestRejectedException requestRejectedException) throws IOException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Rejecting request due to: " + requestRejectedException.getMessage(),
-					requestRejectedException);
-		}
-		response.sendError(httpError);
+		logger.debug(LogMessage.format("Rejecting request due to: %s", requestRejectedException.getMessage()),
+				requestRejectedException);
+		response.sendError(this.httpError);
 	}
+
 }

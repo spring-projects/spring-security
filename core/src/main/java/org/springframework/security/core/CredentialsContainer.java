@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core;
 
 /**
@@ -29,5 +30,7 @@ package org.springframework.security.core;
  * @since 3.0.3
  */
 public interface CredentialsContainer {
+
 	void eraseCredentials();
+
 }

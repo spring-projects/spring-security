@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.context;
 
 import java.security.Principal;
+
+import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebExchangeDecorator;
 
-import reactor.core.publisher.Mono;
-
 /**
- * Overrides the {@link ServerWebExchange#getPrincipal()} with the provided SecurityContext
+ * Overrides the {@link ServerWebExchange#getPrincipal()} with the provided
+ * SecurityContext
+ *
  * @author Rob Winch
  * @since 5.0
  * @see SecurityContextServerWebExchangeWebFilter
  */
 public class SecurityContextServerWebExchange extends ServerWebExchangeDecorator {
+
 	private final Mono<SecurityContext> context;
 
 	public SecurityContextServerWebExchange(ServerWebExchange delegate, Mono<SecurityContext> context) {
@@ -40,6 +44,7 @@ public class SecurityContextServerWebExchange extends ServerWebExchangeDecorator
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends Principal> Mono<T> getPrincipal() {
-		return this.context.map(c -> (T) c.getAuthentication());
+		return this.context.map((context) -> (T) context.getAuthentication());
 	}
+
 }

@@ -18,8 +18,6 @@ package org.springframework.security.web.session;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.security.web.session.HttpSessionCreatedEvent;
-import org.springframework.security.web.session.HttpSessionDestroyedEvent;
 
 /**
  * Listener for tests
@@ -27,33 +25,31 @@ import org.springframework.security.web.session.HttpSessionDestroyedEvent;
  * @author Ray Krueger
  */
 public class MockApplicationListener implements ApplicationListener<ApplicationEvent> {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private HttpSessionCreatedEvent createdEvent;
+
 	private HttpSessionDestroyedEvent destroyedEvent;
+
 	private HttpSessionIdChangedEvent sessionIdChangedEvent;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public HttpSessionCreatedEvent getCreatedEvent() {
-		return createdEvent;
+		return this.createdEvent;
 	}
 
 	public HttpSessionDestroyedEvent getDestroyedEvent() {
-		return destroyedEvent;
+		return this.destroyedEvent;
 	}
 
+	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof HttpSessionCreatedEvent) {
-			createdEvent = (HttpSessionCreatedEvent) event;
+			this.createdEvent = (HttpSessionCreatedEvent) event;
 		}
 		else if (event instanceof HttpSessionDestroyedEvent) {
-			destroyedEvent = (HttpSessionDestroyedEvent) event;
+			this.destroyedEvent = (HttpSessionDestroyedEvent) event;
 		}
 		else if (event instanceof HttpSessionIdChangedEvent) {
-			sessionIdChangedEvent = (HttpSessionIdChangedEvent) event;
+			this.sessionIdChangedEvent = (HttpSessionIdChangedEvent) event;
 		}
 	}
 
@@ -70,6 +66,7 @@ public class MockApplicationListener implements ApplicationListener<ApplicationE
 	}
 
 	public HttpSessionIdChangedEvent getSessionIdChangedEvent() {
-		return sessionIdChangedEvent;
+		return this.sessionIdChangedEvent;
 	}
+
 }

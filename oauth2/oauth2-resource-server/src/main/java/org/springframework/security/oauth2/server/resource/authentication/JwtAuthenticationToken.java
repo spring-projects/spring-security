@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Collection;
@@ -24,8 +25,8 @@ import org.springframework.security.core.Transient;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
- * An implementation of an {@link AbstractOAuth2TokenAuthenticationToken}
- * representing a {@link Jwt} {@code Authentication}.
+ * An implementation of an {@link AbstractOAuth2TokenAuthenticationToken} representing a
+ * {@link Jwt} {@code Authentication}.
  *
  * @author Joe Grandja
  * @since 5.1
@@ -34,13 +35,13 @@ import org.springframework.security.oauth2.jwt.Jwt;
  */
 @Transient
 public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationToken<Jwt> {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	private final String name;
 
 	/**
 	 * Constructs a {@code JwtAuthenticationToken} using the provided parameters.
-	 *
 	 * @param jwt the JWT
 	 */
 	public JwtAuthenticationToken(Jwt jwt) {
@@ -50,7 +51,6 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 
 	/**
 	 * Constructs a {@code JwtAuthenticationToken} using the provided parameters.
-	 *
 	 * @param jwt the JWT
 	 * @param authorities the authorities assigned to the JWT
 	 */
@@ -62,7 +62,6 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 
 	/**
 	 * Constructs a {@code JwtAuthenticationToken} using the provided parameters.
-	 *
 	 * @param jwt the JWT
 	 * @param authorities the authorities assigned to the JWT
 	 * @param name the principal name
@@ -73,9 +72,6 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 		this.name = name;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Map<String, Object> getTokenAttributes() {
 		return this.getToken().getClaims();
@@ -88,4 +84,5 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 	public String getName() {
 		return this.name;
 	}
+
 }

@@ -13,85 +13,75 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.header;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
- *
  * @author Rob Winch
  * @since 5.0
  *
  */
 public class CacheControlServerHttpHeadersWriterTests {
+
 	CacheControlServerHttpHeadersWriter writer = new CacheControlServerHttpHeadersWriter();
 
-	ServerWebExchange exchange = MockServerWebExchange
-		.from(MockServerHttpRequest.get("/").build());
+	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
-	HttpHeaders headers = exchange.getResponse().getHeaders();
+	HttpHeaders headers = this.exchange.getResponse().getHeaders();
 
 	@Test
 	public void writeHeadersWhenCacheHeadersThenWritesAllCacheControl() {
-		writer.writeHttpHeaders(exchange);
-
-		assertThat(headers).hasSize(3);
-		assertThat(headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(
-			CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
-		assertThat(headers.get(HttpHeaders.EXPIRES)).containsOnly(
-			CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
-		assertThat(headers.get(HttpHeaders.PRAGMA)).containsOnly(
-			CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
+		this.writer.writeHttpHeaders(this.exchange);
+		assertThat(this.headers).hasSize(3);
+		assertThat(this.headers.get(HttpHeaders.CACHE_CONTROL))
+				.containsOnly(CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
+		assertThat(this.headers.get(HttpHeaders.EXPIRES))
+				.containsOnly(CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
+		assertThat(this.headers.get(HttpHeaders.PRAGMA)).containsOnly(CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
 	}
 
 	@Test
 	public void writeHeadersWhenCacheControlThenNoCacheControlHeaders() {
 		String cacheControl = "max-age=1234";
-
-		headers.set(HttpHeaders.CACHE_CONTROL, cacheControl);
-
-		writer.writeHttpHeaders(exchange);
-
-		assertThat(headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(cacheControl);
+		this.headers.set(HttpHeaders.CACHE_CONTROL, cacheControl);
+		this.writer.writeHttpHeaders(this.exchange);
+		assertThat(this.headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(cacheControl);
 	}
 
 	@Test
 	public void writeHeadersWhenPragmaThenNoCacheControlHeaders() {
 		String pragma = "1";
-		headers.set(HttpHeaders.PRAGMA, pragma);
-
-		writer.writeHttpHeaders(exchange);
-
-		assertThat(headers).hasSize(1);
-		assertThat(headers.get(HttpHeaders.PRAGMA)).containsOnly(pragma);
+		this.headers.set(HttpHeaders.PRAGMA, pragma);
+		this.writer.writeHttpHeaders(this.exchange);
+		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.get(HttpHeaders.PRAGMA)).containsOnly(pragma);
 	}
 
 	@Test
 	public void writeHeadersWhenExpiresThenNoCacheControlHeaders() {
 		String expires = "1";
-		headers.set(HttpHeaders.EXPIRES, expires);
-
-		writer.writeHttpHeaders(exchange);
-
-		assertThat(headers).hasSize(1);
-		assertThat(headers.get(HttpHeaders.EXPIRES)).containsOnly(expires);
+		this.headers.set(HttpHeaders.EXPIRES, expires);
+		this.writer.writeHttpHeaders(this.exchange);
+		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.get(HttpHeaders.EXPIRES)).containsOnly(expires);
 	}
 
 	@Test
 	// gh-5534
 	public void writeHeadersWhenNotModifiedThenNoCacheControlHeaders() {
-		exchange.getResponse().setStatusCode(HttpStatus.NOT_MODIFIED);
-
-		writer.writeHttpHeaders(exchange);
-
-		assertThat(headers).isEmpty();
+		this.exchange.getResponse().setStatusCode(HttpStatus.NOT_MODIFIED);
+		this.writer.writeHttpHeaders(this.exchange);
+		assertThat(this.headers).isEmpty();
 	}
 
 }

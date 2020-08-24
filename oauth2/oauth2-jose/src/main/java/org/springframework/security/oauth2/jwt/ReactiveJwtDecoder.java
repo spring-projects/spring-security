@@ -13,35 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.jwt;
 
 import reactor.core.publisher.Mono;
 
 /**
- * Implementations of this interface are responsible for &quot;decoding&quot;
- * a JSON Web Token (JWT) from it's compact claims representation format to a {@link Jwt}.
+ * Implementations of this interface are responsible for &quot;decoding&quot; a JSON Web
+ * Token (JWT) from it's compact claims representation format to a {@link Jwt}.
  *
  * <p>
- * JWTs may be represented using the JWS Compact Serialization format for a
- * JSON Web Signature (JWS) structure or JWE Compact Serialization format for a
- * JSON Web Encryption (JWE) structure. Therefore, implementors are responsible
- * for verifying a JWS and/or decrypting a JWE.
+ * JWTs may be represented using the JWS Compact Serialization format for a JSON Web
+ * Signature (JWS) structure or JWE Compact Serialization format for a JSON Web Encryption
+ * (JWE) structure. Therefore, implementors are responsible for verifying a JWS and/or
+ * decrypting a JWE.
  *
  * @author Rob Winch
  * @since 5.1
  * @see Jwt
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token (JWT)</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515">JSON Web Signature (JWS)</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7516">JSON Web Encryption (JWE)</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515#section-3.1">JWS Compact Serialization</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7516#section-3.1">JWE Compact Serialization</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token
+ * (JWT)</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515">JSON Web Signature
+ * (JWS)</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7516">JSON Web Encryption
+ * (JWE)</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515#section-3.1">JWS
+ * Compact Serialization</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7516#section-3.1">JWE
+ * Compact Serialization</a>
  */
 @FunctionalInterface
 public interface ReactiveJwtDecoder {
 
 	/**
-	 * Decodes the JWT from it's compact claims representation format and returns a {@link Jwt}.
-	 *
+	 * Decodes the JWT from it's compact claims representation format and returns a
+	 * {@link Jwt}.
 	 * @param token the JWT value
 	 * @return a {@link Jwt}
 	 * @throws JwtException if an error occurs while attempting to decode the JWT

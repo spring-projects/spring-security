@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.cas.authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.cache.Cache;
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 
 /**
@@ -28,59 +31,39 @@ import org.springframework.util.Assert;
  *
  */
 public class SpringCacheBasedTicketCache implements StatelessTicketCache {
-	// ~ Static fields/initializers
-	// =====================================================================================
 
-	private static final Log logger = LogFactory
-			.getLog(SpringCacheBasedTicketCache.class);
-
-	// ~ Instance fields
-	// ================================================================================================
+	private static final Log logger = LogFactory.getLog(SpringCacheBasedTicketCache.class);
 
 	private final Cache cache;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public SpringCacheBasedTicketCache(Cache cache) {
 		Assert.notNull(cache, "cache mandatory");
 		this.cache = cache;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public CasAuthenticationToken getByTicketId(final String serviceTicket) {
-		final Cache.ValueWrapper element = serviceTicket != null ? cache
-				.get(serviceTicket) : null;
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cache hit: " + (element != null) + "; service ticket: "
-					+ serviceTicket);
-		}
-
-		return element == null ? null : (CasAuthenticationToken) element.get();
+		final Cache.ValueWrapper element = (serviceTicket != null) ? this.cache.get(serviceTicket) : null;
+		logger.debug(LogMessage.of(() -> "Cache hit: " + (element != null) + "; service ticket: " + serviceTicket));
+		return (element != null) ? (CasAuthenticationToken) element.get() : null;
 	}
 
+	@Override
 	public void putTicketInCache(final CasAuthenticationToken token) {
 		String key = token.getCredentials().toString();
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cache put: " + key);
-		}
-
-		cache.put(key, token);
+		logger.debug(LogMessage.of(() -> "Cache put: " + key));
+		this.cache.put(key, token);
 	}
 
+	@Override
 	public void removeTicketFromCache(final CasAuthenticationToken token) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cache remove: " + token.getCredentials().toString());
-		}
-
+		logger.debug(LogMessage.of(() -> "Cache remove: " + token.getCredentials().toString()));
 		this.removeTicketFromCache(token.getCredentials().toString());
 	}
 
+	@Override
 	public void removeTicketFromCache(final String serviceTicket) {
-		cache.evict(serviceTicket);
+		this.cache.evict(serviceTicket);
 	}
+
 }

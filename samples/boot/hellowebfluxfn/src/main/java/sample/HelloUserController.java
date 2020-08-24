@@ -36,7 +36,7 @@ public class HelloUserController {
 	public Mono<ServerResponse> hello(ServerRequest serverRequest) {
 		return serverRequest.principal()
 			.map(Principal::getName)
-			.flatMap(username ->
+			.flatMap((username) -> 
 				ServerResponse.ok()
 					.contentType(MediaType.APPLICATION_JSON)
 					.syncBody(Collections.singletonMap("message", "Hello " + username + "!"))

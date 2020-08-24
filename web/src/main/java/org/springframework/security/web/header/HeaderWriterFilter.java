@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header;
 
 import java.io.IOException;
@@ -43,7 +44,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 public class HeaderWriterFilter extends OncePerRequestFilter {
 
-
 	/**
 	 * The {@link HeaderWriter} to write headers to the response.
 	 * {@see CompositeHeaderWriter}
@@ -57,7 +57,6 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 
 	/**
 	 * Creates a new instance.
-	 *
 	 * @param headerWriters the {@link HeaderWriter} instances to write out headers to the
 	 * {@link HttpServletResponse}.
 	 */
@@ -67,30 +66,30 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request,
-			HttpServletResponse response, FilterChain filterChain)
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
 		if (this.shouldWriteHeadersEagerly) {
 			doHeadersBefore(request, response, filterChain);
-		} else {
+		}
+		else {
 			doHeadersAfter(request, response, filterChain);
 		}
 	}
 
-	private void doHeadersBefore(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+	private void doHeadersBefore(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws IOException, ServletException {
 		writeHeaders(request, response);
 		filterChain.doFilter(request, response);
 	}
 
-	private void doHeadersAfter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-		HeaderWriterResponse headerWriterResponse = new HeaderWriterResponse(request,
-				response);
-		HeaderWriterRequest headerWriterRequest = new HeaderWriterRequest(request,
-				headerWriterResponse);
+	private void doHeadersAfter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws IOException, ServletException {
+		HeaderWriterResponse headerWriterResponse = new HeaderWriterResponse(request, response);
+		HeaderWriterRequest headerWriterRequest = new HeaderWriterRequest(request, headerWriterResponse);
 		try {
 			filterChain.doFilter(headerWriterRequest, headerWriterResponse);
-		} finally {
+		}
+		finally {
 			headerWriterResponse.writeHeaders();
 		}
 	}
@@ -103,8 +102,8 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 
 	/**
 	 * Allow writing headers at the beginning of the request.
-	 *
-	 * @param shouldWriteHeadersEagerly boolean to allow writing headers at the beginning of the request.
+	 * @param shouldWriteHeadersEagerly boolean to allow writing headers at the beginning
+	 * of the request.
 	 * @author Ankur Pathak
 	 * @since 5.2
 	 */
@@ -113,6 +112,7 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 	}
 
 	class HeaderWriterResponse extends OnCommittedResponseWrapper {
+
 		private final HttpServletRequest request;
 
 		HeaderWriterResponse(HttpServletRequest request, HttpServletResponse response) {
@@ -120,12 +120,6 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 			this.request = request;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see org.springframework.security.web.util.OnCommittedResponseWrapper#
-		 * onResponseCommitted()
-		 */
 		@Override
 		protected void onResponseCommitted() {
 			writeHeaders();
@@ -142,9 +136,11 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 		private HttpServletResponse getHttpResponse() {
 			return (HttpServletResponse) getResponse();
 		}
+
 	}
 
 	static class HeaderWriterRequest extends HttpServletRequestWrapper {
+
 		private final HeaderWriterResponse response;
 
 		HeaderWriterRequest(HttpServletRequest request, HeaderWriterResponse response) {
@@ -156,10 +152,13 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 		public RequestDispatcher getRequestDispatcher(String path) {
 			return new HeaderWriterRequestDispatcher(super.getRequestDispatcher(path), this.response);
 		}
+
 	}
 
 	static class HeaderWriterRequestDispatcher implements RequestDispatcher {
+
 		private final RequestDispatcher delegate;
+
 		private final HeaderWriterResponse response;
 
 		HeaderWriterRequestDispatcher(RequestDispatcher delegate, HeaderWriterResponse response) {
@@ -177,5 +176,7 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 			this.response.onResponseCommitted();
 			this.delegate.include(request, response);
 		}
+
 	}
+
 }

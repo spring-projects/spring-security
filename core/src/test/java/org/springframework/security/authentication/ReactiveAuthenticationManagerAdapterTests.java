@@ -21,13 +21,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import org.springframework.security.core.Authentication;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -35,8 +36,10 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ReactiveAuthenticationManagerAdapterTests {
+
 	@Mock
 	AuthenticationManager delegate;
+
 	@Mock
 	Authentication authentication;
 
@@ -44,7 +47,7 @@ public class ReactiveAuthenticationManagerAdapterTests {
 
 	@Before
 	public void setup() {
-		manager = new ReactiveAuthenticationManagerAdapter(delegate);
+		this.manager = new ReactiveAuthenticationManagerAdapter(this.delegate);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -59,31 +62,28 @@ public class ReactiveAuthenticationManagerAdapterTests {
 
 	@Test
 	public void authenticateWhenSuccessThenSuccess() {
-		when(delegate.authenticate(any())).thenReturn(authentication);
-		when(authentication.isAuthenticated()).thenReturn(true);
-
-		Authentication result = manager.authenticate(authentication).block();
-
-		assertThat(result).isEqualTo(authentication);
+		given(this.delegate.authenticate(any())).willReturn(this.authentication);
+		given(this.authentication.isAuthenticated()).willReturn(true);
+		Authentication result = this.manager.authenticate(this.authentication).block();
+		assertThat(result).isEqualTo(this.authentication);
 	}
 
 	@Test
 	public void authenticateWhenReturnNotAuthenticatedThenError() {
-		when(delegate.authenticate(any())).thenReturn(authentication);
-
-		Authentication result = manager.authenticate(authentication).block();
-
+		given(this.delegate.authenticate(any())).willReturn(this.authentication);
+		Authentication result = this.manager.authenticate(this.authentication).block();
 		assertThat(result).isNull();
 	}
 
 	@Test
 	public void authenticateWhenBadCredentialsThenError() {
-		when(delegate.authenticate(any())).thenThrow(new BadCredentialsException("Failed"));
-
-		Mono<Authentication> result = manager.authenticate(authentication);
-
+		given(this.delegate.authenticate(any())).willThrow(new BadCredentialsException("Failed"));
+		Mono<Authentication> result = this.manager.authenticate(this.authentication);
+		// @formatter:off
 		StepVerifier.create(result)
-			.expectError(BadCredentialsException.class)
-			.verify();
+				.expectError(BadCredentialsException.class)
+				.verify();
+		// @formatter:on
 	}
+
 }

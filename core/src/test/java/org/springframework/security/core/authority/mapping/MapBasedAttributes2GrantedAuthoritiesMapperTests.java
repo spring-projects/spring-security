@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.authority.mapping;
 
-import static org.assertj.core.api.Assertions.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import org.junit.Test;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author Ruud Senden
  */
 @SuppressWarnings("unchecked")
@@ -164,10 +169,10 @@ public class MapBasedAttributes2GrantedAuthoritiesMapperTests {
 
 	@Test
 	public void testMappingCombination() throws Exception {
-		String[] roles = { "role1", "role2", "role3", "role4", "role5", "role6", "role7",
-				"role8", "role9", "role10", "role11" };
-		String[] expectedGas = { "ga1", "ga2", "ga3", "ga4", "ga5", "ga6", "ga7", "ga8",
-				"ga9", "ga10", "ga11", "ga12", "ga13", "ga14" };
+		String[] roles = { "role1", "role2", "role3", "role4", "role5", "role6", "role7", "role8", "role9", "role10",
+				"role11" };
+		String[] expectedGas = { "ga1", "ga2", "ga3", "ga4", "ga5", "ga6", "ga7", "ga8", "ga9", "ga10", "ga11", "ga12",
+				"ga13", "ga14" };
 		testGetGrantedAuthorities(getDefaultMapper(), roles, expectedGas);
 	}
 
@@ -177,10 +182,8 @@ public class MapBasedAttributes2GrantedAuthoritiesMapperTests {
 		m.put("role2", new SimpleGrantedAuthority("ga2"));
 		m.put("role3", Arrays.asList("ga3", new SimpleGrantedAuthority("ga4")));
 		m.put("role4", "ga5,ga6");
-		m.put("role5", Arrays.asList("ga7", "ga8",
-				new Object[] { new SimpleGrantedAuthority("ga9") }));
-		m.put("role6", new Object[] { "ga10", "ga11",
-				new Object[] { new SimpleGrantedAuthority("ga12") } });
+		m.put("role5", Arrays.asList("ga7", "ga8", new Object[] { new SimpleGrantedAuthority("ga9") }));
+		m.put("role6", new Object[] { "ga10", "ga11", new Object[] { new SimpleGrantedAuthority("ga12") } });
 		m.put("role7", new String[] { "ga13", "ga14" });
 		m.put("role8", new String[] { "ga13", "ga14", null });
 		m.put("role9", null);
@@ -189,25 +192,24 @@ public class MapBasedAttributes2GrantedAuthoritiesMapperTests {
 		return m;
 	}
 
-	private MapBasedAttributes2GrantedAuthoritiesMapper getDefaultMapper()
-			throws Exception {
+	private MapBasedAttributes2GrantedAuthoritiesMapper getDefaultMapper() throws Exception {
 		MapBasedAttributes2GrantedAuthoritiesMapper mapper = new MapBasedAttributes2GrantedAuthoritiesMapper();
 		mapper.setAttributes2grantedAuthoritiesMap(getValidAttributes2GrantedAuthoritiesMap());
 		mapper.afterPropertiesSet();
 		return mapper;
 	}
 
-	private void testGetGrantedAuthorities(
-			MapBasedAttributes2GrantedAuthoritiesMapper mapper, String[] roles,
+	private void testGetGrantedAuthorities(MapBasedAttributes2GrantedAuthoritiesMapper mapper, String[] roles,
 			String[] expectedGas) {
-		List<GrantedAuthority> result = mapper
-				.getGrantedAuthorities(Arrays.asList(roles));
+		List<GrantedAuthority> result = mapper.getGrantedAuthorities(Arrays.asList(roles));
 		Collection resultColl = new ArrayList(result.size());
 		for (GrantedAuthority auth : result) {
 			resultColl.add(auth.getAuthority());
 		}
 		Collection expectedColl = Arrays.asList(expectedGas);
-		assertThat(resultColl.containsAll(expectedColl)).withFailMessage("Role collections should match; result: " + resultColl
-				+ ", expected: " + expectedColl).isTrue();
+		assertThat(resultColl.containsAll(expectedColl))
+				.withFailMessage("Role collections should match; result: " + resultColl + ", expected: " + expectedColl)
+				.isTrue();
 	}
+
 }

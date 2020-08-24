@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.firewall;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+package org.springframework.security.web.firewall;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,12 +25,21 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Luke Taylor
  */
 public class RequestWrapperTests {
+
 	private static Map<String, String> testPaths = new LinkedHashMap<>();
 
 	@BeforeClass
@@ -49,7 +56,6 @@ public class RequestWrapperTests {
 	@Test
 	public void pathParametersAreRemovedFromServletPath() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-
 		for (Map.Entry<String, String> entry : testPaths.entrySet()) {
 			String path = entry.getKey();
 			String expectedResult = entry.getValue();
@@ -64,7 +70,6 @@ public class RequestWrapperTests {
 	@Test
 	public void pathParametersAreRemovedFromPathInfo() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-
 		for (Map.Entry<String, String> entry : testPaths.entrySet()) {
 			String path = entry.getKey();
 			String expectedResult = entry.getValue();
@@ -87,14 +92,12 @@ public class RequestWrapperTests {
 		HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 		HttpServletResponse mockResponse = mock(HttpServletResponse.class);
 		RequestDispatcher mockDispatcher = mock(RequestDispatcher.class);
-		when(mockRequest.getServletPath()).thenReturn("");
-		when(mockRequest.getPathInfo()).thenReturn(denormalizedPath);
-		when(mockRequest.getRequestDispatcher(forwardPath)).thenReturn(mockDispatcher);
-
+		given(mockRequest.getServletPath()).willReturn("");
+		given(mockRequest.getPathInfo()).willReturn(denormalizedPath);
+		given(mockRequest.getRequestDispatcher(forwardPath)).willReturn(mockDispatcher);
 		RequestWrapper wrapper = new RequestWrapper(mockRequest);
 		RequestDispatcher dispatcher = wrapper.getRequestDispatcher(forwardPath);
 		dispatcher.forward(mockRequest, mockResponse);
-
 		verify(mockRequest).getRequestDispatcher(forwardPath);
 		verify(mockDispatcher).forward(mockRequest, mockResponse);
 		assertThat(wrapper.getPathInfo()).isEqualTo(denormalizedPath);
@@ -110,9 +113,10 @@ public class RequestWrapperTests {
 		String path = "/forward/path";
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		RequestDispatcher dispatcher = mock(RequestDispatcher.class);
-		when(request.getRequestDispatcher(path)).thenReturn(dispatcher);
+		given(request.getRequestDispatcher(path)).willReturn(dispatcher);
 		RequestWrapper wrapper = new RequestWrapper(request);
 		wrapper.reset();
 		assertThat(wrapper.getRequestDispatcher(path)).isSameAs(dispatcher);
 	}
+
 }

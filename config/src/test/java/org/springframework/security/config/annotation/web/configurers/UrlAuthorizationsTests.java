@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.List;
+
 import javax.servlet.Filter;
 
 import org.junit.Rule;
@@ -41,7 +43,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- *
  * @author Rob Winch
  * @author Josh Cummings
  *
@@ -60,86 +61,63 @@ public class UrlAuthorizationsTests {
 	@WithMockUser(authorities = "ROLE_USER")
 	public void hasAnyAuthorityWhenAuthoritySpecifiedThenMatchesAuthority() throws Exception {
 		this.spring.register(RoleConfig.class).autowire();
-
+		// @formatter:off
 		this.mvc.perform(get("/role-user-authority"))
 				.andExpect(status().isNotFound());
 		this.mvc.perform(get("/role-user"))
 				.andExpect(status().isNotFound());
 		this.mvc.perform(get("/role-admin-authority"))
 				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	@Test
 	@WithMockUser(authorities = "ROLE_ADMIN")
 	public void hasAnyAuthorityWhenAuthoritiesSpecifiedThenMatchesAuthority() throws Exception {
 		this.spring.register(RoleConfig.class).autowire();
-
-		this.mvc.perform(get("/role-user-admin-authority"))
-				.andExpect(status().isNotFound());
-		this.mvc.perform(get("/role-user-admin"))
-				.andExpect(status().isNotFound());
-		this.mvc.perform(get("/role-user-authority"))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/role-user-admin-authority")).andExpect(status().isNotFound());
+		this.mvc.perform(get("/role-user-admin")).andExpect(status().isNotFound());
+		this.mvc.perform(get("/role-user-authority")).andExpect(status().isForbidden());
 	}
 
 	@Test
 	@WithMockUser(roles = "USER")
 	public void hasAnyRoleWhenRoleSpecifiedThenMatchesRole() throws Exception {
 		this.spring.register(RoleConfig.class).autowire();
-
+		// @formatter:off
 		this.mvc.perform(get("/role-user"))
 				.andExpect(status().isNotFound());
 		this.mvc.perform(get("/role-admin"))
 				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	@Test
 	@WithMockUser(roles = "ADMIN")
 	public void hasAnyRoleWhenRolesSpecifiedThenMatchesRole() throws Exception {
 		this.spring.register(RoleConfig.class).autowire();
-
-		this.mvc.perform(get("/role-admin-user"))
-				.andExpect(status().isNotFound());
-		this.mvc.perform(get("/role-user"))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/role-admin-user")).andExpect(status().isNotFound());
+		this.mvc.perform(get("/role-user")).andExpect(status().isForbidden());
 	}
 
 	@Test
 	@WithMockUser(authorities = "USER")
 	public void hasAnyRoleWhenRoleSpecifiedThenDoesNotMatchAuthority() throws Exception {
 		this.spring.register(RoleConfig.class).autowire();
-
+		// @formatter:off
 		this.mvc.perform(get("/role-user"))
 				.andExpect(status().isForbidden());
 		this.mvc.perform(get("/role-admin"))
 				.andExpect(status().isForbidden());
-	}
-
-	@EnableWebSecurity
-	static class RoleConfig extends WebSecurityConfigurerAdapter {
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.antMatchers("/role-user-authority").hasAnyAuthority("ROLE_USER")
-					.antMatchers("/role-admin-authority").hasAnyAuthority("ROLE_ADMIN")
-					.antMatchers("/role-user-admin-authority").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-					.antMatchers("/role-user").hasAnyRole("USER")
-					.antMatchers("/role-admin").hasAnyRole("ADMIN")
-					.antMatchers("/role-user-admin").hasAnyRole("USER", "ADMIN");
-			// @formatter:on
-		}
+		// @formatter:on
 	}
 
 	@Test
 	public void configureWhenNoAccessDecisionManagerThenDefaultsToAffirmativeBased() {
 		this.spring.register(NoSpecificAccessDecisionManagerConfig.class).autowire();
-
 		FilterSecurityInterceptor interceptor = getFilter(FilterSecurityInterceptor.class);
 		assertThat(interceptor).isNotNull();
-		assertThat(interceptor).extracting("accessDecisionManager")
-				.isInstanceOf(AffirmativeBased.class);
+		assertThat(interceptor).extracting("accessDecisionManager").isInstanceOf(AffirmativeBased.class);
 	}
 
 	private <T extends Filter> T getFilter(Class<T> filterType) {
@@ -154,17 +132,39 @@ public class UrlAuthorizationsTests {
 	}
 
 	@EnableWebSecurity
+	static class RoleConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.antMatchers("/role-user-authority").hasAnyAuthority("ROLE_USER")
+					.antMatchers("/role-admin-authority").hasAnyAuthority("ROLE_ADMIN")
+					.antMatchers("/role-user-admin-authority").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+					.antMatchers("/role-user").hasAnyRole("USER")
+					.antMatchers("/role-admin").hasAnyRole("ADMIN")
+					.antMatchers("/role-user-admin").hasAnyRole("USER", "ADMIN");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
 	static class NoSpecificAccessDecisionManagerConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			ApplicationContext context = getApplicationContext();
-			UrlAuthorizationConfigurer<HttpSecurity>.StandardInterceptUrlRegistry registry =
-					http.apply(new UrlAuthorizationConfigurer(context)).getRegistry();
-
+			UrlAuthorizationConfigurer<HttpSecurity>.StandardInterceptUrlRegistry registry = http
+					.apply(new UrlAuthorizationConfigurer(context)).getRegistry();
+			// @formatter:off
 			registry
-				.antMatchers("/a").hasRole("ADMIN")
-				.anyRequest().hasRole("USER");
+					.antMatchers("/a").hasRole("ADMIN")
+					.anyRequest().hasRole("USER");
+			// @formatter:on
 		}
+
 	}
+
 }

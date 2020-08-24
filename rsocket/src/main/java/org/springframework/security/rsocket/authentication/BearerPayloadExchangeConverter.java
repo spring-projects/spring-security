@@ -16,27 +16,28 @@
 
 package org.springframework.security.rsocket.authentication;
 
+import java.nio.charset.StandardCharsets;
+
 import io.netty.buffer.ByteBuf;
 import io.rsocket.metadata.CompositeMetadata;
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.metadata.BearerTokenMetadata;
-import reactor.core.publisher.Mono;
-
-import java.nio.charset.StandardCharsets;
 
 /**
- * Converts from the {@link PayloadExchange} to a
- *  {@link BearerTokenAuthenticationToken} by extracting
- *  {@link BearerTokenMetadata#BEARER_AUTHENTICATION_MIME_TYPE} from the metadata.
- *  @author Rob Winch
+ * Converts from the {@link PayloadExchange} to a {@link BearerTokenAuthenticationToken}
+ * by extracting {@link BearerTokenMetadata#BEARER_AUTHENTICATION_MIME_TYPE} from the
+ * metadata.
+ *
+ * @author Rob Winch
  * @since 5.2
  */
 public class BearerPayloadExchangeConverter implements PayloadExchangeAuthenticationConverter {
 
-	private static final String BEARER_MIME_TYPE_VALUE =
-			BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE.toString();
+	private static final String BEARER_MIME_TYPE_VALUE = BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE.toString();
 
 	@Override
 	public Mono<Authentication> convert(PayloadExchange exchange) {
@@ -51,4 +52,5 @@ public class BearerPayloadExchangeConverter implements PayloadExchangeAuthentica
 		}
 		return Mono.empty();
 	}
+
 }

@@ -13,28 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.vote;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
+
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.util.MethodInvocationUtils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
- *
  * @author Luke Taylor
  */
 public class AbstractAclVoterTests {
+
 	private AbstractAclVoter voter = new AbstractAclVoter() {
+		@Override
 		public boolean supports(ConfigAttribute attribute) {
 			return false;
 		}
 
+		@Override
 		public int vote(Authentication authentication, MethodInvocation object,
 				Collection<ConfigAttribute> attributes) {
 			return 0;
@@ -43,28 +48,28 @@ public class AbstractAclVoterTests {
 
 	@Test
 	public void supportsMethodInvocations() {
-		assertThat(voter.supports(MethodInvocation.class)).isTrue();
-		assertThat(voter.supports(String.class)).isFalse();
+		assertThat(this.voter.supports(MethodInvocation.class)).isTrue();
+		assertThat(this.voter.supports(String.class)).isFalse();
 	}
 
 	@Test
 	public void expectedDomainObjectArgumentIsReturnedFromMethodInvocation() {
-		voter.setProcessDomainObjectClass(String.class);
-		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(),
-				"methodTakingAString", "The Argument");
-		assertThat(voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
+		this.voter.setProcessDomainObjectClass(String.class);
+		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(), "methodTakingAString", "The Argument");
+		assertThat(this.voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
 	}
 
 	@Test
 	public void correctArgumentIsSelectedFromMultipleArgs() {
-		voter.setProcessDomainObjectClass(String.class);
-		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(),
-				"methodTakingAListAndAString", new ArrayList<>(), "The Argument");
-		assertThat(voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
+		this.voter.setProcessDomainObjectClass(String.class);
+		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(), "methodTakingAListAndAString",
+				new ArrayList<>(), "The Argument");
+		assertThat(this.voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
 	}
 
 	@SuppressWarnings("unused")
 	private static class TestClass {
+
 		public void methodTakingAString(String arg) {
 		}
 
@@ -73,6 +78,7 @@ public class AbstractAclVoterTests {
 
 		public void methodTakingAListAndAString(ArrayList<Object> arg1, String arg2) {
 		}
+
 	}
 
 }

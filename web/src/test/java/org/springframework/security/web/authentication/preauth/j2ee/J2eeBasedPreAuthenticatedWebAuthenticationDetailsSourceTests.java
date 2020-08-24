@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication.preauth.j2ee;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+package org.springframework.security.web.authentication.preauth.j2ee;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,6 +25,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.Attributes2GrantedAuthoritiesMapper;
@@ -35,8 +34,10 @@ import org.springframework.security.core.authority.mapping.SimpleAttributes2Gran
 import org.springframework.security.core.authority.mapping.SimpleMappableAttributesRetriever;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
 /**
- *
  * @author TSARDD
  */
 public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
@@ -111,38 +112,33 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 		testDetails(mappedRoles, roles, expectedRoles);
 	}
 
-	private void testDetails(String[] mappedRoles, String[] userRoles,
-			String[] expectedRoles) {
+	private void testDetails(String[] mappedRoles, String[] userRoles, String[] expectedRoles) {
 		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource src = getJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource(
 				mappedRoles);
 		Object o = src.buildDetails(getRequest("testUser", userRoles));
 		assertThat(o).isNotNull();
-		assertThat(
-				o instanceof PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails).withFailMessage(
-						"Returned object not of type PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails, actual type: "
-								+ o.getClass()).isTrue();
+		assertThat(o instanceof PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails).withFailMessage(
+				"Returned object not of type PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails, actual type: "
+						+ o.getClass())
+				.isTrue();
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = (PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails) o;
 		List<GrantedAuthority> gas = details.getGrantedAuthorities();
 		assertThat(gas).as("Granted authorities should not be null").isNotNull();
 		assertThat(gas).hasSize(expectedRoles.length);
-
 		Collection<String> expectedRolesColl = Arrays.asList(expectedRoles);
 		Collection<String> gasRolesSet = new HashSet<>();
 		for (GrantedAuthority grantedAuthority : gas) {
 			gasRolesSet.add(grantedAuthority.getAuthority());
 		}
-		assertThat(expectedRolesColl.containsAll(gasRolesSet)
-				&& gasRolesSet.containsAll(expectedRolesColl)).withFailMessage(
-						"Granted Authorities do not match expected roles").isTrue();
+		assertThat(expectedRolesColl.containsAll(gasRolesSet) && gasRolesSet.containsAll(expectedRolesColl))
+				.withFailMessage("Granted Authorities do not match expected roles").isTrue();
 	}
 
 	private J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource getJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource(
 			String[] mappedRoles) {
 		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource result = new J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource();
 		result.setMappableRolesRetriever(getMappableRolesRetriever(mappedRoles));
-		result.setUserRoles2GrantedAuthoritiesMapper(
-				getJ2eeUserRoles2GrantedAuthoritiesMapper());
-
+		result.setUserRoles2GrantedAuthoritiesMapper(getJ2eeUserRoles2GrantedAuthoritiesMapper());
 		try {
 			result.afterPropertiesSet();
 		}
@@ -169,14 +165,15 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 
 	private HttpServletRequest getRequest(final String userName, final String[] aRoles) {
 		MockHttpServletRequest req = new MockHttpServletRequest() {
-
 			private Set<String> roles = new HashSet<>(Arrays.asList(aRoles));
 
+			@Override
 			public boolean isUserInRole(String arg0) {
-				return roles.contains(arg0);
+				return this.roles.contains(arg0);
 			}
 		};
 		req.setRemoteUser(userName);
 		return req;
 	}
+
 }

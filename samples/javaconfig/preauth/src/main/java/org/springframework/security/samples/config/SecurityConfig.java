@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.samples.config;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,12 +27,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.authorizeRequests(authorizeRequests ->
+			.authorizeRequests((authorizeRequests) -> 
 				authorizeRequests
 					.antMatchers("/login", "/resources/**").permitAll()
 					.anyRequest().authenticated()
 			)
-			.jee(jee ->
+			.jee((jee) -> 
 				jee
 					.mappableRoles("USER", "ADMIN")
 			);

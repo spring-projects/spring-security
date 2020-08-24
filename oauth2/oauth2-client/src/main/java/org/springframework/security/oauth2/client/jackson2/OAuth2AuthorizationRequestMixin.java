@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.jackson2;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 
 /**
@@ -37,4 +39,5 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class OAuth2AuthorizationRequestMixin {
+
 }

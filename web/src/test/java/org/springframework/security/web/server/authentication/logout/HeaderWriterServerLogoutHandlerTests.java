@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.authentication.logout;
+
+import org.junit.Test;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.header.ServerHttpHeadersWriter;
 import org.springframework.web.server.ServerWebExchange;
 
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author MD Sayem Ahmed
@@ -45,11 +46,10 @@ public class HeaderWriterServerLogoutHandlerTests {
 		HeaderWriterServerLogoutHandler handler = new HeaderWriterServerLogoutHandler(headersWriter);
 		ServerWebExchange serverWebExchange = mock(ServerWebExchange.class);
 		WebFilterExchange filterExchange = mock(WebFilterExchange.class);
-		when(filterExchange.getExchange()).thenReturn(serverWebExchange);
+		given(filterExchange.getExchange()).willReturn(serverWebExchange);
 		Authentication authentication = mock(Authentication.class);
-
 		handler.logout(filterExchange, authentication);
-
 		verify(headersWriter).writeHttpHeaders(serverWebExchange);
 	}
+
 }

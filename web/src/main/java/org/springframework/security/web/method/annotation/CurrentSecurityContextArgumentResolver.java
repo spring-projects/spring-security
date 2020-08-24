@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.method.annotation;
 
 import java.lang.annotation.Annotation;
@@ -36,9 +37,8 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
- * Allows resolving the {@link SecurityContext} using the
- * {@link CurrentSecurityContext} annotation. For example, the following
- * {@link Controller}:
+ * Allows resolving the {@link SecurityContext} using the {@link CurrentSecurityContext}
+ * annotation. For example, the following {@link Controller}:
  *
  * <pre>
  * &#64;Controller
@@ -62,9 +62,10 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * </pre>
  *
  * <p>
- * Will resolve the {@link SecurityContext} argument using {@link SecurityContextHolder#getContext()} from
- * the {@link SecurityContextHolder}. If the {@link SecurityContext} is {@code null}, it will return {@code null}.
- * If the types do not match, {@code null} will be returned unless
+ * Will resolve the {@link SecurityContext} argument using
+ * {@link SecurityContextHolder#getContext()} from the {@link SecurityContextHolder}. If
+ * the {@link SecurityContext} is {@code null}, it will return {@code null}. If the types
+ * do not match, {@code null} will be returned unless
  * {@link CurrentSecurityContext#errorOnInvalidType()} is {@code true} in which case a
  * {@link ClassCastException} will be thrown.
  * </p>
@@ -72,56 +73,41 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Dan Zheng
  * @since 5.2
  */
-public final class CurrentSecurityContextArgumentResolver
-		implements HandlerMethodArgumentResolver {
+public final class CurrentSecurityContextArgumentResolver implements HandlerMethodArgumentResolver {
 
 	private ExpressionParser parser = new SpelExpressionParser();
 
 	private BeanResolver beanResolver;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return findMethodAnnotation(CurrentSecurityContext.class, parameter) != null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public Object resolveArgument(MethodParameter parameter,
-				ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-				WebDataBinderFactory binderFactory) {
+	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 		SecurityContext securityContext = SecurityContextHolder.getContext();
 		if (securityContext == null) {
 			return null;
 		}
 		Object securityContextResult = securityContext;
-
-		CurrentSecurityContext securityContextAnnotation = findMethodAnnotation(
-				CurrentSecurityContext.class, parameter);
-
-		String expressionToParse = securityContextAnnotation.expression();
+		CurrentSecurityContext annotation = findMethodAnnotation(CurrentSecurityContext.class, parameter);
+		String expressionToParse = annotation.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(securityContext);
 			context.setVariable("this", securityContext);
-
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			securityContextResult = expression.getValue(context);
 		}
-
 		if (securityContextResult != null
 				&& !parameter.getParameterType().isAssignableFrom(securityContextResult.getClass())) {
-			if (securityContextAnnotation.errorOnInvalidType()) {
-				throw new ClassCastException(securityContextResult + " is not assignable to "
-						+ parameter.getParameterType());
+			if (annotation.errorOnInvalidType()) {
+				throw new ClassCastException(
+						securityContextResult + " is not assignable to " + parameter.getParameterType());
 			}
-			else {
-				return null;
-			}
+			return null;
 		}
 		return securityContextResult;
 	}
@@ -137,26 +123,24 @@ public final class CurrentSecurityContextArgumentResolver
 
 	/**
 	 * Obtain the specified {@link Annotation} on the specified {@link MethodParameter}.
-	 *
 	 * @param annotationClass the class of the {@link Annotation} to find on the
 	 * {@link MethodParameter}
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass,
-			MethodParameter parameter) {
+	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
 		T annotation = parameter.getParameterAnnotation(annotationClass);
 		if (annotation != null) {
 			return annotation;
 		}
 		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
 		for (Annotation toSearch : annotationsToSearch) {
-			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(),
-					annotationClass);
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
 			if (annotation != null) {
 				return annotation;
 			}
 		}
 		return null;
 	}
+
 }

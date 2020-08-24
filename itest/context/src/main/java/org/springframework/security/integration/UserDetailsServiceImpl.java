@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.integration;
 
 import org.springframework.beans.factory.annotation.Required;
@@ -25,6 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@SuppressWarnings({ "unused", "FieldCanBeLocal" })
 	private UserRepository userRepository;
 
+	@Override
 	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String username) {
 		return null;
@@ -34,4 +36,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public void setUserRepository(UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
+
 }

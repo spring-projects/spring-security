@@ -16,9 +16,9 @@
 
 package org.springframework.security.authentication.jaas;
 
-import org.springframework.security.core.AuthenticationException;
-
 import javax.security.auth.login.LoginException;
+
+import org.springframework.security.core.AuthenticationException;
 
 /**
  * The JaasAuthenticationProvider takes an instance of LoginExceptionResolver to resolve
@@ -31,16 +31,13 @@ import javax.security.auth.login.LoginException;
  * @author Ray Krueger
  */
 public interface LoginExceptionResolver {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Translates a Jaas LoginException to an SpringSecurityException.
-	 *
-	 * @param e The LoginException thrown by the configured LoginModule.
-	 *
+	 * @param ex The LoginException thrown by the configured LoginModule.
 	 * @return The AuthenticationException that the JaasAuthenticationProvider should
 	 * throw.
 	 */
-	AuthenticationException resolveException(LoginException e);
+	AuthenticationException resolveException(LoginException ex);
+
 }

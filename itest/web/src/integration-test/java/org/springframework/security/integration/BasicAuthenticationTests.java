@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.integration;
 
 import org.junit.Test;
@@ -28,17 +29,23 @@ public class BasicAuthenticationTests extends AbstractWebServerIntegrationTests 
 
 	@Test
 	public void httpBasicWhenAuthenticationRequiredAndNotAuthenticatedThen401() throws Exception {
-		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml", "classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
+		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml",
+				"classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
+		// @formatter:off
 		mockMvc.perform(get("/secure/index"))
-			.andExpect(status().isUnauthorized());
+				.andExpect(status().isUnauthorized());
+		// @formatter:on
 	}
 
 	@Test
 	public void httpBasicWhenProvidedThen200() throws Exception {
-		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml", "classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
+		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml",
+				"classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
+		// @formatter:off
 		MockHttpServletRequestBuilder request = get("/secure/index")
 				.with(httpBasic("johnc", "johncspassword"));
-		mockMvc.perform(request)
-			.andExpect(status().isOk());
+		// @formatter:on
+		mockMvc.perform(request).andExpect(status().isOk());
 	}
+
 }

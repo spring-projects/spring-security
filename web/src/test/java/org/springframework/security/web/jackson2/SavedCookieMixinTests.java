@@ -37,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jitendra Singh.
  */
 public class SavedCookieMixinTests extends AbstractMixinTests {
+
 	// @formatter:off
 	private static final String COOKIE_JSON = "{"
 		+ "\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", "
@@ -50,26 +51,24 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 		+ "\"domain\": null"
 	+ "}";
 	// @formatter:on
-
 	// @formatter:off
 	private static final String COOKIES_JSON = "[\"java.util.ArrayList\", ["
 		+ COOKIE_JSON
 	+ "]]";
 	// @formatter:on
-
 	@Test
 	public void serializeWithDefaultConfigurationTest() throws JsonProcessingException, JSONException {
 		SavedCookie savedCookie = new SavedCookie(new Cookie("SESSION", "123456789"));
-		String actualJson = mapper.writeValueAsString(savedCookie);
+		String actualJson = this.mapper.writeValueAsString(savedCookie);
 		JSONAssert.assertEquals(COOKIE_JSON, actualJson, true);
 	}
 
 	@Test
 	public void serializeWithOverrideConfigurationTest() throws JsonProcessingException, JSONException {
 		SavedCookie savedCookie = new SavedCookie(new Cookie("SESSION", "123456789"));
-		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.PUBLIC_ONLY)
+		this.mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.PUBLIC_ONLY)
 				.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.ANY);
-		String actualJson = mapper.writeValueAsString(savedCookie);
+		String actualJson = this.mapper.writeValueAsString(savedCookie);
 		JSONAssert.assertEquals(COOKIE_JSON, actualJson, true);
 	}
 
@@ -77,14 +76,14 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 	public void serializeSavedCookieWithList() throws JsonProcessingException, JSONException {
 		List<SavedCookie> savedCookies = new ArrayList<>();
 		savedCookies.add(new SavedCookie(new Cookie("SESSION", "123456789")));
-		String actualJson = mapper.writeValueAsString(savedCookies);
+		String actualJson = this.mapper.writeValueAsString(savedCookies);
 		JSONAssert.assertEquals(COOKIES_JSON, actualJson, true);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void deserializeSavedCookieWithList() throws IOException {
-		List<SavedCookie> savedCookies = (List<SavedCookie>) mapper.readValue(COOKIES_JSON, Object.class);
+		List<SavedCookie> savedCookies = (List<SavedCookie>) this.mapper.readValue(COOKIES_JSON, Object.class);
 		assertThat(savedCookies).isNotNull().hasSize(1);
 		assertThat(savedCookies.get(0).getName()).isEqualTo("SESSION");
 		assertThat(savedCookies.get(0).getValue()).isEqualTo("123456789");
@@ -92,7 +91,7 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 
 	@Test
 	public void deserializeSavedCookieJsonTest() throws IOException {
-		SavedCookie savedCookie = (SavedCookie) mapper.readValue(COOKIE_JSON, Object.class);
+		SavedCookie savedCookie = (SavedCookie) this.mapper.readValue(COOKIE_JSON, Object.class);
 		assertThat(savedCookie).isNotNull();
 		assertThat(savedCookie.getName()).isEqualTo("SESSION");
 		assertThat(savedCookie.getValue()).isEqualTo("123456789");
@@ -100,4 +99,5 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 		assertThat(savedCookie.getVersion()).isZero();
 		assertThat(savedCookie.getComment()).isNull();
 	}
+
 }

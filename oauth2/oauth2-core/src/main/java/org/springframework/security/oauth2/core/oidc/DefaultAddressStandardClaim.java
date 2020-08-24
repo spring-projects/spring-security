@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.oidc;
 
 import java.util.Map;
@@ -25,11 +26,17 @@ import java.util.Map;
  * @see AddressStandardClaim
  */
 public final class DefaultAddressStandardClaim implements AddressStandardClaim {
+
 	private String formatted;
+
 	private String streetAddress;
+
 	private String locality;
+
 	private String region;
+
 	private String postalCode;
+
 	private String country;
 
 	private DefaultAddressStandardClaim() {
@@ -73,35 +80,37 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 		if (obj == null || !AddressStandardClaim.class.isAssignableFrom(obj.getClass())) {
 			return false;
 		}
-
-		AddressStandardClaim that = (AddressStandardClaim) obj;
-
-		if (this.getFormatted() != null ? !this.getFormatted().equals(that.getFormatted()) : that.getFormatted() != null) {
+		AddressStandardClaim other = (AddressStandardClaim) obj;
+		if ((this.getFormatted() != null) ? !this.getFormatted().equals(other.getFormatted())
+				: other.getFormatted() != null) {
 			return false;
 		}
-		if (this.getStreetAddress() != null ? !this.getStreetAddress().equals(that.getStreetAddress()) : that.getStreetAddress() != null) {
+		if ((this.getStreetAddress() != null) ? !this.getStreetAddress().equals(other.getStreetAddress())
+				: other.getStreetAddress() != null) {
 			return false;
 		}
-		if (this.getLocality() != null ? !this.getLocality().equals(that.getLocality()) : that.getLocality() != null) {
+		if ((this.getLocality() != null) ? !this.getLocality().equals(other.getLocality())
+				: other.getLocality() != null) {
 			return false;
 		}
-		if (this.getRegion() != null ? !this.getRegion().equals(that.getRegion()) : that.getRegion() != null) {
+		if ((this.getRegion() != null) ? !this.getRegion().equals(other.getRegion()) : other.getRegion() != null) {
 			return false;
 		}
-		if (this.getPostalCode() != null ? !this.getPostalCode().equals(that.getPostalCode()) : that.getPostalCode() != null) {
+		if ((this.getPostalCode() != null) ? !this.getPostalCode().equals(other.getPostalCode())
+				: other.getPostalCode() != null) {
 			return false;
 		}
-		return this.getCountry() != null ? this.getCountry().equals(that.getCountry()) : that.getCountry() == null;
+		return (this.getCountry() != null) ? this.getCountry().equals(other.getCountry()) : other.getCountry() == null;
 	}
 
 	@Override
 	public int hashCode() {
-		int result = this.getFormatted() != null ? this.getFormatted().hashCode() : 0;
-		result = 31 * result + (this.getStreetAddress() != null ? this.getStreetAddress().hashCode() : 0);
-		result = 31 * result + (this.getLocality() != null ? this.getLocality().hashCode() : 0);
-		result = 31 * result + (this.getRegion() != null ? this.getRegion().hashCode() : 0);
-		result = 31 * result + (this.getPostalCode() != null ? this.getPostalCode().hashCode() : 0);
-		result = 31 * result + (this.getCountry() != null ? this.getCountry().hashCode() : 0);
+		int result = (this.getFormatted() != null) ? this.getFormatted().hashCode() : 0;
+		result = 31 * result + ((this.getStreetAddress() != null) ? this.getStreetAddress().hashCode() : 0);
+		result = 31 * result + ((this.getLocality() != null) ? this.getLocality().hashCode() : 0);
+		result = 31 * result + ((this.getRegion() != null) ? this.getRegion().hashCode() : 0);
+		result = 31 * result + ((this.getPostalCode() != null) ? this.getPostalCode().hashCode() : 0);
+		result = 31 * result + ((this.getCountry() != null) ? this.getCountry().hashCode() : 0);
 		return result;
 	}
 
@@ -109,17 +118,29 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 	 * A builder for {@link DefaultAddressStandardClaim}.
 	 */
 	public static class Builder {
+
 		private static final String FORMATTED_FIELD_NAME = "formatted";
+
 		private static final String STREET_ADDRESS_FIELD_NAME = "street_address";
+
 		private static final String LOCALITY_FIELD_NAME = "locality";
+
 		private static final String REGION_FIELD_NAME = "region";
+
 		private static final String POSTAL_CODE_FIELD_NAME = "postal_code";
+
 		private static final String COUNTRY_FIELD_NAME = "country";
+
 		private String formatted;
+
 		private String streetAddress;
+
 		private String locality;
+
 		private String region;
+
 		private String postalCode;
+
 		private String country;
 
 		/**
@@ -129,8 +150,8 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 		}
 
 		/**
-		 * Constructs and initializes the address attributes using the provided {@code addressFields}.
-		 *
+		 * Constructs and initializes the address attributes using the provided
+		 * {@code addressFields}.
 		 * @param addressFields the fields used to initialize the address attributes
 		 */
 		public Builder(Map<String, Object> addressFields) {
@@ -144,7 +165,6 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 
 		/**
 		 * Sets the full mailing address, formatted for display.
-		 *
 		 * @param formatted the full mailing address
 		 * @return the {@link Builder}
 		 */
@@ -154,8 +174,8 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 		}
 
 		/**
-		 * Sets the full street address, which may include house number, street name, P.O. Box, etc.
-		 *
+		 * Sets the full street address, which may include house number, street name, P.O.
+		 * Box, etc.
 		 * @param streetAddress the full street address
 		 * @return the {@link Builder}
 		 */
@@ -166,7 +186,6 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 
 		/**
 		 * Sets the city or locality.
-		 *
 		 * @param locality the city or locality
 		 * @return the {@link Builder}
 		 */
@@ -177,7 +196,6 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 
 		/**
 		 * Sets the state, province, prefecture, or region.
-		 *
 		 * @param region the state, province, prefecture, or region
 		 * @return the {@link Builder}
 		 */
@@ -188,7 +206,6 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 
 		/**
 		 * Sets the zip code or postal code.
-		 *
 		 * @param postalCode the zip code or postal code
 		 * @return the {@link Builder}
 		 */
@@ -199,7 +216,6 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 
 		/**
 		 * Sets the country.
-		 *
 		 * @param country the country
 		 * @return the {@link Builder}
 		 */
@@ -210,7 +226,6 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 
 		/**
 		 * Builds a new {@link DefaultAddressStandardClaim}.
-		 *
 		 * @return a {@link AddressStandardClaim}
 		 */
 		public AddressStandardClaim build() {
@@ -221,8 +236,9 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 			address.region = this.region;
 			address.postalCode = this.postalCode;
 			address.country = this.country;
-
 			return address;
 		}
+
 	}
+
 }

@@ -42,58 +42,50 @@ import org.springframework.security.web.FilterInvocation;
  * @author Ben Alex
  * @author Rob Winch
  */
-public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements
-		Filter {
-	// ~ Static fields/initializers
-	// =====================================================================================
+public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter {
 
 	private static final String FILTER_APPLIED = "__spring_security_filterSecurityInterceptor_filterApplied";
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private FilterInvocationSecurityMetadataSource securityMetadataSource;
-	private boolean observeOncePerRequest = true;
 
-	// ~ Methods
-	// ========================================================================================================
+	private boolean observeOncePerRequest = true;
 
 	/**
 	 * Not used (we rely on IoC container lifecycle services instead)
-	 *
 	 * @param arg0 ignored
 	 *
 	 */
+	@Override
 	public void init(FilterConfig arg0) {
 	}
 
 	/**
 	 * Not used (we rely on IoC container lifecycle services instead)
 	 */
+	@Override
 	public void destroy() {
 	}
 
 	/**
 	 * Method that is actually called by the filter chain. Simply delegates to the
 	 * {@link #invoke(FilterInvocation)} method.
-	 *
 	 * @param request the servlet request
 	 * @param response the servlet response
 	 * @param chain the filter chain
-	 *
 	 * @throws IOException if the filter chain fails
 	 * @throws ServletException if the filter chain fails
 	 */
-	public void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
-		FilterInvocation fi = new FilterInvocation(request, response, chain);
-		invoke(fi);
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		invoke(new FilterInvocation(request, response, chain));
 	}
 
 	public FilterInvocationSecurityMetadataSource getSecurityMetadataSource() {
 		return this.securityMetadataSource;
 	}
 
+	@Override
 	public SecurityMetadataSource obtainSecurityMetadataSource() {
 		return this.securityMetadataSource;
 	}
@@ -102,35 +94,35 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 		this.securityMetadataSource = newSource;
 	}
 
+	@Override
 	public Class<?> getSecureObjectClass() {
 		return FilterInvocation.class;
 	}
 
-	public void invoke(FilterInvocation fi) throws IOException, ServletException {
-		if ((fi.getRequest() != null)
-				&& (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
-				&& observeOncePerRequest) {
+	public void invoke(FilterInvocation filterInvocation) throws IOException, ServletException {
+		if (isApplied(filterInvocation) && this.observeOncePerRequest) {
 			// filter already applied to this request and user wants us to observe
 			// once-per-request handling, so don't re-do security checking
-			fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+			filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
+			return;
 		}
-		else {
-			// first time this request being called, so perform security checking
-			if (fi.getRequest() != null && observeOncePerRequest) {
-				fi.getRequest().setAttribute(FILTER_APPLIED, Boolean.TRUE);
-			}
-
-			InterceptorStatusToken token = super.beforeInvocation(fi);
-
-			try {
-				fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
-			}
-			finally {
-				super.finallyInvocation(token);
-			}
-
-			super.afterInvocation(token, null);
+		// first time this request being called, so perform security checking
+		if (filterInvocation.getRequest() != null && this.observeOncePerRequest) {
+			filterInvocation.getRequest().setAttribute(FILTER_APPLIED, Boolean.TRUE);
 		}
+		InterceptorStatusToken token = super.beforeInvocation(filterInvocation);
+		try {
+			filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
+		}
+		finally {
+			super.finallyInvocation(token);
+		}
+		super.afterInvocation(token, null);
+	}
+
+	private boolean isApplied(FilterInvocation filterInvocation) {
+		return (filterInvocation.getRequest() != null)
+				&& (filterInvocation.getRequest().getAttribute(FILTER_APPLIED) != null);
 	}
 
 	/**
@@ -139,16 +131,16 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	 * execute once-per-request. Sometimes users may wish it to execute more than once per
 	 * request, such as when JSP forwards are being used and filter security is desired on
 	 * each included fragment of the HTTP request.
-	 *
 	 * @return <code>true</code> (the default) if once-per-request is honoured, otherwise
 	 * <code>false</code> if <code>FilterSecurityInterceptor</code> will enforce
 	 * authorizations for each and every fragment of the HTTP request.
 	 */
 	public boolean isObserveOncePerRequest() {
-		return observeOncePerRequest;
+		return this.observeOncePerRequest;
 	}
 
 	public void setObserveOncePerRequest(boolean observeOncePerRequest) {
 		this.observeOncePerRequest = observeOncePerRequest;
 	}
+
 }

@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.method;
 
 import org.junit.After;
 import org.junit.Test;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,10 +38,9 @@ public class Sec2196Tests {
 	public void genericMethodsProtected() {
 		loadContext("<global-method-security secured-annotations=\"enabled\" pre-post-annotations=\"enabled\"/>"
 				+ "<b:bean class='" + Service.class.getName() + "'/>");
-
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("test", "pass", "ROLE_USER"));
-		Service service = context.getBean(Service.class);
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("test", "pass", "ROLE_USER"));
+		Service service = this.context.getBean(Service.class);
 		service.save(new User());
 	}
 
@@ -47,10 +48,9 @@ public class Sec2196Tests {
 	public void genericMethodsAllowed() {
 		loadContext("<global-method-security secured-annotations=\"enabled\" pre-post-annotations=\"enabled\"/>"
 				+ "<b:bean class='" + Service.class.getName() + "'/>");
-
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("test", "pass", "saveUsers"));
-		Service service = context.getBean(Service.class);
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("test", "pass", "saveUsers"));
+		Service service = this.context.getBean(Service.class);
 		service.save(new User());
 	}
 
@@ -60,20 +60,24 @@ public class Sec2196Tests {
 
 	@After
 	public void closeAppContext() {
-		if (context != null) {
-			context.close();
-			context = null;
+		if (this.context != null) {
+			this.context.close();
+			this.context = null;
 		}
 		SecurityContextHolder.clearContext();
 	}
 
 	public static class Service {
+
 		@PreAuthorize("hasAuthority('saveUsers')")
 		public <T extends User> T save(T dto) {
 			return dto;
 		}
+
 	}
 
 	static class User {
+
 	}
+
 }

@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.ldap.userdetails;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+package org.springframework.security.ldap.userdetails;
 
 import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
+
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.ldap.authentication.UserDetailsServiceLdapAuthoritiesPopulator;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Luke Taylor
@@ -38,16 +41,13 @@ public class UserDetailsServiceLdapAuthoritiesPopulatorTests {
 	public void delegationToUserDetailsServiceReturnsCorrectRoles() {
 		UserDetailsService uds = mock(UserDetailsService.class);
 		UserDetails user = mock(UserDetails.class);
-		when(uds.loadUserByUsername("joe")).thenReturn(user);
+		given(uds.loadUserByUsername("joe")).willReturn(user);
 		List authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
-		when(user.getAuthorities()).thenReturn(authorities);
-
-		UserDetailsServiceLdapAuthoritiesPopulator populator = new UserDetailsServiceLdapAuthoritiesPopulator(
-				uds);
-		Collection<? extends GrantedAuthority> auths = populator.getGrantedAuthorities(
-				new DirContextAdapter(), "joe");
-
+		given(user.getAuthorities()).willReturn(authorities);
+		UserDetailsServiceLdapAuthoritiesPopulator populator = new UserDetailsServiceLdapAuthoritiesPopulator(uds);
+		Collection<? extends GrantedAuthority> auths = populator.getGrantedAuthorities(new DirContextAdapter(), "joe");
 		assertThat(auths).hasSize(1);
 		assertThat(AuthorityUtils.authorityListToSet(auths).contains("ROLE_USER")).isTrue();
 	}
+
 }

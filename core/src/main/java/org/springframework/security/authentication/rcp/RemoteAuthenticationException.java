@@ -33,16 +33,13 @@ public class RemoteAuthenticationException extends NestedRuntimeException {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs a <code>RemoteAuthenticationException</code> with the specified message
 	 * and no root cause.
-	 *
 	 * @param msg the detail message
 	 */
 	public RemoteAuthenticationException(String msg) {
 		super(msg);
 	}
+
 }

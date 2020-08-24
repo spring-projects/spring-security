@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportSelector;
@@ -24,15 +26,13 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
-
-import java.util.List;
 
 /**
  * {@link Configuration} for OAuth 2.0 Client support.
@@ -47,16 +47,17 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 
 	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-		boolean oauth2ClientPresent = ClassUtils.isPresent(
-				"org.springframework.security.oauth2.client.registration.ClientRegistration", getClass().getClassLoader());
-
-		return oauth2ClientPresent ?
-			new String[] { "org.springframework.security.config.annotation.web.reactive.ReactiveOAuth2ClientImportSelector$OAuth2ClientWebFluxSecurityConfiguration" } :
-			new String[] {};
+		if (!ClassUtils.isPresent("org.springframework.security.oauth2.client.registration.ClientRegistration",
+				getClass().getClassLoader())) {
+			return new String[0];
+		}
+		return new String[] { "org.springframework.security.config.annotation.web.reactive."
+				+ "ReactiveOAuth2ClientImportSelector$OAuth2ClientWebFluxSecurityConfiguration" };
 	}
 
 	@Configuration(proxyBeanMethods = false)
 	static class OAuth2ClientWebFluxSecurityConfiguration implements WebFluxConfigurer {
+
 		private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
 		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
@@ -66,13 +67,8 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 		@Override
 		public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
 			if (this.authorizedClientRepository != null && this.clientRegistrationRepository != null) {
-				ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
-						ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
-								.authorizationCode()
-								.refreshToken()
-								.clientCredentials()
-								.password()
-								.build();
+				ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
+						.builder().authorizationCode().refreshToken().clientCredentials().password().build();
 				DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
 						this.clientRegistrationRepository, getAuthorizedClientRepository());
 				authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
@@ -81,18 +77,17 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 		}
 
 		@Autowired(required = false)
-		public void setClientRegistrationRepository(
-				ReactiveClientRegistrationRepository clientRegistrationRepository) {
+		void setClientRegistrationRepository(ReactiveClientRegistrationRepository clientRegistrationRepository) {
 			this.clientRegistrationRepository = clientRegistrationRepository;
 		}
 
 		@Autowired(required = false)
-		public void setAuthorizedClientRepository(ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+		void setAuthorizedClientRepository(ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
 			this.authorizedClientRepository = authorizedClientRepository;
 		}
 
 		@Autowired(required = false)
-		public void setAuthorizedClientService(List<ReactiveOAuth2AuthorizedClientService> authorizedClientService) {
+		void setAuthorizedClientService(List<ReactiveOAuth2AuthorizedClientService> authorizedClientService) {
 			if (authorizedClientService.size() == 1) {
 				this.authorizedClientService = authorizedClientService.get(0);
 			}
@@ -107,5 +102,7 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 			}
 			return null;
 		}
+
 	}
+
 }

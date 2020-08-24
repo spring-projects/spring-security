@@ -23,6 +23,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.core.log.LogMessage;
+
 /**
  * Uses {@code HttpServletRequest.invalidate()} to protect against session fixation
  * attacks.
@@ -55,8 +57,8 @@ import javax.servlet.http.HttpSession;
  * @author Luke Taylor
  * @since 3.0
  */
-public class SessionFixationProtectionStrategy extends
-		AbstractSessionFixationProtectionStrategy {
+public class SessionFixationProtectionStrategy extends AbstractSessionFixationProtectionStrategy {
+
 	/**
 	 * Indicates that the session attributes of an existing session should be migrated to
 	 * the new session. Defaults to <code>true</code>.
@@ -70,7 +72,6 @@ public class SessionFixationProtectionStrategy extends
 	 * <p>
 	 * You can override this method to control exactly what is transferred to the new
 	 * session.
-	 *
 	 * @param session the session from which the attributes should be extracted
 	 * @return the map of session attributes which should be transferred to the new
 	 * session
@@ -83,24 +84,15 @@ public class SessionFixationProtectionStrategy extends
 	final HttpSession applySessionFixation(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		String originalSessionId = session.getId();
-		if (logger.isDebugEnabled()) {
-			logger.debug("Invalidating session with Id '" + originalSessionId + "' "
-					+ (migrateSessionAttributes ? "and" : "without")
-					+ " migrating attributes.");
-		}
-
+		this.logger.debug(LogMessage.of(() -> "Invalidating session with Id '" + originalSessionId + "' "
+				+ (this.migrateSessionAttributes ? "and" : "without") + " migrating attributes."));
 		Map<String, Object> attributesToMigrate = extractAttributes(session);
 		int maxInactiveIntervalToMigrate = session.getMaxInactiveInterval();
-
 		session.invalidate();
 		session = request.getSession(true); // we now have a new session
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Started new session: " + session.getId());
-		}
-
+		this.logger.debug(LogMessage.format("Started new session: %s", session.getId()));
 		transferAttributes(attributesToMigrate, session);
-		if (migrateSessionAttributes) {
+		if (this.migrateSessionAttributes) {
 			session.setMaxInactiveInterval(maxInactiveIntervalToMigrate);
 		}
 		return session;
@@ -113,27 +105,22 @@ public class SessionFixationProtectionStrategy extends
 	 */
 	void transferAttributes(Map<String, Object> attributes, HttpSession newSession) {
 		if (attributes != null) {
-			for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-				newSession.setAttribute(entry.getKey(), entry.getValue());
-			}
+			attributes.forEach(newSession::setAttribute);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private HashMap<String, Object> createMigratedAttributeMap(HttpSession session) {
 		HashMap<String, Object> attributesToMigrate = new HashMap<>();
-
-		Enumeration enumer = session.getAttributeNames();
-
-		while (enumer.hasMoreElements()) {
-			String key = (String) enumer.nextElement();
-			if (!migrateSessionAttributes && !key.startsWith("SPRING_SECURITY_")) {
+		Enumeration<String> enumeration = session.getAttributeNames();
+		while (enumeration.hasMoreElements()) {
+			String key = enumeration.nextElement();
+			if (!this.migrateSessionAttributes && !key.startsWith("SPRING_SECURITY_")) {
 				// Only retain Spring Security attributes
 				continue;
 			}
 			attributesToMigrate.put(key, session.getAttribute(key));
 		}
-
 		return attributesToMigrate;
 	}
 
@@ -143,11 +130,11 @@ public class SessionFixationProtectionStrategy extends
 	 * <p>
 	 * Attributes used by Spring Security (to store cached requests, for example) will
 	 * still be retained by default, even if you set this value to {@code false}.
-	 *
 	 * @param migrateSessionAttributes whether the attributes from the session should be
 	 * transferred to the new, authenticated session.
 	 */
 	public void setMigrateSessionAttributes(boolean migrateSessionAttributes) {
 		this.migrateSessionAttributes = migrateSessionAttributes;
 	}
+
 }

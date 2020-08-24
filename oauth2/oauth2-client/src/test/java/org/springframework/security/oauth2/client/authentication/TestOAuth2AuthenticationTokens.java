@@ -25,7 +25,10 @@ import org.springframework.security.oauth2.core.user.TestOAuth2Users;
  * @author Josh Cummings
  * @since 5.2
  */
-public class TestOAuth2AuthenticationTokens {
+public final class TestOAuth2AuthenticationTokens {
+
+	private TestOAuth2AuthenticationTokens() {
+	}
 
 	public static OAuth2AuthenticationToken authenticated() {
 		DefaultOAuth2User principal = TestOAuth2Users.create();
@@ -38,4 +41,5 @@ public class TestOAuth2AuthenticationTokens {
 		String registrationId = "registration-id";
 		return new OAuth2AuthenticationToken(principal, principal.getAuthorities(), registrationId);
 	}
+
 }

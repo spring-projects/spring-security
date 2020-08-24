@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.userdetails;
 
 import org.junit.Test;
+
 import org.springframework.security.core.CredentialsContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +35,6 @@ public class LdapUserDetailsImplTests {
 		mutableLdapUserDetails.setDn("uid=username1,ou=people,dc=example,dc=com");
 		mutableLdapUserDetails.setUsername("username1");
 		mutableLdapUserDetails.setPassword("password");
-
 		LdapUserDetails ldapUserDetails = mutableLdapUserDetails.createUserDetails();
 		assertThat(ldapUserDetails).isInstanceOf(CredentialsContainer.class);
 		ldapUserDetails.eraseCredentials();

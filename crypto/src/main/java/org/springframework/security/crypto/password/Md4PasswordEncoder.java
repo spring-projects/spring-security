@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.password;
+
+import java.util.Base64;
 
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 
-import java.util.Base64;
-
 /**
- * This {@link PasswordEncoder} is provided for legacy purposes only and is not considered secure.
+ * This {@link PasswordEncoder} is provided for legacy purposes only and is not considered
+ * secure.
  *
  * Encodes passwords using MD4. The general format of the password is:
  *
@@ -33,8 +35,7 @@ import java.util.Base64;
  * </pre>
  *
  * Such that "salt" is the salt, md4 is the digest method, and password is the actual
- * password. For example with a password of "password", and a salt of
- * "thisissalt":
+ * password. For example with a password of "password", and a salt of "thisissalt":
  *
  * <pre>
  * String s = salt == null ? "" : "{" + salt + "}";
@@ -55,9 +56,9 @@ import java.util.Base64;
  * "{}" + md4(password + "{}")
  * </pre>
  *
- * The format is intended to work with the Md4PasswordEncoder that was found in the
- * Spring Security core module. However, the passwords will need to be migrated to include
- * any salt with the password since this API provides Salt internally vs making it the
+ * The format is intended to work with the Md4PasswordEncoder that was found in the Spring
+ * Security core module. However, the passwords will need to be migrated to include any
+ * salt with the password since this API provides Salt internally vs making it the
  * responsibility of the user. To migrate passwords from the SaltSource use the following:
  *
  * <pre>
@@ -73,16 +74,19 @@ import java.util.Base64;
  * @deprecated Digest based password encoding is not considered secure. Instead use an
  * adaptive one way function like BCryptPasswordEncoder, Pbkdf2PasswordEncoder, or
  * SCryptPasswordEncoder. Even better use {@link DelegatingPasswordEncoder} which supports
- * password upgrades. There are no plans to remove this support. It is deprecated to indicate
- * that this is a legacy implementation and using it is considered insecure.
+ * password upgrades. There are no plans to remove this support. It is deprecated to
+ * indicate that this is a legacy implementation and using it is considered insecure.
  */
 @Deprecated
 public class Md4PasswordEncoder implements PasswordEncoder {
-	private static final String PREFIX = "{";
-	private static final String SUFFIX = "}";
-	private StringKeyGenerator saltGenerator = new Base64StringKeyGenerator();
-	private boolean encodeHashAsBase64;
 
+	private static final String PREFIX = "{";
+
+	private static final String SUFFIX = "}";
+
+	private StringKeyGenerator saltGenerator = new Base64StringKeyGenerator();
+
+	private boolean encodeHashAsBase64;
 
 	public void setEncodeHashAsBase64(boolean encodeHashAsBase64) {
 		this.encodeHashAsBase64 = encodeHashAsBase64;
@@ -91,11 +95,11 @@ public class Md4PasswordEncoder implements PasswordEncoder {
 	/**
 	 * Encodes the rawPass using a MessageDigest. If a salt is specified it will be merged
 	 * with the password before encoding.
-	 *
 	 * @param rawPassword The plain text password
 	 * @return Hex string of password digest (or base64 encoded string if
 	 * encodeHashAsBase64 is enabled.
 	 */
+	@Override
 	public String encode(CharSequence rawPassword) {
 		String salt = PREFIX + this.saltGenerator.generateKey() + SUFFIX;
 		return digest(salt, rawPassword);
@@ -107,10 +111,8 @@ public class Md4PasswordEncoder implements PasswordEncoder {
 		}
 		String saltedPassword = rawPassword + salt;
 		byte[] saltedPasswordBytes = Utf8.encode(saltedPassword);
-
 		Md4 md4 = new Md4();
 		md4.update(saltedPasswordBytes, 0, saltedPasswordBytes.length);
-
 		byte[] digest = md4.digest();
 		String encoded = encode(digest);
 		return salt + encoded;
@@ -120,19 +122,17 @@ public class Md4PasswordEncoder implements PasswordEncoder {
 		if (this.encodeHashAsBase64) {
 			return Utf8.decode(Base64.getEncoder().encode(digest));
 		}
-		else {
-			return new String(Hex.encode(digest));
-		}
+		return new String(Hex.encode(digest));
 	}
 
 	/**
 	 * Takes a previously encoded password and compares it with a rawpassword after mixing
 	 * in the salt and encoding that value
-	 *
 	 * @param rawPassword plain text password
 	 * @param encodedPassword previously encoded password
 	 * @return true or false
 	 */
+	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		String salt = extractSalt(encodedPassword);
 		String rawPasswordEncoded = digest(salt, rawPassword);
@@ -150,4 +150,5 @@ public class Md4PasswordEncoder implements PasswordEncoder {
 		}
 		return prefixEncodedPassword.substring(start, end + 1);
 	}
+
 }

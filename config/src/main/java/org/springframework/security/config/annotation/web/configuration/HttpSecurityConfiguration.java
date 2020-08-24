@@ -16,6 +16,9 @@
 
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -29,9 +32,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.DefaultLoginPageConfigurer;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
@@ -42,7 +42,9 @@ import static org.springframework.security.config.Customizer.withDefaults;
  */
 @Configuration(proxyBeanMethods = false)
 class HttpSecurityConfiguration {
+
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.configuration.HttpSecurityConfiguration.";
+
 	private static final String HTTPSECURITY_BEAN_NAME = BEAN_NAME_PREFIX + "httpSecurity";
 
 	private ObjectPostProcessor<Object> objectPostProcessor;
@@ -54,7 +56,7 @@ class HttpSecurityConfiguration {
 	private ApplicationContext context;
 
 	@Autowired
-	public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
+	void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
 		this.objectPostProcessor = objectPostProcessor;
 	}
 
@@ -64,54 +66,50 @@ class HttpSecurityConfiguration {
 	}
 
 	@Autowired
-	public void setAuthenticationConfiguration(
-			AuthenticationConfiguration authenticationConfiguration) {
+	void setAuthenticationConfiguration(AuthenticationConfiguration authenticationConfiguration) {
 		this.authenticationConfiguration = authenticationConfiguration;
 	}
 
 	@Autowired
-	public void setApplicationContext(ApplicationContext context) {
+	void setApplicationContext(ApplicationContext context) {
 		this.context = context;
 	}
 
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
-	public HttpSecurity httpSecurity() throws Exception {
-		WebSecurityConfigurerAdapter.LazyPasswordEncoder passwordEncoder =
-				new WebSecurityConfigurerAdapter.LazyPasswordEncoder(this.context);
-
-		AuthenticationManagerBuilder authenticationBuilder =
-				new WebSecurityConfigurerAdapter.DefaultPasswordEncoderAuthenticationManagerBuilder(this.objectPostProcessor, passwordEncoder);
+	HttpSecurity httpSecurity() throws Exception {
+		WebSecurityConfigurerAdapter.LazyPasswordEncoder passwordEncoder = new WebSecurityConfigurerAdapter.LazyPasswordEncoder(
+				this.context);
+		AuthenticationManagerBuilder authenticationBuilder = new WebSecurityConfigurerAdapter.DefaultPasswordEncoderAuthenticationManagerBuilder(
+				this.objectPostProcessor, passwordEncoder);
 		authenticationBuilder.parentAuthenticationManager(authenticationManager());
-
-		HttpSecurity http = new HttpSecurity(objectPostProcessor, authenticationBuilder, createSharedObjects());
+		HttpSecurity http = new HttpSecurity(this.objectPostProcessor, authenticationBuilder, createSharedObjects());
+		// @formatter:off
 		http
-				.csrf(withDefaults())
-				.addFilter(new WebAsyncManagerIntegrationFilter())
-				.exceptionHandling(withDefaults())
-				.headers(withDefaults())
-				.sessionManagement(withDefaults())
-				.securityContext(withDefaults())
-				.requestCache(withDefaults())
-				.anonymous(withDefaults())
-				.servletApi(withDefaults())
-				.logout(withDefaults())
-				.apply(new DefaultLoginPageConfigurer<>());
-
+			.csrf(withDefaults())
+			.addFilter(new WebAsyncManagerIntegrationFilter())
+			.exceptionHandling(withDefaults())
+			.headers(withDefaults())
+			.sessionManagement(withDefaults())
+			.securityContext(withDefaults())
+			.requestCache(withDefaults())
+			.anonymous(withDefaults())
+			.servletApi(withDefaults())
+			.logout(withDefaults())
+			.apply(new DefaultLoginPageConfigurer<>());
+		// @formatter:on
 		return http;
 	}
 
 	private AuthenticationManager authenticationManager() throws Exception {
-		if (this.authenticationManager != null) {
-			return this.authenticationManager;
-		} else {
-			return this.authenticationConfiguration.getAuthenticationManager();
-		}
+		return (this.authenticationManager != null) ? this.authenticationManager
+				: this.authenticationConfiguration.getAuthenticationManager();
 	}
 
 	private Map<Class<?>, Object> createSharedObjects() {
 		Map<Class<?>, Object> sharedObjects = new HashMap<>();
-		sharedObjects.put(ApplicationContext.class, context);
+		sharedObjects.put(ApplicationContext.class, this.context);
 		return sharedObjects;
 	}
+
 }

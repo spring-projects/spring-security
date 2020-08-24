@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.authentication.ad;
 
 import org.springframework.security.core.AuthenticationException;
@@ -41,15 +42,16 @@ import org.springframework.security.core.AuthenticationException;
  */
 @SuppressWarnings("serial")
 public final class ActiveDirectoryAuthenticationException extends AuthenticationException {
+
 	private final String dataCode;
 
-	ActiveDirectoryAuthenticationException(String dataCode, String message,
-			Throwable cause) {
+	ActiveDirectoryAuthenticationException(String dataCode, String message, Throwable cause) {
 		super(message, cause);
 		this.dataCode = dataCode;
 	}
 
 	public String getDataCode() {
-		return dataCode;
+		return this.dataCode;
 	}
+
 }

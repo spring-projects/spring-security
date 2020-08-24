@@ -32,6 +32,7 @@ import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Abstract {@link AfterInvocationProvider} which provides commonly-used ACL-related
@@ -40,64 +41,52 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public abstract class AbstractAclProvider implements AfterInvocationProvider {
-	// ~ Instance fields
-	// ================================================================================================
 
 	protected final AclService aclService;
-	protected Class<?> processDomainObjectClass = Object.class;
-	protected ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
-	protected SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
-	protected String processConfigAttribute;
-	protected final List<Permission> requirePermission;
 
-	// ~ Constructors
-	// ===================================================================================================
+	protected String processConfigAttribute;
+
+	protected Class<?> processDomainObjectClass = Object.class;
+
+	protected ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
+
+	protected SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
+
+	protected final List<Permission> requirePermission;
 
 	public AbstractAclProvider(AclService aclService, String processConfigAttribute,
 			List<Permission> requirePermission) {
 		Assert.hasText(processConfigAttribute, "A processConfigAttribute is mandatory");
 		Assert.notNull(aclService, "An AclService is mandatory");
-
-		if (requirePermission == null || requirePermission.isEmpty()) {
-			throw new IllegalArgumentException(
-					"One or more requirePermission entries is mandatory");
-		}
-
+		Assert.isTrue(!ObjectUtils.isEmpty(requirePermission), "One or more requirePermission entries is mandatory");
 		this.aclService = aclService;
 		this.processConfigAttribute = processConfigAttribute;
 		this.requirePermission = requirePermission;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	protected Class<?> getProcessDomainObjectClass() {
-		return processDomainObjectClass;
+		return this.processDomainObjectClass;
 	}
 
 	protected boolean hasPermission(Authentication authentication, Object domainObject) {
 		// Obtain the OID applicable to the domain object
-		ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy
-				.getObjectIdentity(domainObject);
+		ObjectIdentity objectIdentity = this.objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
 
 		// Obtain the SIDs applicable to the principal
-		List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
+		List<Sid> sids = this.sidRetrievalStrategy.getSids(authentication);
 
 		try {
 			// Lookup only ACLs for SIDs we're interested in
-			Acl acl = aclService.readAclById(objectIdentity, sids);
-
-			return acl.isGranted(requirePermission, sids, false);
+			Acl acl = this.aclService.readAclById(objectIdentity, sids);
+			return acl.isGranted(this.requirePermission, sids, false);
 		}
-		catch (NotFoundException ignore) {
+		catch (NotFoundException ex) {
 			return false;
 		}
 	}
 
-	public void setObjectIdentityRetrievalStrategy(
-			ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
-		Assert.notNull(objectIdentityRetrievalStrategy,
-				"ObjectIdentityRetrievalStrategy required");
+	public void setObjectIdentityRetrievalStrategy(ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
+		Assert.notNull(objectIdentityRetrievalStrategy, "ObjectIdentityRetrievalStrategy required");
 		this.objectIdentityRetrievalStrategy = objectIdentityRetrievalStrategy;
 	}
 
@@ -107,8 +96,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 	}
 
 	public void setProcessDomainObjectClass(Class<?> processDomainObjectClass) {
-		Assert.notNull(processDomainObjectClass,
-				"processDomainObjectClass cannot be set to null");
+		Assert.notNull(processDomainObjectClass, "processDomainObjectClass cannot be set to null");
 		this.processDomainObjectClass = processDomainObjectClass;
 	}
 
@@ -117,19 +105,20 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 		this.sidRetrievalStrategy = sidRetrievalStrategy;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
-		return processConfigAttribute.equals(attribute.getAttribute());
+		return this.processConfigAttribute.equals(attribute.getAttribute());
 	}
 
 	/**
 	 * This implementation supports any type of class, because it does not query the
 	 * presented secure object.
-	 *
 	 * @param clazz the secure object
-	 *
 	 * @return always <code>true</code>
 	 */
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}
+
 }

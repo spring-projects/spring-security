@@ -16,13 +16,13 @@
 
 package org.springframework.security.oauth2.client.registration;
 
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0
  */
 public class InMemoryClientRegistrationRepositoryTests {
+
 	private ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 
 	private InMemoryClientRegistrationRepository clients = new InMemoryClientRegistrationRepository(this.registration);
@@ -94,4 +95,5 @@ public class InMemoryClientRegistrationRepositoryTests {
 	public void iteratorWhenGetThenContainsAll() {
 		assertThat(this.clients).containsOnly(this.registration);
 	}
+
 }

@@ -16,8 +16,6 @@
 
 package org.springframework.security.core.userdetails;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
@@ -26,9 +24,13 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.junit.Test;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link User}.
@@ -36,21 +38,16 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
  * @author Ben Alex
  */
 public class UserTests {
-	private static final List<GrantedAuthority> ROLE_12 = AuthorityUtils
-			.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 
-	// ~ Methods
-	// ========================================================================================================
+	private static final List<GrantedAuthority> ROLE_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 
 	@Test
 	public void equalsReturnsTrueIfUsernamesAreTheSame() {
 		User user1 = new User("rod", "koala", true, true, true, true, ROLE_12);
-
 		assertThat(user1).isNotNull();
 		assertThat(user1).isNotEqualTo("A STRING");
 		assertThat(user1).isEqualTo(user1);
-		assertThat(user1).isEqualTo((new User("rod", "notthesame", true, true, true, true,
-				ROLE_12)));
+		assertThat(user1).isEqualTo((new User("rod", "notthesame", true, true, true, true, ROLE_12)));
 	}
 
 	@Test
@@ -58,19 +55,15 @@ public class UserTests {
 		User user1 = new User("rod", "koala", true, true, true, true, ROLE_12);
 		Set<UserDetails> users = new HashSet<>();
 		users.add(user1);
-
-		assertThat(users).contains(new User("rod", "koala", true, true, true, true,
-				ROLE_12));
-		assertThat(users).contains(new User("rod", "anotherpass", false, false, false,
-				false, AuthorityUtils.createAuthorityList("ROLE_X")));
-		assertThat(users).doesNotContain(new User("bod", "koala", true, true, true, true,
-				ROLE_12));
+		assertThat(users).contains(new User("rod", "koala", true, true, true, true, ROLE_12));
+		assertThat(users).contains(new User("rod", "anotherpass", false, false, false, false,
+				AuthorityUtils.createAuthorityList("ROLE_X")));
+		assertThat(users).doesNotContain(new User("bod", "koala", true, true, true, true, ROLE_12));
 	}
 
 	@Test
 	public void testNoArgConstructorDoesntExist() {
 		Class<User> clazz = User.class;
-
 		try {
 			clazz.getDeclaredConstructor((Class[]) null);
 			fail("Should have thrown NoSuchMethodException");
@@ -87,14 +80,12 @@ public class UserTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			new User("rod", null, true, true, true, true, ROLE_12);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_ONE");
 			auths.add(null);
@@ -125,10 +116,8 @@ public class UserTests {
 		assertThat(user.getUsername()).isEqualTo("rod");
 		assertThat(user.getPassword()).isEqualTo("koala");
 		assertThat(user.isEnabled()).isTrue();
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains(
-				"ROLE_ONE");
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains(
-				"ROLE_TWO");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_ONE");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_TWO");
 		assertThat(user.toString()).contains("rod");
 	}
 
@@ -151,9 +140,7 @@ public class UserTests {
 	@Test
 	public void withUserDetailsWhenAllEnabled() {
 		User expected = new User("rob", "pass", true, true, true, true, ROLE_12);
-
 		UserDetails actual = User.withUserDetails(expected).build();
-
 		assertThat(actual.getUsername()).isEqualTo(expected.getUsername());
 		assertThat(actual.getPassword()).isEqualTo(expected.getPassword());
 		assertThat(actual.getAuthorities()).isEqualTo(expected.getAuthorities());
@@ -163,13 +150,10 @@ public class UserTests {
 		assertThat(actual.isEnabled()).isEqualTo(expected.isEnabled());
 	}
 
-
 	@Test
 	public void withUserDetailsWhenAllDisabled() {
 		User expected = new User("rob", "pass", false, false, false, false, ROLE_12);
-
 		UserDetails actual = User.withUserDetails(expected).build();
-
 		assertThat(actual.getUsername()).isEqualTo(expected.getUsername());
 		assertThat(actual.getPassword()).isEqualTo(expected.getPassword());
 		assertThat(actual.getAuthorities()).isEqualTo(expected.getAuthorities());
@@ -182,46 +166,42 @@ public class UserTests {
 	@Test
 	public void withUserWhenDetailsPasswordEncoderThenEncodes() {
 		UserDetails userDetails = User.withUsername("user").password("password").roles("USER").build();
-
-		UserDetails withEncodedPassword = User.withUserDetails(userDetails)
-			.passwordEncoder(p -> p + "encoded")
-			.build();
-
+		UserDetails withEncodedPassword = User.withUserDetails(userDetails).passwordEncoder((p) -> p + "encoded")
+				.build();
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
 
 	@Test
 	public void withUsernameWhenPasswordEncoderAndPasswordThenEncodes() {
-		UserDetails withEncodedPassword = User.withUsername("user")
-			.password("password")
-			.passwordEncoder(p -> p + "encoded")
-			.roles("USER")
-			.build();
-
+		UserDetails withEncodedPassword = User.withUsername("user").password("password")
+				.passwordEncoder((p) -> p + "encoded").roles("USER").build();
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
 
 	@Test
 	public void withUsernameWhenPasswordAndPasswordEncoderThenEncodes() {
+		// @formatter:off
 		UserDetails withEncodedPassword = User.withUsername("user")
-			.passwordEncoder(p -> p + "encoded")
+			.passwordEncoder((p) -> p + "encoded")
 			.password("password")
 			.roles("USER")
 			.build();
-
+		// @formatter:on
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
 
 	@Test
 	public void withUsernameWhenPasswordAndPasswordEncoderTwiceThenEncodesOnce() {
-		Function<String, String> encoder = p -> p + "encoded";
+		Function<String, String> encoder = (p) -> p + "encoded";
+		// @formatter:off
 		UserDetails withEncodedPassword = User.withUsername("user")
 			.passwordEncoder(encoder)
 			.password("password")
 			.passwordEncoder(encoder)
 			.roles("USER")
 			.build();
-
+		// @formatter:on
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
+
 }

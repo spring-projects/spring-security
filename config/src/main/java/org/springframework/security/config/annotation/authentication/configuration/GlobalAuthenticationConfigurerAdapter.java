@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.authentication.configuration;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 
 /**
  * A {@link SecurityConfigurer} that can be exposed as a bean to configure the global
@@ -31,12 +31,15 @@ import org.springframework.security.config.annotation.authentication.configurati
  * @author Rob Winch
  */
 @Order(100)
-public abstract class GlobalAuthenticationConfigurerAdapter implements
-		SecurityConfigurer<AuthenticationManager, AuthenticationManagerBuilder> {
+public abstract class GlobalAuthenticationConfigurerAdapter
+		implements SecurityConfigurer<AuthenticationManager, AuthenticationManagerBuilder> {
 
+	@Override
 	public void init(AuthenticationManagerBuilder auth) throws Exception {
 	}
 
+	@Override
 	public void configure(AuthenticationManagerBuilder auth) throws Exception {
 	}
+
 }

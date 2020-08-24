@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.web.configurers;
 
+package org.springframework.security.config.annotation.web.configurers;
 
 import java.security.Principal;
 
@@ -46,7 +46,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 /**
- * Tests to verify that all the functionality of <expression-handler> attributes is present
+ * Tests to verify that all the functionality of &lt;expression-handler&gt; attributes is
+ * present
  *
  * @author Rob Winch
  * @author Josh Cummings
@@ -70,44 +71,53 @@ public class NamespaceHttpExpressionHandlerTests {
 		verifyBean("expressionParser", ExpressionParser.class).parseExpression("hasRole('USER')");
 	}
 
+	private <T> T verifyBean(String beanName, Class<T> beanClass) {
+		return verify(this.spring.getContext().getBean(beanName, beanClass));
+	}
+
 	@EnableWebMvc
 	@EnableWebSecurity
 	private static class ExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
-		ExpressionHandlerConfig() {}
+
+		ExpressionHandlerConfig() {
+		}
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("rod").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
 			handler.setExpressionParser(expressionParser());
-
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.expressionHandler(handler)
 					.anyRequest().access("hasRole('USER')");
+			// @formatter:on
 		}
 
 		@Bean
 		ExpressionParser expressionParser() {
 			return spy(new SpelExpressionParser());
 		}
+
 	}
 
 	@RestController
 	private static class ExpressionHandlerController {
+
 		@GetMapping("/whoami")
 		String whoami(Principal user) {
 			return user.getName();
 		}
+
 	}
 
-	private <T> T verifyBean(String beanName, Class<T> beanClass) {
-		return verify(this.spring.getContext().getBean(beanName, beanClass));
-	}
 }

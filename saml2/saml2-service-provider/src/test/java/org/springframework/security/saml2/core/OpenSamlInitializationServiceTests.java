@@ -23,7 +23,7 @@ import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.springframework.security.saml2.Saml2Exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OpenSamlInitializationService}
@@ -37,8 +37,9 @@ public class OpenSamlInitializationServiceTests {
 		OpenSamlInitializationService.initialize();
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		assertThat(registry.getParserPool()).isNotNull();
-		assertThatCode(() -> OpenSamlInitializationService.requireInitialize(r -> {}))
-				.isInstanceOf(Saml2Exception.class)
-				.hasMessageContaining("OpenSAML was already initialized previously");
+		assertThatExceptionOfType(Saml2Exception.class)
+				.isThrownBy(() -> OpenSamlInitializationService.requireInitialize((r) -> {
+				})).withMessageContaining("OpenSAML was already initialized previously");
 	}
+
 }

@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.test.web.servlet.showcase.secured;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+package org.springframework.security.test.web.servlet.showcase.secured;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -41,6 +37,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SecurityRequestsTests.Config.class)
@@ -57,13 +60,13 @@ public class SecurityRequestsTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity()).build();
 	}
 
 	@Test
 	public void requestProtectedUrlWithUser() throws Exception {
-		mvc.perform(get("/").with(user("user")))
-		// Ensure we got past Security
+		this.mvc.perform(get("/").with(user("user")))
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withUsername("user"));
@@ -71,8 +74,8 @@ public class SecurityRequestsTests {
 
 	@Test
 	public void requestProtectedUrlWithAdmin() throws Exception {
-		mvc.perform(get("/admin").with(user("admin").roles("ADMIN")))
-		// Ensure we got past Security
+		this.mvc.perform(get("/admin").with(user("admin").roles("ADMIN")))
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with admin
 				.andExpect(authenticated().withUsername("admin"));
@@ -80,9 +83,9 @@ public class SecurityRequestsTests {
 
 	@Test
 	public void requestProtectedUrlWithUserDetails() throws Exception {
-		UserDetails user = userDetailsService.loadUserByUsername("user");
-		mvc.perform(get("/").with(user(user)))
-		// Ensure we got past Security
+		UserDetails user = this.userDetailsService.loadUserByUsername("user");
+		this.mvc.perform(get("/").with(user(user)))
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withAuthenticationPrincipal(user));
@@ -90,10 +93,9 @@ public class SecurityRequestsTests {
 
 	@Test
 	public void requestProtectedUrlWithAuthentication() throws Exception {
-		Authentication authentication = new TestingAuthenticationToken("test", "notused",
-				"ROLE_USER");
-		mvc.perform(get("/").with(authentication(authentication)))
-		// Ensure we got past Security
+		Authentication authentication = new TestingAuthenticationToken("test", "notused", "ROLE_USER");
+		this.mvc.perform(get("/").with(authentication(authentication)))
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withAuthentication(authentication));
@@ -103,31 +105,33 @@ public class SecurityRequestsTests {
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
 
-		// @formatter:off
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					.and()
 				.formLogin();
+			// @formatter:on
 		}
-		// @formatter:on
 
-		// @formatter:off
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER");
+			// @formatter:on
 		}
-		// @formatter:on
 
 		@Override
 		@Bean
 		public UserDetailsService userDetailsServiceBean() throws Exception {
 			return super.userDetailsServiceBean();
 		}
+
 	}
+
 }

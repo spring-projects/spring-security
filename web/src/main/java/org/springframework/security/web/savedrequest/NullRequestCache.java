@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.savedrequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,20 +28,22 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class NullRequestCache implements RequestCache {
 
-	public SavedRequest getRequest(HttpServletRequest request,
-			HttpServletResponse response) {
+	@Override
+	public SavedRequest getRequest(HttpServletRequest request, HttpServletResponse response) {
 		return null;
 	}
 
+	@Override
 	public void removeRequest(HttpServletRequest request, HttpServletResponse response) {
 
 	}
 
+	@Override
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
 	}
 
-	public HttpServletRequest getMatchingRequest(HttpServletRequest request,
-			HttpServletResponse response) {
+	@Override
+	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
 		return null;
 	}
 

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import java.util.function.Consumer;
@@ -69,11 +70,11 @@ public class HelloWebfluxMethodApplicationITests {
 	}
 
 	private Consumer<HttpHeaders> robsCredentials() {
-		return httpHeaders -> httpHeaders.setBasicAuth("rob", "rob");
+		return (httpHeaders) -> httpHeaders.setBasicAuth("rob", "rob");
 	}
 
 	private Consumer<HttpHeaders> adminCredentials() {
-		return httpHeaders -> httpHeaders.setBasicAuth("admin", "admin");
+		return (httpHeaders) -> httpHeaders.setBasicAuth("admin", "admin");
 	}
 }
 

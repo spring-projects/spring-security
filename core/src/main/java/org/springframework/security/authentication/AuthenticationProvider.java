@@ -26,26 +26,20 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public interface AuthenticationProvider {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Performs authentication with the same contract as
 	 * {@link org.springframework.security.authentication.AuthenticationManager#authenticate(Authentication)}
 	 * .
-	 *
 	 * @param authentication the authentication request object.
-	 *
 	 * @return a fully authenticated object including credentials. May return
 	 * <code>null</code> if the <code>AuthenticationProvider</code> is unable to support
 	 * authentication of the passed <code>Authentication</code> object. In such a case,
 	 * the next <code>AuthenticationProvider</code> that supports the presented
 	 * <code>Authentication</code> class will be tried.
-	 *
 	 * @throws AuthenticationException if authentication fails.
 	 */
-	Authentication authenticate(Authentication authentication)
-			throws AuthenticationException;
+	Authentication authenticate(Authentication authentication) throws AuthenticationException;
 
 	/**
 	 * Returns <code>true</code> if this <Code>AuthenticationProvider</code> supports the
@@ -62,11 +56,10 @@ public interface AuthenticationProvider {
 	 * Selection of an <code>AuthenticationProvider</code> capable of performing
 	 * authentication is conducted at runtime the <code>ProviderManager</code>.
 	 * </p>
-	 *
 	 * @param authentication
-	 *
 	 * @return <code>true</code> if the implementation can more closely evaluate the
 	 * <code>Authentication</code> class presented
 	 */
 	boolean supports(Class<?> authentication);
+
 }

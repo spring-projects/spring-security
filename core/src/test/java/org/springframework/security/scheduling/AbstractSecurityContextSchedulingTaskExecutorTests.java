@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.scheduling;
 
-import static org.mockito.Mockito.verify;
+package org.springframework.security.scheduling;
 
 import org.junit.Test;
 import org.mockito.Mock;
+
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.security.task.AbstractDelegatingSecurityContextAsyncTaskExecutorTests;
+
+import static org.mockito.Mockito.verify;
 
 /**
  * Abstract class for testing {@link DelegatingSecurityContextSchedulingTaskExecutor}
@@ -32,8 +34,8 @@ import org.springframework.security.task.AbstractDelegatingSecurityContextAsyncT
  * @see CurrentSecurityContextSchedulingTaskExecutorTests
  * @see ExplicitSecurityContextSchedulingTaskExecutorTests
  */
-public abstract class AbstractSecurityContextSchedulingTaskExecutorTests extends
-		AbstractDelegatingSecurityContextAsyncTaskExecutorTests {
+public abstract class AbstractSecurityContextSchedulingTaskExecutorTests
+		extends AbstractDelegatingSecurityContextAsyncTaskExecutorTests {
 
 	@Mock
 	protected SchedulingTaskExecutor taskExecutorDelegate;
@@ -42,14 +44,17 @@ public abstract class AbstractSecurityContextSchedulingTaskExecutorTests extends
 
 	@Test
 	public void prefersShortLivedTasks() {
-		executor = create();
-		executor.prefersShortLivedTasks();
-		verify(taskExecutorDelegate).prefersShortLivedTasks();
+		this.executor = create();
+		this.executor.prefersShortLivedTasks();
+		verify(this.taskExecutorDelegate).prefersShortLivedTasks();
 	}
 
+	@Override
 	protected SchedulingTaskExecutor getExecutor() {
-		return taskExecutorDelegate;
+		return this.taskExecutorDelegate;
 	}
 
+	@Override
 	protected abstract DelegatingSecurityContextSchedulingTaskExecutor create();
+
 }

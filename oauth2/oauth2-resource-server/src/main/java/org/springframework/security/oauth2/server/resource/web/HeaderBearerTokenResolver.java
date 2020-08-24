@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.resource.web;
 
 import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.util.Assert;
 
 /**
@@ -38,4 +39,5 @@ public class HeaderBearerTokenResolver implements BearerTokenResolver {
 	public String resolve(HttpServletRequest request) {
 		return request.getHeader(this.header);
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.session;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -34,20 +36,25 @@ import org.springframework.web.util.WebUtils;
  * @author Rob Winch
  * @since 3.2
  */
-abstract class AbstractSessionFixationProtectionStrategy implements
-		SessionAuthenticationStrategy, ApplicationEventPublisherAware {
+public abstract class AbstractSessionFixationProtectionStrategy
+		implements SessionAuthenticationStrategy, ApplicationEventPublisherAware {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
+
 	/**
 	 * Used for publishing events related to session fixation protection, such as
 	 * {@link SessionFixationProtectionEvent}.
 	 */
 	private ApplicationEventPublisher applicationEventPublisher = new NullEventPublisher();
+
 	/**
 	 * If set to {@code true}, a session will always be created, even if one didn't exist
 	 * at the start of the request. Defaults to {@code false}.
 	 */
 	private boolean alwaysCreateSession;
+
+	AbstractSessionFixationProtectionStrategy() {
+	}
 
 	/**
 	 * Called when a user is newly authenticated.
@@ -62,44 +69,36 @@ abstract class AbstractSessionFixationProtectionStrategy implements
 	 * property is set, in which case a session will be created if one doesn't already
 	 * exist.
 	 */
-	public void onAuthentication(Authentication authentication,
-			HttpServletRequest request, HttpServletResponse response) {
+	@Override
+	public void onAuthentication(Authentication authentication, HttpServletRequest request,
+			HttpServletResponse response) {
 		boolean hadSessionAlready = request.getSession(false) != null;
-
-		if (!hadSessionAlready && !alwaysCreateSession) {
+		if (!hadSessionAlready && !this.alwaysCreateSession) {
 			// Session fixation isn't a problem if there's no session
-
 			return;
 		}
-
 		// Create new session if necessary
 		HttpSession session = request.getSession();
-
 		if (hadSessionAlready && request.isRequestedSessionIdValid()) {
-
 			String originalSessionId;
 			String newSessionId;
 			Object mutex = WebUtils.getSessionMutex(session);
 			synchronized (mutex) {
 				// We need to migrate to a new session
 				originalSessionId = session.getId();
-
 				session = applySessionFixation(request);
 				newSessionId = session.getId();
 			}
-
 			if (originalSessionId.equals(newSessionId)) {
-				logger.warn("Your servlet container did not change the session ID when a new session was created. You will"
-						+ " not be adequately protected against session-fixation attacks");
+				this.logger.warn("Your servlet container did not change the session ID when a new session "
+						+ "was created. You will not be adequately protected against session-fixation attacks");
 			}
-
 			onSessionChange(originalSessionId, session, authentication);
 		}
 	}
 
 	/**
 	 * Applies session fixation
-	 *
 	 * @param request the {@link HttpServletRequest} to apply session fixation protection
 	 * for
 	 * @return the new {@link HttpSession} to use. Cannot be null.
@@ -116,29 +115,25 @@ abstract class AbstractSessionFixationProtectionStrategy implements
 	 * ID has changed. If you override this method and still wish these events to be
 	 * published, you should call {@code super.onSessionChange()} within your overriding
 	 * method.
-	 *
 	 * @param originalSessionId the original session identifier
 	 * @param newSession the newly created session
 	 * @param auth the token for the newly authenticated principal
 	 */
-	protected void onSessionChange(String originalSessionId, HttpSession newSession,
-			Authentication auth) {
-		applicationEventPublisher.publishEvent(new SessionFixationProtectionEvent(auth,
-				originalSessionId, newSession.getId()));
+	protected void onSessionChange(String originalSessionId, HttpSession newSession, Authentication auth) {
+		this.applicationEventPublisher
+				.publishEvent(new SessionFixationProtectionEvent(auth, originalSessionId, newSession.getId()));
 	}
 
 	/**
 	 * Sets the {@link ApplicationEventPublisher} to use for submitting
 	 * {@link SessionFixationProtectionEvent}. The default is to not submit the
 	 * {@link SessionFixationProtectionEvent}.
-	 *
 	 * @param applicationEventPublisher the {@link ApplicationEventPublisher}. Cannot be
 	 * null.
 	 */
-	public void setApplicationEventPublisher(
-			ApplicationEventPublisher applicationEventPublisher) {
-		Assert.notNull(applicationEventPublisher,
-				"applicationEventPublisher cannot be null");
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		Assert.notNull(applicationEventPublisher, "applicationEventPublisher cannot be null");
 		this.applicationEventPublisher = applicationEventPublisher;
 	}
 
@@ -147,11 +142,15 @@ abstract class AbstractSessionFixationProtectionStrategy implements
 	}
 
 	protected static final class NullEventPublisher implements ApplicationEventPublisher {
+
+		@Override
 		public void publishEvent(ApplicationEvent event) {
 		}
 
+		@Override
 		public void publishEvent(Object event) {
 		}
+
 	}
 
 }

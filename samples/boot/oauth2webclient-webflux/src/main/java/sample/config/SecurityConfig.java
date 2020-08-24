@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.config;
 
 import org.springframework.context.annotation.Bean;
@@ -34,7 +35,7 @@ public class SecurityConfig {
 	@Bean
 	SecurityWebFilterChain configure(ServerHttpSecurity http) {
 		http
-			.authorizeExchange(exchanges ->
+			.authorizeExchange((exchanges) -> 
 				exchanges
 					.pathMatchers("/", "/public/**").permitAll()
 					.anyExchange().authenticated()

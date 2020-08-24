@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.servletapi;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.List;
 
 import javax.servlet.AsyncContext;
@@ -67,18 +67,22 @@ import org.springframework.util.CollectionUtils;
  * </ul>
  *
  * @author Rob Winch
- *
  * @see SecurityContextHolderAwareRequestFilter
  * @see Servlet3SecurityContextHolderAwareRequestWrapper
  * @see SecurityContextAsyncContext
  */
 final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
+
 	private Log logger = LogFactory.getLog(getClass());
 
 	private final String rolePrefix;
+
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+
 	private AuthenticationEntryPoint authenticationEntryPoint;
+
 	private AuthenticationManager authenticationManager;
+
 	private List<LogoutHandler> logoutHandlers;
 
 	HttpServlet3RequestFactory(String rolePrefix) {
@@ -102,8 +106,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	 * is not authenticated.
 	 */
 
-	public void setAuthenticationEntryPoint(
-			AuthenticationEntryPoint authenticationEntryPoint) {
+	void setAuthenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
@@ -118,11 +121,10 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	 * If the value is null (default), then the default container behavior will be
 	 * retained when invoking {@link HttpServletRequest#login(String, String)}.
 	 * </p>
-	 *
 	 * @param authenticationManager the {@link AuthenticationManager} to use when invoking
 	 * {@link HttpServletRequest#login(String, String)}
 	 */
-	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+	void setAuthenticationManager(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
 
@@ -138,39 +140,34 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	 * If the value is null (default), the default container behavior will be retained
 	 * when invoking {@link HttpServletRequest#logout()}.
 	 * </p>
-	 *
-	 * @param logoutHandlers the {@link List<LogoutHandler>}s when invoking
+	 * @param logoutHandlers the {@code List<LogoutHandler>}s when invoking
 	 * {@link HttpServletRequest#logout()}.
 	 */
-	public void setLogoutHandlers(List<LogoutHandler> logoutHandlers) {
+	void setLogoutHandlers(List<LogoutHandler> logoutHandlers) {
 		this.logoutHandlers = logoutHandlers;
 	}
 
 	/**
 	 * Sets the {@link AuthenticationTrustResolver} to be used. The default is
 	 * {@link AuthenticationTrustResolverImpl}.
-	 *
 	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
 	 * null.
 	 */
-	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+	void setTrustResolver(AuthenticationTrustResolver trustResolver) {
 		Assert.notNull(trustResolver, "trustResolver cannot be null");
 		this.trustResolver = trustResolver;
 	}
 
 	@Override
-	public HttpServletRequest create(HttpServletRequest request,
-			HttpServletResponse response) {
-		return new Servlet3SecurityContextHolderAwareRequestWrapper(request,
-				this.rolePrefix, response);
+	public HttpServletRequest create(HttpServletRequest request, HttpServletResponse response) {
+		return new Servlet3SecurityContextHolderAwareRequestWrapper(request, this.rolePrefix, response);
 	}
 
-	private class Servlet3SecurityContextHolderAwareRequestWrapper
-			extends SecurityContextHolderAwareRequestWrapper {
+	private class Servlet3SecurityContextHolderAwareRequestWrapper extends SecurityContextHolderAwareRequestWrapper {
+
 		private final HttpServletResponse response;
 
-		Servlet3SecurityContextHolderAwareRequestWrapper(
-				HttpServletRequest request, String rolePrefix,
+		Servlet3SecurityContextHolderAwareRequestWrapper(HttpServletRequest request, String rolePrefix,
 				HttpServletResponse response) {
 			super(request, HttpServlet3RequestFactory.this.trustResolver, rolePrefix);
 			this.response = response;
@@ -192,15 +189,14 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 		}
 
 		@Override
-		public AsyncContext startAsync(ServletRequest servletRequest,
-				ServletResponse servletResponse) throws IllegalStateException {
+		public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
+				throws IllegalStateException {
 			AsyncContext startAsync = super.startAsync(servletRequest, servletResponse);
 			return new SecurityContextAsyncContext(startAsync);
 		}
 
 		@Override
-		public boolean authenticate(HttpServletResponse response)
-				throws IOException, ServletException {
+		public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
 			AuthenticationEntryPoint entryPoint = HttpServlet3RequestFactory.this.authenticationEntryPoint;
 			if (entryPoint == null) {
 				HttpServlet3RequestFactory.this.logger.debug(
@@ -211,16 +207,15 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 				return true;
 			}
 			entryPoint.commence(this, response,
-					new AuthenticationCredentialsNotFoundException(
-							"User is not Authenticated"));
+					new AuthenticationCredentialsNotFoundException("User is not Authenticated"));
 			return false;
 		}
 
 		@Override
 		public void login(String username, String password) throws ServletException {
 			if (isAuthenticated()) {
-				throw new ServletException("Cannot perform login for '" + username
-						+ "' already authenticated as '" + getRemoteUser() + "'");
+				throw new ServletException("Cannot perform login for '" + username + "' already authenticated as '"
+						+ getRemoteUser() + "'");
 			}
 			AuthenticationManager authManager = HttpServlet3RequestFactory.this.authenticationManager;
 			if (authManager == null) {
@@ -229,41 +224,44 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 				super.login(username, password);
 				return;
 			}
-			Authentication authentication;
-			try {
-				authentication = authManager.authenticate(
-						new UsernamePasswordAuthenticationToken(username, password));
-			}
-			catch (AuthenticationException loginFailed) {
-				SecurityContextHolder.clearContext();
-				throw new ServletException(loginFailed.getMessage(), loginFailed);
-			}
+			Authentication authentication = getAuthentication(authManager, username, password);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
+		}
+
+		private Authentication getAuthentication(AuthenticationManager authManager, String username, String password)
+				throws ServletException {
+			try {
+				return authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+			}
+			catch (AuthenticationException ex) {
+				SecurityContextHolder.clearContext();
+				throw new ServletException(ex.getMessage(), ex);
+			}
 		}
 
 		@Override
 		public void logout() throws ServletException {
 			List<LogoutHandler> handlers = HttpServlet3RequestFactory.this.logoutHandlers;
 			if (CollectionUtils.isEmpty(handlers)) {
-				HttpServlet3RequestFactory.this.logger.debug(
-						"logoutHandlers is null, so allowing original HttpServletRequest to handle logout");
+				HttpServlet3RequestFactory.this.logger
+						.debug("logoutHandlers is null, so allowing original HttpServletRequest to handle logout");
 				super.logout();
 				return;
 			}
-			Authentication authentication = SecurityContextHolder.getContext()
-					.getAuthentication();
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			for (LogoutHandler handler : handlers) {
 				handler.logout(this, this.response, authentication);
 			}
 		}
 
 		private boolean isAuthenticated() {
-			Principal userPrincipal = getUserPrincipal();
-			return userPrincipal != null;
+			return getUserPrincipal() != null;
 		}
+
 	}
 
 	private static class SecurityContextAsyncContext implements AsyncContext {
+
 		private final AsyncContext asyncContext;
 
 		SecurityContextAsyncContext(AsyncContext asyncContext) {
@@ -316,14 +314,12 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 		}
 
 		@Override
-		public void addListener(AsyncListener listener, ServletRequest request,
-				ServletResponse response) {
+		public void addListener(AsyncListener listener, ServletRequest request, ServletResponse response) {
 			this.asyncContext.addListener(listener, request, response);
 		}
 
 		@Override
-		public <T extends AsyncListener> T createListener(Class<T> clazz)
-				throws ServletException {
+		public <T extends AsyncListener> T createListener(Class<T> clazz) throws ServletException {
 			return this.asyncContext.createListener(clazz);
 		}
 
@@ -336,5 +332,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 		public void setTimeout(long timeout) {
 			this.asyncContext.setTimeout(timeout);
 		}
+
 	}
+
 }

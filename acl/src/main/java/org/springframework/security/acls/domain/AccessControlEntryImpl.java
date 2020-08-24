@@ -13,42 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.domain;
+
+import java.io.Serializable;
 
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AuditableAccessControlEntry;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
-
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
 
 /**
  * An immutable default implementation of <code>AccessControlEntry</code>.
  *
  * @author Ben Alex
  */
-public class AccessControlEntryImpl implements AccessControlEntry,
-		AuditableAccessControlEntry {
-	// ~ Instance fields
-	// ================================================================================================
+public class AccessControlEntryImpl implements AccessControlEntry, AuditableAccessControlEntry {
 
 	private final Acl acl;
+
 	private Permission permission;
+
 	private final Serializable id;
+
 	private final Sid sid;
+
 	private boolean auditFailure = false;
+
 	private boolean auditSuccess = false;
+
 	private final boolean granting;
 
-	// ~ Constructors
-	// ===================================================================================================
-
-	public AccessControlEntryImpl(Serializable id, Acl acl, Sid sid,
-			Permission permission, boolean granting, boolean auditSuccess,
-			boolean auditFailure) {
+	public AccessControlEntryImpl(Serializable id, Acl acl, Sid sid, Permission permission, boolean granting,
+			boolean auditSuccess, boolean auditFailure) {
 		Assert.notNull(acl, "Acl required");
 		Assert.notNull(sid, "Sid required");
 		Assert.notNull(permission, "Permission required");
@@ -61,78 +60,66 @@ public class AccessControlEntryImpl implements AccessControlEntry,
 		this.auditFailure = auditFailure;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Override
 	public boolean equals(Object arg0) {
 		if (!(arg0 instanceof AccessControlEntryImpl)) {
 			return false;
 		}
-
-		AccessControlEntryImpl rhs = (AccessControlEntryImpl) arg0;
-
+		AccessControlEntryImpl other = (AccessControlEntryImpl) arg0;
 		if (this.acl == null) {
-			if (rhs.getAcl() != null) {
+			if (other.getAcl() != null) {
 				return false;
 			}
 			// Both this.acl and rhs.acl are null and thus equal
 		}
 		else {
 			// this.acl is non-null
-			if (rhs.getAcl() == null) {
+			if (other.getAcl() == null) {
 				return false;
 			}
 
 			// Both this.acl and rhs.acl are non-null, so do a comparison
 			if (this.acl.getObjectIdentity() == null) {
-				if (rhs.acl.getObjectIdentity() != null) {
+				if (other.acl.getObjectIdentity() != null) {
 					return false;
 				}
 				// Both this.acl and rhs.acl are null and thus equal
 			}
 			else {
 				// Both this.acl.objectIdentity and rhs.acl.objectIdentity are non-null
-				if (!this.acl.getObjectIdentity()
-						.equals(rhs.getAcl().getObjectIdentity())) {
+				if (!this.acl.getObjectIdentity().equals(other.getAcl().getObjectIdentity())) {
 					return false;
 				}
 			}
 		}
-
 		if (this.id == null) {
-			if (rhs.id != null) {
+			if (other.id != null) {
 				return false;
 			}
 			// Both this.id and rhs.id are null and thus equal
 		}
 		else {
 			// this.id is non-null
-			if (rhs.id == null) {
+			if (other.id == null) {
 				return false;
 			}
-
 			// Both this.id and rhs.id are non-null
-			if (!this.id.equals(rhs.id)) {
+			if (!this.id.equals(other.id)) {
 				return false;
 			}
 		}
-
-		if ((this.auditFailure != rhs.isAuditFailure())
-				|| (this.auditSuccess != rhs.isAuditSuccess())
-				|| (this.granting != rhs.isGranting())
-				|| !this.permission.equals(rhs.getPermission())
-				|| !this.sid.equals(rhs.getSid())) {
+		if ((this.auditFailure != other.isAuditFailure()) || (this.auditSuccess != other.isAuditSuccess())
+				|| (this.granting != other.isGranting()) || !this.permission.equals(other.getPermission())
+				|| !this.sid.equals(other.getSid())) {
 			return false;
 		}
-
 		return true;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = this.permission.hashCode();
-		result = 31 * result + (this.id != null ? this.id.hashCode() : 0);
+		result = 31 * result + ((this.id != null) ? this.id.hashCode() : 0);
 		result = 31 * result + (this.sid.hashCode());
 		result = 31 * result + (this.auditFailure ? 1 : 0);
 		result = 31 * result + (this.auditSuccess ? 1 : 0);
@@ -142,37 +129,37 @@ public class AccessControlEntryImpl implements AccessControlEntry,
 
 	@Override
 	public Acl getAcl() {
-		return acl;
+		return this.acl;
 	}
 
 	@Override
 	public Serializable getId() {
-		return id;
+		return this.id;
 	}
 
 	@Override
 	public Permission getPermission() {
-		return permission;
+		return this.permission;
 	}
 
 	@Override
 	public Sid getSid() {
-		return sid;
+		return this.sid;
 	}
 
 	@Override
 	public boolean isAuditFailure() {
-		return auditFailure;
+		return this.auditFailure;
 	}
 
 	@Override
 	public boolean isAuditSuccess() {
-		return auditSuccess;
+		return this.auditSuccess;
 	}
 
 	@Override
 	public boolean isGranting() {
-		return granting;
+		return this.granting;
 	}
 
 	void setAuditFailure(boolean auditFailure) {
@@ -199,7 +186,7 @@ public class AccessControlEntryImpl implements AccessControlEntry,
 		sb.append("auditSuccess: ").append(this.auditSuccess).append("; ");
 		sb.append("auditFailure: ").append(this.auditFailure);
 		sb.append("]");
-
 		return sb.toString();
 	}
+
 }

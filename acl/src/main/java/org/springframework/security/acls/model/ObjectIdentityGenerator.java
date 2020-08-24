@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.model;
 
 import java.io.Serializable;
@@ -30,7 +31,6 @@ import java.io.Serializable;
 public interface ObjectIdentityGenerator {
 
 	/**
-	 *
 	 * @param id the identifier of the domain object, not null
 	 * @param type the type of the object (often a class name), not null
 	 * @return the identity constructed using the supplied identifier and type

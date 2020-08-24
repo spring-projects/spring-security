@@ -16,11 +16,13 @@
 
 package org.springframework.security.cas.web;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
+
 import org.springframework.security.cas.SamlServiceProperties;
 import org.springframework.security.cas.ServiceProperties;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link ServiceProperties}.
@@ -28,8 +30,6 @@ import org.springframework.security.cas.ServiceProperties;
  * @author Ben Alex
  */
 public class ServicePropertiesTests {
-	// ~ Methods
-	// ========================================================================================================
 
 	@Test(expected = IllegalArgumentException.class)
 	public void detectsMissingService() throws Exception {
@@ -68,11 +68,10 @@ public class ServicePropertiesTests {
 			assertThat(sp.getArtifactParameter()).isEqualTo("notticket");
 			sp.setServiceParameter("notservice");
 			assertThat(sp.getServiceParameter()).isEqualTo("notservice");
-
 			sp.setService("https://mycompany.com/service");
 			assertThat(sp.getService()).isEqualTo("https://mycompany.com/service");
-
 			sp.afterPropertiesSet();
 		}
 	}
+
 }

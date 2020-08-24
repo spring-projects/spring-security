@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.ppolicy;
 
 /**
@@ -20,7 +21,9 @@ package org.springframework.security.ldap.ppolicy;
  * @since 3.0
  */
 public interface PasswordPolicyData {
+
 	int getTimeBeforeExpiration();
 
 	int getGraceLoginsRemaining();
+
 }

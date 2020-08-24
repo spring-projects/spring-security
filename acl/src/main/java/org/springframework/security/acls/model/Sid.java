@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.model;
 
 import java.io.Serializable;
@@ -31,24 +32,22 @@ import java.io.Serializable;
  * @author Ben Alex
  */
 public interface Sid extends Serializable {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Refer to the <code>java.lang.Object</code> documentation for the interface
 	 * contract.
-	 *
 	 * @param obj to be compared
-	 *
 	 * @return <code>true</code> if the objects are equal, <code>false</code> otherwise
 	 */
+	@Override
 	boolean equals(Object obj);
 
 	/**
 	 * Refer to the <code>java.lang.Object</code> documentation for the interface
 	 * contract.
-	 *
 	 * @return a hash code representation of this object
 	 */
+	@Override
 	int hashCode();
+
 }

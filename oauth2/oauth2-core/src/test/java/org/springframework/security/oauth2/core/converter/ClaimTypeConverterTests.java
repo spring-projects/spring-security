@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.core.converter;
 
-import org.assertj.core.util.Lists;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.convert.converter.Converter;
+package org.springframework.security.oauth2.core.converter;
 
 import java.net.URL;
 import java.time.Instant;
@@ -28,8 +23,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.assertj.core.util.Lists;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.Converter;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link ClaimTypeConverter}.
@@ -38,13 +40,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @since 5.2
  */
 public class ClaimTypeConverterTests {
+
 	private static final String STRING_CLAIM = "string-claim";
+
 	private static final String BOOLEAN_CLAIM = "boolean-claim";
+
 	private static final String INSTANT_CLAIM = "instant-claim";
+
 	private static final String URL_CLAIM = "url-claim";
+
 	private static final String COLLECTION_STRING_CLAIM = "collection-string-claim";
+
 	private static final String LIST_STRING_CLAIM = "list-string-claim";
+
 	private static final String MAP_STRING_OBJECT_CLAIM = "map-string-object-claim";
+
 	private ClaimTypeConverter claimTypeConverter;
 
 	@Before
@@ -58,9 +68,8 @@ public class ClaimTypeConverterTests {
 				TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf(String.class)));
 		Converter<Object, ?> listStringConverter = getConverter(
 				TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(String.class)));
-		Converter<Object, ?> mapStringObjectConverter = getConverter(
-				TypeDescriptor.map(Map.class, TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Object.class)));
-
+		Converter<Object, ?> mapStringObjectConverter = getConverter(TypeDescriptor.map(Map.class,
+				TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Object.class)));
 		Map<String, Converter<Object, ?>> claimTypeConverters = new HashMap<>();
 		claimTypeConverters.put(STRING_CLAIM, stringConverter);
 		claimTypeConverters.put(BOOLEAN_CLAIM, booleanConverter);
@@ -74,21 +83,20 @@ public class ClaimTypeConverterTests {
 
 	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
 		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
-		return source -> ClaimConversionService.getSharedInstance().convert(source, sourceDescriptor, targetDescriptor);
+		return (source) -> ClaimConversionService.getSharedInstance().convert(source, sourceDescriptor,
+				targetDescriptor);
 	}
 
 	@Test
 	public void constructorWhenConvertersNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new ClaimTypeConverter(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ClaimTypeConverter(null));
 	}
 
 	@Test
 	public void constructorWhenConvertersHasNullConverterThenThrowIllegalArgumentException() {
 		Map<String, Converter<Object, ?>> claimTypeConverters = new HashMap<>();
 		claimTypeConverters.put("claim1", null);
-		assertThatThrownBy(() -> new ClaimTypeConverter(claimTypeConverters))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ClaimTypeConverter(claimTypeConverters));
 	}
 
 	@Test
@@ -107,7 +115,6 @@ public class ClaimTypeConverterTests {
 		mapIntegerObject.put(1, "value1");
 		Map<String, Object> mapStringObject = new HashMap<>();
 		mapStringObject.put("1", "value1");
-
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(STRING_CLAIM, Boolean.TRUE);
 		claims.put(BOOLEAN_CLAIM, "true");
@@ -116,9 +123,7 @@ public class ClaimTypeConverterTests {
 		claims.put(COLLECTION_STRING_CLAIM, listNumber);
 		claims.put(LIST_STRING_CLAIM, listNumber);
 		claims.put(MAP_STRING_OBJECT_CLAIM, mapIntegerObject);
-
 		claims = this.claimTypeConverter.convert(claims);
-
 		assertThat(claims.get(STRING_CLAIM)).isEqualTo("true");
 		assertThat(claims.get(BOOLEAN_CLAIM)).isEqualTo(Boolean.TRUE);
 		assertThat(claims.get(INSTANT_CLAIM)).isEqualTo(instant);
@@ -137,7 +142,6 @@ public class ClaimTypeConverterTests {
 		List<String> listString = Lists.list("1", "2", "3", "4");
 		Map<String, Object> mapStringObject = new HashMap<>();
 		mapStringObject.put("1", "value1");
-
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(STRING_CLAIM, string);
 		claims.put(BOOLEAN_CLAIM, bool);
@@ -146,9 +150,7 @@ public class ClaimTypeConverterTests {
 		claims.put(COLLECTION_STRING_CLAIM, listString);
 		claims.put(LIST_STRING_CLAIM, listString);
 		claims.put(MAP_STRING_OBJECT_CLAIM, mapStringObject);
-
 		claims = this.claimTypeConverter.convert(claims);
-
 		assertThat(claims.get(STRING_CLAIM)).isSameAs(string);
 		assertThat(claims.get(BOOLEAN_CLAIM)).isSameAs(bool);
 		assertThat(claims.get(INSTANT_CLAIM)).isSameAs(instant);
@@ -162,9 +164,8 @@ public class ClaimTypeConverterTests {
 	public void convertWhenConverterNotAvailableThenDoesNotConvert() {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("claim1", "value1");
-
 		claims = this.claimTypeConverter.convert(claims);
-
 		assertThat(claims.get("claim1")).isSameAs("value1");
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.firewall;
 
 import javax.servlet.http.Cookie;
@@ -33,65 +34,60 @@ import static org.mockito.Mockito.verify;
  * @author Gabriel Lavoie
  */
 public class FirewalledResponseTests {
+
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
 
 	private HttpServletResponse response;
+
 	private FirewalledResponse fwResponse;
 
 	@Before
 	public void setup() {
-		response = mock(HttpServletResponse.class);
-		fwResponse = new FirewalledResponse(response);
+		this.response = mock(HttpServletResponse.class);
+		this.fwResponse = new FirewalledResponse(this.response);
 	}
 
 	@Test
 	public void sendRedirectWhenValidThenNoException() throws Exception {
-		fwResponse.sendRedirect("/theURL");
-
-		verify(response).sendRedirect("/theURL");
+		this.fwResponse.sendRedirect("/theURL");
+		verify(this.response).sendRedirect("/theURL");
 	}
 
 	@Test
 	public void sendRedirectWhenNullThenDelegateInvoked() throws Exception {
-		fwResponse.sendRedirect(null);
-
-		verify(response).sendRedirect(null);
+		this.fwResponse.sendRedirect(null);
+		verify(this.response).sendRedirect(null);
 	}
 
 	@Test
 	public void sendRedirectWhenHasCrlfThenThrowsException() throws Exception {
 		expectCrlfValidationException();
-
-		fwResponse.sendRedirect("/theURL\r\nsomething");
+		this.fwResponse.sendRedirect("/theURL\r\nsomething");
 	}
 
 	@Test
 	public void addHeaderWhenValidThenDelegateInvoked() {
-		fwResponse.addHeader("foo", "bar");
-
-		verify(response).addHeader("foo", "bar");
+		this.fwResponse.addHeader("foo", "bar");
+		verify(this.response).addHeader("foo", "bar");
 	}
 
 	@Test
 	public void addHeaderWhenNullValueThenDelegateInvoked() {
-		fwResponse.addHeader("foo", null);
-
-		verify(response).addHeader("foo", null);
+		this.fwResponse.addHeader("foo", null);
+		verify(this.response).addHeader("foo", null);
 	}
 
 	@Test
 	public void addHeaderWhenHeaderValueHasCrlfThenException() {
 		expectCrlfValidationException();
-
-		fwResponse.addHeader("foo", "abc\r\nContent-Length:100");
+		this.fwResponse.addHeader("foo", "abc\r\nContent-Length:100");
 	}
 
 	@Test
 	public void addHeaderWhenHeaderNameHasCrlfThenException() {
 		expectCrlfValidationException();
-
-		fwResponse.addHeader("abc\r\nContent-Length:100", "bar");
+		this.fwResponse.addHeader("abc\r\nContent-Length:100", "bar");
 	}
 
 	@Test
@@ -100,16 +96,14 @@ public class FirewalledResponseTests {
 		cookie.setPath("/foobar");
 		cookie.setDomain("foobar");
 		cookie.setComment("foobar");
-
-		fwResponse.addCookie(cookie);
-
-		verify(response).addCookie(cookie);
+		this.fwResponse.addCookie(cookie);
+		verify(this.response).addCookie(cookie);
 	}
+
 	@Test
 	public void addCookieWhenNullThenDelegateInvoked() {
-		fwResponse.addCookie(null);
-
-		verify(response).addCookie(null);
+		this.fwResponse.addCookie(null);
+		verify(this.response).addCookie(null);
 	}
 
 	@Test
@@ -120,19 +114,16 @@ public class FirewalledResponseTests {
 			public String getName() {
 				return "foo\r\nbar";
 			}
-
 		};
 		expectCrlfValidationException();
-
-		fwResponse.addCookie(cookie);
+		this.fwResponse.addCookie(cookie);
 	}
 
 	@Test
 	public void addCookieWhenCookieValueContainsCrlfThenException() {
 		Cookie cookie = new Cookie("foo", "foo\r\nbar");
 		expectCrlfValidationException();
-
-		fwResponse.addCookie(cookie);
+		this.fwResponse.addCookie(cookie);
 	}
 
 	@Test
@@ -140,8 +131,7 @@ public class FirewalledResponseTests {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setPath("/foo\r\nbar");
 		expectCrlfValidationException();
-
-		fwResponse.addCookie(cookie);
+		this.fwResponse.addCookie(cookie);
 	}
 
 	@Test
@@ -149,8 +139,7 @@ public class FirewalledResponseTests {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setDomain("foo\r\nbar");
 		expectCrlfValidationException();
-
-		fwResponse.addCookie(cookie);
+		this.fwResponse.addCookie(cookie);
 	}
 
 	@Test
@@ -158,8 +147,7 @@ public class FirewalledResponseTests {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setComment("foo\r\nbar");
 		expectCrlfValidationException();
-
-		fwResponse.addCookie(cookie);
+		this.fwResponse.addCookie(cookie);
 	}
 
 	@Test
@@ -167,23 +155,23 @@ public class FirewalledResponseTests {
 		validateLineEnding("foo", "foo\rbar");
 		validateLineEnding("foo", "foo\r\nbar");
 		validateLineEnding("foo", "foo\nbar");
-
 		validateLineEnding("foo\rbar", "bar");
 		validateLineEnding("foo\r\nbar", "bar");
 		validateLineEnding("foo\nbar", "bar");
 	}
 
 	private void expectCrlfValidationException() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Invalid characters (CR/LF)");
+		this.expectedException.expect(IllegalArgumentException.class);
+		this.expectedException.expectMessage("Invalid characters (CR/LF)");
 	}
 
 	private void validateLineEnding(String name, String value) {
 		try {
-			fwResponse.validateCrlf(name, value);
+			this.fwResponse.validateCrlf(name, value);
 			fail("IllegalArgumentException should have thrown");
 		}
 		catch (IllegalArgumentException expected) {
 		}
 	}
+
 }

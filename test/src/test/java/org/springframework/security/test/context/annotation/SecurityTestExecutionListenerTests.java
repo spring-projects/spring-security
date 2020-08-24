@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.context.annotation;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.security.Principal;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
-import java.security.Principal;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SecurityTestExecutionListeners
@@ -39,16 +41,12 @@ public class SecurityTestExecutionListenerTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
 	}
 
-
 	@WithMockUser
 	@Test
 	public void reactorContextTestSecurityContextHolderExecutionListenerTestIsRegistered() {
-		Mono<String> name = ReactiveSecurityContextHolder.getContext()
-			.map(SecurityContext::getAuthentication)
-			.map(Principal::getName);
-
-		StepVerifier.create(name)
-			.expectNext("user")
-			.verifyComplete();
+		Mono<String> name = ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
+				.map(Principal::getName);
+		StepVerifier.create(name).expectNext("user").verifyComplete();
 	}
+
 }

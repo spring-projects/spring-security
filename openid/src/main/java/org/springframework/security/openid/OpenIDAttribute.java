@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.openid;
 
 import java.io.Serializable;
@@ -27,16 +28,22 @@ import org.springframework.util.Assert;
  * should be requested during a fetch request, or to hold values for an attribute which
  * are returned during the authentication process.
  *
- * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
  * @author Luke Taylor
  * @since 3.0
+ * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public class OpenIDAttribute implements Serializable {
+
 	private final String name;
+
 	private final String typeIdentifier;
+
 	private boolean required = false;
+
 	private int count = 1;
 
 	private final List<String> values;
@@ -58,14 +65,14 @@ public class OpenIDAttribute implements Serializable {
 	 * The attribute name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
 	 * The attribute type Identifier (a URI).
 	 */
 	public String getType() {
-		return typeIdentifier;
+		return this.typeIdentifier;
 	}
 
 	/**
@@ -73,7 +80,7 @@ public class OpenIDAttribute implements Serializable {
 	 * Defaults to "false".
 	 */
 	public boolean isRequired() {
-		return required;
+		return this.required;
 	}
 
 	public void setRequired(boolean required) {
@@ -85,7 +92,7 @@ public class OpenIDAttribute implements Serializable {
 	 * request. Defaults to 1.
 	 */
 	public int getCount() {
-		return count;
+		return this.count;
 	}
 
 	public void setCount(int count) {
@@ -96,20 +103,20 @@ public class OpenIDAttribute implements Serializable {
 	 * The values obtained from an attribute exchange.
 	 */
 	public List<String> getValues() {
-		Assert.notNull(values,
-				"Cannot read values from an authentication request attribute");
-		return values;
+		Assert.notNull(this.values, "Cannot read values from an authentication request attribute");
+		return this.values;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder("[");
-		result.append(name);
-		if (values != null) {
+		result.append(this.name);
+		if (this.values != null) {
 			result.append(":");
-			result.append(values.toString());
+			result.append(this.values.toString());
 		}
 		result.append("]");
 		return result.toString();
 	}
+
 }

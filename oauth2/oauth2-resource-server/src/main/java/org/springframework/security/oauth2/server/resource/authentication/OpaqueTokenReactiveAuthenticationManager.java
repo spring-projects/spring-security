@@ -30,29 +30,29 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.util.Assert;
 
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.EXPIRES_AT;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.ISSUED_AT;
-
 /**
  * An {@link ReactiveAuthenticationManager} implementation for opaque
- * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>s,
- * using an
- * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection Endpoint</a>
- * to check the token's validity and reveal its attributes.
+ * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
+ * Token</a>s, using an
+ * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection
+ * Endpoint</a> to check the token's validity and reveal its attributes.
  * <p>
- * This {@link ReactiveAuthenticationManager} is responsible for introspecting and verifying an opaque access token,
- * returning its attributes set as part of the {@link Authentication} statement.
+ * This {@link ReactiveAuthenticationManager} is responsible for introspecting and
+ * verifying an opaque access token, returning its attributes set as part of the
+ * {@link Authentication} statement.
  * <p>
- * Scopes are translated into {@link GrantedAuthority}s according to the following algorithm:
+ * Scopes are translated into {@link GrantedAuthority}s according to the following
+ * algorithm:
  * <ol>
- * <li>
- * If there is a "scope" attribute, then convert to a {@link Collection} of {@link String}s.
- * <li>
- * Take the resulting {@link Collection} and prepend the "SCOPE_" keyword to each element, adding as {@link GrantedAuthority}s.
+ * <li>If there is a "scope" attribute, then convert to a {@link Collection} of
+ * {@link String}s.
+ * <li>Take the resulting {@link Collection} and prepend the "SCOPE_" keyword to each
+ * element, adding as {@link GrantedAuthority}s.
  * </ol>
  *
  * @author Josh Cummings
@@ -60,11 +60,12 @@ import static org.springframework.security.oauth2.server.resource.introspection.
  * @see ReactiveAuthenticationManager
  */
 public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthenticationManager {
+
 	private ReactiveOpaqueTokenIntrospector introspector;
 
 	/**
-	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided parameters
-	 *
+	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
+	 * parameters
 	 * @param introspector The {@link ReactiveOpaqueTokenIntrospector} to use
 	 */
 	public OpaqueTokenReactiveAuthenticationManager(ReactiveOpaqueTokenIntrospector introspector) {
@@ -74,33 +75,35 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
+		// @formatter:off
 		return Mono.justOrEmpty(authentication)
 				.filter(BearerTokenAuthenticationToken.class::isInstance)
 				.cast(BearerTokenAuthenticationToken.class)
 				.map(BearerTokenAuthenticationToken::getToken)
 				.flatMap(this::authenticate)
 				.cast(Authentication.class);
+		// @formatter:on
 	}
 
 	private Mono<BearerTokenAuthentication> authenticate(String token) {
+		// @formatter:off
 		return this.introspector.introspect(token)
-				.map(principal -> {
-					Instant iat = principal.getAttribute(ISSUED_AT);
-					Instant exp = principal.getAttribute(EXPIRES_AT);
-
+				.map((principal) -> {
+					Instant iat = principal.getAttribute(OAuth2IntrospectionClaimNames.ISSUED_AT);
+					Instant exp = principal.getAttribute(OAuth2IntrospectionClaimNames.EXPIRES_AT);
 					// construct token
-					OAuth2AccessToken accessToken =
-							new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
+					OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
 					return new BearerTokenAuthentication(principal, accessToken, principal.getAuthorities());
 				})
 				.onErrorMap(OAuth2IntrospectionException.class, this::onError);
+		// @formatter:on
 	}
 
-	private AuthenticationException onError(OAuth2IntrospectionException e) {
-		if (e instanceof BadOpaqueTokenException) {
-			return new InvalidBearerTokenException(e.getMessage(), e);
-		} else {
-			return new AuthenticationServiceException(e.getMessage(), e);
+	private AuthenticationException onError(OAuth2IntrospectionException ex) {
+		if (ex instanceof BadOpaqueTokenException) {
+			return new InvalidBearerTokenException(ex.getMessage(), ex);
 		}
+		return new AuthenticationServiceException(ex.getMessage(), ex);
 	}
+
 }

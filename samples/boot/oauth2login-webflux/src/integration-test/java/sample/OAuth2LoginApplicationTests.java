@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import org.junit.Test;
@@ -45,7 +46,7 @@ public class OAuth2LoginApplicationTests {
 	@Test
 	public void requestWhenMockOidcLoginThenIndex() {
 		this.clientRegistrationRepository.findByRegistrationId("github")
-				.map(clientRegistration ->
+				.map((clientRegistration) -> 
 						this.test.mutateWith(mockOAuth2Login().clientRegistration(clientRegistration))
 							.get().uri("/")
 							.exchange()

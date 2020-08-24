@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.csrf;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,11 +32,10 @@ public class InvalidCsrfTokenException extends CsrfException {
 	 * @param expectedAccessToken
 	 * @param actualAccessToken
 	 */
-	public InvalidCsrfTokenException(CsrfToken expectedAccessToken,
-			String actualAccessToken) {
-		super("Invalid CSRF Token '" + actualAccessToken
-				+ "' was found on the request parameter '"
-				+ expectedAccessToken.getParameterName() + "' or header '"
-				+ expectedAccessToken.getHeaderName() + "'.");
+	public InvalidCsrfTokenException(CsrfToken expectedAccessToken, String actualAccessToken) {
+		super("Invalid CSRF Token '" + actualAccessToken + "' was found on the request parameter '"
+				+ expectedAccessToken.getParameterName() + "' or header '" + expectedAccessToken.getHeaderName()
+				+ "'.");
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.model;
 
 import java.io.Serializable;
@@ -32,15 +33,13 @@ import java.io.Serializable;
  * @author Ben Alex
  */
 public interface ObjectIdentity extends Serializable {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * @param obj to be compared
-	 *
 	 * @return <tt>true</tt> if the objects are equal, <tt>false</tt> otherwise
 	 * @see Object#equals(Object)
 	 */
+	@Override
 	boolean equals(Object obj);
 
 	/**
@@ -53,7 +52,6 @@ public interface ObjectIdentity extends Serializable {
 	 * identifier with business meaning, as that business meaning may change in the future
 	 * such change will cascade to the ACL subsystem data.
 	 * </p>
-	 *
 	 * @return the identifier (unique within this <tt>type</tt>; never <tt>null</tt>)
 	 */
 	Serializable getIdentifier();
@@ -62,7 +60,6 @@ public interface ObjectIdentity extends Serializable {
 	 * Obtains the "type" metadata for the domain object. This will often be a Java type
 	 * name (an interface or a class) &ndash; traditionally it is the name of the domain
 	 * object implementation class.
-	 *
 	 * @return the "type" of the domain object (never <tt>null</tt>).
 	 */
 	String getType();
@@ -71,5 +68,7 @@ public interface ObjectIdentity extends Serializable {
 	 * @return a hash code representation of the <tt>ObjectIdentity</tt>
 	 * @see Object#hashCode()
 	 */
+	@Override
 	int hashCode();
+
 }

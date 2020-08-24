@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
@@ -31,34 +32,35 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class WebFilterExchangeTests {
+
 	@Mock
 	private ServerWebExchange exchange;
+
 	@Mock
 	private WebFilterChain chain;
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorServerWebExchangeWebFilterChainWhenExchangeNullThenException() {
-		this. exchange = null;
+		this.exchange = null;
 		new WebFilterExchange(this.exchange, this.chain);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorServerWebExchangeWebFilterChainWhenChainNullThenException() {
-		this. chain = null;
+		this.chain = null;
 		new WebFilterExchange(this.exchange, this.chain);
 	}
 
 	@Test
 	public void getExchange() {
 		WebFilterExchange filterExchange = new WebFilterExchange(this.exchange, this.chain);
-
 		assertThat(filterExchange.getExchange()).isEqualTo(this.exchange);
 	}
 
 	@Test
 	public void getChain() {
 		WebFilterExchange filterExchange = new WebFilterExchange(this.exchange, this.chain);
-
 		assertThat(filterExchange.getChain()).isEqualTo(this.chain);
 	}
+
 }

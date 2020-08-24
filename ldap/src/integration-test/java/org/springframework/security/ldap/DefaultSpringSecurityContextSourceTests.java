@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.ldap;
 
-import static org.assertj.core.api.Assertions.*;
+package org.springframework.security.ldap;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -31,6 +30,8 @@ import org.springframework.ldap.AuthenticationException;
 import org.springframework.ldap.core.support.AbstractContextSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor
@@ -53,8 +54,7 @@ public class DefaultSpringSecurityContextSourceTests {
 
 	@Test
 	public void supportsSpacesInUrl() {
-		new DefaultSpringSecurityContextSource(
-				"ldap://myhost:10389/dc=spring%20framework,dc=org");
+		new DefaultSpringSecurityContextSource("ldap://myhost:10389/dc=spring%20framework,dc=org");
 	}
 
 	@Test
@@ -64,8 +64,8 @@ public class DefaultSpringSecurityContextSourceTests {
 		ctxSrc.setUserDn("manager");
 		ctxSrc.setPassword("password");
 		ctxSrc.afterPropertiesSet();
-		assertThat(ctxSrc.getAuthenticatedEnvForTest("manager", "password")).containsKey(
-				AbstractContextSource.SUN_LDAP_POOLING_FLAG);
+		assertThat(ctxSrc.getAuthenticatedEnvForTest("manager", "password"))
+				.containsKey(AbstractContextSource.SUN_LDAP_POOLING_FLAG);
 	}
 
 	@Test
@@ -75,47 +75,41 @@ public class DefaultSpringSecurityContextSourceTests {
 		ctxSrc.setUserDn("manager");
 		ctxSrc.setPassword("password");
 		ctxSrc.afterPropertiesSet();
-		assertThat(ctxSrc.getAuthenticatedEnvForTest("user", "password")).doesNotContainKey(
-				AbstractContextSource.SUN_LDAP_POOLING_FLAG);
+		assertThat(ctxSrc.getAuthenticatedEnvForTest("user", "password"))
+				.doesNotContainKey(AbstractContextSource.SUN_LDAP_POOLING_FLAG);
 	}
 
 	// SEC-1145. Confirms that there is no issue here with pooling.
 	@Test(expected = AuthenticationException.class)
-	public void cantBindWithWrongPasswordImmediatelyAfterSuccessfulBind()
-			throws Exception {
+	public void cantBindWithWrongPasswordImmediatelyAfterSuccessfulBind() throws Exception {
 		DirContext ctx = null;
 		try {
-			ctx = this.contextSource.getContext(
-					"uid=Bob,ou=people,dc=springframework,dc=org", "bobspassword");
+			ctx = this.contextSource.getContext("uid=Bob,ou=people,dc=springframework,dc=org", "bobspassword");
 		}
-		catch (Exception e) {
+		catch (Exception ex) {
 		}
 		assertThat(ctx).isNotNull();
 		// com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
 		ctx.close();
 		// com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
 		// Now get it gain, with wrong password. Should fail.
-		ctx = this.contextSource.getContext(
-				"uid=Bob,ou=people,dc=springframework,dc=org", "wrongpassword");
+		ctx = this.contextSource.getContext("uid=Bob,ou=people,dc=springframework,dc=org", "wrongpassword");
 		ctx.close();
 	}
 
 	@Test
 	public void serverUrlWithSpacesIsSupported() {
 		DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
-				this.contextSource.getUrls()[0]
-						+ "ou=space%20cadets,dc=springframework,dc=org");
+				this.contextSource.getUrls()[0] + "ou=space%20cadets,dc=springframework,dc=org");
 		contextSource.afterPropertiesSet();
-		contextSource.getContext(
-				"uid=space cadet,ou=space cadets,dc=springframework,dc=org",
-				"spacecadetspassword");
+		contextSource.getContext("uid=space cadet,ou=space cadets,dc=springframework,dc=org", "spacecadetspassword");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void instantiationFailsWithEmptyServerList() {
 		List<String> serverUrls = new ArrayList<>();
-		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(
-				serverUrls, "dc=springframework,dc=org");
+		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(serverUrls,
+				"dc=springframework,dc=org");
 		ctxSrc.afterPropertiesSet();
 	}
 
@@ -125,8 +119,8 @@ public class DefaultSpringSecurityContextSourceTests {
 		serverUrls.add("ldap://foo:789");
 		serverUrls.add("ldap://bar:389");
 		serverUrls.add("ldaps://blah:636");
-		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(
-				serverUrls, "dc=springframework,dc=org");
+		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(serverUrls,
+				"dc=springframework,dc=org");
 
 		assertThat(ctxSrc.isAnonymousReadOnly()).isFalse();
 		assertThat(ctxSrc.isPooled()).isTrue();
@@ -140,8 +134,7 @@ public class DefaultSpringSecurityContextSourceTests {
 		serverUrls.add("ldap://foo:789");
 		serverUrls.add("ldap://bar:389");
 		serverUrls.add("ldaps://blah:636");
-		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(
-				serverUrls, baseDn);
+		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(serverUrls, baseDn);
 
 		assertThat(ctxSrc.isAnonymousReadOnly()).isFalse();
 		assertThat(ctxSrc.isPooled()).isTrue();
@@ -154,12 +147,12 @@ public class DefaultSpringSecurityContextSourceTests {
 		serverUrls.add("ldaps://blah:636/");
 		// this url should be rejected because the root DN goes into a separate parameter
 		serverUrls.add("ldap://bar:389/dc=foobar,dc=org");
-		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(
-				serverUrls, "dc=springframework,dc=org");
+		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(serverUrls,
+				"dc=springframework,dc=org");
 	}
 
-	static class EnvExposingDefaultSpringSecurityContextSource extends
-			DefaultSpringSecurityContextSource {
+	static class EnvExposingDefaultSpringSecurityContextSource extends DefaultSpringSecurityContextSource {
+
 		EnvExposingDefaultSpringSecurityContextSource(String providerUrl) {
 			super(providerUrl);
 		}
@@ -168,5 +161,7 @@ public class DefaultSpringSecurityContextSourceTests {
 		Hashtable getAuthenticatedEnvForTest(String userDn, String password) {
 			return getAuthenticatedEnv(userDn, password);
 		}
+
 	}
+
 }

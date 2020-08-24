@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.endpoint;
 
 import java.time.Instant;
@@ -35,7 +36,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link DefaultClientCredentialsTokenResponseClient}.
@@ -43,8 +45,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Joe Grandja
  */
 public class DefaultClientCredentialsTokenResponseClientTests {
+
 	private DefaultClientCredentialsTokenResponseClient tokenResponseClient = new DefaultClientCredentialsTokenResponseClient();
+
 	private ClientRegistration clientRegistration;
+
 	private MockWebServer server;
 
 	@Before
@@ -52,6 +57,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		String tokenUri = this.server.url("/oauth2/token").toString();
+		// @formatter:off
 		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1")
 				.clientId("client-1")
 				.clientSecret("secret")
@@ -60,6 +66,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 				.scope("read", "write")
 				.tokenUri(tokenUri)
 				.build();
+		// @formatter:on
 	}
 
 	@After
@@ -69,52 +76,52 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 
 	@Test
 	public void setRequestEntityConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.tokenResponseClient.setRequestEntityConverter(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.tokenResponseClient.setRequestEntityConverter(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void setRestOperationsWhenRestOperationsIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.tokenResponseClient.setRestOperations(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.tokenResponseClient.setRestOperations(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void getTokenResponseWhenRequestIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.getTokenResponse(null));
 	}
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseThenReturnAccessTokenResponse() throws Exception {
-		String accessTokenSuccessResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\",\n" +
-				"   \"scope\": \"read write\",\n" +
-				"   \"custom_parameter_1\": \"custom-value-1\",\n" +
-				"   \"custom_parameter_2\": \"custom-value-2\"\n" +
-				"}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"read write\",\n"
+			+ "   \"custom_parameter_1\": \"custom-value-1\",\n"
+			+ "   \"custom_parameter_2\": \"custom-value-2\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
-
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
-
-		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
-
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration);
+		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
+				.getTokenResponse(clientCredentialsGrantRequest);
 		Instant expiresAtAfter = Instant.now().plusSeconds(3600);
-
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		assertThat(recordedRequest.getMethod()).isEqualTo(HttpMethod.POST.toString());
 		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
-		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
-
+		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE))
+				.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 		String formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters).contains("grant_type=client_credentials");
 		assertThat(formParameters).contains("scope=read+write");
-
 		assertThat(accessTokenResponse.getAccessToken().getTokenValue()).isEqualTo("access-token-1234");
 		assertThat(accessTokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBetween(expiresAtBefore, expiresAtAfter);
@@ -127,43 +134,38 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenClientAuthenticationBasicThenAuthorizationHeaderIsSent() throws Exception {
-		String accessTokenSuccessResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\"\n" +
-				"}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
-
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration);
 		this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
-
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		assertThat(recordedRequest.getHeader(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
 	}
 
 	@Test
 	public void getTokenResponseWhenClientAuthenticationPostThenFormParametersAreSent() throws Exception {
-		String accessTokenSuccessResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\"\n" +
-				"}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "	\"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
 		ClientRegistration clientRegistration = this.from(this.clientRegistration)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.POST)
-				.build();
-
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(clientRegistration);
-
+				.clientAuthenticationMethod(ClientAuthenticationMethod.POST).build();
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				clientRegistration);
 		this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
-
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		assertThat(recordedRequest.getHeader(HttpHeaders.AUTHORIZATION)).isNull();
-
 		String formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters).contains("client_id=client-1");
 		assertThat(formParameters).contains("client_secret=secret");
@@ -171,142 +173,136 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
-		String accessTokenSuccessResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"not-bearer\",\n" +
-				"   \"expires_in\": \"3600\"\n" +
-				"}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"not-bearer\",\n"
+			+ "   \"expires_in\": \"3600\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
-
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
-				.hasMessageContaining("tokenType cannot be null");
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
+				.withMessageContaining(
+						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
+				.withMessageContaining("tokenType cannot be null");
 	}
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndMissingTokenTypeParameterThenThrowOAuth2AuthorizationException() {
-		String accessTokenSuccessResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\"\n" +
-				"}\n";
+		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
-
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
-				.hasMessageContaining("tokenType cannot be null");
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
+				.withMessageContaining(
+						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
+				.withMessageContaining("tokenType cannot be null");
 	}
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseIncludesScopeThenAccessTokenHasResponseScope() {
-		String accessTokenSuccessResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\",\n" +
-				"   \"scope\": \"read\"\n" +
-				"}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"read\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
-
-		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
-
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration);
+		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
+				.getTokenResponse(clientCredentialsGrantRequest);
 		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("read");
 	}
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenAccessTokenHasDefaultScope() {
-		String accessTokenSuccessResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\"\n" +
-				"}\n";
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\"\n"
+			+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
-
-		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
-
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration);
+		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
+				.getTokenResponse(clientCredentialsGrantRequest);
 		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("read", "write");
 	}
 
 	@Test
 	public void getTokenResponseWhenTokenUriInvalidThenThrowOAuth2AuthorizationException() {
 		String invalidTokenUri = "https://invalid-provider.com/oauth2/token";
-		ClientRegistration clientRegistration = this.from(this.clientRegistration)
-				.tokenUri(invalidTokenUri)
-				.build();
-
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(clientRegistration);
-
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
+		ClientRegistration clientRegistration = this.from(this.clientRegistration).tokenUri(invalidTokenUri).build();
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				clientRegistration);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
+				.withMessageContaining(
+						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
 	}
 
 	@Test
 	public void getTokenResponseWhenMalformedResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenSuccessResponse = "{\n" +
-				"	\"access_token\": \"access-token-1234\",\n" +
-				"   \"token_type\": \"bearer\",\n" +
-				"   \"expires_in\": \"3600\",\n" +
-				"   \"scope\": \"read write\",\n" +
-				"   \"custom_parameter_1\": \"custom-value-1\",\n" +
-				"   \"custom_parameter_2\": \"custom-value-2\"\n";
-//			"}\n";		// Make the JSON invalid/malformed
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"read write\",\n"
+			+ "   \"custom_parameter_1\": \"custom-value-1\",\n"
+			+ "   \"custom_parameter_2\": \"custom-value-2\"\n";
+				// "}\n"; // Make the JSON invalid/malformed
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
-
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
+				.withMessageContaining(
+						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
 	}
 
 	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenErrorResponse = "{\n" +
-				"   \"error\": \"unauthorized_client\"\n" +
-				"}\n";
+		// @formatter:off
+		String accessTokenErrorResponse = "{\n"
+				+ "   \"error\": \"unauthorized_client\"\n"
+				+ "}\n";
+		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(400));
-
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
-
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining("[unauthorized_client]");
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
+				.withMessageContaining("[unauthorized_client]");
 	}
 
 	@Test
 	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() {
 		this.server.enqueue(new MockResponse().setResponseCode(500));
-
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
-
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
+				.withMessageContaining(
+						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
 	}
 
 	private MockResponse jsonResponse(String json) {
-		return new MockResponse()
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(json);
+		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
 	}
 
 	private ClientRegistration.Builder from(ClientRegistration registration) {
+		// @formatter:off
 		return ClientRegistration.withRegistrationId(registration.getRegistrationId())
 				.clientId(registration.getClientId())
 				.clientSecret(registration.getClientSecret())
@@ -314,5 +310,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 				.authorizationGrantType(registration.getAuthorizationGrantType())
 				.scope(registration.getScopes())
 				.tokenUri(registration.getProviderDetails().getTokenUri());
+		// @formatter:on
 	}
+
 }

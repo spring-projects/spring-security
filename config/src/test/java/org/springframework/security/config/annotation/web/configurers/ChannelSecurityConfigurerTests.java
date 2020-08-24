@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -55,40 +56,45 @@ public class ChannelSecurityConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnInsecureChannelProcessor() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(InsecureChannelProcessor.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(InsecureChannelProcessor.class));
 	}
 
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnSecureChannelProcessor() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(SecureChannelProcessor.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(SecureChannelProcessor.class));
 	}
 
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnChannelDecisionManagerImpl() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(ChannelDecisionManagerImpl.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ChannelDecisionManagerImpl.class));
 	}
 
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnChannelProcessingFilter() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ChannelProcessingFilter.class));
+	}
 
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(ChannelProcessingFilter.class));
+	@Test
+	public void requiresChannelWhenInvokesTwiceThenUsesOriginalRequiresSecure() throws Exception {
+		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class).autowire();
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
+	}
+
+	@Test
+	public void requestWhenRequiresChannelConfiguredInLambdaThenRedirectsToHttps() throws Exception {
+		this.spring.register(RequiresChannelInLambdaConfig.class).autowire();
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
 	}
 
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
 		static ObjectPostProcessor<Object> objectPostProcessor;
 
 		@Override
@@ -104,21 +110,16 @@ public class ChannelSecurityConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
 		}
-	}
 
-	@Test
-	public void requiresChannelWhenInvokesTwiceThenUsesOriginalRequiresSecure() throws Exception {
-		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class).autowire();
-
-		mvc.perform(get("/"))
-				.andExpect(redirectedUrl("https://localhost/"));
 	}
 
 	@EnableWebSecurity
@@ -134,14 +135,7 @@ public class ChannelSecurityConfigurerTests {
 				.requiresChannel();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void requestWhenRequiresChannelConfiguredInLambdaThenRedirectsToHttps() throws Exception {
-		this.spring.register(RequiresChannelInLambdaConfig.class).autowire();
-
-		mvc.perform(get("/"))
-				.andExpect(redirectedUrl("https://localhost/"));
 	}
 
 	@EnableWebSecurity
@@ -151,11 +145,13 @@ public class ChannelSecurityConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requiresChannel(requiresChannel ->
+				.requiresChannel((requiresChannel) ->
 					requiresChannel
 						.anyRequest().requiresSecure()
 			);
 			// @formatter:on
 		}
+
 	}
+
 }

@@ -30,8 +30,6 @@ import org.springframework.security.access.AccessDecisionManager;
  * @author Ben Alex
  */
 public interface GrantedAuthority extends Serializable {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * If the <code>GrantedAuthority</code> can be represented as a <code>String</code>
@@ -44,10 +42,10 @@ public interface GrantedAuthority extends Serializable {
 	 * <code>null</code> will require an <code>AccessDecisionManager</code> (or delegate)
 	 * to specifically support the <code>GrantedAuthority</code> implementation, so
 	 * returning <code>null</code> should be avoided unless actually required.
-	 *
 	 * @return a representation of the granted authority (or <code>null</code> if the
 	 * granted authority cannot be expressed as a <code>String</code> with sufficient
 	 * precision).
 	 */
 	String getAuthority();
+
 }

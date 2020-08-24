@@ -13,29 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.server.util.matcher;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+package org.springframework.security.web.server.util.matcher;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import org.springframework.core.log.LogMessage;
+import org.springframework.util.Assert;
+import org.springframework.web.server.ServerWebExchange;
+
 /**
  * Matches if all the provided {@link ServerWebExchangeMatcher} match
+ *
  * @author Rob Winch
  * @author Mathieu Ouellet
  * @since 5.0
  * @see OrServerWebExchangeMatcher
  */
 public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
+
 	private static final Log logger = LogFactory.getLog(AndServerWebExchangeMatcher.class);
+
 	private final List<ServerWebExchangeMatcher> matchers;
 
 	public AndServerWebExchangeMatcher(List<ServerWebExchangeMatcher> matchers) {
@@ -47,35 +53,23 @@ public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 		this(Arrays.asList(matchers));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher#matches(org.springframework.web.server.ServerWebExchange)
-	 */
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
 		return Mono.defer(() -> {
 			Map<String, Object> variables = new HashMap<>();
-			return Flux.fromIterable(matchers)
-				.doOnNext(it -> {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Trying to match using " + it);
-					}
-				})
-				.flatMap(matcher -> matcher.matches(exchange))
-				.doOnNext(matchResult -> variables.putAll(matchResult.getVariables()))
-				.all(MatchResult::isMatch)
-				.flatMap(allMatch -> allMatch ? MatchResult.match(variables) : MatchResult.notMatch())
-				.doOnNext(it -> {
-					if (logger.isDebugEnabled()) {
-						logger.debug(it.isMatch() ? "All requestMatchers returned true" : "Did not match");
-					}
-				});
+			return Flux.fromIterable(this.matchers)
+					.doOnNext((matcher) -> logger.debug(LogMessage.format("Trying to match using %s", matcher)))
+					.flatMap((matcher) -> matcher.matches(exchange))
+					.doOnNext((matchResult) -> variables.putAll(matchResult.getVariables())).all(MatchResult::isMatch)
+					.flatMap((allMatch) -> allMatch ? MatchResult.match(variables) : MatchResult.notMatch())
+					.doOnNext((matchResult) -> logger
+							.debug(matchResult.isMatch() ? "All requestMatchers returned true" : "Did not match"));
 		});
 	}
 
 	@Override
 	public String toString() {
-		return "AndServerWebExchangeMatcher{" +
-				"matchers=" + matchers +
-				'}';
+		return "AndServerWebExchangeMatcher{" + "matchers=" + this.matchers + '}';
 	}
+
 }

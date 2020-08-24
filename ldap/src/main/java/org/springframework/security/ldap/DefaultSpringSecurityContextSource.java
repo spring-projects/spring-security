@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap;
 
 import java.util.ArrayList;
@@ -47,67 +48,54 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 public class DefaultSpringSecurityContextSource extends LdapContextSource {
-	protected final Log logger = LogFactory.getLog(getClass());
 
-	private String rootDn;
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
 	 * Create and initialize an instance which will connect to the supplied LDAP URL. If
 	 * you want to use more than one server for fail-over, rather use the
 	 * {@link #DefaultSpringSecurityContextSource(List, String)} constructor.
-	 *
 	 * @param providerUrl an LDAP URL of the form
 	 * <code>ldap://localhost:389/base_dn</code>
 	 */
 	public DefaultSpringSecurityContextSource(String providerUrl) {
 		Assert.hasLength(providerUrl, "An LDAP connection URL must be supplied.");
-
-		StringTokenizer st = new StringTokenizer(providerUrl);
-
+		StringTokenizer tokenizer = new StringTokenizer(providerUrl);
 		ArrayList<String> urls = new ArrayList<>();
-
 		// Work out rootDn from the first URL and check that the other URLs (if any) match
-		while (st.hasMoreTokens()) {
-			String url = st.nextToken();
+		String rootDn = null;
+		while (tokenizer.hasMoreTokens()) {
+			String url = tokenizer.nextToken();
 			String urlRootDn = LdapUtils.parseRootDnFromUrl(url);
-
 			urls.add(url.substring(0, url.lastIndexOf(urlRootDn)));
-
 			this.logger.info(" URL '" + url + "', root DN is '" + urlRootDn + "'");
-
-			if (this.rootDn == null) {
-				this.rootDn = urlRootDn;
-			}
-			else if (!this.rootDn.equals(urlRootDn)) {
-				throw new IllegalArgumentException(
-						"Root DNs must be the same when using multiple URLs");
-			}
+			Assert.isTrue(rootDn == null || rootDn.equals(urlRootDn),
+					"Root DNs must be the same when using multiple URLs");
+			rootDn = (rootDn != null) ? rootDn : urlRootDn;
 		}
-
 		setUrls(urls.toArray(new String[0]));
-		setBase(this.rootDn);
+		setBase(rootDn);
 		setPooled(true);
 		setAuthenticationStrategy(new SimpleDirContextAuthenticationStrategy() {
+
 			@Override
 			@SuppressWarnings("rawtypes")
 			public void setupEnvironment(Hashtable env, String dn, String password) {
 				super.setupEnvironment(env, dn, password);
-				// Remove the pooling flag unless we are authenticating as the 'manager'
-				// user.
+				// Remove the pooling flag unless authenticating as the 'manager' user.
 				if (!DefaultSpringSecurityContextSource.this.userDn.equals(dn)
 						&& env.containsKey(SUN_LDAP_POOLING_FLAG)) {
-					DefaultSpringSecurityContextSource.this.logger
-							.debug("Removing pooling flag for user " + dn);
+					DefaultSpringSecurityContextSource.this.logger.debug("Removing pooling flag for user " + dn);
 					env.remove(SUN_LDAP_POOLING_FLAG);
 				}
 			}
+
 		});
 	}
 
 	/**
 	 * Create and initialize an instance which will connect of the LDAP Spring Security
 	 * Context Source. It will connect to any of the provided LDAP server URLs.
-	 *
 	 * @param urls A list of string values which are LDAP server URLs. An example would be
 	 * <code>ldap://ldap.company.com:389</code>. LDAPS URLs (SSL-secured) may be used as
 	 * well, given that Spring Security is able to connect to the server. Note that these
@@ -128,7 +116,6 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 	 * Builds a Spring LDAP-compliant Provider URL string, i.e. a space-separated list of
 	 * LDAP servers with their base DNs. As the base DN must be identical for all servers,
 	 * it needs to be supplied only once.
-	 *
 	 * @param urls A list of string values which are LDAP server URLs. An example would be
 	 *
 	 * <pre>
@@ -149,16 +136,13 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 	private static String buildProviderUrl(List<String> urls, String baseDn) {
 		Assert.notNull(baseDn, "The Base DN for the LDAP server must not be null.");
 		Assert.notEmpty(urls, "At least one LDAP server URL must be provided.");
-
 		String trimmedBaseDn = baseDn.trim();
 		StringBuilder providerUrl = new StringBuilder();
-
 		for (String serverUrl : urls) {
 			String trimmedUrl = serverUrl.trim();
 			if ("".equals(trimmedUrl)) {
 				continue;
 			}
-
 			providerUrl.append(trimmedUrl);
 			if (!trimmedUrl.endsWith("/")) {
 				providerUrl.append("/");
@@ -166,7 +150,6 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 			providerUrl.append(trimmedBaseDn);
 			providerUrl.append(" ");
 		}
-
 		return providerUrl.toString();
 
 	}

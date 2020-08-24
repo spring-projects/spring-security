@@ -30,12 +30,16 @@ import org.springframework.web.client.RestTemplate;
  * @since 5.4
  */
 public final class RelyingPartyRegistrations {
-	private static final RestOperations rest = new RestTemplate
-			(Arrays.asList(new OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter()));
+
+	private static final RestOperations rest = new RestTemplate(
+			Arrays.asList(new OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter()));
+
+	private RelyingPartyRegistrations() {
+	}
 
 	/**
-	 * Return a {@link RelyingPartyRegistration.Builder} based off of the given
-	 * SAML 2.0 Asserting Party (IDP) metadata.
+	 * Return a {@link RelyingPartyRegistration.Builder} based off of the given SAML 2.0
+	 * Asserting Party (IDP) metadata.
 	 *
 	 * Note that by default the registrationId is set to be the given metadata location,
 	 * but this will most often not be sufficient. To complete the configuration, most
@@ -48,21 +52,23 @@ public final class RelyingPartyRegistrations {
 	 * 		.build();
 	 * </pre>
 	 *
-	 * Also note that an {@code IDPSSODescriptor} typically only contains information about
-	 * the asserting party. Thus, you will need to remember to still populate anything about the
-	 * relying party, like any private keys the relying party will use for signing AuthnRequests.
-	 *
+	 * Also note that an {@code IDPSSODescriptor} typically only contains information
+	 * about the asserting party. Thus, you will need to remember to still populate
+	 * anything about the relying party, like any private keys the relying party will use
+	 * for signing AuthnRequests.
 	 * @param metadataLocation
 	 * @return the {@link RelyingPartyRegistration.Builder} for further configuration
 	 */
 	public static RelyingPartyRegistration.Builder fromMetadataLocation(String metadataLocation) {
 		try {
 			return rest.getForObject(metadataLocation, RelyingPartyRegistration.Builder.class);
-		} catch (RestClientException e) {
-			if (e.getCause() instanceof Saml2Exception) {
-				throw (Saml2Exception) e.getCause();
+		}
+		catch (RestClientException ex) {
+			if (ex.getCause() instanceof Saml2Exception) {
+				throw (Saml2Exception) ex.getCause();
 			}
-			throw new Saml2Exception(e);
+			throw new Saml2Exception(ex);
 		}
 	}
+
 }

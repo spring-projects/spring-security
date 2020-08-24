@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,16 +22,20 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry.UrlMapping;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.Assert;
 
 /**
  * Configures non-null URL's to grant access to every URL
+ *
  * @author Rob Winch
  * @since 3.2
  */
 final class PermitAllSupport {
 
-	public static void permitAll(
-			HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http, String... urls) {
+	private PermitAllSupport() {
+	}
+
+	static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http, String... urls) {
 		for (String url : urls) {
 			if (url != null) {
 				permitAll(http, new ExactUrlRequestMatcher(url));
@@ -39,61 +44,47 @@ final class PermitAllSupport {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void permitAll(
-			HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http,
+	static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http,
 			RequestMatcher... requestMatchers) {
 		ExpressionUrlAuthorizationConfigurer<?> configurer = http
 				.getConfigurer(ExpressionUrlAuthorizationConfigurer.class);
-
-		if (configurer == null) {
-			throw new IllegalStateException(
-					"permitAll only works with HttpSecurity.authorizeRequests()");
-		}
-
+		Assert.state(configurer != null, "permitAll only works with HttpSecurity.authorizeRequests()");
 		for (RequestMatcher matcher : requestMatchers) {
 			if (matcher != null) {
-				configurer
-						.getRegistry()
-						.addMapping(
-								0,
-								new UrlMapping(
-										matcher,
-										SecurityConfig
-												.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
+				configurer.getRegistry().addMapping(0, new UrlMapping(matcher,
+						SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
 			}
 		}
 	}
 
-	private final static class ExactUrlRequestMatcher implements RequestMatcher {
+	private static final class ExactUrlRequestMatcher implements RequestMatcher {
+
 		private String processUrl;
 
 		private ExactUrlRequestMatcher(String processUrl) {
 			this.processUrl = processUrl;
 		}
 
+		@Override
 		public boolean matches(HttpServletRequest request) {
 			String uri = request.getRequestURI();
 			String query = request.getQueryString();
-
 			if (query != null) {
 				uri += "?" + query;
 			}
-
 			if ("".equals(request.getContextPath())) {
-				return uri.equals(processUrl);
+				return uri.equals(this.processUrl);
 			}
-
-			return uri.equals(request.getContextPath() + processUrl);
+			return uri.equals(request.getContextPath() + this.processUrl);
 		}
 
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
-			sb.append("ExactUrl [processUrl='").append(processUrl).append("']");
+			sb.append("ExactUrl [processUrl='").append(this.processUrl).append("']");
 			return sb.toString();
 		}
+
 	}
 
-	private PermitAllSupport() {
-	}
 }

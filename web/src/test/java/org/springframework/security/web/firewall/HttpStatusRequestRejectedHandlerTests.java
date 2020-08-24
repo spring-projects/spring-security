@@ -13,29 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.firewall;
-
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 public class HttpStatusRequestRejectedHandlerTests {
 
 	@Test
 	public void httpStatusRequestRejectedHandlerUsesStatus400byDefault() throws Exception {
-		//given:
 		HttpStatusRequestRejectedHandler sut = new HttpStatusRequestRejectedHandler();
 		HttpServletResponse response = mock(HttpServletResponse.class);
-
-		//when:
 		sut.handle(mock(HttpServletRequest.class), response, mock(RequestRejectedException.class));
-
-		// then:
 		verify(response).sendError(400);
 	}
 
@@ -47,15 +42,10 @@ public class HttpStatusRequestRejectedHandlerTests {
 	}
 
 	private void httpStatusRequestRejectedHandlerCanBeConfiguredToUseStatusHelper(int status) throws Exception {
-
-		//given:
 		HttpStatusRequestRejectedHandler sut = new HttpStatusRequestRejectedHandler(status);
 		HttpServletResponse response = mock(HttpServletResponse.class);
-
-		//when:
 		sut.handle(mock(HttpServletRequest.class), response, mock(RequestRejectedException.class));
-
-		// then:
 		verify(response).sendError(status);
 	}
+
 }

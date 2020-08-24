@@ -16,16 +16,17 @@
 
 package org.springframework.security.web.util.matcher;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Luke Taylor
@@ -40,32 +41,25 @@ public class RegexRequestMatcherTests {
 	@Test
 	public void doesntMatchIfHttpMethodIsDifferent() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", "GET");
-
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/anything");
-
 		assertThat(matcher.matches(request)).isFalse();
 	}
 
 	@Test
 	public void matchesIfHttpMethodAndPathMatch() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", "GET");
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/anything");
 		request.setServletPath("/anything");
-
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	@Test
 	public void queryStringIsMatcherCorrectly() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher(".*\\?x=y", "GET");
-
-		MockHttpServletRequest request = new MockHttpServletRequest("GET",
-				"/any/path?x=y");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/any/path?x=y");
 		request.setServletPath("/any");
 		request.setPathInfo("/path");
 		request.setQueryString("x=y");
-
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
@@ -104,7 +98,6 @@ public class RegexRequestMatcherTests {
 		RegexRequestMatcher matcher = new RegexRequestMatcher("/blah", "GET");
 		MockHttpServletRequest request = new MockHttpServletRequest("INVALID", "/blah");
 		request.setMethod("INVALID");
-
 		assertThat(matcher.matches(request)).isFalse();
 	}
 
@@ -115,8 +108,9 @@ public class RegexRequestMatcherTests {
 	}
 
 	private HttpServletRequest createRequestWithNullMethod(String path) {
-		when(request.getQueryString()).thenReturn("doesntMatter");
-		when(request.getServletPath()).thenReturn(path);
-		return request;
+		given(this.request.getQueryString()).willReturn("doesntMatter");
+		given(this.request.getServletPath()).willReturn(path);
+		return this.request;
 	}
+
 }

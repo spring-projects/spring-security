@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client;
+
+import java.time.Duration;
+import java.time.Instant;
 
 import org.junit.Before;
 import org.junit.Test;
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
@@ -27,16 +33,12 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
-import reactor.core.publisher.Mono;
-
-import java.time.Duration;
-import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link ClientCredentialsReactiveOAuth2AuthorizedClientProvider}.
@@ -44,9 +46,13 @@ import static org.mockito.Mockito.when;
  * @author Joe Grandja
  */
 public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
+
 	private ClientCredentialsReactiveOAuth2AuthorizedClientProvider authorizedClientProvider;
+
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient;
+
 	private ClientRegistration clientRegistration;
+
 	private Authentication principal;
 
 	@Before
@@ -60,61 +66,72 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void setAccessTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("accessTokenResponseClient cannot be null");
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
+				.withMessage("accessTokenResponseClient cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void setClockSkewWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clockSkew cannot be null");
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
+				.withMessage("clockSkew cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void setClockSkewWhenNegativeSecondsThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(-1)))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clockSkew must be >= 0");
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(-1)))
+				.withMessage("clockSkew must be >= 0");
+		// @formatter:on
 	}
 
 	@Test
 	public void setClockWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientProvider.setClock(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clock cannot be null");
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClock(null))
+				.withMessage("clock cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(null).block())
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("context cannot be null");
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.authorize(null).block())
+				.withMessage("context cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void authorizeWhenNotClientCredentialsThenUnableToAuthorize() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
-						.principal(this.principal)
-						.build();
+		// @formatter:off
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withClientRegistration(clientRegistration)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();
 	}
 
 	@Test
 	public void authorizeWhenClientCredentialsAndNotAuthorizedThenAuthorize() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
-
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.withClientRegistration(this.clientRegistration)
-						.principal(this.principal)
-						.build();
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
+		// @formatter:off
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withClientRegistration(this.clientRegistration)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientProvider.authorize(authorizationContext).block();
-
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
@@ -124,20 +141,19 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenClientCredentialsAndTokenExpiredThenReauthorize() {
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant expiresAt = issuedAt.plus(Duration.ofMinutes(60));
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(
-				OAuth2AccessToken.TokenType.BEARER, "access-token-1234", issuedAt, expiresAt);
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.clientRegistration, this.principal.getName(), accessToken);
-
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token-1234",
+				issuedAt, expiresAt);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
+				this.principal.getName(), accessToken);
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
-
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
-						.principal(this.principal)
-						.build();
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
+		// @formatter:off
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		authorizedClient = this.authorizedClientProvider.authorize(authorizationContext).block();
-
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
@@ -145,13 +161,14 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void authorizeWhenClientCredentialsAndTokenNotExpiredThenNotReauthorize() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.clientRegistration, this.principal.getName(), TestOAuth2AccessTokens.noScopes());
-
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
-						.principal(this.principal)
-						.build();
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
+				this.principal.getName(), TestOAuth2AccessTokens.noScopes());
+		// @formatter:off
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();
 	}
 
@@ -161,26 +178,26 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 		Instant now = Instant.now();
 		Instant issuedAt = now.minus(Duration.ofMinutes(60));
 		Instant expiresAt = now.minus(Duration.ofMinutes(1));
-		OAuth2AccessToken expiresInOneMinAccessToken = new OAuth2AccessToken(
-				OAuth2AccessToken.TokenType.BEARER, "access-token-1234", issuedAt, expiresAt);
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.clientRegistration, this.principal.getName(), expiresInOneMinAccessToken);
-
-		// Shorten the lifespan of the access token by 90 seconds, which will ultimately force it to expire on the client
+		OAuth2AccessToken expiresInOneMinAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+				"access-token-1234", issuedAt, expiresAt);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
+				this.principal.getName(), expiresInOneMinAccessToken);
+		// Shorten the lifespan of the access token by 90 seconds, which will ultimately
+		// force it to expire on the client
 		this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(90));
-
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
-
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
-						.principal(this.principal)
-						.build();
-
-		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext).block();
-
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
+		// @formatter:off
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
+		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext)
+				.block();
 		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(reauthorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(reauthorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
 	}
+
 }

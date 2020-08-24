@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.cas.authentication;
 
 import java.util.ArrayList;
 
 import org.jasig.cas.client.validation.Assertion;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 
@@ -37,15 +39,16 @@ public final class CasAssertionAuthenticationToken extends AbstractAuthenticatio
 
 	public CasAssertionAuthenticationToken(final Assertion assertion, final String ticket) {
 		super(new ArrayList<>());
-
 		this.assertion = assertion;
 		this.ticket = ticket;
 	}
 
+	@Override
 	public Object getPrincipal() {
 		return this.assertion.getPrincipal().getName();
 	}
 
+	@Override
 	public Object getCredentials() {
 		return this.ticket;
 	}
@@ -53,4 +56,5 @@ public final class CasAssertionAuthenticationToken extends AbstractAuthenticatio
 	public Assertion getAssertion() {
 		return this.assertion;
 	}
+
 }

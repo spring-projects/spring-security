@@ -16,18 +16,15 @@
 
 package org.springframework.security.access.intercept;
 
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
 
 /**
@@ -43,49 +40,43 @@ import org.springframework.util.Assert;
  * If the key does not match, a <code>BadCredentialsException</code> is thrown.
  * </p>
  */
-public class RunAsImplAuthenticationProvider implements InitializingBean,
-		AuthenticationProvider, MessageSourceAware {
-	// ~ Instance fields
-	// ================================================================================================
+public class RunAsImplAuthenticationProvider implements InitializingBean, AuthenticationProvider, MessageSourceAware {
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
 	private String key;
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public void afterPropertiesSet() {
-		Assert.notNull(key,
-				"A Key is required and should match that configured for the RunAsManagerImpl");
+		Assert.notNull(this.key, "A Key is required and should match that configured for the RunAsManagerImpl");
 	}
 
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	@Override
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		RunAsUserToken token = (RunAsUserToken) authentication;
-
-		if (token.getKeyHash() == key.hashCode()) {
-			return authentication;
-		}
-		else {
-			throw new BadCredentialsException(messages.getMessage(
-					"RunAsImplAuthenticationProvider.incorrectKey",
+		if (token.getKeyHash() != this.key.hashCode()) {
+			throw new BadCredentialsException(this.messages.getMessage("RunAsImplAuthenticationProvider.incorrectKey",
 					"The presented RunAsUserToken does not contain the expected key"));
 		}
+		return authentication;
 	}
 
 	public String getKey() {
-		return key;
+		return this.key;
 	}
 
 	public void setKey(String key) {
 		this.key = key;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
 
+	@Override
 	public boolean supports(Class<?> authentication) {
 		return RunAsUserToken.class.isAssignableFrom(authentication);
 	}
+
 }

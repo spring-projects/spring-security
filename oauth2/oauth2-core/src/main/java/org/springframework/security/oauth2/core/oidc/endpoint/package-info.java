@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Support classes that model the OpenID Connect Core 1.0 Request and Response messages
  * from the Authorization Endpoint and Token Endpoint.

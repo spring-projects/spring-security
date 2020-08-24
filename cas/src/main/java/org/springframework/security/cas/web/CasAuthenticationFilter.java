@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.validation.TicketValidator;
+
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,7 +47,8 @@ import org.springframework.util.Assert;
 
 /**
  * Processes a CAS service ticket, obtains proxy granting tickets, and processes proxy
- * tickets. <h2>Service Tickets</h2>
+ * tickets.
+ * <h2>Service Tickets</h2>
  * <p>
  * A service ticket consists of an opaque ticket string. It arrives at this filter by the
  * user's browser successfully authenticating using CAS, and then receiving a HTTP
@@ -171,10 +174,10 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-	// ~ Static fields/initializers
-	// =====================================================================================
 
-	/** Used to identify a CAS request for a stateful user agent, such as a web browser. */
+	/**
+	 * Used to identify a CAS request for a stateful user agent, such as a web browser.
+	 */
 	public static final String CAS_STATEFUL_IDENTIFIER = "_cas_stateful_";
 
 	/**
@@ -201,72 +204,47 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 	private AuthenticationFailureHandler proxyFailureHandler = new SimpleUrlAuthenticationFailureHandler();
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public CasAuthenticationFilter() {
 		super("/login/cas");
 		setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler());
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Override
-	protected final void successfulAuthentication(HttpServletRequest request,
-			HttpServletResponse response, FilterChain chain, Authentication authResult)
-			throws IOException, ServletException {
-		boolean continueFilterChain = proxyTicketRequest(
-				serviceTicketRequest(request, response), request);
+	protected final void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+			FilterChain chain, Authentication authResult) throws IOException, ServletException {
+		boolean continueFilterChain = proxyTicketRequest(serviceTicketRequest(request, response), request);
 		if (!continueFilterChain) {
 			super.successfulAuthentication(request, response, chain, authResult);
 			return;
 		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication success. Updating SecurityContextHolder to contain: "
-					+ authResult);
-		}
-
+		this.logger.debug(
+				LogMessage.format("Authentication success. Updating SecurityContextHolder to contain: %s", authResult));
 		SecurityContextHolder.getContext().setAuthentication(authResult);
-
-		// Fire event
 		if (this.eventPublisher != null) {
-			eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
-					authResult, this.getClass()));
+			this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
 		}
-
 		chain.doFilter(request, response);
 	}
 
 	@Override
-	public Authentication attemptAuthentication(final HttpServletRequest request,
-			final HttpServletResponse response) throws AuthenticationException,
-			IOException {
+	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+			throws AuthenticationException, IOException {
 		// if the request is a proxy request process it and return null to indicate the
 		// request has been processed
 		if (proxyReceptorRequest(request)) {
-			logger.debug("Responding to proxy receptor request");
-			CommonUtils.readAndRespondToProxyReceptorRequest(request, response,
-					this.proxyGrantingTicketStorage);
+			this.logger.debug("Responding to proxy receptor request");
+			CommonUtils.readAndRespondToProxyReceptorRequest(request, response, this.proxyGrantingTicketStorage);
 			return null;
 		}
-
-		final boolean serviceTicketRequest = serviceTicketRequest(request, response);
-		final String username = serviceTicketRequest ? CAS_STATEFUL_IDENTIFIER
-				: CAS_STATELESS_IDENTIFIER;
+		boolean serviceTicketRequest = serviceTicketRequest(request, response);
+		String username = serviceTicketRequest ? CAS_STATEFUL_IDENTIFIER : CAS_STATELESS_IDENTIFIER;
 		String password = obtainArtifact(request);
-
 		if (password == null) {
-			logger.debug("Failed to obtain an artifact (cas ticket)");
+			this.logger.debug("Failed to obtain an artifact (cas ticket)");
 			password = "";
 		}
-
-		final UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-				username, password);
-
-		authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
-
+		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+		authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 		return this.getAuthenticationManager().authenticate(authRequest);
 	}
 
@@ -276,19 +254,19 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * @return if present the artifact from the {@link HttpServletRequest}, else null
 	 */
 	protected String obtainArtifact(HttpServletRequest request) {
-		return request.getParameter(artifactParameter);
+		return request.getParameter(this.artifactParameter);
 	}
 
 	/**
 	 * Overridden to provide proxying capabilities.
 	 */
-	protected boolean requiresAuthentication(final HttpServletRequest request,
-			final HttpServletResponse response) {
+	@Override
+	protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
 		final boolean serviceTicketRequest = serviceTicketRequest(request, response);
 		final boolean result = serviceTicketRequest || proxyReceptorRequest(request)
 				|| (proxyTicketRequest(serviceTicketRequest, request));
-		if (logger.isDebugEnabled()) {
-			logger.debug("requiresAuthentication = " + result);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("requiresAuthentication = " + result);
 		}
 		return result;
 	}
@@ -297,8 +275,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * Sets the {@link AuthenticationFailureHandler} for proxy requests.
 	 * @param proxyFailureHandler
 	 */
-	public final void setProxyAuthenticationFailureHandler(
-			AuthenticationFailureHandler proxyFailureHandler) {
+	public final void setProxyAuthenticationFailureHandler(AuthenticationFailureHandler proxyFailureHandler) {
 		Assert.notNull(proxyFailureHandler, "proxyFailureHandler cannot be null");
 		this.proxyFailureHandler = proxyFailureHandler;
 	}
@@ -308,18 +285,15 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * proxy ticket authentication failures and service ticket failures.
 	 */
 	@Override
-	public final void setAuthenticationFailureHandler(
-			AuthenticationFailureHandler failureHandler) {
-		super.setAuthenticationFailureHandler(new CasAuthenticationFailureHandler(
-				failureHandler));
+	public final void setAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
+		super.setAuthenticationFailureHandler(new CasAuthenticationFailureHandler(failureHandler));
 	}
 
 	public final void setProxyReceptorUrl(final String proxyReceptorUrl) {
 		this.proxyReceptorMatcher = new AntPathRequestMatcher("/**" + proxyReceptorUrl);
 	}
 
-	public final void setProxyGrantingTicketStorage(
-			final ProxyGrantingTicketStorage proxyGrantingTicketStorage) {
+	public final void setProxyGrantingTicketStorage(final ProxyGrantingTicketStorage proxyGrantingTicketStorage) {
 		this.proxyGrantingTicketStorage = proxyGrantingTicketStorage;
 	}
 
@@ -335,12 +309,9 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * @param response
 	 * @return
 	 */
-	private boolean serviceTicketRequest(final HttpServletRequest request,
-			final HttpServletResponse response) {
+	private boolean serviceTicketRequest(HttpServletRequest request, HttpServletResponse response) {
 		boolean result = super.requiresAuthentication(request, response);
-		if (logger.isDebugEnabled()) {
-			logger.debug("serviceTicketRequest = " + result);
-		}
+		this.logger.debug(LogMessage.format("serviceTicketRequest = %s", result));
 		return result;
 	}
 
@@ -349,16 +320,12 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * @param request
 	 * @return
 	 */
-	private boolean proxyTicketRequest(final boolean serviceTicketRequest,
-			final HttpServletRequest request) {
+	private boolean proxyTicketRequest(boolean serviceTicketRequest, HttpServletRequest request) {
 		if (serviceTicketRequest) {
 			return false;
 		}
-		final boolean result = authenticateAllArtifacts
-				&& obtainArtifact(request) != null && !authenticated();
-		if (logger.isDebugEnabled()) {
-			logger.debug("proxyTicketRequest = " + result);
-		}
+		boolean result = this.authenticateAllArtifacts && obtainArtifact(request) != null && !authenticated();
+		this.logger.debug(LogMessage.format("proxyTicketRequest = %s", result));
 		return result;
 	}
 
@@ -367,8 +334,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * @return
 	 */
 	private boolean authenticated() {
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		return authentication != null && authentication.isAuthenticated()
 				&& !(authentication instanceof AnonymousAuthenticationToken);
 	}
@@ -378,41 +344,33 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * @param request
 	 * @return
 	 */
-	private boolean proxyReceptorRequest(final HttpServletRequest request) {
-		final boolean result = proxyReceptorConfigured()
-				&& proxyReceptorMatcher.matches(request);
-		if (logger.isDebugEnabled()) {
-			logger.debug("proxyReceptorRequest = " + result);
-		}
+	private boolean proxyReceptorRequest(HttpServletRequest request) {
+		final boolean result = proxyReceptorConfigured() && this.proxyReceptorMatcher.matches(request);
+		this.logger.debug(LogMessage.format("proxyReceptorRequest = %s", result));
 		return result;
 	}
 
 	/**
 	 * Determines if the {@link CasAuthenticationFilter} is configured to handle the proxy
 	 * receptor requests.
-	 *
 	 * @return
 	 */
 	private boolean proxyReceptorConfigured() {
-		final boolean result = this.proxyGrantingTicketStorage != null
-				&& proxyReceptorMatcher != null;
-		if (logger.isDebugEnabled()) {
-			logger.debug("proxyReceptorConfigured = " + result);
-		}
+		final boolean result = this.proxyGrantingTicketStorage != null && this.proxyReceptorMatcher != null;
+		this.logger.debug(LogMessage.format("proxyReceptorConfigured = %s", result));
 		return result;
 	}
 
 	/**
 	 * A wrapper for the AuthenticationFailureHandler that will flex the
 	 * {@link AuthenticationFailureHandler} that is used. The value
-	 * {@link CasAuthenticationFilter#setProxyAuthenticationFailureHandler(AuthenticationFailureHandler)
+	 * {@link CasAuthenticationFilter#setProxyAuthenticationFailureHandler(AuthenticationFailureHandler)}
 	 * will be used for proxy requests that fail. The value
 	 * {@link CasAuthenticationFilter#setAuthenticationFailureHandler(AuthenticationFailureHandler)}
 	 * will be used for service tickets that fail.
-	 *
-	 * @author Rob Winch
 	 */
 	private class CasAuthenticationFailureHandler implements AuthenticationFailureHandler {
+
 		private final AuthenticationFailureHandler serviceTicketFailureHandler;
 
 		CasAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
@@ -420,16 +378,17 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 			this.serviceTicketFailureHandler = failureHandler;
 		}
 
-		public void onAuthenticationFailure(HttpServletRequest request,
-				HttpServletResponse response, AuthenticationException exception)
-				throws IOException, ServletException {
+		@Override
+		public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+				AuthenticationException exception) throws IOException, ServletException {
 			if (serviceTicketRequest(request, response)) {
-				serviceTicketFailureHandler.onAuthenticationFailure(request, response,
-						exception);
+				this.serviceTicketFailureHandler.onAuthenticationFailure(request, response, exception);
 			}
 			else {
-				proxyFailureHandler.onAuthenticationFailure(request, response, exception);
+				CasAuthenticationFilter.this.proxyFailureHandler.onAuthenticationFailure(request, response, exception);
 			}
 		}
+
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 /*
@@ -122,13 +123,9 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
 		// plus 10 files
 
 		AbstractElement[] nonHomeElements = this.documentDao.findElements(nonHomeDir);
-		assertThat(nonHomeElements).hasSize(shouldBeFiltered ? 11 : 12); // cannot
-																					// see
-		// the user's
-		// "confidential"
-		// sub-directory
-		// when
-		// filtering
+		assertThat(nonHomeElements).hasSize(shouldBeFiltered ? 11 : 12);
+
+		// cannot see the user's "confidential" sub-directory when filtering
 
 		// Attempt to read the other user's confidential directory from the returned
 		// results

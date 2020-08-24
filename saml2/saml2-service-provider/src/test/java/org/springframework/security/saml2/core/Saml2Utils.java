@@ -18,6 +18,7 @@ package org.springframework.security.saml2.core;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
@@ -27,12 +28,12 @@ import org.apache.commons.codec.binary.Base64;
 
 import org.springframework.security.saml2.Saml2Exception;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.zip.Deflater.DEFLATED;
-
 public final class Saml2Utils {
 
-	private static Base64 BASE64 = new Base64(0, new byte[]{'\n'});
+	private static Base64 BASE64 = new Base64(0, new byte[] { '\n' });
+
+	private Saml2Utils() {
+	}
 
 	public static String samlEncode(byte[] b) {
 		return BASE64.encodeAsString(b);
@@ -44,27 +45,29 @@ public final class Saml2Utils {
 
 	public static byte[] samlDeflate(String s) {
 		try {
-			ByteArrayOutputStream b = new ByteArrayOutputStream();
-			DeflaterOutputStream deflater = new DeflaterOutputStream(b, new Deflater(DEFLATED, true));
-			deflater.write(s.getBytes(UTF_8));
-			deflater.finish();
-			return b.toByteArray();
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(out,
+					new Deflater(Deflater.DEFLATED, true));
+			deflaterOutputStream.write(s.getBytes(StandardCharsets.UTF_8));
+			deflaterOutputStream.finish();
+			return out.toByteArray();
 		}
-		catch (IOException e) {
-			throw new Saml2Exception("Unable to deflate string", e);
+		catch (IOException ex) {
+			throw new Saml2Exception("Unable to deflate string", ex);
 		}
 	}
 
 	public static String samlInflate(byte[] b) {
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			InflaterOutputStream iout = new InflaterOutputStream(out, new Inflater(true));
-			iout.write(b);
-			iout.finish();
-			return new String(out.toByteArray(), UTF_8);
+			InflaterOutputStream inflaterOutputStream = new InflaterOutputStream(out, new Inflater(true));
+			inflaterOutputStream.write(b);
+			inflaterOutputStream.finish();
+			return new String(out.toByteArray(), StandardCharsets.UTF_8);
 		}
-		catch (IOException e) {
-			throw new Saml2Exception("Unable to inflate string", e);
+		catch (IOException ex) {
+			throw new Saml2Exception("Unable to inflate string", ex);
 		}
 	}
+
 }

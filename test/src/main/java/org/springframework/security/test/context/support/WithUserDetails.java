@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.context.support;
 
 import java.lang.annotation.Documented;
@@ -55,18 +56,17 @@ import org.springframework.test.web.servlet.MockMvc;
 @Documented
 @WithSecurityContext(factory = WithUserDetailsSecurityContextFactory.class)
 public @interface WithUserDetails {
+
 	/**
 	 * The username to look up in the {@link UserDetailsService}
-	 *
 	 * @return
 	 */
 	String value() default "user";
 
 	/**
-	 * The bean name for the {@link UserDetailsService} to use. If this is not
-	 * provided, then the lookup is done by type and expects only a single
+	 * The bean name for the {@link UserDetailsService} to use. If this is not provided,
+	 * then the lookup is done by type and expects only a single
 	 * {@link UserDetailsService} bean to be exposed.
-	 *
 	 * @return the bean name for the {@link UserDetailsService} to use.
 	 * @since 4.1
 	 */
@@ -81,4 +81,5 @@ public @interface WithUserDetails {
 	 */
 	@AliasFor(annotation = WithSecurityContext.class)
 	TestExecutionEvent setupBefore() default TestExecutionEvent.TEST_METHOD;
+
 }

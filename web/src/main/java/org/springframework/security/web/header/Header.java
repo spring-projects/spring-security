@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header;
 
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import org.springframework.util.Assert;
 public final class Header {
 
 	private final String headerName;
+
 	private final List<String> headerValues;
 
 	/**
@@ -53,7 +55,6 @@ public final class Header {
 
 	/**
 	 * Gets the values of the header. Cannot be null, empty, or contain null values.
-	 *
 	 * @return the values of the header
 	 */
 	public List<String> getValues() {
@@ -61,29 +62,28 @@ public final class Header {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
 		}
-		if (o == null || getClass() != o.getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-
-		Header header = (Header) o;
-
-		if (!this.headerName.equals(header.headerName)) {
+		Header other = (Header) obj;
+		if (!this.headerName.equals(other.headerName)) {
 			return false;
 		}
-		return this.headerValues.equals(header.headerValues);
+		return this.headerValues.equals(other.headerValues);
 	}
 
 	@Override
 	public int hashCode() {
-		return headerName.hashCode() + headerValues.hashCode();
+		return this.headerName.hashCode() + this.headerValues.hashCode();
 	}
 
 	@Override
 	public String toString() {
-		return "Header [name: " + headerName + ", values: " + headerValues + "]";
+		return "Header [name: " + this.headerName + ", values: " + this.headerValues + "]";
 	}
+
 }

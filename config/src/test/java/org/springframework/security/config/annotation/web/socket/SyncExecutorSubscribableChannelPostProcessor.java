@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.socket;
 
 import org.springframework.beans.BeansException;
@@ -24,8 +25,8 @@ import org.springframework.messaging.support.ExecutorSubscribableChannel;
  */
 public class SyncExecutorSubscribableChannelPostProcessor implements BeanPostProcessor {
 
-	public Object postProcessBeforeInitialization(Object bean, String beanName)
-			throws BeansException {
+	@Override
+	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof ExecutorSubscribableChannel) {
 			ExecutorSubscribableChannel original = (ExecutorSubscribableChannel) bean;
 			ExecutorSubscribableChannel channel = new ExecutorSubscribableChannel();
@@ -35,8 +36,9 @@ public class SyncExecutorSubscribableChannelPostProcessor implements BeanPostPro
 		return bean;
 	}
 
-	public Object postProcessAfterInitialization(Object bean, String beanName)
-			throws BeansException {
+	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		return bean;
 	}
+
 }

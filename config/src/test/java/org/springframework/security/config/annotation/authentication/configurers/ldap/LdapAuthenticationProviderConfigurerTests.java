@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.authentication.configurers.ldap;
 
 import org.junit.Before;
@@ -24,21 +25,21 @@ import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LdapAuthenticationProviderConfigurerTest {
+public class LdapAuthenticationProviderConfigurerTests {
 
 	private LdapAuthenticationProviderConfigurer<AuthenticationManagerBuilder> configurer;
 
 	@Before
 	public void setUp() {
-		configurer = new LdapAuthenticationProviderConfigurer<>();
+		this.configurer = new LdapAuthenticationProviderConfigurer<>();
 	}
 
 	// SEC-2557
 	@Test
 	public void getAuthoritiesMapper() throws Exception {
-		assertThat(configurer.getAuthoritiesMapper()).isInstanceOf(SimpleAuthorityMapper.class);
-		configurer.authoritiesMapper(new NullAuthoritiesMapper());
-		assertThat(configurer.getAuthoritiesMapper()).isInstanceOf(NullAuthoritiesMapper.class);
-
+		assertThat(this.configurer.getAuthoritiesMapper()).isInstanceOf(SimpleAuthorityMapper.class);
+		this.configurer.authoritiesMapper(new NullAuthoritiesMapper());
+		assertThat(this.configurer.getAuthoritiesMapper()).isInstanceOf(NullAuthoritiesMapper.class);
 	}
+
 }

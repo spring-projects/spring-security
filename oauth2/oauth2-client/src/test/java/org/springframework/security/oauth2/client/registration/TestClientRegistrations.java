@@ -23,25 +23,32 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
  * @author Rob Winch
  * @since 5.1
  */
-public class TestClientRegistrations {
+public final class TestClientRegistrations {
+
+	private TestClientRegistrations() {
+	}
+
 	public static ClientRegistration.Builder clientRegistration() {
+		// @formatter:off
 		return ClientRegistration.withRegistrationId("registration-id")
-			.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.scope("read:user")
-			.authorizationUri("https://example.com/login/oauth/authorize")
-			.tokenUri("https://example.com/login/oauth/access_token")
-			.jwkSetUri("https://example.com/oauth2/jwk")
-			.issuerUri("https://example.com")
-			.userInfoUri("https://api.example.com/user")
-			.userNameAttributeName("id")
-			.clientName("Client Name")
-			.clientId("client-id")
-			.clientSecret("client-secret");
+				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.scope("read:user")
+				.authorizationUri("https://example.com/login/oauth/authorize")
+				.tokenUri("https://example.com/login/oauth/access_token")
+				.jwkSetUri("https://example.com/oauth2/jwk")
+				.issuerUri("https://example.com")
+				.userInfoUri("https://api.example.com/user")
+				.userNameAttributeName("id")
+				.clientName("Client Name")
+				.clientId("client-id")
+				.clientSecret("client-secret");
+		// @formatter:on
 	}
 
 	public static ClientRegistration.Builder clientRegistration2() {
+		// @formatter:off
 		return ClientRegistration.withRegistrationId("registration-id-2")
 				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
@@ -54,16 +61,20 @@ public class TestClientRegistrations {
 				.clientName("Client Name")
 				.clientId("client-id-2")
 				.clientSecret("client-secret");
+		// @formatter:on
 	}
 
 	public static ClientRegistration.Builder clientCredentials() {
+		// @formatter:off
 		return clientRegistration()
 				.registrationId("client-credentials")
 				.clientId("client-id")
 				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS);
+		// @formatter:on
 	}
 
 	public static ClientRegistration.Builder password() {
+		// @formatter:off
 		return ClientRegistration.withRegistrationId("password")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
@@ -72,5 +83,7 @@ public class TestClientRegistrations {
 				.clientName("Client Name")
 				.clientId("client-id")
 				.clientSecret("client-secret");
+		// @formatter:on
 	}
+
 }

@@ -16,10 +16,13 @@
 
 package org.springframework.security.ldap.authentication;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,15 +30,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-
-import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.ldap.ApacheDsContainerConfig;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests for {@link PasswordComparisonAuthenticator}.
@@ -46,44 +47,42 @@ import static org.assertj.core.api.Assertions.*;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
 public class PasswordComparisonAuthenticatorTests {
-	// ~ Instance fields
-	// ================================================================================================
 
 	@Autowired
 	private DefaultSpringSecurityContextSource contextSource;
-	private PasswordComparisonAuthenticator authenticator;
-	private Authentication bob;
-	private Authentication ben;
 
-	// ~ Methods
-	// ========================================================================================================
+	private PasswordComparisonAuthenticator authenticator;
+
+	private Authentication bob;
+
+	private Authentication ben;
 
 	@Before
 	public void setUp() {
-		authenticator = new PasswordComparisonAuthenticator(this.contextSource);
-		authenticator.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
-		authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
-		bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
-		ben = new UsernamePasswordAuthenticationToken("ben", "benspassword");
+		this.authenticator = new PasswordComparisonAuthenticator(this.contextSource);
+		this.authenticator.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+		this.authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
+		this.bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
+		this.ben = new UsernamePasswordAuthenticationToken("ben", "benspassword");
 	}
 
 	@Test
 	public void testAllAttributesAreRetrievedByDefault() {
-		DirContextAdapter user = (DirContextAdapter) authenticator.authenticate(bob);
+		DirContextAdapter user = (DirContextAdapter) this.authenticator.authenticate(this.bob);
 		// System.out.println(user.getAttributes().toString());
 		assertThat(user.getAttributes().size()).withFailMessage("User should have 5 attributes").isEqualTo(5);
 	}
 
 	@Test
 	public void testFailedSearchGivesUserNotFoundException() throws Exception {
-		authenticator = new PasswordComparisonAuthenticator(this.contextSource);
-		assertThat(authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available").isEmpty();
-		authenticator.setUserSearch(new MockUserSearch(null));
-		authenticator.afterPropertiesSet();
+		this.authenticator = new PasswordComparisonAuthenticator(this.contextSource);
+		assertThat(this.authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available")
+				.isEmpty();
+		this.authenticator.setUserSearch(new MockUserSearch(null));
+		this.authenticator.afterPropertiesSet();
 
 		try {
-			authenticator.authenticate(new UsernamePasswordAuthenticationToken("Joe",
-					"pass"));
+			this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("Joe", "pass"));
 			fail("Expected exception on failed user search");
 		}
 		catch (UsernameNotFoundException expected) {
@@ -93,74 +92,70 @@ public class PasswordComparisonAuthenticatorTests {
 	@Test(expected = BadCredentialsException.class)
 	public void testLdapPasswordCompareFailsWithWrongPassword() {
 		// Don't retrieve the password
-		authenticator.setUserAttributes(new String[] { "uid", "cn", "sn" });
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob",
-				"wrongpass"));
+		this.authenticator.setUserAttributes(new String[] { "uid", "cn", "sn" });
+		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob", "wrongpass"));
 	}
 
 	@Test
 	public void testMultipleDnPatternsWorkOk() {
-		authenticator.setUserDnPatterns(new String[] { "uid={0},ou=nonexistent",
-				"uid={0},ou=people" });
-		authenticator.authenticate(bob);
+		this.authenticator.setUserDnPatterns(new String[] { "uid={0},ou=nonexistent", "uid={0},ou=people" });
+		this.authenticator.authenticate(this.bob);
 	}
 
 	@Test
 	public void testOnlySpecifiedAttributesAreRetrieved() {
-		authenticator.setUserAttributes(new String[] { "uid", "userPassword" });
+		this.authenticator.setUserAttributes(new String[] { "uid", "userPassword" });
 
-		DirContextAdapter user = (DirContextAdapter) authenticator.authenticate(bob);
-		assertThat(user
-				.getAttributes().size()).withFailMessage("Should have retrieved 2 attribute (uid)").isEqualTo(2);
+		DirContextAdapter user = (DirContextAdapter) this.authenticator.authenticate(this.bob);
+		assertThat(user.getAttributes().size()).withFailMessage("Should have retrieved 2 attribute (uid)").isEqualTo(2);
 	}
 
 	@Test
 	public void testLdapCompareSucceedsWithCorrectPassword() {
 		// Don't retrieve the password
-		authenticator.setUserAttributes(new String[] { "uid" });
-		authenticator.authenticate(bob);
+		this.authenticator.setUserAttributes(new String[] { "uid" });
+		this.authenticator.authenticate(this.bob);
 	}
 
 	@Test
 	public void testLdapCompareSucceedsWithShaEncodedPassword() {
 		// Don't retrieve the password
-		authenticator.setUserAttributes(new String[] { "uid" });
-		authenticator.setPasswordEncoder(new LdapShaPasswordEncoder(KeyGenerators.shared(0)));
-		authenticator.setUsePasswordAttrCompare(false);
-		authenticator.authenticate(ben);
+		this.authenticator.setUserAttributes(new String[] { "uid" });
+		this.authenticator.setPasswordEncoder(new LdapShaPasswordEncoder(KeyGenerators.shared(0)));
+		this.authenticator.setUsePasswordAttrCompare(false);
+		this.authenticator.authenticate(this.ben);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testPasswordEncoderCantBeNull() {
-		authenticator.setPasswordEncoder(null);
+		this.authenticator.setPasswordEncoder(null);
 	}
 
 	@Test
 	public void testUseOfDifferentPasswordAttributeSucceeds() {
-		authenticator.setPasswordAttributeName("uid");
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob", "bob"));
+		this.authenticator.setPasswordAttributeName("uid");
+		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob", "bob"));
 	}
 
 	@Test
 	public void testLdapCompareWithDifferentPasswordAttributeSucceeds() {
-		authenticator.setUserAttributes(new String[] { "uid" });
-		authenticator.setPasswordAttributeName("cn");
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken("ben",
-				"Ben Alex"));
+		this.authenticator.setUserAttributes(new String[] { "uid" });
+		this.authenticator.setPasswordAttributeName("cn");
+		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("ben", "Ben Alex"));
 	}
 
 	@Test
 	public void testWithUserSearch() {
-		authenticator = new PasswordComparisonAuthenticator(this.contextSource);
-		authenticator.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
-		assertThat(authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available").isEmpty();
+		this.authenticator = new PasswordComparisonAuthenticator(this.contextSource);
+		this.authenticator.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+		assertThat(this.authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available")
+				.isEmpty();
 
-		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName(
-				"uid=Bob,ou=people"));
+		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=Bob,ou=people"));
 		ctx.setAttributeValue("userPassword", "bobspassword");
 
-		authenticator.setUserSearch(new MockUserSearch(ctx));
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken(
-				"shouldntbeused", "bobspassword"));
+		this.authenticator.setUserSearch(new MockUserSearch(ctx));
+		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("shouldntbeused", "bobspassword"));
 	}
+
 }

@@ -18,7 +18,6 @@ package org.springframework.security.authentication.event;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-
 import org.springframework.util.Assert;
 
 /**
@@ -26,27 +25,18 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public abstract class AbstractAuthenticationFailureEvent extends
-		AbstractAuthenticationEvent {
-	// ~ Instance fields
-	// ================================================================================================
+public abstract class AbstractAuthenticationFailureEvent extends AbstractAuthenticationEvent {
 
 	private final AuthenticationException exception;
 
-	// ~ Constructors
-	// ===================================================================================================
-
-	public AbstractAuthenticationFailureEvent(Authentication authentication,
-			AuthenticationException exception) {
+	public AbstractAuthenticationFailureEvent(Authentication authentication, AuthenticationException exception) {
 		super(authentication);
 		Assert.notNull(exception, "AuthenticationException is required");
 		this.exception = exception;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public AuthenticationException getException() {
-		return exception;
+		return this.exception;
 	}
+
 }

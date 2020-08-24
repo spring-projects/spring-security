@@ -16,6 +16,12 @@
 
 package org.springframework.security.config.annotation.rsocket;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
@@ -30,23 +36,18 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
 import org.springframework.security.rsocket.api.PayloadInterceptor;
-import org.springframework.security.rsocket.authentication.AuthenticationPayloadExchangeConverter;
-import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 import org.springframework.security.rsocket.authentication.AnonymousPayloadInterceptor;
+import org.springframework.security.rsocket.authentication.AuthenticationPayloadExchangeConverter;
 import org.springframework.security.rsocket.authentication.AuthenticationPayloadInterceptor;
 import org.springframework.security.rsocket.authentication.BearerPayloadExchangeConverter;
 import org.springframework.security.rsocket.authorization.AuthorizationPayloadInterceptor;
 import org.springframework.security.rsocket.authorization.PayloadExchangeMatcherReactiveAuthorizationManager;
+import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeAuthorizationContext;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcher;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcherEntry;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatchers;
 import org.springframework.security.rsocket.util.matcher.RoutePayloadExchangeMatcher;
-import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Allows configuring RSocket based security.
@@ -56,19 +57,16 @@ import java.util.List;
  * <pre class="code">
  * &#064;EnableRSocketSecurity
  * public class SecurityConfig {
- *     // @formatter:off
  *     &#064;Bean
  *     PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
  *         rsocket
- *             .authorizePayload(authorize ->
+ *             .authorizePayload((authorize) ->
  *                 authorize
  *                     .anyRequest().authenticated()
  *             );
  *         return rsocket.build();
  *     }
- *     // @formatter:on
  *
- *     // @formatter:off
  *     &#064;Bean
  *     public MapReactiveUserDetailsService userDetailsService() {
  *          UserDetails user = User.withDefaultPasswordEncoder()
@@ -78,7 +76,6 @@ import java.util.List;
  *               .build();
  *          return new MapReactiveUserDetailsService(user);
  *     }
- *     // @formatter:on
  * }
  * </pre>
  *
@@ -87,11 +84,10 @@ import java.util.List;
  * <pre class="code">
  * &#064;EnableRSocketSecurity
  * public class SecurityConfig {
- *     // @formatter:off
  *     &#064;Bean
  *     PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
  *         rsocket
- *             .authorizePayload(authorize ->
+ *             .authorizePayload((authorize) ->
  *                 authorize
  *                     // must have ROLE_SETUP to make connection
  *                     .setup().hasRole("SETUP")
@@ -102,9 +98,9 @@ import java.util.List;
  *             );
  *         return rsocket.build();
  *     }
- *     // @formatter:on
  * }
  * </pre>
+ *
  * @author Rob Winch
  * @author Jesús Ascama Arias
  * @author Luis Felipe Vega
@@ -129,12 +125,12 @@ public class RSocketSecurity {
 	private ReactiveAuthenticationManager authenticationManager;
 
 	/**
-	 * Adds a {@link PayloadInterceptor} to be used. This is typically only used
-	 * when using the DSL does not meet a users needs. In order to ensure the
-	 * {@link PayloadInterceptor} is done in the proper order the {@link PayloadInterceptor} should
-	 * either implement {@link org.springframework.core.Ordered} or be annotated with
+	 * Adds a {@link PayloadInterceptor} to be used. This is typically only used when
+	 * using the DSL does not meet a users needs. In order to ensure the
+	 * {@link PayloadInterceptor} is done in the proper order the
+	 * {@link PayloadInterceptor} should either implement
+	 * {@link org.springframework.core.Ordered} or be annotated with
 	 * {@link org.springframework.core.annotation.Order}.
-	 *
 	 * @param interceptor
 	 * @return the builder for additional customizations
 	 * @see PayloadInterceptorOrder
@@ -150,8 +146,9 @@ public class RSocketSecurity {
 	}
 
 	/**
-	 * Adds support for validating a username and password using
-	 * <a href="https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Simple.md">Simple Authentication</a>
+	 * Adds support for validating a username and password using <a href=
+	 * "https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Simple.md">Simple
+	 * Authentication</a>
 	 * @param simple a customizer
 	 * @return RSocketSecurity for additional configuration
 	 * @since 5.3
@@ -165,10 +162,104 @@ public class RSocketSecurity {
 	}
 
 	/**
+	 * Adds authentication with BasicAuthenticationPayloadExchangeConverter.
+	 * @param basic
+	 * @return this instance
+	 * @deprecated Use {@link #simpleAuthentication(Customizer)}
+	 */
+	@Deprecated
+	public RSocketSecurity basicAuthentication(Customizer<BasicAuthenticationSpec> basic) {
+		if (this.basicAuthSpec == null) {
+			this.basicAuthSpec = new BasicAuthenticationSpec();
+		}
+		basic.customize(this.basicAuthSpec);
+		return this;
+	}
+
+	public RSocketSecurity jwt(Customizer<JwtSpec> jwt) {
+		if (this.jwtSpec == null) {
+			this.jwtSpec = new JwtSpec();
+		}
+		jwt.customize(this.jwtSpec);
+		return this;
+	}
+
+	public RSocketSecurity authorizePayload(Customizer<AuthorizePayloadsSpec> authorize) {
+		if (this.authorizePayload == null) {
+			this.authorizePayload = new AuthorizePayloadsSpec();
+		}
+		authorize.customize(this.authorizePayload);
+		return this;
+	}
+
+	public PayloadSocketAcceptorInterceptor build() {
+		PayloadSocketAcceptorInterceptor interceptor = new PayloadSocketAcceptorInterceptor(payloadInterceptors());
+		RSocketMessageHandler handler = getBean(RSocketMessageHandler.class);
+		interceptor.setDefaultDataMimeType(handler.getDefaultDataMimeType());
+		interceptor.setDefaultMetadataMimeType(handler.getDefaultMetadataMimeType());
+		return interceptor;
+	}
+
+	private List<PayloadInterceptor> payloadInterceptors() {
+		List<PayloadInterceptor> result = new ArrayList<>(this.payloadInterceptors);
+		if (this.basicAuthSpec != null) {
+			result.add(this.basicAuthSpec.build());
+		}
+		if (this.simpleAuthSpec != null) {
+			result.add(this.simpleAuthSpec.build());
+		}
+		if (this.jwtSpec != null) {
+			result.addAll(this.jwtSpec.build());
+		}
+		result.add(anonymous());
+		if (this.authorizePayload != null) {
+			result.add(this.authorizePayload.build());
+		}
+		AnnotationAwareOrderComparator.sort(result);
+		return result;
+	}
+
+	private AnonymousPayloadInterceptor anonymous() {
+		AnonymousPayloadInterceptor result = new AnonymousPayloadInterceptor("anonymousUser");
+		result.setOrder(PayloadInterceptorOrder.ANONYMOUS.getOrder());
+		return result;
+	}
+
+	private <T> T getBean(Class<T> beanClass) {
+		if (this.context == null) {
+			return null;
+		}
+		return this.context.getBean(beanClass);
+	}
+
+	private <T> T getBeanOrNull(Class<T> beanClass) {
+		return getBeanOrNull(ResolvableType.forClass(beanClass));
+	}
+
+	private <T> T getBeanOrNull(ResolvableType type) {
+		if (this.context == null) {
+			return null;
+		}
+		String[] names = this.context.getBeanNamesForType(type);
+		if (names.length == 1) {
+			return (T) this.context.getBean(names[0]);
+		}
+		return null;
+	}
+
+	protected void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.context = applicationContext;
+	}
+
+	/**
 	 * @since 5.3
 	 */
-	public class SimpleAuthenticationSpec {
+	public final class SimpleAuthenticationSpec {
+
 		private ReactiveAuthenticationManager authenticationManager;
+
+		private SimpleAuthenticationSpec() {
+		}
 
 		public SimpleAuthenticationSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
@@ -190,27 +281,14 @@ public class RSocketSecurity {
 			return result;
 		}
 
-		private SimpleAuthenticationSpec() {}
 	}
 
-	/**
-	 * Adds authentication with BasicAuthenticationPayloadExchangeConverter.
-	 *
-	 * @param basic
-	 * @return
-	 * @deprecated Use {@link #simpleAuthentication(Customizer)}
-	 */
-	@Deprecated
-	public RSocketSecurity basicAuthentication(Customizer<BasicAuthenticationSpec> basic) {
-		if (this.basicAuthSpec == null) {
-			this.basicAuthSpec = new BasicAuthenticationSpec();
-		}
-		basic.customize(this.basicAuthSpec);
-		return this;
-	}
+	public final class BasicAuthenticationSpec {
 
-	public class BasicAuthenticationSpec {
 		private ReactiveAuthenticationManager authenticationManager;
+
+		private BasicAuthenticationSpec() {
+		}
 
 		public BasicAuthenticationSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
@@ -231,19 +309,14 @@ public class RSocketSecurity {
 			return result;
 		}
 
-		private BasicAuthenticationSpec() {}
 	}
 
-	public RSocketSecurity jwt(Customizer<JwtSpec> jwt) {
-		if (this.jwtSpec == null) {
-			this.jwtSpec = new JwtSpec();
-		}
-		jwt.customize(this.jwtSpec);
-		return this;
-	}
+	public final class JwtSpec {
 
-	public class JwtSpec {
 		private ReactiveAuthenticationManager authenticationManager;
+
+		private JwtSpec() {
+		}
 
 		public JwtSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
@@ -267,73 +340,27 @@ public class RSocketSecurity {
 			AuthenticationPayloadInterceptor legacy = new AuthenticationPayloadInterceptor(manager);
 			legacy.setAuthenticationConverter(new BearerPayloadExchangeConverter());
 			legacy.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
-
 			AuthenticationPayloadInterceptor standard = new AuthenticationPayloadInterceptor(manager);
 			standard.setAuthenticationConverter(new AuthenticationPayloadExchangeConverter());
 			standard.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
-
 			return Arrays.asList(standard, legacy);
 		}
 
-		private JwtSpec() {}
-	}
-
-	public RSocketSecurity authorizePayload(Customizer<AuthorizePayloadsSpec> authorize) {
-		if (this.authorizePayload == null) {
-			this.authorizePayload = new AuthorizePayloadsSpec();
-		}
-		authorize.customize(this.authorizePayload);
-		return this;
-	}
-
-	public PayloadSocketAcceptorInterceptor build() {
-		PayloadSocketAcceptorInterceptor interceptor = new PayloadSocketAcceptorInterceptor(
-				payloadInterceptors());
-		RSocketMessageHandler handler = getBean(RSocketMessageHandler.class);
-		interceptor.setDefaultDataMimeType(handler.getDefaultDataMimeType());
-		interceptor.setDefaultMetadataMimeType(handler.getDefaultMetadataMimeType());
-		return interceptor;
-	}
-
-	private List<PayloadInterceptor> payloadInterceptors() {
-		List<PayloadInterceptor> result = new ArrayList<>(this.payloadInterceptors);
-
-		if (this.basicAuthSpec != null) {
-			result.add(this.basicAuthSpec.build());
-		}
-		if (this.simpleAuthSpec != null) {
-			result.add(this.simpleAuthSpec.build());
-		}
-		if (this.jwtSpec != null) {
-			result.addAll(this.jwtSpec.build());
-		}
-		result.add(anonymous());
-
-		if (this.authorizePayload != null) {
-			result.add(this.authorizePayload.build());
-		}
-		AnnotationAwareOrderComparator.sort(result);
-		return result;
-	}
-
-	private AnonymousPayloadInterceptor anonymous() {
-		AnonymousPayloadInterceptor result = new AnonymousPayloadInterceptor("anonymousUser");
-		result.setOrder(PayloadInterceptorOrder.ANONYMOUS.getOrder());
-		return result;
 	}
 
 	public class AuthorizePayloadsSpec {
 
-		private PayloadExchangeMatcherReactiveAuthorizationManager.Builder authzBuilder =
-				PayloadExchangeMatcherReactiveAuthorizationManager.builder();
+		private PayloadExchangeMatcherReactiveAuthorizationManager.Builder authzBuilder = PayloadExchangeMatcherReactiveAuthorizationManager
+				.builder();
 
 		public Access setup() {
 			return matcher(PayloadExchangeMatchers.setup());
 		}
 
 		/**
-		 * Matches if {@link org.springframework.security.rsocket.api.PayloadExchangeType#isRequest()} is true, else
-		 * not a match
+		 * Matches if
+		 * {@link org.springframework.security.rsocket.api.PayloadExchangeType#isRequest()}
+		 * is true, else not a match
 		 * @return the Access to set up the authorization rule.
 		 */
 		public Access anyRequest() {
@@ -356,10 +383,8 @@ public class RSocketSecurity {
 
 		public Access route(String pattern) {
 			RSocketMessageHandler handler = getBean(RSocketMessageHandler.class);
-			PayloadExchangeMatcher matcher = new RoutePayloadExchangeMatcher(
-					handler.getMetadataExtractor(),
-					handler.getRouteMatcher(),
-					pattern);
+			PayloadExchangeMatcher matcher = new RoutePayloadExchangeMatcher(handler.getMetadataExtractor(),
+					handler.getRouteMatcher(), pattern);
 			return matcher(matcher);
 		}
 
@@ -367,7 +392,7 @@ public class RSocketSecurity {
 			return new Access(matcher);
 		}
 
-		public class Access {
+		public final class Access {
 
 			private final PayloadExchangeMatcher matcher;
 
@@ -392,8 +417,7 @@ public class RSocketSecurity {
 			}
 
 			public AuthorizePayloadsSpec permitAll() {
-				return access((a, ctx) -> Mono
-						.just(new AuthorizationDecision(true)));
+				return access((a, ctx) -> Mono.just(new AuthorizationDecision(true)));
 			}
 
 			public AuthorizePayloadsSpec hasAnyAuthority(String... authorities) {
@@ -402,41 +426,17 @@ public class RSocketSecurity {
 
 			public AuthorizePayloadsSpec access(
 					ReactiveAuthorizationManager<PayloadExchangeAuthorizationContext> authorization) {
-				AuthorizePayloadsSpec.this.authzBuilder.add(new PayloadExchangeMatcherEntry<>(this.matcher, authorization));
+				AuthorizePayloadsSpec.this.authzBuilder
+						.add(new PayloadExchangeMatcherEntry<>(this.matcher, authorization));
 				return AuthorizePayloadsSpec.this;
 			}
 
 			public AuthorizePayloadsSpec denyAll() {
-				return access((a, ctx) -> Mono
-						.just(new AuthorizationDecision(false)));
+				return access((a, ctx) -> Mono.just(new AuthorizationDecision(false)));
 			}
+
 		}
+
 	}
 
-	private <T> T getBean(Class<T> beanClass) {
-		if (this.context == null) {
-			return null;
-		}
-		return this.context.getBean(beanClass);
-	}
-
-	private <T> T getBeanOrNull(Class<T> beanClass) {
-		return getBeanOrNull(ResolvableType.forClass(beanClass));
-	}
-
-	private <T> T getBeanOrNull(ResolvableType type) {
-		if (this.context == null) {
-			return null;
-		}
-		String[] names =  this.context.getBeanNamesForType(type);
-		if (names.length == 1) {
-			return (T) this.context.getBean(names[0]);
-		}
-		return null;
-	}
-
-	protected void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
-		this.context = applicationContext;
-	}
 }

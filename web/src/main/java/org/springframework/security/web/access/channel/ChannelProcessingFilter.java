@@ -28,6 +28,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
@@ -85,75 +86,50 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class ChannelProcessingFilter extends GenericFilterBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private ChannelDecisionManager channelDecisionManager;
-	private FilterInvocationSecurityMetadataSource securityMetadataSource;
 
-	// ~ Methods
-	// ========================================================================================================
+	private FilterInvocationSecurityMetadataSource securityMetadataSource;
 
 	@Override
 	public void afterPropertiesSet() {
-		Assert.notNull(this.securityMetadataSource,
-				"securityMetadataSource must be specified");
-		Assert.notNull(this.channelDecisionManager,
-				"channelDecisionManager must be specified");
-
-		Collection<ConfigAttribute> attrDefs = this.securityMetadataSource
-				.getAllConfigAttributes();
-
-		if (attrDefs == null) {
-			if (this.logger.isWarnEnabled()) {
-				this.logger
-						.warn("Could not validate configuration attributes as the FilterInvocationSecurityMetadataSource did "
-								+ "not return any attributes");
-			}
-
+		Assert.notNull(this.securityMetadataSource, "securityMetadataSource must be specified");
+		Assert.notNull(this.channelDecisionManager, "channelDecisionManager must be specified");
+		Collection<ConfigAttribute> attributes = this.securityMetadataSource.getAllConfigAttributes();
+		if (attributes == null) {
+			this.logger.warn("Could not validate configuration attributes as the "
+					+ "FilterInvocationSecurityMetadataSource did not return any attributes");
 			return;
 		}
+		Set<ConfigAttribute> unsupportedAttributes = getUnsupportedAttributes(attributes);
+		Assert.isTrue(unsupportedAttributes.isEmpty(),
+				() -> "Unsupported configuration attributes: " + unsupportedAttributes);
+		this.logger.info("Validated configuration attributes");
+	}
 
+	private Set<ConfigAttribute> getUnsupportedAttributes(Collection<ConfigAttribute> attrDefs) {
 		Set<ConfigAttribute> unsupportedAttributes = new HashSet<>();
-
 		for (ConfigAttribute attr : attrDefs) {
 			if (!this.channelDecisionManager.supports(attr)) {
 				unsupportedAttributes.add(attr);
 			}
 		}
-
-		if (unsupportedAttributes.size() == 0) {
-			if (this.logger.isInfoEnabled()) {
-				this.logger.info("Validated configuration attributes");
-			}
-		}
-		else {
-			throw new IllegalArgumentException(
-					"Unsupported configuration attributes: " + unsupportedAttributes);
-		}
+		return unsupportedAttributes;
 	}
 
+	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
-
-		FilterInvocation fi = new FilterInvocation(request, response, chain);
-		Collection<ConfigAttribute> attr = this.securityMetadataSource.getAttributes(fi);
-
-		if (attr != null) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug(
-						"Request: " + fi.toString() + "; ConfigAttributes: " + attr);
-			}
-
-			this.channelDecisionManager.decide(fi, attr);
-
-			if (fi.getResponse().isCommitted()) {
+		FilterInvocation filterInvocation = new FilterInvocation(request, response, chain);
+		Collection<ConfigAttribute> attributes = this.securityMetadataSource.getAttributes(filterInvocation);
+		if (attributes != null) {
+			this.logger.debug(LogMessage.format("Request: %s; ConfigAttributes: %s", filterInvocation, attributes));
+			this.channelDecisionManager.decide(filterInvocation, attributes);
+			if (filterInvocation.getResponse().isCommitted()) {
 				return;
 			}
 		}
-
 		chain.doFilter(request, response);
 	}
 
@@ -173,4 +149,5 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 			FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource) {
 		this.securityMetadataSource = filterInvocationSecurityMetadataSource;
 	}
+
 }

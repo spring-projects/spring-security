@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.access;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+package org.springframework.security.web.access;
 
 import java.util.LinkedHashMap;
 
@@ -29,21 +26,31 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingAccessDeniedHandlerTests {
+
 	@Mock
 	private AccessDeniedHandler handler1;
+
 	@Mock
 	private AccessDeniedHandler handler2;
+
 	@Mock
 	private AccessDeniedHandler handler3;
+
 	@Mock
 	private HttpServletRequest request;
+
 	@Mock
 	private HttpServletResponse response;
 
@@ -53,35 +60,32 @@ public class DelegatingAccessDeniedHandlerTests {
 
 	@Before
 	public void setup() {
-		handlers = new LinkedHashMap<>();
+		this.handlers = new LinkedHashMap<>();
 	}
 
 	@Test
 	public void moreSpecificDoesNotInvokeLessSpecific() throws Exception {
-		handlers.put(CsrfException.class, handler1);
-		handler = new DelegatingAccessDeniedHandler(handlers, handler3);
-
+		this.handlers.put(CsrfException.class, this.handler1);
+		this.handler = new DelegatingAccessDeniedHandler(this.handlers, this.handler3);
 		AccessDeniedException accessDeniedException = new AccessDeniedException("");
-		handler.handle(request, response, accessDeniedException);
-
-		verify(handler1, never()).handle(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AccessDeniedException.class));
-		verify(handler3).handle(request, response, accessDeniedException);
+		this.handler.handle(this.request, this.response, accessDeniedException);
+		verify(this.handler1, never()).handle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(AccessDeniedException.class));
+		verify(this.handler3).handle(this.request, this.response, accessDeniedException);
 	}
 
 	@Test
 	public void matchesDoesNotInvokeDefault() throws Exception {
-		handlers.put(InvalidCsrfTokenException.class, handler1);
-		handlers.put(MissingCsrfTokenException.class, handler2);
-		handler = new DelegatingAccessDeniedHandler(handlers, handler3);
-
+		this.handlers.put(InvalidCsrfTokenException.class, this.handler1);
+		this.handlers.put(MissingCsrfTokenException.class, this.handler2);
+		this.handler = new DelegatingAccessDeniedHandler(this.handlers, this.handler3);
 		AccessDeniedException accessDeniedException = new MissingCsrfTokenException("123");
-		handler.handle(request, response, accessDeniedException);
-
-		verify(handler1, never()).handle(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AccessDeniedException.class));
-		verify(handler2).handle(request, response, accessDeniedException);
-		verify(handler3, never()).handle(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AccessDeniedException.class));
+		this.handler.handle(this.request, this.response, accessDeniedException);
+		verify(this.handler1, never()).handle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(AccessDeniedException.class));
+		verify(this.handler2).handle(this.request, this.response, accessDeniedException);
+		verify(this.handler3, never()).handle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(AccessDeniedException.class));
 	}
+
 }

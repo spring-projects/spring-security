@@ -50,8 +50,11 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 	private final DefaultMatcher defaultMatcher = new DefaultMatcher();
 
 	private final HandlerMappingIntrospector introspector;
+
 	private final String pattern;
+
 	private HttpMethod method;
+
 	private String servletPath;
 
 	public MvcRequestMatcher(HandlerMappingIntrospector introspector, String pattern) {
@@ -64,8 +67,7 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		if (this.method != null && !this.method.name().equals(request.getMethod())) {
 			return false;
 		}
-		if (this.servletPath != null
-				&& !this.servletPath.equals(request.getServletPath())) {
+		if (this.servletPath != null && !this.servletPath.equals(request.getServletPath())) {
 			return false;
 		}
 		MatchableHandlerMapping mapping = getMapping(request);
@@ -80,17 +82,11 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		try {
 			return this.introspector.getMatchableHandlerMapping(request);
 		}
-		catch (Throwable t) {
+		catch (Throwable ex) {
 			return null;
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.util.matcher.RequestVariablesExtractor#
-	 * extractUriTemplateVariables(javax.servlet.http.HttpServletRequest)
-	 */
 	@Override
 	@Deprecated
 	public Map<String, String> extractUriTemplateVariables(HttpServletRequest request) {
@@ -104,8 +100,7 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 			return this.defaultMatcher.matcher(request);
 		}
 		RequestMatchResult result = mapping.match(request, this.pattern);
-		return result == null ? MatchResult.notMatch()
-				: MatchResult.match(result.extractUriTemplateVariables());
+		return (result != null) ? MatchResult.match(result.extractUriTemplateVariables()) : MatchResult.notMatch();
 	}
 
 	/**
@@ -118,7 +113,6 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 	/**
 	 * The servlet path to match on. The default is undefined which means any servlet
 	 * path.
-	 *
 	 * @param servletPath the servletPath to set
 	 */
 	public void setServletPath(String servletPath) {
@@ -133,17 +127,13 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Mvc [pattern='").append(this.pattern).append("'");
-
 		if (this.servletPath != null) {
 			sb.append(", servletPath='").append(this.servletPath).append("'");
 		}
-
 		if (this.method != null) {
 			sb.append(", ").append(this.method);
 		}
-
 		sb.append("]");
-
 		return sb.toString();
 	}
 
@@ -167,11 +157,13 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		public MatchResult matcher(HttpServletRequest request) {
 			String lookupPath = this.pathHelper.getLookupPathForRequest(request);
 			if (matches(lookupPath)) {
-				Map<String, String> variables = this.pathMatcher.extractUriTemplateVariables(
-						MvcRequestMatcher.this.pattern, lookupPath);
+				Map<String, String> variables = this.pathMatcher
+						.extractUriTemplateVariables(MvcRequestMatcher.this.pattern, lookupPath);
 				return MatchResult.match(variables);
 			}
 			return MatchResult.notMatch();
 		}
+
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core;
 
 import org.junit.Test;
@@ -50,4 +51,5 @@ public class AuthorizationGrantTypeTests {
 	public void getValueWhenPasswordGrantTypeThenReturnPassword() {
 		assertThat(AuthorizationGrantType.PASSWORD.getValue()).isEqualTo("password");
 	}
+
 }

@@ -16,14 +16,15 @@
 
 package org.springframework.security.access;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
 
 import org.junit.Test;
+
 import org.springframework.security.access.event.AuthorizationFailureEvent;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
 
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link AuthorizationFailureEvent}.
@@ -31,39 +32,40 @@ import java.util.*;
  * @author Ben Alex
  */
 public class AuthorizationFailureEventTests {
-	private final UsernamePasswordAuthenticationToken foo = new UsernamePasswordAuthenticationToken(
-			"foo", "bar");
+
+	private final UsernamePasswordAuthenticationToken foo = new UsernamePasswordAuthenticationToken("foo", "bar");
+
 	private List<ConfigAttribute> attributes = SecurityConfig.createList("TEST");
-	private AccessDeniedException exception = new AuthorizationServiceException("error",
-			new Throwable());
+
+	private AccessDeniedException exception = new AuthorizationServiceException("error", new Throwable());
 
 	@Test(expected = IllegalArgumentException.class)
 	public void rejectsNullSecureObject() {
-		new AuthorizationFailureEvent(null, attributes, foo, exception);
+		new AuthorizationFailureEvent(null, this.attributes, this.foo, this.exception);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void rejectsNullAttributesList() {
-		new AuthorizationFailureEvent(new SimpleMethodInvocation(), null, foo, exception);
+		new AuthorizationFailureEvent(new SimpleMethodInvocation(), null, this.foo, this.exception);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void rejectsNullAuthentication() {
-		new AuthorizationFailureEvent(new SimpleMethodInvocation(), attributes, null,
-				exception);
+		new AuthorizationFailureEvent(new SimpleMethodInvocation(), this.attributes, null, this.exception);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void rejectsNullException() {
-		new AuthorizationFailureEvent(new SimpleMethodInvocation(), attributes, foo, null);
+		new AuthorizationFailureEvent(new SimpleMethodInvocation(), this.attributes, this.foo, null);
 	}
 
 	@Test
 	public void gettersReturnCtorSuppliedData() {
-		AuthorizationFailureEvent event = new AuthorizationFailureEvent(new Object(),
-				attributes, foo, exception);
-		assertThat(event.getConfigAttributes()).isSameAs(attributes);
-		assertThat(event.getAccessDeniedException()).isSameAs(exception);
-		assertThat(event.getAuthentication()).isSameAs(foo);
+		AuthorizationFailureEvent event = new AuthorizationFailureEvent(new Object(), this.attributes, this.foo,
+				this.exception);
+		assertThat(event.getConfigAttributes()).isSameAs(this.attributes);
+		assertThat(event.getAccessDeniedException()).isSameAs(this.exception);
+		assertThat(event.getAuthentication()).isSameAs(this.foo);
 	}
+
 }

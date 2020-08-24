@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.encrypt;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EncryptorsTests {
 
@@ -29,8 +30,7 @@ public class EncryptorsTests {
 		assertThat(result).isNotNull();
 		assertThat(new String(result).equals("text")).isFalse();
 		assertThat(new String(encryptor.decrypt(result))).isEqualTo("text");
-		assertThat(new String(result)).isNotEqualTo(
-				new String(encryptor.encrypt("text".getBytes())));
+		assertThat(new String(result)).isNotEqualTo(new String(encryptor.encrypt("text".getBytes())));
 	}
 
 	@Test
@@ -41,8 +41,7 @@ public class EncryptorsTests {
 		assertThat(result).isNotNull();
 		assertThat(new String(result).equals("text")).isFalse();
 		assertThat(new String(encryptor.decrypt(result))).isEqualTo("text");
-		assertThat(new String(result)).isNotEqualTo(
-				new String(encryptor.encrypt("text".getBytes())));
+		assertThat(new String(result)).isNotEqualTo(new String(encryptor.encrypt("text".getBytes())));
 	}
 
 	@Test
@@ -70,8 +69,7 @@ public class EncryptorsTests {
 	@Test
 	public void queryableText() {
 		CryptoAssumptions.assumeCBCJCE();
-		TextEncryptor encryptor = Encryptors.queryableText("password",
-				"5c0744940b5c369b");
+		TextEncryptor encryptor = Encryptors.queryableText("password", "5c0744940b5c369b");
 		String result = encryptor.encrypt("text");
 		assertThat(result).isNotNull();
 		assertThat(result.equals("text")).isFalse();

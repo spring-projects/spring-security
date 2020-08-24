@@ -16,14 +16,15 @@
 
 package org.springframework.security.oauth2.core.user;
 
-import org.junit.Test;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.util.SerializationUtils;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+
+import org.junit.Test;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.util.SerializationUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,12 +35,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class DefaultOAuth2UserTests {
+
 	private static final SimpleGrantedAuthority AUTHORITY = new SimpleGrantedAuthority("ROLE_USER");
+
 	private static final Set<GrantedAuthority> AUTHORITIES = Collections.singleton(AUTHORITY);
+
 	private static final String ATTRIBUTE_NAME_KEY = "username";
+
 	private static final String USERNAME = "test";
-	private static final Map<String, Object> ATTRIBUTES = Collections.singletonMap(
-		ATTRIBUTE_NAME_KEY, USERNAME);
+
+	private static final Map<String, Object> ATTRIBUTES = Collections.singletonMap(ATTRIBUTE_NAME_KEY, USERNAME);
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenAuthoritiesIsNullThenThrowIllegalArgumentException() {
@@ -74,7 +79,6 @@ public class DefaultOAuth2UserTests {
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		DefaultOAuth2User user = new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
-
 		assertThat(user.getName()).isEqualTo(USERNAME);
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(AUTHORITY);
@@ -87,4 +91,5 @@ public class DefaultOAuth2UserTests {
 		DefaultOAuth2User user = new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
 		SerializationUtils.serialize(user);
 	}
+
 }

@@ -23,7 +23,6 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * A RequestMatcher implementation which uses a SpEL expression
@@ -37,7 +36,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * See {@link DelegatingAuthenticationEntryPoint} for an example configuration.
  * </p>
  *
- *
  * @author Mike Wiesner
  * @since 3.0.2
  */
@@ -47,18 +45,18 @@ public class ELRequestMatcher implements RequestMatcher {
 
 	public ELRequestMatcher(String el) {
 		SpelExpressionParser parser = new SpelExpressionParser();
-		expression = parser.parseExpression(el);
+		this.expression = parser.parseExpression(el);
 	}
 
+	@Override
 	public boolean matches(HttpServletRequest request) {
 		EvaluationContext context = createELContext(request);
-		return expression.getValue(context, Boolean.class);
+		return this.expression.getValue(context, Boolean.class);
 	}
 
 	/**
 	 * Subclasses can override this methode if they want to use a different EL root
 	 * context
-	 *
 	 * @return EL root context which is used to evaluate the expression
 	 */
 	public EvaluationContext createELContext(HttpServletRequest request) {
@@ -72,4 +70,5 @@ public class ELRequestMatcher implements RequestMatcher {
 		sb.append("]");
 		return sb.toString();
 	}
+
 }

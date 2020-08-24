@@ -13,38 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication.preauth.j2ee;
 
-import static org.assertj.core.api.Assertions.*;
+package org.springframework.security.web.authentication.preauth.j2ee;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class WebXmlJ2eeDefinedRolesRetrieverTests {
 
 	@Test
 	public void testRole1To4Roles() throws Exception {
-		List<String> ROLE1TO4_EXPECTED_ROLES = Arrays.asList("Role1",
-				"Role2", "Role3", "Role4");
+		List<String> ROLE1TO4_EXPECTED_ROLES = Arrays.asList("Role1", "Role2", "Role3", "Role4");
 		final Resource webXml = new ClassPathResource("webxml/Role1-4.web.xml");
 		WebXmlMappableAttributesRetriever rolesRetriever = new WebXmlMappableAttributesRetriever();
-
 		rolesRetriever.setResourceLoader(new ResourceLoader() {
+			@Override
 			public ClassLoader getClassLoader() {
 				return Thread.currentThread().getContextClassLoader();
 			}
 
+			@Override
 			public Resource getResource(String location) {
 				return webXml;
 			}
 		});
-
 		rolesRetriever.afterPropertiesSet();
 		Set<String> j2eeRoles = rolesRetriever.getMappableAttributes();
 		assertThat(j2eeRoles).containsAll(ROLE1TO4_EXPECTED_ROLES);
@@ -55,10 +56,12 @@ public class WebXmlJ2eeDefinedRolesRetrieverTests {
 		final Resource webXml = new ClassPathResource("webxml/NoRoles.web.xml");
 		WebXmlMappableAttributesRetriever rolesRetriever = new WebXmlMappableAttributesRetriever();
 		rolesRetriever.setResourceLoader(new ResourceLoader() {
+			@Override
 			public ClassLoader getClassLoader() {
 				return Thread.currentThread().getContextClassLoader();
 			}
 
+			@Override
 			public Resource getResource(String location) {
 				return webXml;
 			}
@@ -67,4 +70,5 @@ public class WebXmlJ2eeDefinedRolesRetrieverTests {
 		Set<String> j2eeRoles = rolesRetriever.getMappableAttributes();
 		assertThat(j2eeRoles).isEmpty();
 	}
+
 }

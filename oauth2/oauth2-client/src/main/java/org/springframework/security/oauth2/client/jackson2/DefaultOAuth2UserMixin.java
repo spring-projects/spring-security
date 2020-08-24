@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.jackson2;
+
+import java.util.Collection;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * This mixin class is used to serialize/deserialize {@link DefaultOAuth2User}.
@@ -41,9 +43,9 @@ import java.util.Map;
 abstract class DefaultOAuth2UserMixin {
 
 	@JsonCreator
-	DefaultOAuth2UserMixin(
-			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
+	DefaultOAuth2UserMixin(@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
 			@JsonProperty("attributes") Map<String, Object> attributes,
 			@JsonProperty("nameAttributeKey") String nameAttributeKey) {
 	}
+
 }

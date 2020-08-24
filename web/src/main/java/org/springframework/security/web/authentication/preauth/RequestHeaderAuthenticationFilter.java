@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.preauth;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,31 +40,30 @@ import org.springframework.util.Assert;
  * throw an exception. You can override this behaviour by setting the
  * {@code exceptionIfHeaderMissing} property.
  *
- *
  * @author Luke Taylor
  * @since 2.0
  */
-public class RequestHeaderAuthenticationFilter extends
-		AbstractPreAuthenticatedProcessingFilter {
+public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
+
 	private String principalRequestHeader = "SM_USER";
+
 	private String credentialsRequestHeader;
+
 	private boolean exceptionIfHeaderMissing = true;
 
 	/**
 	 * Read and returns the header named by {@code principalRequestHeader} from the
 	 * request.
-	 *
 	 * @throws PreAuthenticatedCredentialsNotFoundException if the header is missing and
 	 * {@code exceptionIfHeaderMissing} is set to {@code true}.
 	 */
+	@Override
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-		String principal = request.getHeader(principalRequestHeader);
-
-		if (principal == null && exceptionIfHeaderMissing) {
-			throw new PreAuthenticatedCredentialsNotFoundException(principalRequestHeader
-					+ " header not found in request.");
+		String principal = request.getHeader(this.principalRequestHeader);
+		if (principal == null && this.exceptionIfHeaderMissing) {
+			throw new PreAuthenticatedCredentialsNotFoundException(
+					this.principalRequestHeader + " header not found in request.");
 		}
-
 		return principal;
 	}
 
@@ -72,34 +72,32 @@ public class RequestHeaderAuthenticationFilter extends
 	 * set, this will be read and used as the credentials value. Otherwise a dummy value
 	 * will be used.
 	 */
+	@Override
 	protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
-		if (credentialsRequestHeader != null) {
-			return request.getHeader(credentialsRequestHeader);
+		if (this.credentialsRequestHeader != null) {
+			return request.getHeader(this.credentialsRequestHeader);
 		}
-
 		return "N/A";
 	}
 
 	public void setPrincipalRequestHeader(String principalRequestHeader) {
-		Assert.hasText(principalRequestHeader,
-				"principalRequestHeader must not be empty or null");
+		Assert.hasText(principalRequestHeader, "principalRequestHeader must not be empty or null");
 		this.principalRequestHeader = principalRequestHeader;
 	}
 
 	public void setCredentialsRequestHeader(String credentialsRequestHeader) {
-		Assert.hasText(credentialsRequestHeader,
-				"credentialsRequestHeader must not be empty or null");
+		Assert.hasText(credentialsRequestHeader, "credentialsRequestHeader must not be empty or null");
 		this.credentialsRequestHeader = credentialsRequestHeader;
 	}
 
 	/**
 	 * Defines whether an exception should be raised if the principal header is missing.
 	 * Defaults to {@code true}.
-	 *
 	 * @param exceptionIfHeaderMissing set to {@code false} to override the default
 	 * behaviour and allow the request to proceed if no header is found.
 	 */
 	public void setExceptionIfHeaderMissing(boolean exceptionIfHeaderMissing) {
 		this.exceptionIfHeaderMissing = exceptionIfHeaderMissing;
 	}
+
 }

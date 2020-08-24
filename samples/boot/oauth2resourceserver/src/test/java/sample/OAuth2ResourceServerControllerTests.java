@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import org.junit.Test;
@@ -47,13 +48,13 @@ public class OAuth2ResourceServerControllerTests {
 
 	@Test
 	public void indexGreetsAuthenticatedUser() throws Exception {
-		mockMvc.perform(get("/").with(jwt().jwt(jwt -> jwt.subject("ch4mpy"))))
+		mockMvc.perform(get("/").with(jwt().jwt((jwt) -> jwt.subject("ch4mpy"))))
 				.andExpect(content().string(is("Hello, ch4mpy!")));
 	}
 
 	@Test
 	public void messageCanBeReadWithScopeMessageReadAuthority() throws Exception {
-		mockMvc.perform(get("/message").with(jwt().jwt(jwt -> jwt.claim("scope", "message:read"))))
+		mockMvc.perform(get("/message").with(jwt().jwt((jwt) -> jwt.claim("scope", "message:read"))))
 				.andExpect(content().string(is("secret message")));
 
 		mockMvc.perform(get("/message")
@@ -79,7 +80,7 @@ public class OAuth2ResourceServerControllerTests {
 	public void messageCanNotBeCreatedWithScopeMessageReadAuthority() throws Exception {
 		mockMvc.perform(post("/message")
 				.content("Hello message")
-				.with(jwt().jwt(jwt -> jwt.claim("scope", "message:read"))))
+				.with(jwt().jwt((jwt) -> jwt.claim("scope", "message:read"))))
 				.andExpect(status().isForbidden());
 	}
 
@@ -88,7 +89,7 @@ public class OAuth2ResourceServerControllerTests {
 			throws Exception {
 		mockMvc.perform(post("/message")
 				.content("Hello message")
-				.with(jwt().jwt(jwt -> jwt.claim("scope", "message:write"))))
+				.with(jwt().jwt((jwt) -> jwt.claim("scope", "message:write"))))
 				.andExpect(status().isOk())
 				.andExpect(content().string(is("Message was created. Content: Hello message")));
 	}

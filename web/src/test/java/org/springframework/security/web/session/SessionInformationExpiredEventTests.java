@@ -37,12 +37,14 @@ public class SessionInformationExpiredEventTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenRequestNullThenThrowsException() {
-		new SessionInformationExpiredEvent(new SessionInformation("fake", "sessionId", new Date()), null, new MockHttpServletResponse());
+		new SessionInformationExpiredEvent(new SessionInformation("fake", "sessionId", new Date()), null,
+				new MockHttpServletResponse());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenResponseNullThenThrowsException() {
-		new SessionInformationExpiredEvent(new SessionInformation("fake", "sessionId", new Date()), new MockHttpServletRequest(), null);
+		new SessionInformationExpiredEvent(new SessionInformation("fake", "sessionId", new Date()),
+				new MockHttpServletRequest(), null);
 	}
 
 }

@@ -1055,9 +1055,9 @@ To do so, remember that `NimbusJwtDecoder` ships with a constructor that takes N
 
 [[oauth2resourceserver-opaque-minimaldependencies]]
 === Minimal Dependencies for Introspection
-As described in <<oauth2resourceserver-jwt-minimaldependencies,Minimal Dependencies for JWT>> most of Resource Server support is collected in `spring-security-oauth2-resource-server`. 
-However unless a custom <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> is provided, the Resource Server will fallback to NimbusOpaqueTokenIntrospector. 
-Meaning that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary in order to have a working minimal Resource Server that supports opaque Bearer Tokens. 
+As described in <<oauth2resourceserver-jwt-minimaldependencies,Minimal Dependencies for JWT>> most of Resource Server support is collected in `spring-security-oauth2-resource-server`.
+However unless a custom <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> is provided, the Resource Server will fallback to NimbusOpaqueTokenIntrospector.
+Meaning that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary in order to have a working minimal Resource Server that supports opaque Bearer Tokens.
 Please refer to `spring-security-oauth2-resource-server` in order to determin the correct version for `oauth2-oidc-sdk`.
 
 [[oauth2resourceserver-opaque-minimalconfiguration]]
@@ -1626,8 +1626,8 @@ public class JwtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
         try {
             Jwt jwt = this.jwtDecoder.decode(token);
             return new DefaultOAuth2AuthenticatedPrincipal(jwt.getClaims(), NO_AUTHORITIES);
-        } catch (JwtException e) {
-            throw new OAuth2IntrospectionException(e);
+        } catch (JwtException ex) {
+            throw new OAuth2IntrospectionException(ex);
         }
     }
 
@@ -1899,8 +1899,8 @@ public class TenantJWSKeySelector
 	private JWSKeySelector<SecurityContext> fromUri(String uri) {
 		try {
 			return JWSAlgorithmFamilyJWSKeySelector.fromJWKSetURL(new URL(uri)); <4>
-		} catch (Exception e) {
-			throw new IllegalArgumentException(e);
+		} catch (Exception ex) {
+			throw new IllegalArgumentException(ex);
 		}
 	}
 }

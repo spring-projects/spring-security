@@ -13,42 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+
 /**
- *
  * @author Luke Taylor
  */
 public class SimpleUrlAuthenticationSuccessHandlerTests {
+
 	@Test
 	public void defaultTargetUrlIsUsedIfNoOtherInformationSet() throws Exception {
 		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
-
 		assertThat(response.getRedirectedUrl()).isEqualTo("/");
 	}
 
 	// SEC-1428
 	@Test
 	public void redirectIsNotPerformedIfResponseIsCommitted() throws Exception {
-		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler(
-				"/target");
+		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler("/target");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		response.setCommitted(true);
-
 		ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
 		assertThat(response.getRedirectedUrl()).isNull();
 	}
@@ -58,15 +56,12 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 	 */
 	@Test
 	public void targetUrlParameterIsUsedIfPresentAndParameterNameIsSet() throws Exception {
-		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler(
-				"/defaultTarget");
+		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler("/defaultTarget");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		request.setParameter("targetUrl", "/target");
-
 		ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
 		assertThat(response.getRedirectedUrl()).isEqualTo("/defaultTarget");
-
 		// Try with parameter set
 		ash.setTargetUrlParameter("targetUrl");
 		response = new MockHttpServletResponse();
@@ -76,13 +71,11 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 
 	@Test
 	public void refererIsUsedIfUseRefererIsSet() throws Exception {
-		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler(
-				"/defaultTarget");
+		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler("/defaultTarget");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ash.setUseReferer(true);
 		request.addHeader("Referer", "https://www.springsource.com/");
-
 		ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
 		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.springsource.com/");
 	}
@@ -91,15 +84,12 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 	 * SEC-297 fix.
 	 */
 	@Test
-	public void absoluteDefaultTargetUrlDoesNotHaveContextPathPrepended()
-			throws Exception {
+	public void absoluteDefaultTargetUrlDoesNotHaveContextPathPrepended() throws Exception {
 		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler();
 		ash.setDefaultTargetUrl("https://monkeymachine.co.uk/");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
-
 		assertThat(response.getRedirectedUrl()).isEqualTo("https://monkeymachine.co.uk/");
 	}
 
@@ -114,14 +104,12 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 	@Test
 	public void setTargetUrlParameterEmptyTargetUrlParameter() {
 		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler();
-
 		try {
 			ash.setTargetUrlParameter("");
 			fail("Expected Exception");
 		}
 		catch (IllegalArgumentException success) {
 		}
-
 		try {
 			ash.setTargetUrlParameter("   ");
 			fail("Expected Exception");
@@ -129,4 +117,5 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 		catch (IllegalArgumentException success) {
 		}
 	}
+
 }

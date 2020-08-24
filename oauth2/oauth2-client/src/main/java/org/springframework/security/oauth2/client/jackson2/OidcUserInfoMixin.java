@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.jackson2;
+
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 
-import java.util.Map;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 
 /**
  * This mixin class is used to serialize/deserialize {@link OidcUserInfo}.
@@ -41,4 +43,5 @@ abstract class OidcUserInfoMixin {
 	@JsonCreator
 	OidcUserInfoMixin(@JsonProperty("claims") Map<String, Object> claims) {
 	}
+
 }

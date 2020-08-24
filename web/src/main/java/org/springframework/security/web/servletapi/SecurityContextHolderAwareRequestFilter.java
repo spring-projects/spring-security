@@ -60,7 +60,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * {@link Runnable}.</li>
  * </ul>
  *
- *
  * @author Orlando Garcia Carmona
  * @author Ben Alex
  * @author Luke Taylor
@@ -68,8 +67,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Eddú Meléndez
  */
 public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private String rolePrefix = "ROLE_";
 
@@ -82,9 +79,6 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	private List<LogoutHandler> logoutHandlers;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void setRolePrefix(String rolePrefix) {
 		Assert.notNull(rolePrefix, "Role prefix must not be null");
@@ -104,13 +98,11 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	 * retained when invoking {@link HttpServletRequest#authenticate(HttpServletResponse)}
 	 * .
 	 * </p>
-	 *
 	 * @param authenticationEntryPoint the {@link AuthenticationEntryPoint} to use when
 	 * invoking {@link HttpServletRequest#authenticate(HttpServletResponse)} if the user
 	 * is not authenticated.
 	 */
-	public void setAuthenticationEntryPoint(
-			AuthenticationEntryPoint authenticationEntryPoint) {
+	public void setAuthenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
@@ -125,7 +117,6 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	 * If the value is null (default), then the default container behavior will be
 	 * retained when invoking {@link HttpServletRequest#login(String, String)}.
 	 * </p>
-	 *
 	 * @param authenticationManager the {@link AuthenticationManager} to use when invoking
 	 * {@link HttpServletRequest#login(String, String)}
 	 */
@@ -145,7 +136,6 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	 * If the value is null (default), the default container behavior will be retained
 	 * when invoking {@link HttpServletRequest#logout()}.
 	 * </p>
-	 *
 	 * @param logoutHandlers the {@code List&lt;LogoutHandler&gt;}s when invoking
 	 * {@link HttpServletRequest#logout()}.
 	 */
@@ -153,10 +143,10 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 		this.logoutHandlers = logoutHandlers;
 	}
 
+	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
-		chain.doFilter(this.requestFactory.create((HttpServletRequest) req,
-				(HttpServletResponse) res), res);
+		chain.doFilter(this.requestFactory.create((HttpServletRequest) req, (HttpServletResponse) res), res);
 	}
 
 	@Override
@@ -173,7 +163,6 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	/**
 	 * Sets the {@link AuthenticationTrustResolver} to be used. The default is
 	 * {@link AuthenticationTrustResolverImpl}.
-	 *
 	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
 	 * null.
 	 */

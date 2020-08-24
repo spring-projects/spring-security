@@ -25,10 +25,13 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 
 /**
- * A {@link SocketAcceptor} that captures the {@link SecurityContext} and then continues with the {@link RSocket}
+ * A {@link SocketAcceptor} that captures the {@link SecurityContext} and then continues
+ * with the {@link RSocket}
+ *
  * @author Rob Winch
  */
 class CaptureSecurityContextSocketAcceptor implements SocketAcceptor {
+
 	private final RSocket accept;
 
 	private SecurityContext securityContext;
@@ -40,11 +43,11 @@ class CaptureSecurityContextSocketAcceptor implements SocketAcceptor {
 	@Override
 	public Mono<RSocket> accept(ConnectionSetupPayload setup, RSocket sendingSocket) {
 		return ReactiveSecurityContextHolder.getContext()
-			.doOnNext(securityContext -> this.securityContext = securityContext)
-			.thenReturn(this.accept);
+				.doOnNext((securityContext) -> this.securityContext = securityContext).thenReturn(this.accept);
 	}
 
-	public SecurityContext getSecurityContext() {
+	SecurityContext getSecurityContext() {
 		return this.securityContext;
 	}
+
 }

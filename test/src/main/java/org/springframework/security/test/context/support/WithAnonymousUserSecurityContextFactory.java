@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.context.support;
 
 import java.util.List;
@@ -25,18 +26,16 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * A {@link WithAnonymousUserSecurityContextFactory} that runs with an {@link AnonymousAuthenticationToken}.
- * .
- *
- * @see WithUserDetails
+ * A {@link WithAnonymousUserSecurityContextFactory} that runs with an
+ * {@link AnonymousAuthenticationToken}. .
  *
  * @author Rob Winch
  * @since 4.1
+ * @see WithUserDetails
  */
+final class WithAnonymousUserSecurityContextFactory implements WithSecurityContextFactory<WithAnonymousUser> {
 
-final class WithAnonymousUserSecurityContextFactory implements
-		WithSecurityContextFactory<WithAnonymousUser> {
-
+	@Override
 	public SecurityContext createSecurityContext(WithAnonymousUser withUser) {
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
 		Authentication authentication = new AnonymousAuthenticationToken("key", "anonymous", authorities);
@@ -44,4 +43,5 @@ final class WithAnonymousUserSecurityContextFactory implements
 		context.setAuthentication(authentication);
 		return context;
 	}
+
 }

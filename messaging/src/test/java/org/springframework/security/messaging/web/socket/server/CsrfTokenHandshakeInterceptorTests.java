@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.web.socket.server;
 
-import org.junit.Test;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -28,19 +33,17 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.web.socket.WebSocketHandler;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author Rob Winch
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CsrfTokenHandshakeInterceptorTests {
+
 	@Mock
 	WebSocketHandler wsHandler;
+
 	@Mock
 	ServerHttpResponse response;
 
@@ -54,29 +57,25 @@ public class CsrfTokenHandshakeInterceptorTests {
 
 	@Before
 	public void setup() {
-		httpRequest = new MockHttpServletRequest();
-		attributes = new HashMap<>();
-		request = new ServletServerHttpRequest(httpRequest);
-
-		interceptor = new CsrfTokenHandshakeInterceptor();
+		this.httpRequest = new MockHttpServletRequest();
+		this.attributes = new HashMap<>();
+		this.request = new ServletServerHttpRequest(this.httpRequest);
+		this.interceptor = new CsrfTokenHandshakeInterceptor();
 	}
 
 	@Test
 	public void beforeHandshakeNoAttribute() throws Exception {
-		interceptor.beforeHandshake(request, response, wsHandler, attributes);
-
-		assertThat(attributes).isEmpty();
+		this.interceptor.beforeHandshake(this.request, this.response, this.wsHandler, this.attributes);
+		assertThat(this.attributes).isEmpty();
 	}
 
 	@Test
 	public void beforeHandshake() throws Exception {
 		CsrfToken token = new DefaultCsrfToken("header", "param", "token");
-		httpRequest.setAttribute(CsrfToken.class.getName(), token);
-
-		interceptor.beforeHandshake(request, response, wsHandler, attributes);
-
-		assertThat(attributes.keySet()).containsOnly(CsrfToken.class.getName());
-		assertThat(attributes.values()).containsOnly(token);
+		this.httpRequest.setAttribute(CsrfToken.class.getName(), token);
+		this.interceptor.beforeHandshake(this.request, this.response, this.wsHandler, this.attributes);
+		assertThat(this.attributes.keySet()).containsOnly(CsrfToken.class.getName());
+		assertThat(this.attributes.values()).containsOnly(token);
 	}
 
 }

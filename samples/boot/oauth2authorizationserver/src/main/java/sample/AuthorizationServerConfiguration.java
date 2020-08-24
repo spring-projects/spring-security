@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import java.math.BigInteger;
@@ -166,7 +167,7 @@ class UserConfig extends WebSecurityConfigurerAdapter {
 				.and()
 			.httpBasic()
 				.and()
-			.csrf().ignoringRequestMatchers(request -> "/introspect".equals(request.getRequestURI()));
+			.csrf().ignoringRequestMatchers((request) -> "/introspect".equals(request.getRequestURI()));
 	}
 
 	@Bean

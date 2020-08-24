@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.jwt;
 
 import java.util.ArrayList;
@@ -23,13 +24,13 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.util.Assert;
 
 /**
- * An exception that results from an unsuccessful
- * {@link OAuth2TokenValidatorResult}
+ * An exception that results from an unsuccessful {@link OAuth2TokenValidatorResult}
  *
  * @author Josh Cummings
  * @since 5.1
  */
 public class JwtValidationException extends BadJwtException {
+
 	private final Collection<OAuth2Error> errors;
 
 	/**
@@ -43,17 +44,16 @@ public class JwtValidationException extends BadJwtException {
 	 *
 	 * <pre>
 	 * 	if ( result.hasErrors() ) {
-	 *  	Collection<OAuth2Error> errors = result.getErrors();
+	 *  	Collection&lt;OAuth2Error&gt; errors = result.getErrors();
 	 *  	throw new JwtValidationException(errors.iterator().next().getDescription(), errors);
 	 * 	}
 	 * </pre>
-	 *
 	 * @param message - the exception message
-	 * @param errors - a list of {@link OAuth2Error}s with extra detail about the validation result
+	 * @param errors - a list of {@link OAuth2Error}s with extra detail about the
+	 * validation result
 	 */
 	public JwtValidationException(String message, Collection<OAuth2Error> errors) {
 		super(message);
-
 		Assert.notEmpty(errors, "errors cannot be empty");
 		this.errors = new ArrayList<>(errors);
 	}
@@ -65,4 +65,5 @@ public class JwtValidationException extends BadJwtException {
 	public Collection<OAuth2Error> getErrors() {
 		return this.errors;
 	}
+
 }

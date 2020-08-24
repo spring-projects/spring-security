@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.csrf;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -30,4 +31,5 @@ public class CsrfException extends AccessDeniedException {
 	public CsrfException(String message) {
 		super(message);
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
@@ -24,7 +25,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.ELRequestMatcher;
@@ -58,41 +61,33 @@ import org.springframework.util.Assert;
  * @author Mike Wiesner
  * @since 3.0.2
  */
-public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPoint,
-		InitializingBean {
-	private final Log logger = LogFactory.getLog(getClass());
+public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+
+	private static final Log logger = LogFactory.getLog(DelegatingAuthenticationEntryPoint.class);
 
 	private final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
+
 	private AuthenticationEntryPoint defaultEntryPoint;
 
-	public DelegatingAuthenticationEntryPoint(
-			LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints) {
+	public DelegatingAuthenticationEntryPoint(LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints) {
 		this.entryPoints = entryPoints;
 	}
 
+	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
-
-		for (RequestMatcher requestMatcher : entryPoints.keySet()) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Trying to match using " + requestMatcher);
-			}
+		for (RequestMatcher requestMatcher : this.entryPoints.keySet()) {
+			logger.debug(LogMessage.format("Trying to match using %s", requestMatcher));
 			if (requestMatcher.matches(request)) {
-				AuthenticationEntryPoint entryPoint = entryPoints.get(requestMatcher);
-				if (logger.isDebugEnabled()) {
-					logger.debug("Match found! Executing " + entryPoint);
-				}
+				AuthenticationEntryPoint entryPoint = this.entryPoints.get(requestMatcher);
+				logger.debug(LogMessage.format("Match found! Executing %s", entryPoint));
 				entryPoint.commence(request, response, authException);
 				return;
 			}
 		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("No match found. Using default entry point " + defaultEntryPoint);
-		}
-
+		logger.debug(LogMessage.format("No match found. Using default entry point %s", this.defaultEntryPoint));
 		// No EntryPoint matched, use defaultEntryPoint
-		defaultEntryPoint.commence(request, response, authException);
+		this.defaultEntryPoint.commence(request, response, authException);
 	}
 
 	/**
@@ -102,8 +97,10 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 		this.defaultEntryPoint = defaultEntryPoint;
 	}
 
+	@Override
 	public void afterPropertiesSet() {
-		Assert.notEmpty(entryPoints, "entryPoints must be specified");
-		Assert.notNull(defaultEntryPoint, "defaultEntryPoint must be specified");
+		Assert.notEmpty(this.entryPoints, "entryPoints must be specified");
+		Assert.notNull(this.defaultEntryPoint, "defaultEntryPoint must be specified");
 	}
+
 }

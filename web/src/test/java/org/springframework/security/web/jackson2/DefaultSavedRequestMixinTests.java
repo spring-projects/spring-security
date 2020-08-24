@@ -41,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 
-
 	// @formatter:off
 	private static final String COOKIES_JSON = "[\"java.util.ArrayList\", [{"
 		+ "\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", "
@@ -55,11 +54,10 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 		+ "\"domain\": null"
 	+ "}]]";
 	// @formatter:on
-
 	// @formatter:off
 	private static final String REQUEST_JSON = "{" +
 		"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", "
-		+ "\"cookies\": "+ COOKIES_JSON +","
+		+ "\"cookies\": " + COOKIES_JSON + ","
 		+ "\"locales\": [\"java.util.ArrayList\", [\"en\"]], "
 		+ "\"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, "
 		+ "\"parameters\": {\"@class\": \"java.util.TreeMap\"},"
@@ -75,34 +73,34 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 		+ "\"serverPort\": 80"
 	+ "}";
 	// @formatter:on
-
 	@Test
 	public void matchRequestBuildWithConstructorAndBuilder() {
 		DefaultSavedRequest request = new DefaultSavedRequest.Builder()
 				.setCookies(Collections.singletonList(new SavedCookie(new Cookie("SESSION", "123456789"))))
-				.setHeaders(Collections.singletonMap("x-auth-token", Collections.singletonList("12")))
-				.setScheme("http").setRequestURL("http://localhost").setServerName("localhost").setRequestURI("")
+				.setHeaders(Collections.singletonMap("x-auth-token", Collections.singletonList("12"))).setScheme("http")
+				.setRequestURL("http://localhost").setServerName("localhost").setRequestURI("")
 				.setLocales(Collections.singletonList(new Locale("en"))).setContextPath("").setMethod("")
 				.setServletPath("").build();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest();
 		mockRequest.setCookies(new Cookie("SESSION", "123456789"));
 		mockRequest.addHeader("x-auth-token", "12");
-
-		assert request.doesRequestMatch(mockRequest, new PortResolverImpl());
+		assertThat(request.doesRequestMatch(mockRequest, new PortResolverImpl())).isTrue();
 	}
 
 	@Test
 	public void serializeDefaultRequestBuildWithConstructorTest() throws IOException, JSONException {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("x-auth-token", "12");
-		// Spring 5 MockHttpServletRequest automatically adds a header when the cookies are set. To get consistency we override the request.
+		// Spring 5 MockHttpServletRequest automatically adds a header when the cookies
+		// are set. To get consistency we override the request.
 		HttpServletRequest requestToWrite = new HttpServletRequestWrapper(request) {
 			@Override
 			public Cookie[] getCookies() {
 				return new Cookie[] { new Cookie("SESSION", "123456789") };
 			}
 		};
-		String actualString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(new DefaultSavedRequest(requestToWrite, new PortResolverImpl()));
+		String actualString = this.mapper.writerWithDefaultPrettyPrinter()
+				.writeValueAsString(new DefaultSavedRequest(requestToWrite, new PortResolverImpl()));
 		JSONAssert.assertEquals(REQUEST_JSON, actualString, true);
 	}
 
@@ -110,21 +108,22 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 	public void serializeDefaultRequestBuildWithBuilderTest() throws IOException, JSONException {
 		DefaultSavedRequest request = new DefaultSavedRequest.Builder()
 				.setCookies(Collections.singletonList(new SavedCookie(new Cookie("SESSION", "123456789"))))
-				.setHeaders(Collections.singletonMap("x-auth-token", Collections.singletonList("12")))
-				.setScheme("http").setRequestURL("http://localhost").setServerName("localhost").setRequestURI("")
+				.setHeaders(Collections.singletonMap("x-auth-token", Collections.singletonList("12"))).setScheme("http")
+				.setRequestURL("http://localhost").setServerName("localhost").setRequestURI("")
 				.setLocales(Collections.singletonList(new Locale("en"))).setContextPath("").setMethod("")
 				.setServletPath("").build();
-		String actualString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
+		String actualString = this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
 		JSONAssert.assertEquals(REQUEST_JSON, actualString, true);
 	}
 
 	@Test
 	public void deserializeDefaultSavedRequest() throws IOException {
-		DefaultSavedRequest request = (DefaultSavedRequest) mapper.readValue(REQUEST_JSON, Object.class);
+		DefaultSavedRequest request = (DefaultSavedRequest) this.mapper.readValue(REQUEST_JSON, Object.class);
 		assertThat(request).isNotNull();
 		assertThat(request.getCookies()).hasSize(1);
 		assertThat(request.getLocales()).hasSize(1).contains(new Locale("en"));
 		assertThat(request.getHeaderNames()).hasSize(1).contains("x-auth-token");
 		assertThat(request.getHeaderValues("x-auth-token")).hasSize(1).contains("12");
 	}
+
 }

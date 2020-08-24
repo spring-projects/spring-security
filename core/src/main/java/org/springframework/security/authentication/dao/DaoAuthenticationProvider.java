@@ -23,11 +23,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.util.Assert;
 
 /**
@@ -38,25 +38,18 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
-	// ~ Static fields/initializers
-	// =====================================================================================
 
 	/**
-	 * The plaintext password used to perform
-	 * PasswordEncoder#matches(CharSequence, String)}  on when the user is
-	 * not found to avoid SEC-2056.
+	 * The plaintext password used to perform PasswordEncoder#matches(CharSequence,
+	 * String)} on when the user is not found to avoid SEC-2056.
 	 */
 	private static final String USER_NOT_FOUND_PASSWORD = "userNotFoundPassword";
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private PasswordEncoder passwordEncoder;
 
 	/**
-	 * The password used to perform
-	 * {@link PasswordEncoder#matches(CharSequence, String)} on when the user is
-	 * not found to avoid SEC-2056. This is necessary, because some
+	 * The password used to perform {@link PasswordEncoder#matches(CharSequence, String)}
+	 * on when the user is not found to avoid SEC-2056. This is necessary, because some
 	 * {@link PasswordEncoder} implementations will short circuit if the password is not
 	 * in a valid format.
 	 */
@@ -70,38 +63,30 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 		setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	@SuppressWarnings("deprecation")
 	protected void additionalAuthenticationChecks(UserDetails userDetails,
-			UsernamePasswordAuthenticationToken authentication)
-			throws AuthenticationException {
+			UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 		if (authentication.getCredentials() == null) {
-			logger.debug("Authentication failed: no credentials provided");
-
-			throw new BadCredentialsException(messages.getMessage(
-					"AbstractUserDetailsAuthenticationProvider.badCredentials",
-					"Bad credentials"));
+			this.logger.debug("Authentication failed: no credentials provided");
+			throw new BadCredentialsException(this.messages
+					.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
 		}
-
 		String presentedPassword = authentication.getCredentials().toString();
-
-		if (!passwordEncoder.matches(presentedPassword, userDetails.getPassword())) {
-			logger.debug("Authentication failed: password does not match stored value");
-
-			throw new BadCredentialsException(messages.getMessage(
-					"AbstractUserDetailsAuthenticationProvider.badCredentials",
-					"Bad credentials"));
+		if (!this.passwordEncoder.matches(presentedPassword, userDetails.getPassword())) {
+			this.logger.debug("Authentication failed: password does not match stored value");
+			throw new BadCredentialsException(this.messages
+					.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
 		}
 	}
 
+	@Override
 	protected void doAfterPropertiesSet() {
 		Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
 	}
 
-	protected final UserDetails retrieveUser(String username,
-			UsernamePasswordAuthenticationToken authentication)
+	@Override
+	protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
 			throws AuthenticationException {
 		prepareTimingAttackProtection();
 		try {
@@ -125,8 +110,8 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	}
 
 	@Override
-	protected Authentication createSuccessAuthentication(Object principal,
-			Authentication authentication, UserDetails user) {
+	protected Authentication createSuccessAuthentication(Object principal, Authentication authentication,
+			UserDetails user) {
 		boolean upgradeEncoding = this.userDetailsPasswordService != null
 				&& this.passwordEncoder.upgradeEncoding(user.getPassword());
 		if (upgradeEncoding) {
@@ -152,8 +137,8 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 	/**
 	 * Sets the PasswordEncoder instance to be used to encode and validate passwords. If
-	 * not set, the password will be compared using {@link PasswordEncoderFactories#createDelegatingPasswordEncoder()}
-	 *
+	 * not set, the password will be compared using
+	 * {@link PasswordEncoderFactories#createDelegatingPasswordEncoder()}
 	 * @param passwordEncoder must be an instance of one of the {@code PasswordEncoder}
 	 * types.
 	 */
@@ -164,7 +149,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	}
 
 	protected PasswordEncoder getPasswordEncoder() {
-		return passwordEncoder;
+		return this.passwordEncoder;
 	}
 
 	public void setUserDetailsService(UserDetailsService userDetailsService) {
@@ -172,11 +157,11 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	}
 
 	protected UserDetailsService getUserDetailsService() {
-		return userDetailsService;
+		return this.userDetailsService;
 	}
 
-	public void setUserDetailsPasswordService(
-			UserDetailsPasswordService userDetailsPasswordService) {
+	public void setUserDetailsPasswordService(UserDetailsPasswordService userDetailsPasswordService) {
 		this.userDetailsPasswordService = userDetailsPasswordService;
 	}
+
 }

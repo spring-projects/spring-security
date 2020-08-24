@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.logout;
 
 import java.io.IOException;
@@ -31,11 +32,12 @@ import org.springframework.security.web.authentication.AbstractAuthenticationTar
  * @author Luke Taylor
  * @since 3.0
  */
-public class SimpleUrlLogoutSuccessHandler extends
-		AbstractAuthenticationTargetUrlRequestHandler implements LogoutSuccessHandler {
+public class SimpleUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler
+		implements LogoutSuccessHandler {
 
-	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException, ServletException {
+	@Override
+	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+			throws IOException, ServletException {
 		super.handle(request, response, authentication);
 	}
 

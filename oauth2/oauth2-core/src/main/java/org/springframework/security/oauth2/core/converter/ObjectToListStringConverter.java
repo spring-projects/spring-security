@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.converter;
 
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.convert.converter.ConditionalGenericConverter;
-import org.springframework.util.ClassUtils;
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.ArrayList;
+
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.ConditionalGenericConverter;
+import org.springframework.util.ClassUtils;
 
 /**
  * @author Joe Grandja
@@ -42,10 +43,9 @@ final class ObjectToListStringConverter implements ConditionalGenericConverter {
 
 	@Override
 	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (targetType.getElementTypeDescriptor() == null ||
-				targetType.getElementTypeDescriptor().getType().equals(String.class) ||
-				sourceType == null ||
-				ClassUtils.isAssignable(sourceType.getType(), targetType.getElementTypeDescriptor().getType())) {
+		if (targetType.getElementTypeDescriptor() == null
+				|| targetType.getElementTypeDescriptor().getType().equals(String.class) || sourceType == null
+				|| ClassUtils.isAssignable(sourceType.getType(), targetType.getElementTypeDescriptor().getType())) {
 			return true;
 		}
 		return false;
@@ -73,4 +73,5 @@ final class ObjectToListStringConverter implements ConditionalGenericConverter {
 		}
 		return Collections.singletonList(source.toString());
 	}
+
 }

@@ -13,7 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.header;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.assertj.core.api.AbstractAssert;
+import org.junit.Test;
 
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -21,13 +29,6 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.web.server.header.ClearSiteDataServerHttpHeadersWriter.Directive;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
-
-import org.assertj.core.api.AbstractAssert;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -39,44 +40,33 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 
 	@Test
 	public void constructorWhenMissingDirectivesThenThrowsException() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(ClearSiteDataServerHttpHeadersWriter::new);
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(ClearSiteDataServerHttpHeadersWriter::new);
 	}
 
 	@Test
 	public void writeHttpHeadersWhenSecureConnectionThenHeaderWritten() {
 		ClearSiteDataServerHttpHeadersWriter writer = new ClearSiteDataServerHttpHeadersWriter(Directive.ALL);
-		ServerWebExchange secureExchange = MockServerWebExchange.from(
-				MockServerHttpRequest.get("https://localhost")
-						.build());
-
+		ServerWebExchange secureExchange = MockServerWebExchange
+				.from(MockServerHttpRequest.get("https://localhost").build());
 		writer.writeHttpHeaders(secureExchange);
-
 		assertThat(secureExchange.getResponse()).hasClearSiteDataHeaderDirectives(Directive.ALL);
 	}
 
 	@Test
 	public void writeHttpHeadersWhenInsecureConnectionThenHeaderNotWritten() {
 		ClearSiteDataServerHttpHeadersWriter writer = new ClearSiteDataServerHttpHeadersWriter(Directive.ALL);
-		ServerWebExchange insecureExchange = MockServerWebExchange.from(
-				MockServerHttpRequest.get("/")
-						.build());
-
+		ServerWebExchange insecureExchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 		writer.writeHttpHeaders(insecureExchange);
-
 		assertThat(insecureExchange.getResponse()).doesNotHaveClearSiteDataHeaderSet();
 	}
 
 	@Test
 	public void writeHttpHeadersWhenMultipleDirectivesSpecifiedThenHeaderContainsAll() {
-		ClearSiteDataServerHttpHeadersWriter writer = new ClearSiteDataServerHttpHeadersWriter(
-				Directive.CACHE, Directive.COOKIES);
-		ServerWebExchange secureExchange = MockServerWebExchange.from(
-				MockServerHttpRequest.get("https://localhost")
-						.build());
-
+		ClearSiteDataServerHttpHeadersWriter writer = new ClearSiteDataServerHttpHeadersWriter(Directive.CACHE,
+				Directive.COOKIES);
+		ServerWebExchange secureExchange = MockServerWebExchange
+				.from(MockServerHttpRequest.get("https://localhost").build());
 		writer.writeHttpHeaders(secureExchange);
-
 		assertThat(secureExchange.getResponse()).hasClearSiteDataHeaderDirectives(Directive.CACHE, Directive.COOKIES);
 	}
 
@@ -94,12 +84,11 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 			isNotNull();
 			List<String> header = getHeader();
 			String actualHeaderValue = String.join("", header);
-			String expectedHeaderVale = Stream.of(directives)
-					.map(Directive::getHeaderValue)
+			String expectedHeaderVale = Stream.of(directives).map(Directive::getHeaderValue)
 					.collect(Collectors.joining(", "));
 			if (!actualHeaderValue.equals(expectedHeaderVale)) {
-				failWithMessage("Expected to have %s as Clear-Site-Data header value but found %s",
-						expectedHeaderVale, actualHeaderValue);
+				failWithMessage("Expected to have %s as Clear-Site-Data header value but found %s", expectedHeaderVale,
+						actualHeaderValue);
 			}
 		}
 
@@ -113,8 +102,9 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 		}
 
 		List<String> getHeader() {
-			return actual.getHeaders()
-					.get(ClearSiteDataServerHttpHeadersWriter.CLEAR_SITE_DATA_HEADER);
+			return this.actual.getHeaders().get(ClearSiteDataServerHttpHeadersWriter.CLEAR_SITE_DATA_HEADER);
 		}
+
 	}
+
 }

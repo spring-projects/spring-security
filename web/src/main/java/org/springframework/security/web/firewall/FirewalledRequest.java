@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.firewall;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,9 +29,9 @@ import javax.servlet.http.HttpServletRequestWrapper;
  * @author Luke Taylor
  */
 public abstract class FirewalledRequest extends HttpServletRequestWrapper {
+
 	/**
 	 * Constructs a request object wrapping the given request.
-	 *
 	 * @throws IllegalArgumentException if the request is null
 	 */
 	public FirewalledRequest(HttpServletRequest request) {
@@ -51,4 +52,5 @@ public abstract class FirewalledRequest extends HttpServletRequestWrapper {
 	public String toString() {
 		return "FirewalledRequest[ " + getRequest() + "]";
 	}
+
 }

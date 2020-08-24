@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.jdbc;
-
-import org.springframework.core.io.Resource;
-
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import org.springframework.util.Assert;
-import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
 
 import javax.sql.DataSource;
+
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.Assert;
+import org.springframework.util.FileCopyUtils;
 
 /**
  * Seeds the database for {@link JdbcMutableAclServiceTests}.
@@ -32,15 +31,13 @@ import javax.sql.DataSource;
  * @author Ben Alex
  */
 public class DatabaseSeeder {
-	// ~ Constructors
-	// ===================================================================================================
 
 	public DatabaseSeeder(DataSource dataSource, Resource resource) throws IOException {
 		Assert.notNull(dataSource, "dataSource required");
 		Assert.notNull(resource, "resource required");
-
 		JdbcTemplate template = new JdbcTemplate(dataSource);
 		String sql = new String(FileCopyUtils.copyToByteArray(resource.getInputStream()));
 		template.execute(sql);
 	}
+
 }

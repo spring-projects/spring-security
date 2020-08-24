@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+		"-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+		"https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+	<suppress files=".*" checks="JavadocMethod" />
+	<suppress files=".*" checks="JavadocStyle" />
+	<suppress files=".*" checks="JavadocTagContinuationIndentation" />
+	<suppress files=".*" checks="JavadocType" />
+	<suppress files=".*" checks="JavadocVariable" />
+	<suppress files=".*" checks="NonEmptyAtclauseDescription" />
+	<suppress files=".*" checks="SpringJavadoc" />
+
+	<!-- Ignore third-party code -->
+	<suppress files="BCrypt\.java|BCryptTests\.java" checks=".*"/>
+	<suppress files="org[\\/]springframework[\\/]security[\\/]core[\\/]ComparableVersion\.java" checks=".*"/>
+
+	<!-- InterfaceIsType rules we can't fix until a major revision due to back compatibility -->
+	<suppress files="JwsAlgorithms\.java" checks="InterfaceIsType"/>
+	<suppress files="JwtClaimNames\.java" checks="InterfaceIsType"/>
+	<suppress files="OAuth2ErrorCodes\.java" checks="InterfaceIsType"/>
+	<suppress files="OAuth2ParameterNames\.java" checks="InterfaceIsType"/>
+	<suppress files="PkceParameterNames\.java" checks="InterfaceIsType"/>
+	<suppress files="IdTokenClaimNames\.java" checks="InterfaceIsType"/>
+	<suppress files="OidcScopes\.java" checks="InterfaceIsType"/>
+	<suppress files="StandardClaimNames\.java" checks="InterfaceIsType"/>
+	<suppress files="OidcParameterNames\.java" checks="InterfaceIsType"/>
+	<suppress files="BearerTokenErrorCodes\.java" checks="InterfaceIsType"/>
+	<suppress files="OAuth2IntrospectionClaimNames\.java" checks="InterfaceIsType"/>
+	<suppress files="Saml2ErrorCodes\.java" checks="InterfaceIsType"/>
+
+	<!-- Method Visibility that we can't reduce -->
+	<suppress files="AbstractAclVoterTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="AbstractSecurityWebSocketMessageBrokerConfigurerTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="AnnotationParameterNameDiscovererTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="AnnotationSecurityAspectTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="AuthenticationPrincipalArgumentResolverTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ELRequestMatcherContext\.java" checks="SpringMethodVisibility"/>
+	<suppress files="EnableWebFluxSecurityTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ExpressionBasedPreInvocationAdviceTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ExpressionUrlAuthorizationConfigurerTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="Jsr250MethodSecurityMetadataSourceTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="MapBasedMethodSecurityMetadataSourceTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="OAuth2ResourceServerBeanDefinitionParserTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ObjectIdentityImplTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ObjectIdentityRetrievalStrategyImplTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ProtectPointcutPostProcessor\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ReactiveMethodSecurityConfigurationTests" checks="SpringMethodVisibility"/>
+	<suppress files="WebSocketMessageBrokerConfigTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="WebSecurityConfigurationTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="WithSecurityContextTestExecutionListenerTests\.java" checks="SpringMethodVisibility"/>
+</suppressions>

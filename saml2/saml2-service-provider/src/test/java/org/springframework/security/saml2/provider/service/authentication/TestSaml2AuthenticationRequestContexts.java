@@ -16,17 +16,20 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
-import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.relyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 
 /**
  * Test {@link Saml2AuthenticationRequestContext}s
  */
-public class TestSaml2AuthenticationRequestContexts {
+public final class TestSaml2AuthenticationRequestContexts {
+
+	private TestSaml2AuthenticationRequestContexts() {
+	}
+
 	public static Saml2AuthenticationRequestContext.Builder authenticationRequestContext() {
-		return Saml2AuthenticationRequestContext.builder()
-				.relayState("relayState")
-				.issuer("issuer")
-				.relyingPartyRegistration(relyingPartyRegistration().build())
+		return Saml2AuthenticationRequestContext.builder().relayState("relayState").issuer("issuer")
+				.relyingPartyRegistration(TestRelyingPartyRegistrations.relyingPartyRegistration().build())
 				.assertionConsumerServiceUrl("assertionConsumerServiceUrl");
 	}
+
 }

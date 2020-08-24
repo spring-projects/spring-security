@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.crypto.encrypt;
 
-import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
-import static org.springframework.security.crypto.util.EncodingUtils.subArray;
+package org.springframework.security.crypto.encrypt;
 
 import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -24,16 +22,17 @@ import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.paddings.PKCS7Padding;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.params.ParametersWithIV;
+
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
+import org.springframework.security.crypto.util.EncodingUtils;
 
 /**
- * An Encryptor equivalent to {@link AesBytesEncryptor} using
- * {@link CipherAlgorithm#CBC} that uses Bouncy Castle instead of JCE. The
- * algorithm is equivalent to "AES/CBC/PKCS5Padding".
+ * An Encryptor equivalent to {@link AesBytesEncryptor} using {@link CipherAlgorithm#CBC}
+ * that uses Bouncy Castle instead of JCE. The algorithm is equivalent to
+ * "AES/CBC/PKCS5Padding".
  *
  * @author William Tran
- *
  */
 public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryptor {
 
@@ -41,33 +40,29 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 		super(password, salt);
 	}
 
-	public BouncyCastleAesCbcBytesEncryptor(String password, CharSequence salt,
-			BytesKeyGenerator ivGenerator) {
+	public BouncyCastleAesCbcBytesEncryptor(String password, CharSequence salt, BytesKeyGenerator ivGenerator) {
 		super(password, salt, ivGenerator);
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public byte[] encrypt(byte[] bytes) {
 		byte[] iv = this.ivGenerator.generateKey();
-
-		@SuppressWarnings("deprecation")
 		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(
 				new CBCBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine()), new PKCS7Padding());
-		blockCipher.init(true, new ParametersWithIV(secretKey, iv));
+		blockCipher.init(true, new ParametersWithIV(this.secretKey, iv));
 		byte[] encrypted = process(blockCipher, bytes);
-		return iv != null ? concatenate(iv, encrypted) : encrypted;
+		return (iv != null) ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public byte[] decrypt(byte[] encryptedBytes) {
-		byte[] iv = subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
-		encryptedBytes = subArray(encryptedBytes, this.ivGenerator.getKeyLength(),
-				encryptedBytes.length);
-
-		@SuppressWarnings("deprecation")
+		byte[] iv = EncodingUtils.subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
+		encryptedBytes = EncodingUtils.subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
 		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(
 				new CBCBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine()), new PKCS7Padding());
-		blockCipher.init(false, new ParametersWithIV(secretKey, iv));
+		blockCipher.init(false, new ParametersWithIV(this.secretKey, iv));
 		return process(blockCipher, encryptedBytes);
 	}
 
@@ -77,8 +72,8 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 		try {
 			bytesWritten += blockCipher.doFinal(buf, bytesWritten);
 		}
-		catch (InvalidCipherTextException e) {
-			throw new IllegalStateException("unable to encrypt/decrypt", e);
+		catch (InvalidCipherTextException ex) {
+			throw new IllegalStateException("unable to encrypt/decrypt", ex);
 		}
 		if (bytesWritten == buf.length) {
 			return buf;
@@ -87,4 +82,5 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 		System.arraycopy(buf, 0, out, 0, bytesWritten);
 		return out;
 	}
+
 }

@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.web.configuration;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+package org.springframework.security.config.annotation.web.configuration;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +44,10 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
 /**
  * @author Rob Winch
  */
@@ -62,10 +65,10 @@ public class WebMvcSecurityConfigurationTests {
 
 	@Before
 	public void setup() {
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		authentication = new TestingAuthenticationToken("user", "password",
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
+		this.authentication = new TestingAuthenticationToken("user", "password",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 	}
 
 	@After
@@ -75,25 +78,23 @@ public class WebMvcSecurityConfigurationTests {
 
 	@Test
 	public void authenticationPrincipalResolved() throws Exception {
-		mockMvc.perform(get("/authentication-principal"))
-				.andExpect(assertResult(authentication.getPrincipal()))
+		this.mockMvc.perform(get("/authentication-principal"))
+				.andExpect(assertResult(this.authentication.getPrincipal()))
 				.andExpect(view().name("authentication-principal-view"));
 	}
 
 	@Test
 	public void deprecatedAuthenticationPrincipalResolved() throws Exception {
-		mockMvc.perform(get("/deprecated-authentication-principal"))
-				.andExpect(assertResult(authentication.getPrincipal()))
+		this.mockMvc.perform(get("/deprecated-authentication-principal"))
+				.andExpect(assertResult(this.authentication.getPrincipal()))
 				.andExpect(view().name("deprecated-authentication-principal-view"));
 	}
 
 	@Test
 	public void csrfToken() throws Exception {
 		CsrfToken csrfToken = new DefaultCsrfToken("headerName", "paramName", "token");
-		MockHttpServletRequestBuilder request = get("/csrf").requestAttr(
-				CsrfToken.class.getName(), csrfToken);
-
-		mockMvc.perform(request).andExpect(assertResult(csrfToken));
+		MockHttpServletRequestBuilder request = get("/csrf").requestAttr(CsrfToken.class.getName(), csrfToken);
+		this.mockMvc.perform(request).andExpect(assertResult(csrfToken));
 	}
 
 	private ResultMatcher assertResult(Object expected) {
@@ -104,32 +105,33 @@ public class WebMvcSecurityConfigurationTests {
 	static class TestController {
 
 		@RequestMapping("/authentication-principal")
-		public ModelAndView authenticationPrincipal(
-				@AuthenticationPrincipal String principal) {
+		ModelAndView authenticationPrincipal(@AuthenticationPrincipal String principal) {
 			return new ModelAndView("authentication-principal-view", "result", principal);
 		}
 
 		@RequestMapping("/deprecated-authentication-principal")
-		public ModelAndView deprecatedAuthenticationPrincipal(
+		ModelAndView deprecatedAuthenticationPrincipal(
 				@org.springframework.security.web.bind.annotation.AuthenticationPrincipal String principal) {
-			return new ModelAndView("deprecated-authentication-principal-view", "result",
-					principal);
+			return new ModelAndView("deprecated-authentication-principal-view", "result", principal);
 		}
 
 		@RequestMapping("/csrf")
-		public ModelAndView csrf(CsrfToken token) {
+		ModelAndView csrf(CsrfToken token) {
 			return new ModelAndView("view", "result", token);
 		}
+
 	}
 
 	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class Config {
+
 		@Bean
-		public TestController testController() {
+		TestController testController() {
 			return new TestController();
 		}
+
 	}
 
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.issue50.repo;
 
 import org.springframework.data.repository.CrudRepository;
@@ -27,4 +28,5 @@ public interface UserRepository extends CrudRepository<User, String> {
 
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	User findByUsername(String username);
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.domain;
 
 import org.springframework.security.acls.model.AccessControlEntry;
@@ -21,11 +22,9 @@ import org.springframework.security.acls.model.AccessControlEntry;
  * Used by <code>AclImpl</code> to log audit events.
  *
  * @author Ben Alex
- *
  */
 public interface AuditLogger {
-	// ~ Methods
-	// ========================================================================================================
 
 	void logIfNeeded(boolean granted, AccessControlEntry ace);
+
 }

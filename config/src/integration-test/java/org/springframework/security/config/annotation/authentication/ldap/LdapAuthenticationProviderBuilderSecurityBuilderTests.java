@@ -16,8 +16,16 @@
 
 package org.springframework.security.config.annotation.authentication.ldap;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.Collections;
+import java.util.List;
+
+import javax.naming.directory.SearchControls;
+
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -39,16 +47,14 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.List;
-import javax.naming.directory.SearchControls;
-import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 
 public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
+
+	static Integer port;
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -72,37 +78,13 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		assertThat(ReflectionTestUtils.getField(getAuthoritiesMapper(provider), "prefix")).isEqualTo("ROLE_");
 	}
 
-	@EnableWebSecurity
-	static class DefaultLdapConfig extends BaseLdapProviderConfig {
-		// @formatter:off
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.ldapAuthentication()
-					.contextSource(contextSource())
-					.userDnPatterns("uid={0},ou=people");
-		}
-		// @formatter:on
-	}
-
 	@Test
 	public void groupRolesCustom() {
 		this.spring.register(GroupRolesConfig.class).autowire();
 		LdapAuthenticationProvider provider = ldapProvider();
 
-		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupRoleAttribute")).isEqualTo("group");
-	}
-
-	@EnableWebSecurity
-	static class GroupRolesConfig extends BaseLdapProviderConfig {
-		// @formatter:off
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.ldapAuthentication()
-					.contextSource(contextSource())
-					.userDnPatterns("uid={0},ou=people")
-					.groupRoleAttribute("group");
-		}
-		// @formatter:on
+		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupRoleAttribute"))
+				.isEqualTo("group");
 	}
 
 	@Test
@@ -110,20 +92,8 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		this.spring.register(GroupSearchConfig.class).autowire();
 		LdapAuthenticationProvider provider = ldapProvider();
 
-		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupSearchFilter")).isEqualTo("ou=groupName");
-	}
-
-	@EnableWebSecurity
-	static class GroupSearchConfig extends BaseLdapProviderConfig {
-		// @formatter:off
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.ldapAuthentication()
-					.contextSource(contextSource())
-					.userDnPatterns("uid={0},ou=people")
-					.groupSearchFilter("ou=groupName");
-		}
-		// @formatter:on
+		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupSearchFilter"))
+				.isEqualTo("ou=groupName");
 	}
 
 	@Test
@@ -135,20 +105,6 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 				.extracting("searchScope").isEqualTo(SearchControls.SUBTREE_SCOPE);
 	}
 
-	@EnableWebSecurity
-	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
-		// @formatter:off
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.ldapAuthentication()
-					.contextSource(contextSource())
-					.userDnPatterns("uid={0},ou=people")
-					.groupSearchFilter("ou=groupName")
-					.groupSearchSubtree(true);
-		}
-		// @formatter:on
-	}
-
 	@Test
 	public void rolePrefixCustom() {
 		this.spring.register(RolePrefixConfig.class).autowire();
@@ -157,39 +113,13 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		assertThat(ReflectionTestUtils.getField(getAuthoritiesMapper(provider), "prefix")).isEqualTo("role_");
 	}
 
-	@EnableWebSecurity
-	static class RolePrefixConfig extends BaseLdapProviderConfig {
-		// @formatter:off
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.ldapAuthentication()
-					.contextSource(contextSource())
-					.userDnPatterns("uid={0},ou=people")
-					.rolePrefix("role_");
-		}
-		// @formatter:on
-	}
-
 	@Test
 	public void bindAuthentication() throws Exception {
 		this.spring.register(BindAuthenticationConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
-	}
-
-	@EnableWebSecurity
-	static class BindAuthenticationConfig extends BaseLdapServerConfig {
-		// @formatter:off
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.ldapAuthentication()
-					.contextSource(contextSource())
-					.groupSearchBase("ou=groups")
-					.groupSearchFilter("(member={0})")
-					.userDnPatterns("uid={0},ou=people");
-		}
-		// @formatter:on
+				.andExpect(authenticated().withUsername("bob")
+						.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
 	}
 
 	// SEC-2472
@@ -198,26 +128,13 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		this.spring.register(PasswordEncoderConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin().user("bcrypt").password("password"))
-				.andExpect(authenticated().withUsername("bcrypt").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
-	}
-
-	@EnableWebSecurity
-	static class PasswordEncoderConfig extends BaseLdapServerConfig {
-		// @formatter:off
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.ldapAuthentication()
-					.contextSource(contextSource())
-					.passwordEncoder(new BCryptPasswordEncoder())
-					.groupSearchBase("ou=groups")
-					.groupSearchFilter("(member={0})")
-					.userDnPatterns("uid={0},ou=people");
-		}
-		// @formatter:on
+				.andExpect(authenticated().withUsername("bcrypt")
+						.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
 	}
 
 	private LdapAuthenticationProvider ldapProvider() {
-		return ((List<LdapAuthenticationProvider>) ReflectionTestUtils.getField(authenticationManager, "providers")).get(0);
+		return ((List<LdapAuthenticationProvider>) ReflectionTestUtils.getField(this.authenticationManager,
+				"providers")).get(0);
 	}
 
 	private LdapAuthoritiesPopulator getAuthoritiesPopulator(LdapAuthenticationProvider provider) {
@@ -228,23 +145,150 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		return (GrantedAuthoritiesMapper) ReflectionTestUtils.getField(provider, "authoritiesMapper");
 	}
 
+	static int getPort() throws IOException {
+		if (port == null) {
+			ServerSocket socket = new ServerSocket(0);
+			port = socket.getLocalPort();
+			socket.close();
+		}
+		return port;
+	}
+
 	@EnableWebSecurity
-	static abstract class BaseLdapServerConfig extends BaseLdapProviderConfig {
+	static class DefaultLdapConfig extends BaseLdapProviderConfig {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.userDnPatterns("uid={0},ou=people");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class GroupRolesConfig extends BaseLdapProviderConfig {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.userDnPatterns("uid={0},ou=people")
+					.groupRoleAttribute("group");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class GroupSearchConfig extends BaseLdapProviderConfig {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.userDnPatterns("uid={0},ou=people")
+					.groupSearchFilter("ou=groupName");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.userDnPatterns("uid={0},ou=people")
+					.groupSearchFilter("ou=groupName")
+					.groupSearchSubtree(true);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RolePrefixConfig extends BaseLdapProviderConfig {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.userDnPatterns("uid={0},ou=people")
+					.rolePrefix("role_");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class BindAuthenticationConfig extends BaseLdapServerConfig {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.groupSearchBase("ou=groups")
+					.groupSearchFilter("(member={0})")
+					.userDnPatterns("uid={0},ou=people");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class PasswordEncoderConfig extends BaseLdapServerConfig {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.passwordEncoder(new BCryptPasswordEncoder())
+					.groupSearchBase("ou=groups")
+					.groupSearchFilter("(member={0})")
+					.userDnPatterns("uid={0},ou=people");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	abstract static class BaseLdapServerConfig extends BaseLdapProviderConfig {
+
 		@Bean
-		public ApacheDSContainer ldapServer() throws Exception {
-			ApacheDSContainer apacheDSContainer = new ApacheDSContainer("dc=springframework,dc=org", "classpath:/test-server.ldif");
+		ApacheDSContainer ldapServer() throws Exception {
+			ApacheDSContainer apacheDSContainer = new ApacheDSContainer("dc=springframework,dc=org",
+					"classpath:/test-server.ldif");
 			apacheDSContainer.setPort(getPort());
 			return apacheDSContainer;
 		}
+
 	}
 
 	@EnableWebSecurity
 	@EnableGlobalAuthentication
 	@Import(ObjectPostProcessorConfiguration.class)
-	static abstract class BaseLdapProviderConfig extends WebSecurityConfigurerAdapter {
+	abstract static class BaseLdapProviderConfig extends WebSecurityConfigurerAdapter {
 
 		@Bean
-		public BaseLdapPathContextSource contextSource() throws Exception {
+		BaseLdapPathContextSource contextSource() throws Exception {
 			DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
 					"ldap://127.0.0.1:" + getPort() + "/dc=springframework,dc=org");
 			contextSource.setUserDn("uid=admin,ou=system");
@@ -254,22 +298,14 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		}
 
 		@Bean
-		public AuthenticationManager authenticationManager(AuthenticationManagerBuilder auth) throws Exception {
+		AuthenticationManager authenticationManager(AuthenticationManagerBuilder auth) throws Exception {
 			configure(auth);
 			return auth.build();
 		}
 
-		abstract protected void configure(AuthenticationManagerBuilder auth) throws Exception;
+		@Override
+		protected abstract void configure(AuthenticationManagerBuilder auth) throws Exception;
+
 	}
 
-	static Integer port;
-
-	static int getPort() throws IOException {
-		if (port == null) {
-			ServerSocket socket = new ServerSocket(0);
-			port = socket.getLocalPort();
-			socket.close();
-		}
-		return port;
-	}
 }

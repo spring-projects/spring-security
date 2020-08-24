@@ -50,43 +50,36 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class RemoteAuthenticationProvider implements AuthenticationProvider,
-		InitializingBean {
-	// ~ Instance fields
-	// ================================================================================================
+public class RemoteAuthenticationProvider implements AuthenticationProvider, InitializingBean {
 
 	private RemoteAuthenticationManager remoteAuthenticationManager;
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public void afterPropertiesSet() {
-		Assert.notNull(this.remoteAuthenticationManager,
-				"remoteAuthenticationManager is mandatory");
+		Assert.notNull(this.remoteAuthenticationManager, "remoteAuthenticationManager is mandatory");
 	}
 
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	@Override
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		String username = authentication.getPrincipal().toString();
 		Object credentials = authentication.getCredentials();
-		String password = credentials == null ? null : credentials.toString();
-		Collection<? extends GrantedAuthority> authorities = remoteAuthenticationManager
+		String password = (credentials != null) ? credentials.toString() : null;
+		Collection<? extends GrantedAuthority> authorities = this.remoteAuthenticationManager
 				.attemptAuthentication(username, password);
-
 		return new UsernamePasswordAuthenticationToken(username, password, authorities);
 	}
 
 	public RemoteAuthenticationManager getRemoteAuthenticationManager() {
-		return remoteAuthenticationManager;
+		return this.remoteAuthenticationManager;
 	}
 
-	public void setRemoteAuthenticationManager(
-			RemoteAuthenticationManager remoteAuthenticationManager) {
+	public void setRemoteAuthenticationManager(RemoteAuthenticationManager remoteAuthenticationManager) {
 		this.remoteAuthenticationManager = remoteAuthenticationManager;
 	}
 
+	@Override
 	public boolean supports(Class<?> authentication) {
-		return (UsernamePasswordAuthenticationToken.class
-				.isAssignableFrom(authentication));
+		return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
 	}
+
 }

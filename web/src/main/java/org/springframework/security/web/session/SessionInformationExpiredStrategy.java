@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.session;
 
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 
 /**
@@ -28,6 +30,6 @@ import javax.servlet.ServletException;
  */
 public interface SessionInformationExpiredStrategy {
 
-	void onExpiredSessionDetected(SessionInformationExpiredEvent event)
-			throws IOException, ServletException;
+	void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException, ServletException;
+
 }

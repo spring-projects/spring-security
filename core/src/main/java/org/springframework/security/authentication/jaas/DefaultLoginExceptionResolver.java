@@ -16,10 +16,10 @@
 
 package org.springframework.security.authentication.jaas;
 
+import javax.security.auth.login.LoginException;
+
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
-
-import javax.security.auth.login.LoginException;
 
 /**
  * This LoginExceptionResolver simply wraps the LoginException with an
@@ -28,10 +28,10 @@ import javax.security.auth.login.LoginException;
  * @author Ray Krueger
  */
 public class DefaultLoginExceptionResolver implements LoginExceptionResolver {
-	// ~ Methods
-	// ========================================================================================================
 
-	public AuthenticationException resolveException(LoginException e) {
-		return new AuthenticationServiceException(e.getMessage(), e);
+	@Override
+	public AuthenticationException resolveException(LoginException ex) {
+		return new AuthenticationServiceException(ex.getMessage(), ex);
 	}
+
 }

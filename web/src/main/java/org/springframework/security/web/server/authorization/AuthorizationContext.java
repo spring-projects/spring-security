@@ -16,17 +16,19 @@
 
 package org.springframework.security.web.server.authorization;
 
-import org.springframework.web.server.ServerWebExchange;
-
 import java.util.Collections;
 import java.util.Map;
+
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
 public class AuthorizationContext {
+
 	private final ServerWebExchange exchange;
+
 	private final Map<String, Object> variables;
 
 	public AuthorizationContext(ServerWebExchange exchange) {
@@ -39,10 +41,11 @@ public class AuthorizationContext {
 	}
 
 	public ServerWebExchange getExchange() {
-		return exchange;
+		return this.exchange;
 	}
 
 	public Map<String, Object> getVariables() {
-		return Collections.unmodifiableMap(variables);
+		return Collections.unmodifiableMap(this.variables);
 	}
+
 }

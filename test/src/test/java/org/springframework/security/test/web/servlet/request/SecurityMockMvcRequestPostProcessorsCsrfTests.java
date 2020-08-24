@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.servlet.request;
 
 import java.io.IOException;
@@ -62,10 +63,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration
 @WebAppConfiguration
 public class SecurityMockMvcRequestPostProcessorsCsrfTests {
+
 	@Autowired
 	WebApplicationContext wac;
+
 	@Autowired
 	TheController controller;
+
 	@Autowired
 	FilterChainProxy springSecurityFilterChain;
 
@@ -151,12 +155,10 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 	public void csrfWhenUsedThenDoesNotImpactOriginalRepository() throws Exception {
 		// @formatter:off
 		this.mockMvc.perform(post("/").with(csrf()));
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpSessionCsrfTokenRepository repo = new HttpSessionCsrfTokenRepository();
 		CsrfToken token = repo.generateToken(request);
 		repo.saveToken(token, request, new MockHttpServletResponse());
-
 		MockHttpServletRequestBuilder requestWithCsrf = post("/")
 			.param(token.getParameterName(), token.getToken())
 			.session((MockHttpSession) request.getSession());
@@ -169,6 +171,10 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 		return new CsrfParamResultMatcher();
 	}
 
+	public static ResultMatcher csrfAsHeader() {
+		return new CsrfHeaderResultMatcher();
+	}
+
 	static class CsrfParamResultMatcher implements ResultMatcher {
 
 		@Override
@@ -177,10 +183,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			assertThat(request.getParameter("_csrf")).isNotNull();
 			assertThat(request.getHeader("X-CSRF-TOKEN")).isNull();
 		}
-	}
 
-	public static ResultMatcher csrfAsHeader() {
-		return new CsrfHeaderResultMatcher();
 	}
 
 	static class CsrfHeaderResultMatcher implements ResultMatcher {
@@ -191,18 +194,19 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			assertThat(request.getParameter("_csrf")).isNull();
 			assertThat(request.getHeader("X-CSRF-TOKEN")).isNotNull();
 		}
+
 	}
 
 	static class SessionRepositoryFilter extends OncePerRequestFilter {
 
 		@Override
-		protected void doFilterInternal(HttpServletRequest request,
-				HttpServletResponse response, FilterChain filterChain)
-						throws ServletException, IOException {
+		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+				FilterChain filterChain) throws ServletException, IOException {
 			filterChain.doFilter(new SessionRequestWrapper(request), response);
 		}
 
 		static class SessionRequestWrapper extends HttpServletRequestWrapper {
+
 			HttpSession session = new MockHttpSession();
 
 			SessionRequestWrapper(HttpServletRequest request) {
@@ -218,21 +222,28 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			public HttpSession getSession() {
 				return this.session;
 			}
+
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) {
 		}
 
 		@RestController
 		static class TheController {
+
 			@RequestMapping("/")
 			String index() {
 				return "Hi";
 			}
+
 		}
+
 	}
+
 }

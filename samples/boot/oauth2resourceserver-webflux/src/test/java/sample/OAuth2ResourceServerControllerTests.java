@@ -50,14 +50,14 @@ public class OAuth2ResourceServerControllerTests {
 
 		@Test
 		public void indexGreetsAuthenticatedUser() {
-			this.rest.mutateWith(mockJwt().jwt(jwt -> jwt.subject("test-subject")))
+			this.rest.mutateWith(mockJwt().jwt((jwt) -> jwt.subject("test-subject")))
 					.get().uri("/").exchange()
 					.expectBody(String.class).isEqualTo("Hello, test-subject!");
 		}
 
 		@Test
 		public void messageCanBeReadWithScopeMessageReadAuthority() {
-			this.rest.mutateWith(mockJwt().jwt(jwt -> jwt.claim("scope", "message:read")))
+			this.rest.mutateWith(mockJwt().jwt((jwt) -> jwt.claim("scope", "message:read")))
 					.get().uri("/message").exchange()
 					.expectBody(String.class).isEqualTo("secret message");
 
@@ -78,7 +78,7 @@ public class OAuth2ResourceServerControllerTests {
 			Jwt jwt = jwt().claim("scope", "").build();
 			when(this.jwtDecoder.decode(anyString())).thenReturn(Mono.just(jwt));
 			this.rest.post().uri("/message")
-					.headers(headers -> headers.setBearerAuth(jwt.getTokenValue()))
+					.headers((headers) -> headers.setBearerAuth(jwt.getTokenValue()))
 					.syncBody("Hello message").exchange()
 					.expectStatus().isForbidden();
 		}
@@ -88,7 +88,7 @@ public class OAuth2ResourceServerControllerTests {
 			Jwt jwt = jwt().claim("scope", "message:read").build();
 			when(this.jwtDecoder.decode(anyString())).thenReturn(Mono.just(jwt));
 			this.rest.post().uri("/message")
-					.headers(headers -> headers.setBearerAuth(jwt.getTokenValue()))
+					.headers((headers) -> headers.setBearerAuth(jwt.getTokenValue()))
 					.syncBody("Hello message").exchange()
 					.expectStatus().isForbidden();
 		}
@@ -98,7 +98,7 @@ public class OAuth2ResourceServerControllerTests {
 			Jwt jwt = jwt().claim("scope", "message:write").build();
 			when(this.jwtDecoder.decode(anyString())).thenReturn(Mono.just(jwt));
 			this.rest.post().uri("/message")
-					.headers(headers -> headers.setBearerAuth(jwt.getTokenValue()))
+					.headers((headers) -> headers.setBearerAuth(jwt.getTokenValue()))
 					.syncBody("Hello message").exchange()
 					.expectStatus().isOk()
 					.expectBody(String.class).isEqualTo("Message was created. Content: Hello message");

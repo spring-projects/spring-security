@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.access;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,21 +38,20 @@ import org.springframework.util.Assert;
  *
  */
 public final class RequestMatcherDelegatingAccessDeniedHandler implements AccessDeniedHandler {
+
 	private final LinkedHashMap<RequestMatcher, AccessDeniedHandler> handlers;
 
 	private final AccessDeniedHandler defaultHandler;
 
 	/**
 	 * Creates a new instance
-	 *
-	 * @param handlers a map of {@link RequestMatcher}s to
-	 * {@link AccessDeniedHandler}s that should be used. Each is considered in the order
-	 * they are specified and only the first {@link AccessDeniedHandler} is used.
+	 * @param handlers a map of {@link RequestMatcher}s to {@link AccessDeniedHandler}s
+	 * that should be used. Each is considered in the order they are specified and only
+	 * the first {@link AccessDeniedHandler} is used.
 	 * @param defaultHandler the default {@link AccessDeniedHandler} that should be used
 	 * if none of the matchers match.
 	 */
-	public RequestMatcherDelegatingAccessDeniedHandler(
-			LinkedHashMap<RequestMatcher, AccessDeniedHandler> handlers,
+	public RequestMatcherDelegatingAccessDeniedHandler(LinkedHashMap<RequestMatcher, AccessDeniedHandler> handlers,
 			AccessDeniedHandler defaultHandler) {
 		Assert.notEmpty(handlers, "handlers cannot be null or empty");
 		Assert.notNull(defaultHandler, "defaultHandler cannot be null");
@@ -58,11 +59,10 @@ public final class RequestMatcherDelegatingAccessDeniedHandler implements Access
 		this.defaultHandler = defaultHandler;
 	}
 
+	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
-			AccessDeniedException accessDeniedException) throws IOException,
-			ServletException {
-		for (Entry<RequestMatcher, AccessDeniedHandler> entry : this.handlers
-				.entrySet()) {
+			AccessDeniedException accessDeniedException) throws IOException, ServletException {
+		for (Entry<RequestMatcher, AccessDeniedHandler> entry : this.handlers.entrySet()) {
 			RequestMatcher matcher = entry.getKey();
 			if (matcher.matches(request)) {
 				AccessDeniedHandler handler = entry.getValue();
@@ -70,7 +70,7 @@ public final class RequestMatcherDelegatingAccessDeniedHandler implements Access
 				return;
 			}
 		}
-		defaultHandler.handle(request, response, accessDeniedException);
+		this.defaultHandler.handle(request, response, accessDeniedException);
 	}
 
 }

@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.core.token;
 
-import static org.assertj.core.api.Assertions.*;
+package org.springframework.security.core.token;
 
 import java.security.SecureRandom;
 import java.util.Date;
 
 import org.junit.Test;
-import org.springframework.security.core.token.DefaultToken;
-import org.springframework.security.core.token.KeyBasedPersistenceTokenService;
-import org.springframework.security.core.token.SecureRandomFactoryBean;
-import org.springframework.security.core.token.Token;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link KeyBasedPersistenceTokenService}.
@@ -44,8 +41,8 @@ public class KeyBasedPersistenceTokenServiceTests {
 			service.setSecureRandom(rnd);
 			service.afterPropertiesSet();
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		catch (Exception ex) {
+			throw new RuntimeException(ex);
 		}
 		return service;
 	}
@@ -98,4 +95,5 @@ public class KeyBasedPersistenceTokenServiceTests {
 		Token token = new DefaultToken(fake, new Date().getTime(), "");
 		service.verifyToken(token.getKey());
 	}
+
 }

@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.userinfo;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.RequestEntity;
@@ -29,21 +34,20 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
- * An implementation of an {@link OAuth2UserService} that supports custom {@link OAuth2User} types.
+ * An implementation of an {@link OAuth2UserService} that supports custom
+ * {@link OAuth2User} types.
  * <p>
- * The custom user type(s) is supplied via the constructor,
- * using a {@code Map} of {@link OAuth2User} type(s) keyed by {@code String},
- * which represents the {@link ClientRegistration#getRegistrationId() Registration Id} of the Client.
+ * The custom user type(s) is supplied via the constructor, using a {@code Map} of
+ * {@link OAuth2User} type(s) keyed by {@code String}, which represents the
+ * {@link ClientRegistration#getRegistrationId() Registration Id} of the Client.
  *
- * @deprecated It is recommended to use a delegation-based strategy of an {@link OAuth2UserService} to support custom {@link OAuth2User} types,
- * as it provides much greater flexibility compared to this implementation.
- * See the <a target="_blank" href="https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2login-advanced-map-authorities-oauth2userservice">reference manual</a> for details on how to implement.
- *
+ * @deprecated It is recommended to use a delegation-based strategy of an
+ * {@link OAuth2UserService} to support custom {@link OAuth2User} types, as it provides
+ * much greater flexibility compared to this implementation. See the
+ * <a target="_blank" href=
+ * "https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2login-advanced-map-authorities-oauth2userservice">reference
+ * manual</a> for details on how to implement.
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2UserService
@@ -53,6 +57,7 @@ import java.util.Map;
  */
 @Deprecated
 public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 
 	private final Map<String, Class<? extends OAuth2User>> customUserTypes;
@@ -62,9 +67,10 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 	private RestOperations restOperations;
 
 	/**
-	 * Constructs a {@code CustomUserTypesOAuth2UserService} using the provided parameters.
-	 *
-	 * @param customUserTypes a {@code Map} of {@link OAuth2User} type(s) keyed by {@link ClientRegistration#getRegistrationId() Registration Id}
+	 * Constructs a {@code CustomUserTypesOAuth2UserService} using the provided
+	 * parameters.
+	 * @param customUserTypes a {@code Map} of {@link OAuth2User} type(s) keyed by
+	 * {@link ClientRegistration#getRegistrationId() Registration Id}
 	 */
 	public CustomUserTypesOAuth2UserService(Map<String, Class<? extends OAuth2User>> customUserTypes) {
 		Assert.notEmpty(customUserTypes, "customUserTypes cannot be empty");
@@ -78,33 +84,34 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
-		Class<? extends OAuth2User> customUserType;
-		if ((customUserType = this.customUserTypes.get(registrationId)) == null) {
+		Class<? extends OAuth2User> customUserType = this.customUserTypes.get(registrationId);
+		if (customUserType == null) {
 			return null;
 		}
-
 		RequestEntity<?> request = this.requestEntityConverter.convert(userRequest);
+		ResponseEntity<? extends OAuth2User> response = getResponse(customUserType, request);
+		OAuth2User oauth2User = response.getBody();
+		return oauth2User;
+	}
 
-		ResponseEntity<? extends OAuth2User> response;
+	private ResponseEntity<? extends OAuth2User> getResponse(Class<? extends OAuth2User> customUserType,
+			RequestEntity<?> request) {
 		try {
-			response = this.restOperations.exchange(request, customUserType);
-		} catch (RestClientException ex) {
+			return this.restOperations.exchange(request, customUserType);
+		}
+		catch (RestClientException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
 					"An error occurred while attempting to retrieve the UserInfo Resource: " + ex.getMessage(), null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 		}
-
-		OAuth2User oauth2User = response.getBody();
-
-		return oauth2User;
 	}
 
 	/**
-	 * Sets the {@link Converter} used for converting the {@link OAuth2UserRequest}
-	 * to a {@link RequestEntity} representation of the UserInfo Request.
-	 *
+	 * Sets the {@link Converter} used for converting the {@link OAuth2UserRequest} to a
+	 * {@link RequestEntity} representation of the UserInfo Request.
+	 * @param requestEntityConverter the {@link Converter} used for converting to a
+	 * {@link RequestEntity} representation of the UserInfo Request
 	 * @since 5.1
-	 * @param requestEntityConverter the {@link Converter} used for converting to a {@link RequestEntity} representation of the UserInfo Request
 	 */
 	public final void setRequestEntityConverter(Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter) {
 		Assert.notNull(requestEntityConverter, "requestEntityConverter cannot be null");
@@ -115,16 +122,18 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 	 * Sets the {@link RestOperations} used when requesting the UserInfo resource.
 	 *
 	 * <p>
-	 * <b>NOTE:</b> At a minimum, the supplied {@code restOperations} must be configured with the following:
+	 * <b>NOTE:</b> At a minimum, the supplied {@code restOperations} must be configured
+	 * with the following:
 	 * <ol>
-	 *  <li>{@link ResponseErrorHandler} - {@link OAuth2ErrorResponseErrorHandler}</li>
+	 * <li>{@link ResponseErrorHandler} - {@link OAuth2ErrorResponseErrorHandler}</li>
 	 * </ol>
-	 *
+	 * @param restOperations the {@link RestOperations} used when requesting the UserInfo
+	 * resource
 	 * @since 5.1
-	 * @param restOperations the {@link RestOperations} used when requesting the UserInfo resource
 	 */
 	public final void setRestOperations(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations cannot be null");
 		this.restOperations = restOperations;
 	}
+
 }

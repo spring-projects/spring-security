@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.access.intercept;
 
 import org.springframework.util.Assert;
@@ -22,7 +23,9 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 public class RequestKey {
+
 	private final String url;
+
 	private final String method;
 
 	public RequestKey(String url) {
@@ -36,18 +39,11 @@ public class RequestKey {
 	}
 
 	String getUrl() {
-		return url;
+		return this.url;
 	}
 
 	String getMethod() {
-		return method;
-	}
-
-	@Override
-	public int hashCode() {
-		int result = this.url.hashCode();
-		result = 31 * result + (this.method != null ? this.method.hashCode() : 0);
-		return result;
+		return this.method;
 	}
 
 	@Override
@@ -55,30 +51,33 @@ public class RequestKey {
 		if (!(obj instanceof RequestKey)) {
 			return false;
 		}
-
 		RequestKey key = (RequestKey) obj;
-
-		if (!url.equals(key.url)) {
+		if (!this.url.equals(key.url)) {
 			return false;
 		}
-
-		if (method == null) {
+		if (this.method == null) {
 			return key.method == null;
 		}
+		return this.method.equals(key.method);
+	}
 
-		return method.equals(key.method);
+	@Override
+	public int hashCode() {
+		int result = this.url.hashCode();
+		result = 31 * result + ((this.method != null) ? this.method.hashCode() : 0);
+		return result;
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(url.length() + 7);
+		StringBuilder sb = new StringBuilder(this.url.length() + 7);
 		sb.append("[");
-		if (method != null) {
-			sb.append(method).append(",");
+		if (this.method != null) {
+			sb.append(this.method).append(",");
 		}
-		sb.append(url);
+		sb.append(this.url);
 		sb.append("]");
-
 		return sb.toString();
 	}
+
 }

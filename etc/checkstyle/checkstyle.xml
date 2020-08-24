@@ -1,51 +1,26 @@
 <?xml version="1.0"?>
-<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
-		"https://www.puppycrawl.com/dtds/configuration_1_3.dtd">
-<module name="Checker">
-	<!-- Suppressions -->
+<!DOCTYPE module PUBLIC
+		"-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+		"https://checkstyle.org/dtds/configuration_1_3.dtd">
+<module name="com.puppycrawl.tools.checkstyle.Checker">
 	<module name="SuppressionFilter">
-		<property name="file" value="${config_loc}/suppressions.xml"/>
+		<property name="file"
+			value="${config_loc}/checkstyle-suppressions.xml" />
 	</module>
-
-	<!-- Root Checks -->
-	<module name="RegexpHeader">
-		<property name="headerFile" value="${config_loc}/header.txt"/>
-		<property name="fileExtensions" value="java"/>
+	<module name="com.puppycrawl.tools.checkstyle.checks.header.RegexpHeaderCheck">
+		<property name="headerFile" value="${config_loc}/header.txt" />
+		<property name="fileExtensions" value="java" />
 	</module>
-
-	<!-- Root Checks -->
-	<module name="TreeWalker">
-		<!-- Annotations -->
-		<module name="MissingOverrideCheck" />
-
-		<!-- Coding -->
-		<module name="EmptyStatementCheck" />
-		<module name="RedundantModifier" />
-
-		<!-- Imports -->
-		<module name="UnusedImportsCheck">
-			<property name="processJavadoc" value="true" />
+	<module name="io.spring.javaformat.checkstyle.SpringChecks">
+		<property name="excludes" value="io.spring.javaformat.checkstyle.check.SpringHeaderCheck" />
+		<property name="avoidStaticImportExcludes" value="org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.*" />
+	</module>
+	<module name="com.puppycrawl.tools.checkstyle.TreeWalker">
+ 		<module name="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck">
+ 			<property name="maximum" value="0"/>
+			<property name="format" value="org\.assertj\.core\.api\.Assertions\.(catchThrowable|catchThrowableOfType|assertThatThrownBy|assertThatCode)" />
+			<property name="message" value="Please use assertThatExceptionOfType." />
+			<property name="ignoreComments" value="true" />
 		</module>
-
-		<!-- Regexp -->
-		<module name="RegexpSinglelineJava">
-			<property name="format" value="^\t* +\t*\S"/>
-			<property name="message" value="Line has leading space characters; indentation should be performed with tabs only."/>
-			<property name="ignoreComments" value="true"/>
-		</module>
-		<module name="RegexpSinglelineJava">
-			<property name="maximum" value="0"/>
-			<property name="format" value="org\.junit\.Assert\.assert"/>
-			<property name="message" value="Please use AssertJ imports."/>
-			<property name="ignoreComments" value="true"/>
-		</module>
-		<module name="Regexp">
-			<property name="format" value="[ \t]+$"/>
-			<property name="illegalPattern" value="true"/>
-			<property name="message" value="Trailing whitespace"/>
-		</module>
-
-		<!-- Whitespace -->
-		<module name="WhitespaceAfterCheck" />
 	</module>
 </module>

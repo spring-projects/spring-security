@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.openid;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+package org.springframework.security.openid;
 
 import java.net.URI;
 import java.util.Collections;
@@ -27,34 +25,47 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 /**
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public class OpenIDAuthenticationFilterTests {
 
 	OpenIDAuthenticationFilter filter;
+
 	private static final String REDIRECT_URL = "https://www.example.com/redirect";
+
 	private static final String CLAIMED_IDENTITY_URL = "https://www.example.com/identity";
+
 	private static final String REQUEST_PATH = "/login/openid";
-	private static final String FILTER_PROCESS_URL = "http://localhost:8080"
-			+ REQUEST_PATH;
+
+	private static final String FILTER_PROCESS_URL = "http://localhost:8080" + REQUEST_PATH;
+
 	private static final String DEFAULT_TARGET_URL = FILTER_PROCESS_URL;
 
 	@Before
 	public void setUp() {
-		filter = new OpenIDAuthenticationFilter();
-		filter.setConsumer(new MockOpenIDConsumer(REDIRECT_URL));
+		this.filter = new OpenIDAuthenticationFilter();
+		this.filter.setConsumer(new MockOpenIDConsumer(REDIRECT_URL));
 		SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-		filter.setAuthenticationSuccessHandler(new SavedRequestAwareAuthenticationSuccessHandler());
+		this.filter.setAuthenticationSuccessHandler(new SavedRequestAwareAuthenticationSuccessHandler());
 		successHandler.setDefaultTargetUrl(DEFAULT_TARGET_URL);
-		filter.setAuthenticationManager(a -> a);
-		filter.afterPropertiesSet();
+		this.filter.setAuthenticationManager((a) -> a);
+		this.filter.afterPropertiesSet();
 	}
 
 	@Test
@@ -64,26 +75,23 @@ public class OpenIDAuthenticationFilterTests {
 		req.setRequestURI(REQUEST_PATH);
 		req.setServerPort(8080);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		req.setParameter("openid_identifier", " " + CLAIMED_IDENTITY_URL);
 		req.setRemoteHost("www.example.com");
-
-		filter.setConsumer(new MockOpenIDConsumer() {
-			public String beginConsumption(HttpServletRequest req,
-					String claimedIdentity, String returnToUrl, String realm) {
+		this.filter.setConsumer(new MockOpenIDConsumer() {
+			@Override
+			public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl,
+					String realm) {
 				assertThat(claimedIdentity).isEqualTo(CLAIMED_IDENTITY_URL);
 				assertThat(returnToUrl).isEqualTo(DEFAULT_TARGET_URL);
 				assertThat(realm).isEqualTo("http://localhost:8080/");
 				return REDIRECT_URL;
 			}
 		});
-
 		FilterChain fc = mock(FilterChain.class);
-		filter.doFilter(req, response, fc);
+		this.filter.doFilter(req, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo(REDIRECT_URL);
 		// Filter chain shouldn't proceed
-		verify(fc, never()).doFilter(any(HttpServletRequest.class),
-				any(HttpServletResponse.class));
+		verify(fc, never()).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	/**
@@ -96,9 +104,8 @@ public class OpenIDAuthenticationFilterTests {
 		String paramValue = "https://example.com/path?a=b&c=d";
 		MockHttpServletRequest req = new MockHttpServletRequest("GET", REQUEST_PATH);
 		req.addParameter(paramName, paramValue);
-		filter.setReturnToUrlParameters(Collections.singleton(paramName));
-
-		URI returnTo = new URI(filter.buildReturnToUrl(req));
+		this.filter.setReturnToUrlParameters(Collections.singleton(paramName));
+		URI returnTo = new URI(this.filter.buildReturnToUrl(req));
 		String query = returnTo.getRawQuery();
 		assertThat(count(query, '=')).isEqualTo(1);
 		assertThat(count(query, '&')).isZero();
@@ -116,4 +123,5 @@ public class OpenIDAuthenticationFilterTests {
 		}
 		return count;
 	}
+
 }

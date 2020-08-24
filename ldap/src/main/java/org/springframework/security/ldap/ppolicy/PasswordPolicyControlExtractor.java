@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.ppolicy;
 
 import javax.naming.directory.DirContext;
@@ -28,9 +29,12 @@ import org.apache.commons.logging.LogFactory;
  * @author Luke Taylor
  * @since 3.0
  */
-public class PasswordPolicyControlExtractor {
-	private static final Log logger = LogFactory
-			.getLog(PasswordPolicyControlExtractor.class);
+public final class PasswordPolicyControlExtractor {
+
+	private static final Log logger = LogFactory.getLog(PasswordPolicyControlExtractor.class);
+
+	private PasswordPolicyControlExtractor() {
+	}
 
 	public static PasswordPolicyResponseControl extractControl(DirContext dirCtx) {
 		LdapContext ctx = (LdapContext) dirCtx;
@@ -38,16 +42,14 @@ public class PasswordPolicyControlExtractor {
 		try {
 			ctrls = ctx.getResponseControls();
 		}
-		catch (javax.naming.NamingException e) {
-			logger.error("Failed to obtain response controls", e);
+		catch (javax.naming.NamingException ex) {
+			logger.error("Failed to obtain response controls", ex);
 		}
-
 		for (int i = 0; ctrls != null && i < ctrls.length; i++) {
 			if (ctrls[i] instanceof PasswordPolicyResponseControl) {
 				return (PasswordPolicyResponseControl) ctrls[i];
 			}
 		}
-
 		return null;
 	}
 

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.expression.method;
 
 import org.springframework.expression.Expression;
@@ -30,53 +31,50 @@ import org.springframework.security.access.prepost.PrePostInvocationAttributeFac
  * @author Rob Winch
  * @since 3.0
  */
-public class ExpressionBasedAnnotationAttributeFactory implements
-		PrePostInvocationAttributeFactory {
+public class ExpressionBasedAnnotationAttributeFactory implements PrePostInvocationAttributeFactory {
+
 	private final Object parserLock = new Object();
+
 	private ExpressionParser parser;
+
 	private MethodSecurityExpressionHandler handler;
 
-	public ExpressionBasedAnnotationAttributeFactory(
-			MethodSecurityExpressionHandler handler) {
+	public ExpressionBasedAnnotationAttributeFactory(MethodSecurityExpressionHandler handler) {
 		this.handler = handler;
 	}
 
-	public PreInvocationAttribute createPreInvocationAttribute(String preFilterAttribute,
-			String filterObject, String preAuthorizeAttribute) {
+	@Override
+	public PreInvocationAttribute createPreInvocationAttribute(String preFilterAttribute, String filterObject,
+			String preAuthorizeAttribute) {
 		try {
 			// TODO: Optimization of permitAll
 			ExpressionParser parser = getParser();
-			Expression preAuthorizeExpression = preAuthorizeAttribute == null ? parser
-					.parseExpression("permitAll") : parser
-					.parseExpression(preAuthorizeAttribute);
-			Expression preFilterExpression = preFilterAttribute == null ? null : parser
-					.parseExpression(preFilterAttribute);
-			return new PreInvocationExpressionAttribute(preFilterExpression,
-					filterObject, preAuthorizeExpression);
+			Expression preAuthorizeExpression = (preAuthorizeAttribute != null)
+					? parser.parseExpression(preAuthorizeAttribute) : parser.parseExpression("permitAll");
+			Expression preFilterExpression = (preFilterAttribute != null) ? parser.parseExpression(preFilterAttribute)
+					: null;
+			return new PreInvocationExpressionAttribute(preFilterExpression, filterObject, preAuthorizeExpression);
 		}
-		catch (ParseException e) {
-			throw new IllegalArgumentException("Failed to parse expression '"
-					+ e.getExpressionString() + "'", e);
+		catch (ParseException ex) {
+			throw new IllegalArgumentException("Failed to parse expression '" + ex.getExpressionString() + "'", ex);
 		}
 	}
 
-	public PostInvocationAttribute createPostInvocationAttribute(
-			String postFilterAttribute, String postAuthorizeAttribute) {
+	@Override
+	public PostInvocationAttribute createPostInvocationAttribute(String postFilterAttribute,
+			String postAuthorizeAttribute) {
 		try {
 			ExpressionParser parser = getParser();
-			Expression postAuthorizeExpression = postAuthorizeAttribute == null ? null
-					: parser.parseExpression(postAuthorizeAttribute);
-			Expression postFilterExpression = postFilterAttribute == null ? null : parser
-					.parseExpression(postFilterAttribute);
-
+			Expression postAuthorizeExpression = (postAuthorizeAttribute != null)
+					? parser.parseExpression(postAuthorizeAttribute) : null;
+			Expression postFilterExpression = (postFilterAttribute != null)
+					? parser.parseExpression(postFilterAttribute) : null;
 			if (postFilterExpression != null || postAuthorizeExpression != null) {
-				return new PostInvocationExpressionAttribute(postFilterExpression,
-						postAuthorizeExpression);
+				return new PostInvocationExpressionAttribute(postFilterExpression, postAuthorizeExpression);
 			}
 		}
-		catch (ParseException e) {
-			throw new IllegalArgumentException("Failed to parse expression '"
-					+ e.getExpressionString() + "'", e);
+		catch (ParseException ex) {
+			throw new IllegalArgumentException("Failed to parse expression '" + ex.getExpressionString() + "'", ex);
 		}
 
 		return null;
@@ -84,17 +82,17 @@ public class ExpressionBasedAnnotationAttributeFactory implements
 
 	/**
 	 * Delay the lookup of the {@link ExpressionParser} to prevent SEC-2136
-	 *
 	 * @return
 	 */
 	private ExpressionParser getParser() {
 		if (this.parser != null) {
 			return this.parser;
 		}
-		synchronized (parserLock) {
-			this.parser = handler.getExpressionParser();
+		synchronized (this.parserLock) {
+			this.parser = this.handler.getExpressionParser();
 			this.handler = null;
 		}
 		return this.parser;
 	}
+
 }

@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.jdbc;
 
 import javax.sql.DataSource;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -28,8 +30,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @author Paul Wheeler
  */
 public class BasicLookupStrategyTests extends AbstractBasicLookupStrategyTests {
-	private static final BasicLookupStrategyTestsDbHelper DATABASE_HELPER = new BasicLookupStrategyTestsDbHelper();
 
+	private static final BasicLookupStrategyTestsDbHelper DATABASE_HELPER = new BasicLookupStrategyTestsDbHelper();
 
 	@BeforeClass
 	public static void createDatabase() throws Exception {
@@ -50,4 +52,5 @@ public class BasicLookupStrategyTests extends AbstractBasicLookupStrategyTests {
 	public DataSource getDataSource() {
 		return DATABASE_HELPER.getDataSource();
 	}
+
 }

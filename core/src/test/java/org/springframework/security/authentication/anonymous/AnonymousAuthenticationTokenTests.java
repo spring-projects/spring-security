@@ -16,17 +16,18 @@
 
 package org.springframework.security.authentication.anonymous;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-
 import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
+
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link AnonymousAuthenticationToken}.
@@ -35,11 +36,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 public class AnonymousAuthenticationTokenTests {
 
-	private final static List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList(
-			"ROLE_ONE", "ROLE_TWO");
+	private static final List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testConstructorRejectsNulls() {
 		try {
@@ -48,25 +46,20 @@ public class AnonymousAuthenticationTokenTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			new AnonymousAuthenticationToken("key", null, ROLES_12);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
-			new AnonymousAuthenticationToken("key", "Test",
-					null);
+			new AnonymousAuthenticationToken("key", "Test", null);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
-			new AnonymousAuthenticationToken("key", "Test",
-					AuthorityUtils.NO_AUTHORITIES);
+			new AnonymousAuthenticationToken("key", "Test", AuthorityUtils.NO_AUTHORITIES);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
@@ -75,31 +68,24 @@ public class AnonymousAuthenticationTokenTests {
 
 	@Test
 	public void testEqualsWhenEqual() {
-		AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key",
-				"Test", ROLES_12);
-		AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("key",
-				"Test", ROLES_12);
-
+		AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
+		AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
 		assertThat(token2).isEqualTo(token1);
 	}
 
 	@Test
 	public void testGetters() {
-		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key",
-				"Test", ROLES_12);
-
+		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
 		assertThat(token.getKeyHash()).isEqualTo("key".hashCode());
 		assertThat(token.getPrincipal()).isEqualTo("Test");
 		assertThat(token.getCredentials()).isEqualTo("");
-		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities())).contains(
-				"ROLE_ONE", "ROLE_TWO");
+		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities())).contains("ROLE_ONE", "ROLE_TWO");
 		assertThat(token.isAuthenticated()).isTrue();
 	}
 
 	@Test
 	public void testNoArgConstructorDoesntExist() {
 		Class<?> clazz = AnonymousAuthenticationToken.class;
-
 		try {
 			clazz.getDeclaredConstructor((Class[]) null);
 			fail("Should have thrown NoSuchMethodException");
@@ -110,39 +96,29 @@ public class AnonymousAuthenticationTokenTests {
 
 	@Test
 	public void testNotEqualsDueToAbstractParentEqualsCheck() {
-		AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key",
-				"Test", ROLES_12);
-		AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("key",
-				"DIFFERENT_PRINCIPAL", ROLES_12);
-
+		AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
+		AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("key", "DIFFERENT_PRINCIPAL", ROLES_12);
 		assertThat(token1.equals(token2)).isFalse();
 	}
 
 	@Test
 	public void testNotEqualsDueToDifferentAuthenticationClass() {
-		AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key",
-				"Test", ROLES_12);
-		UsernamePasswordAuthenticationToken token2 = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", ROLES_12);
-
+		AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
+		UsernamePasswordAuthenticationToken token2 = new UsernamePasswordAuthenticationToken("Test", "Password",
+				ROLES_12);
 		assertThat(token1.equals(token2)).isFalse();
 	}
 
 	@Test
 	public void testNotEqualsDueToKey() {
-		AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key",
-				"Test", ROLES_12);
-
-		AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken(
-				"DIFFERENT_KEY", "Test", ROLES_12);
-
+		AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
+		AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("DIFFERENT_KEY", "Test", ROLES_12);
 		assertThat(token1.equals(token2)).isFalse();
 	}
 
 	@Test
 	public void testSetAuthenticatedIgnored() {
-		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key",
-				"Test", ROLES_12);
+		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
 		assertThat(token.isAuthenticated()).isTrue();
 		token.setAuthenticated(false);
 		assertThat(!token.isAuthenticated()).isTrue();
@@ -162,4 +138,5 @@ public class AnonymousAuthenticationTokenTests {
 	public void constructorWhenPrincipalIsEmptyStringThenThrowIllegalArgumentException() {
 		new AnonymousAuthenticationToken("key", "", ROLES_12);
 	}
+
 }

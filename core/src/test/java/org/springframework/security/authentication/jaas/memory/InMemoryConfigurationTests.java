@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.authentication.jaas.memory;
 
 import java.lang.reflect.Method;
@@ -37,25 +38,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class InMemoryConfigurationTests {
 
 	private AppConfigurationEntry[] defaultEntries;
+
 	private Map<String, AppConfigurationEntry[]> mappedEntries;
 
 	@Before
 	public void setUp() {
-		this.defaultEntries = new AppConfigurationEntry[] { new AppConfigurationEntry(
-				TestLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED,
-				Collections.<String, Object>emptyMap()) };
-
-		this.mappedEntries = Collections.<String, AppConfigurationEntry[]>singletonMap(
-				"name",
-				new AppConfigurationEntry[] { new AppConfigurationEntry(
-						TestLoginModule.class.getName(), LoginModuleControlFlag.OPTIONAL,
-						Collections.<String, Object>emptyMap()) });
+		this.defaultEntries = new AppConfigurationEntry[] { new AppConfigurationEntry(TestLoginModule.class.getName(),
+				LoginModuleControlFlag.REQUIRED, Collections.<String, Object>emptyMap()) };
+		this.mappedEntries = Collections.<String, AppConfigurationEntry[]>singletonMap("name",
+				new AppConfigurationEntry[] { new AppConfigurationEntry(TestLoginModule.class.getName(),
+						LoginModuleControlFlag.OPTIONAL, Collections.<String, Object>emptyMap()) });
 	}
 
 	@Test
 	public void constructorNullDefault() {
-		assertThat(new InMemoryConfiguration((AppConfigurationEntry[]) null)
-				.getAppConfigurationEntry("name")).isNull();
+		assertThat(new InMemoryConfiguration((AppConfigurationEntry[]) null).getAppConfigurationEntry("name")).isNull();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -65,16 +62,14 @@ public class InMemoryConfigurationTests {
 
 	@Test
 	public void constructorEmptyMap() {
-		assertThat(new InMemoryConfiguration(
-				Collections.<String, AppConfigurationEntry[]>emptyMap())
-						.getAppConfigurationEntry("name")).isNull();
+		assertThat(new InMemoryConfiguration(Collections.<String, AppConfigurationEntry[]>emptyMap())
+				.getAppConfigurationEntry("name")).isNull();
 	}
 
 	@Test
 	public void constructorEmptyMapNullDefault() {
-		assertThat(new InMemoryConfiguration(
-				Collections.<String, AppConfigurationEntry[]>emptyMap(), null)
-						.getAppConfigurationEntry("name")).isNull();
+		assertThat(new InMemoryConfiguration(Collections.<String, AppConfigurationEntry[]>emptyMap(), null)
+				.getAppConfigurationEntry("name")).isNull();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -84,20 +79,15 @@ public class InMemoryConfigurationTests {
 
 	@Test
 	public void nonnullDefault() {
-		InMemoryConfiguration configuration = new InMemoryConfiguration(
-				this.defaultEntries);
-		assertThat(configuration.getAppConfigurationEntry("name"))
-				.isEqualTo(this.defaultEntries);
+		InMemoryConfiguration configuration = new InMemoryConfiguration(this.defaultEntries);
+		assertThat(configuration.getAppConfigurationEntry("name")).isEqualTo(this.defaultEntries);
 	}
 
 	@Test
 	public void mappedNonnullDefault() {
-		InMemoryConfiguration configuration = new InMemoryConfiguration(
-				this.mappedEntries, this.defaultEntries);
-		assertThat(this.defaultEntries)
-				.isEqualTo(configuration.getAppConfigurationEntry("missing"));
-		assertThat(this.mappedEntries.get("name"))
-				.isEqualTo(configuration.getAppConfigurationEntry("name"));
+		InMemoryConfiguration configuration = new InMemoryConfiguration(this.mappedEntries, this.defaultEntries);
+		assertThat(this.defaultEntries).isEqualTo(configuration.getAppConfigurationEntry("missing"));
+		assertThat(this.mappedEntries.get("name")).isEqualTo(configuration.getAppConfigurationEntry("name"));
 	}
 
 	@Test
@@ -105,4 +95,5 @@ public class InMemoryConfigurationTests {
 		Method method = InMemoryConfiguration.class.getDeclaredMethod("refresh");
 		assertThat(method.getDeclaringClass()).isEqualTo(InMemoryConfiguration.class);
 	}
+
 }

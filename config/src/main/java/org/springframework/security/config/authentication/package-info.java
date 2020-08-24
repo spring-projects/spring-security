@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Parsing of &lt;authentication-manager&gt; and related elements.
  */
 package org.springframework.security.config.authentication;
-

@@ -13,7 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.oidc.authentication;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Map;
+
+import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -41,28 +51,22 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
-
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Map;
 
 /**
- * An implementation of an {@link org.springframework.security.authentication.AuthenticationProvider} for OAuth 2.0 Login,
- * which leverages the OAuth 2.0 Authorization Code Grant Flow.
+ * An implementation of an
+ * {@link org.springframework.security.authentication.AuthenticationProvider} for OAuth
+ * 2.0 Login, which leverages the OAuth 2.0 Authorization Code Grant Flow.
  * <p>
- * This {@link org.springframework.security.authentication.AuthenticationProvider} is responsible for authenticating
- * an Authorization Code credential with the Authorization Server's Token Endpoint
- * and if valid, exchanging it for an Access Token credential.
+ * This {@link org.springframework.security.authentication.AuthenticationProvider} is
+ * responsible for authenticating an Authorization Code credential with the Authorization
+ * Server's Token Endpoint and if valid, exchanging it for an Access Token credential.
  * <p>
- * It will also obtain the user attributes of the End-User (Resource Owner)
- * from the UserInfo Endpoint using an {@link org.springframework.security.oauth2.client.userinfo.OAuth2UserService},
- * which will create a {@code Principal} in the form of an {@link OAuth2User}.
- * The {@code OAuth2User} is then associated to the {@link OAuth2LoginAuthenticationToken}
- * to complete the authentication.
+ * It will also obtain the user attributes of the End-User (Resource Owner) from the
+ * UserInfo Endpoint using an
+ * {@link org.springframework.security.oauth2.client.userinfo.OAuth2UserService}, which
+ * will create a {@code Principal} in the form of an {@link OAuth2User}. The
+ * {@code OAuth2User} is then associated to the {@link OAuth2LoginAuthenticationToken} to
+ * complete the authentication.
  *
  * @author Rob Winch
  * @author Mark Heckler
@@ -72,22 +76,28 @@ import java.util.Map;
  * @see ReactiveOAuth2UserService
  * @see OAuth2User
  * @see ReactiveOidcIdTokenDecoderFactory
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section
+ * 4.1 Authorization Code Grant Flow</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token
+ * Request</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token
+ * Response</a>
  */
-public class OidcAuthorizationCodeReactiveAuthenticationManager implements
-		ReactiveAuthenticationManager {
+public class OidcAuthorizationCodeReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
+
 	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
+
 	private static final String INVALID_NONCE_ERROR_CODE = "invalid_nonce";
 
 	private final ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
 	private final ReactiveOAuth2UserService<OidcUserRequest, OidcUser> userService;
 
-	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
+	private GrantedAuthoritiesMapper authoritiesMapper = ((authorities) -> authorities);
 
 	private ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = new ReactiveOidcIdTokenDecoderFactory();
 
@@ -104,53 +114,51 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 	public Mono<Authentication> authenticate(Authentication authentication) {
 		return Mono.defer(() -> {
 			OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = (OAuth2AuthorizationCodeAuthenticationToken) authentication;
-
-			// Section 3.1.2.1 Authentication Request - https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
-			// scope REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
-			if (!authorizationCodeAuthentication.getAuthorizationExchange()
-					.getAuthorizationRequest().getScopes().contains("openid")) {
+			// Section 3.1.2.1 Authentication Request -
+			// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+			// scope REQUIRED. OpenID Connect requests MUST contain the "openid" scope
+			// value.
+			if (!authorizationCodeAuthentication.getAuthorizationExchange().getAuthorizationRequest().getScopes()
+					.contains("openid")) {
 				// This is an OpenID Connect Authentication Request so return empty
 				// and let OAuth2LoginReactiveAuthenticationManager handle it instead
 				return Mono.empty();
 			}
-
-
-			OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication
-					.getAuthorizationExchange().getAuthorizationRequest();
+			OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication.getAuthorizationExchange()
+					.getAuthorizationRequest();
 			OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication
 					.getAuthorizationExchange().getAuthorizationResponse();
-
 			if (authorizationResponse.statusError()) {
-				return Mono.error(new OAuth2AuthenticationException(
-						authorizationResponse.getError(), authorizationResponse.getError().toString()));
+				return Mono.error(new OAuth2AuthenticationException(authorizationResponse.getError(),
+						authorizationResponse.getError().toString()));
 			}
-
 			if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
-				return Mono.error(new OAuth2AuthenticationException(
-						oauth2Error, oauth2Error.toString()));
+				return Mono.error(new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString()));
 			}
-
 			OAuth2AuthorizationCodeGrantRequest authzRequest = new OAuth2AuthorizationCodeGrantRequest(
 					authorizationCodeAuthentication.getClientRegistration(),
 					authorizationCodeAuthentication.getAuthorizationExchange());
-
-			return this.accessTokenResponseClient.getTokenResponse(authzRequest)
-					.flatMap(accessTokenResponse -> authenticationResult(authorizationCodeAuthentication, accessTokenResponse))
-					.onErrorMap(OAuth2AuthorizationException.class, e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
-					.onErrorMap(JwtException.class, e -> {
-						OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, e.getMessage(), null);
-						return new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString(), e);
+			return this.accessTokenResponseClient.getTokenResponse(authzRequest).flatMap(
+					(accessTokenResponse) -> authenticationResult(authorizationCodeAuthentication, accessTokenResponse))
+					.onErrorMap(OAuth2AuthorizationException.class,
+							(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
+					.onErrorMap(JwtException.class, (e) -> {
+						OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, e.getMessage(),
+								null);
+						return new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString(),
+								e);
 					});
 		});
 	}
 
 	/**
-	 * Sets the {@link ReactiveJwtDecoderFactory} used for {@link OidcIdToken} signature verification.
-	 * The factory returns a {@link ReactiveJwtDecoder} associated to the provided {@link ClientRegistration}.
-	 *
+	 * Sets the {@link ReactiveJwtDecoderFactory} used for {@link OidcIdToken} signature
+	 * verification. The factory returns a {@link ReactiveJwtDecoder} associated to the
+	 * provided {@link ClientRegistration}.
+	 * @param jwtDecoderFactory the {@link ReactiveJwtDecoderFactory} used for
+	 * {@link OidcIdToken} signature verification
 	 * @since 5.2
-	 * @param jwtDecoderFactory the {@link ReactiveJwtDecoderFactory} used for {@link OidcIdToken} signature verification
 	 */
 	public final void setJwtDecoderFactory(ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory) {
 		Assert.notNull(jwtDecoderFactory, "jwtDecoderFactory cannot be null");
@@ -158,66 +166,64 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 	}
 
 	/**
-	 * Sets the {@link GrantedAuthoritiesMapper} used for mapping {@link OidcUser#getAuthorities()}
-	 * to a new set of authorities which will be associated to the {@link OAuth2LoginAuthenticationToken}.
-	 *
+	 * Sets the {@link GrantedAuthoritiesMapper} used for mapping
+	 * {@link OidcUser#getAuthorities()} to a new set of authorities which will be
+	 * associated to the {@link OAuth2LoginAuthenticationToken}.
+	 * @param authoritiesMapper the {@link GrantedAuthoritiesMapper} used for mapping the
+	 * user's authorities
 	 * @since 5.4
-	 * @param authoritiesMapper the {@link GrantedAuthoritiesMapper} used for mapping the user's authorities
 	 */
 	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");
 		this.authoritiesMapper = authoritiesMapper;
 	}
 
-	private Mono<OAuth2LoginAuthenticationToken> authenticationResult(OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication, OAuth2AccessTokenResponse accessTokenResponse) {
+	private Mono<OAuth2LoginAuthenticationToken> authenticationResult(
+			OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication,
+			OAuth2AccessTokenResponse accessTokenResponse) {
 		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 		Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();
-
 		if (!additionalParameters.containsKey(OidcParameterNames.ID_TOKEN)) {
-			OAuth2Error invalidIdTokenError = new OAuth2Error(
-					INVALID_ID_TOKEN_ERROR_CODE,
-					"Missing (required) ID Token in Token Response for Client Registration: " + clientRegistration.getRegistrationId(),
+			OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE,
+					"Missing (required) ID Token in Token Response for Client Registration: "
+							+ clientRegistration.getRegistrationId(),
 					null);
 			return Mono.error(new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString()));
 		}
-
+		// @formatter:off
 		return createOidcToken(clientRegistration, accessTokenResponse)
-				.doOnNext(idToken -> validateNonce(authorizationCodeAuthentication, idToken))
-				.map(idToken -> new OidcUserRequest(clientRegistration, accessToken, idToken, additionalParameters))
+				.doOnNext((idToken) -> validateNonce(authorizationCodeAuthentication, idToken))
+				.map((idToken) -> new OidcUserRequest(clientRegistration, accessToken, idToken, additionalParameters))
 				.flatMap(this.userService::loadUser)
-				.map(oauth2User -> {
-					Collection<? extends GrantedAuthority> mappedAuthorities =
-							this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
-
-					return new OAuth2LoginAuthenticationToken(
-							authorizationCodeAuthentication.getClientRegistration(),
-							authorizationCodeAuthentication.getAuthorizationExchange(),
-							oauth2User,
-							mappedAuthorities,
-							accessToken,
-							accessTokenResponse.getRefreshToken());
+				.map((oauth2User) -> {
+					Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper
+							.mapAuthorities(oauth2User.getAuthorities());
+					return new OAuth2LoginAuthenticationToken(authorizationCodeAuthentication.getClientRegistration(),
+							authorizationCodeAuthentication.getAuthorizationExchange(), oauth2User, mappedAuthorities,
+							accessToken, accessTokenResponse.getRefreshToken());
 				});
+		// @formatter:on
 	}
 
-	private Mono<OidcIdToken> createOidcToken(ClientRegistration clientRegistration, OAuth2AccessTokenResponse accessTokenResponse) {
+	private Mono<OidcIdToken> createOidcToken(ClientRegistration clientRegistration,
+			OAuth2AccessTokenResponse accessTokenResponse) {
 		ReactiveJwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(clientRegistration);
 		String rawIdToken = (String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN);
+		// @formatter:off
 		return jwtDecoder.decode(rawIdToken)
-				.map(jwt -> new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims()));
+				.map((jwt) ->
+						new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims())
+				);
+		// @formatter:on
 	}
 
-	private static Mono<OidcIdToken> validateNonce(OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication, OidcIdToken idToken) {
-		String requestNonce = authorizationCodeAuthentication.getAuthorizationExchange()
-				.getAuthorizationRequest().getAttribute(OidcParameterNames.NONCE);
+	private static Mono<OidcIdToken> validateNonce(
+			OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication, OidcIdToken idToken) {
+		String requestNonce = authorizationCodeAuthentication.getAuthorizationExchange().getAuthorizationRequest()
+				.getAttribute(OidcParameterNames.NONCE);
 		if (requestNonce != null) {
-			String nonceHash;
-			try {
-				nonceHash = createHash(requestNonce);
-			} catch (NoSuchAlgorithmException e) {
-				OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-			}
+			String nonceHash = getNonceHash(requestNonce);
 			String nonceHashClaim = idToken.getNonce();
 			if (nonceHashClaim == null || !nonceHashClaim.equals(nonceHash)) {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
@@ -228,9 +234,20 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 		return Mono.just(idToken);
 	}
 
+	private static String getNonceHash(String requestNonce) {
+		try {
+			return createHash(requestNonce);
+		}
+		catch (NoSuchAlgorithmException ex) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+	}
+
 	static String createHash(String nonce) throws NoSuchAlgorithmException {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		byte[] digest = md.digest(nonce.getBytes(StandardCharsets.US_ASCII));
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
+
 }

@@ -21,11 +21,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tao Qian
@@ -33,8 +34,10 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class NegatedServerWebExchangeMatcherTests {
+
 	@Mock
 	ServerWebExchange exchange;
+
 	@Mock
 	ServerWebExchangeMatcher matcher1;
 
@@ -42,30 +45,25 @@ public class NegatedServerWebExchangeMatcherTests {
 
 	@Before
 	public void setUp() {
-		matcher = new NegatedServerWebExchangeMatcher(matcher1);
+		this.matcher = new NegatedServerWebExchangeMatcher(this.matcher1);
 	}
 
 	@Test
 	public void matchesWhenFalseThenTrue() {
-		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-
-		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
-
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 		assertThat(matches.isMatch()).isTrue();
 		assertThat(matches.getVariables()).isEmpty();
-
-		verify(matcher1).matches(exchange);
+		verify(this.matcher1).matches(this.exchange);
 	}
 
 	@Test
 	public void matchesWhenTrueThenFalse() {
-		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
-
-		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
-
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match());
+		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 		assertThat(matches.isMatch()).isFalse();
 		assertThat(matches.getVariables()).isEmpty();
-
-		verify(matcher1).matches(exchange);
+		verify(this.matcher1).matches(this.exchange);
 	}
+
 }

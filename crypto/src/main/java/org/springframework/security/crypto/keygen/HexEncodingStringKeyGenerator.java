@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.keygen;
 
 import org.springframework.security.crypto.codec.Hex;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.codec.Hex;
 /**
  * A StringKeyGenerator that generates hex-encoded String keys. Delegates to a
  * {@link BytesKeyGenerator} for the actual key generation.
+ *
  * @author Keith Donald
  */
 final class HexEncodingStringKeyGenerator implements StringKeyGenerator {
@@ -30,8 +32,9 @@ final class HexEncodingStringKeyGenerator implements StringKeyGenerator {
 		this.keyGenerator = keyGenerator;
 	}
 
+	@Override
 	public String generateKey() {
-		return new String(Hex.encode(keyGenerator.generateKey()));
+		return new String(Hex.encode(this.keyGenerator.generateKey()));
 	}
 
 }

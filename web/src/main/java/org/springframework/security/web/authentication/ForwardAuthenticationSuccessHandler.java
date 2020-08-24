@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.util.UrlUtils;
-import org.springframework.util.Assert;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.Assert;
 
 /**
  * <p>
@@ -41,12 +43,14 @@ public class ForwardAuthenticationSuccessHandler implements AuthenticationSucces
 	 * @param forwardUrl
 	 */
 	public ForwardAuthenticationSuccessHandler(String forwardUrl) {
-		Assert.isTrue(UrlUtils.isValidRedirectUrl(forwardUrl),
-				() -> "'" + forwardUrl + "' is not a valid forward URL");
+		Assert.isTrue(UrlUtils.isValidRedirectUrl(forwardUrl), () -> "'" + forwardUrl + "' is not a valid forward URL");
 		this.forwardUrl = forwardUrl;
 	}
 
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-		request.getRequestDispatcher(forwardUrl).forward(request, response);
+	@Override
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication) throws IOException, ServletException {
+		request.getRequestDispatcher(this.forwardUrl).forward(request, response);
 	}
+
 }

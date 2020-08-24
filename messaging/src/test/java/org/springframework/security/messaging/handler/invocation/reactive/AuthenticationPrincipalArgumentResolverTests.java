@@ -16,7 +16,12 @@
 
 package org.springframework.security.messaging.handler.invocation.reactive;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import org.junit.Test;
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.SynthesizingMethodParameter;
 import org.springframework.security.authentication.TestAuthentication;
@@ -25,17 +30,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.messaging.handler.invocation.ResolvableMethod;
-import reactor.core.publisher.Mono;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
  */
 public class AuthenticationPrincipalArgumentResolverTests {
+
 	private AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver();
 
 	@Test
@@ -52,9 +54,12 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenAuthenticationPrincipalThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
-		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver.resolveArgument(arg0("authenticationPrincipalOnMonoUserDetails"), null)
+		// @formatter:off
+		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver
+				.resolveArgument(arg0("authenticationPrincipalOnMonoUserDetails"), null)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.block();
+		// @formatter:on
 		assertThat(result.block()).isEqualTo(authentication.getPrincipal());
 	}
 
@@ -70,9 +75,12 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenMonoAndAuthenticationPrincipalThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
-		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver.resolveArgument(arg0("currentUserOnMonoUserDetails"), null)
+		// @formatter:off
+		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver
+				.resolveArgument(arg0("currentUserOnMonoUserDetails"), null)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.block();
+		// @formatter:on
 		assertThat(result.block()).isEqualTo(authentication.getPrincipal());
 	}
 
@@ -83,14 +91,18 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenExpressionThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
-		Mono<String> result = (Mono<String>) this.resolver.resolveArgument(arg0("authenticationPrincipalExpression"), null)
+		// @formatter:off
+		Mono<String> result = (Mono<String>) this.resolver
+				.resolveArgument(arg0("authenticationPrincipalExpression"), null)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.block();
+		// @formatter:on
 		assertThat(result.block()).isEqualTo(authentication.getName());
 	}
 
 	@SuppressWarnings("unused")
-	private void authenticationPrincipalExpression(@AuthenticationPrincipal(expression = "username") Mono<String> username) {
+	private void authenticationPrincipalExpression(
+			@AuthenticationPrincipal(expression = "username") Mono<String> username) {
 	}
 
 	@Test
@@ -109,5 +121,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	@AuthenticationPrincipal
 	@Retention(RetentionPolicy.RUNTIME)
-	@interface CurrentUser {}
+	@interface CurrentUser {
+
+	}
+
 }

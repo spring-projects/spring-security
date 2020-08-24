@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.core.authority.mapping;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+package org.springframework.security.core.authority.mapping;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +22,8 @@ import java.util.List;
 import java.util.Locale;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.Assert;
 
 /**
@@ -38,8 +38,9 @@ import org.springframework.util.Assert;
  * @author Ruud Senden
  * @since 2.0
  */
-public class SimpleAttributes2GrantedAuthoritiesMapper implements
-		Attributes2GrantedAuthoritiesMapper, InitializingBean {
+public class SimpleAttributes2GrantedAuthoritiesMapper
+		implements Attributes2GrantedAuthoritiesMapper, InitializingBean {
+
 	private String attributePrefix = "ROLE_";
 
 	private boolean convertAttributeToUpperCase = false;
@@ -51,9 +52,9 @@ public class SimpleAttributes2GrantedAuthoritiesMapper implements
 	/**
 	 * Check whether all properties have been set to correct values.
 	 */
+	@Override
 	public void afterPropertiesSet() {
-		Assert.isTrue(
-				!(isConvertAttributeToUpperCase() && isConvertAttributeToLowerCase()),
+		Assert.isTrue(!(isConvertAttributeToUpperCase() && isConvertAttributeToLowerCase()),
 				"Either convertAttributeToUpperCase or convertAttributeToLowerCase can be set to true, but not both");
 	}
 
@@ -61,6 +62,7 @@ public class SimpleAttributes2GrantedAuthoritiesMapper implements
 	 * Map the given list of string attributes one-to-one to Spring Security
 	 * GrantedAuthorities.
 	 */
+	@Override
 	public List<GrantedAuthority> getGrantedAuthorities(Collection<String> attributes) {
 		List<GrantedAuthority> result = new ArrayList<>(attributes.size());
 		for (String attribute : attributes) {
@@ -72,7 +74,6 @@ public class SimpleAttributes2GrantedAuthoritiesMapper implements
 	/**
 	 * Map the given role one-on-one to a Spring Security GrantedAuthority, optionally
 	 * doing case conversion and/or adding a prefix.
-	 *
 	 * @param attribute The attribute for which to get a GrantedAuthority
 	 * @return GrantedAuthority representing the given role.
 	 */
@@ -92,35 +93,35 @@ public class SimpleAttributes2GrantedAuthoritiesMapper implements
 	}
 
 	private boolean isConvertAttributeToLowerCase() {
-		return convertAttributeToLowerCase;
+		return this.convertAttributeToLowerCase;
 	}
 
 	public void setConvertAttributeToLowerCase(boolean b) {
-		convertAttributeToLowerCase = b;
+		this.convertAttributeToLowerCase = b;
 	}
 
 	private boolean isConvertAttributeToUpperCase() {
-		return convertAttributeToUpperCase;
+		return this.convertAttributeToUpperCase;
 	}
 
 	public void setConvertAttributeToUpperCase(boolean b) {
-		convertAttributeToUpperCase = b;
+		this.convertAttributeToUpperCase = b;
 	}
 
 	private String getAttributePrefix() {
-		return attributePrefix == null ? "" : attributePrefix;
+		return (this.attributePrefix != null) ? this.attributePrefix : "";
 	}
 
 	public void setAttributePrefix(String string) {
-		attributePrefix = string;
+		this.attributePrefix = string;
 	}
 
 	private boolean isAddPrefixIfAlreadyExisting() {
-		return addPrefixIfAlreadyExisting;
+		return this.addPrefixIfAlreadyExisting;
 	}
 
 	public void setAddPrefixIfAlreadyExisting(boolean b) {
-		addPrefixIfAlreadyExisting = b;
+		this.addPrefixIfAlreadyExisting = b;
 	}
 
 }

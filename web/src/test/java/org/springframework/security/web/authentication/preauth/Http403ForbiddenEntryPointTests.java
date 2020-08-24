@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication.preauth;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+package org.springframework.security.web.authentication.preauth;
 
 import java.io.IOException;
 
@@ -27,6 +25,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
 public class Http403ForbiddenEntryPointTests {
 
 	public void testCommence() {
@@ -34,13 +35,13 @@ public class Http403ForbiddenEntryPointTests {
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		Http403ForbiddenEntryPoint fep = new Http403ForbiddenEntryPoint();
 		try {
-			fep.commence(req, resp,
-					new AuthenticationCredentialsNotFoundException("test"));
-			assertThat(resp.getStatus()).withFailMessage("Incorrect status").isEqualTo(
-					HttpServletResponse.SC_FORBIDDEN);
+			fep.commence(req, resp, new AuthenticationCredentialsNotFoundException("test"));
+			assertThat(resp.getStatus()).withFailMessage("Incorrect status")
+					.isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 		}
-		catch (IOException e) {
-			fail("Unexpected exception thrown: " + e);
+		catch (IOException ex) {
+			fail("Unexpected exception thrown: " + ex);
 		}
 	}
+
 }

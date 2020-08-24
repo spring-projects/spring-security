@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.session;
 
 /**
- * Generic "session ID changed" event which indicates that a session
- * identifier (potentially represented by a security context) has changed.
+ * Generic "session ID changed" event which indicates that a session identifier
+ * (potentially represented by a security context) has changed.
  *
  * @since 5.4
  */
@@ -29,16 +30,14 @@ public abstract class SessionIdChangedEvent extends AbstractSessionEvent {
 
 	/**
 	 * Returns the old session ID.
-	 *
-	 * @return the identifier that was previously associated with
-	 * the session.
+	 * @return the identifier that was previously associated with the session.
 	 */
 	public abstract String getOldSessionId();
 
 	/**
 	 * Returns the new session ID.
-	 *
 	 * @return the new identifier that is associated with the session.
 	 */
 	public abstract String getNewSessionId();
+
 }

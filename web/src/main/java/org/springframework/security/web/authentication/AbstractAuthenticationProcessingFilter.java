@@ -30,6 +30,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -100,26 +101,24 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * The class has an optional {@link SessionAuthenticationStrategy} which will be invoked
  * immediately after a successful call to {@code attemptAuthentication()}. Different
- * implementations
- * {@link #setSessionAuthenticationStrategy(SessionAuthenticationStrategy) can be
- * injected} to enable things like session-fixation attack prevention or to control the
- * number of simultaneous sessions a principal may have.
+ * implementations {@link #setSessionAuthenticationStrategy(SessionAuthenticationStrategy)
+ * can be injected} to enable things like session-fixation attack prevention or to control
+ * the number of simultaneous sessions a principal may have.
  *
  * @author Ben Alex
  * @author Luke Taylor
  */
 public abstract class AbstractAuthenticationProcessingFilter extends GenericFilterBean
 		implements ApplicationEventPublisherAware, MessageSourceAware {
-	// ~ Static fields/initializers
-	// =====================================================================================
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	protected ApplicationEventPublisher eventPublisher;
+
 	protected AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
+
 	private AuthenticationManager authenticationManager;
+
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
 	private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
 	private RequestMatcher requiresAuthenticationRequestMatcher;
@@ -131,10 +130,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	private boolean allowSessionCreation = true;
 
 	private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-	private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 
-	// ~ Constructors
-	// ===================================================================================================
+	private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 
 	/**
 	 * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
@@ -145,23 +142,20 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param requiresAuthenticationRequestMatcher the {@link RequestMatcher} used to
 	 * determine if authentication is required. Cannot be null.
 	 */
-	protected AbstractAuthenticationProcessingFilter(
-			RequestMatcher requiresAuthenticationRequestMatcher) {
-		Assert.notNull(requiresAuthenticationRequestMatcher,
-				"requiresAuthenticationRequestMatcher cannot be null");
+	protected AbstractAuthenticationProcessingFilter(RequestMatcher requiresAuthenticationRequestMatcher) {
+		Assert.notNull(requiresAuthenticationRequestMatcher, "requiresAuthenticationRequestMatcher cannot be null");
 		this.requiresAuthenticationRequestMatcher = requiresAuthenticationRequestMatcher;
 	}
 
 	/**
-	 * Creates a new instance with a default filterProcessesUrl and an {@link AuthenticationManager}
-	 *
+	 * Creates a new instance with a default filterProcessesUrl and an
+	 * {@link AuthenticationManager}
 	 * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
-	 * @param authenticationManager the {@link AuthenticationManager} used to authenticate an {@link Authentication} object.
-	 *                              Cannot be null.
+	 * @param authenticationManager the {@link AuthenticationManager} used to authenticate
+	 * an {@link Authentication} object. Cannot be null.
 	 */
 	protected AbstractAuthenticationProcessingFilter(String defaultFilterProcessesUrl,
 			AuthenticationManager authenticationManager) {
@@ -170,12 +164,12 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	}
 
 	/**
-	 * Creates a new instance with a {@link RequestMatcher} and an {@link AuthenticationManager}
-	 *
-	 * @param requiresAuthenticationRequestMatcher the {@link RequestMatcher} used to determine
-	 *                                             if authentication is required. Cannot be null.
-	 * @param authenticationManager the {@link AuthenticationManager} used to authenticate an {@link Authentication} object.
-	 *                              Cannot be null.
+	 * Creates a new instance with a {@link RequestMatcher} and an
+	 * {@link AuthenticationManager}
+	 * @param requiresAuthenticationRequestMatcher the {@link RequestMatcher} used to
+	 * determine if authentication is required. Cannot be null.
+	 * @param authenticationManager the {@link AuthenticationManager} used to authenticate
+	 * an {@link Authentication} object. Cannot be null.
 	 */
 	protected AbstractAuthenticationProcessingFilter(RequestMatcher requiresAuthenticationRequestMatcher,
 			AuthenticationManager authenticationManager) {
@@ -183,21 +177,16 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 		setAuthenticationManager(authenticationManager);
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Override
 	public void afterPropertiesSet() {
-		Assert.notNull(authenticationManager, "authenticationManager must be specified");
+		Assert.notNull(this.authenticationManager, "authenticationManager must be specified");
 	}
 
 	/**
-	 * Invokes the
-	 * {@link #requiresAuthentication(HttpServletRequest, HttpServletResponse)
+	 * Invokes the {@link #requiresAuthentication(HttpServletRequest, HttpServletResponse)
 	 * requiresAuthentication} method to determine whether the request is for
 	 * authentication and should be handled by this filter. If it is an authentication
-	 * request, the
-	 * {@link #attemptAuthentication(HttpServletRequest, HttpServletResponse)
+	 * request, the {@link #attemptAuthentication(HttpServletRequest, HttpServletResponse)
 	 * attemptAuthentication} will be invoked to perform the authentication. There are
 	 * then three possible outcomes:
 	 * <ol>
@@ -217,54 +206,40 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * returned <tt>Authentication</tt> object is not null.
 	 * </ol>
 	 */
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+	}
 
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
-
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		if (!requiresAuthentication(request, response)) {
 			chain.doFilter(request, response);
-
 			return;
 		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Request is to process authentication");
-		}
-
-		Authentication authResult;
-
+		this.logger.debug("Request is to process authentication");
 		try {
-			authResult = attemptAuthentication(request, response);
-			if (authResult == null) {
+			Authentication authenticationResult = attemptAuthentication(request, response);
+			if (authenticationResult == null) {
 				// return immediately as subclass has indicated that it hasn't completed
-				// authentication
 				return;
 			}
-			sessionStrategy.onAuthentication(authResult, request, response);
+			this.sessionStrategy.onAuthentication(authenticationResult, request, response);
+			// Authentication success
+			if (this.continueChainBeforeSuccessfulAuthentication) {
+				chain.doFilter(request, response);
+			}
+			successfulAuthentication(request, response, chain, authenticationResult);
 		}
 		catch (InternalAuthenticationServiceException failed) {
-			logger.error(
-					"An internal error occurred while trying to authenticate the user.",
-					failed);
+			this.logger.error("An internal error occurred while trying to authenticate the user.", failed);
 			unsuccessfulAuthentication(request, response, failed);
-
-			return;
 		}
-		catch (AuthenticationException failed) {
+		catch (AuthenticationException ex) {
 			// Authentication failed
-			unsuccessfulAuthentication(request, response, failed);
-
-			return;
+			unsuccessfulAuthentication(request, response, ex);
 		}
-
-		// Authentication success
-		if (continueChainBeforeSuccessfulAuthentication) {
-			chain.doFilter(request, response);
-		}
-
-		successfulAuthentication(request, response, chain, authResult);
 	}
 
 	/**
@@ -276,13 +251,11 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * before matching against the <code>filterProcessesUrl</code> property.
 	 * <p>
 	 * Subclasses may override for special requirements, such as Tapestry integration.
-	 *
 	 * @return <code>true</code> if the filter should attempt authentication,
 	 * <code>false</code> otherwise.
 	 */
-	protected boolean requiresAuthentication(HttpServletRequest request,
-			HttpServletResponse response) {
-		return requiresAuthenticationRequestMatcher.matches(request);
+	protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
+		return this.requiresAuthenticationRequestMatcher.matches(request);
 	}
 
 	/**
@@ -295,20 +268,17 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * <li>Return null, indicating that the authentication process is still in progress.
 	 * Before returning, the implementation should perform any additional work required to
 	 * complete the process.</li>
-	 * <li>Throw an <tt>AuthenticationException</tt> if the authentication process fails</li>
+	 * <li>Throw an <tt>AuthenticationException</tt> if the authentication process
+	 * fails</li>
 	 * </ol>
-	 *
 	 * @param request from which to extract parameters and perform the authentication
 	 * @param response the response, which may be needed if the implementation has to do a
 	 * redirect as part of a multi-stage authentication process (such as OpenID).
-	 *
 	 * @return the authenticated user token, or null if authentication is incomplete.
-	 *
 	 * @throws AuthenticationException if authentication fails.
 	 */
-	public abstract Authentication attemptAuthentication(HttpServletRequest request,
-			HttpServletResponse response) throws AuthenticationException, IOException,
-			ServletException;
+	public abstract Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+			throws AuthenticationException, IOException, ServletException;
 
 	/**
 	 * Default behaviour for successful authentication.
@@ -318,7 +288,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * <li>Informs the configured <tt>RememberMeServices</tt> of the successful login</li>
 	 * <li>Fires an {@link InteractiveAuthenticationSuccessEvent} via the configured
 	 * <tt>ApplicationEventPublisher</tt></li>
-	 * <li>Delegates additional behaviour to the {@link AuthenticationSuccessHandler}.</li>
+	 * <li>Delegates additional behaviour to the
+	 * {@link AuthenticationSuccessHandler}.</li>
 	 * </ol>
 	 *
 	 * Subclasses can override this method to continue the {@link FilterChain} after
@@ -331,26 +302,16 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * @throws IOException
 	 * @throws ServletException
 	 */
-	protected void successfulAuthentication(HttpServletRequest request,
-			HttpServletResponse response, FilterChain chain, Authentication authResult)
-			throws IOException, ServletException {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication success. Updating SecurityContextHolder to contain: "
-					+ authResult);
-		}
-
+	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+			Authentication authResult) throws IOException, ServletException {
+		this.logger.debug(
+				LogMessage.format("Authentication success. Updating SecurityContextHolder to contain: %s", authResult));
 		SecurityContextHolder.getContext().setAuthentication(authResult);
-
-		rememberMeServices.loginSuccess(request, response, authResult);
-
-		// Fire event
+		this.rememberMeServices.loginSuccess(request, response, authResult);
 		if (this.eventPublisher != null) {
-			eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
-					authResult, this.getClass()));
+			this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
 		}
-
-		successHandler.onAuthenticationSuccess(request, response, authResult);
+		this.successHandler.onAuthenticationSuccess(request, response, authResult);
 	}
 
 	/**
@@ -360,27 +321,24 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * <li>Stores the exception in the session (if it exists or
 	 * <tt>allowSesssionCreation</tt> is set to <tt>true</tt>)</li>
 	 * <li>Informs the configured <tt>RememberMeServices</tt> of the failed login</li>
-	 * <li>Delegates additional behaviour to the {@link AuthenticationFailureHandler}.</li>
+	 * <li>Delegates additional behaviour to the
+	 * {@link AuthenticationFailureHandler}.</li>
 	 * </ol>
 	 */
-	protected void unsuccessfulAuthentication(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException failed)
-			throws IOException, ServletException {
+	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException failed) throws IOException, ServletException {
 		SecurityContextHolder.clearContext();
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication request failed: " + failed.toString(), failed);
-			logger.debug("Updated SecurityContextHolder to contain null Authentication");
-			logger.debug("Delegating to authentication failure handler " + failureHandler);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Authentication request failed: " + failed.toString(), failed);
+			this.logger.debug("Updated SecurityContextHolder to contain null Authentication");
+			this.logger.debug("Delegating to authentication failure handler " + this.failureHandler);
 		}
-
-		rememberMeServices.loginFail(request, response);
-
-		failureHandler.onAuthenticationFailure(request, response, failed);
+		this.rememberMeServices.loginFail(request, response);
+		this.failureHandler.onAuthenticationFailure(request, response, failed);
 	}
 
 	protected AuthenticationManager getAuthenticationManager() {
-		return authenticationManager;
+		return this.authenticationManager;
 	}
 
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
@@ -389,22 +347,19 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	/**
 	 * Sets the URL that determines if authentication is required
-	 *
 	 * @param filterProcessesUrl
 	 */
 	public void setFilterProcessesUrl(String filterProcessesUrl) {
-		setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(
-				filterProcessesUrl));
+		setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(filterProcessesUrl));
 	}
 
-	public final void setRequiresAuthenticationRequestMatcher(
-			RequestMatcher requestMatcher) {
+	public final void setRequiresAuthenticationRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
 		this.requiresAuthenticationRequestMatcher = requestMatcher;
 	}
 
 	public RememberMeServices getRememberMeServices() {
-		return rememberMeServices;
+		return this.rememberMeServices;
 	}
 
 	public void setRememberMeServices(RememberMeServices rememberMeServices) {
@@ -418,28 +373,28 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * , which may be useful in certain environment (such as Tapestry applications).
 	 * Defaults to <code>false</code>.
 	 */
-	public void setContinueChainBeforeSuccessfulAuthentication(
-			boolean continueChainBeforeSuccessfulAuthentication) {
+	public void setContinueChainBeforeSuccessfulAuthentication(boolean continueChainBeforeSuccessfulAuthentication) {
 		this.continueChainBeforeSuccessfulAuthentication = continueChainBeforeSuccessfulAuthentication;
 	}
 
+	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
 		this.eventPublisher = eventPublisher;
 	}
 
 	public void setAuthenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
-		Assert.notNull(authenticationDetailsSource,
-				"AuthenticationDetailsSource required");
+		Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
 		this.authenticationDetailsSource = authenticationDetailsSource;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
 
 	protected boolean getAllowSessionCreation() {
-		return allowSessionCreation;
+		return this.allowSessionCreation;
 	}
 
 	public void setAllowSessionCreation(boolean allowSessionCreation) {
@@ -451,12 +406,10 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * authentication request is successfully processed by the
 	 * <tt>AuthenticationManager</tt>. Used, for example, to handle changing of the
 	 * session identifier to prevent session fixation attacks.
-	 *
 	 * @param sessionStrategy the implementation to use. If not set a null implementation
 	 * is used.
 	 */
-	public void setSessionAuthenticationStrategy(
-			SessionAuthenticationStrategy sessionStrategy) {
+	public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionStrategy) {
 		this.sessionStrategy = sessionStrategy;
 	}
 
@@ -464,23 +417,22 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * Sets the strategy used to handle a successful authentication. By default a
 	 * {@link SavedRequestAwareAuthenticationSuccessHandler} is used.
 	 */
-	public void setAuthenticationSuccessHandler(
-			AuthenticationSuccessHandler successHandler) {
+	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler successHandler) {
 		Assert.notNull(successHandler, "successHandler cannot be null");
 		this.successHandler = successHandler;
 	}
 
-	public void setAuthenticationFailureHandler(
-			AuthenticationFailureHandler failureHandler) {
+	public void setAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
 		Assert.notNull(failureHandler, "failureHandler cannot be null");
 		this.failureHandler = failureHandler;
 	}
 
 	protected AuthenticationSuccessHandler getSuccessHandler() {
-		return successHandler;
+		return this.successHandler;
 	}
 
 	protected AuthenticationFailureHandler getFailureHandler() {
-		return failureHandler;
+		return this.failureHandler;
 	}
+
 }

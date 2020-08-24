@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Enforcement of security for HTTP requests, typically by the URL requested.
  */
 package org.springframework.security.web.access.intercept;
-

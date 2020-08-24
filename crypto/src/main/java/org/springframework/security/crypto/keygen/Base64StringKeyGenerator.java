@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.keygen;
 
 import java.util.Base64;
@@ -26,8 +27,11 @@ import java.util.Base64;
  * @since 5.0
  */
 public class Base64StringKeyGenerator implements StringKeyGenerator {
+
 	private static final int DEFAULT_KEY_LENGTH = 32;
+
 	private final BytesKeyGenerator keyGenerator;
+
 	private final Base64.Encoder encoder;
 
 	/**
@@ -76,4 +80,5 @@ public class Base64StringKeyGenerator implements StringKeyGenerator {
 		byte[] base64EncodedKey = this.encoder.encode(key);
 		return new String(base64EncodedKey);
 	}
+
 }

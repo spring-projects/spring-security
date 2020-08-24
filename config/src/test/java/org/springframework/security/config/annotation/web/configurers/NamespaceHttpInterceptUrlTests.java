@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import org.junit.Rule;
@@ -29,6 +30,7 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,7 +43,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests to verify that all the functionality of <intercept-url> attributes is present
+ * Tests to verify that all the functionality of &lt;intercept-url&gt; attributes is
+ * present
  *
  * @author Rob Winch
  * @author Josh Cummings
@@ -58,61 +61,45 @@ public class NamespaceHttpInterceptUrlTests {
 	@Test
 	public void unauthenticatedRequestWhenUrlRequiresAuthenticationThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class).autowire();
-
-		this.mvc.perform(get("/users"))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/users")).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void authenticatedRequestWhenUrlRequiresElevatedPrivilegesThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class).autowire();
-
-
-		this.mvc.perform(get("/users")
-				.with(authentication(user("ROLE_USER"))))
-				.andExpect(status().isForbidden());
+		MockHttpServletRequestBuilder requestWithUser = get("/users").with(authentication(user("ROLE_USER")));
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void authenticatedRequestWhenAuthorizedThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class, BaseController.class).autowire();
-
-		this.mvc.perform(get("/users")
-				.with(authentication(user("ROLE_ADMIN"))))
-				.andExpect(status().isOk())
-				.andReturn();
+		MockHttpServletRequestBuilder requestWithAdmin = get("/users").with(authentication(user("ROLE_ADMIN")));
+		this.mvc.perform(requestWithAdmin).andExpect(status().isOk()).andReturn();
 	}
 
 	@Test
 	public void requestWhenMappedByPostInterceptUrlThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class, BaseController.class).autowire();
-
-		this.mvc.perform(get("/admin/post")
-				.with(authentication(user("ROLE_USER"))))
-				.andExpect(status().isOk());
-
-		this.mvc.perform(post("/admin/post")
-				.with(authentication(user("ROLE_USER"))))
-				.andExpect(status().isForbidden());
-
-		this.mvc.perform(post("/admin/post")
-				.with(csrf())
-				.with(authentication(user("ROLE_ADMIN"))))
-				.andExpect(status().isOk());
+		MockHttpServletRequestBuilder getWithUser = get("/admin/post").with(authentication(user("ROLE_USER")));
+		this.mvc.perform(getWithUser).andExpect(status().isOk());
+		MockHttpServletRequestBuilder postWithUser = post("/admin/post").with(authentication(user("ROLE_USER")));
+		this.mvc.perform(postWithUser).andExpect(status().isForbidden());
+		MockHttpServletRequestBuilder requestWithAdmin = post("/admin/post").with(csrf())
+				.with(authentication(user("ROLE_ADMIN")));
+		this.mvc.perform(requestWithAdmin).andExpect(status().isOk());
 	}
 
 	@Test
 	public void requestWhenRequiresChannelThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class).autowire();
+		this.mvc.perform(get("/login")).andExpect(redirectedUrl("https://localhost/login"));
+		this.mvc.perform(get("/secured/a")).andExpect(redirectedUrl("https://localhost/secured/a"));
+		this.mvc.perform(get("https://localhost/user")).andExpect(redirectedUrl("http://localhost/user"));
+	}
 
-		this.mvc.perform(get("/login"))
-				.andExpect(redirectedUrl("https://localhost/login"));
-
-		this.mvc.perform(get("/secured/a"))
-				.andExpect(redirectedUrl("https://localhost/secured/a"));
-
-		this.mvc.perform(get("https://localhost/user"))
-				.andExpect(redirectedUrl("http://localhost/user"));
+	private static Authentication user(String role) {
+		return new UsernamePasswordAuthenticationToken("user", null, AuthorityUtils.createAuthorityList(role));
 	}
 
 	@EnableWebSecurity
@@ -120,6 +107,7 @@ public class NamespaceHttpInterceptUrlTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					// the line below is similar to intercept-url@pattern:
@@ -142,46 +130,49 @@ public class NamespaceHttpInterceptUrlTests {
 					// the line below is similar to intercept-url@requires-channel="http":
 					//    <intercept-url pattern="/**" requires-channel="http"/>
 					.anyRequest().requiresInsecure();
+			// @formatter:on
 		}
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER").and()
 					.withUser("admin").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
+
 	}
 
 	@RestController
 	static class BaseController {
+
 		@GetMapping("/users")
-		public String users() {
+		String users() {
 			return "ok";
 		}
 
 		@GetMapping("/sessions")
-		public String sessions() {
+		String sessions() {
 			return "sessions";
 		}
 
 		@RequestMapping("/admin/post")
-		public String adminPost() {
+		String adminPost() {
 			return "adminPost";
 		}
 
 		@GetMapping("/admin/another-post")
-		public String adminAnotherPost() {
+		String adminAnotherPost() {
 			return "adminAnotherPost";
 		}
 
 		@GetMapping("/signup")
-		public String signup() {
+		String signup() {
 			return "signup";
 		}
-	}
 
-	private static Authentication user(String role) {
-		return new UsernamePasswordAuthenticationToken("user", null, AuthorityUtils.createAuthorityList(role));
 	}
 
 }

@@ -32,7 +32,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0
  */
 public class XFrameOptionsHeaderWriterTests {
+
 	private MockHttpServletRequest request = new MockHttpServletRequest();
+
 	private MockHttpServletResponse response = new MockHttpServletResponse();
 
 	private static final String XFRAME_OPTIONS_HEADER = "X-Frame-Options";
@@ -41,20 +43,19 @@ public class XFrameOptionsHeaderWriterTests {
 	public void writeHeadersWhenWhiteList() {
 		WhiteListedAllowFromStrategy whitelist = new WhiteListedAllowFromStrategy(Arrays.asList("example.com"));
 		XFrameOptionsHeaderWriter writer = new XFrameOptionsHeaderWriter(whitelist);
-
-
 		writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderValue(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
 	}
 
 	@Test
 	public void writeHeaderWhenNotPresent() {
-		WhiteListedAllowFromStrategy whitelist = new WhiteListedAllowFromStrategy(Collections.singletonList("example.com"));
+		WhiteListedAllowFromStrategy whitelist = new WhiteListedAllowFromStrategy(
+				Collections.singletonList("example.com"));
 		XFrameOptionsHeaderWriter writer = new XFrameOptionsHeaderWriter(whitelist);
 		String value = new String("value");
 		this.response.setHeader(XFRAME_OPTIONS_HEADER, value);
 		writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(XFRAME_OPTIONS_HEADER)).isSameAs(value);
 	}
+
 }

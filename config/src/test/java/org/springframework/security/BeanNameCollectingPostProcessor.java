@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security;
 
 import java.util.HashSet;
@@ -25,30 +26,33 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * @author Luke Taylor
  */
 public class BeanNameCollectingPostProcessor implements BeanPostProcessor {
+
 	Set<String> beforeInitPostProcessedBeans = new HashSet<>();
+
 	Set<String> afterInitPostProcessedBeans = new HashSet<>();
 
-	public Object postProcessBeforeInitialization(Object bean, String beanName)
-			throws BeansException {
+	@Override
+	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (beanName != null) {
-			beforeInitPostProcessedBeans.add(beanName);
+			this.beforeInitPostProcessedBeans.add(beanName);
 		}
 		return bean;
 	}
 
-	public Object postProcessAfterInitialization(Object bean, String beanName)
-			throws BeansException {
+	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (beanName != null) {
-			afterInitPostProcessedBeans.add(beanName);
+			this.afterInitPostProcessedBeans.add(beanName);
 		}
 		return bean;
 	}
 
 	public Set<String> getBeforeInitPostProcessedBeans() {
-		return beforeInitPostProcessedBeans;
+		return this.beforeInitPostProcessedBeans;
 	}
 
 	public Set<String> getAfterInitPostProcessedBeans() {
-		return afterInitPostProcessedBeans;
+		return this.afterInitPostProcessedBeans;
 	}
+
 }

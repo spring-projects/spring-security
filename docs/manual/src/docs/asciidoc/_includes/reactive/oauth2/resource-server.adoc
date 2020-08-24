@@ -896,9 +896,9 @@ fun jwtDecoder(): ReactiveJwtDecoder {
 
 [[webflux-oauth2resourceserver-opaque-minimaldependencies]]
 === Minimal Dependencies for Introspection
-As described in <<oauth2resourceserver-jwt-minimaldependencies,Minimal Dependencies for JWT>> most of Resource Server support is collected in `spring-security-oauth2-resource-server`. 
-However unless a custom <<webflux-oauth2resourceserver-opaque-introspector-bean,`ReactiveOpaqueTokenIntrospector`>> is provided, the Resource Server will fallback to ReactiveOpaqueTokenIntrospector. 
-Meaning that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary in order to have a working minimal Resource Server that supports opaque Bearer Tokens. 
+As described in <<oauth2resourceserver-jwt-minimaldependencies,Minimal Dependencies for JWT>> most of Resource Server support is collected in `spring-security-oauth2-resource-server`.
+However unless a custom <<webflux-oauth2resourceserver-opaque-introspector-bean,`ReactiveOpaqueTokenIntrospector`>> is provided, the Resource Server will fallback to ReactiveOpaqueTokenIntrospector.
+Meaning that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary in order to have a working minimal Resource Server that supports opaque Bearer Tokens.
 Please refer to `spring-security-oauth2-resource-server` in order to determin the correct version for `oauth2-oidc-sdk`.
 
 [[webflux-oauth2resourceserver-opaque-minimalconfiguration]]
@@ -1486,8 +1486,8 @@ public class JwtOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospect
 		public Mono<JWTClaimsSet> convert(JWT jwt) {
 			try {
 				return Mono.just(jwt.getJWTClaimsSet());
-			} catch (Exception e) {
-				return Mono.error(e);
+			} catch (Exception ex) {
+				return Mono.error(ex);
 			}
 		}
 	}

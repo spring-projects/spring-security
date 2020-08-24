@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.util.matcher;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 
 /**
@@ -32,6 +34,7 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public class NegatedRequestMatcher implements RequestMatcher {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final RequestMatcher requestMatcher;
@@ -45,16 +48,16 @@ public class NegatedRequestMatcher implements RequestMatcher {
 		this.requestMatcher = requestMatcher;
 	}
 
+	@Override
 	public boolean matches(HttpServletRequest request) {
-		boolean result = !requestMatcher.matches(request);
-		if (logger.isDebugEnabled()) {
-			logger.debug("matches = " + result);
-		}
+		boolean result = !this.requestMatcher.matches(request);
+		this.logger.debug(LogMessage.format("matches = %s", result));
 		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "NegatedRequestMatcher [requestMatcher=" + requestMatcher + "]";
+		return "NegatedRequestMatcher [requestMatcher=" + this.requestMatcher + "]";
 	}
+
 }

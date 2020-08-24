@@ -16,8 +16,6 @@
 
 package org.springframework.security.web.jaasapi;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
 import java.security.AccessController;
 import java.util.HashMap;
@@ -40,6 +38,7 @@ import javax.servlet.ServletResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -50,6 +49,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Tests the JaasApiIntegrationFilter.
  *
@@ -57,8 +58,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class JaasApiIntegrationFilterTests {
 
-	// ~ Instance fields
-	// ================================================================================================
 	private JaasApiIntegrationFilter filter;
 
 	private MockHttpServletRequest request;
@@ -73,54 +72,47 @@ public class JaasApiIntegrationFilterTests {
 
 	private CallbackHandler callbackHandler;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public void onBeforeTests() throws Exception {
 		this.filter = new JaasApiIntegrationFilter();
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
-
-		authenticatedSubject = new Subject();
-		authenticatedSubject.getPrincipals().add(() -> "principal");
-		authenticatedSubject.getPrivateCredentials().add("password");
-		authenticatedSubject.getPublicCredentials().add("username");
-		callbackHandler = callbacks -> {
+		this.authenticatedSubject = new Subject();
+		this.authenticatedSubject.getPrincipals().add(() -> "principal");
+		this.authenticatedSubject.getPrivateCredentials().add("password");
+		this.authenticatedSubject.getPublicCredentials().add("username");
+		this.callbackHandler = (callbacks) -> {
 			for (Callback callback : callbacks) {
 				if (callback instanceof NameCallback) {
 					((NameCallback) callback).setName("user");
 				}
 				else if (callback instanceof PasswordCallback) {
-					((PasswordCallback) callback).setPassword(
-							"password".toCharArray());
+					((PasswordCallback) callback).setPassword("password".toCharArray());
 				}
 				else if (callback instanceof TextInputCallback) {
 					// ignore
 				}
 				else {
-					throw new UnsupportedCallbackException(callback,
-							"Unrecognized Callback " + callback);
+					throw new UnsupportedCallbackException(callback, "Unrecognized Callback " + callback);
 				}
 			}
 		};
-		testConfiguration = new Configuration() {
-
+		this.testConfiguration = new Configuration() {
+			@Override
 			public void refresh() {
 			}
 
+			@Override
 			public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
-				return new AppConfigurationEntry[] { new AppConfigurationEntry(
-						TestLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED,
-						new HashMap<>()) };
+				return new AppConfigurationEntry[] { new AppConfigurationEntry(TestLoginModule.class.getName(),
+						LoginModuleControlFlag.REQUIRED, new HashMap<>()) };
 			}
 		};
-		LoginContext ctx = new LoginContext("SubjectDoAsFilterTest", authenticatedSubject,
-				callbackHandler, testConfiguration);
+		LoginContext ctx = new LoginContext("SubjectDoAsFilterTest", this.authenticatedSubject, this.callbackHandler,
+				this.testConfiguration);
 		ctx.login();
-		token = new JaasAuthenticationToken("username", "password",
+		this.token = new JaasAuthenticationToken("username", "password",
 				AuthorityUtils.createAuthorityList("ROLE_ADMIN"), ctx);
-
 		// just in case someone forgot to clear the context
 		SecurityContextHolder.clearContext();
 	}
@@ -140,7 +132,7 @@ public class JaasApiIntegrationFilterTests {
 
 	@Test
 	public void obtainSubjectNullAuthentication() {
-		assertNullSubject(filter.obtainSubject(request));
+		assertNullSubject(this.filter.obtainSubject(this.request));
 	}
 
 	@Test
@@ -148,81 +140,74 @@ public class JaasApiIntegrationFilterTests {
 		Authentication authentication = new TestingAuthenticationToken("un", "pwd");
 		authentication.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-		assertNullSubject(filter.obtainSubject(request));
+		assertNullSubject(this.filter.obtainSubject(this.request));
 	}
 
 	@Test
 	public void obtainSubjectNullLoginContext() {
-		token = new JaasAuthenticationToken("un", "pwd",
-				AuthorityUtils.createAuthorityList("ROLE_ADMIN"), null);
-		SecurityContextHolder.getContext().setAuthentication(token);
-		assertNullSubject(filter.obtainSubject(request));
+		this.token = new JaasAuthenticationToken("un", "pwd", AuthorityUtils.createAuthorityList("ROLE_ADMIN"), null);
+		SecurityContextHolder.getContext().setAuthentication(this.token);
+		assertNullSubject(this.filter.obtainSubject(this.request));
 	}
 
 	@Test
 	public void obtainSubjectNullSubject() throws Exception {
-		LoginContext ctx = new LoginContext("obtainSubjectNullSubject", null,
-				callbackHandler, testConfiguration);
+		LoginContext ctx = new LoginContext("obtainSubjectNullSubject", null, this.callbackHandler,
+				this.testConfiguration);
 		assertThat(ctx.getSubject()).isNull();
-		token = new JaasAuthenticationToken("un", "pwd",
-				AuthorityUtils.createAuthorityList("ROLE_ADMIN"), ctx);
-		SecurityContextHolder.getContext().setAuthentication(token);
-		assertNullSubject(filter.obtainSubject(request));
+		this.token = new JaasAuthenticationToken("un", "pwd", AuthorityUtils.createAuthorityList("ROLE_ADMIN"), ctx);
+		SecurityContextHolder.getContext().setAuthentication(this.token);
+		assertNullSubject(this.filter.obtainSubject(this.request));
 	}
 
 	@Test
 	public void obtainSubject() {
-		SecurityContextHolder.getContext().setAuthentication(token);
-		assertThat(filter.obtainSubject(request)).isEqualTo(authenticatedSubject);
+		SecurityContextHolder.getContext().setAuthentication(this.token);
+		assertThat(this.filter.obtainSubject(this.request)).isEqualTo(this.authenticatedSubject);
 	}
 
 	@Test
 	public void doFilterCurrentSubjectPopulated() throws Exception {
-		SecurityContextHolder.getContext().setAuthentication(token);
-		assertJaasSubjectEquals(authenticatedSubject);
+		SecurityContextHolder.getContext().setAuthentication(this.token);
+		assertJaasSubjectEquals(this.authenticatedSubject);
 	}
 
 	@Test
 	public void doFilterAuthenticationNotAuthenticated() throws Exception {
 		// Authentication is null, so no Subject is populated.
-		token.setAuthenticated(false);
-		SecurityContextHolder.getContext().setAuthentication(token);
+		this.token.setAuthenticated(false);
+		SecurityContextHolder.getContext().setAuthentication(this.token);
 		assertJaasSubjectEquals(null);
-		filter.setCreateEmptySubject(true);
+		this.filter.setCreateEmptySubject(true);
 		assertJaasSubjectEquals(new Subject());
 	}
 
 	@Test
 	public void doFilterAuthenticationNull() throws Exception {
 		assertJaasSubjectEquals(null);
-		filter.setCreateEmptySubject(true);
+		this.filter.setCreateEmptySubject(true);
 		assertJaasSubjectEquals(new Subject());
 	}
 
-	// ~ Helper Methods
-	// ====================================================================================================
-
 	private void assertJaasSubjectEquals(final Subject expectedValue) throws Exception {
 		MockFilterChain chain = new MockFilterChain() {
-
+			@Override
 			public void doFilter(ServletRequest request, ServletResponse response)
 					throws IOException, ServletException {
 				// See if the subject was updated
-				Subject currentSubject = Subject.getSubject(
-						AccessController.getContext());
+				Subject currentSubject = Subject.getSubject(AccessController.getContext());
 				assertThat(currentSubject).isEqualTo(expectedValue);
-
 				// run so we know the chain was executed
 				super.doFilter(request, response);
 			}
 		};
-		filter.doFilter(request, response, chain);
+		this.filter.doFilter(this.request, this.response, chain);
 		// ensure that the chain was actually invoked
 		assertThat(chain.getRequest()).isNotNull();
 	}
 
 	private void assertNullSubject(Subject subject) {
-		assertThat(subject).withFailMessage(
-				"Subject is expected to be null, but is not. Got " + subject).isNull();
+		assertThat(subject).withFailMessage("Subject is expected to be null, but is not. Got " + subject).isNull();
 	}
+
 }

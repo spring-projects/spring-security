@@ -27,8 +27,7 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public interface SidRetrievalStrategy {
-	// ~ Methods
-	// ========================================================================================================
 
 	List<Sid> getSids(Authentication authentication);
+
 }

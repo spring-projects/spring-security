@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package samples.jaas;
 
 import java.io.Serializable;
@@ -34,15 +35,12 @@ import javax.security.auth.spi.LoginModule;
  * @author Rob Winch
  */
 public class UsernameEqualsPasswordLoginModule implements LoginModule {
-	// ~ Instance fields
-	// ================================================================================================
+
 
 	private String password;
 	private String username;
 	private Subject subject;
 
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public boolean abort() {

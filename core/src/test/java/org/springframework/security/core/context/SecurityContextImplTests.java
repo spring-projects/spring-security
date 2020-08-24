@@ -16,11 +16,12 @@
 
 package org.springframework.security.core.context;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link SecurityContextImpl}.
@@ -29,8 +30,6 @@ import org.springframework.security.core.Authentication;
  */
 public class SecurityContextImplTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testEmptyObjectsAreEquals() {
 		SecurityContextImpl obj1 = new SecurityContextImpl();
@@ -46,4 +45,5 @@ public class SecurityContextImplTests {
 		assertThat(context.getAuthentication()).isEqualTo(auth);
 		assertThat(context.toString().lastIndexOf("rod") != -1).isTrue();
 	}
+
 }

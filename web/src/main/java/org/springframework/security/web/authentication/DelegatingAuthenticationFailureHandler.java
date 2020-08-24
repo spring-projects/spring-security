@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.util.Assert;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.util.Assert;
 
 /**
  * An {@link AuthenticationFailureHandler} that delegates to other
@@ -35,8 +37,7 @@ import java.util.Map;
  * @author Kazuki Shimizu
  * @since 4.0
  */
-public class DelegatingAuthenticationFailureHandler implements
-		AuthenticationFailureHandler {
+public class DelegatingAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
 	private final LinkedHashMap<Class<? extends AuthenticationException>, AuthenticationFailureHandler> handlers;
 
@@ -44,7 +45,6 @@ public class DelegatingAuthenticationFailureHandler implements
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param handlers a map of the {@link AuthenticationException} class to the
 	 * {@link AuthenticationFailureHandler} that should be used. Each is considered in the
 	 * order they are specified and only the first {@link AuthenticationFailureHandler} is
@@ -62,24 +62,19 @@ public class DelegatingAuthenticationFailureHandler implements
 		this.defaultHandler = defaultHandler;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void onAuthenticationFailure(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException exception)
-			throws IOException, ServletException {
-		for (Map.Entry<Class<? extends AuthenticationException>, AuthenticationFailureHandler> entry : handlers
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) throws IOException, ServletException {
+		for (Map.Entry<Class<? extends AuthenticationException>, AuthenticationFailureHandler> entry : this.handlers
 				.entrySet()) {
-			Class<? extends AuthenticationException> handlerMappedExceptionClass = entry
-					.getKey();
+			Class<? extends AuthenticationException> handlerMappedExceptionClass = entry.getKey();
 			if (handlerMappedExceptionClass.isAssignableFrom(exception.getClass())) {
 				AuthenticationFailureHandler handler = entry.getValue();
 				handler.onAuthenticationFailure(request, response, exception);
 				return;
 			}
 		}
-		defaultHandler.onAuthenticationFailure(request, response, exception);
+		this.defaultHandler.onAuthenticationFailure(request, response, exception);
 	}
 
 }

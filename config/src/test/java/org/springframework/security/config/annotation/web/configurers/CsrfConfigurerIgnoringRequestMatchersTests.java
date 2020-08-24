@@ -48,21 +48,40 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 	public final SpringTestRule spring = new SpringTestRule();
 
 	@Test
-	public void requestWhenIgnoringRequestMatchersThenAugmentedByConfiguredRequestMatcher()
-			throws Exception {
+	public void requestWhenIgnoringRequestMatchersThenAugmentedByConfiguredRequestMatcher() throws Exception {
 		this.spring.register(IgnoringRequestMatchers.class, BasicController.class).autowire();
+		this.mvc.perform(get("/path")).andExpect(status().isForbidden());
+		this.mvc.perform(post("/path")).andExpect(status().isOk());
+	}
 
-		this.mvc.perform(get("/path"))
-				.andExpect(status().isForbidden());
+	@Test
+	public void requestWhenIgnoringRequestMatchersInLambdaThenAugmentedByConfiguredRequestMatcher() throws Exception {
+		this.spring.register(IgnoringRequestInLambdaMatchers.class, BasicController.class).autowire();
+		this.mvc.perform(get("/path")).andExpect(status().isForbidden());
+		this.mvc.perform(post("/path")).andExpect(status().isOk());
+	}
 
-		this.mvc.perform(post("/path"))
-				.andExpect(status().isOk());
+	@Test
+	public void requestWhenIgnoringRequestMatcherThenUnionsWithConfiguredIgnoringAntMatchers() throws Exception {
+		this.spring.register(IgnoringPathsAndMatchers.class, BasicController.class).autowire();
+		this.mvc.perform(put("/csrf")).andExpect(status().isForbidden());
+		this.mvc.perform(post("/csrf")).andExpect(status().isOk());
+		this.mvc.perform(put("/no-csrf")).andExpect(status().isOk());
+	}
+
+	@Test
+	public void requestWhenIgnoringRequestMatcherInLambdaThenUnionsWithConfiguredIgnoringAntMatchers()
+			throws Exception {
+		this.spring.register(IgnoringPathsAndMatchersInLambdaConfig.class, BasicController.class).autowire();
+		this.mvc.perform(put("/csrf")).andExpect(status().isForbidden());
+		this.mvc.perform(post("/csrf")).andExpect(status().isOk());
+		this.mvc.perform(put("/no-csrf")).andExpect(status().isOk());
 	}
 
 	@EnableWebSecurity
 	static class IgnoringRequestMatchers extends WebSecurityConfigurerAdapter {
-		RequestMatcher requestMatcher =
-				request -> HttpMethod.POST.name().equals(request.getMethod());
+
+		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -73,58 +92,32 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 					.ignoringRequestMatchers(this.requestMatcher);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void requestWhenIgnoringRequestMatchersInLambdaThenAugmentedByConfiguredRequestMatcher()
-			throws Exception {
-		this.spring.register(IgnoringRequestInLambdaMatchers.class, BasicController.class).autowire();
-
-		this.mvc.perform(get("/path"))
-				.andExpect(status().isForbidden());
-
-		this.mvc.perform(post("/path"))
-				.andExpect(status().isOk());
 	}
 
 	@EnableWebSecurity
 	static class IgnoringRequestInLambdaMatchers extends WebSecurityConfigurerAdapter {
-		RequestMatcher requestMatcher =
-				request -> HttpMethod.POST.name().equals(request.getMethod());
+
+		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf(csrf ->
+				.csrf((csrf) ->
 					csrf
 						.requireCsrfProtectionMatcher(new AntPathRequestMatcher("/path"))
 						.ignoringRequestMatchers(this.requestMatcher)
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void requestWhenIgnoringRequestMatcherThenUnionsWithConfiguredIgnoringAntMatchers()
-			throws Exception {
-
-		this.spring.register(IgnoringPathsAndMatchers.class, BasicController.class).autowire();
-
-		this.mvc.perform(put("/csrf"))
-				.andExpect(status().isForbidden());
-
-		this.mvc.perform(post("/csrf"))
-				.andExpect(status().isOk());
-
-		this.mvc.perform(put("/no-csrf"))
-				.andExpect(status().isOk());
 	}
 
 	@EnableWebSecurity
 	static class IgnoringPathsAndMatchers extends WebSecurityConfigurerAdapter {
-		RequestMatcher requestMatcher =
-				request -> HttpMethod.POST.name().equals(request.getMethod());
+
+		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -135,44 +128,31 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 					.ignoringRequestMatchers(this.requestMatcher);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void requestWhenIgnoringRequestMatcherInLambdaThenUnionsWithConfiguredIgnoringAntMatchers()
-			throws Exception {
-
-		this.spring.register(IgnoringPathsAndMatchersInLambdaConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(put("/csrf"))
-				.andExpect(status().isForbidden());
-
-		this.mvc.perform(post("/csrf"))
-				.andExpect(status().isOk());
-
-		this.mvc.perform(put("/no-csrf"))
-				.andExpect(status().isOk());
 	}
 
 	@EnableWebSecurity
 	static class IgnoringPathsAndMatchersInLambdaConfig extends WebSecurityConfigurerAdapter {
-		RequestMatcher requestMatcher =
-				request -> HttpMethod.POST.name().equals(request.getMethod());
+
+		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf(csrf ->
+				.csrf((csrf) ->
 					csrf
 						.ignoringAntMatchers("/no-csrf")
 						.ignoringRequestMatchers(this.requestMatcher)
 				);
 			// @formatter:on
 		}
+
 	}
 
 	@RestController
 	public static class BasicController {
+
 		@RequestMapping("/path")
 		public String path() {
 			return "path";
@@ -187,5 +167,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 		public String noCsrf() {
 			return "no-csrf";
 		}
+
 	}
+
 }

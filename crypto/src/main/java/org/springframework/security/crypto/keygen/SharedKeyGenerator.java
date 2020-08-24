@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.keygen;
 
 /**
@@ -30,12 +31,14 @@ final class SharedKeyGenerator implements BytesKeyGenerator {
 		this.sharedKey = sharedKey;
 	}
 
+	@Override
 	public int getKeyLength() {
-		return sharedKey.length;
+		return this.sharedKey.length;
 	}
 
+	@Override
 	public byte[] generateKey() {
-		return sharedKey;
+		return this.sharedKey;
 	}
 
 }

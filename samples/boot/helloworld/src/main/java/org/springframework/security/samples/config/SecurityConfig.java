@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.samples.config;
 
 import org.springframework.context.annotation.Bean;
@@ -34,11 +35,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-				.authorizeRequests(authorize -> authorize
+				.authorizeRequests((authorize) -> authorize
 					.antMatchers("/css/**", "/index").permitAll()
 					.antMatchers("/user/**").hasRole("USER")
 				)
-				.formLogin(formLogin -> formLogin
+				.formLogin((formLogin) -> formLogin
 					.loginPage("/login")
 					.failureUrl("/login-error")
 				);

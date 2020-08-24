@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.http;
 
 import org.junit.Test;
@@ -23,8 +24,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @author Ankur Pathak
  */
 public class CsrfBeanDefinitionParserTests {
-	private static final String CONFIG_LOCATION_PREFIX =
-			"classpath:org/springframework/security/config/http/CsrfBeanDefinitionParserTests";
+
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/CsrfBeanDefinitionParserTests";
 
 	@Test
 	public void registerDataValueProcessorOnlyIfNotRegistered() {
@@ -38,4 +39,5 @@ public class CsrfBeanDefinitionParserTests {
 	private String xml(String configName) {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
+
 }

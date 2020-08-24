@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.mock.web.MockHttpSession;
@@ -39,6 +40,7 @@ import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -67,9 +69,7 @@ public class DefaultLoginPageConfigurerTests {
 	@Test
 	public void getWhenFormLoginEnabledThenRedirectsToLoginPage() throws Exception {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
-
-		this.mvc.perform(get("/"))
-				.andExpect(redirectedUrl("http://localhost/login"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
 	}
 
 	@Test
@@ -77,48 +77,43 @@ public class DefaultLoginPageConfigurerTests {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
-
-		this.mvc.perform(get("/login")
-				.sessionAttr(csrfAttributeName, csrfToken))
-				.andExpect(content().string(
-						"<!DOCTYPE html>\n" +
-								"<html lang=\"en\">\n" +
-								"  <head>\n" +
-								"    <meta charset=\"utf-8\">\n" +
-								"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n" +
-								"    <meta name=\"description\" content=\"\">\n" +
-								"    <meta name=\"author\" content=\"\">\n" +
-								"    <title>Please sign in</title>\n" +
-								"    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n" +
-								"    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n" +
-								"  </head>\n" +
-								"  <body>\n" +
-								"     <div class=\"container\">\n" +
-								"      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n" +
-								"        <h2 class=\"form-signin-heading\">Please sign in</h2>\n" +
-								"        <p>\n" +
-								"          <label for=\"username\" class=\"sr-only\">Username</label>\n" +
-								"          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n" +
-								"        </p>\n" +
-								"        <p>\n" +
-								"          <label for=\"password\" class=\"sr-only\">Password</label>\n" +
-								"          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n" +
-								"        </p>\n" +
-								"<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n" +
-								"        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n" +
-								"      </form>\n" +
-								"</div>\n" +
-								"</body></html>"
-				));
+		// @formatter:off
+		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
+				.andExpect(content().string("<!DOCTYPE html>\n"
+						+ "<html lang=\"en\">\n"
+						+ "  <head>\n"
+						+ "    <meta charset=\"utf-8\">\n"
+						+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
+						+ "    <meta name=\"description\" content=\"\">\n"
+						+ "    <meta name=\"author\" content=\"\">\n"
+						+ "    <title>Please sign in</title>\n"
+						+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
+						+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
+						+ "  </head>\n"
+						+ "  <body>\n"
+						+ "     <div class=\"container\">\n"
+						+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
+						+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
+						+ "        <p>\n"
+						+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
+						+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
+						+ "        </p>\n"
+						+ "        <p>\n"
+						+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
+						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
+						+ "        </p>\n"
+						+ "<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n"
+						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
+						+ "      </form>\n"
+						+ "</div>\n"
+						+ "</body></html>"));
+		// @formatter:on
 	}
 
 	@Test
 	public void loginWhenNoCredentialsThenRedirectedToLoginPageWithError() throws Exception {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
-
-		this.mvc.perform(post("/login")
-				.with(csrf()))
-				.andExpect(redirectedUrl("/login?error"));
+		this.mvc.perform(post("/login").with(csrf())).andExpect(redirectedUrl("/login?error"));
 	}
 
 	@Test
@@ -126,55 +121,50 @@ public class DefaultLoginPageConfigurerTests {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
-
-		MvcResult mvcResult = this.mvc.perform(post("/login")
-				.with(csrf()))
-				.andReturn();
-
-		this.mvc.perform(get("/login?error")
-				.session((MockHttpSession) mvcResult.getRequest().getSession())
+		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf())).andReturn();
+		// @formatter:off
+		this.mvc.perform(get("/login?error").session((MockHttpSession) mvcResult.getRequest().getSession())
 				.sessionAttr(csrfAttributeName, csrfToken))
-				.andExpect(content().string(
-						"<!DOCTYPE html>\n" +
-								"<html lang=\"en\">\n" +
-								"  <head>\n" +
-								"    <meta charset=\"utf-8\">\n" +
-								"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n" +
-								"    <meta name=\"description\" content=\"\">\n" +
-								"    <meta name=\"author\" content=\"\">\n" +
-								"    <title>Please sign in</title>\n" +
-								"    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n" +
-								"    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n" +
-								"  </head>\n" +
-								"  <body>\n" +
-								"     <div class=\"container\">\n" +
-								"      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n" +
-								"        <h2 class=\"form-signin-heading\">Please sign in</h2>\n" +
-								"<div class=\"alert alert-danger\" role=\"alert\">Bad credentials</div>        <p>\n" +
-								"          <label for=\"username\" class=\"sr-only\">Username</label>\n" +
-								"          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n" +
-								"        </p>\n" +
-								"        <p>\n" +
-								"          <label for=\"password\" class=\"sr-only\">Password</label>\n" +
-								"          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n" +
-								"        </p>\n" +
-								"<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n" +
-								"        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n" +
-								"      </form>\n" +
-								"</div>\n" +
-								"</body></html>"
-				));
+				.andExpect(content().string("<!DOCTYPE html>\n"
+						+ "<html lang=\"en\">\n"
+						+ "  <head>\n"
+						+ "    <meta charset=\"utf-8\">\n"
+						+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
+						+ "    <meta name=\"description\" content=\"\">\n"
+						+ "    <meta name=\"author\" content=\"\">\n"
+						+ "    <title>Please sign in</title>\n"
+						+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
+						+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
+						+ "  </head>\n"
+						+ "  <body>\n"
+						+ "     <div class=\"container\">\n"
+						+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
+						+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
+						+ "<div class=\"alert alert-danger\" role=\"alert\">Bad credentials</div>        <p>\n"
+						+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
+						+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
+						+ "        </p>\n" + "        <p>\n"
+						+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
+						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
+						+ "        </p>\n"
+						+ "<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n"
+						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
+						+ "      </form>\n"
+						+ "</div>\n"
+						+ "</body></html>"));
+		// @formatter:on
 	}
 
 	@Test
 	public void loginWhenValidCredentialsThenRedirectsToDefaultSuccessPage() throws Exception {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
-
-		this.mvc.perform(post("/login")
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
 				.with(csrf())
 				.param("username", "user")
-				.param("password", "password"))
-				.andExpect(redirectedUrl("/"));
+				.param("password", "password");
+		// @formatter:on
+		this.mvc.perform(loginRequest).andExpect(redirectedUrl("/"));
 	}
 
 	@Test
@@ -182,43 +172,212 @@ public class DefaultLoginPageConfigurerTests {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
+		// @formatter:off
+		this.mvc.perform(get("/login?logout").sessionAttr(csrfAttributeName, csrfToken))
+				.andExpect(content().string("<!DOCTYPE html>\n"
+						+ "<html lang=\"en\">\n"
+						+ "  <head>\n"
+						+ "    <meta charset=\"utf-8\">\n"
+						+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
+						+ "    <meta name=\"description\" content=\"\">\n"
+						+ "    <meta name=\"author\" content=\"\">\n"
+						+ "    <title>Please sign in</title>\n"
+						+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
+						+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
+						+ "  </head>\n"
+						+ "  <body>\n"
+						+ "     <div class=\"container\">\n"
+						+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
+						+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
+						+ "<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>        <p>\n"
+						+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
+						+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
+						+ "        </p>\n"
+						+ "        <p>\n"
+						+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
+						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
+						+ "        </p>\n"
+						+ "<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n"
+						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
+						+ "      </form>\n"
+						+ "</div>\n"
+						+ "</body></html>"));
+		// @formatter:on
+	}
 
-		this.mvc.perform(get("/login?logout")
-				.sessionAttr(csrfAttributeName, csrfToken))
-				.andExpect(content().string(
-						"<!DOCTYPE html>\n" +
-								"<html lang=\"en\">\n" +
-								"  <head>\n" +
-								"    <meta charset=\"utf-8\">\n" +
-								"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n" +
-								"    <meta name=\"description\" content=\"\">\n" +
-								"    <meta name=\"author\" content=\"\">\n" +
-								"    <title>Please sign in</title>\n" +
-								"    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n" +
-								"    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n" +
-								"  </head>\n" +
-								"  <body>\n" +
-								"     <div class=\"container\">\n" +
-								"      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n" +
-								"        <h2 class=\"form-signin-heading\">Please sign in</h2>\n" +
-								"<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>        <p>\n" +
-								"          <label for=\"username\" class=\"sr-only\">Username</label>\n" +
-								"          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n" +
-								"        </p>\n" +
-								"        <p>\n" +
-								"          <label for=\"password\" class=\"sr-only\">Password</label>\n" +
-								"          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n" +
-								"        </p>\n" +
-								"<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n" +
-								"        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n" +
-								"      </form>\n" +
-								"</div>\n" +
-								"</body></html>"
-				));
+	@Test
+	public void loginPageWhenLoggedOutAndCustomLogoutSuccessHandlerThenDoesNotRenderLoginPage() throws Exception {
+		this.spring.register(DefaultLoginPageCustomLogoutSuccessHandlerConfig.class).autowire();
+		this.mvc.perform(get("/login?logout")).andExpect(content().string(""));
+	}
+
+	@Test
+	public void loginPageWhenLoggedOutAndCustomLogoutSuccessUrlThenDoesNotRenderLoginPage() throws Exception {
+		this.spring.register(DefaultLoginPageCustomLogoutSuccessUrlConfig.class).autowire();
+		this.mvc.perform(get("/login?logout")).andExpect(content().string(""));
+	}
+
+	@Test
+	public void loginPageWhenRememberConfigureThenDefaultLoginPageWithRememberMeCheckbox() throws Exception {
+		this.spring.register(DefaultLoginPageWithRememberMeConfig.class).autowire();
+		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
+		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
+		// @formatter:off
+		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
+				.andExpect(content().string("<!DOCTYPE html>\n"
+						+ "<html lang=\"en\">\n"
+						+ "  <head>\n"
+						+ "    <meta charset=\"utf-8\">\n"
+						+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
+						+ "    <meta name=\"description\" content=\"\">\n"
+						+ "    <meta name=\"author\" content=\"\">\n"
+						+ "    <title>Please sign in</title>\n"
+						+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
+						+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
+						+ "  </head>\n"
+						+ "  <body>\n"
+						+ "     <div class=\"container\">\n"
+						+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
+						+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
+						+ "        <p>\n"
+						+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
+						+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
+						+ "        </p>\n"
+						+ "        <p>\n"
+						+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
+						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
+						+ "        </p>\n"
+						+ "<p><input type='checkbox' name='remember-me'/> Remember me on this computer.</p>\n"
+						+ "<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n"
+						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
+						+ "      </form>\n"
+						+ "</div>\n"
+						+ "</body></html>"));
+		// @formatter:on
+	}
+
+	@Test
+	public void loginPageWhenOpenIdLoginConfiguredThenOpedIdLoginPage() throws Exception {
+		this.spring.register(DefaultLoginPageWithOpenIDConfig.class).autowire();
+		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
+		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
+		// @formatter:off
+		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
+				.andExpect(content().string("<!DOCTYPE html>\n"
+						+ "<html lang=\"en\">\n"
+						+ "  <head>\n"
+						+ "    <meta charset=\"utf-8\">\n"
+						+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
+						+ "    <meta name=\"description\" content=\"\">\n"
+						+ "    <meta name=\"author\" content=\"\">\n"
+						+ "    <title>Please sign in</title>\n"
+						+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
+						+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
+						+ "  </head>\n"
+						+ "  <body>\n"
+						+ "     <div class=\"container\">\n"
+						+ "      <form name=\"oidf\" class=\"form-signin\" method=\"post\" action=\"/login/openid\">\n"
+						+ "        <h2 class=\"form-signin-heading\">Login with OpenID Identity</h2>\n"
+						+ "        <p>\n"
+						+ "          <label for=\"username\" class=\"sr-only\">Identity</label>\n"
+						+ "          <input type=\"text\" id=\"username\" name=\"openid_identifier\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
+						+ "        </p>\n"
+						+ "<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n"
+						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
+						+ "      </form>\n"
+						+ "</div>\n"
+						+ "</body></html>"));
+		// @formatter:on
+	}
+
+	@Test
+	public void loginPageWhenOpenIdLoginAndFormLoginAndRememberMeConfiguredThenOpedIdLoginPage() throws Exception {
+		this.spring.register(DefaultLoginPageWithFormLoginOpenIDRememberMeConfig.class).autowire();
+		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
+		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
+		// @formatter:off
+		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
+				.andExpect(content().string("<!DOCTYPE html>\n"
+						+ "<html lang=\"en\">\n"
+						+ "  <head>\n"
+						+ "    <meta charset=\"utf-8\">\n"
+						+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
+						+ "    <meta name=\"description\" content=\"\">\n"
+						+ "    <meta name=\"author\" content=\"\">\n"
+						+ "    <title>Please sign in</title>\n"
+						+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
+						+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
+						+ "  </head>\n"
+						+ "  <body>\n"
+						+ "     <div class=\"container\">\n"
+						+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
+						+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n" + "        <p>\n"
+						+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
+						+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
+						+ "        </p>\n"
+						+ "        <p>\n"
+						+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
+						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
+						+ "        </p>\n"
+						+ "<p><input type='checkbox' name='remember-me'/> Remember me on this computer.</p>\n"
+						+ "<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n"
+						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
+						+ "      </form>\n"
+						+ "      <form name=\"oidf\" class=\"form-signin\" method=\"post\" action=\"/login/openid\">\n"
+						+ "        <h2 class=\"form-signin-heading\">Login with OpenID Identity</h2>\n"
+						+ "        <p>\n" + "          <label for=\"username\" class=\"sr-only\">Identity</label>\n"
+						+ "          <input type=\"text\" id=\"username\" name=\"openid_identifier\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
+						+ "        </p>\n"
+						+ "<p><input type='checkbox' name='remember-me'/> Remember me on this computer.</p>\n"
+						+ "<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n"
+						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
+						+ "      </form>\n"
+						+ "</div>\n"
+						+ "</body></html>"));
+		// @formatter:on
+	}
+
+	@Test
+	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnDefaultLoginPageGeneratingFilter() {
+		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+		this.spring.register(ObjectPostProcessorConfig.class).autowire();
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(DefaultLoginPageGeneratingFilter.class));
+	}
+
+	@Test
+	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnUsernamePasswordAuthenticationFilter() {
+		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+		this.spring.register(ObjectPostProcessorConfig.class).autowire();
+		verify(ObjectPostProcessorConfig.objectPostProcessor)
+				.postProcess(any(UsernamePasswordAuthenticationFilter.class));
+	}
+
+	@Test
+	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnLoginUrlAuthenticationEntryPoint() {
+		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+		this.spring.register(ObjectPostProcessorConfig.class).autowire();
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(LoginUrlAuthenticationEntryPoint.class));
+	}
+
+	@Test
+	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnExceptionTranslationFilter() {
+		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+		this.spring.register(ObjectPostProcessorConfig.class).autowire();
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ExceptionTranslationFilter.class));
+	}
+
+	@Test
+	public void configureWhenAuthenticationEntryPointThenNoDefaultLoginPageGeneratingFilter() {
+		this.spring.register(DefaultLoginWithCustomAuthenticationEntryPointConfig.class).autowire();
+		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
+		assertThat(filterChain.getFilterChains().get(0).getFilters().stream()
+				.filter((filter) -> filter.getClass().isAssignableFrom(DefaultLoginPageGeneratingFilter.class)).count())
+						.isZero();
 	}
 
 	@EnableWebSecurity
 	static class DefaultLoginPageConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -238,19 +397,12 @@ public class DefaultLoginPageConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
-
-	@Test
-	public void loginPageWhenLoggedOutAndCustomLogoutSuccessHandlerThenDoesNotRenderLoginPage() throws Exception {
-		this.spring.register(DefaultLoginPageCustomLogoutSuccessHandlerConfig.class).autowire();
-
-		this.mvc.perform(get("/login?logout"))
-				.andExpect(content().string(""));
-	}
-
 
 	@EnableWebSecurity
 	static class DefaultLoginPageCustomLogoutSuccessHandlerConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -264,18 +416,12 @@ public class DefaultLoginPageConfigurerTests {
 				.formLogin();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void loginPageWhenLoggedOutAndCustomLogoutSuccessUrlThenDoesNotRenderLoginPage() throws Exception {
-		this.spring.register(DefaultLoginPageCustomLogoutSuccessUrlConfig.class).autowire();
-
-		this.mvc.perform(get("/login?logout"))
-				.andExpect(content().string(""));
 	}
 
 	@EnableWebSecurity
 	static class DefaultLoginPageCustomLogoutSuccessUrlConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -289,51 +435,12 @@ public class DefaultLoginPageConfigurerTests {
 				.formLogin();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void loginPageWhenRememberConfigureThenDefaultLoginPageWithRememberMeCheckbox() throws Exception {
-		this.spring.register(DefaultLoginPageWithRememberMeConfig.class).autowire();
-		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
-		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
-
-		this.mvc.perform(get("/login")
-				.sessionAttr(csrfAttributeName, csrfToken))
-				.andExpect(content().string(
-						"<!DOCTYPE html>\n" +
-								"<html lang=\"en\">\n" +
-								"  <head>\n" +
-								"    <meta charset=\"utf-8\">\n" +
-								"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n" +
-								"    <meta name=\"description\" content=\"\">\n" +
-								"    <meta name=\"author\" content=\"\">\n" +
-								"    <title>Please sign in</title>\n" +
-								"    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n" +
-								"    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n" +
-								"  </head>\n" +
-								"  <body>\n" +
-								"     <div class=\"container\">\n" +
-								"      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n" +
-								"        <h2 class=\"form-signin-heading\">Please sign in</h2>\n" +
-								"        <p>\n" +
-								"          <label for=\"username\" class=\"sr-only\">Username</label>\n" +
-								"          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n" +
-								"        </p>\n" +
-								"        <p>\n" +
-								"          <label for=\"password\" class=\"sr-only\">Password</label>\n" +
-								"          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n" +
-								"        </p>\n" +
-								"<p><input type='checkbox' name='remember-me'/> Remember me on this computer.</p>\n" +
-								"<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n" +
-								"        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n" +
-								"      </form>\n" +
-								"</div>\n" +
-								"</body></html>"
-				));
 	}
 
 	@EnableWebSecurity
 	static class DefaultLoginPageWithRememberMeConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -346,47 +453,12 @@ public class DefaultLoginPageConfigurerTests {
 				.rememberMe();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void loginPageWhenOpenIdLoginConfiguredThenOpedIdLoginPage() throws Exception {
-		this.spring.register(DefaultLoginPageWithOpenIDConfig.class).autowire();
-
-		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
-		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
-
-		this.mvc.perform(get("/login")
-				.sessionAttr(csrfAttributeName, csrfToken))
-				.andExpect(content().string(
-						"<!DOCTYPE html>\n" +
-								"<html lang=\"en\">\n" +
-								"  <head>\n" +
-								"    <meta charset=\"utf-8\">\n" +
-								"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n" +
-								"    <meta name=\"description\" content=\"\">\n" +
-								"    <meta name=\"author\" content=\"\">\n" +
-								"    <title>Please sign in</title>\n" +
-								"    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n" +
-								"    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n" +
-								"  </head>\n" +
-								"  <body>\n" +
-								"     <div class=\"container\">\n" +
-								"      <form name=\"oidf\" class=\"form-signin\" method=\"post\" action=\"/login/openid\">\n" +
-								"        <h2 class=\"form-signin-heading\">Login with OpenID Identity</h2>\n" +
-								"        <p>\n" +
-								"          <label for=\"username\" class=\"sr-only\">Identity</label>\n" +
-								"          <input type=\"text\" id=\"username\" name=\"openid_identifier\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n" +
-								"        </p>\n" +
-								"<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n" +
-								"        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n" +
-								"      </form>\n" +
-								"</div>\n" +
-								"</body></html>"
-				));
 	}
 
 	@EnableWebSecurity
 	static class DefaultLoginPageWithOpenIDConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -397,61 +469,12 @@ public class DefaultLoginPageConfigurerTests {
 				.openidLogin();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void loginPageWhenOpenIdLoginAndFormLoginAndRememberMeConfiguredThenOpedIdLoginPage() throws Exception {
-		this.spring.register(DefaultLoginPageWithFormLoginOpenIDRememberMeConfig.class).autowire();
-		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
-		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
-
-		this.mvc.perform(get("/login")
-				.sessionAttr(csrfAttributeName, csrfToken))
-				.andExpect(content().string(
-						"<!DOCTYPE html>\n" +
-								"<html lang=\"en\">\n" +
-								"  <head>\n" +
-								"    <meta charset=\"utf-8\">\n" +
-								"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n" +
-								"    <meta name=\"description\" content=\"\">\n" +
-								"    <meta name=\"author\" content=\"\">\n" +
-								"    <title>Please sign in</title>\n" +
-								"    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n" +
-								"    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n" +
-								"  </head>\n" +
-								"  <body>\n" +
-								"     <div class=\"container\">\n" +
-								"      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n" +
-								"        <h2 class=\"form-signin-heading\">Please sign in</h2>\n" +
-								"        <p>\n" +
-								"          <label for=\"username\" class=\"sr-only\">Username</label>\n" +
-								"          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n" +
-								"        </p>\n" +
-								"        <p>\n" +
-								"          <label for=\"password\" class=\"sr-only\">Password</label>\n" +
-								"          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n" +
-								"        </p>\n" +
-								"<p><input type='checkbox' name='remember-me'/> Remember me on this computer.</p>\n" +
-								"<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n" +
-								"        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n" +
-								"      </form>\n" +
-								"      <form name=\"oidf\" class=\"form-signin\" method=\"post\" action=\"/login/openid\">\n" +
-								"        <h2 class=\"form-signin-heading\">Login with OpenID Identity</h2>\n" +
-								"        <p>\n" +
-								"          <label for=\"username\" class=\"sr-only\">Identity</label>\n" +
-								"          <input type=\"text\" id=\"username\" name=\"openid_identifier\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n" +
-								"        </p>\n" +
-								"<p><input type='checkbox' name='remember-me'/> Remember me on this computer.</p>\n" +
-								"<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n" +
-								"        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n" +
-								"      </form>\n" +
-								"</div>\n" +
-								"</body></html>"
-				));
 	}
 
 	@EnableWebSecurity
 	static class DefaultLoginPageWithFormLoginOpenIDRememberMeConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -466,21 +489,12 @@ public class DefaultLoginPageConfigurerTests {
 				.openidLogin();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void configureWhenAuthenticationEntryPointThenNoDefaultLoginPageGeneratingFilter() {
-		this.spring.register(DefaultLoginWithCustomAuthenticationEntryPointConfig.class).autowire();
-
-		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
-		assertThat(filterChain.getFilterChains().get(0).getFilters().stream()
-				.filter(filter -> filter.getClass().isAssignableFrom(DefaultLoginPageGeneratingFilter.class))
-				.count())
-				.isZero();
 	}
 
 	@EnableWebSecurity
 	static class DefaultLoginWithCustomAuthenticationEntryPointConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -494,46 +508,12 @@ public class DefaultLoginPageConfigurerTests {
 				.formLogin();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnDefaultLoginPageGeneratingFilter() {
-		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(DefaultLoginPageGeneratingFilter.class));
-	}
-
-	@Test
-	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnUsernamePasswordAuthenticationFilter() {
-		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(UsernamePasswordAuthenticationFilter.class));
-	}
-
-	@Test
-	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnLoginUrlAuthenticationEntryPoint() {
-		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(LoginUrlAuthenticationEntryPoint.class));
-	}
-
-	@Test
-	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnExceptionTranslationFilter() {
-		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(ExceptionTranslationFilter.class));
 	}
 
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
 		static ObjectPostProcessor<Object> objectPostProcessor;
 
 		@Override
@@ -550,12 +530,16 @@ public class DefaultLoginPageConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
 		}
+
 	}
+
 }

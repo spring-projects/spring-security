@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,7 @@ public class HelloRSocketApplicationITests {
 	public void messageWhenAuthenticatedThenSuccess() {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
 		RSocketRequester requester = this.requester
-				.rsocketStrategies(builder -> builder.encoder(new BasicAuthenticationEncoder()))
+				.rsocketStrategies((builder) -> builder.encoder(new BasicAuthenticationEncoder()))
 				.setupMetadata(credentials, BASIC_AUTHENTICATION_MIME_TYPE)
 				.connectTcp("localhost", this.port)
 				.block();

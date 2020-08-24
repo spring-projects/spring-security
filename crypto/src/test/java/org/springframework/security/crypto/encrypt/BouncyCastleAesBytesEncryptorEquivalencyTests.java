@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.encrypt;
 
 import java.security.SecureRandom;
@@ -22,34 +23,38 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
-public class BouncyCastleAesBytesEncryptorEquivalencyTest {
+public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 
 	private byte[] testData;
+
 	private String password;
+
 	private String salt;
+
 	private SecureRandom secureRandom = new SecureRandom();
 
 	@Before
 	public void setup() {
 		// generate random password, salt, and test data
-		password = UUID.randomUUID().toString();
-		/** insecure salt byte, recommend 64 or larger than 64*/
+		this.password = UUID.randomUUID().toString();
+		/** insecure salt byte, recommend 64 or larger than 64 */
 		byte[] saltBytes = new byte[16];
-		secureRandom.nextBytes(saltBytes);
-		salt = new String(Hex.encode(saltBytes));
+		this.secureRandom.nextBytes(saltBytes);
+		this.salt = new String(Hex.encode(saltBytes));
 	}
 
 	@Test
 	public void bouncyCastleAesCbcWithPredictableIvEquvalent() throws Exception {
 		CryptoAssumptions.assumeCBCJCE();
-		BytesEncryptor bcEncryptor = new BouncyCastleAesCbcBytesEncryptor(password, salt,
+		BytesEncryptor bcEncryptor = new BouncyCastleAesCbcBytesEncryptor(this.password, this.salt,
 				new PredictableRandomBytesKeyGenerator(16));
-		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt,
+		BytesEncryptor jceEncryptor = new AesBytesEncryptor(this.password, this.salt,
 				new PredictableRandomBytesKeyGenerator(16));
 		testEquivalence(bcEncryptor, jceEncryptor);
 	}
@@ -57,19 +62,18 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 	@Test
 	public void bouncyCastleAesCbcWithSecureIvCompatible() throws Exception {
 		CryptoAssumptions.assumeCBCJCE();
-		BytesEncryptor bcEncryptor = new BouncyCastleAesCbcBytesEncryptor(password, salt,
+		BytesEncryptor bcEncryptor = new BouncyCastleAesCbcBytesEncryptor(this.password, this.salt,
 				KeyGenerators.secureRandom(16));
-		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt,
-				KeyGenerators.secureRandom(16));
+		BytesEncryptor jceEncryptor = new AesBytesEncryptor(this.password, this.salt, KeyGenerators.secureRandom(16));
 		testCompatibility(bcEncryptor, jceEncryptor);
 	}
 
 	@Test
 	public void bouncyCastleAesGcmWithPredictableIvEquvalent() throws Exception {
 		CryptoAssumptions.assumeGCMJCE();
-		BytesEncryptor bcEncryptor = new BouncyCastleAesGcmBytesEncryptor(password, salt,
+		BytesEncryptor bcEncryptor = new BouncyCastleAesGcmBytesEncryptor(this.password, this.salt,
 				new PredictableRandomBytesKeyGenerator(16));
-		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt,
+		BytesEncryptor jceEncryptor = new AesBytesEncryptor(this.password, this.salt,
 				new PredictableRandomBytesKeyGenerator(16), CipherAlgorithm.GCM);
 		testEquivalence(bcEncryptor, jceEncryptor);
 	}
@@ -77,42 +81,41 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 	@Test
 	public void bouncyCastleAesGcmWithSecureIvCompatible() throws Exception {
 		CryptoAssumptions.assumeGCMJCE();
-		BytesEncryptor bcEncryptor = new BouncyCastleAesGcmBytesEncryptor(password, salt,
+		BytesEncryptor bcEncryptor = new BouncyCastleAesGcmBytesEncryptor(this.password, this.salt,
 				KeyGenerators.secureRandom(16));
-		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt,
-				KeyGenerators.secureRandom(16), CipherAlgorithm.GCM);
+		BytesEncryptor jceEncryptor = new AesBytesEncryptor(this.password, this.salt, KeyGenerators.secureRandom(16),
+				CipherAlgorithm.GCM);
 		testCompatibility(bcEncryptor, jceEncryptor);
 	}
 
 	private void testEquivalence(BytesEncryptor left, BytesEncryptor right) {
 		for (int size = 1; size < 2048; size++) {
-			testData = new byte[size];
-			secureRandom.nextBytes(testData);
+			this.testData = new byte[size];
+			this.secureRandom.nextBytes(this.testData);
 			// tests that right and left generate the same encrypted bytes
 			// and can decrypt back to the original input
-			byte[] leftEncrypted = left.encrypt(testData);
-			byte[] rightEncrypted = right.encrypt(testData);
+			byte[] leftEncrypted = left.encrypt(this.testData);
+			byte[] rightEncrypted = right.encrypt(this.testData);
 			Assert.assertArrayEquals(leftEncrypted, rightEncrypted);
 			byte[] leftDecrypted = left.decrypt(leftEncrypted);
 			byte[] rightDecrypted = right.decrypt(rightEncrypted);
-			Assert.assertArrayEquals(testData, leftDecrypted);
-			Assert.assertArrayEquals(testData, rightDecrypted);
+			Assert.assertArrayEquals(this.testData, leftDecrypted);
+			Assert.assertArrayEquals(this.testData, rightDecrypted);
 		}
-
 	}
 
 	private void testCompatibility(BytesEncryptor left, BytesEncryptor right) {
 		// tests that right can decrypt what left encrypted and vice versa
 		// and that the decypted data is the same as the original
 		for (int size = 1; size < 2048; size++) {
-			testData = new byte[size];
-			secureRandom.nextBytes(testData);
-			byte[] leftEncrypted = left.encrypt(testData);
-			byte[] rightEncrypted = right.encrypt(testData);
+			this.testData = new byte[size];
+			this.secureRandom.nextBytes(this.testData);
+			byte[] leftEncrypted = left.encrypt(this.testData);
+			byte[] rightEncrypted = right.encrypt(this.testData);
 			byte[] leftDecrypted = left.decrypt(rightEncrypted);
 			byte[] rightDecrypted = right.decrypt(leftEncrypted);
-			Assert.assertArrayEquals(testData, leftDecrypted);
-			Assert.assertArrayEquals(testData, rightDecrypted);
+			Assert.assertArrayEquals(this.testData, leftDecrypted);
+			Assert.assertArrayEquals(this.testData, rightDecrypted);
 		}
 	}
 
@@ -130,13 +133,15 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 			this.keyLength = keyLength;
 		}
 
+		@Override
 		public int getKeyLength() {
-			return keyLength;
+			return this.keyLength;
 		}
 
+		@Override
 		public byte[] generateKey() {
-			byte[] bytes = new byte[keyLength];
-			random.nextBytes(bytes);
+			byte[] bytes = new byte[this.keyLength];
+			this.random.nextBytes(bytes);
 			return bytes;
 		}
 

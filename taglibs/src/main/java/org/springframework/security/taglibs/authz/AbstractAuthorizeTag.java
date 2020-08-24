@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.taglibs.authz;
 
 import java.io.IOException;
@@ -55,8 +56,11 @@ import org.springframework.util.StringUtils;
  * @since 3.1.0
  */
 public abstract class AbstractAuthorizeTag {
+
 	private String access;
+
 	private String url;
+
 	private String method = "GET";
 
 	/**
@@ -85,34 +89,23 @@ public abstract class AbstractAuthorizeTag {
 	 * <li>url, method</li>
 	 * </ul>
 	 * The above combinations are mutually exclusive and evaluated in the given order.
-	 *
 	 * @return the result of the authorization decision
 	 * @throws IOException
 	 */
 	public boolean authorize() throws IOException {
-		boolean isAuthorized;
-
 		if (StringUtils.hasText(getAccess())) {
-			isAuthorized = authorizeUsingAccessExpression();
-
+			return authorizeUsingAccessExpression();
 		}
-		else if (StringUtils.hasText(getUrl())) {
-			isAuthorized = authorizeUsingUrlCheck();
-
+		if (StringUtils.hasText(getUrl())) {
+			return authorizeUsingUrlCheck();
 		}
-		else {
-			isAuthorized = false;
-
-		}
-
-		return isAuthorized;
+		return false;
 	}
 
 	/**
 	 * Make an authorization decision based on a Spring EL expression. See the
 	 * "Expression-Based Access Control" chapter in Spring Security for details on what
 	 * expressions can be used.
-	 *
 	 * @return the result of the authorization decision
 	 * @throws IOException
 	 */
@@ -120,55 +113,41 @@ public abstract class AbstractAuthorizeTag {
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
 			return false;
 		}
-
 		SecurityExpressionHandler<FilterInvocation> handler = getExpressionHandler();
-
 		Expression accessExpression;
 		try {
 			accessExpression = handler.getExpressionParser().parseExpression(getAccess());
-
 		}
-		catch (ParseException e) {
-			IOException ioException = new IOException();
-			ioException.initCause(e);
-			throw ioException;
+		catch (ParseException ex) {
+			throw new IOException(ex);
 		}
-
-		return ExpressionUtils.evaluateAsBoolean(accessExpression,
-				createExpressionEvaluationContext(handler));
+		return ExpressionUtils.evaluateAsBoolean(accessExpression, createExpressionEvaluationContext(handler));
 	}
 
 	/**
 	 * Allows the {@code EvaluationContext} to be customized for variable lookup etc.
 	 */
-	protected EvaluationContext createExpressionEvaluationContext(
-			SecurityExpressionHandler<FilterInvocation> handler) {
-		FilterInvocation f = new FilterInvocation(getRequest(), getResponse(),
-				(request, response) -> {
-					throw new UnsupportedOperationException();
-				});
-
-		return handler.createEvaluationContext(SecurityContextHolder.getContext()
-				.getAuthentication(), f);
+	protected EvaluationContext createExpressionEvaluationContext(SecurityExpressionHandler<FilterInvocation> handler) {
+		FilterInvocation f = new FilterInvocation(getRequest(), getResponse(), (request, response) -> {
+			throw new UnsupportedOperationException();
+		});
+		return handler.createEvaluationContext(SecurityContextHolder.getContext().getAuthentication(), f);
 	}
 
 	/**
 	 * Make an authorization decision based on the URL and HTTP method attributes. True is
 	 * returned if the user is allowed to access the given URL as defined.
-	 *
 	 * @return the result of the authorization decision
 	 * @throws IOException
 	 */
 	public boolean authorizeUsingUrlCheck() throws IOException {
 		String contextPath = ((HttpServletRequest) getRequest()).getContextPath();
-		Authentication currentUser = SecurityContextHolder.getContext()
-				.getAuthentication();
-		return getPrivilegeEvaluator().isAllowed(contextPath, getUrl(), getMethod(),
-				currentUser);
+		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+		return getPrivilegeEvaluator().isAllowed(contextPath, getUrl(), getMethod(), currentUser);
 	}
 
 	public String getAccess() {
-		return access;
+		return this.access;
 	}
 
 	public void setAccess(String access) {
@@ -176,7 +155,7 @@ public abstract class AbstractAuthorizeTag {
 	}
 
 	public String getUrl() {
-		return url;
+		return this.url;
 	}
 
 	public void setUrl(String url) {
@@ -184,32 +163,26 @@ public abstract class AbstractAuthorizeTag {
 	}
 
 	public String getMethod() {
-		return method;
+		return this.method;
 	}
 
 	public void setMethod(String method) {
 		this.method = (method != null) ? method.toUpperCase() : null;
 	}
 
-	/*------------- Private helper methods  -----------------*/
-
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private SecurityExpressionHandler<FilterInvocation> getExpressionHandler()
-			throws IOException {
-		ApplicationContext appContext = SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(getServletContext());
-		Map<String, SecurityExpressionHandler> handlers = appContext
-				.getBeansOfType(SecurityExpressionHandler.class);
-
-		for (SecurityExpressionHandler h : handlers.values()) {
-			if (FilterInvocation.class.equals(GenericTypeResolver.resolveTypeArgument(
-					h.getClass(), SecurityExpressionHandler.class))) {
-				return h;
+	private SecurityExpressionHandler<FilterInvocation> getExpressionHandler() throws IOException {
+		ApplicationContext appContext = SecurityWebApplicationContextUtils
+				.findRequiredWebApplicationContext(getServletContext());
+		Map<String, SecurityExpressionHandler> handlers = appContext.getBeansOfType(SecurityExpressionHandler.class);
+		for (SecurityExpressionHandler handler : handlers.values()) {
+			if (FilterInvocation.class.equals(
+					GenericTypeResolver.resolveTypeArgument(handler.getClass(), SecurityExpressionHandler.class))) {
+				return handler;
 			}
 		}
-
-		throw new IOException(
-				"No visible WebSecurityExpressionHandler instance could be found in the application "
-						+ "context. There must be at least one in order to support expressions in JSP 'authorize' tags.");
+		throw new IOException("No visible WebSecurityExpressionHandler instance could be found in the application "
+				+ "context. There must be at least one in order to support expressions in JSP 'authorize' tags.");
 	}
 
 	private WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() throws IOException {
@@ -218,17 +191,15 @@ public abstract class AbstractAuthorizeTag {
 		if (privEvaluatorFromRequest != null) {
 			return privEvaluatorFromRequest;
 		}
-
-		ApplicationContext ctx = SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(getServletContext());
-		Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx
-				.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
-
+		ApplicationContext ctx = SecurityWebApplicationContextUtils
+				.findRequiredWebApplicationContext(getServletContext());
+		Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
 		if (wipes.size() == 0) {
 			throw new IOException(
 					"No visible WebInvocationPrivilegeEvaluator instance could be found in the application "
 							+ "context. There must be at least one in order to support the use of URL access checks in 'authorize' tags.");
 		}
-
 		return (WebInvocationPrivilegeEvaluator) wipes.values().toArray()[0];
 	}
+
 }

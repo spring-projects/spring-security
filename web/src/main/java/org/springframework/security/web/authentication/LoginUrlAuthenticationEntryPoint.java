@@ -25,7 +25,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -62,16 +64,9 @@ import org.springframework.util.StringUtils;
  * @author Luke Taylor
  * @since 3.0
  */
-public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoint,
-		InitializingBean {
-	// ~ Static fields/initializers
-	// =====================================================================================
+public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
-	private static final Log logger = LogFactory
-			.getLog(LoginUrlAuthenticationEntryPoint.class);
-
-	// ~ Instance fields
-	// ================================================================================================
+	private static final Log logger = LogFactory.getLog(LoginUrlAuthenticationEntryPoint.class);
 
 	private PortMapper portMapper = new PortMapperImpl();
 
@@ -86,7 +81,6 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	/**
-	 *
 	 * @param loginFormUrl URL where the login page can be found. Should either be
 	 * relative to the web-app context path (include a leading {@code /}) or an absolute
 	 * URL.
@@ -96,114 +90,84 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		this.loginFormUrl = loginFormUrl;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public void afterPropertiesSet() {
-		Assert.isTrue(
-				StringUtils.hasText(loginFormUrl)
-						&& UrlUtils.isValidRedirectUrl(loginFormUrl),
+		Assert.isTrue(StringUtils.hasText(this.loginFormUrl) && UrlUtils.isValidRedirectUrl(this.loginFormUrl),
 				"loginFormUrl must be specified and must be a valid redirect URL");
-		if (useForward && UrlUtils.isAbsoluteUrl(loginFormUrl)) {
-			throw new IllegalArgumentException(
-					"useForward must be false if using an absolute loginFormURL");
-		}
-		Assert.notNull(portMapper, "portMapper must be specified");
-		Assert.notNull(portResolver, "portResolver must be specified");
+		Assert.isTrue(!this.useForward || !UrlUtils.isAbsoluteUrl(this.loginFormUrl),
+				"useForward must be false if using an absolute loginFormURL");
+		Assert.notNull(this.portMapper, "portMapper must be specified");
+		Assert.notNull(this.portResolver, "portResolver must be specified");
 	}
 
 	/**
 	 * Allows subclasses to modify the login form URL that should be applicable for a
 	 * given request.
-	 *
 	 * @param request the request
 	 * @param response the response
 	 * @param exception the exception
 	 * @return the URL (cannot be null or empty; defaults to {@link #getLoginFormUrl()})
 	 */
-	protected String determineUrlToUseForThisRequest(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException exception) {
-
+	protected String determineUrlToUseForThisRequest(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) {
 		return getLoginFormUrl();
 	}
 
 	/**
 	 * Performs the redirect (or forward) to the login form URL.
 	 */
+	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
-
-		String redirectUrl = null;
-
-		if (useForward) {
-
-			if (forceHttps && "http".equals(request.getScheme())) {
-				// First redirect the current request to HTTPS.
-				// When that request is received, the forward to the login page will be
-				// used.
-				redirectUrl = buildHttpsRedirectUrlForRequest(request);
-			}
-
-			if (redirectUrl == null) {
-				String loginForm = determineUrlToUseForThisRequest(request, response,
-						authException);
-
-				if (logger.isDebugEnabled()) {
-					logger.debug("Server side forward to: " + loginForm);
-				}
-
-				RequestDispatcher dispatcher = request.getRequestDispatcher(loginForm);
-
-				dispatcher.forward(request, response);
-
-				return;
-			}
-		}
-		else {
+		if (!this.useForward) {
 			// redirect to login page. Use https if forceHttps true
-
-			redirectUrl = buildRedirectUrlToLoginPage(request, response, authException);
-
+			String redirectUrl = buildRedirectUrlToLoginPage(request, response, authException);
+			this.redirectStrategy.sendRedirect(request, response, redirectUrl);
+			return;
 		}
-
-		redirectStrategy.sendRedirect(request, response, redirectUrl);
+		String redirectUrl = null;
+		if (this.forceHttps && "http".equals(request.getScheme())) {
+			// First redirect the current request to HTTPS. When that request is received,
+			// the forward to the login page will be used.
+			redirectUrl = buildHttpsRedirectUrlForRequest(request);
+		}
+		if (redirectUrl != null) {
+			this.redirectStrategy.sendRedirect(request, response, redirectUrl);
+			return;
+		}
+		String loginForm = determineUrlToUseForThisRequest(request, response, authException);
+		logger.debug(LogMessage.format("Server side forward to: %s", loginForm));
+		RequestDispatcher dispatcher = request.getRequestDispatcher(loginForm);
+		dispatcher.forward(request, response);
+		return;
 	}
 
-	protected String buildRedirectUrlToLoginPage(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException authException) {
-
-		String loginForm = determineUrlToUseForThisRequest(request, response,
-				authException);
-
+	protected String buildRedirectUrlToLoginPage(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException authException) {
+		String loginForm = determineUrlToUseForThisRequest(request, response, authException);
 		if (UrlUtils.isAbsoluteUrl(loginForm)) {
 			return loginForm;
 		}
-
-		int serverPort = portResolver.getServerPort(request);
+		int serverPort = this.portResolver.getServerPort(request);
 		String scheme = request.getScheme();
-
 		RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
-
 		urlBuilder.setScheme(scheme);
 		urlBuilder.setServerName(request.getServerName());
 		urlBuilder.setPort(serverPort);
 		urlBuilder.setContextPath(request.getContextPath());
 		urlBuilder.setPathInfo(loginForm);
-
-		if (forceHttps && "http".equals(scheme)) {
-			Integer httpsPort = portMapper.lookupHttpsPort(serverPort);
-
+		if (this.forceHttps && "http".equals(scheme)) {
+			Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
 			if (httpsPort != null) {
 				// Overwrite scheme and port in the redirect URL
 				urlBuilder.setScheme("https");
 				urlBuilder.setPort(httpsPort);
 			}
 			else {
-				logger.warn("Unable to redirect to HTTPS as no port mapping found for HTTP port "
-						+ serverPort);
+				logger.warn(LogMessage.format("Unable to redirect to HTTPS as no port mapping found for HTTP port %s",
+						serverPort));
 			}
 		}
-
 		return urlBuilder.getUrl();
 	}
 
@@ -211,12 +175,9 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	 * Builds a URL to redirect the supplied request to HTTPS. Used to redirect the
 	 * current request to HTTPS, before doing a forward to the login page.
 	 */
-	protected String buildHttpsRedirectUrlForRequest(HttpServletRequest request)
-			throws IOException, ServletException {
-
-		int serverPort = portResolver.getServerPort(request);
-		Integer httpsPort = portMapper.lookupHttpsPort(serverPort);
-
+	protected String buildHttpsRedirectUrlForRequest(HttpServletRequest request) throws IOException, ServletException {
+		int serverPort = this.portResolver.getServerPort(request);
+		Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
 		if (httpsPort != null) {
 			RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
 			urlBuilder.setScheme("https");
@@ -226,14 +187,11 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 			urlBuilder.setServletPath(request.getServletPath());
 			urlBuilder.setPathInfo(request.getPathInfo());
 			urlBuilder.setQuery(request.getQueryString());
-
 			return urlBuilder.getUrl();
 		}
-
 		// Fall through to server-side forward with warning message
-		logger.warn("Unable to redirect to HTTPS as no port mapping found for HTTP port "
-				+ serverPort);
-
+		logger.warn(
+				LogMessage.format("Unable to redirect to HTTPS as no port mapping found for HTTP port %s", serverPort));
 		return null;
 	}
 
@@ -249,11 +207,11 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	}
 
 	protected boolean isForceHttps() {
-		return forceHttps;
+		return this.forceHttps;
 	}
 
 	public String getLoginFormUrl() {
-		return loginFormUrl;
+		return this.loginFormUrl;
 	}
 
 	public void setPortMapper(PortMapper portMapper) {
@@ -262,7 +220,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	}
 
 	protected PortMapper getPortMapper() {
-		return portMapper;
+		return this.portMapper;
 	}
 
 	public void setPortResolver(PortResolver portResolver) {
@@ -271,13 +229,12 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	}
 
 	protected PortResolver getPortResolver() {
-		return portResolver;
+		return this.portResolver;
 	}
 
 	/**
 	 * Tells if we are to do a forward to the {@code loginFormUrl} using the
 	 * {@code RequestDispatcher}, instead of a 302 redirect.
-	 *
 	 * @param useForward true if a forward to the login page should be used. Must be false
 	 * (the default) if {@code loginFormUrl} is set to an absolute value.
 	 */
@@ -286,6 +243,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	}
 
 	protected boolean isUseForward() {
-		return useForward;
+		return this.useForward;
 	}
+
 }

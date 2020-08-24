@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client;
 
-import org.springframework.lang.Nullable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
+package org.springframework.security.oauth2.client;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,34 +22,50 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.springframework.lang.Nullable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+
 /**
- * A context that holds authorization-specific state and is used by an {@link OAuth2AuthorizedClientProvider}
- * when attempting to authorize (or re-authorize) an OAuth 2.0 Client.
+ * A context that holds authorization-specific state and is used by an
+ * {@link OAuth2AuthorizedClientProvider} when attempting to authorize (or re-authorize)
+ * an OAuth 2.0 Client.
  *
  * @author Joe Grandja
  * @since 5.2
  * @see OAuth2AuthorizedClientProvider
  */
 public final class OAuth2AuthorizationContext {
-	/**
-	 * The name of the {@link #getAttribute(String) attribute} in the context associated to the value for the "request scope(s)".
-	 * The value of the attribute is a {@code String[]} of scope(s) to be requested by the {@link #getClientRegistration() client}.
-	 */
-	public static final String REQUEST_SCOPE_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".REQUEST_SCOPE");
 
 	/**
-	 * The name of the {@link #getAttribute(String) attribute} in the context associated to the value for the resource owner's username.
+	 * The name of the {@link #getAttribute(String) attribute} in the context associated
+	 * to the value for the "request scope(s)". The value of the attribute is a
+	 * {@code String[]} of scope(s) to be requested by the {@link #getClientRegistration()
+	 * client}.
+	 */
+	public static final String REQUEST_SCOPE_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName()
+			.concat(".REQUEST_SCOPE");
+
+	/**
+	 * The name of the {@link #getAttribute(String) attribute} in the context associated
+	 * to the value for the resource owner's username.
 	 */
 	public static final String USERNAME_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".USERNAME");
 
 	/**
-	 * The name of the {@link #getAttribute(String) attribute} in the context associated to the value for the resource owner's password.
+	 * The name of the {@link #getAttribute(String) attribute} in the context associated
+	 * to the value for the resource owner's password.
 	 */
 	public static final String PASSWORD_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".PASSWORD");
 
 	private ClientRegistration clientRegistration;
+
 	private OAuth2AuthorizedClient authorizedClient;
+
 	private Authentication principal;
+
 	private Map<String, Object> attributes;
 
 	private OAuth2AuthorizationContext() {
@@ -62,7 +73,6 @@ public final class OAuth2AuthorizationContext {
 
 	/**
 	 * Returns the {@link ClientRegistration client registration}.
-	 *
 	 * @return the {@link ClientRegistration}
 	 */
 	public ClientRegistration getClientRegistration() {
@@ -70,10 +80,11 @@ public final class OAuth2AuthorizationContext {
 	}
 
 	/**
-	 * Returns the {@link OAuth2AuthorizedClient authorized client} or {@code null}
-	 * if the {@link #withClientRegistration(ClientRegistration) client registration} was supplied.
-	 *
-	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if the client registration was supplied
+	 * Returns the {@link OAuth2AuthorizedClient authorized client} or {@code null} if the
+	 * {@link #withClientRegistration(ClientRegistration) client registration} was
+	 * supplied.
+	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if the client
+	 * registration was supplied
 	 */
 	@Nullable
 	public OAuth2AuthorizedClient getAuthorizedClient() {
@@ -82,7 +93,6 @@ public final class OAuth2AuthorizationContext {
 
 	/**
 	 * Returns the {@code Principal} (to be) associated to the authorized client.
-	 *
 	 * @return the {@code Principal} (to be) associated to the authorized client
 	 */
 	public Authentication getPrincipal() {
@@ -91,7 +101,6 @@ public final class OAuth2AuthorizationContext {
 
 	/**
 	 * Returns the attributes associated to the context.
-	 *
 	 * @return a {@code Map} of the attributes associated to the context
 	 */
 	public Map<String, Object> getAttributes() {
@@ -99,8 +108,8 @@ public final class OAuth2AuthorizationContext {
 	}
 
 	/**
-	 * Returns the value of an attribute associated to the context or {@code null} if not available.
-	 *
+	 * Returns the value of an attribute associated to the context or {@code null} if not
+	 * available.
 	 * @param name the name of the attribute
 	 * @param <T> the type of the attribute
 	 * @return the value of the attribute associated to the context
@@ -113,7 +122,6 @@ public final class OAuth2AuthorizationContext {
 
 	/**
 	 * Returns a new {@link Builder} initialized with the {@link ClientRegistration}.
-	 *
 	 * @param clientRegistration the {@link ClientRegistration client registration}
 	 * @return the {@link Builder}
 	 */
@@ -123,7 +131,6 @@ public final class OAuth2AuthorizationContext {
 
 	/**
 	 * Returns a new {@link Builder} initialized with the {@link OAuth2AuthorizedClient}.
-	 *
 	 * @param authorizedClient the {@link OAuth2AuthorizedClient authorized client}
 	 * @return the {@link Builder}
 	 */
@@ -134,10 +141,14 @@ public final class OAuth2AuthorizationContext {
 	/**
 	 * A builder for {@link OAuth2AuthorizationContext}.
 	 */
-	public static class Builder {
+	public static final class Builder {
+
 		private ClientRegistration clientRegistration;
+
 		private OAuth2AuthorizedClient authorizedClient;
+
 		private Authentication principal;
+
 		private Map<String, Object> attributes;
 
 		private Builder(ClientRegistration clientRegistration) {
@@ -152,8 +163,8 @@ public final class OAuth2AuthorizationContext {
 
 		/**
 		 * Sets the {@code Principal} (to be) associated to the authorized client.
-		 *
-		 * @param principal the {@code Principal} (to be) associated to the authorized client
+		 * @param principal the {@code Principal} (to be) associated to the authorized
+		 * client
 		 * @return the {@link Builder}
 		 */
 		public Builder principal(Authentication principal) {
@@ -163,8 +174,8 @@ public final class OAuth2AuthorizationContext {
 
 		/**
 		 * Provides a {@link Consumer} access to the attributes associated to the context.
-		 *
-		 * @param attributesConsumer a {@link Consumer} of the attributes associated to the context
+		 * @param attributesConsumer a {@link Consumer} of the attributes associated to
+		 * the context
 		 * @return the {@link OAuth2AuthorizeRequest.Builder}
 		 */
 		public Builder attributes(Consumer<Map<String, Object>> attributesConsumer) {
@@ -177,7 +188,6 @@ public final class OAuth2AuthorizationContext {
 
 		/**
 		 * Sets an attribute associated to the context.
-		 *
 		 * @param name the name of the attribute
 		 * @param value the value of the attribute
 		 * @return the {@link Builder}
@@ -192,7 +202,6 @@ public final class OAuth2AuthorizationContext {
 
 		/**
 		 * Builds a new {@link OAuth2AuthorizationContext}.
-		 *
 		 * @return a {@link OAuth2AuthorizationContext}
 		 */
 		public OAuth2AuthorizationContext build() {
@@ -201,14 +210,16 @@ public final class OAuth2AuthorizationContext {
 			if (this.authorizedClient != null) {
 				context.clientRegistration = this.authorizedClient.getClientRegistration();
 				context.authorizedClient = this.authorizedClient;
-			} else {
+			}
+			else {
 				context.clientRegistration = this.clientRegistration;
 			}
 			context.principal = this.principal;
-			context.attributes = Collections.unmodifiableMap(
-					CollectionUtils.isEmpty(this.attributes) ?
-							Collections.emptyMap() : new LinkedHashMap<>(this.attributes));
+			context.attributes = Collections.unmodifiableMap(CollectionUtils.isEmpty(this.attributes)
+					? Collections.emptyMap() : new LinkedHashMap<>(this.attributes));
 			return context;
 		}
+
 	}
+
 }

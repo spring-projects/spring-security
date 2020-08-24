@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.bcrypt;
 
-import org.junit.Test;
-
 import java.security.SecureRandom;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -79,8 +80,7 @@ public class BCryptPasswordEncoderTests {
 
 	@Test
 	public void $2bUnicode() {
-		BCryptPasswordEncoder encoder =
-				new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2B);
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2B);
 		String result = encoder.encode("passw\u9292rd");
 		assertThat(encoder.matches("pass\u9292\u9292rd", result)).isFalse();
 		assertThat(encoder.matches("passw\u9292rd", result)).isTrue();
@@ -96,16 +96,14 @@ public class BCryptPasswordEncoderTests {
 
 	@Test
 	public void $2aNotMatches() {
-		BCryptPasswordEncoder encoder =
-				new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2A);
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2A);
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("bogus", result)).isFalse();
 	}
 
 	@Test
 	public void $2bNotMatches() {
-		BCryptPasswordEncoder encoder =
-				new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2B);
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2B);
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("bogus", result)).isFalse();
 	}
@@ -115,21 +113,18 @@ public class BCryptPasswordEncoderTests {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(8);
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("password", result)).isTrue();
-
 	}
 
 	@Test
 	public void $2aCustomStrength() {
-		BCryptPasswordEncoder encoder =
-				new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2A, 8);
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2A, 8);
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("password", result)).isTrue();
 	}
 
 	@Test
 	public void $2bCustomStrength() {
-		BCryptPasswordEncoder encoder =
-				new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2B, 8);
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2B, 8);
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("password", result)).isTrue();
 	}
@@ -173,16 +168,15 @@ public class BCryptPasswordEncoderTests {
 	public void upgradeFromLowerStrength() {
 		BCryptPasswordEncoder weakEncoder = new BCryptPasswordEncoder(5);
 		BCryptPasswordEncoder strongEncoder = new BCryptPasswordEncoder(15);
-
 		String weakPassword = weakEncoder.encode("password");
 		String strongPassword = strongEncoder.encode("password");
-
 		assertThat(weakEncoder.upgradeEncoding(strongPassword)).isFalse();
 		assertThat(strongEncoder.upgradeEncoding(weakPassword)).isTrue();
 	}
 
 	/**
-	 * @see <a href="https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</>
+	 * @see <a href=
+	 * "https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</a>
 	 */
 	@Test
 	public void upgradeFromNullOrEmpty() {
@@ -192,7 +186,8 @@ public class BCryptPasswordEncoderTests {
 	}
 
 	/**
-	 * @see <a href="https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</>
+	 * @see <a href=
+	 * "https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</a>
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void upgradeFromNonBCrypt() {

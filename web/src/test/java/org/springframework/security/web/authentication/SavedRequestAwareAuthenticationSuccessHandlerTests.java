@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
-import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.*;
-
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -26,16 +25,19 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 public class SavedRequestAwareAuthenticationSuccessHandlerTests {
 
 	@Test
 	public void defaultUrlMuststartWithSlashOrHttpScheme() {
 		SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
-
 		handler.setDefaultTargetUrl("/acceptableRelativeUrl");
 		handler.setDefaultTargetUrl("https://some.site.org/index.html");
 		handler.setDefaultTargetUrl("https://some.site.org/index.html");
-
 		try {
 			handler.setDefaultTargetUrl("missingSlash");
 			fail("Shouldn't accept default target without leading slash");
@@ -52,14 +54,13 @@ public class SavedRequestAwareAuthenticationSuccessHandlerTests {
 		SavedRequest savedRequest = mock(SavedRequest.class);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		when(savedRequest.getRedirectUrl()).thenReturn(redirectUrl);
-		when(requestCache.getRequest(request, response)).thenReturn(savedRequest);
-
+		given(savedRequest.getRedirectUrl()).willReturn(redirectUrl);
+		given(requestCache.getRequest(request, response)).willReturn(savedRequest);
 		SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
 		handler.setRequestCache(requestCache);
 		handler.setRedirectStrategy(redirectStrategy);
 		handler.onAuthenticationSuccess(request, response, mock(Authentication.class));
-
 		verify(redirectStrategy).sendRedirect(request, response, redirectUrl);
 	}
+
 }

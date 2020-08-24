@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.session;
 
-import org.springframework.security.core.context.SecurityContext;
+import java.util.List;
 
-import java.util.*;
+import org.springframework.security.core.context.SecurityContext;
 
 /**
  * Generic "session termination" event which indicates that a session (potentially
@@ -35,7 +36,6 @@ public abstract class SessionDestroyedEvent extends AbstractSessionEvent {
 	/**
 	 * Provides the {@code SecurityContext} instances which were associated with the
 	 * destroyed session. Usually there will be only one security context per session.
-	 *
 	 * @return the {@code SecurityContext} instances which were stored in the current
 	 * session (an empty list if there are none).
 	 */
@@ -45,4 +45,5 @@ public abstract class SessionDestroyedEvent extends AbstractSessionEvent {
 	 * @return the identifier associated with the destroyed session.
 	 */
 	public abstract String getId();
+
 }

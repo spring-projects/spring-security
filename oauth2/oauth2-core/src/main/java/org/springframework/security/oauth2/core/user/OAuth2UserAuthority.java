@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.core.user;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.util.Assert;
+package org.springframework.security.oauth2.core.user;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.util.Assert;
 
 /**
  * A {@link GrantedAuthority} that may be associated to an {@link OAuth2User}.
@@ -31,14 +32,16 @@ import java.util.Map;
  * @see OAuth2User
  */
 public class OAuth2UserAuthority implements GrantedAuthority {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	private final String authority;
+
 	private final Map<String, Object> attributes;
 
 	/**
-	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters
-	 * and defaults {@link #getAuthority()} to {@code ROLE_USER}.
-	 *
+	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters and defaults
+	 * {@link #getAuthority()} to {@code ROLE_USER}.
 	 * @param attributes the attributes about the user
 	 */
 	public OAuth2UserAuthority(Map<String, Object> attributes) {
@@ -47,7 +50,6 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 
 	/**
 	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters.
-	 *
 	 * @param authority the authority granted to the user
 	 * @param attributes the attributes about the user
 	 */
@@ -65,7 +67,6 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 
 	/**
 	 * Returns the attributes about the user.
-	 *
 	 * @return a {@code Map} of attributes about the user
 	 */
 	public Map<String, Object> getAttributes() {
@@ -80,9 +81,7 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
-
 		OAuth2UserAuthority that = (OAuth2UserAuthority) obj;
-
 		if (!this.getAuthority().equals(that.getAuthority())) {
 			return false;
 		}
@@ -100,4 +99,5 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	public String toString() {
 		return this.getAuthority();
 	}
+
 }

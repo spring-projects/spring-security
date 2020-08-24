@@ -13,11 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.servlet.request;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -28,17 +36,13 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
 
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.digest;
 
 public class SecurityMockMvcRequestPostProcessorsDigestTests {
 
 	private DigestAuthenticationFilter filter;
+
 	private MockHttpServletRequest request;
 
 	private String username;
@@ -50,16 +54,15 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	@Before
 	public void setup() {
 		this.password = "password";
-		request = new MockHttpServletRequest();
-
-		entryPoint = new DigestAuthenticationEntryPoint();
-		entryPoint.setKey("key");
-		entryPoint.setRealmName("Spring Security");
-		filter = new DigestAuthenticationFilter();
-		filter.setUserDetailsService(username -> new User(username, password, AuthorityUtils
-				.createAuthorityList("ROLE_USER")));
-		filter.setAuthenticationEntryPoint(entryPoint);
-		filter.afterPropertiesSet();
+		this.request = new MockHttpServletRequest();
+		this.entryPoint = new DigestAuthenticationEntryPoint();
+		this.entryPoint.setKey("key");
+		this.entryPoint.setRealmName("Spring Security");
+		this.filter = new DigestAuthenticationFilter();
+		this.filter.setUserDetailsService(
+				(username) -> new User(username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER")));
+		this.filter.setAuthenticationEntryPoint(this.entryPoint);
+		this.filter.afterPropertiesSet();
 	}
 
 	@After
@@ -69,38 +72,32 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 
 	@Test
 	public void digestWithFilter() throws Exception {
-		MockHttpServletRequest postProcessedRequest = digest()
-				.postProcessRequest(request);
-
+		MockHttpServletRequest postProcessedRequest = digest().postProcessRequest(this.request);
 		assertThat(extractUser()).isEqualTo("user");
 	}
 
 	@Test
 	public void digestWithFilterCustomUsername() throws Exception {
 		String username = "admin";
-		MockHttpServletRequest postProcessedRequest = digest(username)
-				.postProcessRequest(request);
-
+		MockHttpServletRequest postProcessedRequest = digest(username).postProcessRequest(this.request);
 		assertThat(extractUser()).isEqualTo(username);
 	}
 
 	@Test
 	public void digestWithFilterCustomPassword() throws Exception {
 		String username = "custom";
-		password = "secret";
-		MockHttpServletRequest postProcessedRequest = digest(username).password(password)
-				.postProcessRequest(request);
-
+		this.password = "secret";
+		MockHttpServletRequest postProcessedRequest = digest(username).password(this.password)
+				.postProcessRequest(this.request);
 		assertThat(extractUser()).isEqualTo(username);
 	}
 
 	@Test
 	public void digestWithFilterCustomRealm() throws Exception {
 		String username = "admin";
-		entryPoint.setRealmName("Custom");
-		MockHttpServletRequest postProcessedRequest = digest(username).realm(
-				entryPoint.getRealmName()).postProcessRequest(request);
-
+		this.entryPoint.setRealmName("Custom");
+		MockHttpServletRequest postProcessedRequest = digest(username).realm(this.entryPoint.getRealmName())
+				.postProcessRequest(this.request);
 		assertThat(extractUser()).isEqualTo(username);
 	}
 
@@ -108,20 +105,20 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	public void digestWithFilterFails() throws Exception {
 		String username = "admin";
 		MockHttpServletRequest postProcessedRequest = digest(username).realm("Invalid")
-				.postProcessRequest(request);
-
+				.postProcessRequest(this.request);
 		assertThat(extractUser()).isNull();
 	}
 
 	private String extractUser() throws IOException, ServletException {
-		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain() {
+		this.filter.doFilter(this.request, new MockHttpServletResponse(), new MockFilterChain() {
 			@Override
 			public void doFilter(ServletRequest request, ServletResponse response) {
-				Authentication authentication = SecurityContextHolder.getContext()
-						.getAuthentication();
-				username = authentication == null ? null : authentication.getName();
+				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+				SecurityMockMvcRequestPostProcessorsDigestTests.this.username = (authentication != null)
+						? authentication.getName() : null;
 			}
 		});
-		return username;
+		return this.username;
 	}
+
 }

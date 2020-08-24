@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.util.matcher;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Matches any supplied request.
@@ -26,8 +25,13 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @since 3.1
  */
 public final class AnyRequestMatcher implements RequestMatcher {
+
 	public static final RequestMatcher INSTANCE = new AnyRequestMatcher();
 
+	private AnyRequestMatcher() {
+	}
+
+	@Override
 	public boolean matches(HttpServletRequest request) {
 		return true;
 	}
@@ -49,6 +53,4 @@ public final class AnyRequestMatcher implements RequestMatcher {
 		return "any request";
 	}
 
-	private AnyRequestMatcher() {
-	}
 }

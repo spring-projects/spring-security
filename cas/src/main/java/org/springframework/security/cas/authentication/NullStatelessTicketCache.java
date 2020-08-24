@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.cas.authentication;
 
 /**
@@ -24,7 +25,6 @@ package org.springframework.security.cas.authentication;
  * are not using the stateless session management.
  *
  * @author Scott Battaglia
- *
  * @see CasAuthenticationProvider
  */
 public final class NullStatelessTicketCache implements StatelessTicketCache {
@@ -32,6 +32,7 @@ public final class NullStatelessTicketCache implements StatelessTicketCache {
 	/**
 	 * @return null since we are not storing any tickets.
 	 */
+	@Override
 	public CasAuthenticationToken getByTicketId(final String serviceTicket) {
 		return null;
 	}
@@ -39,6 +40,7 @@ public final class NullStatelessTicketCache implements StatelessTicketCache {
 	/**
 	 * This is a no-op since we are not storing tickets.
 	 */
+	@Override
 	public void putTicketInCache(final CasAuthenticationToken token) {
 		// nothing to do
 	}
@@ -46,6 +48,7 @@ public final class NullStatelessTicketCache implements StatelessTicketCache {
 	/**
 	 * This is a no-op since we are not storing tickets.
 	 */
+	@Override
 	public void removeTicketFromCache(final CasAuthenticationToken token) {
 		// nothing to do
 	}
@@ -53,7 +56,9 @@ public final class NullStatelessTicketCache implements StatelessTicketCache {
 	/**
 	 * This is a no-op since we are not storing tickets.
 	 */
+	@Override
 	public void removeTicketFromCache(final String serviceTicket) {
 		// nothing to do
 	}
+
 }

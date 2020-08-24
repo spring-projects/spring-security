@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.http.customconfigurer;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -33,26 +34,25 @@ public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityF
 
 	private String loginPage = "/login";
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.config.annotation.SecurityConfigurerAdapter#init(org.springframework.security.config.annotation.SecurityBuilder)
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void init(HttpSecurity http) throws Exception {
 		// autowire this bean
 		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
 		context.getAutowireCapableBeanFactory().autowireBean(this);
-
+		// @formatter:off
 		http
 			.authorizeRequests()
-				.antMatchers(permitAllPattern).permitAll()
+				.antMatchers(this.permitAllPattern).permitAll()
 				.anyRequest().authenticated();
-
+		// @formatter:on
 		if (http.getConfigurer(FormLoginConfigurer.class) == null) {
 			// only apply if formLogin() was not invoked by the user
+			// @formatter:off
 			http
 				.formLogin()
-					.loginPage(loginPage);
+					.loginPage(this.loginPage);
+			// @formatter:on
 		}
 	}
 
@@ -64,4 +64,5 @@ public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityF
 	public static CustomConfigurer customConfigurer() {
 		return new CustomConfigurer();
 	}
+
 }

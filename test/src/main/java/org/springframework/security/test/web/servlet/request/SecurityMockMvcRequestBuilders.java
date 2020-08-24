@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.servlet.request;
+
+import javax.servlet.ServletContext;
 
 import org.springframework.beans.Mergeable;
 import org.springframework.http.MediaType;
@@ -25,8 +28,6 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.ServletContext;
-
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -35,14 +36,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  *
  * @author Rob Winch
  * @since 4.0
- *
  */
 public final class SecurityMockMvcRequestBuilders {
+
+	private SecurityMockMvcRequestBuilders() {
+	}
 
 	/**
 	 * Creates a request (including any necessary {@link CsrfToken}) that will submit a
 	 * form based login to POST "/login".
-	 *
 	 * @return the FormLoginRequestBuilder for further customizations
 	 */
 	public static FormLoginRequestBuilder formLogin() {
@@ -52,9 +54,7 @@ public final class SecurityMockMvcRequestBuilders {
 	/**
 	 * Creates a request (including any necessary {@link CsrfToken}) that will submit a
 	 * form based login to POST {@code loginProcessingUrl}.
-	 *
 	 * @param loginProcessingUrl the URL to POST to
-	 *
 	 * @return the FormLoginRequestBuilder for further customizations
 	 */
 	public static FormLoginRequestBuilder formLogin(String loginProcessingUrl) {
@@ -63,7 +63,6 @@ public final class SecurityMockMvcRequestBuilders {
 
 	/**
 	 * Creates a logout request.
-	 *
 	 * @return the LogoutRequestBuilder for additional customizations
 	 */
 	public static LogoutRequestBuilder logout() {
@@ -73,9 +72,7 @@ public final class SecurityMockMvcRequestBuilders {
 	/**
 	 * Creates a logout request (including any necessary {@link CsrfToken}) to the
 	 * specified {@code logoutUrl}
-	 *
 	 * @param logoutUrl the logout request URL
-	 *
 	 * @return the LogoutRequestBuilder for additional customizations
 	 */
 	public static LogoutRequestBuilder logout(String logoutUrl) {
@@ -89,28 +86,30 @@ public final class SecurityMockMvcRequestBuilders {
 	 * @since 4.0
 	 */
 	public static final class LogoutRequestBuilder implements RequestBuilder, Mergeable {
+
 		private String logoutUrl = "/logout";
+
 		private RequestPostProcessor postProcessor = csrf();
+
 		private Mergeable parent;
+
+		private LogoutRequestBuilder() {
+		}
 
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
-			MockHttpServletRequestBuilder logoutRequest = post(this.logoutUrl)
-					.accept(MediaType.TEXT_HTML, MediaType.ALL);
-
+			MockHttpServletRequestBuilder logoutRequest = post(this.logoutUrl).accept(MediaType.TEXT_HTML,
+					MediaType.ALL);
 			if (this.parent != null) {
 				logoutRequest = (MockHttpServletRequestBuilder) logoutRequest.merge(this.parent);
 			}
-
 			MockHttpServletRequest request = logoutRequest.buildRequest(servletContext);
 			logoutRequest.postProcessRequest(request);
-
 			return this.postProcessor.postProcessRequest(request);
 		}
 
 		/**
 		 * Specifies the logout URL to POST to. Defaults to "/logout".
-		 *
 		 * @param logoutUrl the logout URL to POST to. Defaults to "/logout".
 		 * @return the {@link LogoutRequestBuilder} for additional customizations
 		 */
@@ -121,14 +120,12 @@ public final class SecurityMockMvcRequestBuilders {
 
 		/**
 		 * Specifies the logout URL to POST to.
-		 *
 		 * @param logoutUrl the logout URL to POST to.
 		 * @param uriVars the URI variables
 		 * @return the {@link LogoutRequestBuilder} for additional customizations
 		 */
 		public LogoutRequestBuilder logoutUrl(String logoutUrl, Object... uriVars) {
-			this.logoutUrl = UriComponentsBuilder.fromPath(logoutUrl)
-					.buildAndExpand(uriVars).encode().toString();
+			this.logoutUrl = UriComponentsBuilder.fromPath(logoutUrl).buildAndExpand(uriVars).encode().toString();
 			return this;
 		}
 
@@ -145,13 +142,10 @@ public final class SecurityMockMvcRequestBuilders {
 			if (parent instanceof Mergeable) {
 				this.parent = (Mergeable) parent;
 				return this;
-			} else {
-				throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
 			}
+			throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
 		}
 
-		private LogoutRequestBuilder() {
-		}
 	}
 
 	/**
@@ -161,36 +155,40 @@ public final class SecurityMockMvcRequestBuilders {
 	 * @since 4.0
 	 */
 	public static final class FormLoginRequestBuilder implements RequestBuilder, Mergeable {
+
 		private String usernameParam = "username";
+
 		private String passwordParam = "password";
+
 		private String username = "user";
+
 		private String password = "password";
+
 		private String loginProcessingUrl = "/login";
+
 		private MediaType acceptMediaType = MediaType.APPLICATION_FORM_URLENCODED;
+
 		private Mergeable parent;
 
 		private RequestPostProcessor postProcessor = csrf();
 
+		private FormLoginRequestBuilder() {
+		}
+
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
-			MockHttpServletRequestBuilder loginRequest = post(this.loginProcessingUrl)
-					.accept(this.acceptMediaType)
-					.param(this.usernameParam, this.username)
-					.param(this.passwordParam, this.password);
-
+			MockHttpServletRequestBuilder loginRequest = post(this.loginProcessingUrl).accept(this.acceptMediaType)
+					.param(this.usernameParam, this.username).param(this.passwordParam, this.password);
 			if (this.parent != null) {
 				loginRequest = (MockHttpServletRequestBuilder) loginRequest.merge(this.parent);
 			}
-
 			MockHttpServletRequest request = loginRequest.buildRequest(servletContext);
 			loginRequest.postProcessRequest(request);
-
 			return this.postProcessor.postProcessRequest(request);
 		}
 
 		/**
 		 * Specifies the URL to POST to. Default is "/login"
-		 *
 		 * @param loginProcessingUrl the URL to POST to. Default is "/login"
 		 * @return the {@link FormLoginRequestBuilder} for additional customizations
 		 */
@@ -201,14 +199,13 @@ public final class SecurityMockMvcRequestBuilders {
 
 		/**
 		 * Specifies the URL to POST to.
-		 *
 		 * @param loginProcessingUrl the URL to POST to
 		 * @param uriVars the URI variables
 		 * @return the {@link FormLoginRequestBuilder} for additional customizations
 		 */
 		public FormLoginRequestBuilder loginProcessingUrl(String loginProcessingUrl, Object... uriVars) {
-			this.loginProcessingUrl = UriComponentsBuilder.fromPath(loginProcessingUrl)
-					.buildAndExpand(uriVars).encode().toString();
+			this.loginProcessingUrl = UriComponentsBuilder.fromPath(loginProcessingUrl).buildAndExpand(uriVars).encode()
+					.toString();
 			return this;
 		}
 
@@ -256,14 +253,12 @@ public final class SecurityMockMvcRequestBuilders {
 
 		/**
 		 * Specify both the password parameter name and the password.
-		 *
 		 * @param passwordParameter the HTTP parameter to place the password. Default is
 		 * "password".
 		 * @param password the value of the password parameter. Default is "password".
 		 * @return the {@link FormLoginRequestBuilder} for additional customizations
 		 */
-		public FormLoginRequestBuilder password(String passwordParameter,
-				String password) {
+		public FormLoginRequestBuilder password(String passwordParameter, String password) {
 			passwordParam(passwordParameter);
 			this.password = password;
 			return this;
@@ -271,7 +266,6 @@ public final class SecurityMockMvcRequestBuilders {
 
 		/**
 		 * Specify both the password parameter name and the password.
-		 *
 		 * @param usernameParameter the HTTP parameter to place the username. Default is
 		 * "username".
 		 * @param username the value of the username parameter. Default is "user".
@@ -285,7 +279,6 @@ public final class SecurityMockMvcRequestBuilders {
 
 		/**
 		 * Specify a media type to set as the Accept header in the request.
-		 *
 		 * @param acceptMediaType the {@link MediaType} to set the Accept header to.
 		 * Default is: MediaType.APPLICATION_FORM_URLENCODED
 		 * @return the {@link FormLoginRequestBuilder} for additional customizations
@@ -305,18 +298,13 @@ public final class SecurityMockMvcRequestBuilders {
 			if (parent == null) {
 				return this;
 			}
-			if (parent instanceof Mergeable ) {
+			if (parent instanceof Mergeable) {
 				this.parent = (Mergeable) parent;
 				return this;
-			} else {
-				throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
 			}
+			throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
 		}
 
-		private FormLoginRequestBuilder() {
-		}
 	}
 
-	private SecurityMockMvcRequestBuilders() {
-	}
 }

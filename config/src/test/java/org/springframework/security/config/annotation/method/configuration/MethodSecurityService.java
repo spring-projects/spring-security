@@ -16,19 +16,20 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.parameters.P;
 
-import javax.annotation.security.DenyAll;
-import javax.annotation.security.PermitAll;
-
 /**
  * @author Rob Winch
  */
 public interface MethodSecurityService {
+
 	@PreAuthorize("denyAll")
 	String preAuthorize();
 
@@ -67,4 +68,5 @@ public interface MethodSecurityService {
 
 	@PostAuthorize("#o?.contains('grant')")
 	String postAnnotation(@P("o") String object);
+
 }

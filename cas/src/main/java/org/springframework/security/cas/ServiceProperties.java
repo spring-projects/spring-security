@@ -34,9 +34,6 @@ public class ServiceProperties implements InitializingBean {
 
 	public static final String DEFAULT_CAS_SERVICE_PARAMETER = "service";
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private String service;
 
 	private boolean authenticateAllArtifacts;
@@ -47,9 +44,7 @@ public class ServiceProperties implements InitializingBean {
 
 	private String serviceParameter = DEFAULT_CAS_SERVICE_PARAMETER;
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public void afterPropertiesSet() {
 		Assert.hasLength(this.service, "service cannot be empty.");
 		Assert.hasLength(this.artifactParameter, "artifactParameter cannot be empty.");
@@ -65,7 +60,6 @@ public class ServiceProperties implements InitializingBean {
 	 * <pre>
 	 * https://www.mycompany.com/application/login/cas
 	 * </pre>
-	 *
 	 * @return the URL of the service the user is authenticating to
 	 */
 	public final String getService() {
@@ -81,7 +75,6 @@ public class ServiceProperties implements InitializingBean {
 	 * ticket was generated as a consequence of an explicit login. High security
 	 * applications would probably set this to <code>true</code>. Defaults to
 	 * <code>false</code>, providing automated single sign on.
-	 *
 	 * @return whether to send the <code>renew</code> parameter to CAS
 	 */
 	public final boolean isSendRenew() {
@@ -103,7 +96,6 @@ public class ServiceProperties implements InitializingBean {
 	/**
 	 * Configures the Request Parameter to look for when attempting to see if a CAS ticket
 	 * was sent from the server.
-	 *
 	 * @param artifactParameter the id to use. Default is "ticket".
 	 */
 	public final void setArtifactParameter(final String artifactParameter) {
@@ -113,7 +105,6 @@ public class ServiceProperties implements InitializingBean {
 	/**
 	 * Configures the Request parameter to look for when attempting to send a request to
 	 * CAS.
-	 *
 	 * @return the service parameter to use. Default is "service".
 	 */
 	public final String getServiceParameter() {
@@ -132,11 +123,10 @@ public class ServiceProperties implements InitializingBean {
 	 * If true, then any non-null artifact (ticket) should be authenticated. Additionally,
 	 * the service will be determined dynamically in order to ensure the service matches
 	 * the expected value for this artifact.
-	 *
 	 * @param authenticateAllArtifacts
 	 */
-	public final void setAuthenticateAllArtifacts(
-			final boolean authenticateAllArtifacts) {
+	public final void setAuthenticateAllArtifacts(final boolean authenticateAllArtifacts) {
 		this.authenticateAllArtifacts = authenticateAllArtifacts;
 	}
+
 }

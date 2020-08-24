@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.expression.method;
 
 import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
@@ -37,8 +37,6 @@ import org.springframework.security.core.parameters.DefaultSecurityParameterName
  * @since 3.0
  */
 class MethodSecurityEvaluationContext extends MethodBasedEvaluationContext {
-	private static final Log logger = LogFactory
-			.getLog(MethodSecurityEvaluationContext.class);
 
 	/**
 	 * Intended for testing. Don't use in practice as it creates a new parameter resolver
@@ -57,4 +55,5 @@ class MethodSecurityEvaluationContext extends MethodBasedEvaluationContext {
 	private static Method getSpecificMethod(MethodInvocation mi) {
 		return AopUtils.getMostSpecificMethod(mi.getMethod(), AopProxyUtils.ultimateTargetClass(mi.getThis()));
 	}
+
 }

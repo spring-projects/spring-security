@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.access.expression;
 
 import org.junit.Before;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.messaging.Message;
@@ -29,10 +31,13 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageExpressionConfigAttributeTests {
+
 	@Mock
 	Expression expression;
 
@@ -43,45 +48,47 @@ public class MessageExpressionConfigAttributeTests {
 
 	@Before
 	public void setup() {
-		attribute = new MessageExpressionConfigAttribute(expression, matcher);
+		this.attribute = new MessageExpressionConfigAttribute(this.expression, this.matcher);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullExpression() {
-		new MessageExpressionConfigAttribute(null, matcher);
+		new MessageExpressionConfigAttribute(null, this.matcher);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullMatcher() {
-		new MessageExpressionConfigAttribute(expression, null);
+		new MessageExpressionConfigAttribute(this.expression, null);
 	}
 
 	@Test
 	public void getAuthorizeExpression() {
-		assertThat(attribute.getAuthorizeExpression()).isSameAs(expression);
+		assertThat(this.attribute.getAuthorizeExpression()).isSameAs(this.expression);
 	}
 
 	@Test
 	public void getAttribute() {
-		assertThat(attribute.getAttribute()).isNull();
+		assertThat(this.attribute.getAttribute()).isNull();
 	}
 
 	@Test
 	public void toStringUsesExpressionString() {
-		when(expression.getExpressionString()).thenReturn("toString");
-
-		assertThat(attribute.toString()).isEqualTo(expression.getExpressionString());
+		given(this.expression.getExpressionString()).willReturn("toString");
+		assertThat(this.attribute.toString()).isEqualTo(this.expression.getExpressionString());
 	}
 
 	@Test
 	public void postProcessContext() {
 		SimpDestinationMessageMatcher matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
-		Message<?> message = MessageBuilder.withPayload("M").setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1").build();
+		// @formatter:off
+		Message<?> message = MessageBuilder.withPayload("M")
+				.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1")
+				.build();
+		// @formatter:on
 		EvaluationContext context = mock(EvaluationContext.class);
-
-		attribute = new MessageExpressionConfigAttribute(expression, matcher);
-		attribute.postProcess(context, message);
-
+		this.attribute = new MessageExpressionConfigAttribute(this.expression, matcher);
+		this.attribute.postProcess(context, message);
 		verify(context).setVariable("topic", "someTopic");
 	}
+
 }

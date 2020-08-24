@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.token;
 
 import java.security.SecureRandom;
@@ -31,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 public class SecureRandomFactoryBeanTests {
+
 	@Test
 	public void testObjectType() {
 		SecureRandomFactoryBean factory = new SecureRandomFactoryBean();
@@ -61,9 +63,7 @@ public class SecureRandomFactoryBeanTests {
 		factory.setSeed(resource);
 		SecureRandom first = factory.getObject();
 		SecureRandom second = factory.getObject();
-		assertThat(first.nextInt())
-				.isNotEqualTo(0)
-				.isNotEqualTo(second.nextInt());
+		assertThat(first.nextInt()).isNotEqualTo(0).isNotEqualTo(second.nextInt());
 	}
 
 }

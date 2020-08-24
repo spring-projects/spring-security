@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.task;
 
 import java.util.concurrent.Callable;
@@ -31,52 +32,50 @@ import org.springframework.security.core.context.SecurityContext;
  * @author Rob Winch
  * @since 3.2
  */
-public class DelegatingSecurityContextAsyncTaskExecutor extends
-		DelegatingSecurityContextTaskExecutor implements AsyncTaskExecutor {
+public class DelegatingSecurityContextAsyncTaskExecutor extends DelegatingSecurityContextTaskExecutor
+		implements AsyncTaskExecutor {
 
 	/**
 	 * Creates a new {@link DelegatingSecurityContextAsyncTaskExecutor} that uses the
 	 * specified {@link SecurityContext}.
-	 *
 	 * @param delegateAsyncTaskExecutor the {@link AsyncTaskExecutor} to delegate to.
 	 * Cannot be null.
 	 * @param securityContext the {@link SecurityContext} to use for each
 	 * {@link DelegatingSecurityContextRunnable} and
 	 * {@link DelegatingSecurityContextCallable}
 	 */
-	public DelegatingSecurityContextAsyncTaskExecutor(
-			AsyncTaskExecutor delegateAsyncTaskExecutor, SecurityContext securityContext) {
+	public DelegatingSecurityContextAsyncTaskExecutor(AsyncTaskExecutor delegateAsyncTaskExecutor,
+			SecurityContext securityContext) {
 		super(delegateAsyncTaskExecutor, securityContext);
 	}
 
 	/**
 	 * Creates a new {@link DelegatingSecurityContextAsyncTaskExecutor} that uses the
 	 * current {@link SecurityContext}.
-	 *
 	 * @param delegateAsyncTaskExecutor the {@link AsyncTaskExecutor} to delegate to.
 	 * Cannot be null.
 	 */
-	public DelegatingSecurityContextAsyncTaskExecutor(
-			AsyncTaskExecutor delegateAsyncTaskExecutor) {
+	public DelegatingSecurityContextAsyncTaskExecutor(AsyncTaskExecutor delegateAsyncTaskExecutor) {
 		this(delegateAsyncTaskExecutor, null);
 	}
 
+	@Override
 	public final void execute(Runnable task, long startTimeout) {
-		task = wrap(task);
-		getDelegate().execute(task, startTimeout);
+		getDelegate().execute(wrap(task), startTimeout);
 	}
 
+	@Override
 	public final Future<?> submit(Runnable task) {
-		task = wrap(task);
-		return getDelegate().submit(task);
+		return getDelegate().submit(wrap(task));
 	}
 
+	@Override
 	public final <T> Future<T> submit(Callable<T> task) {
-		task = wrap(task);
-		return getDelegate().submit(task);
+		return getDelegate().submit(wrap(task));
 	}
 
 	private AsyncTaskExecutor getDelegate() {
 		return (AsyncTaskExecutor) getDelegateExecutor();
 	}
+
 }

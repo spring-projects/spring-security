@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.parameters;
 
 import java.lang.annotation.Annotation;
@@ -81,12 +82,16 @@ import org.springframework.util.ReflectionUtils;
  * {@link PrioritizedParameterNameDiscoverer} are an all or nothing operation.
  * </p>
  *
- * @see DefaultSecurityParameterNameDiscoverer
- *
  * @author Rob Winch
  * @since 3.2
+ * @see DefaultSecurityParameterNameDiscoverer
  */
 public class AnnotationParameterNameDiscoverer implements ParameterNameDiscoverer {
+
+	private static final ParameterNameFactory<Constructor<?>> CONSTRUCTOR_METHODPARAM_FACTORY = (
+			constructor) -> constructor.getParameterAnnotations();
+
+	private static final ParameterNameFactory<Method> METHOD_METHODPARAM_FACTORY = Method::getParameterAnnotations;
 
 	private final Set<String> annotationClassesToUse;
 
@@ -95,29 +100,21 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	}
 
 	public AnnotationParameterNameDiscoverer(Set<String> annotationClassesToUse) {
-		Assert.notEmpty(annotationClassesToUse,
-				"annotationClassesToUse cannot be null or empty");
+		Assert.notEmpty(annotationClassesToUse, "annotationClassesToUse cannot be null or empty");
 		this.annotationClassesToUse = annotationClassesToUse;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.core.ParameterNameDiscoverer#getParameterNames(java
-	 * .lang.reflect.Method)
-	 */
+	@Override
 	public String[] getParameterNames(Method method) {
 		Method originalMethod = BridgeMethodResolver.findBridgedMethod(method);
-		String[] paramNames = lookupParameterNames(METHOD_METHODPARAM_FACTORY,
-				originalMethod);
+		String[] paramNames = lookupParameterNames(METHOD_METHODPARAM_FACTORY, originalMethod);
 		if (paramNames != null) {
 			return paramNames;
 		}
 		Class<?> declaringClass = method.getDeclaringClass();
 		Class<?>[] interfaces = declaringClass.getInterfaces();
 		for (Class<?> intrfc : interfaces) {
-			Method intrfcMethod = ReflectionUtils.findMethod(intrfc, method.getName(),
-					method.getParameterTypes());
+			Method intrfcMethod = ReflectionUtils.findMethod(intrfc, method.getName(), method.getParameterTypes());
 			if (intrfcMethod != null) {
 				return lookupParameterNames(METHOD_METHODPARAM_FACTORY, intrfcMethod);
 			}
@@ -125,26 +122,20 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 		return paramNames;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.core.ParameterNameDiscoverer#getParameterNames(java
-	 * .lang.reflect.Constructor)
-	 */
+	@Override
 	public String[] getParameterNames(Constructor<?> constructor) {
 		return lookupParameterNames(CONSTRUCTOR_METHODPARAM_FACTORY, constructor);
 	}
 
 	/**
 	 * Gets the parameter names or null if not found.
-	 *
 	 * @param parameterNameFactory the {@link ParameterNameFactory} to use
 	 * @param t the {@link AccessibleObject} to find the parameter names on (i.e. Method
 	 * or Constructor)
 	 * @return the parameter names or null
 	 */
-	private <T extends AccessibleObject> String[] lookupParameterNames(
-			ParameterNameFactory<T> parameterNameFactory, T t) {
+	private <T extends AccessibleObject> String[] lookupParameterNames(ParameterNameFactory<T> parameterNameFactory,
+			T t) {
 		Annotation[][] parameterAnnotations = parameterNameFactory.findParameterAnnotations(t);
 		int parameterCount = parameterAnnotations.length;
 		String[] paramNames = new String[parameterCount];
@@ -164,32 +155,26 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	 * Finds the parameter name from the provided {@link Annotation}s or null if it could
 	 * not find it. The search is done by looking at the value property of the
 	 * {@link #annotationClassesToUse}.
-	 *
 	 * @param parameterAnnotations the {@link Annotation}'s to search.
 	 * @return
 	 */
 	private String findParameterName(Annotation[] parameterAnnotations) {
 		for (Annotation paramAnnotation : parameterAnnotations) {
-			if (annotationClassesToUse.contains(paramAnnotation.annotationType()
-					.getName())) {
+			if (this.annotationClassesToUse.contains(paramAnnotation.annotationType().getName())) {
 				return (String) AnnotationUtils.getValue(paramAnnotation, "value");
 			}
 		}
 		return null;
 	}
 
-	private static final ParameterNameFactory<Constructor<?>> CONSTRUCTOR_METHODPARAM_FACTORY = constructor -> constructor.getParameterAnnotations();
-
-	private static final ParameterNameFactory<Method> METHOD_METHODPARAM_FACTORY = method -> method.getParameterAnnotations();
-
 	/**
 	 * Strategy interface for looking up the parameter names.
 	 *
+	 * @param <T> the type to inspect (i.e. {@link Method} or {@link Constructor})
 	 * @author Rob Winch
 	 * @since 3.2
-	 *
-	 * @param <T> the type to inspect (i.e. {@link Method} or {@link Constructor})
 	 */
+	@FunctionalInterface
 	private interface ParameterNameFactory<T extends AccessibleObject> {
 
 		/**
@@ -199,5 +184,7 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 		 * @return
 		 */
 		Annotation[][] findParameterAnnotations(T t);
+
 	}
+
 }

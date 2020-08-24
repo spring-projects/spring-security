@@ -28,25 +28,18 @@ import org.springframework.util.Assert;
  * @see SessionFixationProtectionStrategy
  */
 public class SessionFixationProtectionEvent extends AbstractAuthenticationEvent {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final String oldSessionId;
 
 	private final String newSessionId;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs a new session fixation protection event.
-	 *
 	 * @param authentication The authentication object
 	 * @param oldSessionId The old session ID before it was changed
 	 * @param newSessionId The new session ID after it was changed
 	 */
-	public SessionFixationProtectionEvent(Authentication authentication,
-			String oldSessionId, String newSessionId) {
+	public SessionFixationProtectionEvent(Authentication authentication, String oldSessionId, String newSessionId) {
 		super(authentication);
 		Assert.hasLength(oldSessionId, "oldSessionId must have length");
 		Assert.hasLength(newSessionId, "newSessionId must have length");
@@ -54,12 +47,8 @@ public class SessionFixationProtectionEvent extends AbstractAuthenticationEvent 
 		this.newSessionId = newSessionId;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Getter for the session ID before it was changed.
-	 *
 	 * @return the old session ID.
 	 */
 	public String getOldSessionId() {
@@ -68,10 +57,10 @@ public class SessionFixationProtectionEvent extends AbstractAuthenticationEvent 
 
 	/**
 	 * Getter for the session ID after it was changed.
-	 *
 	 * @return the new session ID.
 	 */
 	public String getNewSessionId() {
 		return this.newSessionId;
 	}
+
 }

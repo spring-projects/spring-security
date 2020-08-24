@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.ldap.userdetails;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.util.Assert;
+package org.springframework.security.ldap.userdetails;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * An authority that contains at least a DN and a role name for an LDAP entry but can also
@@ -31,12 +32,13 @@ import java.util.Map;
 public class LdapAuthority implements GrantedAuthority {
 
 	private String dn;
+
 	private String role;
+
 	private Map<String, List<String>> attributes;
 
 	/**
 	 * Constructs an LdapAuthority that has a role and a DN but no other attributes
-	 *
 	 * @param role
 	 * @param dn
 	 */
@@ -46,7 +48,6 @@ public class LdapAuthority implements GrantedAuthority {
 
 	/**
 	 * Constructs an LdapAuthority with the given role, DN and other LDAP attributes
-	 *
 	 * @param role
 	 * @param dn
 	 * @param attributes
@@ -54,7 +55,6 @@ public class LdapAuthority implements GrantedAuthority {
 	public LdapAuthority(String role, String dn, Map<String, List<String>> attributes) {
 		Assert.notNull(role, "role can not be null");
 		Assert.notNull(dn, "dn can not be null");
-
 		this.role = role;
 		this.dn = dn;
 		this.attributes = attributes;
@@ -62,93 +62,77 @@ public class LdapAuthority implements GrantedAuthority {
 
 	/**
 	 * Returns the LDAP attributes
-	 *
 	 * @return the LDAP attributes, map can be null
 	 */
 	public Map<String, List<String>> getAttributes() {
-		return attributes;
+		return this.attributes;
 	}
 
 	/**
 	 * Returns the DN for this LDAP authority
-	 *
 	 * @return
 	 */
 	public String getDn() {
-		return dn;
+		return this.dn;
 	}
 
 	/**
 	 * Returns the values for a specific attribute
-	 *
 	 * @param name the attribute name
 	 * @return a String array, never null but may be zero length
 	 */
 	public List<String> getAttributeValues(String name) {
 		List<String> result = null;
-		if (attributes != null) {
-			result = attributes.get(name);
+		if (this.attributes != null) {
+			result = this.attributes.get(name);
 		}
-		if (result == null) {
-			result = Collections.emptyList();
-		}
-		return result;
+		return (result != null) ? result : Collections.emptyList();
 	}
 
 	/**
 	 * Returns the first attribute value for a specified attribute
-	 *
 	 * @param name
 	 * @return the first attribute value for a specified attribute, may be null
 	 */
 	public String getFirstAttributeValue(String name) {
 		List<String> result = getAttributeValues(name);
-		if (result.isEmpty()) {
-			return null;
-		}
-		else {
-			return result.get(0);
-		}
+		return (!result.isEmpty()) ? result.get(0) : null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getAuthority() {
-		return role;
+		return this.role;
 	}
 
 	/**
 	 * Compares the LdapAuthority based on {@link #getAuthority()} and {@link #getDn()}
-	 * values {@inheritDoc}
+	 * values.
 	 */
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
 		}
-		if (!(o instanceof LdapAuthority)) {
+		if (!(obj instanceof LdapAuthority)) {
 			return false;
 		}
-
-		LdapAuthority that = (LdapAuthority) o;
-
-		if (!dn.equals(that.dn)) {
+		LdapAuthority other = (LdapAuthority) obj;
+		if (!this.dn.equals(other.dn)) {
 			return false;
 		}
-		return role.equals(that.role);
+		return this.role.equals(other.role);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = dn.hashCode();
-		result = 31 * result + (role != null ? role.hashCode() : 0);
+		int result = this.dn.hashCode();
+		result = 31 * result + ((this.role != null) ? this.role.hashCode() : 0);
 		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "LdapAuthority{" + "dn='" + dn + '\'' + ", role='" + role + '\'' + '}';
+		return "LdapAuthority{" + "dn='" + this.dn + '\'' + ", role='" + this.role + '\'' + '}';
 	}
+
 }

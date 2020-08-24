@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.model;
 
 /**
@@ -25,8 +26,8 @@ package org.springframework.security.acls.model;
  * @author Ben Alex
  */
 public interface OwnershipAcl extends MutableAcl {
-	// ~ Methods
-	// ========================================================================================================
 
+	@Override
 	void setOwner(Sid newOwner);
+
 }

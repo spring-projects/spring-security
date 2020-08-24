@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.registration;
 
 import java.util.Arrays;
@@ -27,7 +28,8 @@ import reactor.core.publisher.Mono;
 import org.springframework.util.Assert;
 
 /**
- * A Reactive {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) in-memory.
+ * A Reactive {@link ClientRegistrationRepository} that stores
+ * {@link ClientRegistration}(s) in-memory.
  *
  * @author Rob Winch
  * @author Ebert Toribio
@@ -41,8 +43,8 @@ public final class InMemoryReactiveClientRegistrationRepository
 	private final Map<String, ClientRegistration> clientIdToClientRegistration;
 
 	/**
-	 * Constructs an {@code InMemoryReactiveClientRegistrationRepository} using the provided parameters.
-	 *
+	 * Constructs an {@code InMemoryReactiveClientRegistrationRepository} using the
+	 * provided parameters.
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryReactiveClientRegistrationRepository(ClientRegistration... registrations) {
@@ -55,8 +57,8 @@ public final class InMemoryReactiveClientRegistrationRepository
 	}
 
 	/**
-	 * Constructs an {@code InMemoryReactiveClientRegistrationRepository} using the provided parameters.
-	 *
+	 * Constructs an {@code InMemoryReactiveClientRegistrationRepository} using the
+	 * provided parameters.
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryReactiveClientRegistrationRepository(List<ClientRegistration> registrations) {
@@ -70,7 +72,6 @@ public final class InMemoryReactiveClientRegistrationRepository
 
 	/**
 	 * Returns an {@code Iterator} of {@link ClientRegistration}.
-	 *
 	 * @return an {@code Iterator<ClientRegistration>}
 	 */
 	@Override
@@ -84,11 +85,11 @@ public final class InMemoryReactiveClientRegistrationRepository
 		for (ClientRegistration registration : registrations) {
 			Assert.notNull(registration, "no registration can be null");
 			if (result.containsKey(registration.getRegistrationId())) {
-				throw new IllegalStateException(String.format("Duplicate key %s",
-						registration.getRegistrationId()));
+				throw new IllegalStateException(String.format("Duplicate key %s", registration.getRegistrationId()));
 			}
 			result.put(registration.getRegistrationId(), registration);
 		}
 		return Collections.unmodifiableMap(result);
 	}
+
 }

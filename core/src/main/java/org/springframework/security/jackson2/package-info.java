@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Mix-in classes to add Jackson serialization support.
  *
@@ -20,7 +21,3 @@
  * @since 4.2
  */
 package org.springframework.security.jackson2;
-
-/**
- * Package contains Jackson mixin classes.
- */

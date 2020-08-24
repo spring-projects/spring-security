@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.token;
 
 import java.util.Date;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
-import org.springframework.security.core.token.DefaultToken;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link DefaultToken}.
@@ -29,12 +29,12 @@ import org.springframework.security.core.token.DefaultToken;
  *
  */
 public class DefaultTokenTests {
+
 	@Test
 	public void testEquality() {
 		String key = "key";
 		long created = new Date().getTime();
 		String extendedInformation = "extended";
-
 		DefaultToken t1 = new DefaultToken(key, created, extendedInformation);
 		DefaultToken t2 = new DefaultToken(key, created, extendedInformation);
 		assertThat(t2).isEqualTo(t1);
@@ -51,9 +51,9 @@ public class DefaultTokenTests {
 	public void testEqualityWithDifferentExtendedInformation3() {
 		String key = "key";
 		long created = new Date().getTime();
-
 		DefaultToken t1 = new DefaultToken(key, created, "length1");
 		DefaultToken t2 = new DefaultToken(key, created, "longerLength2");
 		assertThat(t1).isNotEqualTo(t2);
 	}
+
 }

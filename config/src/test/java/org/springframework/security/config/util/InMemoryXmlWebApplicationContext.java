@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.util;
 
 import org.springframework.beans.BeansException;
@@ -23,28 +24,25 @@ import org.springframework.core.io.Resource;
 import org.springframework.security.util.InMemoryResource;
 import org.springframework.web.context.support.AbstractRefreshableWebApplicationContext;
 
-import static org.springframework.security.config.util.InMemoryXmlApplicationContext.BEANS_CLOSE;
-import static org.springframework.security.config.util.InMemoryXmlApplicationContext.BEANS_OPENING;
-import static org.springframework.security.config.util.InMemoryXmlApplicationContext.SPRING_SECURITY_VERSION;
-
 /**
  * @author Joe Grandja
  */
 public class InMemoryXmlWebApplicationContext extends AbstractRefreshableWebApplicationContext {
+
 	private Resource inMemoryXml;
 
 	public InMemoryXmlWebApplicationContext(String xml) {
-		this(xml, SPRING_SECURITY_VERSION, null);
+		this(xml, InMemoryXmlApplicationContext.SPRING_SECURITY_VERSION, null);
 	}
 
 	public InMemoryXmlWebApplicationContext(String xml, ApplicationContext parent) {
-		this(xml, SPRING_SECURITY_VERSION, parent);
+		this(xml, InMemoryXmlApplicationContext.SPRING_SECURITY_VERSION, parent);
 	}
 
-	public InMemoryXmlWebApplicationContext(String xml, String secVersion,
-											ApplicationContext parent) {
-		String fullXml = BEANS_OPENING + secVersion + ".xsd'>\n" + xml + BEANS_CLOSE;
-		inMemoryXml = new InMemoryResource(fullXml);
+	public InMemoryXmlWebApplicationContext(String xml, String secVersion, ApplicationContext parent) {
+		String fullXml = InMemoryXmlApplicationContext.BEANS_OPENING + secVersion + ".xsd'>\n" + xml
+				+ InMemoryXmlApplicationContext.BEANS_CLOSE;
+		this.inMemoryXml = new InMemoryResource(fullXml);
 		setAllowBeanDefinitionOverriding(true);
 		setParent(parent);
 	}
@@ -52,7 +50,7 @@ public class InMemoryXmlWebApplicationContext extends AbstractRefreshableWebAppl
 	@Override
 	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException {
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
-		reader.loadBeanDefinitions(new Resource[] { inMemoryXml });
+		reader.loadBeanDefinitions(new Resource[] { this.inMemoryXml });
 	}
 
 }

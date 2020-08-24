@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.provisioning;
 
 import java.util.Collection;
@@ -23,6 +24,8 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -46,8 +49,8 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.1
  */
-public class InMemoryUserDetailsManager implements UserDetailsManager,
-		UserDetailsPasswordService {
+public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetailsPasswordService {
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final Map<String, MutableUserDetails> users = new HashMap<>();
@@ -72,71 +75,61 @@ public class InMemoryUserDetailsManager implements UserDetailsManager,
 	public InMemoryUserDetailsManager(Properties users) {
 		Enumeration<?> names = users.propertyNames();
 		UserAttributeEditor editor = new UserAttributeEditor();
-
 		while (names.hasMoreElements()) {
 			String name = (String) names.nextElement();
 			editor.setAsText(users.getProperty(name));
 			UserAttribute attr = (UserAttribute) editor.getValue();
-			UserDetails user = new User(name, attr.getPassword(), attr.isEnabled(), true,
-					true, true, attr.getAuthorities());
-			createUser(user);
+			createUser(createUserDetails(name, attr));
 		}
 	}
 
+	private User createUserDetails(String name, UserAttribute attr) {
+		return new User(name, attr.getPassword(), attr.isEnabled(), true, true, true, attr.getAuthorities());
+	}
+
+	@Override
 	public void createUser(UserDetails user) {
 		Assert.isTrue(!userExists(user.getUsername()), "user should not exist");
-
-		users.put(user.getUsername().toLowerCase(), new MutableUser(user));
+		this.users.put(user.getUsername().toLowerCase(), new MutableUser(user));
 	}
 
+	@Override
 	public void deleteUser(String username) {
-		users.remove(username.toLowerCase());
+		this.users.remove(username.toLowerCase());
 	}
 
+	@Override
 	public void updateUser(UserDetails user) {
 		Assert.isTrue(userExists(user.getUsername()), "user should exist");
-
-		users.put(user.getUsername().toLowerCase(), new MutableUser(user));
+		this.users.put(user.getUsername().toLowerCase(), new MutableUser(user));
 	}
 
+	@Override
 	public boolean userExists(String username) {
-		return users.containsKey(username.toLowerCase());
+		return this.users.containsKey(username.toLowerCase());
 	}
 
+	@Override
 	public void changePassword(String oldPassword, String newPassword) {
-		Authentication currentUser = SecurityContextHolder.getContext()
-				.getAuthentication();
-
+		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
 		if (currentUser == null) {
 			// This would indicate bad coding somewhere
 			throw new AccessDeniedException(
-					"Can't change password as no Authentication object found in context "
-							+ "for current user.");
+					"Can't change password as no Authentication object found in context " + "for current user.");
 		}
-
 		String username = currentUser.getName();
-
-		logger.debug("Changing password for user '" + username + "'");
-
+		this.logger.debug(LogMessage.format("Changing password for user '%s'", username));
 		// If an authentication manager has been set, re-authenticate the user with the
 		// supplied password.
-		if (authenticationManager != null) {
-			logger.debug("Reauthenticating user '" + username
-					+ "' for password change request.");
-
-			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-					username, oldPassword));
+		if (this.authenticationManager != null) {
+			this.logger.debug(LogMessage.format("Reauthenticating user '%s' for password change request.", username));
+			this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, oldPassword));
 		}
 		else {
-			logger.debug("No authentication manager set. Password won't be re-checked.");
+			this.logger.debug("No authentication manager set. Password won't be re-checked.");
 		}
-
-		MutableUserDetails user = users.get(username);
-
-		if (user == null) {
-			throw new IllegalStateException("Current user doesn't exist in database.");
-		}
-
+		MutableUserDetails user = this.users.get(username);
+		Assert.state(user != null, "Current user doesn't exist in database.");
 		user.setPassword(newPassword);
 	}
 
@@ -148,20 +141,18 @@ public class InMemoryUserDetailsManager implements UserDetailsManager,
 		return mutableUser;
 	}
 
-	public UserDetails loadUserByUsername(String username)
-			throws UsernameNotFoundException {
-		UserDetails user = users.get(username.toLowerCase());
-
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		UserDetails user = this.users.get(username.toLowerCase());
 		if (user == null) {
 			throw new UsernameNotFoundException(username);
 		}
-
-		return new User(user.getUsername(), user.getPassword(), user.isEnabled(),
-				user.isAccountNonExpired(), user.isCredentialsNonExpired(),
-				user.isAccountNonLocked(), user.getAuthorities());
+		return new User(user.getUsername(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(),
+				user.isCredentialsNonExpired(), user.isAccountNonLocked(), user.getAuthorities());
 	}
 
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
+
 }

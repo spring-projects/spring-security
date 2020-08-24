@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
@@ -58,8 +59,6 @@ public class HelloWebfluxMethodApplicationTests {
 			.expectStatus().isUnauthorized();
 	}
 
-	// --- Basic Authentication ---
-
 	@Test
 	public void messageWhenUserThenForbidden() {
 		this.rest
@@ -81,8 +80,6 @@ public class HelloWebfluxMethodApplicationTests {
 			.expectBody(String.class).isEqualTo("Hello World!");
 	}
 
-	// --- WithMockUser ---
-
 	@Test
 	@WithMockUser
 	public void messageWhenWithMockUserThenForbidden() {
@@ -103,8 +100,6 @@ public class HelloWebfluxMethodApplicationTests {
 			.expectStatus().isOk()
 			.expectBody(String.class).isEqualTo("Hello World!");
 	}
-
-	// --- mutateWith mockUser ---
 
 	@Test
 	public void messageWhenMutateWithMockUserThenForbidden() {
@@ -128,10 +123,10 @@ public class HelloWebfluxMethodApplicationTests {
 	}
 
 	private Consumer<HttpHeaders> robsCredentials() {
-		return httpHeaders -> httpHeaders.setBasicAuth("rob", "rob");
+		return (httpHeaders) -> httpHeaders.setBasicAuth("rob", "rob");
 	}
 
 	private Consumer<HttpHeaders> adminCredentials() {
-		return httpHeaders -> httpHeaders.setBasicAuth("admin", "admin");
+		return (httpHeaders) -> httpHeaders.setBasicAuth("admin", "admin");
 	}
 }

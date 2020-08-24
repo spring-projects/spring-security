@@ -18,26 +18,22 @@ package org.springframework.security.saml2.provider.service.authentication;
 
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
-import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.REDIRECT;
-
 /**
- * Data holder for information required to send an {@code AuthNRequest} over a REDIRECT binding
- * from the service provider to the identity provider
- * https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf (line 2031)
+ * Data holder for information required to send an {@code AuthNRequest} over a REDIRECT
+ * binding from the service provider to the identity provider
+ * https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf
+ * (line 2031)
  *
- * @see Saml2AuthenticationRequestFactory
  * @since 5.3
+ * @see Saml2AuthenticationRequestFactory
  */
-public class Saml2RedirectAuthenticationRequest extends AbstractSaml2AuthenticationRequest {
+public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2AuthenticationRequest {
 
 	private final String sigAlg;
+
 	private final String signature;
 
-	private Saml2RedirectAuthenticationRequest(
-			String samlRequest,
-			String sigAlg,
-			String signature,
-			String relayState,
+	private Saml2RedirectAuthenticationRequest(String samlRequest, String sigAlg, String signature, String relayState,
 			String authenticationRequestUri) {
 		super(samlRequest, relayState, authenticationRequestUri);
 		this.sigAlg = sigAlg;
@@ -61,36 +57,36 @@ public class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authenticat
 	}
 
 	/**
-     * @return {@link Saml2MessageBinding#REDIRECT}
+	 * @return {@link Saml2MessageBinding#REDIRECT}
 	 */
 	@Override
 	public Saml2MessageBinding getBinding() {
-		return REDIRECT;
+		return Saml2MessageBinding.REDIRECT;
 	}
 
 	/**
-	 * Constructs a {@link Saml2RedirectAuthenticationRequest.Builder} from a {@link Saml2AuthenticationRequestContext} object.
-	 * By default the {@link Saml2RedirectAuthenticationRequest#getAuthenticationRequestUri()} will be set to the
-	 * {@link Saml2AuthenticationRequestContext#getDestination()} value.
-	 * @param context input providing {@code Destination}, {@code RelayState}, and {@code Issuer} objects.
+	 * Constructs a {@link Saml2RedirectAuthenticationRequest.Builder} from a
+	 * {@link Saml2AuthenticationRequestContext} object. By default the
+	 * {@link Saml2RedirectAuthenticationRequest#getAuthenticationRequestUri()} will be
+	 * set to the {@link Saml2AuthenticationRequestContext#getDestination()} value.
+	 * @param context input providing {@code Destination}, {@code RelayState}, and
+	 * {@code Issuer} objects.
 	 * @return a modifiable builder object
 	 */
 	public static Builder withAuthenticationRequestContext(Saml2AuthenticationRequestContext context) {
-		return new Builder()
-				.authenticationRequestUri(context.getDestination())
-				.relayState(context.getRelayState())
-				;
+		return new Builder().authenticationRequestUri(context.getDestination()).relayState(context.getRelayState());
 	}
 
 	/**
 	 * Builder class for a {@link Saml2RedirectAuthenticationRequest} object.
 	 */
-	public static class Builder extends AbstractSaml2AuthenticationRequest.Builder<Builder> {
+	public static final class Builder extends AbstractSaml2AuthenticationRequest.Builder<Builder> {
+
 		private String sigAlg;
+
 		private String signature;
 
 		private Builder() {
-			super();
 		}
 
 		/**
@@ -118,16 +114,10 @@ public class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authenticat
 		 * @return an immutable {@link Saml2RedirectAuthenticationRequest} object.
 		 */
 		public Saml2RedirectAuthenticationRequest build() {
-			return new Saml2RedirectAuthenticationRequest(
-					this.samlRequest,
-					this.sigAlg,
-					this.signature,
-					this.relayState,
-					this.authenticationRequestUri
-			);
+			return new Saml2RedirectAuthenticationRequest(this.samlRequest, this.sigAlg, this.signature,
+					this.relayState, this.authenticationRequestUri);
 		}
 
 	}
-
 
 }

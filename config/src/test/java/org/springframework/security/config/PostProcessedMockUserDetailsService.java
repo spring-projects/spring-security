@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public class PostProcessedMockUserDetailsService implements UserDetailsService {
+
 	private String postProcessorWasHere;
 
 	public PostProcessedMockUserDetailsService() {
@@ -26,14 +28,16 @@ public class PostProcessedMockUserDetailsService implements UserDetailsService {
 	}
 
 	public String getPostProcessorWasHere() {
-		return postProcessorWasHere;
+		return this.postProcessorWasHere;
 	}
 
 	public void setPostProcessorWasHere(String postProcessorWasHere) {
 		this.postProcessorWasHere = postProcessorWasHere;
 	}
 
+	@Override
 	public UserDetails loadUserByUsername(String username) {
 		throw new UnsupportedOperationException("Not for actual use");
 	}
+
 }

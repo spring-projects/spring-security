@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.cas.web.authentication;
 
 import java.io.Serializable;
@@ -28,15 +29,14 @@ import org.springframework.security.core.Authentication;
  * {@link ServiceProperties#getService()}.
  *
  * @author Rob Winch
- *
  * @see ServiceAuthenticationDetailsSource
  */
 public interface ServiceAuthenticationDetails extends Serializable {
 
 	/**
 	 * Gets the absolute service url (i.e. https://example.com/service/).
-	 *
 	 * @return the service url. Cannot be <code>null</code>.
 	 */
 	String getServiceUrl();
+
 }

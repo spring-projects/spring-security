@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link AuthenticationMethod}.
@@ -28,7 +30,8 @@ public class AuthenticationMethodTests {
 
 	@Test
 	public void constructorWhenValueIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new AuthenticationMethod(null)).hasMessage("value cannot be empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new AuthenticationMethod(null))
+				.withMessage("value cannot be empty");
 	}
 
 	@Test
@@ -45,4 +48,5 @@ public class AuthenticationMethodTests {
 	public void getValueWhenFormAuthenticationTypeThenReturnQuery() {
 		assertThat(AuthenticationMethod.QUERY.getValue()).isEqualTo("query");
 	}
+
 }

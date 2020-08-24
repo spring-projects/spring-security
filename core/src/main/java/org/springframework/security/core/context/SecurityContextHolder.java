@@ -16,10 +16,10 @@
 
 package org.springframework.security.core.context;
 
+import java.lang.reflect.Constructor;
+
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
-
-import java.lang.reflect.Constructor;
 
 /**
  * Associates a given {@link SecurityContext} with the current execution thread.
@@ -48,49 +48,23 @@ import java.lang.reflect.Constructor;
  *
  */
 public class SecurityContextHolder {
-	// ~ Static fields/initializers
-	// =====================================================================================
 
 	public static final String MODE_THREADLOCAL = "MODE_THREADLOCAL";
+
 	public static final String MODE_INHERITABLETHREADLOCAL = "MODE_INHERITABLETHREADLOCAL";
+
 	public static final String MODE_GLOBAL = "MODE_GLOBAL";
+
 	public static final String SYSTEM_PROPERTY = "spring.security.strategy";
+
 	private static String strategyName = System.getProperty(SYSTEM_PROPERTY);
+
 	private static SecurityContextHolderStrategy strategy;
+
 	private static int initializeCount = 0;
 
 	static {
 		initialize();
-	}
-
-	// ~ Methods
-	// ========================================================================================================
-
-	/**
-	 * Explicitly clears the context value from the current thread.
-	 */
-	public static void clearContext() {
-		strategy.clearContext();
-	}
-
-	/**
-	 * Obtain the current <code>SecurityContext</code>.
-	 *
-	 * @return the security context (never <code>null</code>)
-	 */
-	public static SecurityContext getContext() {
-		return strategy.getContext();
-	}
-
-	/**
-	 * Primarily for troubleshooting purposes, this method shows how many times the class
-	 * has re-initialized its <code>SecurityContextHolderStrategy</code>.
-	 *
-	 * @return the count (should be one unless you've called
-	 * {@link #setStrategyName(String)} to switch to an alternate strategy.
-	 */
-	public static int getInitializeCount() {
-		return initializeCount;
 	}
 
 	private static void initialize() {
@@ -98,7 +72,6 @@ public class SecurityContextHolder {
 			// Set default
 			strategyName = MODE_THREADLOCAL;
 		}
-
 		if (strategyName.equals(MODE_THREADLOCAL)) {
 			strategy = new ThreadLocalSecurityContextHolderStrategy();
 		}
@@ -119,13 +92,36 @@ public class SecurityContextHolder {
 				ReflectionUtils.handleReflectionException(ex);
 			}
 		}
-
 		initializeCount++;
 	}
 
 	/**
+	 * Explicitly clears the context value from the current thread.
+	 */
+	public static void clearContext() {
+		strategy.clearContext();
+	}
+
+	/**
+	 * Obtain the current <code>SecurityContext</code>.
+	 * @return the security context (never <code>null</code>)
+	 */
+	public static SecurityContext getContext() {
+		return strategy.getContext();
+	}
+
+	/**
+	 * Primarily for troubleshooting purposes, this method shows how many times the class
+	 * has re-initialized its <code>SecurityContextHolderStrategy</code>.
+	 * @return the count (should be one unless you've called
+	 * {@link #setStrategyName(String)} to switch to an alternate strategy.
+	 */
+	public static int getInitializeCount() {
+		return initializeCount;
+	}
+
+	/**
 	 * Associates a new <code>SecurityContext</code> with the current thread of execution.
-	 *
 	 * @param context the new <code>SecurityContext</code> (may not be <code>null</code>)
 	 */
 	public static void setContext(SecurityContext context) {
@@ -136,7 +132,6 @@ public class SecurityContextHolder {
 	 * Changes the preferred strategy. Do <em>NOT</em> call this method more than once for
 	 * a given JVM, as it will re-initialize the strategy and adversely affect any
 	 * existing threads using the old strategy.
-	 *
 	 * @param strategyName the fully qualified class name of the strategy that should be
 	 * used.
 	 */
@@ -147,7 +142,6 @@ public class SecurityContextHolder {
 
 	/**
 	 * Allows retrieval of the context strategy. See SEC-1188.
-	 *
 	 * @return the configured strategy for storing the security context.
 	 */
 	public static SecurityContextHolderStrategy getContextHolderStrategy() {
@@ -163,7 +157,7 @@ public class SecurityContextHolder {
 
 	@Override
 	public String toString() {
-		return "SecurityContextHolder[strategy='" + strategyName + "'; initializeCount="
-				+ initializeCount + "]";
+		return "SecurityContextHolder[strategy='" + strategyName + "'; initializeCount=" + initializeCount + "]";
 	}
+
 }

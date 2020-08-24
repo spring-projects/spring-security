@@ -16,16 +16,17 @@
 
 package org.springframework.security.web.server;
 
+import java.net.URI;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
-
-import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -42,8 +43,7 @@ public class DefaultServerRedirectStrategyTests {
 
 	private URI location = URI.create("/login");
 
-	private DefaultServerRedirectStrategy strategy =
-		new DefaultServerRedirectStrategy();
+	private DefaultServerRedirectStrategy strategy = new DefaultServerRedirectStrategy();
 
 	@Test(expected = IllegalArgumentException.class)
 	public void sendRedirectWhenLocationNullThenException() {
@@ -58,38 +58,31 @@ public class DefaultServerRedirectStrategyTests {
 	@Test
 	public void sendRedirectWhenNoSubscribersThenNoActions() {
 		this.strategy.sendRedirect(this.exchange, this.location);
-
 		verifyZeroInteractions(this.exchange);
 	}
 
 	@Test
 	public void sendRedirectWhenNoContextPathThenStatusAndLocationSet() {
 		this.exchange = exchange(MockServerHttpRequest.get("/"));
-
 		this.strategy.sendRedirect(this.exchange, this.location).block();
-
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.FOUND);
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location.getPath());
 	}
 
 	@Test
 	public void sendRedirectWhenContextPathSetThenStatusAndLocationSet() {
 		this.exchange = exchange(MockServerHttpRequest.get("/context/foo").contextPath("/context"));
-
 		this.strategy.sendRedirect(this.exchange, this.location).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
-		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath("/context" + this.location.getPath());
+		assertThat(this.exchange.getResponse().getHeaders().getLocation())
+				.hasPath("/context" + this.location.getPath());
 	}
 
 	@Test
 	public void sendRedirectWhenContextPathSetAndAbsoluteURLThenStatusAndLocationSet() {
 		this.location = URI.create("https://example.com/foo/bar");
 		this.exchange = exchange(MockServerHttpRequest.get("/context/foo").contextPath("/context"));
-
 		this.strategy.sendRedirect(this.exchange, this.location).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location.getPath());
 	}
@@ -98,9 +91,7 @@ public class DefaultServerRedirectStrategyTests {
 	public void sendRedirectWhenContextPathSetAndDisabledThenStatusAndLocationSet() {
 		this.strategy.setContextRelative(false);
 		this.exchange = exchange(MockServerHttpRequest.get("/context/foo").contextPath("/context"));
-
 		this.strategy.sendRedirect(this.exchange, this.location).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location.getPath());
 	}
@@ -110,9 +101,7 @@ public class DefaultServerRedirectStrategyTests {
 		HttpStatus status = HttpStatus.MOVED_PERMANENTLY;
 		this.strategy.setHttpStatus(status);
 		this.exchange = exchange(MockServerHttpRequest.get("/"));
-
 		this.strategy.sendRedirect(this.exchange, this.location).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(status);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location.getPath());
 	}
@@ -125,4 +114,5 @@ public class DefaultServerRedirectStrategyTests {
 	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {
 		return MockServerWebExchange.from(request.build());
 	}
+
 }

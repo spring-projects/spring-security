@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security;
 
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /**
  * A Datasource bean which starts an in-memory HSQL database with the supplied name and
@@ -26,19 +27,22 @@ import org.springframework.beans.factory.DisposableBean;
  * @author Luke Taylor
  */
 public class TestDataSource extends DriverManagerDataSource implements DisposableBean {
+
 	String name;
 
 	public TestDataSource(String databaseName) {
-		name = databaseName;
-		System.out.println("Creating database: " + name);
+		this.name = databaseName;
+		System.out.println("Creating database: " + this.name);
 		setDriverClassName("org.hsqldb.jdbcDriver");
 		setUrl("jdbc:hsqldb:mem:" + databaseName);
 		setUsername("sa");
 		setPassword("");
 	}
 
+	@Override
 	public void destroy() {
-		System.out.println("Shutting down database: " + name);
+		System.out.println("Shutting down database: " + this.name);
 		new JdbcTemplate(this).execute("SHUTDOWN");
 	}
+
 }

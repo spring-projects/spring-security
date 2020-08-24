@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.context.request.async;
 
 import java.util.concurrent.Callable;
@@ -39,8 +40,8 @@ import org.springframework.web.context.request.async.CallableProcessingIntercept
  * @author Rob Winch
  * @since 3.2
  */
-public final class SecurityContextCallableProcessingInterceptor extends
-		CallableProcessingInterceptorAdapter {
+public final class SecurityContextCallableProcessingInterceptor extends CallableProcessingInterceptorAdapter {
+
 	private volatile SecurityContext securityContext;
 
 	/**
@@ -66,23 +67,23 @@ public final class SecurityContextCallableProcessingInterceptor extends
 
 	@Override
 	public <T> void beforeConcurrentHandling(NativeWebRequest request, Callable<T> task) {
-		if (securityContext == null) {
+		if (this.securityContext == null) {
 			setSecurityContext(SecurityContextHolder.getContext());
 		}
 	}
 
 	@Override
 	public <T> void preProcess(NativeWebRequest request, Callable<T> task) {
-		SecurityContextHolder.setContext(securityContext);
+		SecurityContextHolder.setContext(this.securityContext);
 	}
 
 	@Override
-	public <T> void postProcess(NativeWebRequest request, Callable<T> task,
-			Object concurrentResult) {
+	public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult) {
 		SecurityContextHolder.clearContext();
 	}
 
 	private void setSecurityContext(SecurityContext securityContext) {
 		this.securityContext = securityContext;
 	}
+
 }

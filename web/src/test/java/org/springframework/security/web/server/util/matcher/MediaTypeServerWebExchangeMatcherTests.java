@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0
  */
 public class MediaTypeServerWebExchangeMatcherTests {
+
 	private MediaTypeServerWebExchangeMatcher matcher;
 
 	@Test(expected = IllegalArgumentException.class)
@@ -63,7 +64,6 @@ public class MediaTypeServerWebExchangeMatcherTests {
 	public void matchWhenDefaultResolverAndAcceptEqualThenMatch() {
 		MediaType acceptType = MediaType.TEXT_HTML;
 		MediaTypeServerWebExchangeMatcher matcher = new MediaTypeServerWebExchangeMatcher(acceptType);
-
 		assertThat(matcher.matches(exchange(acceptType)).block().isMatch()).isTrue();
 	}
 
@@ -72,7 +72,6 @@ public class MediaTypeServerWebExchangeMatcherTests {
 		MediaType acceptType = MediaType.TEXT_HTML;
 		MediaTypeServerWebExchangeMatcher matcher = new MediaTypeServerWebExchangeMatcher(acceptType);
 		matcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-
 		assertThat(matcher.matches(exchange(acceptType)).block().isMatch()).isTrue();
 	}
 
@@ -81,14 +80,13 @@ public class MediaTypeServerWebExchangeMatcherTests {
 		MediaType acceptType = MediaType.TEXT_HTML;
 		MediaTypeServerWebExchangeMatcher matcher = new MediaTypeServerWebExchangeMatcher(acceptType);
 		matcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-
 		assertThat(matcher.matches(exchange(MediaType.ALL)).block().isMatch()).isFalse();
 	}
 
 	@Test
 	public void matchWhenDefaultResolverAndAcceptImpliedThenMatch() {
-		MediaTypeServerWebExchangeMatcher matcher = new MediaTypeServerWebExchangeMatcher(MediaType.parseMediaTypes("text/*"));
-
+		MediaTypeServerWebExchangeMatcher matcher = new MediaTypeServerWebExchangeMatcher(
+				MediaType.parseMediaTypes("text/*"));
 		assertThat(matcher.matches(exchange(MediaType.TEXT_HTML)).block().isMatch()).isTrue();
 	}
 
@@ -96,11 +94,11 @@ public class MediaTypeServerWebExchangeMatcherTests {
 	public void matchWhenDefaultResolverAndAcceptImpliedAndUseEqualsThenNotMatch() {
 		MediaTypeServerWebExchangeMatcher matcher = new MediaTypeServerWebExchangeMatcher(MediaType.ALL);
 		matcher.setUseEquals(true);
-
 		assertThat(matcher.matches(exchange(MediaType.TEXT_HTML)).block().isMatch()).isFalse();
 	}
 
 	private static ServerWebExchange exchange(MediaType... accept) {
 		return MockServerWebExchange.from(MockServerHttpRequest.get("/").accept(accept).build());
 	}
+
 }

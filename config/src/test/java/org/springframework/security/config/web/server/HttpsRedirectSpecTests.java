@@ -31,8 +31,8 @@ import org.springframework.security.web.server.util.matcher.PathPatternParserSer
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.config.EnableWebFlux;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
@@ -41,6 +41,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
  * @author Josh Cummings
  */
 public class HttpsRedirectSpecTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -48,133 +49,142 @@ public class HttpsRedirectSpecTests {
 
 	@Autowired
 	public void setApplicationContext(ApplicationContext context) {
-		this.client = WebTestClient.bindToApplicationContext(context).build();
+		// @formatter:off
+		this.client = WebTestClient
+				.bindToApplicationContext(context)
+				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenSecureThenDoesNotRedirect() {
 		this.spring.register(RedirectToHttpConfig.class).autowire();
-
+		// @formatter:off
 		this.client.get()
 				.uri("https://localhost")
 				.exchange()
 				.expectStatus().isNotFound();
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenInsecureThenRespondsWithRedirectToSecure() {
 		this.spring.register(RedirectToHttpConfig.class).autowire();
-
+		// @formatter:off
 		this.client.get()
 				.uri("http://localhost")
 				.exchange()
 				.expectStatus().isFound()
 				.expectHeader().valueEquals(HttpHeaders.LOCATION, "https://localhost");
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenInsecureAndRedirectConfiguredInLambdaThenRespondsWithRedirectToSecure() {
 		this.spring.register(RedirectToHttpsInLambdaConfig.class).autowire();
-
+		// @formatter:off
 		this.client.get()
 				.uri("http://localhost")
 				.exchange()
 				.expectStatus().isFound()
 				.expectHeader().valueEquals(HttpHeaders.LOCATION, "https://localhost");
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenInsecureAndPathRequiresTransportSecurityThenRedirects() {
 		this.spring.register(SometimesRedirectToHttpsConfig.class).autowire();
-
+		// @formatter:off
 		this.client.get()
 				.uri("http://localhost:8080")
 				.exchange()
 				.expectStatus().isNotFound();
-
 		this.client.get()
 				.uri("http://localhost:8080/secure")
 				.exchange()
 				.expectStatus().isFound()
 				.expectHeader().valueEquals(HttpHeaders.LOCATION, "https://localhost:8443/secure");
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenInsecureAndPathRequiresTransportSecurityInLambdaThenRedirects() {
 		this.spring.register(SometimesRedirectToHttpsInLambdaConfig.class).autowire();
-
+		// @formatter:off
 		this.client.get()
 				.uri("http://localhost:8080")
 				.exchange()
 				.expectStatus().isNotFound();
-
 		this.client.get()
 				.uri("http://localhost:8080/secure")
 				.exchange()
 				.expectStatus().isFound()
 				.expectHeader().valueEquals(HttpHeaders.LOCATION, "https://localhost:8443/secure");
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenInsecureAndUsingCustomPortMapperThenRespondsWithRedirectToSecurePort() {
 		this.spring.register(RedirectToHttpsViaCustomPortsConfig.class).autowire();
-
 		PortMapper portMapper = this.spring.getContext().getBean(PortMapper.class);
-		when(portMapper.lookupHttpsPort(4080)).thenReturn(4443);
-
+		given(portMapper.lookupHttpsPort(4080)).willReturn(4443);
+		// @formatter:off
 		this.client.get()
 				.uri("http://localhost:4080")
 				.exchange()
 				.expectStatus().isFound()
 				.expectHeader().valueEquals(HttpHeaders.LOCATION, "https://localhost:4443");
+		// @formatter:on
 	}
 
 	@Test
 	public void getWhenInsecureAndUsingCustomPortMapperInLambdaThenRespondsWithRedirectToSecurePort() {
 		this.spring.register(RedirectToHttpsViaCustomPortsInLambdaConfig.class).autowire();
-
 		PortMapper portMapper = this.spring.getContext().getBean(PortMapper.class);
-		when(portMapper.lookupHttpsPort(4080)).thenReturn(4443);
-
+		given(portMapper.lookupHttpsPort(4080)).willReturn(4443);
+		// @formatter:off
 		this.client.get()
 				.uri("http://localhost:4080")
 				.exchange()
 				.expectStatus().isFound()
 				.expectHeader().valueEquals(HttpHeaders.LOCATION, "https://localhost:4443");
+		// @formatter:on
 	}
 
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class RedirectToHttpConfig {
+
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.redirectToHttps();
 			// @formatter:on
-
 			return http.build();
 		}
-	}
 
+	}
 
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class RedirectToHttpsInLambdaConfig {
+
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.redirectToHttps(withDefaults());
 			// @formatter:on
-
 			return http.build();
 		}
+
 	}
 
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class SometimesRedirectToHttpsConfig {
+
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
@@ -182,32 +192,33 @@ public class HttpsRedirectSpecTests {
 				.redirectToHttps()
 					.httpsRedirectWhen(new PathPatternParserServerWebExchangeMatcher("/secure"));
 			// @formatter:on
-
 			return http.build();
 		}
-	}
 
+	}
 
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class SometimesRedirectToHttpsInLambdaConfig {
+
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.redirectToHttps(redirectToHttps ->
+				.redirectToHttps((redirectToHttps) ->
 					redirectToHttps
 						.httpsRedirectWhen(new PathPatternParserServerWebExchangeMatcher("/secure"))
 				);
 			// @formatter:on
-
 			return http.build();
 		}
+
 	}
 
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class RedirectToHttpsViaCustomPortsConfig {
+
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
@@ -215,35 +226,37 @@ public class HttpsRedirectSpecTests {
 				.redirectToHttps()
 					.portMapper(portMapper());
 			// @formatter:on
-
 			return http.build();
 		}
 
 		@Bean
-		public PortMapper portMapper() {
+		PortMapper portMapper() {
 			return mock(PortMapper.class);
 		}
+
 	}
 
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class RedirectToHttpsViaCustomPortsInLambdaConfig {
+
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.redirectToHttps(redirectToHttps ->
+				.redirectToHttps((redirectToHttps) ->
 					redirectToHttps
 						.portMapper(portMapper())
 				);
 			// @formatter:on
-
 			return http.build();
 		}
 
 		@Bean
-		public PortMapper portMapper() {
+		PortMapper portMapper() {
 			return mock(PortMapper.class);
 		}
+
 	}
+
 }

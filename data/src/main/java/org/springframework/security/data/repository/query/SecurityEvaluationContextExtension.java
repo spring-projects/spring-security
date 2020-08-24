@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.data.repository.query;
 
 import org.springframework.data.spel.spi.EvaluationContextExtension;
@@ -75,11 +76,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * This works because the principal in this instance is a User which has an id field on
  * it.
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
-public class SecurityEvaluationContextExtension
-		implements EvaluationContextExtension {
+public class SecurityEvaluationContextExtension implements EvaluationContextExtension {
+
 	private Authentication authentication;
 
 	/**
@@ -91,13 +92,13 @@ public class SecurityEvaluationContextExtension
 
 	/**
 	 * Creates a new instance that always uses the same {@link Authentication} object.
-	 *
 	 * @param authentication the {@link Authentication} to use
 	 */
 	public SecurityEvaluationContextExtension(Authentication authentication) {
 		this.authentication = authentication;
 	}
 
+	@Override
 	public String getExtensionId() {
 		return "security";
 	}
@@ -113,8 +114,8 @@ public class SecurityEvaluationContextExtension
 		if (this.authentication != null) {
 			return this.authentication;
 		}
-
 		SecurityContext context = SecurityContextHolder.getContext();
 		return context.getAuthentication();
 	}
+
 }

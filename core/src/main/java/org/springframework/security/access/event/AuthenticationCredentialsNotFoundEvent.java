@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.util.Assert;
 
 /**
  * Indicates a secure object invocation failed because the <code>Authentication</code>
@@ -28,46 +29,34 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
  * @author Ben Alex
  */
 public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizationEvent {
-	// ~ Instance fields
-	// ================================================================================================
 
-	private AuthenticationCredentialsNotFoundException credentialsNotFoundException;
-	private Collection<ConfigAttribute> configAttribs;
+	private final AuthenticationCredentialsNotFoundException credentialsNotFoundException;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private final Collection<ConfigAttribute> configAttribs;
 
 	/**
 	 * Construct the event.
-	 *
 	 * @param secureObject the secure object
 	 * @param attributes that apply to the secure object
 	 * @param credentialsNotFoundException exception returned to the caller (contains
 	 * reason)
 	 *
 	 */
-	public AuthenticationCredentialsNotFoundEvent(Object secureObject,
-			Collection<ConfigAttribute> attributes,
+	public AuthenticationCredentialsNotFoundEvent(Object secureObject, Collection<ConfigAttribute> attributes,
 			AuthenticationCredentialsNotFoundException credentialsNotFoundException) {
 		super(secureObject);
-
-		if ((attributes == null) || (credentialsNotFoundException == null)) {
-			throw new IllegalArgumentException(
-					"All parameters are required and cannot be null");
-		}
-
+		Assert.isTrue(attributes != null && credentialsNotFoundException != null,
+				"All parameters are required and cannot be null");
 		this.configAttribs = attributes;
 		this.credentialsNotFoundException = credentialsNotFoundException;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public Collection<ConfigAttribute> getConfigAttributes() {
-		return configAttribs;
+		return this.configAttribs;
 	}
 
 	public AuthenticationCredentialsNotFoundException getCredentialsNotFoundException() {
-		return credentialsNotFoundException;
+		return this.credentialsNotFoundException;
 	}
+
 }

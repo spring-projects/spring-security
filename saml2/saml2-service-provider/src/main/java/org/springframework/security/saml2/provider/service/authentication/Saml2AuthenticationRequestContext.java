@@ -20,26 +20,27 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.util.Assert;
 
 /**
- * Data holder for information required to create an {@code AuthNRequest}
- * to be sent from the service provider to the identity provider
- * <a href="https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf">
+ * Data holder for information required to create an {@code AuthNRequest} to be sent from
+ * the service provider to the identity provider <a href=
+ * "https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf">
  * Assertions and Protocols for SAML 2 (line 2031)</a>
  *
+ * @since 5.3
  * @see Saml2AuthenticationRequestFactory#createPostAuthenticationRequest(Saml2AuthenticationRequestContext)
  * @see Saml2AuthenticationRequestFactory#createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext)
- * @since 5.3
  */
 public class Saml2AuthenticationRequestContext {
+
 	private final RelyingPartyRegistration relyingPartyRegistration;
+
 	private final String issuer;
+
 	private final String assertionConsumerServiceUrl;
+
 	private final String relayState;
 
-	protected Saml2AuthenticationRequestContext(
-			RelyingPartyRegistration relyingPartyRegistration,
-			String issuer,
-			String assertionConsumerServiceUrl,
-			String relayState) {
+	protected Saml2AuthenticationRequestContext(RelyingPartyRegistration relyingPartyRegistration, String issuer,
+			String assertionConsumerServiceUrl, String relayState) {
 		Assert.hasText(issuer, "issuer cannot be null or empty");
 		Assert.notNull(relyingPartyRegistration, "relyingPartyRegistration cannot be null");
 		Assert.hasText(assertionConsumerServiceUrl, "spAssertionConsumerServiceUrl cannot be null or empty");
@@ -50,7 +51,8 @@ public class Saml2AuthenticationRequestContext {
 	}
 
 	/**
-	 * Returns the {@link RelyingPartyRegistration} configuration for which the AuthNRequest is intended for.
+	 * Returns the {@link RelyingPartyRegistration} configuration for which the
+	 * AuthNRequest is intended for.
 	 * @return the {@link RelyingPartyRegistration} configuration
 	 */
 	public RelyingPartyRegistration getRelyingPartyRegistration() {
@@ -59,8 +61,8 @@ public class Saml2AuthenticationRequestContext {
 
 	/**
 	 * Returns the {@code Issuer} value to be used in the {@code AuthNRequest} object.
-	 * This property should be used to populate the {@code AuthNRequest.Issuer} XML element.
-	 * This value typically is a URI, but can be an arbitrary string.
+	 * This property should be used to populate the {@code AuthNRequest.Issuer} XML
+	 * element. This value typically is a URI, but can be an arbitrary string.
 	 * @return the Issuer value
 	 */
 	public String getIssuer() {
@@ -68,13 +70,13 @@ public class Saml2AuthenticationRequestContext {
 	}
 
 	/**
-	 * Returns the desired {@code AssertionConsumerServiceUrl} that this SP wishes to receive the
-	 * assertion on. The IDP may or may not honor this request.
-	 * This property populates the {@code AuthNRequest.AssertionConsumerServiceURL} XML attribute.
+	 * Returns the desired {@code AssertionConsumerServiceUrl} that this SP wishes to
+	 * receive the assertion on. The IDP may or may not honor this request. This property
+	 * populates the {@code AuthNRequest.AssertionConsumerServiceURL} XML attribute.
 	 * @return the AssertionConsumerServiceURL value
 	 */
 	public String getAssertionConsumerServiceUrl() {
-		return assertionConsumerServiceUrl;
+		return this.assertionConsumerServiceUrl;
 	}
 
 	/**
@@ -86,8 +88,9 @@ public class Saml2AuthenticationRequestContext {
 	}
 
 	/**
-	 * Returns the {@code Destination}, the WEB Single Sign On URI, for this authentication request.
-	 * This property can also populate the {@code AuthNRequest.Destination} XML attribute.
+	 * Returns the {@code Destination}, the WEB Single Sign On URI, for this
+	 * authentication request. This property can also populate the
+	 * {@code AuthNRequest.Destination} XML attribute.
 	 * @return the Destination value
 	 */
 	public String getDestination() {
@@ -105,10 +108,14 @@ public class Saml2AuthenticationRequestContext {
 	/**
 	 * A builder for {@link Saml2AuthenticationRequestContext}.
 	 */
-	public static class Builder {
+	public static final class Builder {
+
 		private String issuer;
+
 		private String assertionConsumerServiceUrl;
+
 		private String relayState;
+
 		private RelyingPartyRegistration relyingPartyRegistration;
 
 		private Builder() {
@@ -125,7 +132,8 @@ public class Saml2AuthenticationRequestContext {
 		}
 
 		/**
-		 * Sets the {@link RelyingPartyRegistration} used to build the authentication request.
+		 * Sets the {@link RelyingPartyRegistration} used to build the authentication
+		 * request.
 		 * @param relyingPartyRegistration - a required value
 		 * @return this {@code Builder}
 		 */
@@ -147,7 +155,8 @@ public class Saml2AuthenticationRequestContext {
 
 		/**
 		 * Sets the {@code RelayState} parameter that will accompany this AuthNRequest
-		 * @param relayState the relay state value, unencoded. if null or empty, the parameter will be removed from the map.
+		 * @param relayState the relay state value, unencoded. if null or empty, the
+		 * parameter will be removed from the map.
 		 * @return this object
 		 */
 		public Builder relayState(String relayState) {
@@ -158,15 +167,13 @@ public class Saml2AuthenticationRequestContext {
 		/**
 		 * Creates a {@link Saml2AuthenticationRequestContext} object.
 		 * @return the Saml2AuthenticationRequest object
-		 * @throws {@link IllegalArgumentException} if a required property is not set
+		 * @throws IllegalArgumentException if a required property is not set
 		 */
 		public Saml2AuthenticationRequestContext build() {
-			return new Saml2AuthenticationRequestContext(
-					this.relyingPartyRegistration,
-					this.issuer,
-					this.assertionConsumerServiceUrl,
-					this.relayState
-			);
+			return new Saml2AuthenticationRequestContext(this.relyingPartyRegistration, this.issuer,
+					this.assertionConsumerServiceUrl, this.relayState);
 		}
+
 	}
+
 }

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.test.context.showcase;
 
-import static org.assertj.core.api.Assertions.assertThat;
+package org.springframework.security.test.context.showcase;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -35,25 +35,27 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Rob Winch
  */
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WithUserDetailsTests.Config.class)
 public class WithUserDetailsTests {
+
 	@Autowired
 	private MessageService messageService;
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
 	public void getMessageUnauthenticated() {
-		messageService.getMessage();
+		this.messageService.getMessage();
 	}
 
 	@Test
 	@WithUserDetails
 	public void getMessageWithUserDetails() {
-		String message = messageService.getMessage();
+		String message = this.messageService.getMessage();
 		assertThat(message).contains("user");
 		assertThat(getPrincipal()).isInstanceOf(CustomUserDetails.class);
 	}
@@ -61,45 +63,46 @@ public class WithUserDetailsTests {
 	@Test
 	@WithUserDetails("customUsername")
 	public void getMessageWithUserDetailsCustomUsername() {
-		String message = messageService.getMessage();
+		String message = this.messageService.getMessage();
 		assertThat(message).contains("customUsername");
 		assertThat(getPrincipal()).isInstanceOf(CustomUserDetails.class);
 	}
 
 	@Test
-	@WithUserDetails(value="customUsername", userDetailsServiceBeanName="myUserDetailsService")
+	@WithUserDetails(value = "customUsername", userDetailsServiceBeanName = "myUserDetailsService")
 	public void getMessageWithUserDetailsServiceBeanName() {
-		String message = messageService.getMessage();
+		String message = this.messageService.getMessage();
 		assertThat(message).contains("customUsername");
 		assertThat(getPrincipal()).isInstanceOf(CustomUserDetails.class);
-	}
-
-	@EnableGlobalMethodSecurity(prePostEnabled = true)
-	@ComponentScan(basePackageClasses = HelloMessageService.class)
-	static class Config {
-		// @formatter:off
-		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-					.userDetailsService(myUserDetailsService());
-		}
-		// @formatter:on
-
-		@Bean
-		public UserDetailsService myUserDetailsService() {
-			return new CustomUserDetailsService();
-		}
 	}
 
 	private Object getPrincipal() {
 		return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	}
 
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	@ComponentScan(basePackageClasses = HelloMessageService.class)
+	static class Config {
+
+		@Autowired
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth.userDetailsService(myUserDetailsService());
+		}
+
+		@Bean
+		UserDetailsService myUserDetailsService() {
+			return new CustomUserDetailsService();
+		}
+
+	}
+
 	static class CustomUserDetailsService implements UserDetailsService {
 
-		public UserDetails loadUserByUsername(final String username)
-				throws UsernameNotFoundException {
+		@Override
+		public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 			return new CustomUserDetails("name", username);
 		}
+
 	}
+
 }

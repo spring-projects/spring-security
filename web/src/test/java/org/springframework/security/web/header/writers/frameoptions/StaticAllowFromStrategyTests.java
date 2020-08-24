@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header.writers.frameoptions;
 
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy;
-
 import java.net.URI;
+
+import org.junit.Test;
+
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,4 +38,5 @@ public class StaticAllowFromStrategyTests {
 		StaticAllowFromStrategy strategy = new StaticAllowFromStrategy(URI.create(uri));
 		assertThat(strategy.getAllowFromValue(new MockHttpServletRequest())).isEqualTo(uri);
 	}
+
 }

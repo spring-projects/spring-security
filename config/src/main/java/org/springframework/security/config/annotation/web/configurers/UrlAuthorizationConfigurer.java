@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.ArrayList;
@@ -77,97 +78,46 @@ import org.springframework.util.Assert;
  * The following shared objects are used:
  *
  * <ul>
- * <li>
- * AuthenticationManager</li>
+ * <li>AuthenticationManager</li>
  * </ul>
  *
  * @param <H> the type of {@link HttpSecurityBuilder} that is being configured
- *
  * @author Rob Winch
  * @since 3.2
  * @see ExpressionUrlAuthorizationConfigurer
  */
-public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractInterceptUrlConfigurer<UrlAuthorizationConfigurer<H>, H> {
-	private final StandardInterceptUrlRegistry REGISTRY;
+public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractInterceptUrlConfigurer<UrlAuthorizationConfigurer<H>, H> {
+
+	private final StandardInterceptUrlRegistry registry;
 
 	public UrlAuthorizationConfigurer(ApplicationContext context) {
-		this.REGISTRY = new StandardInterceptUrlRegistry(context);
+		this.registry = new StandardInterceptUrlRegistry(context);
 	}
 
 	/**
 	 * The StandardInterceptUrlRegistry is what users will interact with after applying
 	 * the {@link UrlAuthorizationConfigurer}.
-	 *
 	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 */
 	public StandardInterceptUrlRegistry getRegistry() {
-		return REGISTRY;
+		return this.registry;
 	}
 
 	/**
 	 * Adds an {@link ObjectPostProcessor} for this class.
-	 *
 	 * @param objectPostProcessor
 	 * @return the {@link UrlAuthorizationConfigurer} for further customizations
 	 */
-	public UrlAuthorizationConfigurer<H> withObjectPostProcessor(
-			ObjectPostProcessor<?> objectPostProcessor) {
+	@Override
+	public UrlAuthorizationConfigurer<H> withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
 		addObjectPostProcessor(objectPostProcessor);
 		return this;
-	}
-
-	public class StandardInterceptUrlRegistry
-			extends
-			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<StandardInterceptUrlRegistry, AuthorizedUrl> {
-
-		/**
-		 * @param context
-		 */
-		private StandardInterceptUrlRegistry(ApplicationContext context) {
-			setApplicationContext(context);
-		}
-
-		@Override
-		public MvcMatchersAuthorizedUrl mvcMatchers(HttpMethod method,
-				String... mvcPatterns) {
-			return new MvcMatchersAuthorizedUrl(createMvcMatchers(method, mvcPatterns));
-		}
-
-		@Override
-		public MvcMatchersAuthorizedUrl mvcMatchers(String... patterns) {
-			return mvcMatchers(null, patterns);
-		}
-
-		@Override
-		protected final AuthorizedUrl chainRequestMatchersInternal(
-				List<RequestMatcher> requestMatchers) {
-			return new AuthorizedUrl(requestMatchers);
-		}
-
-		/**
-		 * Adds an {@link ObjectPostProcessor} for this class.
-		 *
-		 * @param objectPostProcessor
-		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
-		 * customizations
-		 */
-		public StandardInterceptUrlRegistry withObjectPostProcessor(
-				ObjectPostProcessor<?> objectPostProcessor) {
-			addObjectPostProcessor(objectPostProcessor);
-			return this;
-		}
-
-		public H and() {
-			return UrlAuthorizationConfigurer.this.and();
-		}
-
 	}
 
 	/**
 	 * Creates the default {@link AccessDecisionVoter} instances used if an
 	 * {@link AccessDecisionManager} was not specified.
-	 *
 	 * @param http the builder to use
 	 */
 	@Override
@@ -182,13 +132,11 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 	/**
 	 * Creates the {@link FilterInvocationSecurityMetadataSource} to use. The
 	 * implementation is a {@link DefaultFilterInvocationSecurityMetadataSource}.
-	 *
 	 * @param http the builder to use
 	 */
 	@Override
 	FilterInvocationSecurityMetadataSource createMetadataSource(H http) {
-		return new DefaultFilterInvocationSecurityMetadataSource(
-				REGISTRY.createRequestMap());
+		return new DefaultFilterInvocationSecurityMetadataSource(this.registry.createRequestMap());
 	}
 
 	/**
@@ -200,34 +148,29 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 	 * by the {@link RequestMatcher} instances
 	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 */
-	private StandardInterceptUrlRegistry addMapping(
-			Iterable<? extends RequestMatcher> requestMatchers,
+	private StandardInterceptUrlRegistry addMapping(Iterable<? extends RequestMatcher> requestMatchers,
 			Collection<ConfigAttribute> configAttributes) {
 		for (RequestMatcher requestMatcher : requestMatchers) {
-			REGISTRY.addMapping(new AbstractConfigAttributeRequestMatcherRegistry.UrlMapping(
-					requestMatcher, configAttributes));
+			this.registry.addMapping(
+					new AbstractConfigAttributeRequestMatcherRegistry.UrlMapping(requestMatcher, configAttributes));
 		}
-		return REGISTRY;
+		return this.registry;
 	}
 
 	/**
 	 * Creates a String for specifying a user requires a role.
-	 *
 	 * @param role the role that should be required which is prepended with ROLE_
 	 * automatically (i.e. USER, ADMIN, etc). It should not start with ROLE_
 	 * @return the {@link ConfigAttribute} expressed as a String
 	 */
 	private static String hasRole(String role) {
-		Assert.isTrue(
-				!role.startsWith("ROLE_"),
-				() -> role
-						+ " should not start with ROLE_ since ROLE_ is automatically prepended when using hasRole. Consider using hasAuthority or access instead.");
+		Assert.isTrue(!role.startsWith("ROLE_"), () -> role
+				+ " should not start with ROLE_ since ROLE_ is automatically prepended when using hasRole. Consider using hasAuthority or access instead.");
 		return "ROLE_" + role;
 	}
 
 	/**
 	 * Creates a String for specifying that a user requires one of many roles.
-	 *
 	 * @param roles the roles that the user should have at least one of (i.e. ADMIN, USER,
 	 * etc). Each role should not start with ROLE_ since it is automatically prepended
 	 * already.
@@ -250,6 +193,45 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 		return authorities;
 	}
 
+	public final class StandardInterceptUrlRegistry extends
+			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<StandardInterceptUrlRegistry, AuthorizedUrl> {
+
+		private StandardInterceptUrlRegistry(ApplicationContext context) {
+			setApplicationContext(context);
+		}
+
+		@Override
+		public MvcMatchersAuthorizedUrl mvcMatchers(HttpMethod method, String... mvcPatterns) {
+			return new MvcMatchersAuthorizedUrl(createMvcMatchers(method, mvcPatterns));
+		}
+
+		@Override
+		public MvcMatchersAuthorizedUrl mvcMatchers(String... patterns) {
+			return mvcMatchers(null, patterns);
+		}
+
+		@Override
+		protected AuthorizedUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
+			return new AuthorizedUrl(requestMatchers);
+		}
+
+		/**
+		 * Adds an {@link ObjectPostProcessor} for this class.
+		 * @param objectPostProcessor
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customizations
+		 */
+		public StandardInterceptUrlRegistry withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
+			addObjectPostProcessor(objectPostProcessor);
+			return this;
+		}
+
+		public H and() {
+			return UrlAuthorizationConfigurer.this.and();
+		}
+
+	}
+
 	/**
 	 * An {@link AuthorizedUrl} that allows optionally configuring the
 	 * {@link MvcRequestMatcher#setMethod(HttpMethod)}
@@ -257,9 +239,9 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 	 * @author Rob Winch
 	 */
 	public final class MvcMatchersAuthorizedUrl extends AuthorizedUrl {
+
 		/**
 		 * Creates a new instance
-		 *
 		 * @param requestMatchers the {@link RequestMatcher} instances to map
 		 */
 		private MvcMatchersAuthorizedUrl(List<MvcRequestMatcher> requestMatchers) {
@@ -273,6 +255,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 			}
 			return this;
 		}
+
 	}
 
 	/**
@@ -283,6 +266,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 	 * @since 3.2
 	 */
 	public class AuthorizedUrl {
+
 		private final List<? extends RequestMatcher> requestMatchers;
 
 		/**
@@ -290,15 +274,13 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 		 * @param requestMatchers the {@link RequestMatcher} instances to map to some
 		 * {@link ConfigAttribute} instances.
 		 */
-		private AuthorizedUrl(List<? extends RequestMatcher> requestMatchers) {
-			Assert.notEmpty(requestMatchers,
-					"requestMatchers must contain at least one value");
+		AuthorizedUrl(List<? extends RequestMatcher> requestMatchers) {
+			Assert.notEmpty(requestMatchers, "requestMatchers must contain at least one value");
 			this.requestMatchers = requestMatchers;
 		}
 
 		/**
 		 * Specifies a user requires a role.
-		 *
 		 * @param role the role that should be required which is prepended with ROLE_
 		 * automatically (i.e. USER, ADMIN, etc). It should not start with ROLE_ the
 		 * {@link UrlAuthorizationConfigurer} for further customization
@@ -309,7 +291,6 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 
 		/**
 		 * Specifies that a user requires one of many roles.
-		 *
 		 * @param roles the roles that the user should have at least one of (i.e. ADMIN,
 		 * USER, etc). Each role should not start with ROLE_ since it is automatically
 		 * prepended already.
@@ -321,7 +302,6 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 
 		/**
 		 * Specifies a user requires an authority.
-		 *
 		 * @param authority the authority that should be required
 		 * @return the {@link UrlAuthorizationConfigurer} for further customization
 		 */
@@ -353,12 +333,14 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 		 * @return the {@link UrlAuthorizationConfigurer} for further customization
 		 */
 		public StandardInterceptUrlRegistry access(String... attributes) {
-			addMapping(requestMatchers, SecurityConfig.createList(attributes));
-			return UrlAuthorizationConfigurer.this.REGISTRY;
+			addMapping(this.requestMatchers, SecurityConfig.createList(attributes));
+			return UrlAuthorizationConfigurer.this.registry;
 		}
 
 		protected List<? extends RequestMatcher> getMatchers() {
 			return this.requestMatchers;
 		}
+
 	}
+
 }

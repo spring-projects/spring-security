@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.web;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -39,40 +43,35 @@ import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 /**
- * An implementation of an {@link AbstractAuthenticationProcessingFilter} for OAuth 2.0 Login.
+ * An implementation of an {@link AbstractAuthenticationProcessingFilter} for OAuth 2.0
+ * Login.
  *
  * <p>
- * This authentication {@code Filter} handles the processing of an OAuth 2.0 Authorization Response
- * for the authorization code grant flow and delegates an {@link OAuth2LoginAuthenticationToken}
- * to the {@link AuthenticationManager} to log in the End-User.
+ * This authentication {@code Filter} handles the processing of an OAuth 2.0 Authorization
+ * Response for the authorization code grant flow and delegates an
+ * {@link OAuth2LoginAuthenticationToken} to the {@link AuthenticationManager} to log in
+ * the End-User.
  *
  * <p>
  * The OAuth 2.0 Authorization Response is processed as follows:
  *
  * <ul>
- * <li>
- *	Assuming the End-User (Resource Owner) has granted access to the Client, the Authorization Server will append the
- *	{@link OAuth2ParameterNames#CODE code} and {@link OAuth2ParameterNames#STATE state} parameters
- *	to the {@link OAuth2ParameterNames#REDIRECT_URI redirect_uri} (provided in the Authorization Request)
- *	and redirect the End-User's user-agent back to this {@code Filter} (the Client).
- * </li>
- * <li>
- *  This {@code Filter} will then create an {@link OAuth2LoginAuthenticationToken} with
- *  the {@link OAuth2ParameterNames#CODE code} received and
- *  delegate it to the {@link AuthenticationManager} to authenticate.
- * </li>
- * <li>
- *  Upon a successful authentication, an {@link OAuth2AuthenticationToken} is created (representing the End-User {@code Principal})
- *  and associated to the {@link OAuth2AuthorizedClient Authorized Client} using the {@link OAuth2AuthorizedClientRepository}.
- * </li>
- * <li>
- *  Finally, the {@link OAuth2AuthenticationToken} is returned and ultimately stored
- *  in the {@link SecurityContextRepository} to complete the authentication processing.
- * </li>
+ * <li>Assuming the End-User (Resource Owner) has granted access to the Client, the
+ * Authorization Server will append the {@link OAuth2ParameterNames#CODE code} and
+ * {@link OAuth2ParameterNames#STATE state} parameters to the
+ * {@link OAuth2ParameterNames#REDIRECT_URI redirect_uri} (provided in the Authorization
+ * Request) and redirect the End-User's user-agent back to this {@code Filter} (the
+ * Client).</li>
+ * <li>This {@code Filter} will then create an {@link OAuth2LoginAuthenticationToken} with
+ * the {@link OAuth2ParameterNames#CODE code} received and delegate it to the
+ * {@link AuthenticationManager} to authenticate.</li>
+ * <li>Upon a successful authentication, an {@link OAuth2AuthenticationToken} is created
+ * (representing the End-User {@code Principal}) and associated to the
+ * {@link OAuth2AuthorizedClient Authorized Client} using the
+ * {@link OAuth2AuthorizedClientRepository}.</li>
+ * <li>Finally, the {@link OAuth2AuthenticationToken} is returned and ultimately stored in
+ * the {@link SecurityContextRepository} to complete the authentication processing.</li>
  * </ul>
  *
  * @author Joe Grandja
@@ -88,57 +87,67 @@ import javax.servlet.http.HttpServletResponse;
  * @see ClientRegistrationRepository
  * @see OAuth2AuthorizedClient
  * @see OAuth2AuthorizedClientRepository
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section
+ * 4.1 Authorization Code Grant</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization
+ * Response</a>
  */
 public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-	/**
-	 * The default {@code URI} where this {@code Filter} processes authentication requests.
-	 */
-	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/oauth2/code/*";
-	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
-	private static final String CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE = "client_registration_not_found";
-	private ClientRegistrationRepository clientRegistrationRepository;
-	private OAuth2AuthorizedClientRepository authorizedClientRepository;
-	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
-		new HttpSessionOAuth2AuthorizationRequestRepository();
 
 	/**
-	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided parameters.
-	 *
+	 * The default {@code URI} where this {@code Filter} processes authentication
+	 * requests.
+	 */
+	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/oauth2/code/*";
+
+	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
+
+	private static final String CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE = "client_registration_not_found";
+
+	private ClientRegistrationRepository clientRegistrationRepository;
+
+	private OAuth2AuthorizedClientRepository authorizedClientRepository;
+
+	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
+
+	/**
+	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided
+	 * parameters.
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientService the authorized client service
 	 */
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
-											OAuth2AuthorizedClientService authorizedClientService) {
+			OAuth2AuthorizedClientService authorizedClientService) {
 		this(clientRegistrationRepository, authorizedClientService, DEFAULT_FILTER_PROCESSES_URI);
 	}
 
 	/**
-	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided parameters.
-	 *
+	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided
+	 * parameters.
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientService the authorized client service
-	 * @param filterProcessesUrl the {@code URI} where this {@code Filter} will process the authentication requests
+	 * @param filterProcessesUrl the {@code URI} where this {@code Filter} will process
+	 * the authentication requests
 	 */
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
-											OAuth2AuthorizedClientService authorizedClientService,
-											String filterProcessesUrl) {
+			OAuth2AuthorizedClientService authorizedClientService, String filterProcessesUrl) {
 		this(clientRegistrationRepository,
-				new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService), filterProcessesUrl);
+				new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService),
+				filterProcessesUrl);
 	}
 
 	/**
-	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided parameters.
-	 *
-	 * @since 5.1
+	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided
+	 * parameters.
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientRepository the authorized client repository
-	 * @param filterProcessesUrl the {@code URI} where this {@code Filter} will process the authentication requests
+	 * @param filterProcessesUrl the {@code URI} where this {@code Filter} will process
+	 * the authentication requests
+	 * @since 5.1
 	 */
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
-											OAuth2AuthorizedClientRepository authorizedClientRepository,
-											String filterProcessesUrl) {
+			OAuth2AuthorizedClientRepository authorizedClientRepository, String filterProcessesUrl) {
 		super(filterProcessesUrl);
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
@@ -149,20 +158,17 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
-
 		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
 		if (!OAuth2AuthorizationResponseUtils.isAuthorizationResponse(params)) {
 			OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-
-		OAuth2AuthorizationRequest authorizationRequest =
-				this.authorizationRequestRepository.removeAuthorizationRequest(request, response);
+		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository
+				.removeAuthorizationRequest(request, response);
 		if (authorizationRequest == null) {
 			OAuth2Error oauth2Error = new OAuth2Error(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-
 		String registrationId = authorizationRequest.getAttribute(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (clientRegistration == null) {
@@ -170,44 +176,41 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 					"Client Registration not found with Id: " + registrationId, null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
+		// @formatter:off
 		String redirectUri = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
 				.replaceQuery(null)
 				.build()
 				.toUriString();
-		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(params, redirectUri);
-
+		// @formatter:on
+		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(params,
+				redirectUri);
 		Object authenticationDetails = this.authenticationDetailsSource.buildDetails(request);
-		OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(
-				clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
+		OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(clientRegistration,
+				new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
 		authenticationRequest.setDetails(authenticationDetails);
-
-		OAuth2LoginAuthenticationToken authenticationResult =
-			(OAuth2LoginAuthenticationToken) this.getAuthenticationManager().authenticate(authenticationRequest);
-
+		OAuth2LoginAuthenticationToken authenticationResult = (OAuth2LoginAuthenticationToken) this
+				.getAuthenticationManager().authenticate(authenticationRequest);
 		OAuth2AuthenticationToken oauth2Authentication = new OAuth2AuthenticationToken(
-			authenticationResult.getPrincipal(),
-			authenticationResult.getAuthorities(),
-			authenticationResult.getClientRegistration().getRegistrationId());
+				authenticationResult.getPrincipal(), authenticationResult.getAuthorities(),
+				authenticationResult.getClientRegistration().getRegistrationId());
 		oauth2Authentication.setDetails(authenticationDetails);
-
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-			authenticationResult.getClientRegistration(),
-			oauth2Authentication.getName(),
-			authenticationResult.getAccessToken(),
-			authenticationResult.getRefreshToken());
+				authenticationResult.getClientRegistration(), oauth2Authentication.getName(),
+				authenticationResult.getAccessToken(), authenticationResult.getRefreshToken());
 
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, oauth2Authentication, request, response);
-
 		return oauth2Authentication;
 	}
 
 	/**
 	 * Sets the repository for stored {@link OAuth2AuthorizationRequest}'s.
-	 *
-	 * @param authorizationRequestRepository the repository for stored {@link OAuth2AuthorizationRequest}'s
+	 * @param authorizationRequestRepository the repository for stored
+	 * {@link OAuth2AuthorizationRequest}'s
 	 */
-	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+	public final void setAuthorizationRequestRepository(
+			AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
 	}
+
 }

@@ -17,6 +17,7 @@
 package org.springframework.security.crypto.factory;
 
 import org.junit.Test;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0
  */
 public class PasswordEncoderFactoriesTests {
+
 	private PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
 	private String rawPassword = "password";
@@ -33,7 +35,6 @@ public class PasswordEncoderFactoriesTests {
 	@Test
 	public void encodeWhenDefaultThenBCryptUsed() {
 		String encodedPassword = this.encoder.encode(this.rawPassword);
-
 		assertThat(encodedPassword).startsWith("{bcrypt}");
 		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
 	}

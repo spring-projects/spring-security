@@ -13,53 +13,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.user;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
-import java.util.Collections;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.TreeSet;
-import java.util.SortedSet;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-
 /**
  * The default implementation of an {@link OAuth2User}.
  *
  * <p>
- * User attribute names are <b>not</b> standardized between providers
- * and therefore it is required to supply the <i>key</i>
- * for the user's &quot;name&quot; attribute to one of the constructors.
- * The <i>key</i> will be used for accessing the &quot;name&quot; of the
- * {@code Principal} (user) via {@link #getAttributes()}
- * and returning it from {@link #getName()}.
+ * User attribute names are <b>not</b> standardized between providers and therefore it is
+ * required to supply the <i>key</i> for the user's &quot;name&quot; attribute to one of
+ * the constructors. The <i>key</i> will be used for accessing the &quot;name&quot; of the
+ * {@code Principal} (user) via {@link #getAttributes()} and returning it from
+ * {@link #getName()}.
  *
  * @author Joe Grandja
  * @author Eddú Meléndez
- * @see OAuth2User
  * @since 5.0
+ * @see OAuth2User
  */
 public class DefaultOAuth2User implements OAuth2User, Serializable {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	private final Set<GrantedAuthority> authorities;
+
 	private final Map<String, Object> attributes;
+
 	private final String nameAttributeKey;
 
 	/**
 	 * Constructs a {@code DefaultOAuth2User} using the provided parameters.
-	 *
-	 * @param authorities      the authorities granted to the user
-	 * @param attributes       the attributes about the user
-	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from {@link #getAttributes()}
+	 * @param authorities the authorities granted to the user
+	 * @param attributes the attributes about the user
+	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from
+	 * {@link #getAttributes()}
 	 */
-	public DefaultOAuth2User(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey) {
+	public DefaultOAuth2User(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes,
+			String nameAttributeKey) {
 		Assert.notEmpty(authorities, "authorities cannot be empty");
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
@@ -87,8 +92,8 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	}
 
 	private Set<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
-		SortedSet<GrantedAuthority> sortedAuthorities =
-				new TreeSet<>(Comparator.comparing(GrantedAuthority::getAuthority));
+		SortedSet<GrantedAuthority> sortedAuthorities = new TreeSet<>(
+				Comparator.comparing(GrantedAuthority::getAuthority));
 		sortedAuthorities.addAll(authorities);
 		return sortedAuthorities;
 	}
@@ -101,9 +106,7 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
-
 		DefaultOAuth2User that = (DefaultOAuth2User) obj;
-
 		if (!this.getName().equals(that.getName())) {
 			return false;
 		}
@@ -133,4 +136,5 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 		sb.append("]");
 		return sb.toString();
 	}
+
 }

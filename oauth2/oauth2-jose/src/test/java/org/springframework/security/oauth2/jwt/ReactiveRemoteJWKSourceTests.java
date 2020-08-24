@@ -16,6 +16,9 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSelector;
@@ -29,12 +32,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Collections;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -42,6 +42,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ReactiveRemoteJWKSourceTests {
+
 	@Mock
 	private JWKMatcher matcher;
 
@@ -51,6 +52,7 @@ public class ReactiveRemoteJWKSourceTests {
 
 	private MockWebServer server;
 
+	// @formatter:off
 	private String keys = "{\n"
 			+ "    \"keys\": [\n"
 			+ "        {\n"
@@ -71,8 +73,9 @@ public class ReactiveRemoteJWKSourceTests {
 			+ "        }\n"
 			+ "    ]\n"
 			+ "}\n";
+	// @formatter:on
 
-
+	// @formatter:off
 	private String keys2 = "{\n"
 			+ "    \"keys\": [\n"
 			+ "        {\n"
@@ -85,30 +88,27 @@ public class ReactiveRemoteJWKSourceTests {
 			+ "        }\n"
 			+ "    ]\n"
 			+ "}\n";
+	// @formatter:on
 
 	@Before
 	public void setup() {
 		this.server = new MockWebServer();
 		this.source = new ReactiveRemoteJWKSource(this.server.url("/").toString());
-
 		this.server.enqueue(new MockResponse().setBody(this.keys));
 		this.selector = new JWKSelector(this.matcher);
 	}
 
 	@Test
 	public void getWhenMultipleRequestThenCached() {
-		when(this.matcher.matches(any())).thenReturn(true);
-
+		given(this.matcher.matches(any())).willReturn(true);
 		this.source.get(this.selector).block();
 		this.source.get(this.selector).block();
-
 		assertThat(this.server.getRequestCount()).isEqualTo(1);
 	}
 
 	@Test
 	public void getWhenMatchThenCreatesKeys() {
-		when(this.matcher.matches(any())).thenReturn(true);
-
+		given(this.matcher.matches(any())).willReturn(true);
 		List<JWK> keys = this.source.get(this.selector).block();
 		assertThat(keys).hasSize(2);
 		JWK key1 = keys.get(0);
@@ -116,7 +116,6 @@ public class ReactiveRemoteJWKSourceTests {
 		assertThat(key1.getAlgorithm().getName()).isEqualTo("RS256");
 		assertThat(key1.getKeyType()).isEqualTo(KeyType.RSA);
 		assertThat(key1.getKeyUse()).isEqualTo(KeyUse.SIGNATURE);
-
 		JWK key2 = keys.get(1);
 		assertThat(key2.getKeyID()).isEqualTo("7ddf54d3032d1f0d48c3618892ca74c1ac30ad77");
 		assertThat(key2.getAlgorithm().getName()).isEqualTo("RS256");
@@ -126,20 +125,17 @@ public class ReactiveRemoteJWKSourceTests {
 
 	@Test
 	public void getWhenNoMatchAndNoKeyIdThenEmpty() {
-		when(this.matcher.matches(any())).thenReturn(false);
-		when(this.matcher.getKeyIDs()).thenReturn(Collections.emptySet());
-
+		given(this.matcher.matches(any())).willReturn(false);
+		given(this.matcher.getKeyIDs()).willReturn(Collections.emptySet());
 		assertThat(this.source.get(this.selector).block()).isEmpty();
 	}
 
 	@Test
 	public void getWhenNoMatchAndKeyIdNotMatchThenRefreshAndFoundThenFound() {
 		this.server.enqueue(new MockResponse().setBody(this.keys2));
-		when(this.matcher.matches(any())).thenReturn(false, false, true);
-		when(this.matcher.getKeyIDs()).thenReturn(Collections.singleton("rotated"));
-
+		given(this.matcher.matches(any())).willReturn(false, false, true);
+		given(this.matcher.getKeyIDs()).willReturn(Collections.singleton("rotated"));
 		List<JWK> keys = this.source.get(this.selector).block();
-
 		assertThat(keys).hasSize(1);
 		assertThat(keys.get(0).getKeyID()).isEqualTo("rotated");
 	}
@@ -147,19 +143,17 @@ public class ReactiveRemoteJWKSourceTests {
 	@Test
 	public void getWhenNoMatchAndKeyIdNotMatchThenRefreshAndNotFoundThenEmpty() {
 		this.server.enqueue(new MockResponse().setBody(this.keys2));
-		when(this.matcher.matches(any())).thenReturn(false, false, false);
-		when(this.matcher.getKeyIDs()).thenReturn(Collections.singleton("rotated"));
-
+		given(this.matcher.matches(any())).willReturn(false, false, false);
+		given(this.matcher.getKeyIDs()).willReturn(Collections.singleton("rotated"));
 		List<JWK> keys = this.source.get(this.selector).block();
-
 		assertThat(keys).isEmpty();
 	}
 
 	@Test
 	public void getWhenNoMatchAndKeyIdMatchThenEmpty() {
-		when(this.matcher.matches(any())).thenReturn(false);
-		when(this.matcher.getKeyIDs()).thenReturn(Collections.singleton("7ddf54d3032d1f0d48c3618892ca74c1ac30ad77"));
-
+		given(this.matcher.matches(any())).willReturn(false);
+		given(this.matcher.getKeyIDs()).willReturn(Collections.singleton("7ddf54d3032d1f0d48c3618892ca74c1ac30ad77"));
 		assertThat(this.source.get(this.selector).block()).isEmpty();
 	}
+
 }

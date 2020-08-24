@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.intercept.aspectj;
 
 import java.lang.reflect.AccessibleObject;
@@ -23,6 +24,8 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.CodeSignature;
 
+import org.springframework.util.Assert;
+
 /**
  * Decorates a JoinPoint to allow it to be used with method-security infrastructure
  * classes which support {@code MethodInvocation} instances.
@@ -31,41 +34,36 @@ import org.aspectj.lang.reflect.CodeSignature;
  * @since 3.0.3
  */
 public final class MethodInvocationAdapter implements MethodInvocation {
+
 	private final ProceedingJoinPoint jp;
+
 	private final Method method;
+
 	private final Object target;
 
 	MethodInvocationAdapter(JoinPoint jp) {
 		this.jp = (ProceedingJoinPoint) jp;
 		if (jp.getTarget() != null) {
-			target = jp.getTarget();
+			this.target = jp.getTarget();
 		}
 		else {
 			// SEC-1295: target may be null if an ITD is in use
-			target = jp.getSignature().getDeclaringType();
+			this.target = jp.getSignature().getDeclaringType();
 		}
 		String targetMethodName = jp.getStaticPart().getSignature().getName();
-		Class<?>[] types = ((CodeSignature) jp.getStaticPart().getSignature())
-				.getParameterTypes();
+		Class<?>[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
 		Class<?> declaringType = jp.getStaticPart().getSignature().getDeclaringType();
-
-		method = findMethod(targetMethodName, declaringType, types);
-
-		if (method == null) {
-			throw new IllegalArgumentException(
-					"Could not obtain target method from JoinPoint: '" + jp + "'");
-		}
+		this.method = findMethod(targetMethodName, declaringType, types);
+		Assert.notNull(this.method, () -> "Could not obtain target method from JoinPoint: '" + jp + "'");
 	}
 
 	private Method findMethod(String name, Class<?> declaringType, Class<?>[] params) {
 		Method method = null;
-
 		try {
 			method = declaringType.getMethod(name, params);
 		}
 		catch (NoSuchMethodException ignored) {
 		}
-
 		if (method == null) {
 			try {
 				method = declaringType.getDeclaredMethod(name, params);
@@ -73,27 +71,32 @@ public final class MethodInvocationAdapter implements MethodInvocation {
 			catch (NoSuchMethodException ignored) {
 			}
 		}
-
 		return method;
 	}
 
+	@Override
 	public Method getMethod() {
-		return method;
+		return this.method;
 	}
 
+	@Override
 	public Object[] getArguments() {
-		return jp.getArgs();
+		return this.jp.getArgs();
 	}
 
+	@Override
 	public AccessibleObject getStaticPart() {
-		return method;
+		return this.method;
 	}
 
+	@Override
 	public Object getThis() {
-		return target;
+		return this.target;
 	}
 
+	@Override
 	public Object proceed() throws Throwable {
-		return jp.proceed();
+		return this.jp.proceed();
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.session;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class InvalidSessionAccessDeniedHandler implements AccessDeniedHandler {
+
 	private final InvalidSessionStrategy invalidSessionStrategy;
 
 	/**
@@ -43,9 +45,10 @@ public final class InvalidSessionAccessDeniedHandler implements AccessDeniedHand
 		this.invalidSessionStrategy = invalidSessionStrategy;
 	}
 
+	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
-			AccessDeniedException accessDeniedException) throws IOException,
-			ServletException {
-		invalidSessionStrategy.onInvalidSessionDetected(request, response);
+			AccessDeniedException accessDeniedException) throws IOException, ServletException {
+		this.invalidSessionStrategy.onInvalidSessionDetected(request, response);
 	}
+
 }

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.domain;
 
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.AuditableAccessControlEntry;
-
 import org.springframework.util.Assert;
 
 /**
@@ -26,15 +26,12 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class ConsoleAuditLogger implements AuditLogger {
-	// ~ Methods
-	// ========================================================================================================
 
+	@Override
 	public void logIfNeeded(boolean granted, AccessControlEntry ace) {
 		Assert.notNull(ace, "AccessControlEntry required");
-
 		if (ace instanceof AuditableAccessControlEntry) {
 			AuditableAccessControlEntry auditableAce = (AuditableAccessControlEntry) ace;
-
 			if (granted && auditableAce.isAuditSuccess()) {
 				System.out.println("GRANTED due to ACE: " + ace);
 			}
@@ -43,4 +40,5 @@ public class ConsoleAuditLogger implements AuditLogger {
 			}
 		}
 	}
+
 }

@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.header;
 
 import java.util.function.Supplier;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Interface for writing headers just before the response is committed.
@@ -32,10 +33,10 @@ public interface ServerHttpHeadersWriter {
 
 	/**
 	 * Write the headers to the response.
-	 *
 	 * @param exchange
 	 * @return A Mono which is returned to the {@link Supplier} of the
-	 *         {@link ServerHttpResponse#beforeCommit(Supplier)}.
+	 * {@link ServerHttpResponse#beforeCommit(Supplier)}.
 	 */
 	Mono<Void> writeHttpHeaders(ServerWebExchange exchange);
+
 }

@@ -21,10 +21,10 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 /**
@@ -40,28 +40,24 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint,
-		InitializingBean {
-	// ~ Instance fields
-	// ================================================================================================
+public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
 	private String realmName;
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public void afterPropertiesSet() {
-		Assert.hasText(realmName, "realmName must be specified");
+		Assert.hasText(this.realmName, "realmName must be specified");
 	}
 
+	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException {
-		response.addHeader("WWW-Authenticate", "Basic realm=\"" + realmName + "\"");
+		response.addHeader("WWW-Authenticate", "Basic realm=\"" + this.realmName + "\"");
 		response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 	}
 
 	public String getRealmName() {
-		return realmName;
+		return this.realmName;
 	}
 
 	public void setRealmName(String realmName) {

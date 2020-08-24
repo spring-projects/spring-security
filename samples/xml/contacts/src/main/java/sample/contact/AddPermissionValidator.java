@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.contact;
 
 import org.springframework.security.acls.domain.BasePermission;
@@ -27,8 +28,7 @@ import org.springframework.validation.Validator;
  * @author Ben Alex
  */
 public class AddPermissionValidator implements Validator {
-	// ~ Methods
-	// ========================================================================================================
+
 
 	@SuppressWarnings("unchecked")
 	public boolean supports(Class clazz) {

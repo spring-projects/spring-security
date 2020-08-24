@@ -13,77 +13,69 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.header.writers.frameoptions;
 
-import static org.assertj.core.api.Assertions.assertThat;
+package org.springframework.security.web.header.writers.frameoptions;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.web.header.writers.frameoptions.AbstractRequestParameterAllowFromStrategy;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
  *
  */
 public class AbstractRequestParameterAllowFromStrategyTests {
+
 	private MockHttpServletRequest request;
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
+		this.request = new MockHttpServletRequest();
 	}
 
 	@Test
 	public void nullAllowFromParameterValue() {
-		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(
-				true);
-
-		assertThat(strategy.getAllowFromValue(request)).isEqualTo("DENY");
+		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(true);
+		assertThat(strategy.getAllowFromValue(this.request)).isEqualTo("DENY");
 	}
 
 	@Test
 	public void emptyAllowFromParameterValue() {
-		request.setParameter("x-frames-allow-from", "");
-		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(
-				true);
-
-		assertThat(strategy.getAllowFromValue(request)).isEqualTo("DENY");
+		this.request.setParameter("x-frames-allow-from", "");
+		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(true);
+		assertThat(strategy.getAllowFromValue(this.request)).isEqualTo("DENY");
 	}
 
 	@Test
 	public void emptyAllowFromCustomParameterValue() {
 		String customParam = "custom";
-		request.setParameter(customParam, "");
-		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(
-				true);
+		this.request.setParameter(customParam, "");
+		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(true);
 		strategy.setAllowFromParameterName(customParam);
-
-		assertThat(strategy.getAllowFromValue(request)).isEqualTo("DENY");
+		assertThat(strategy.getAllowFromValue(this.request)).isEqualTo("DENY");
 	}
 
 	@Test
 	public void allowFromParameterValueAllowed() {
 		String value = "https://example.com";
-		request.setParameter("x-frames-allow-from", value);
-		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(
-				true);
-
-		assertThat(strategy.getAllowFromValue(request)).isEqualTo(value);
+		this.request.setParameter("x-frames-allow-from", value);
+		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(true);
+		assertThat(strategy.getAllowFromValue(this.request)).isEqualTo(value);
 	}
 
 	@Test
 	public void allowFromParameterValueDenied() {
 		String value = "https://example.com";
-		request.setParameter("x-frames-allow-from", value);
-		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(
-				false);
-
-		assertThat(strategy.getAllowFromValue(request)).isEqualTo("DENY");
+		this.request.setParameter("x-frames-allow-from", value);
+		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(false);
+		assertThat(strategy.getAllowFromValue(this.request)).isEqualTo("DENY");
 	}
 
-	private static class RequestParameterAllowFromStrategyStub extends
-			AbstractRequestParameterAllowFromStrategy {
+	private static class RequestParameterAllowFromStrategyStub extends AbstractRequestParameterAllowFromStrategy {
+
 		private boolean match;
 
 		RequestParameterAllowFromStrategyStub(boolean match) {
@@ -92,7 +84,9 @@ public class AbstractRequestParameterAllowFromStrategyTests {
 
 		@Override
 		protected boolean allowed(String allowFromOrigin) {
-			return match;
+			return this.match;
 		}
+
 	}
+
 }

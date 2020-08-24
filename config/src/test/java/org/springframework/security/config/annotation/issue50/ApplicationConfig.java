@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.issue50;
 
 import javax.sql.DataSource;
@@ -38,6 +39,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaRepositories("org.springframework.security.config.annotation.issue50.repo")
 @EnableTransactionManagement
 public class ApplicationConfig {
+
 	@Bean
 	public DataSource dataSource() {
 		EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
@@ -50,12 +52,10 @@ public class ApplicationConfig {
 		vendorAdapter.setDatabase(Database.HSQL);
 		vendorAdapter.setGenerateDdl(true);
 		vendorAdapter.setShowSql(true);
-
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setJpaVendorAdapter(vendorAdapter);
 		factory.setPackagesToScan(User.class.getPackage().getName());
 		factory.setDataSource(dataSource());
-
 		return factory;
 	}
 
@@ -65,4 +65,5 @@ public class ApplicationConfig {
 		txManager.setEntityManagerFactory(entityManagerFactory().getObject());
 		return txManager;
 	}
+
 }

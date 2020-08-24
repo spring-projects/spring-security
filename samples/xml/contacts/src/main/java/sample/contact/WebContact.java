@@ -22,14 +22,11 @@ package sample.contact;
  * @author Ben Alex
  */
 public class WebContact {
-	// ~ Instance fields
-	// ================================================================================================
+
 
 	private String email;
 	private String name;
 
-	// ~ Methods
-	// ========================================================================================================
 
 	public String getEmail() {
 		return email;

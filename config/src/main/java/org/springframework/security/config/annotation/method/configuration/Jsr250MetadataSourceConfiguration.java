@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.method.configuration;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -27,7 +28,8 @@ class Jsr250MetadataSourceConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource() {
+	Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource() {
 		return new Jsr250MethodSecurityMetadataSource();
 	}
+
 }

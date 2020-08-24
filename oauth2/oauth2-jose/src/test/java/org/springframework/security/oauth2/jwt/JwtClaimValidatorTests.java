@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.jwt;
 
-import org.junit.Test;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+package org.springframework.security.oauth2.jwt;
 
 import java.util.function.Predicate;
 
+import org.junit.Test;
+
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link JwtClaimValidator}.
@@ -32,38 +32,35 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
  */
 public class JwtClaimValidatorTests {
 
-	private static final Predicate<String> test = claim -> claim.equals("http://test");
-	private final JwtClaimValidator<String> validator = new JwtClaimValidator<>(ISS, test);
+	private static final Predicate<String> test = (claim) -> claim.equals("http://test");
+
+	private final JwtClaimValidator<String> validator = new JwtClaimValidator<>(JwtClaimNames.ISS, test);
 
 	@Test
 	public void validateWhenClaimPassesTheTestThenReturnsSuccess() {
-		Jwt jwt = jwt().claim(ISS, "http://test").build();
-		assertThat(validator.validate(jwt))
-				.isEqualTo(OAuth2TokenValidatorResult.success());
+		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "http://test").build();
+		assertThat(this.validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
 	}
 
 	@Test
 	public void validateWhenClaimFailsTheTestThenReturnsFailure() {
-		Jwt jwt = jwt().claim(ISS, "http://abc").build();
-		assertThat(validator.validate(jwt).getErrors().isEmpty())
-				.isFalse();
+		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "http://abc").build();
+		assertThat(this.validator.validate(jwt).getErrors().isEmpty()).isFalse();
 	}
 
 	@Test
 	public void validateWhenClaimIsNullThenThrowsIllegalArgumentException() {
-		assertThatThrownBy(() -> new JwtClaimValidator<String>(null, test))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new JwtClaimValidator<>(null, test));
 	}
 
 	@Test
-	public void validateWhenTestIsNullThenThrowsIllegalArgumentException(){
-		assertThatThrownBy(() -> new JwtClaimValidator<>(ISS, null))
-				.isInstanceOf(IllegalArgumentException.class);
+	public void validateWhenTestIsNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new JwtClaimValidator<>(JwtClaimNames.ISS, null));
 	}
 
 	@Test
 	public void validateWhenJwtIsNullThenThrowsIllegalArgumentException() {
-		assertThatThrownBy(() -> validator.validate(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.validator.validate(null));
 	}
+
 }

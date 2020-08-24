@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -172,8 +173,6 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * <li>/authenticate?error GET - redirect here for failed authentication attempts</li>
 	 * <li>/authenticate?logout GET - redirect here after successfully logging out</li>
 	 * </ul>
-	 *
-	 *
 	 * @param loginPage the login page to redirect to if authentication is required (i.e.
 	 * "/login")
 	 * @return the {@link FormLoginConfigurer} for additional customization
@@ -186,7 +185,6 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 	/**
 	 * The HTTP parameter to look for the username when performing authentication. Default
 	 * is "username".
-	 *
 	 * @param usernameParameter the HTTP parameter to look for the username when
 	 * performing authentication
 	 * @return the {@link FormLoginConfigurer} for additional customization
@@ -199,7 +197,6 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 	/**
 	 * The HTTP parameter to look for the password when performing authentication. Default
 	 * is "password".
-	 *
 	 * @param passwordParameter the HTTP parameter to look for the password when
 	 * performing authentication
 	 * @return the {@link FormLoginConfigurer} for additional customization
@@ -211,7 +208,6 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 
 	/**
 	 * Forward Authentication Failure Handler
-	 *
 	 * @param forwardUrl the target URL in case of failure
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
@@ -222,7 +218,6 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 
 	/**
 	 * Forward Authentication Success Handler
-	 *
 	 * @param forwardUrl the target URL in case of success
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
@@ -237,13 +232,6 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 		initDefaultLoginFilter(http);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.config.annotation.web.configurers.
-	 * AbstractAuthenticationFilterConfigurer
-	 * #createLoginProcessingUrlMatcher(java.lang.String)
-	 */
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
 		return new AntPathRequestMatcher(loginProcessingUrl, "POST");
@@ -251,7 +239,6 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 
 	/**
 	 * Gets the HTTP parameter that is used to submit the username.
-	 *
 	 * @return the HTTP parameter that is used to submit the username
 	 */
 	private String getUsernameParameter() {
@@ -260,7 +247,6 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 
 	/**
 	 * Gets the HTTP parameter that is used to submit the password.
-	 *
 	 * @return the HTTP parameter that is used to submit the password
 	 */
 	private String getPasswordParameter() {
@@ -270,7 +256,6 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 	/**
 	 * If available, initializes the {@link DefaultLoginPageGeneratingFilter} shared
 	 * object.
-	 *
 	 * @param http the {@link HttpSecurityBuilder} to use
 	 */
 	private void initDefaultLoginFilter(H http) {
@@ -285,4 +270,5 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 			loginPageGeneratingFilter.setAuthenticationUrl(getLoginProcessingUrl());
 		}
 	}
+
 }

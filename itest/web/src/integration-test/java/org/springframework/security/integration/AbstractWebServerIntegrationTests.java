@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.integration;
 
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-
 import org.junit.After;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.support.XmlWebApplicationContext;
+
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 /**
  * Base class which allows the application to be started with a particular Spring
@@ -33,12 +35,13 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * @author Luke Taylor
  */
 public abstract class AbstractWebServerIntegrationTests {
+
 	protected ConfigurableApplicationContext context;
 
 	@After
 	public void close() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -53,9 +56,11 @@ public abstract class AbstractWebServerIntegrationTests {
 		context.refresh();
 		this.context = context;
 
-		return MockMvcBuilders
-			.webAppContextSetup(context)
-			.apply(springSecurity())
-			.build();
+		// @formatter:off
+		return MockMvcBuilders.webAppContextSetup(context)
+				.apply(springSecurity())
+				.build();
+		// @formatter:on
 	}
+
 }

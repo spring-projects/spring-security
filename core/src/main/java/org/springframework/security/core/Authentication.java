@@ -49,8 +49,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Ben Alex
  */
 public interface Authentication extends Principal, Serializable {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Set by an <code>AuthenticationManager</code> to indicate the authorities that the
@@ -61,7 +59,6 @@ public interface Authentication extends Principal, Serializable {
 	 * do not affect the state of the Authentication object, or use an unmodifiable
 	 * instance.
 	 * </p>
-	 *
 	 * @return the authorities granted to the principal, or an empty collection if the
 	 * token has not been authenticated. Never null.
 	 */
@@ -71,7 +68,6 @@ public interface Authentication extends Principal, Serializable {
 	 * The credentials that prove the principal is correct. This is usually a password,
 	 * but could be anything relevant to the <code>AuthenticationManager</code>. Callers
 	 * are expected to populate the credentials.
-	 *
 	 * @return the credentials that prove the identity of the <code>Principal</code>
 	 */
 	Object getCredentials();
@@ -79,7 +75,6 @@ public interface Authentication extends Principal, Serializable {
 	/**
 	 * Stores additional details about the authentication request. These might be an IP
 	 * address, certificate serial number etc.
-	 *
 	 * @return additional details about the authentication request, or <code>null</code>
 	 * if not used
 	 */
@@ -94,7 +89,6 @@ public interface Authentication extends Principal, Serializable {
 	 * <tt>Authentication</tt> containing richer information as the principal for use by
 	 * the application. Many of the authentication providers will create a
 	 * {@code UserDetails} object as the principal.
-	 *
 	 * @return the <code>Principal</code> being authenticated or the authenticated
 	 * principal after authentication.
 	 */
@@ -114,7 +108,6 @@ public interface Authentication extends Principal, Serializable {
 	 * about returning <code>true</code> from this method unless they are either
 	 * immutable, or have some way of ensuring the properties have not been changed since
 	 * original creation.
-	 *
 	 * @return true if the token has been authenticated and the
 	 * <code>AbstractSecurityInterceptor</code> does not need to present the token to the
 	 * <code>AuthenticationManager</code> again for re-authentication.
@@ -130,14 +123,13 @@ public interface Authentication extends Principal, Serializable {
 	 * an invocation with a <code>true</code> parameter (which would indicate the
 	 * authentication token is trusted - a potential security risk) the implementation
 	 * should throw an {@link IllegalArgumentException}.
-	 *
 	 * @param isAuthenticated <code>true</code> if the token should be trusted (which may
 	 * result in an exception) or <code>false</code> if the token should not be trusted
-	 *
 	 * @throws IllegalArgumentException if an attempt to make the authentication token
 	 * trusted (by passing <code>true</code> as the argument) is rejected due to the
 	 * implementation being immutable or implementing its own alternative approach to
 	 * {@link #isAuthenticated()}
 	 */
 	void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException;
+
 }

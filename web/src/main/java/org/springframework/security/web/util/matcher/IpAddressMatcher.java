@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.util.matcher;
 
 import java.net.InetAddress;
@@ -20,9 +21,8 @@ import java.net.UnknownHostException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.util.StringUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Matches a request based on IP Address or subnet mask matching against the remote
@@ -35,65 +35,56 @@ import org.springframework.util.Assert;
  * @since 3.0.2
  */
 public final class IpAddressMatcher implements RequestMatcher {
+
 	private final int nMaskBits;
+
 	private final InetAddress requiredAddress;
 
 	/**
 	 * Takes a specific IP address or a range specified using the IP/Netmask (e.g.
 	 * 192.168.1.0/24 or 202.24.0.0/14).
-	 *
 	 * @param ipAddress the address or range of addresses from which the request must
 	 * come.
 	 */
 	public IpAddressMatcher(String ipAddress) {
-
 		if (ipAddress.indexOf('/') > 0) {
 			String[] addressAndMask = StringUtils.split(ipAddress, "/");
 			ipAddress = addressAndMask[0];
-			nMaskBits = Integer.parseInt(addressAndMask[1]);
+			this.nMaskBits = Integer.parseInt(addressAndMask[1]);
 		}
 		else {
-			nMaskBits = -1;
+			this.nMaskBits = -1;
 		}
-		requiredAddress = parseAddress(ipAddress);
-		Assert.isTrue(requiredAddress.getAddress().length * 8 >= nMaskBits,
-				String.format("IP address %s is too short for bitmask of length %d",
-						ipAddress, nMaskBits));
+		this.requiredAddress = parseAddress(ipAddress);
+		Assert.isTrue(this.requiredAddress.getAddress().length * 8 >= this.nMaskBits,
+				String.format("IP address %s is too short for bitmask of length %d", ipAddress, this.nMaskBits));
 	}
 
+	@Override
 	public boolean matches(HttpServletRequest request) {
 		return matches(request.getRemoteAddr());
 	}
 
 	public boolean matches(String address) {
 		InetAddress remoteAddress = parseAddress(address);
-
-		if (!requiredAddress.getClass().equals(remoteAddress.getClass())) {
+		if (!this.requiredAddress.getClass().equals(remoteAddress.getClass())) {
 			return false;
 		}
-
-		if (nMaskBits < 0) {
-			return remoteAddress.equals(requiredAddress);
+		if (this.nMaskBits < 0) {
+			return remoteAddress.equals(this.requiredAddress);
 		}
-
 		byte[] remAddr = remoteAddress.getAddress();
-		byte[] reqAddr = requiredAddress.getAddress();
-
-		int nMaskFullBytes = nMaskBits / 8;
-		byte finalByte = (byte) (0xFF00 >> (nMaskBits & 0x07));
-
-		// System.out.println("Mask is " + new sun.misc.HexDumpEncoder().encode(mask));
-
+		byte[] reqAddr = this.requiredAddress.getAddress();
+		int nMaskFullBytes = this.nMaskBits / 8;
+		byte finalByte = (byte) (0xFF00 >> (this.nMaskBits & 0x07));
 		for (int i = 0; i < nMaskFullBytes; i++) {
 			if (remAddr[i] != reqAddr[i]) {
 				return false;
 			}
 		}
-
 		if (finalByte != 0) {
 			return (remAddr[nMaskFullBytes] & finalByte) == (reqAddr[nMaskFullBytes] & finalByte);
 		}
-
 		return true;
 	}
 
@@ -101,8 +92,9 @@ public final class IpAddressMatcher implements RequestMatcher {
 		try {
 			return InetAddress.getByName(address);
 		}
-		catch (UnknownHostException e) {
-			throw new IllegalArgumentException("Failed to parse address" + address, e);
+		catch (UnknownHostException ex) {
+			throw new IllegalArgumentException("Failed to parse address" + address, ex);
 		}
 	}
+
 }

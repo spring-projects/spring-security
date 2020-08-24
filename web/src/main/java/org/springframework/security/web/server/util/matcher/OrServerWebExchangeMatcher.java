@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.util.matcher;
 
 import java.util.Arrays;
@@ -20,20 +21,25 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
+import org.springframework.util.Assert;
+import org.springframework.web.server.ServerWebExchange;
+
 /**
  * Matches if any of the provided {@link ServerWebExchangeMatcher} match
+ *
  * @author Rob Winch
  * @author Mathieu Ouellet
  * @since 5.0
  * @see AndServerWebExchangeMatcher
  */
 public class OrServerWebExchangeMatcher implements ServerWebExchangeMatcher {
+
 	private static final Log logger = LogFactory.getLog(OrServerWebExchangeMatcher.class);
+
 	private final List<ServerWebExchangeMatcher> matchers;
 
 	public OrServerWebExchangeMatcher(List<ServerWebExchangeMatcher> matchers) {
@@ -41,37 +47,22 @@ public class OrServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 		this.matchers = matchers;
 	}
 
-
 	public OrServerWebExchangeMatcher(ServerWebExchangeMatcher... matchers) {
 		this(Arrays.asList(matchers));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher#matches(org.springframework.web.server.ServerWebExchange)
-	 */
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
-		return Flux.fromIterable(matchers)
-			.doOnNext(it -> {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Trying to match using " + it);
-				}
-			})
-			.flatMap(m -> m.matches(exchange))
-			.filter(MatchResult::isMatch)
-			.next()
-			.switchIfEmpty(MatchResult.notMatch())
-			.doOnNext(it -> {
-				if (logger.isDebugEnabled()) {
-					logger.debug(it.isMatch() ? "matched" : "No matches found");
-				}
-			});
+		return Flux.fromIterable(this.matchers)
+				.doOnNext((matcher) -> logger.debug(LogMessage.format("Trying to match using %s", matcher)))
+				.flatMap((matcher) -> matcher.matches(exchange)).filter(MatchResult::isMatch).next()
+				.switchIfEmpty(MatchResult.notMatch())
+				.doOnNext((matchResult) -> logger.debug(matchResult.isMatch() ? "matched" : "No matches found"));
 	}
 
 	@Override
 	public String toString() {
-		return "OrServerWebExchangeMatcher{" +
-				"matchers=" + matchers +
-				'}';
+		return "OrServerWebExchangeMatcher{matchers=" + this.matchers + '}';
 	}
+
 }

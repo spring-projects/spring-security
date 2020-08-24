@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.access.expression;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,63 +46,53 @@ import org.springframework.util.Assert;
  */
 public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 		extends DefaultFilterInvocationSecurityMetadataSource {
-	private final static Log logger = LogFactory
-			.getLog(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
+
+	private static final Log logger = LogFactory.getLog(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
 
 	public ExpressionBasedFilterInvocationSecurityMetadataSource(
 			LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap,
 			SecurityExpressionHandler<FilterInvocation> expressionHandler) {
 		super(processMap(requestMap, expressionHandler.getExpressionParser()));
-		Assert.notNull(expressionHandler,
-				"A non-null SecurityExpressionHandler is required");
+		Assert.notNull(expressionHandler, "A non-null SecurityExpressionHandler is required");
 	}
 
 	private static LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> processMap(
-			LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap,
-			ExpressionParser parser) {
+			LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap, ExpressionParser parser) {
 		Assert.notNull(parser, "SecurityExpressionHandler returned a null parser object");
+		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> processed = new LinkedHashMap<>(requestMap);
+		requestMap.forEach((request, value) -> process(parser, request, value, processed::put));
+		return processed;
+	}
 
-		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestToExpressionAttributesMap = new LinkedHashMap<>(
-				requestMap);
-
-		for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : requestMap
-				.entrySet()) {
-			RequestMatcher request = entry.getKey();
-			Assert.isTrue(entry.getValue().size() == 1,
-					() -> "Expected a single expression attribute for " + request);
-			ArrayList<ConfigAttribute> attributes = new ArrayList<>(1);
-			String expression = entry.getValue().toArray(new ConfigAttribute[1])[0]
-					.getAttribute();
-			logger.debug("Adding web access control expression '" + expression + "', for "
-					+ request);
-
-			AbstractVariableEvaluationContextPostProcessor postProcessor = createPostProcessor(
-					request);
-			try {
-				attributes.add(new WebExpressionConfigAttribute(
-						parser.parseExpression(expression), postProcessor));
-			}
-			catch (ParseException e) {
-				throw new IllegalArgumentException(
-						"Failed to parse expression '" + expression + "'");
-			}
-
-			requestToExpressionAttributesMap.put(request, attributes);
+	private static void process(ExpressionParser parser, RequestMatcher request, Collection<ConfigAttribute> value,
+			BiConsumer<RequestMatcher, Collection<ConfigAttribute>> consumer) {
+		String expression = getExpression(request, value);
+		logger.debug("Adding web access control expression '" + expression + "', for " + request);
+		AbstractVariableEvaluationContextPostProcessor postProcessor = createPostProcessor(request);
+		ArrayList<ConfigAttribute> processed = new ArrayList<>(1);
+		try {
+			processed.add(new WebExpressionConfigAttribute(parser.parseExpression(expression), postProcessor));
 		}
+		catch (ParseException ex) {
+			throw new IllegalArgumentException("Failed to parse expression '" + expression + "'");
+		}
+		consumer.accept(request, processed);
+	}
 
-		return requestToExpressionAttributesMap;
+	private static String getExpression(RequestMatcher request, Collection<ConfigAttribute> value) {
+		Assert.isTrue(value.size() == 1, () -> "Expected a single expression attribute for " + request);
+		return value.toArray(new ConfigAttribute[1])[0].getAttribute();
 	}
 
 	private static AbstractVariableEvaluationContextPostProcessor createPostProcessor(RequestMatcher request) {
 		return new RequestVariablesExtractorEvaluationContextPostProcessor(request);
 	}
 
-	static class AntPathMatcherEvaluationContextPostProcessor
-			extends AbstractVariableEvaluationContextPostProcessor {
+	static class AntPathMatcherEvaluationContextPostProcessor extends AbstractVariableEvaluationContextPostProcessor {
+
 		private final AntPathRequestMatcher matcher;
 
-		AntPathMatcherEvaluationContextPostProcessor(
-				AntPathRequestMatcher matcher) {
+		AntPathMatcherEvaluationContextPostProcessor(AntPathRequestMatcher matcher) {
 			this.matcher = matcher;
 		}
 
@@ -108,14 +100,15 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 		Map<String, String> extractVariables(HttpServletRequest request) {
 			return this.matcher.matcher(request).getVariables();
 		}
+
 	}
 
 	static class RequestVariablesExtractorEvaluationContextPostProcessor
 			extends AbstractVariableEvaluationContextPostProcessor {
+
 		private final RequestMatcher matcher;
 
-		RequestVariablesExtractorEvaluationContextPostProcessor(
-				RequestMatcher matcher) {
+		RequestVariablesExtractorEvaluationContextPostProcessor(RequestMatcher matcher) {
 			this.matcher = matcher;
 		}
 
@@ -123,6 +116,7 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 		Map<String, String> extractVariables(HttpServletRequest request) {
 			return this.matcher.matcher(request).getVariables();
 		}
+
 	}
 
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.contact;
 
 import java.util.HashMap;
@@ -44,16 +45,12 @@ public class IndexController {
 			BasePermission.DELETE, BasePermission.ADMINISTRATION };
 	private final static Permission[] HAS_ADMIN = new Permission[] { BasePermission.ADMINISTRATION };
 
-	// ~ Instance fields
-	// ================================================================================================
 
 	@Autowired
 	private ContactManager contactManager;
 	@Autowired
 	private PermissionEvaluator permissionEvaluator;
 
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * The public index page, used for unauthenticated users.

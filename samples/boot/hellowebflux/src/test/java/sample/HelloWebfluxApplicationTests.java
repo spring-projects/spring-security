@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
@@ -104,10 +105,10 @@ public class HelloWebfluxApplicationTests {
 	}
 
 	private Consumer<HttpHeaders> userCredentials() {
-		return httpHeaders -> httpHeaders.setBasicAuth("user", "user");
+		return (httpHeaders) -> httpHeaders.setBasicAuth("user", "user");
 	}
 
 	private Consumer<HttpHeaders> invalidCredentials() {
-		return httpHeaders -> httpHeaders.setBasicAuth("user", "INVALID");
+		return (httpHeaders) -> httpHeaders.setBasicAuth("user", "INVALID");
 	}
 }

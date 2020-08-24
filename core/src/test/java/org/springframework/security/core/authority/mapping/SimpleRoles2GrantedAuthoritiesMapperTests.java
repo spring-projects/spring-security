@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.authority.mapping;
 
-import static org.assertj.core.api.Assertions.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import org.junit.Test;
+
 import org.springframework.security.core.GrantedAuthority;
 
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
- *
  * @author TSARDD
  * @since 18-okt-2007
  */
@@ -123,19 +128,17 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests {
 		testGetGrantedAuthorities(mapper, roles, expectedGas);
 	}
 
-	private void testGetGrantedAuthorities(
-			SimpleAttributes2GrantedAuthoritiesMapper mapper, String[] roles,
+	private void testGetGrantedAuthorities(SimpleAttributes2GrantedAuthoritiesMapper mapper, String[] roles,
 			String[] expectedGas) {
-		List<GrantedAuthority> result = mapper
-				.getGrantedAuthorities(Arrays.asList(roles));
+		List<GrantedAuthority> result = mapper.getGrantedAuthorities(Arrays.asList(roles));
 		Collection<String> resultColl = new ArrayList<>(result.size());
 		for (GrantedAuthority grantedAuthority : result) {
 			resultColl.add(grantedAuthority.getAuthority());
 		}
 		Collection<String> expectedColl = Arrays.asList(expectedGas);
-		assertThat(expectedColl.containsAll(resultColl)
-				&& resultColl.containsAll(expectedColl)).withFailMessage("Role collections do not match; result: " + resultColl
-				+ ", expected: " + expectedColl).isTrue();
+		assertThat(expectedColl.containsAll(resultColl) && resultColl.containsAll(expectedColl))
+				.withFailMessage("Role collections do not match; result: " + resultColl + ", expected: " + expectedColl)
+				.isTrue();
 	}
 
 	private SimpleAttributes2GrantedAuthoritiesMapper getDefaultMapper() {

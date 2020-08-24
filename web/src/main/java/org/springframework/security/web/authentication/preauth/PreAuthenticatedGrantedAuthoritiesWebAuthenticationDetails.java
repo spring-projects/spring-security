@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.preauth;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.*;
 
 /**
  * This WebAuthenticationDetails implementation allows for storing a list of
@@ -31,17 +36,16 @@ import java.util.*;
  * @author Luke Taylor
  * @since 2.0
  */
-public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends
-		WebAuthenticationDetails implements GrantedAuthoritiesContainer {
+public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends WebAuthenticationDetails
+		implements GrantedAuthoritiesContainer {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	private final List<GrantedAuthority> authorities;
 
-	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
-			HttpServletRequest request, Collection<? extends GrantedAuthority> authorities) {
+	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(HttpServletRequest request,
+			Collection<? extends GrantedAuthority> authorities) {
 		super(request);
-
 		List<GrantedAuthority> temp = new ArrayList<>(authorities.size());
 		temp.addAll(authorities);
 		this.authorities = Collections.unmodifiableList(temp);
@@ -49,14 +53,15 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends
 
 	@Override
 	public List<GrantedAuthority> getGrantedAuthorities() {
-		return authorities;
+		return this.authorities;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString()).append("; ");
-		sb.append(authorities);
+		sb.append(this.authorities);
 		return sb.toString();
 	}
+
 }

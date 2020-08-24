@@ -25,13 +25,10 @@ import org.springframework.security.core.AuthenticationException;
  *
  * @author Ben Alex
  */
-public class AuthenticationFailureBadCredentialsEvent extends
-		AbstractAuthenticationFailureEvent {
-	// ~ Constructors
-	// ===================================================================================================
+public class AuthenticationFailureBadCredentialsEvent extends AbstractAuthenticationFailureEvent {
 
-	public AuthenticationFailureBadCredentialsEvent(Authentication authentication,
-			AuthenticationException exception) {
+	public AuthenticationFailureBadCredentialsEvent(Authentication authentication, AuthenticationException exception) {
 		super(authentication, exception);
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.keygen;
 
 import java.security.SecureRandom;
@@ -20,9 +21,13 @@ import java.security.SecureRandom;
 /**
  * Factory for commonly used key generators. Public API for constructing a
  * {@link BytesKeyGenerator} or {@link StringKeyGenerator}.
+ *
  * @author Keith Donald
  */
-public class KeyGenerators {
+public final class KeyGenerators {
+
+	private KeyGenerators() {
+	}
 
 	/**
 	 * Create a {@link BytesKeyGenerator} that uses a {@link SecureRandom} to generate
@@ -58,8 +63,4 @@ public class KeyGenerators {
 		return new HexEncodingStringKeyGenerator(secureRandom());
 	}
 
-	// internal helpers
-
-	private KeyGenerators() {
-	}
 }

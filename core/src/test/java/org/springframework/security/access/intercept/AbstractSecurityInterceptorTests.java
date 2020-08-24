@@ -16,13 +16,14 @@
 
 package org.springframework.security.access.intercept;
 
-import static org.mockito.Mockito.mock;
-
 import org.junit.Test;
+
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.util.SimpleMethodInvocation;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests some {@link AbstractSecurityInterceptor} methods. Most of the testing for this
@@ -31,13 +32,10 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * @author Ben Alex
  */
 public class AbstractSecurityInterceptorTests {
-	// ~ Methods
-	// ========================================================================================================
 
 	@Test(expected = IllegalArgumentException.class)
 	public void detectsIfInvocationPassedIncompatibleSecureObject() {
 		MockSecurityInterceptorWhichOnlySupportsStrings si = new MockSecurityInterceptorWhichOnlySupportsStrings();
-
 		si.setRunAsManager(mock(RunAsManager.class));
 		si.setAuthenticationManager(mock(AuthenticationManager.class));
 		si.setAfterInvocationManager(mock(AfterInvocationManager.class));
@@ -57,41 +55,44 @@ public class AbstractSecurityInterceptorTests {
 		si.afterPropertiesSet();
 	}
 
-	// ~ Inner Classes
-	// ==================================================================================================
-
 	private class MockSecurityInterceptorReturnsNull extends AbstractSecurityInterceptor {
+
 		private SecurityMetadataSource securityMetadataSource;
 
+		@Override
 		public Class<?> getSecureObjectClass() {
 			return null;
 		}
 
+		@Override
 		public SecurityMetadataSource obtainSecurityMetadataSource() {
-			return securityMetadataSource;
+			return this.securityMetadataSource;
 		}
 
-		public void setSecurityMetadataSource(
-				SecurityMetadataSource securityMetadataSource) {
+		void setSecurityMetadataSource(SecurityMetadataSource securityMetadataSource) {
 			this.securityMetadataSource = securityMetadataSource;
 		}
+
 	}
 
-	private class MockSecurityInterceptorWhichOnlySupportsStrings extends
-			AbstractSecurityInterceptor {
+	private class MockSecurityInterceptorWhichOnlySupportsStrings extends AbstractSecurityInterceptor {
+
 		private SecurityMetadataSource securityMetadataSource;
 
+		@Override
 		public Class<?> getSecureObjectClass() {
 			return String.class;
 		}
 
+		@Override
 		public SecurityMetadataSource obtainSecurityMetadataSource() {
-			return securityMetadataSource;
+			return this.securityMetadataSource;
 		}
 
-		public void setSecurityMetadataSource(
-				SecurityMetadataSource securityMetadataSource) {
+		void setSecurityMetadataSource(SecurityMetadataSource securityMetadataSource) {
 			this.securityMetadataSource = securityMetadataSource;
 		}
+
 	}
+
 }

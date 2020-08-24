@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.jackson2;
+
+import java.time.Instant;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -21,10 +25,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
-import java.time.Instant;
-import java.util.Set;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 /**
  * This mixin class is used to serialize/deserialize {@link OAuth2AccessToken}.
@@ -42,10 +44,10 @@ abstract class OAuth2AccessTokenMixin {
 
 	@JsonCreator
 	OAuth2AccessTokenMixin(
-			@JsonProperty("tokenType") @JsonDeserialize(converter = StdConverters.AccessTokenTypeConverter.class) OAuth2AccessToken.TokenType tokenType,
-			@JsonProperty("tokenValue") String tokenValue,
-			@JsonProperty("issuedAt") Instant issuedAt,
-			@JsonProperty("expiresAt") Instant expiresAt,
-			@JsonProperty("scopes") Set<String> scopes) {
+			@JsonProperty("tokenType") @JsonDeserialize(
+					converter = StdConverters.AccessTokenTypeConverter.class) OAuth2AccessToken.TokenType tokenType,
+			@JsonProperty("tokenValue") String tokenValue, @JsonProperty("issuedAt") Instant issuedAt,
+			@JsonProperty("expiresAt") Instant expiresAt, @JsonProperty("scopes") Set<String> scopes) {
 	}
+
 }

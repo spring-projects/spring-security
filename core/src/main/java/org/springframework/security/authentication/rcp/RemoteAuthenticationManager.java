@@ -26,8 +26,6 @@ import org.springframework.security.core.GrantedAuthority;
  * @author Ben Alex
  */
 public interface RemoteAuthenticationManager {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Attempts to authenticate the remote client using the presented username and
@@ -39,15 +37,13 @@ public interface RemoteAuthenticationManager {
 	 * required for remote clients to enable/disable relevant user interface commands etc.
 	 * There is nothing preventing users from implementing their own equivalent package
 	 * that works with more complex object types.
-	 *
 	 * @param username the username the remote client wishes to authenticate with.
 	 * @param password the password the remote client wishes to authenticate with.
-	 *
 	 * @return all of the granted authorities the specified username and password have
 	 * access to.
-	 *
 	 * @throws RemoteAuthenticationException if the authentication failed.
 	 */
-	Collection<? extends GrantedAuthority> attemptAuthentication(String username,
-			String password) throws RemoteAuthenticationException;
+	Collection<? extends GrantedAuthority> attemptAuthentication(String username, String password)
+			throws RemoteAuthenticationException;
+
 }

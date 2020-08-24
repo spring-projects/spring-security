@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.authority.mapping;
 
 import java.util.Set;
@@ -26,11 +27,12 @@ import java.util.Set;
  * @since 2.0
  */
 public interface MappableAttributesRetriever {
+
 	/**
 	 * Implementations of this method should return a set of all string attributes which
 	 * can be mapped to <tt>GrantedAuthority</tt>s.
-	 *
 	 * @return set of all mappable roles
 	 */
 	Set<String> getMappableAttributes();
+
 }

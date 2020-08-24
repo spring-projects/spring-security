@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.crypto;
 
+import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -39,12 +40,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Adds {@link RsaKeyConverters} to the configured {@link ConversionService} or {@link PropertyEditor}s
+ * Adds {@link RsaKeyConverters} to the configured {@link ConversionService} or
+ * {@link PropertyEditor}s
  *
  * @author Josh Cummings
  * @since 5.2
  */
 public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProcessor {
+
 	private static final String CONVERSION_SERVICE_BEAN_NAME = "conversionService";
 
 	private ResourceLoader resourceLoader = new DefaultResourceLoader();
@@ -54,25 +57,21 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 		this.resourceLoader = resourceLoader;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		if (hasUserDefinedConversionService(beanFactory)) {
 			return;
 		}
-
 		Converter<String, RSAPrivateKey> pkcs8 = pkcs8();
 		Converter<String, RSAPublicKey> x509 = x509();
-
 		ConversionService service = beanFactory.getConversionService();
 		if (service instanceof ConverterRegistry) {
 			ConverterRegistry registry = (ConverterRegistry) service;
 			registry.addConverter(String.class, RSAPrivateKey.class, pkcs8);
 			registry.addConverter(String.class, RSAPublicKey.class, x509);
-		} else {
-			beanFactory.addPropertyEditorRegistrar(registry -> {
+		}
+		else {
+			beanFactory.addPropertyEditorRegistrar((registry) -> {
 				registry.registerCustomEditor(RSAPublicKey.class, new ConverterPropertyEditorAdapter<>(x509));
 				registry.registerCustomEditor(RSAPrivateKey.class, new ConverterPropertyEditorAdapter<>(pkcs8));
 			});
@@ -80,8 +79,8 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 	}
 
 	private boolean hasUserDefinedConversionService(ConfigurableListableBeanFactory beanFactory) {
-		return beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
-				beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class);
+		return beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME)
+				&& beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class);
 	}
 
 	private Converter<String, RSAPrivateKey> pkcs8() {
@@ -97,8 +96,8 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 	}
 
 	private Converter<String, InputStream> pemInputStreamConverter() {
-		return source -> source.startsWith("-----") ?
-				toInputStream(source) : toInputStream(this.resourceLoader.getResource(source));
+		return (source) -> source.startsWith("-----") ? toInputStream(source)
+				: toInputStream(this.resourceLoader.getResource(source));
 	}
 
 	private InputStream toInputStream(String raw) {
@@ -108,29 +107,32 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 	private InputStream toInputStream(Resource resource) {
 		try {
 			return resource.getInputStream();
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
+		}
+		catch (IOException ex) {
+			throw new UncheckedIOException(ex);
 		}
 	}
 
 	private <T> Converter<InputStream, T> autoclose(Converter<InputStream, T> inputStreamKeyConverter) {
-		return inputStream -> {
+		return (inputStream) -> {
 			try (InputStream is = inputStream) {
 				return inputStreamKeyConverter.convert(is);
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
+			}
+			catch (IOException ex) {
+				throw new UncheckedIOException(ex);
 			}
 		};
 	}
 
 	private <S, T, I> Converter<S, T> pair(Converter<S, I> one, Converter<I, T> two) {
-		return source -> {
+		return (source) -> {
 			I intermediary = one.convert(source);
 			return two.convert(intermediary);
 		};
 	}
 
 	private static class ConverterPropertyEditorAdapter<T> extends PropertyEditorSupport {
+
 		private final Converter<String, T> converter;
 
 		ConverterPropertyEditorAdapter(Converter<String, T> converter) {
@@ -146,9 +148,12 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 		public void setAsText(String text) throws IllegalArgumentException {
 			if (StringUtils.hasText(text)) {
 				setValue(this.converter.convert(text));
-			} else {
+			}
+			else {
 				setValue(null);
 			}
 		}
+
 	}
+
 }

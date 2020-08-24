@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.openid;
 
 import java.util.ArrayList;
@@ -26,29 +27,29 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 /**
  * OpenID Authentication Token
  *
- * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
  * @author Robin Bramley
+ * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final OpenIDAuthenticationStatus status;
+
 	private final Object principal;
+
 	private final String identityUrl;
+
 	private final String message;
+
 	private final List<OpenIDAttribute> attributes;
 
-	// ~ Constructors
-	// ===================================================================================================
-
-	public OpenIDAuthenticationToken(OpenIDAuthenticationStatus status,
-			String identityUrl, String message, List<OpenIDAttribute> attributes) {
+	public OpenIDAuthenticationToken(OpenIDAuthenticationStatus status, String identityUrl, String message,
+			List<OpenIDAttribute> attributes) {
 		super(new ArrayList<>(0));
 		this.principal = identityUrl;
 		this.status = status;
@@ -60,14 +61,11 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 
 	/**
 	 * Created by the <tt>OpenIDAuthenticationProvider</tt> on successful authentication.
-	 *
 	 * @param principal usually the <tt>UserDetails</tt> returned by the configured
 	 * <tt>UserDetailsService</tt> used by the <tt>OpenIDAuthenticationProvider</tt>.
-	 *
 	 */
-	public OpenIDAuthenticationToken(Object principal,
-			Collection<? extends GrantedAuthority> authorities, String identityUrl,
-			List<OpenIDAttribute> attributes) {
+	public OpenIDAuthenticationToken(Object principal, Collection<? extends GrantedAuthority> authorities,
+			String identityUrl, List<OpenIDAttribute> attributes) {
 		super(authorities);
 		this.principal = principal;
 		this.status = OpenIDAuthenticationStatus.SUCCESS;
@@ -78,23 +76,21 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 		setAuthenticated(true);
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Returns 'null' always, as no credentials are processed by the OpenID provider.
 	 * @see org.springframework.security.core.Authentication#getCredentials()
 	 */
+	@Override
 	public Object getCredentials() {
 		return null;
 	}
 
 	public String getIdentityUrl() {
-		return identityUrl;
+		return this.identityUrl;
 	}
 
 	public String getMessage() {
-		return message;
+		return this.message;
 	}
 
 	/**
@@ -102,20 +98,22 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 	 *
 	 * @see org.springframework.security.core.Authentication#getPrincipal()
 	 */
+	@Override
 	public Object getPrincipal() {
-		return principal;
+		return this.principal;
 	}
 
 	public OpenIDAuthenticationStatus getStatus() {
-		return status;
+		return this.status;
 	}
 
 	public List<OpenIDAttribute> getAttributes() {
-		return attributes;
+		return this.attributes;
 	}
 
 	@Override
 	public String toString() {
-		return "[" + super.toString() + ", attributes : " + attributes + "]";
+		return "[" + super.toString() + ", attributes : " + this.attributes + "]";
 	}
+
 }

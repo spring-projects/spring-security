@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import ch.qos.logback.classic.Level;
@@ -45,6 +46,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author Josh Cummings
  */
 public class NamespaceDebugTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -60,10 +62,6 @@ public class NamespaceDebugTests {
 		verify(appender, atLeastOnce()).doAppend(any(ILoggingEvent.class));
 	}
 
-	@EnableWebSecurity(debug=true)
-	static class DebugWebSecurity extends WebSecurityConfigurerAdapter {
-	}
-
 	@Test
 	public void requestWhenDebugSetToFalseThenDoesNotLogDebugInformation() throws Exception {
 		Appender<ILoggingEvent> appender = mockAppenderFor("Spring Security Debugger");
@@ -71,10 +69,6 @@ public class NamespaceDebugTests {
 		this.mvc.perform(get("/"));
 		assertThat(filterChainClass()).isNotEqualTo(DebugFilter.class);
 		verify(appender, never()).doAppend(any(ILoggingEvent.class));
-	}
-
-	@EnableWebSecurity
-	static class NoDebugWebSecurity extends WebSecurityConfigurerAdapter {
 	}
 
 	private Appender<ILoggingEvent> mockAppenderFor(String name) {
@@ -88,4 +82,15 @@ public class NamespaceDebugTests {
 	private Class<?> filterChainClass() {
 		return this.spring.getContext().getBean("springSecurityFilterChain").getClass();
 	}
+
+	@EnableWebSecurity(debug = true)
+	static class DebugWebSecurity extends WebSecurityConfigurerAdapter {
+
+	}
+
+	@EnableWebSecurity
+	static class NoDebugWebSecurity extends WebSecurityConfigurerAdapter {
+
+	}
+
 }

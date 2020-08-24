@@ -16,15 +16,17 @@
 
 package org.springframework.security.web.server;
 
+import java.net.URI;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import reactor.core.publisher.Mono;
+
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-
-import java.net.URI;
 
 /**
  * The default {@link ServerRedirectStrategy} to use.
@@ -34,11 +36,14 @@ import java.net.URI;
  * @since 5.0
  */
 public class DefaultServerRedirectStrategy implements ServerRedirectStrategy {
+
 	private static final Log logger = LogFactory.getLog(DefaultServerRedirectStrategy.class);
+
 	private HttpStatus httpStatus = HttpStatus.FOUND;
 
 	private boolean contextRelative = true;
 
+	@Override
 	public Mono<Void> sendRedirect(ServerWebExchange exchange, URI location) {
 		Assert.notNull(exchange, "exchange cannot be null");
 		Assert.notNull(location, "location cannot be null");
@@ -46,9 +51,7 @@ public class DefaultServerRedirectStrategy implements ServerRedirectStrategy {
 			ServerHttpResponse response = exchange.getResponse();
 			response.setStatusCode(this.httpStatus);
 			URI newLocation = createLocation(exchange, location);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Redirecting to '" + newLocation + "'");
-			}
+			logger.debug(LogMessage.format("Redirecting to '%s'", newLocation));
 			response.getHeaders().setLocation(newLocation);
 		});
 	}
@@ -76,10 +79,11 @@ public class DefaultServerRedirectStrategy implements ServerRedirectStrategy {
 
 	/**
 	 * Sets if the location is relative to the context.
-	 * @param contextRelative if redirects should be relative to the context.
-	 * Default is true.
+	 * @param contextRelative if redirects should be relative to the context. Default is
+	 * true.
 	 */
 	public void setContextRelative(boolean contextRelative) {
 		this.contextRelative = contextRelative;
 	}
+
 }

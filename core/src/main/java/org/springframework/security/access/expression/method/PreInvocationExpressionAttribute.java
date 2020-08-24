@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.expression.method;
 
 import org.springframework.expression.Expression;
@@ -20,37 +21,33 @@ import org.springframework.expression.ParseException;
 import org.springframework.security.access.prepost.PreInvocationAttribute;
 
 /**
- *
  * @author Luke Taylor
  * @since 3.0
  */
-class PreInvocationExpressionAttribute extends
-		AbstractExpressionBasedMethodConfigAttribute implements PreInvocationAttribute {
+class PreInvocationExpressionAttribute extends AbstractExpressionBasedMethodConfigAttribute
+		implements PreInvocationAttribute {
 
 	private final String filterTarget;
 
-	PreInvocationExpressionAttribute(String filterExpression, String filterTarget,
-			String authorizeExpression) throws ParseException {
+	PreInvocationExpressionAttribute(String filterExpression, String filterTarget, String authorizeExpression)
+			throws ParseException {
 		super(filterExpression, authorizeExpression);
-
 		this.filterTarget = filterTarget;
 	}
 
-	PreInvocationExpressionAttribute(Expression filterExpression, String filterTarget,
-			Expression authorizeExpression) throws ParseException {
+	PreInvocationExpressionAttribute(Expression filterExpression, String filterTarget, Expression authorizeExpression)
+			throws ParseException {
 		super(filterExpression, authorizeExpression);
-
 		this.filterTarget = filterTarget;
 	}
 
 	/**
 	 * The parameter name of the target argument (must be a Collection) to which filtering
 	 * will be applied.
-	 *
 	 * @return the method parameter name
 	 */
 	String getFilterTarget() {
-		return filterTarget;
+		return this.filterTarget;
 	}
 
 	@Override
@@ -58,11 +55,10 @@ class PreInvocationExpressionAttribute extends
 		StringBuilder sb = new StringBuilder();
 		Expression authorize = getAuthorizeExpression();
 		Expression filter = getFilterExpression();
-		sb.append("[authorize: '").append(
-				authorize == null ? "null" : authorize.getExpressionString());
-		sb.append("', filter: '").append(
-				filter == null ? "null" : filter.getExpressionString());
-		sb.append("', filterTarget: '").append(filterTarget).append("']");
+		sb.append("[authorize: '").append((authorize != null) ? authorize.getExpressionString() : "null");
+		sb.append("', filter: '").append((filter != null) ? filter.getExpressionString() : "null");
+		sb.append("', filterTarget: '").append(this.filterTarget).append("']");
 		return sb.toString();
 	}
+
 }

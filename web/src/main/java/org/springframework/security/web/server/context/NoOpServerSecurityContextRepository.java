@@ -16,26 +16,31 @@
 
 package org.springframework.security.web.server.context;
 
+import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 /**
- * A do nothing implementation of {@link ServerSecurityContextRepository}. Used in stateless applications.
+ * A do nothing implementation of {@link ServerSecurityContextRepository}. Used in
+ * stateless applications.
+ *
  * @author Rob Winch
  * @since 5.0
  */
-public class NoOpServerSecurityContextRepository
-	implements ServerSecurityContextRepository {
+public final class NoOpServerSecurityContextRepository implements ServerSecurityContextRepository {
 
 	private static final NoOpServerSecurityContextRepository INSTANCE = new NoOpServerSecurityContextRepository();
 
-	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
-		return Mono.empty();
-
+	private NoOpServerSecurityContextRepository() {
 	}
 
+	@Override
+	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
+		return Mono.empty();
+	}
+
+	@Override
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {
 		return Mono.empty();
 	}
@@ -44,5 +49,4 @@ public class NoOpServerSecurityContextRepository
 		return INSTANCE;
 	}
 
-	private NoOpServerSecurityContextRepository() {}
 }

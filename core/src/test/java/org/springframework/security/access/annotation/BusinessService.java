@@ -29,8 +29,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @Secured({ "ROLE_USER" })
 @PermitAll
 public interface BusinessService extends Serializable {
-	// ~ Methods
-	// ========================================================================================================
 
 	@Secured({ "ROLE_ADMIN" })
 	@RolesAllowed({ "ROLE_ADMIN" })

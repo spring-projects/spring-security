@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.authentication;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -48,45 +49,53 @@ public class NamespaceAuthenticationProviderTests {
 	// authentication-provider@ref
 	public void authenticationProviderRef() throws Exception {
 		this.spring.register(AuthenticationProviderRefConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withUsername("user"));
-	}
-
-	@EnableWebSecurity
-	static class AuthenticationProviderRefConfig extends WebSecurityConfigurerAdapter {
-		protected void configure(AuthenticationManagerBuilder auth) {
-			auth
-				.authenticationProvider(authenticationProvider());
-		}
-
-		@Bean
-		public DaoAuthenticationProvider authenticationProvider() {
-			DaoAuthenticationProvider result = new DaoAuthenticationProvider();
-			result.setUserDetailsService(new InMemoryUserDetailsManager(PasswordEncodedUser.user()));
-			return result;
-		}
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	// authentication-provider@user-service-ref
 	public void authenticationProviderUserServiceRef() throws Exception {
 		this.spring.register(AuthenticationProviderRefConfig.class).autowire();
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
+	}
 
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withUsername("user"));
+	@EnableWebSecurity
+	static class AuthenticationProviderRefConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) {
+			// @formatter:off
+			auth
+				.authenticationProvider(authenticationProvider());
+			// @formatter:on
+		}
+
+		@Bean
+		DaoAuthenticationProvider authenticationProvider() {
+			DaoAuthenticationProvider result = new DaoAuthenticationProvider();
+			result.setUserDetailsService(new InMemoryUserDetailsManager(PasswordEncodedUser.user()));
+			return result;
+		}
+
 	}
 
 	@EnableWebSecurity
 	static class UserServiceRefConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.userDetailsService(userDetailsService());
+			// @formatter:on
 		}
 
+		@Override
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
+
 	}
+
 }

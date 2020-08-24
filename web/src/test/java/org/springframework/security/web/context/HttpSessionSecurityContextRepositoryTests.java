@@ -20,6 +20,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -44,12 +45,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 /**
  * @author Luke Taylor
@@ -57,8 +57,7 @@ import static org.springframework.security.web.context.HttpSessionSecurityContex
  */
 public class HttpSessionSecurityContextRepositoryTests {
 
-	private final TestingAuthenticationToken testToken = new TestingAuthenticationToken(
-			"someone", "passwd", "ROLE_A");
+	private final TestingAuthenticationToken testToken = new TestingAuthenticationToken("someone", "passwd", "ROLE_A");
 
 	@After
 	public void tearDown() {
@@ -70,14 +69,11 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		repo.loadContext(holder);
-
 		reset(request);
 		holder.getRequest().startAsync();
 		holder.getResponse().sendError(HttpServletResponse.SC_BAD_REQUEST);
-
 		// ensure that sendError did cause interaction with the HttpSession
 		verify(request, never()).getSession(anyBoolean());
 		verify(request, never()).getSession();
@@ -88,14 +84,11 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		repo.loadContext(holder);
-
 		reset(request);
 		holder.getRequest().startAsync(request, response);
 		holder.getResponse().sendError(HttpServletResponse.SC_BAD_REQUEST);
-
 		// ensure that sendError did cause interaction with the HttpSession
 		verify(request, never()).getSession(anyBoolean());
 		verify(request, never()).getSession();
@@ -106,8 +99,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContext context = repo.loadContext(holder);
 		assertThat(request.getSession(false)).isNull();
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
@@ -120,11 +112,10 @@ public class HttpSessionSecurityContextRepositoryTests {
 		repo.setAllowSessionCreation(false);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContext context = repo.loadContext(holder);
 		// Change context
-		context.setAuthentication(testToken);
+		context.setAuthentication(this.testToken);
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
 		assertThat(request.getSession(false)).isNull();
 	}
@@ -134,15 +125,13 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		SecurityContextHolder.getContext().setAuthentication(testToken);
-		request.getSession().setAttribute("imTheContext",
-				SecurityContextHolder.getContext());
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
+		request.getSession().setAttribute("imTheContext", SecurityContextHolder.getContext());
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContext context = repo.loadContext(holder);
 		assertThat(context).isNotNull();
-		assertThat(context.getAuthentication()).isEqualTo(testToken);
+		assertThat(context.getAuthentication()).isEqualTo(this.testToken);
 		// Won't actually be saved as it hasn't changed, but go through the use case
 		// anyway
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
@@ -157,33 +146,29 @@ public class HttpSessionSecurityContextRepositoryTests {
 		// Set up an existing authenticated context, mocking that it is in the session
 		// already
 		SecurityContext ctx = SecurityContextHolder.getContext();
-		ctx.setAuthentication(testToken);
+		ctx.setAuthentication(this.testToken);
 		HttpSession session = mock(HttpSession.class);
-		when(session.getAttribute(SPRING_SECURITY_CONTEXT_KEY)).thenReturn(ctx);
+		given(session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY)).willReturn(ctx);
 		request.setSession(session);
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				new MockHttpServletResponse());
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
 		assertThat(repo.loadContext(holder)).isSameAs(ctx);
-
 		// Modify context contents. Same user, different role
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("someone", "passwd", "ROLE_B"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("someone", "passwd", "ROLE_B"));
 		repo.saveContext(ctx, holder.getRequest(), holder.getResponse());
-
 		// Must be called even though the value in the local VM is already the same
-		verify(session).setAttribute(SPRING_SECURITY_CONTEXT_KEY, ctx);
+		verify(session).setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, ctx);
 	}
 
 	@Test
 	public void nonSecurityContextInSessionIsIgnored() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		SecurityContextHolder.getContext().setAuthentication(testToken);
-		request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY,
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
+		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				"NotASecurityContextInstance");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContext context = repo.loadContext(holder);
 		assertThat(context).isNotNull();
 		assertThat(context.getAuthentication()).isNull();
@@ -194,17 +179,15 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContext context = repo.loadContext(holder);
 		assertThat(request.getSession(false)).isNull();
 		// Simulate authentication during the request
-		context.setAuthentication(testToken);
+		context.setAuthentication(this.testToken);
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
 		assertThat(request.getSession(false)).isNotNull();
-		assertThat(
-				request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY)).isEqualTo(
-						context);
+		assertThat(request.getSession().getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY))
+				.isEqualTo(context);
 	}
 
 	@Test
@@ -213,20 +196,15 @@ public class HttpSessionSecurityContextRepositoryTests {
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContextHolder.setContext(repo.loadContext(holder));
-		SecurityContextHolder.getContext().setAuthentication(testToken);
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 		holder.getResponse().sendRedirect("/doesntmatter");
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
-		assertThat(
-				((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
-		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
-				holder.getResponse());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
+		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
 		// Check it's still the same
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
 	}
 
 	@Test
@@ -235,21 +213,15 @@ public class HttpSessionSecurityContextRepositoryTests {
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContextHolder.setContext(repo.loadContext(holder));
-		SecurityContextHolder.getContext().setAuthentication(testToken);
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 		holder.getResponse().sendError(404);
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
-
-		assertThat(
-				((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
-		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
-				holder.getResponse());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
+		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
 		// Check it's still the same
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
 	}
 
 	// SEC-2005
@@ -259,20 +231,15 @@ public class HttpSessionSecurityContextRepositoryTests {
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContextHolder.setContext(repo.loadContext(holder));
-		SecurityContextHolder.getContext().setAuthentication(testToken);
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 		holder.getResponse().flushBuffer();
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
-		assertThat(
-				((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
-		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
-				holder.getResponse());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
+		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
 		// Check it's still the same
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
 	}
 
 	// SEC-2005
@@ -282,20 +249,15 @@ public class HttpSessionSecurityContextRepositoryTests {
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContextHolder.setContext(repo.loadContext(holder));
-		SecurityContextHolder.getContext().setAuthentication(testToken);
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 		holder.getResponse().getWriter().flush();
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
-		assertThat(
-				((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
-		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
-				holder.getResponse());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
+		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
 		// Check it's still the same
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
 	}
 
 	// SEC-2005
@@ -305,20 +267,15 @@ public class HttpSessionSecurityContextRepositoryTests {
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContextHolder.setContext(repo.loadContext(holder));
-		SecurityContextHolder.getContext().setAuthentication(testToken);
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 		holder.getResponse().getWriter().close();
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
-		assertThat(
-				((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
-		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
-				holder.getResponse());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
+		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
 		// Check it's still the same
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
 	}
 
 	// SEC-2005
@@ -328,20 +285,15 @@ public class HttpSessionSecurityContextRepositoryTests {
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContextHolder.setContext(repo.loadContext(holder));
-		SecurityContextHolder.getContext().setAuthentication(testToken);
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 		holder.getResponse().getOutputStream().flush();
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
-		assertThat(
-				((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
-		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
-				holder.getResponse());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
+		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
 		// Check it's still the same
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
 	}
 
 	// SEC-2005
@@ -351,20 +303,15 @@ public class HttpSessionSecurityContextRepositoryTests {
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContextHolder.setContext(repo.loadContext(holder));
-		SecurityContextHolder.getContext().setAuthentication(testToken);
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 		holder.getResponse().getOutputStream().close();
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
-		assertThat(
-				((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
-		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
-				holder.getResponse());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isContextSaved()).isTrue();
+		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
 		// Check it's still the same
-		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(
-				SecurityContextHolder.getContext());
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(SecurityContextHolder.getContext());
 	}
 
 	// SEC-SEC-2055
@@ -375,11 +322,10 @@ public class HttpSessionSecurityContextRepositoryTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		ServletOutputStream outputstream = mock(ServletOutputStream.class);
-		when(response.getOutputStream()).thenReturn(outputstream);
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		given(response.getOutputStream()).willReturn(outputstream);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContextHolder.setContext(repo.loadContext(holder));
-		SecurityContextHolder.getContext().setAuthentication(testToken);
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 		holder.getResponse().getOutputStream().close();
 		verify(outputstream).close();
 	}
@@ -392,11 +338,10 @@ public class HttpSessionSecurityContextRepositoryTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		ServletOutputStream outputstream = mock(ServletOutputStream.class);
-		when(response.getOutputStream()).thenReturn(outputstream);
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		given(response.getOutputStream()).willReturn(outputstream);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContextHolder.setContext(repo.loadContext(holder));
-		SecurityContextHolder.getContext().setAuthentication(testToken);
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 		holder.getResponse().getOutputStream().flush();
 		verify(outputstream).flush();
 	}
@@ -407,13 +352,11 @@ public class HttpSessionSecurityContextRepositoryTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.getSession();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContextHolder.setContext(repo.loadContext(holder));
-		SecurityContextHolder.getContext().setAuthentication(testToken);
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 		request.getSession().invalidate();
-		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
-				holder.getResponse());
+		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
 		assertThat(request.getSession(false)).isNull();
 	}
 
@@ -423,14 +366,11 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContextHolder.setContext(repo.loadContext(holder));
 		SecurityContextHolder.getContext().setAuthentication(
-				new AnonymousAuthenticationToken("key", "anon",
-						AuthorityUtils.createAuthorityList("ANON")));
-		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
-				holder.getResponse());
+				new AnonymousAuthenticationToken("key", "anon", AuthorityUtils.createAuthorityList("ANON")));
+		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
 		assertThat(request.getSession(false)).isNull();
 	}
 
@@ -440,17 +380,16 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
-		ctxInSession.setAuthentication(testToken);
-		request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, ctxInSession);
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				new MockHttpServletResponse());
+		ctxInSession.setAuthentication(this.testToken);
+		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+				ctxInSession);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
 		repo.loadContext(holder);
-		SecurityContextHolder.getContext().setAuthentication(
-				new AnonymousAuthenticationToken("x", "x", testToken.getAuthorities()));
-		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
-				holder.getResponse());
-		assertThat(
-				request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY)).isNull();
+		SecurityContextHolder.getContext()
+				.setAuthentication(new AnonymousAuthenticationToken("x", "x", this.testToken.getAuthorities()));
+		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
+		assertThat(request.getSession().getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY))
+				.isNull();
 	}
 
 	@Test
@@ -459,14 +398,12 @@ public class HttpSessionSecurityContextRepositoryTests {
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
-		ctxInSession.setAuthentication(testToken);
+		ctxInSession.setAuthentication(this.testToken);
 		request.getSession().setAttribute("imTheContext", ctxInSession);
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				new MockHttpServletResponse());
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
 		repo.loadContext(holder);
 		// Save an empty context
-		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
-				holder.getResponse());
+		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
 		assertThat(request.getSession().getAttribute("imTheContext")).isNull();
 	}
 
@@ -475,19 +412,17 @@ public class HttpSessionSecurityContextRepositoryTests {
 	public void contextIsNotRemovedFromSessionIfContextBeforeExecutionDefault() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				new MockHttpServletResponse());
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
 		repo.loadContext(holder);
 		SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
-		ctxInSession.setAuthentication(testToken);
-		request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, ctxInSession);
+		ctxInSession.setAuthentication(this.testToken);
+		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+				ctxInSession);
 		SecurityContextHolder.getContext().setAuthentication(
-				new AnonymousAuthenticationToken("x", "x",
-						AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
-		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
-				holder.getResponse());
+				new AnonymousAuthenticationToken("x", "x", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
 		assertThat(ctxInSession).isSameAs(
-				request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+				request.getSession().getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY));
 	}
 
 	// SEC-3070
@@ -496,18 +431,15 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
-		ctxInSession.setAuthentication(testToken);
-		request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, ctxInSession);
-
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				new MockHttpServletResponse());
+		ctxInSession.setAuthentication(this.testToken);
+		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+				ctxInSession);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
 		repo.loadContext(holder);
-
 		ctxInSession.setAuthentication(null);
 		repo.saveContext(ctxInSession, holder.getRequest(), holder.getResponse());
-
-		assertThat(
-				request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY)).isNull();
+		assertThat(request.getSession().getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY))
+				.isNull();
 	}
 
 	@Test
@@ -517,7 +449,6 @@ public class HttpSessionSecurityContextRepositoryTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		final String sessionId = ";jsessionid=id";
 		MockHttpServletResponse response = new MockHttpServletResponse() {
-
 			@Override
 			public String encodeRedirectUrl(String url) {
 				return url + sessionId;
@@ -538,14 +469,11 @@ public class HttpSessionSecurityContextRepositoryTests {
 				return url + sessionId;
 			}
 		};
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		repo.loadContext(holder);
 		String url = "/aUrl";
-		assertThat(holder.getResponse().encodeRedirectUrl(url)).isEqualTo(
-				url + sessionId);
-		assertThat(holder.getResponse().encodeRedirectURL(url)).isEqualTo(
-				url + sessionId);
+		assertThat(holder.getResponse().encodeRedirectUrl(url)).isEqualTo(url + sessionId);
+		assertThat(holder.getResponse().encodeRedirectURL(url)).isEqualTo(url + sessionId);
 		assertThat(holder.getResponse().encodeUrl(url)).isEqualTo(url + sessionId);
 		assertThat(holder.getResponse().encodeURL(url)).isEqualTo(url + sessionId);
 		repo.setDisableUrlRewriting(true);
@@ -560,18 +488,14 @@ public class HttpSessionSecurityContextRepositoryTests {
 	@Test
 	public void saveContextCustomTrustResolver() {
 		SecurityContext contextToSave = SecurityContextHolder.createEmptyContext();
-		contextToSave.setAuthentication(testToken);
+		contextToSave.setAuthentication(this.testToken);
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				new MockHttpServletResponse());
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
 		repo.loadContext(holder);
-		AuthenticationTrustResolver trustResolver = mock(
-				AuthenticationTrustResolver.class);
+		AuthenticationTrustResolver trustResolver = mock(AuthenticationTrustResolver.class);
 		repo.setTrustResolver(trustResolver);
-
 		repo.saveContext(contextToSave, holder.getRequest(), holder.getResponse());
-
 		verify(trustResolver).isAnonymous(contextToSave.getAuthentication());
 	}
 
@@ -587,20 +511,16 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContext context = repo.loadContext(holder);
 		assertThat(request.getSession(false)).isNull();
 		// Simulate authentication during the request
-		context.setAuthentication(testToken);
-
+		context.setAuthentication(this.testToken);
 		repo.saveContext(context, new HttpServletRequestWrapper(holder.getRequest()),
 				new HttpServletResponseWrapper(holder.getResponse()));
-
 		assertThat(request.getSession(false)).isNotNull();
-		assertThat(
-				request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY)).isEqualTo(
-						context);
+		assertThat(request.getSession().getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY))
+				.isEqualTo(context);
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -609,8 +529,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
-		context.setAuthentication(testToken);
-
+		context.setAuthentication(this.testToken);
 		repo.saveContext(context, request, response);
 	}
 
@@ -619,15 +538,11 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContext context = repo.loadContext(holder);
-
 		SomeTransientAuthentication authentication = new SomeTransientAuthentication();
 		context.setAuthentication(authentication);
-
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
-
 		MockHttpSession session = (MockHttpSession) request.getSession(false);
 		assertThat(session).isNull();
 	}
@@ -637,15 +552,11 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContext context = repo.loadContext(holder);
-
 		SomeTransientAuthenticationSubclass authentication = new SomeTransientAuthenticationSubclass();
 		context.setAuthentication(authentication);
-
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
-
 		MockHttpSession session = (MockHttpSession) request.getSession(false);
 		assertThat(session).isNull();
 	}
@@ -655,21 +566,18 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContext context = repo.loadContext(holder);
-
 		SomeOtherTransientAuthentication authentication = new SomeOtherTransientAuthentication();
 		context.setAuthentication(authentication);
-
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
-
 		MockHttpSession session = (MockHttpSession) request.getSession(false);
 		assertThat(session).isNull();
 	}
 
 	@Transient
 	private static class SomeTransientAuthentication extends AbstractAuthenticationToken {
+
 		SomeTransientAuthentication() {
 			super(null);
 		}
@@ -683,6 +591,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 		public Object getPrincipal() {
 			return null;
 		}
+
 	}
 
 	private static class SomeTransientAuthenticationSubclass extends SomeTransientAuthentication {
@@ -693,10 +602,12 @@ public class HttpSessionSecurityContextRepositoryTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Transient
 	public @interface TestTransientAuthentication {
+
 	}
 
 	@TestTransientAuthentication
 	private static class SomeOtherTransientAuthentication extends AbstractAuthenticationToken {
+
 		SomeOtherTransientAuthentication() {
 			super(null);
 		}
@@ -710,5 +621,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 		public Object getPrincipal() {
 			return null;
 		}
+
 	}
+
 }

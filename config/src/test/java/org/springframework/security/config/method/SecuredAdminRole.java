@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.method;
 
 import java.lang.annotation.Retention;
@@ -26,4 +27,6 @@ import org.springframework.security.access.annotation.Secured;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Secured("ROLE_ADMIN")
-public @interface  SecuredAdminRole { }
+public @interface SecuredAdminRole {
+
+}

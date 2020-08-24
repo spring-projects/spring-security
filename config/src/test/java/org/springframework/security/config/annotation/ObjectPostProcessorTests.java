@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatObject;
 
 /**
  * @author Rob Winch
@@ -32,22 +33,24 @@ public class ObjectPostProcessorTests {
 
 	@Test
 	public void convertTypes() {
-		assertThat((Object) PerformConversion.perform(new ArrayList<>()))
-				.isInstanceOf(LinkedList.class);
+		assertThatObject(PerformConversion.perform(new ArrayList<>())).isInstanceOf(LinkedList.class);
 	}
 
 	static class ListToLinkedListObjectPostProcessor implements ObjectPostProcessor<List<?>> {
 
+		@Override
 		public <O extends List<?>> O postProcess(O l) {
 			return (O) new LinkedList(l);
 		}
+
 	}
 
 	static class PerformConversion {
-		public static List<?> perform(ArrayList<?> l) {
+
+		static List<?> perform(ArrayList<?> l) {
 			return new ListToLinkedListObjectPostProcessor().postProcess(l);
 		}
+
 	}
+
 }
-
-

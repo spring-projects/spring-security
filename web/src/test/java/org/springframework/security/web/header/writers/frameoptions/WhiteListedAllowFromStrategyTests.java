@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.header.writers.frameoptions;
 
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
+package org.springframework.security.web.header.writers.frameoptions;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Test;
+
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,7 +51,6 @@ public class WhiteListedAllowFromStrategyTests {
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter("from", "https://www.test.com");
-
 		String result = strategy.getAllowFromValue(request);
 		assertThat(result).isEqualTo("https://www.test.com");
 	}
@@ -63,7 +64,6 @@ public class WhiteListedAllowFromStrategyTests {
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter("from", "https://www.test.com");
-
 		String result = strategy.getAllowFromValue(request);
 		assertThat(result).isEqualTo("https://www.test.com");
 	}
@@ -76,7 +76,6 @@ public class WhiteListedAllowFromStrategyTests {
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter("from", "https://www.test123.com");
-
 		String result = strategy.getAllowFromValue(request);
 		assertThat(result).isEqualTo("DENY");
 	}
@@ -88,10 +87,8 @@ public class WhiteListedAllowFromStrategyTests {
 		WhiteListedAllowFromStrategy strategy = new WhiteListedAllowFromStrategy(allowed);
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
-
 		String result = strategy.getAllowFromValue(request);
 		assertThat(result).isEqualTo("DENY");
-
 	}
 
 }

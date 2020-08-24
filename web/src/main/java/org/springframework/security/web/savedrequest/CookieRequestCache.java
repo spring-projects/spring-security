@@ -13,10 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.savedrequest;
+
+import java.util.Base64;
+import java.util.HashMap;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -27,15 +36,9 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Base64;
-import java.util.HashMap;
-
-
 /**
- * An Implementation of {@code RequestCache} which saves the original request URI in a cookie.
+ * An Implementation of {@code RequestCache} which saves the original request URI in a
+ * cookie.
  *
  * @author Zeeshan Adnan
  * @since 5.4
@@ -43,61 +46,58 @@ import java.util.HashMap;
 public class CookieRequestCache implements RequestCache {
 
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
+
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	private static final String COOKIE_NAME = "REDIRECT_URI";
+
 	private static final int COOKIE_MAX_AGE = -1;
 
 	@Override
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
-		if (requestMatcher.matches(request)) {
-			String redirectUrl = UrlUtils.buildFullRequestUrl(request);
-			Cookie savedCookie = new Cookie(COOKIE_NAME, encodeCookie(redirectUrl));
-			savedCookie.setMaxAge(COOKIE_MAX_AGE);
-			savedCookie.setSecure(request.isSecure());
-			savedCookie.setPath(getCookiePath(request));
-			savedCookie.setHttpOnly(true);
-
-			response.addCookie(savedCookie);
-		} else {
-			logger.debug("Request not saved as configured RequestMatcher did not match");
+		if (!this.requestMatcher.matches(request)) {
+			this.logger.debug("Request not saved as configured RequestMatcher did not match");
+			return;
 		}
+		String redirectUrl = UrlUtils.buildFullRequestUrl(request);
+		Cookie savedCookie = new Cookie(COOKIE_NAME, encodeCookie(redirectUrl));
+		savedCookie.setMaxAge(COOKIE_MAX_AGE);
+		savedCookie.setSecure(request.isSecure());
+		savedCookie.setPath(getCookiePath(request));
+		savedCookie.setHttpOnly(true);
+		response.addCookie(savedCookie);
 	}
 
 	@Override
 	public SavedRequest getRequest(HttpServletRequest request, HttpServletResponse response) {
 		Cookie savedRequestCookie = WebUtils.getCookie(request, COOKIE_NAME);
-		if (savedRequestCookie != null) {
-			final String originalURI = decodeCookie(savedRequestCookie.getValue());
-			UriComponents uriComponents = UriComponentsBuilder.fromUriString(originalURI).build();
-			DefaultSavedRequest.Builder builder = new DefaultSavedRequest.Builder();
-
-			int port = uriComponents.getPort();
-			if (port == -1) {
-				if ("https".equalsIgnoreCase(uriComponents.getScheme())) {
-					port = 443;
-				} else {
-					port = 80;
-				}
-			}
-
-			final MultiValueMap<String, String> queryParams = uriComponents.getQueryParams();
-
-			if (!queryParams.isEmpty()) {
-				final HashMap<String, String[]> parameters = new HashMap<>(queryParams.size());
-				queryParams.forEach((key, value) -> parameters.put(key, value.toArray(new String[]{})));
-				builder.setParameters(parameters);
-			}
-
-			return builder.setScheme(uriComponents.getScheme())
-					.setServerName(uriComponents.getHost())
-					.setRequestURI(uriComponents.getPath())
-					.setQueryString(uriComponents.getQuery())
-					.setServerPort(port)
-					.setMethod(request.getMethod())
-					.build();
+		if (savedRequestCookie == null) {
+			return null;
 		}
-		return null;
+		String originalURI = decodeCookie(savedRequestCookie.getValue());
+		UriComponents uriComponents = UriComponentsBuilder.fromUriString(originalURI).build();
+		DefaultSavedRequest.Builder builder = new DefaultSavedRequest.Builder();
+		int port = getPort(uriComponents);
+		MultiValueMap<String, String> queryParams = uriComponents.getQueryParams();
+		if (!queryParams.isEmpty()) {
+			HashMap<String, String[]> parameters = new HashMap<>(queryParams.size());
+			queryParams.forEach((key, value) -> parameters.put(key, value.toArray(new String[] {})));
+			builder.setParameters(parameters);
+		}
+		return builder.setScheme(uriComponents.getScheme()).setServerName(uriComponents.getHost())
+				.setRequestURI(uriComponents.getPath()).setQueryString(uriComponents.getQuery()).setServerPort(port)
+				.setMethod(request.getMethod()).build();
+	}
+
+	private int getPort(UriComponents uriComponents) {
+		int port = uriComponents.getPort();
+		if (port != -1) {
+			return port;
+		}
+		if ("https".equalsIgnoreCase(uriComponents.getScheme())) {
+			return 443;
+		}
+		return 80;
 	}
 
 	@Override
@@ -106,10 +106,9 @@ public class CookieRequestCache implements RequestCache {
 		if (!this.matchesSavedRequest(request, saved)) {
 			this.logger.debug("saved request doesn't match");
 			return null;
-		} else {
-			this.removeRequest(request, response);
-			return new SavedRequestAwareWrapper(saved, request);
 		}
+		this.removeRequest(request, response);
+		return new SavedRequestAwareWrapper(saved, request);
 	}
 
 	@Override
@@ -131,20 +130,16 @@ public class CookieRequestCache implements RequestCache {
 	}
 
 	private static String getCookiePath(HttpServletRequest request) {
-		final String contextPath = request.getContextPath();
-		if (StringUtils.isEmpty(contextPath)) {
-			return "/";
-		}
-		return contextPath;
+		String contextPath = request.getContextPath();
+		return (!StringUtils.isEmpty(contextPath)) ? contextPath : "/";
 	}
 
 	private boolean matchesSavedRequest(HttpServletRequest request, SavedRequest savedRequest) {
 		if (savedRequest == null) {
 			return false;
-		} else {
-			String currentUrl = UrlUtils.buildFullRequestUrl(request);
-			return savedRequest.getRedirectUrl().equals(currentUrl);
 		}
+		String currentUrl = UrlUtils.buildFullRequestUrl(request);
+		return savedRequest.getRedirectUrl().equals(currentUrl);
 	}
 
 	/**
@@ -152,9 +147,8 @@ public class CookieRequestCache implements RequestCache {
 	 * request will be cached by the {@code saveRequest} method.
 	 * <p>
 	 * If set, only matching requests will be cached.
-	 *
 	 * @param requestMatcher a request matching strategy which defines which requests
-	 *                       should be cached.
+	 * should be cached.
 	 */
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher should not be null");

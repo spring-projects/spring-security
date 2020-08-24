@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import java.net.URI;
@@ -307,7 +308,7 @@ public class OAuth2LoginApplicationTests {
 
 	private HtmlAnchor getClientAnchorElement(HtmlPage page, ClientRegistration clientRegistration) {
 		Optional<HtmlAnchor> clientAnchorElement = page.getAnchors().stream()
-				.filter(e -> e.asText().equals(clientRegistration.getClientName())).findFirst();
+				.filter((e) -> e.asText().equals(clientRegistration.getClientName())).findFirst();
 
 		return (clientAnchorElement.orElse(null));
 	}
@@ -334,17 +335,17 @@ public class OAuth2LoginApplicationTests {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) -> 
 					authorizeRequests
 						.anyRequest().authenticated()
 				)
-				.oauth2Login(oauth2Login ->
+				.oauth2Login((oauth2Login) -> 
 					oauth2Login
-						.tokenEndpoint(tokenEndpoint ->
+						.tokenEndpoint((tokenEndpoint) -> 
 							tokenEndpoint
 								.accessTokenResponseClient(this.mockAccessTokenResponseClient())
 						)
-						.userInfoEndpoint(userInfoEndpoint ->
+						.userInfoEndpoint((userInfoEndpoint) -> 
 							userInfoEndpoint
 								.userService(this.mockUserService())
 						)

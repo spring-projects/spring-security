@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.access.expression;
 
 import org.springframework.expression.EvaluationContext;
 
-/**
- *
 /**
  * Allows post processing the {@link EvaluationContext}
  *
@@ -32,15 +31,13 @@ import org.springframework.expression.EvaluationContext;
 interface EvaluationContextPostProcessor<I> {
 
 	/**
-	 * Allows post processing of the {@link EvaluationContext}. Implementations
-	 * may return a new instance of {@link EvaluationContext} or modify the
-	 * {@link EvaluationContext} that was passed in.
-	 *
-	 * @param context
-	 *            the original {@link EvaluationContext}
-	 * @param invocation
-	 *            the security invocation object (i.e. Message)
+	 * Allows post processing of the {@link EvaluationContext}. Implementations may return
+	 * a new instance of {@link EvaluationContext} or modify the {@link EvaluationContext}
+	 * that was passed in.
+	 * @param context the original {@link EvaluationContext}
+	 * @param invocation the security invocation object (i.e. Message)
 	 * @return the upated context.
 	 */
 	EvaluationContext postProcess(EvaluationContext context, I invocation);
+
 }

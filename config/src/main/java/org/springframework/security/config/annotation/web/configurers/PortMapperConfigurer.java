@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.HashMap;
@@ -31,9 +32,11 @@ import org.springframework.security.web.PortMapperImpl;
  * @author Rob Winch
  * @since 3.2
  */
-public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractHttpConfigurer<PortMapperConfigurer<H>, H> {
+public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractHttpConfigurer<PortMapperConfigurer<H>, H> {
+
 	private PortMapper portMapper;
+
 	private Map<String, String> httpsPortMappings = new HashMap<>();
 
 	/**
@@ -70,16 +73,15 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extend
 	 * Gets the {@link PortMapper} to use. If {@link #portMapper(PortMapper)} was not
 	 * invoked, builds a {@link PortMapperImpl} using the port mappings specified with
 	 * {@link #http(int)}.
-	 *
 	 * @return the {@link PortMapper} to use
 	 */
 	private PortMapper getPortMapper() {
-		if (portMapper == null) {
+		if (this.portMapper == null) {
 			PortMapperImpl portMapper = new PortMapperImpl();
-			portMapper.setPortMappings(httpsPortMappings);
+			portMapper.setPortMappings(this.httpsPortMappings);
 			this.portMapper = portMapper;
 		}
-		return portMapper;
+		return this.portMapper;
 	}
 
 	/**
@@ -90,6 +92,7 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extend
 	 * @since 3.2
 	 */
 	public final class HttpPortMapping {
+
 		private final int httpPort;
 
 		/**
@@ -107,8 +110,10 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extend
 		 * @return the {@link PortMapperConfigurer} for further customization
 		 */
 		public PortMapperConfigurer<H> mapsTo(int httpsPort) {
-			httpsPortMappings.put(String.valueOf(httpPort), String.valueOf(httpsPort));
+			PortMapperConfigurer.this.httpsPortMappings.put(String.valueOf(this.httpPort), String.valueOf(httpsPort));
 			return PortMapperConfigurer.this;
 		}
+
 	}
+
 }

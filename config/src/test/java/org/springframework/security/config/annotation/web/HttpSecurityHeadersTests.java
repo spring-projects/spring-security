@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.web;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+package org.springframework.security.config.annotation.web;
 
 import javax.servlet.Filter;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -40,8 +38,11 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 /**
- *
  * @author Rob Winch
  *
  */
@@ -49,8 +50,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ContextConfiguration
 @WebAppConfiguration
 public class HttpSecurityHeadersTests {
+
 	@Autowired
 	WebApplicationContext wac;
+
 	@Autowired
 	Filter springSecurityFilterChain;
 
@@ -58,44 +61,54 @@ public class HttpSecurityHeadersTests {
 
 	@Before
 	public void setup() {
-		mockMvc = MockMvcBuilders
-				.webAppContextSetup(wac)
-				.addFilters(springSecurityFilterChain)
-				.build();
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).addFilters(this.springSecurityFilterChain).build();
 	}
 
 	// gh-2953
 	// gh-3975
 	@Test
 	public void headerWhenSpringMvcResourceThenCacheRelatedHeadersReset() throws Exception {
-		mockMvc.perform(get("/resources/file.js"))
-			.andExpect(status().isOk())
-			.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "max-age=12345"))
-			.andExpect(header().doesNotExist(HttpHeaders.PRAGMA))
-			.andExpect(header().doesNotExist(HttpHeaders.EXPIRES));
+		// @formatter:off
+		this.mockMvc.perform(get("/resources/file.js"))
+				.andExpect(status().isOk())
+				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "max-age=12345"))
+				.andExpect(header().doesNotExist(HttpHeaders.PRAGMA))
+				.andExpect(header().doesNotExist(HttpHeaders.EXPIRES));
+		// @formatter:on
 	}
 
 	@Test
 	public void headerWhenNotSpringResourceThenCacheRelatedHeadersSet() throws Exception {
-		mockMvc.perform(get("/notresource"))
-			.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
-			.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
-			.andExpect(header().string(HttpHeaders.EXPIRES, "0"));
+		// @formatter:off
+		this.mockMvc.perform(get("/notresource"))
+				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
+				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
+				.andExpect(header().string(HttpHeaders.EXPIRES, "0"));
+		// @formatter:on
 	}
 
 	@EnableWebSecurity
 	static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) {
 		}
+
 	}
 
 	@EnableWebMvc
 	@Configuration
 	static class WebMvcConfig implements WebMvcConfigurer {
+
 		@Override
 		public void addResourceHandlers(ResourceHandlerRegistry registry) {
-			registry.addResourceHandler("/resources/**").addResourceLocations("classpath:/resources/").setCachePeriod(12345);
+			// @formatter:off
+			registry.addResourceHandler("/resources/**")
+					.addResourceLocations("classpath:/resources/")
+					.setCachePeriod(12345);
+			// @formatter:on
 		}
+
 	}
+
 }

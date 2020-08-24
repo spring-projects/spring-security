@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.acls.domain;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+package org.springframework.security.acls.domain;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -24,8 +22,13 @@ import java.io.PrintStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.AuditableAccessControlEntry;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * Test class for {@link ConsoleAuditLogger}.
@@ -33,63 +36,62 @@ import org.springframework.security.acls.model.AuditableAccessControlEntry;
  * @author Andrei Stefan
  */
 public class AuditLoggerTests {
-	// ~ Instance fields
-	// ================================================================================================
-	private PrintStream console;
-	private ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-	private ConsoleAuditLogger logger;
-	private AuditableAccessControlEntry ace;
 
-	// ~ Methods
-	// ========================================================================================================
+	private PrintStream console;
+
+	private ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+	private ConsoleAuditLogger logger;
+
+	private AuditableAccessControlEntry ace;
 
 	@Before
 	public void setUp() {
-		logger = new ConsoleAuditLogger();
-		ace = mock(AuditableAccessControlEntry.class);
-		console = System.out;
-		System.setOut(new PrintStream(bytes));
+		this.logger = new ConsoleAuditLogger();
+		this.ace = mock(AuditableAccessControlEntry.class);
+		this.console = System.out;
+		System.setOut(new PrintStream(this.bytes));
 	}
 
 	@After
 	public void tearDown() {
-		System.setOut(console);
-		bytes.reset();
+		System.setOut(this.console);
+		this.bytes.reset();
 	}
 
 	@Test
 	public void nonAuditableAceIsIgnored() {
 		AccessControlEntry ace = mock(AccessControlEntry.class);
-		logger.logIfNeeded(true, ace);
-		assertThat(bytes.size()).isZero();
+		this.logger.logIfNeeded(true, ace);
+		assertThat(this.bytes.size()).isZero();
 	}
 
 	@Test
 	public void successIsNotLoggedIfAceDoesntRequireSuccessAudit() {
-		when(ace.isAuditSuccess()).thenReturn(false);
-		logger.logIfNeeded(true, ace);
-		assertThat(bytes.size()).isZero();
+		given(this.ace.isAuditSuccess()).willReturn(false);
+		this.logger.logIfNeeded(true, this.ace);
+		assertThat(this.bytes.size()).isZero();
 	}
 
 	@Test
 	public void successIsLoggedIfAceRequiresSuccessAudit() {
-		when(ace.isAuditSuccess()).thenReturn(true);
-
-		logger.logIfNeeded(true, ace);
-		assertThat(bytes.toString()).startsWith("GRANTED due to ACE");
+		given(this.ace.isAuditSuccess()).willReturn(true);
+		this.logger.logIfNeeded(true, this.ace);
+		assertThat(this.bytes.toString()).startsWith("GRANTED due to ACE");
 	}
 
 	@Test
 	public void failureIsntLoggedIfAceDoesntRequireFailureAudit() {
-		when(ace.isAuditFailure()).thenReturn(false);
-		logger.logIfNeeded(false, ace);
-		assertThat(bytes.size()).isZero();
+		given(this.ace.isAuditFailure()).willReturn(false);
+		this.logger.logIfNeeded(false, this.ace);
+		assertThat(this.bytes.size()).isZero();
 	}
 
 	@Test
 	public void failureIsLoggedIfAceRequiresFailureAudit() {
-		when(ace.isAuditFailure()).thenReturn(true);
-		logger.logIfNeeded(false, ace);
-		assertThat(bytes.toString()).startsWith("DENIED due to ACE");
+		given(this.ace.isAuditFailure()).willReturn(true);
+		this.logger.logIfNeeded(false, this.ace);
+		assertThat(this.bytes.toString()).startsWith("DENIED due to ACE");
 	}
+
 }

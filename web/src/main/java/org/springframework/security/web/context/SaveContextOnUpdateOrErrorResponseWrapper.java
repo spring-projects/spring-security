@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.context;
 
 import javax.servlet.http.HttpServletResponse;
@@ -39,11 +40,11 @@ import org.springframework.security.web.util.OnCommittedResponseWrapper;
  * @author Rob Winch
  * @since 3.0
  */
-public abstract class SaveContextOnUpdateOrErrorResponseWrapper
-		extends OnCommittedResponseWrapper {
+public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends OnCommittedResponseWrapper {
 
 	private boolean contextSaved = false;
-	/* See SEC-1052 */
+
+	// See SEC-1052
 	private final boolean disableUrlRewriting;
 
 	/**
@@ -52,8 +53,7 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper
 	 * preventing the use of URL rewriting to add the session identifier as a URL
 	 * parameter.
 	 */
-	public SaveContextOnUpdateOrErrorResponseWrapper(HttpServletResponse response,
-			boolean disableUrlRewriting) {
+	public SaveContextOnUpdateOrErrorResponseWrapper(HttpServletResponse response, boolean disableUrlRewriting) {
 		super(response);
 		this.disableUrlRewriting = disableUrlRewriting;
 	}
@@ -70,7 +70,6 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper
 
 	/**
 	 * Implements the logic for storing the security context.
-	 *
 	 * @param context the <tt>SecurityContext</tt> instance to store
 	 */
 	protected abstract void saveContext(SecurityContext context);
@@ -125,4 +124,5 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper
 	public final boolean isContextSaved() {
 		return this.contextSaved;
 	}
+
 }

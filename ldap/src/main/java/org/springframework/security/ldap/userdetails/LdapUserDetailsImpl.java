@@ -51,115 +51,112 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private String dn;
+
 	private String password;
+
 	private String username;
+
 	private Collection<GrantedAuthority> authorities = AuthorityUtils.NO_AUTHORITIES;
+
 	private boolean accountNonExpired = true;
+
 	private boolean accountNonLocked = true;
+
 	private boolean credentialsNonExpired = true;
+
 	private boolean enabled = true;
+
 	// PPolicy data
 	private int timeBeforeExpiration = Integer.MAX_VALUE;
-	private int graceLoginsRemaining = Integer.MAX_VALUE;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private int graceLoginsRemaining = Integer.MAX_VALUE;
 
 	protected LdapUserDetailsImpl() {
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Override
 	public Collection<GrantedAuthority> getAuthorities() {
-		return authorities;
+		return this.authorities;
 	}
 
 	@Override
 	public String getDn() {
-		return dn;
+		return this.dn;
 	}
 
 	@Override
 	public String getPassword() {
-		return password;
+		return this.password;
 	}
 
 	@Override
 	public String getUsername() {
-		return username;
+		return this.username;
 	}
 
 	@Override
 	public boolean isAccountNonExpired() {
-		return accountNonExpired;
+		return this.accountNonExpired;
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		return accountNonLocked;
+		return this.accountNonLocked;
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return credentialsNonExpired;
+		return this.credentialsNonExpired;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return enabled;
+		return this.enabled;
 	}
 
 	@Override
 	public void eraseCredentials() {
-		password = null;
+		this.password = null;
 	}
 
 	@Override
 	public int getTimeBeforeExpiration() {
-		return timeBeforeExpiration;
+		return this.timeBeforeExpiration;
 	}
 
 	@Override
 	public int getGraceLoginsRemaining() {
-		return graceLoginsRemaining;
+		return this.graceLoginsRemaining;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof LdapUserDetailsImpl) {
-			return dn.equals(((LdapUserDetailsImpl) obj).dn);
+			return this.dn.equals(((LdapUserDetailsImpl) obj).dn);
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return dn.hashCode();
+		return this.dn.hashCode();
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString()).append(": ");
-		sb.append("Dn: ").append(dn).append("; ");
+		sb.append("Dn: ").append(this.dn).append("; ");
 		sb.append("Username: ").append(this.username).append("; ");
 		sb.append("Password: [PROTECTED]; ");
 		sb.append("Enabled: ").append(this.enabled).append("; ");
 		sb.append("AccountNonExpired: ").append(this.accountNonExpired).append("; ");
-		sb.append("CredentialsNonExpired: ").append(this.credentialsNonExpired)
-				.append("; ");
+		sb.append("CredentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
 		sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
-
 		if (this.getAuthorities() != null && !this.getAuthorities().isEmpty()) {
 			sb.append("Granted Authorities: ");
 			boolean first = true;
-
 			for (Object authority : this.getAuthorities()) {
 				if (first) {
 					first = false;
@@ -167,25 +164,22 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 				else {
 					sb.append(", ");
 				}
-
 				sb.append(authority.toString());
 			}
 		}
 		else {
 			sb.append("Not granted any authorities");
 		}
-
 		return sb.toString();
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	/**
 	 * Variation of essence pattern. Used to create mutable intermediate object
 	 */
 	public static class Essence {
+
 		protected LdapUserDetailsImpl instance = createTarget();
+
 		private List<GrantedAuthority> mutableAuthorities = new ArrayList<>();
 
 		public Essence() {
@@ -216,12 +210,12 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 		 */
 		public void addAuthority(GrantedAuthority a) {
 			if (!hasAuthority(a)) {
-				mutableAuthorities.add(a);
+				this.mutableAuthorities.add(a);
 			}
 		}
 
 		private boolean hasAuthority(GrantedAuthority a) {
-			for (GrantedAuthority authority : mutableAuthorities) {
+			for (GrantedAuthority authority : this.mutableAuthorities) {
 				if (authority.equals(a)) {
 					return true;
 				}
@@ -230,67 +224,64 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 		}
 
 		public LdapUserDetails createUserDetails() {
-			Assert.notNull(instance,
-					"Essence can only be used to create a single instance");
-			Assert.notNull(instance.username, "username must not be null");
-			Assert.notNull(instance.getDn(), "Distinguished name must not be null");
-
-			instance.authorities = Collections.unmodifiableList(mutableAuthorities);
-
-			LdapUserDetails newInstance = instance;
-
-			instance = null;
-
+			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
+			Assert.notNull(this.instance.username, "username must not be null");
+			Assert.notNull(this.instance.getDn(), "Distinguished name must not be null");
+			this.instance.authorities = Collections.unmodifiableList(this.mutableAuthorities);
+			LdapUserDetails newInstance = this.instance;
+			this.instance = null;
 			return newInstance;
 		}
 
 		public Collection<GrantedAuthority> getGrantedAuthorities() {
-			return mutableAuthorities;
+			return this.mutableAuthorities;
 		}
 
 		public void setAccountNonExpired(boolean accountNonExpired) {
-			instance.accountNonExpired = accountNonExpired;
+			this.instance.accountNonExpired = accountNonExpired;
 		}
 
 		public void setAccountNonLocked(boolean accountNonLocked) {
-			instance.accountNonLocked = accountNonLocked;
+			this.instance.accountNonLocked = accountNonLocked;
 		}
 
 		public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
-			mutableAuthorities = new ArrayList<>();
-			mutableAuthorities.addAll(authorities);
+			this.mutableAuthorities = new ArrayList<>();
+			this.mutableAuthorities.addAll(authorities);
 		}
 
 		public void setCredentialsNonExpired(boolean credentialsNonExpired) {
-			instance.credentialsNonExpired = credentialsNonExpired;
+			this.instance.credentialsNonExpired = credentialsNonExpired;
 		}
 
 		public void setDn(String dn) {
-			instance.dn = dn;
+			this.instance.dn = dn;
 		}
 
 		public void setDn(Name dn) {
-			instance.dn = dn.toString();
+			this.instance.dn = dn.toString();
 		}
 
 		public void setEnabled(boolean enabled) {
-			instance.enabled = enabled;
+			this.instance.enabled = enabled;
 		}
 
 		public void setPassword(String password) {
-			instance.password = password;
+			this.instance.password = password;
 		}
 
 		public void setUsername(String username) {
-			instance.username = username;
+			this.instance.username = username;
 		}
 
 		public void setTimeBeforeExpiration(int timeBeforeExpiration) {
-			instance.timeBeforeExpiration = timeBeforeExpiration;
+			this.instance.timeBeforeExpiration = timeBeforeExpiration;
 		}
 
 		public void setGraceLoginsRemaining(int graceLoginsRemaining) {
-			instance.graceLoginsRemaining = graceLoginsRemaining;
+			this.instance.graceLoginsRemaining = graceLoginsRemaining;
 		}
+
 	}
+
 }
