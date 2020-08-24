@@ -31,9 +31,15 @@ public class OidcIdTokenBuilderTests {
 	@Test
 	public void buildWhenCalledTwiceThenGeneratesTwoOidcIdTokens() {
 		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token");
-		OidcIdToken first = idTokenBuilder.tokenValue("V1").claim("TEST_CLAIM_1", "C1").build();
-		OidcIdToken second = idTokenBuilder.tokenValue("V2").claim("TEST_CLAIM_1", "C2").claim("TEST_CLAIM_2", "C3")
+		// @formatter:off
+		OidcIdToken first = idTokenBuilder.tokenValue("V1")
+				.claim("TEST_CLAIM_1", "C1")
 				.build();
+		OidcIdToken second = idTokenBuilder.tokenValue("V2")
+				.claim("TEST_CLAIM_1", "C2")
+				.claim("TEST_CLAIM_2", "C3")
+				.build();
+		// @formatter:on
 		assertThat(first.getClaims()).hasSize(1);
 		assertThat(first.getClaims().get("TEST_CLAIM_1")).isEqualTo("C1");
 		assertThat(first.getTokenValue()).isEqualTo("V1");
@@ -72,7 +78,12 @@ public class OidcIdTokenBuilderTests {
 		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token");
 		String generic = new String("sub");
 		String named = new String("sub");
-		OidcIdToken idToken = idTokenBuilder.subject(named).claim(IdTokenClaimNames.SUB, generic).build();
+		// @formatter:off
+		OidcIdToken idToken = idTokenBuilder
+				.subject(named)
+				.claim(IdTokenClaimNames.SUB, generic)
+				.build();
+		// @formatter:on
 		assertThat(idToken.getSubject()).isSameAs(generic);
 		idToken = idTokenBuilder.claim(IdTokenClaimNames.SUB, generic).subject(named).build();
 		assertThat(idToken.getSubject()).isSameAs(named);
@@ -80,9 +91,13 @@ public class OidcIdTokenBuilderTests {
 
 	@Test
 	public void claimsWhenRemovingAClaimThenIsNotPresent() {
-		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token").claim("needs", "a claim");
-		OidcIdToken idToken = idTokenBuilder.subject("sub").claims((claims) -> claims.remove(IdTokenClaimNames.SUB))
+		// @formatter:off
+		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token")
+				.claim("needs", "a claim");
+		OidcIdToken idToken = idTokenBuilder.subject("sub")
+				.claims((claims) -> claims.remove(IdTokenClaimNames.SUB))
 				.build();
+		// @formatter:on
 		assertThat(idToken.getSubject()).isNull();
 	}
 
@@ -91,7 +106,11 @@ public class OidcIdTokenBuilderTests {
 		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token");
 		String name = new String("name");
 		String value = new String("value");
-		OidcIdToken idToken = idTokenBuilder.claims((claims) -> claims.put(name, value)).build();
+		// @formatter:off
+		OidcIdToken idToken = idTokenBuilder
+				.claims((claims) -> claims.put(name, value))
+				.build();
+		// @formatter:on
 		assertThat(idToken.getClaims()).hasSize(1);
 		assertThat(idToken.getClaims().get(name)).isSameAs(value);
 	}

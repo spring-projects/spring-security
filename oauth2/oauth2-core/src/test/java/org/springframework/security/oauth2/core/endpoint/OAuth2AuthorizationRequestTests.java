@@ -50,63 +50,128 @@ public class OAuth2AuthorizationRequestTests {
 
 	@Test
 	public void buildWhenAuthorizationUriIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> OAuth2AuthorizationRequest.authorizationCode().authorizationUri(null)
-						.clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES).state(STATE).build());
+				.isThrownBy(() -> OAuth2AuthorizationRequest
+						.authorizationCode()
+						.authorizationUri(null)
+						.clientId(CLIENT_ID)
+						.redirectUri(REDIRECT_URI)
+						.scopes(SCOPES)
+						.state(STATE)
+						.build()
+				);
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenClientIdIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI)
-						.clientId(null).redirectUri(REDIRECT_URI).scopes(SCOPES).state(STATE).build());
+				.isThrownBy(() -> OAuth2AuthorizationRequest.authorizationCode()
+						.authorizationUri(AUTHORIZATION_URI)
+						.clientId(null)
+						.redirectUri(REDIRECT_URI)
+						.scopes(SCOPES)
+						.state(STATE)
+						.build()
+				);
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenRedirectUriIsNullForImplicitThenThrowIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> OAuth2AuthorizationRequest.implicit().authorizationUri(AUTHORIZATION_URI)
-						.clientId(CLIENT_ID).redirectUri(null).scopes(SCOPES).state(STATE).build());
+				.isThrownBy(() -> OAuth2AuthorizationRequest.implicit()
+						.authorizationUri(AUTHORIZATION_URI)
+						.clientId(CLIENT_ID)
+						.redirectUri(null)
+						.scopes(SCOPES)
+						.state(STATE).build()
+				);
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenRedirectUriIsNullForAuthorizationCodeThenDoesNotThrowAnyException() {
-		OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID)
-				.redirectUri(null).scopes(SCOPES).state(STATE).build();
+		// @formatter:off
+		OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(null)
+				.scopes(SCOPES)
+				.state(STATE)
+				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenScopesIsNullThenDoesNotThrowAnyException() {
-		OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID)
-				.redirectUri(REDIRECT_URI).scopes(null).state(STATE).build();
+		// @formatter:off
+		OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI)
+				.scopes(null)
+				.state(STATE)
+				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenStateIsNullThenDoesNotThrowAnyException() {
-		OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID)
-				.redirectUri(REDIRECT_URI).scopes(SCOPES).state(null).build();
+		// @formatter:off
+		OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI)
+				.scopes(SCOPES)
+				.state(null)
+				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenAdditionalParametersEmptyThenDoesNotThrowAnyException() {
-		OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID)
-				.redirectUri(REDIRECT_URI).scopes(SCOPES).state(STATE).additionalParameters(Map::clear).build();
+		// @formatter:off
+		OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI)
+				.scopes(SCOPES)
+				.state(STATE)
+				.additionalParameters(Map::clear)
+				.build();
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenImplicitThenGrantTypeResponseTypeIsSet() {
+		// @formatter:off
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.implicit()
-				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES)
-				.state(STATE).build();
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI)
+				.scopes(SCOPES)
+				.state(STATE)
+				.build();
+		// @formatter:on
 		assertThat(authorizationRequest.getGrantType()).isEqualTo(AuthorizationGrantType.IMPLICIT);
 		assertThat(authorizationRequest.getResponseType()).isEqualTo(OAuth2AuthorizationResponseType.TOKEN);
 	}
 
 	@Test
 	public void buildWhenAuthorizationCodeThenGrantTypeResponseTypeIsSet() {
+		// @formatter:off
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).redirectUri(null).scopes(SCOPES).state(STATE)
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(null)
+				.scopes(SCOPES)
+				.state(STATE)
 				.build();
+		// @formatter:on
 		assertThat(authorizationRequest.getGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(authorizationRequest.getResponseType()).isEqualTo(OAuth2AuthorizationResponseType.CODE);
 	}
@@ -119,10 +184,18 @@ public class OAuth2AuthorizationRequestTests {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put("attribute1", "value1");
 		attributes.put("attribute2", "value2");
+		// @formatter:off
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES)
-				.state(STATE).additionalParameters(additionalParameters).attributes(attributes)
-				.authorizationRequestUri(AUTHORIZATION_URI).build();
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI)
+				.scopes(SCOPES)
+				.state(STATE)
+				.additionalParameters(additionalParameters)
+				.attributes(attributes)
+				.authorizationRequestUri(AUTHORIZATION_URI)
+				.build();
+		// @formatter:on
 		assertThat(authorizationRequest.getAuthorizationUri()).isEqualTo(AUTHORIZATION_URI);
 		assertThat(authorizationRequest.getGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(authorizationRequest.getResponseType()).isEqualTo(OAuth2AuthorizationResponseType.CODE);
@@ -137,9 +210,15 @@ public class OAuth2AuthorizationRequestTests {
 
 	@Test
 	public void buildWhenScopesMultiThenSeparatedByEncodedSpace() {
+		// @formatter:off
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.implicit()
-				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES)
-				.state(STATE).build();
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI)
+				.scopes(SCOPES)
+				.state(STATE)
+				.build();
+		// @formatter:on
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
 				.isEqualTo("https://provider.com/oauth2/authorize?" + "response_type=token&client_id=client-id&"
 						+ "scope=scope1%20scope2&state=state&" + "redirect_uri=https://example.com");
@@ -147,17 +226,31 @@ public class OAuth2AuthorizationRequestTests {
 
 	@Test
 	public void buildWhenAuthorizationRequestUriSetThenOverridesDefault() {
+		// @formatter:off
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES)
-				.state(STATE).authorizationRequestUri(AUTHORIZATION_URI).build();
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI)
+				.scopes(SCOPES)
+				.state(STATE)
+				.authorizationRequestUri(AUTHORIZATION_URI)
+				.build();
+		// @formatter:on
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo(AUTHORIZATION_URI);
 	}
 
 	@Test
 	public void buildWhenAuthorizationRequestUriFunctionSetThenOverridesDefault() {
+		// @formatter:off
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES)
-				.state(STATE).authorizationRequestUri((uriBuilder) -> URI.create(AUTHORIZATION_URI)).build();
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI)
+				.scopes(SCOPES)
+				.state(STATE)
+				.authorizationRequestUri((uriBuilder) -> URI.create(AUTHORIZATION_URI))
+				.build();
+		// @formatter:on
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo(AUTHORIZATION_URI);
 	}
 
@@ -196,11 +289,19 @@ public class OAuth2AuthorizationRequestTests {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put("attribute1", "value1");
 		attributes.put("attribute2", "value2");
+		// @formatter:off
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES)
-				.state(STATE).additionalParameters(additionalParameters).attributes(attributes).build();
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI)
+				.scopes(SCOPES)
+				.state(STATE)
+				.additionalParameters(additionalParameters)
+				.attributes(attributes)
+				.build();
 		OAuth2AuthorizationRequest authorizationRequestCopy = OAuth2AuthorizationRequest.from(authorizationRequest)
 				.build();
+		// @formatter:on
 		assertThat(authorizationRequestCopy.getAuthorizationUri())
 				.isEqualTo(authorizationRequest.getAuthorizationUri());
 		assertThat(authorizationRequestCopy.getGrantType()).isEqualTo(authorizationRequest.getGrantType());

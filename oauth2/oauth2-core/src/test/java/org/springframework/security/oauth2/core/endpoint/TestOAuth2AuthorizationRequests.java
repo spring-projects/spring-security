@@ -33,10 +33,14 @@ public final class TestOAuth2AuthorizationRequests {
 		String clientId = "client-id";
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, registrationId);
+		// @formatter:off
 		return OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri("https://example.com/login/oauth/authorize").clientId(clientId)
-				.redirectUri("https://example.com/authorize/oauth2/code/registration-id").state("state")
+				.authorizationUri("https://example.com/login/oauth/authorize")
+				.clientId(clientId)
+				.redirectUri("https://example.com/authorize/oauth2/code/registration-id")
+				.state("state")
 				.attributes(attributes);
+		// @formatter:on
 	}
 
 	public static OAuth2AuthorizationRequest.Builder oidcRequest() {

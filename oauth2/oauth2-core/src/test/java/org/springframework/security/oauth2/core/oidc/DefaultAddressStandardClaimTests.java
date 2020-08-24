@@ -45,9 +45,16 @@ public class DefaultAddressStandardClaimTests {
 
 	@Test
 	public void buildWhenAllAttributesProvidedThenAllAttributesAreSet() {
-		AddressStandardClaim addressStandardClaim = new DefaultAddressStandardClaim.Builder().formatted(FORMATTED)
-				.streetAddress(STREET_ADDRESS).locality(LOCALITY).region(REGION).postalCode(POSTAL_CODE)
-				.country(COUNTRY).build();
+		// @formatter:off
+		AddressStandardClaim addressStandardClaim = new DefaultAddressStandardClaim.Builder()
+				.formatted(FORMATTED)
+				.streetAddress(STREET_ADDRESS)
+				.locality(LOCALITY)
+				.region(REGION)
+				.postalCode(POSTAL_CODE)
+				.country(COUNTRY)
+				.build();
+		// @formatter:on
 		assertThat(addressStandardClaim.getFormatted()).isEqualTo(FORMATTED);
 		assertThat(addressStandardClaim.getStreetAddress()).isEqualTo(STREET_ADDRESS);
 		assertThat(addressStandardClaim.getLocality()).isEqualTo(LOCALITY);

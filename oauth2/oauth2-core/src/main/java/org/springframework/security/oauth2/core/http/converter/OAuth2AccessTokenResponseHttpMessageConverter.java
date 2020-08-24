@@ -77,8 +77,12 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 			// Object and then convert values to String
 			Map<String, Object> tokenResponseParameters = (Map<String, Object>) this.jsonMessageConverter
 					.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
-			return this.tokenResponseConverter.convert(tokenResponseParameters.entrySet().stream()
+			// @formatter:off
+			return this.tokenResponseConverter.convert(tokenResponseParameters
+					.entrySet()
+					.stream()
 					.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> String.valueOf(entry.getValue()))));
+			// @formatter:on
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotReadableException(

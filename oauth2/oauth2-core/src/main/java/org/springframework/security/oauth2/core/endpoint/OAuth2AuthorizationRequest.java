@@ -215,12 +215,16 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	 */
 	public static Builder from(OAuth2AuthorizationRequest authorizationRequest) {
 		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
+		// @formatter:off
 		return new Builder(authorizationRequest.getGrantType())
 				.authorizationUri(authorizationRequest.getAuthorizationUri())
-				.clientId(authorizationRequest.getClientId()).redirectUri(authorizationRequest.getRedirectUri())
-				.scopes(authorizationRequest.getScopes()).state(authorizationRequest.getState())
+				.clientId(authorizationRequest.getClientId())
+				.redirectUri(authorizationRequest.getRedirectUri())
+				.scopes(authorizationRequest.getScopes())
+				.state(authorizationRequest.getState())
 				.additionalParameters(authorizationRequest.getAdditionalParameters())
 				.attributes(authorizationRequest.getAttributes());
+		// @formatter:on
 	}
 
 	/**

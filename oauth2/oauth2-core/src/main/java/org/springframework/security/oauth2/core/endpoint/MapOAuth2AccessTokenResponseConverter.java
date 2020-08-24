@@ -55,8 +55,15 @@ public final class MapOAuth2AccessTokenResponseConverter
 				additionalParameters.put(entry.getKey(), entry.getValue());
 			}
 		}
-		return OAuth2AccessTokenResponse.withToken(accessToken).tokenType(accessTokenType).expiresIn(expiresIn)
-				.scopes(scopes).refreshToken(refreshToken).additionalParameters(additionalParameters).build();
+		// @formatter:off
+		return OAuth2AccessTokenResponse.withToken(accessToken)
+				.tokenType(accessTokenType)
+				.expiresIn(expiresIn)
+				.scopes(scopes)
+				.refreshToken(refreshToken)
+				.additionalParameters(additionalParameters)
+				.build();
+		// @formatter:on
 	}
 
 	private OAuth2AccessToken.TokenType getAccessTokenType(Map<String, String> tokenResponseParameters) {

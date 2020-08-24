@@ -44,10 +44,16 @@ public final class TestOidcUsers {
 	private static OidcIdToken idToken() {
 		Instant issuedAt = Instant.now();
 		Instant expiresAt = issuedAt.plusSeconds(3600);
-		return OidcIdToken.withTokenValue("id-token").issuedAt(issuedAt).expiresAt(expiresAt).subject("subject")
+		// @formatter:off
+		return OidcIdToken.withTokenValue("id-token")
+				.issuedAt(issuedAt)
+				.expiresAt(expiresAt)
+				.subject("subject")
 				.issuer("http://localhost/issuer")
 				.audience(Collections.unmodifiableSet(new LinkedHashSet<>(Collections.singletonList("client"))))
-				.authorizedParty("client").build();
+				.authorizedParty("client")
+				.build();
+		// @formatter:on
 	}
 
 	private static OidcUserInfo userInfo() {

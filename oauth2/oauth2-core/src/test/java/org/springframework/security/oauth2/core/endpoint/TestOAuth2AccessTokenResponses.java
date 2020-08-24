@@ -32,7 +32,11 @@ public final class TestOAuth2AccessTokenResponses {
 	}
 
 	public static OAuth2AccessTokenResponse.Builder accessTokenResponse() {
-		return OAuth2AccessTokenResponse.withToken("token").tokenType(OAuth2AccessToken.TokenType.BEARER);
+		// @formatter:off
+		return OAuth2AccessTokenResponse
+				.withToken("token")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER);
+		// @formatter:on
 	}
 
 	public static OAuth2AccessTokenResponse.Builder oidcAccessTokenResponse() {

@@ -64,7 +64,8 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 
 	@Test
 	public void setTokenResponseConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.messageConverter.setTokenResponseConverter(null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.messageConverter.setTokenResponseConverter(null));
 	}
 
 	@Test
@@ -75,11 +76,17 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 
 	@Test
 	public void readInternalWhenSuccessfulTokenResponseThenReadOAuth2AccessTokenResponse() throws Exception {
-		String tokenResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read write\",\n" + "   \"refresh_token\": \"refresh-token-1234\",\n"
-				+ "   \"custom_parameter_1\": \"custom-value-1\",\n" + "   \"custom_parameter_2\": \"custom-value-2\"\n"
-				+ "}\n";
+		// @formatter:off
+		String tokenResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"read write\",\n"
+			+ "   \"refresh_token\": \"refresh-token-1234\",\n"
+			+ "   \"custom_parameter_1\": \"custom-value-1\",\n"
+			+ "   \"custom_parameter_2\": \"custom-value-2\"\n"
+			+ "}\n";
+		// @formatter:on
 		MockClientHttpResponse response = new MockClientHttpResponse(tokenResponse.getBytes(), HttpStatus.OK);
 		OAuth2AccessTokenResponse accessTokenResponse = this.messageConverter
 				.readInternal(OAuth2AccessTokenResponse.class, response);
@@ -96,13 +103,19 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 	// gh-6463
 	@Test
 	public void readInternalWhenSuccessfulTokenResponseWithObjectThenReadOAuth2AccessTokenResponse() {
-		String tokenResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": 3600,\n" + "   \"scope\": \"read write\",\n"
-				+ "   \"refresh_token\": \"refresh-token-1234\",\n"
-				+ "   \"custom_object_1\": {\"name1\": \"value1\"},\n"
-				+ "   \"custom_object_2\": [\"value1\", \"value2\"],\n"
-				+ "   \"custom_parameter_1\": \"custom-value-1\",\n" + "   \"custom_parameter_2\": \"custom-value-2\"\n"
-				+ "}\n";
+		// @formatter:off
+		String tokenResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": 3600,\n"
+			+ "   \"scope\": \"read write\",\n"
+			+ "   \"refresh_token\": \"refresh-token-1234\",\n"
+			+ "   \"custom_object_1\": {\"name1\": \"value1\"},\n"
+			+ "   \"custom_object_2\": [\"value1\", \"value2\"],\n"
+			+ "   \"custom_parameter_1\": \"custom-value-1\",\n"
+			+ "   \"custom_parameter_2\": \"custom-value-2\"\n"
+			+ "}\n";
+		// @formatter:on
 		MockClientHttpResponse response = new MockClientHttpResponse(tokenResponse.getBytes(), HttpStatus.OK);
 		OAuth2AccessTokenResponse accessTokenResponse = this.messageConverter
 				.readInternal(OAuth2AccessTokenResponse.class, response);
@@ -120,9 +133,15 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 	// gh-8108
 	@Test
 	public void readInternalWhenSuccessfulTokenResponseWithNullValueThenReadOAuth2AccessTokenResponse() {
-		String tokenResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": 3600,\n" + "   \"scope\": null,\n"
-				+ "   \"refresh_token\": \"refresh-token-1234\"\n" + "}\n";
+		// @formatter:off
+		String tokenResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": 3600,\n"
+			+ "   \"scope\": null,\n"
+			+ "   \"refresh_token\": \"refresh-token-1234\"\n"
+			+ "}\n";
+		// @formatter:on
 		MockClientHttpResponse response = new MockClientHttpResponse(tokenResponse.getBytes(), HttpStatus.OK);
 		OAuth2AccessTokenResponse accessTokenResponse = this.messageConverter
 				.readInternal(OAuth2AccessTokenResponse.class, response);
@@ -153,9 +172,15 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put("custom_parameter_1", "custom-value-1");
 		additionalParameters.put("custom_parameter_2", "custom-value-2");
+		// @formatter:off
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(expiresAt.toEpochMilli()).scopes(scopes)
-				.refreshToken("refresh-token-1234").additionalParameters(additionalParameters).build();
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(expiresAt.toEpochMilli())
+				.scopes(scopes)
+				.refreshToken("refresh-token-1234")
+				.additionalParameters(additionalParameters)
+				.build();
+		// @formatter:on
 		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
 		this.messageConverter.writeInternal(accessTokenResponse, outputMessage);
 		String tokenResponse = outputMessage.getBodyAsString();
@@ -173,9 +198,14 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 		Converter tokenResponseParametersConverter = mock(Converter.class);
 		given(tokenResponseParametersConverter.convert(any())).willThrow(RuntimeException.class);
 		this.messageConverter.setTokenResponseParametersConverter(tokenResponseParametersConverter);
-		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(Instant.now().plusSeconds(3600).toEpochMilli())
+		// @formatter:off
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse
+				.withToken("access-token-1234")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(Instant.now().plusSeconds(3600)
+				.toEpochMilli())
 				.build();
+		// @formatter:on
 		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
 		assertThatExceptionOfType(HttpMessageNotWritableException.class)
 				.isThrownBy(() -> this.messageConverter.writeInternal(accessTokenResponse, outputMessage))
