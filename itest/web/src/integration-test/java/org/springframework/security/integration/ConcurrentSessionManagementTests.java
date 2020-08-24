@@ -50,19 +50,27 @@ public class ConcurrentSessionManagementTests extends AbstractWebServerIntegrati
 		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-concurrency.xml",
 				"classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
 
-		mockMvc.perform(get("/secure/index").session(session1)).andExpect(status().is3xxRedirection());
+		// @formatter:off
+		mockMvc.perform(get("/secure/index").session(session1))
+				.andExpect(status().is3xxRedirection());
+		// @formatter:on
 
 		MockHttpServletRequestBuilder login1 = login().session(session1);
 		mockMvc.perform(login1).andExpect(authenticated().withUsername("jimi"));
 
 		MockHttpServletRequestBuilder login2 = login().session(session2);
-		mockMvc.perform(login2).andExpect(redirectedUrl("/login.jsp?login_error=true"));
+		// @formatter:off
+		mockMvc.perform(login2)
+				.andExpect(redirectedUrl("/login.jsp?login_error=true"));
+		// @formatter:on
 		Exception exception = (Exception) session2.getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
 		assertThat(exception).isNotNull();
 		assertThat(exception.getMessage()).contains("Maximum sessions of 1 for this principal exceeded");
 
 		// Now logout to kill first session
-		mockMvc.perform(post("/logout").with(csrf())).andExpect(status().is3xxRedirection())
+		// @formatter:off
+		mockMvc.perform(post("/logout").with(csrf()))
+				.andExpect(status().is3xxRedirection())
 				.andDo((result) -> this.context.publishEvent(new SessionDestroyedEvent(session1) {
 					@Override
 					public List<SecurityContext> getSecurityContexts() {
@@ -74,17 +82,28 @@ public class ConcurrentSessionManagementTests extends AbstractWebServerIntegrati
 						return session1.getId();
 					}
 				}));
+		// @formatter:on
 
 		// Try second session again
 		login2 = login().session(session2);
-		mockMvc.perform(login2).andExpect(authenticated().withUsername("jimi"));
+		// @formatter:off
+		mockMvc.perform(login2)
+				.andExpect(authenticated().withUsername("jimi"));
+		// @formatter:on
 
+		// @formatter:off
 		mockMvc.perform(get("/secure/index").session(session2))
 				.andExpect(content().string(containsString("A Secure Page")));
+		// @formatter:on
 	}
 
 	private MockHttpServletRequestBuilder login() {
-		return post("/login").param("username", "jimi").param("password", "jimispassword").with(csrf());
+		// @formatter:off
+		return post("/login")
+				.param("username", "jimi")
+				.param("password", "jimispassword")
+				.with(csrf());
+		// @formatter:on
 	}
 
 }
