@@ -52,23 +52,43 @@ public class ReactiveRemoteJWKSourceTests {
 
 	private MockWebServer server;
 
-	private String keys = "{\n" + "    \"keys\": [\n" + "        {\n" + "            \"alg\": \"RS256\", \n"
+	// @formatter:off
+	private String keys = "{\n"
+			+ "    \"keys\": [\n"
+			+ "        {\n"
+			+ "            \"alg\": \"RS256\", \n"
 			+ "            \"e\": \"AQAB\", \n"
 			+ "            \"kid\": \"1923397381d9574bb873202a90c32b7ceeaed027\", \n"
 			+ "            \"kty\": \"RSA\", \n"
 			+ "            \"n\": \"m4I5Dk5GnbzzUtqaljDVbpMONi1JLNJ8ZuXE8VvjCAVebDg5vTYhQ33jUwGgbn1wFmytUMgMmvK8A8Gpshl0sO2GBIZoh6_pwLrk657ZEtv-hx9fYKnzwyrfHqxtSswMAyr7XtKl8Ha1I03uFMSaYaaBTwVXCHByhzr4PVXfKAYJNbbcteUZfE8ODlBQkjQLI0IB78Nu8XIRrdzTF_5LCuM6rLUNtX6_KdzPpeX9KEtB7OBAfkdZEtBzGI-aYNLtIaL4qO6cVxBeVDLMoj9kVsRPylrwhEFQcGOjtJhwJwXFzTMZVhkiLFCHxZkkjoMrK5osSRlhduuGI9ot8XTUKQ\", \n"
-			+ "            \"use\": \"sig\"\n" + "        }, \n" + "        {\n" + "            \"alg\": \"RS256\", \n"
+			+ "            \"use\": \"sig\"\n"
+			+ "        }, \n"
+			+ "        {\n"
+			+ "            \"alg\": \"RS256\", \n"
 			+ "            \"e\": \"AQAB\", \n"
 			+ "            \"kid\": \"7ddf54d3032d1f0d48c3618892ca74c1ac30ad77\", \n"
 			+ "            \"kty\": \"RSA\", \n"
 			+ "            \"n\": \"yLlYyux949b7qS-DdqTNjdZb4NtqiNH-Jt7DtRxmfW9XZLOQ6Q2NYgmPe9hyy5GHG7W3zsd6Q-rzq5eGRNEUx1767K1dS5PtkVWPiPG_M7rDqCu3HsLmKQKhRjHYaCWl5NuiMB5mXoPhSwrHd2yeGE7QHIV7_CiQFc1xQsXeiC-nTeJohJO3HI97w0GXE8pHspLYq9oG87f5IHxFr89abmwRug-D7QWQyW5b4doe4ZL-52J-8WHd52kGrGfu4QyV83oAad3I_9Q-yiWOXUr_0GIrzz4_-u5HgqYexnodFhZZSaKuRSg_b5qCnPhW8gBDLAHkmQzQMaWsN14L0pokbQ\", \n"
-			+ "            \"use\": \"sig\"\n" + "        }\n" + "    ]\n" + "}\n";
+			+ "            \"use\": \"sig\"\n"
+			+ "        }\n"
+			+ "    ]\n"
+			+ "}\n";
+	// @formatter:on
 
-	private String keys2 = "{\n" + "    \"keys\": [\n" + "        {\n" + "            \"alg\": \"RS256\", \n"
-			+ "            \"e\": \"AQAB\", \n" + "            \"kid\": \"rotated\", \n"
+	// @formatter:off
+	private String keys2 = "{\n"
+			+ "    \"keys\": [\n"
+			+ "        {\n"
+			+ "            \"alg\": \"RS256\", \n"
+			+ "            \"e\": \"AQAB\", \n"
+			+ "            \"kid\": \"rotated\", \n"
 			+ "            \"kty\": \"RSA\", \n"
 			+ "            \"n\": \"m4I5Dk5GnbzzUtqaljDVbpMONi1JLNJ8ZuXE8VvjCAVebDg5vTYhQ33jUwGgbn1wFmytUMgMmvK8A8Gpshl0sO2GBIZoh6_pwLrk657ZEtv-hx9fYKnzwyrfHqxtSswMAyr7XtKl8Ha1I03uFMSaYaaBTwVXCHByhzr4PVXfKAYJNbbcteUZfE8ODlBQkjQLI0IB78Nu8XIRrdzTF_5LCuM6rLUNtX6_KdzPpeX9KEtB7OBAfkdZEtBzGI-aYNLtIaL4qO6cVxBeVDLMoj9kVsRPylrwhEFQcGOjtJhwJwXFzTMZVhkiLFCHxZkkjoMrK5osSRlhduuGI9ot8XTUKQ\", \n"
-			+ "            \"use\": \"sig\"\n" + "        }\n" + "    ]\n" + "}\n";
+			+ "            \"use\": \"sig\"\n"
+			+ "        }\n"
+			+ "    ]\n"
+			+ "}\n";
+	// @formatter:on
 
 	@Before
 	public void setup() {

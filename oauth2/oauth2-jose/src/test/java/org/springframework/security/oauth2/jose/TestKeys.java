@@ -48,12 +48,15 @@ public final class TestKeys {
 	public static final SecretKey DEFAULT_SECRET_KEY = new SecretKeySpec(
 			Base64.getDecoder().decode(DEFAULT_ENCODED_SECRET_KEY), "AES");
 
+	// @formatter:off
 	public static final String DEFAULT_RSA_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3FlqJr5TRskIQIgdE3Dd"
 			+ "7D9lboWdcTUT8a+fJR7MAvQm7XXNoYkm3v7MQL1NYtDvL2l8CAnc0WdSTINU6IRv"
 			+ "c5Kqo2Q4csNX9SHOmEfzoROjQqahEcve1jBXluoCXdYuYpx4/1tfRgG6ii4Uhxh6"
 			+ "iI8qNMJQX+fLfqhbfYfxBQVRPywBkAbIP4x1EAsbC6FSNmkhCxiMNqEgxaIpY8C2"
 			+ "kJdJ/ZIV+WW4noDdzpKqHcwmB8FsrumlVY/DNVvUSDIipiq9PbP4H99TXN1o746o"
-			+ "RaNa07rq1hoCgMSSy+85SagCoxlmyE+D+of9SsMY8Ol9t0rdzpobBuhyJ/o5dfvj" + "KwIDAQAB";
+			+ "RaNa07rq1hoCgMSSy+85SagCoxlmyE+D+of9SsMY8Ol9t0rdzpobBuhyJ/o5dfvj"
+			+ "KwIDAQAB";
+	// @formatter:on
 
 	public static final RSAPublicKey DEFAULT_PUBLIC_KEY;
 	static {
@@ -65,6 +68,8 @@ public final class TestKeys {
 			throw new IllegalArgumentException(ex);
 		}
 	}
+
+	// @formatter:off
 	public static final String DEFAULT_RSA_PRIVATE_KEY = "MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDcWWomvlNGyQhA"
 			+ "iB0TcN3sP2VuhZ1xNRPxr58lHswC9Cbtdc2hiSbe/sxAvU1i0O8vaXwICdzRZ1JM"
 			+ "g1TohG9zkqqjZDhyw1f1Ic6YR/OhE6NCpqERy97WMFeW6gJd1i5inHj/W19GAbqK"
@@ -89,7 +94,9 @@ public final class TestKeys {
 			+ "FiGm+mC/skFS0MWgW8evaHGDbWU180wheQ35hW6oKAb7myRHtr4q20ouEtQMdQIF"
 			+ "snV39G1iyqeeAsf7dxWElydXpRi2b68i3BIgzhzebQKBgQCdUQuTsqV9y/JFpu6H"
 			+ "c5TVvhG/ubfBspI5DhQqIGijnVBzFT//UfIYMSKJo75qqBEyP2EJSmCsunWsAFsM"
-			+ "TszuiGTkrKcZy9G0wJqPztZZl2F2+bJgnA6nBEV7g5PA4Af+QSmaIhRwqGDAuROR" + "47jndeyIaMTNETEmOnms+as17g==";
+			+ "TszuiGTkrKcZy9G0wJqPztZZl2F2+bJgnA6nBEV7g5PA4Af+QSmaIhRwqGDAuROR"
+			+ "47jndeyIaMTNETEmOnms+as17g==";
+	// @formatter:on
 
 	public static final RSAPrivateKey DEFAULT_PRIVATE_KEY;
 	static {

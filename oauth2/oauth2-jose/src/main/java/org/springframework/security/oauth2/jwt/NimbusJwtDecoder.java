@@ -147,7 +147,12 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			JWTClaimsSet jwtClaimsSet = this.jwtProcessor.process(parsedJwt, null);
 			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
 			Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
-			return Jwt.withTokenValue(token).headers((h) -> h.putAll(headers)).claims((c) -> c.putAll(claims)).build();
+			// @formatter:off
+			return Jwt.withTokenValue(token)
+					.headers((h) -> h.putAll(headers))
+					.claims((c) -> c.putAll(claims))
+					.build();
+			// @formatter:on
 		}
 		catch (RemoteKeySourceException ex) {
 			if (ex.getCause() instanceof ParseException) {

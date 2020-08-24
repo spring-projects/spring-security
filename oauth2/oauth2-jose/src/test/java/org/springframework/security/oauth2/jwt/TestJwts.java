@@ -25,13 +25,25 @@ public final class TestJwts {
 	}
 
 	public static Jwt.Builder jwt() {
-		return Jwt.withTokenValue("token").header("alg", "none").audience(Arrays.asList("https://audience.example.org"))
-				.expiresAt(Instant.MAX).issuedAt(Instant.MIN).issuer("https://issuer.example.org").jti("jti")
-				.notBefore(Instant.MIN).subject("mock-test-subject");
+		// @formatter:off
+		return Jwt.withTokenValue("token")
+				.header("alg", "none")
+				.audience(Arrays.asList("https://audience.example.org"))
+				.expiresAt(Instant.MAX)
+				.issuedAt(Instant.MIN)
+				.issuer("https://issuer.example.org")
+				.jti("jti")
+				.notBefore(Instant.MIN)
+				.subject("mock-test-subject");
+		// @formatter:on
 	}
 
 	public static Jwt user() {
-		return jwt().claim("sub", "mock-test-subject").build();
+		// @formatter:off
+		return jwt()
+				.claim("sub", "mock-test-subject")
+				.build();
+		// @formatter:on
 	}
 
 }

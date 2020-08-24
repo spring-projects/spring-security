@@ -57,7 +57,11 @@ public class JwtTimestampValidatorTests {
 		Jwt jwt = TestJwts.jwt().expiresAt(oneHourAgo).build();
 		JwtTimestampValidator jwtValidator = new JwtTimestampValidator();
 		Collection<OAuth2Error> details = jwtValidator.validate(jwt).getErrors();
-		Collection<String> messages = details.stream().map(OAuth2Error::getDescription).collect(Collectors.toList());
+		// @formatter:off
+		Collection<String> messages = details.stream()
+				.map(OAuth2Error::getDescription)
+				.collect(Collectors.toList());
+		// @formatter:on
 		assertThat(messages).contains("Jwt expired at " + oneHourAgo);
 	}
 
@@ -67,7 +71,11 @@ public class JwtTimestampValidatorTests {
 		Jwt jwt = TestJwts.jwt().notBefore(oneHourFromNow).build();
 		JwtTimestampValidator jwtValidator = new JwtTimestampValidator();
 		Collection<OAuth2Error> details = jwtValidator.validate(jwt).getErrors();
-		Collection<String> messages = details.stream().map(OAuth2Error::getDescription).collect(Collectors.toList());
+		// @formatter:off
+		Collection<String> messages = details.stream()
+				.map(OAuth2Error::getDescription)
+				.collect(Collectors.toList());
+		// @formatter:on
 		assertThat(messages).contains("Jwt used before " + oneHourFromNow);
 	}
 
@@ -84,13 +92,22 @@ public class JwtTimestampValidatorTests {
 		assertThat(jwtValidator.validate(jwt).hasErrors()).isFalse();
 		jwt = TestJwts.jwt().expiresAt(justOverOneDayAgo).build();
 		OAuth2TokenValidatorResult result = jwtValidator.validate(jwt);
-		Collection<String> messages = result.getErrors().stream().map(OAuth2Error::getDescription)
+		// @formatter:off
+		Collection<String> messages = result.getErrors()
+				.stream()
+				.map(OAuth2Error::getDescription)
 				.collect(Collectors.toList());
+		// @formatter:on
 		assertThat(result.hasErrors()).isTrue();
 		assertThat(messages).contains("Jwt expired at " + justOverOneDayAgo);
 		jwt = TestJwts.jwt().notBefore(justOverOneDayFromNow).build();
 		result = jwtValidator.validate(jwt);
-		messages = result.getErrors().stream().map(OAuth2Error::getDescription).collect(Collectors.toList());
+		// @formatter:off
+		messages = result.getErrors()
+				.stream()
+				.map(OAuth2Error::getDescription)
+				.collect(Collectors.toList());
+		// @formatter:on
 		assertThat(result.hasErrors()).isTrue();
 		assertThat(messages).contains("Jwt used before " + justOverOneDayFromNow);
 	}

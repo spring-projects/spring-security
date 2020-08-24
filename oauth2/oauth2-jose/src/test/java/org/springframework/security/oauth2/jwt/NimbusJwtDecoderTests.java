@@ -75,9 +75,7 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -128,22 +126,34 @@ public class NimbusJwtDecoderTests {
 
 	@Test
 	public void constructorWhenJwtProcessorIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new NimbusJwtDecoder(null));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new NimbusJwtDecoder(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void setClaimSetConverterWhenIsNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.jwtDecoder.setClaimSetConverter(null));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.jwtDecoder.setClaimSetConverter(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void setJwtValidatorWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.jwtDecoder.setJwtValidator(null));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.jwtDecoder.setJwtValidator(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void decodeWhenJwtInvalidThenThrowJwtException() {
-		assertThatExceptionOfType(JwtException.class).isThrownBy(() -> this.jwtDecoder.decode("invalid"));
+		// @formatter:off
+		assertThatExceptionOfType(JwtException.class)
+				.isThrownBy(() -> this.jwtDecoder.decode("invalid"));
+		// @formatter:on
 	}
 
 	// gh-5168
@@ -160,14 +170,20 @@ public class NimbusJwtDecoderTests {
 	// gh-5457
 	@Test
 	public void decodeWhenPlainJwtThenExceptionDoesNotMentionClass() {
-		assertThatExceptionOfType(BadJwtException.class).isThrownBy(() -> this.jwtDecoder.decode(UNSIGNED_JWT))
+		// @formatter:off
+		assertThatExceptionOfType(BadJwtException.class)
+				.isThrownBy(() -> this.jwtDecoder.decode(UNSIGNED_JWT))
 				.withMessageContaining("Unsupported algorithm of none");
+		// @formatter:on
 	}
 
 	@Test
 	public void decodeWhenJwtIsMalformedThenReturnsStockException() {
-		assertThatExceptionOfType(BadJwtException.class).isThrownBy(() -> this.jwtDecoder.decode(MALFORMED_JWT))
+		// @formatter:off
+		assertThatExceptionOfType(BadJwtException.class)
+				.isThrownBy(() -> this.jwtDecoder.decode(MALFORMED_JWT))
 				.withMessage("An error occurred while attempting to decode the Jwt: Malformed payload");
+		// @formatter:on
 	}
 
 	@Test
@@ -176,8 +192,11 @@ public class NimbusJwtDecoderTests {
 		OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
 		given(jwtValidator.validate(any(Jwt.class))).willReturn(OAuth2TokenValidatorResult.failure(failure));
 		this.jwtDecoder.setJwtValidator(jwtValidator);
-		assertThatExceptionOfType(JwtValidationException.class).isThrownBy(() -> this.jwtDecoder.decode(SIGNED_JWT))
+		// @formatter:off
+		assertThatExceptionOfType(JwtValidationException.class)
+				.isThrownBy(() -> this.jwtDecoder.decode(SIGNED_JWT))
 				.withMessageContaining("mock-description");
+		// @formatter:on
 	}
 
 	@Test
@@ -188,9 +207,14 @@ public class NimbusJwtDecoderTests {
 		OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
 		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
 		this.jwtDecoder.setJwtValidator(jwtValidator);
-		assertThatExceptionOfType(JwtValidationException.class).isThrownBy(() -> this.jwtDecoder.decode(SIGNED_JWT))
-				.withMessageContaining("mock-description").satisfies((ex) -> assertThat(ex)
-						.hasFieldOrPropertyWithValue("errors", Arrays.asList(firstFailure, secondFailure)));
+		// @formatter:off
+		assertThatExceptionOfType(JwtValidationException.class)
+				.isThrownBy(() -> this.jwtDecoder.decode(SIGNED_JWT))
+				.withMessageContaining("mock-description")
+				.satisfies((ex) -> assertThat(ex)
+						.hasFieldOrPropertyWithValue("errors", Arrays.asList(firstFailure, secondFailure))
+				);
+		// @formatter:on
 	}
 
 	@Test
@@ -202,8 +226,11 @@ public class NimbusJwtDecoderTests {
 		OAuth2Error error2 = new OAuth2Error("mock-error-second", "mock-description-second", "mock-uri-second");
 		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(errorEmpty, error, error2);
 		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
-		Assertions.assertThatExceptionOfType(JwtValidationException.class)
-				.isThrownBy(() -> this.jwtDecoder.decode(SIGNED_JWT)).withMessageContaining("mock-description");
+		// @formatter:off
+		assertThatExceptionOfType(JwtValidationException.class)
+				.isThrownBy(() -> this.jwtDecoder.decode(SIGNED_JWT))
+				.withMessageContaining("mock-description");
+		// @formatter:on
 	}
 
 	@Test
@@ -222,7 +249,10 @@ public class NimbusJwtDecoderTests {
 		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
 		this.jwtDecoder.setClaimSetConverter(claimSetConverter);
 		given(claimSetConverter.convert(any(Map.class))).willThrow(new IllegalArgumentException("bad conversion"));
-		assertThatExceptionOfType(BadJwtException.class).isThrownBy(() -> this.jwtDecoder.decode(SIGNED_JWT));
+		// @formatter:off
+		assertThatExceptionOfType(BadJwtException.class)
+				.isThrownBy(() -> this.jwtDecoder.decode(SIGNED_JWT));
+		// @formatter:on
 	}
 
 	@Test
@@ -235,9 +265,12 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void decodeWhenJwkResponseIsMalformedThenReturnsStockException() {
 		NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withSigning(MALFORMED_JWK_SET));
-		assertThatExceptionOfType(JwtException.class).isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
+		// @formatter:off
+		assertThatExceptionOfType(JwtException.class)
+				.isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
 				.isNotInstanceOf(BadJwtException.class)
 				.withMessage("An error occurred while attempting to decode the Jwt: Malformed Jwk set");
+		// @formatter:on
 	}
 
 	@Test
@@ -246,9 +279,12 @@ public class NimbusJwtDecoderTests {
 			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
 			server.shutdown();
-			assertThatExceptionOfType(JwtException.class).isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
+			// @formatter:off
+			assertThatExceptionOfType(JwtException.class)
+					.isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
 					.isNotInstanceOf(BadJwtException.class)
 					.withMessageContaining("An error occurred while attempting to decode the Jwt");
+			// @formatter:on
 		}
 	}
 
@@ -259,58 +295,89 @@ public class NimbusJwtDecoderTests {
 			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).cache(cache).build();
 			server.shutdown();
-			assertThatExceptionOfType(JwtException.class).isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
+			// @formatter:off
+			assertThatExceptionOfType(JwtException.class)
+					.isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
 					.isNotInstanceOf(BadJwtException.class)
 					.withMessageContaining("An error occurred while attempting to decode the Jwt");
+			// @formatter:on
 		}
 	}
 
 	@Test
 	public void withJwkSetUriWhenNullOrEmptyThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> NimbusJwtDecoder.withJwkSetUri(null));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> NimbusJwtDecoder.withJwkSetUri(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void jwsAlgorithmWhenNullThenThrowsException() {
 		NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI);
-		assertThatIllegalArgumentException().isThrownBy(() -> builder.jwsAlgorithm(null));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> builder.jwsAlgorithm(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void restOperationsWhenNullThenThrowsException() {
 		NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI);
-		assertThatIllegalArgumentException().isThrownBy(() -> builder.restOperations(null));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> builder.restOperations(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void cacheWhenNullThenThrowsException() {
 		NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI);
-		assertThatIllegalArgumentException().isThrownBy(() -> builder.cache(null));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> builder.cache(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void withPublicKeyWhenNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> NimbusJwtDecoder.withPublicKey(null));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> NimbusJwtDecoder.withPublicKey(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void buildWhenSignatureAlgorithmMismatchesKeyTypeThenThrowsException() {
-		Assertions.assertThatCode(
-				() -> NimbusJwtDecoder.withPublicKey(key()).signatureAlgorithm(SignatureAlgorithm.ES256).build())
-				.isInstanceOf(IllegalStateException.class);
+		// @formatter:off
+		assertThatIllegalStateException()
+				.isThrownBy(() -> NimbusJwtDecoder.withPublicKey(key())
+						.signatureAlgorithm(SignatureAlgorithm.ES256)
+						.build()
+				);
+		// @formatter:on
 	}
 
 	@Test
 	public void decodeWhenUsingPublicKeyThenSuccessfullyDecodes() throws Exception {
 		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(key()).build();
-		assertThat(decoder.decode(RS256_SIGNED_JWT)).extracting(Jwt::getSubject).isEqualTo("test-subject");
+		// @formatter:off
+		assertThat(decoder.decode(RS256_SIGNED_JWT))
+				.extracting(Jwt::getSubject)
+				.isEqualTo("test-subject");
+		// @formatter:on
 	}
 
 	@Test
 	public void decodeWhenUsingPublicKeyWithRs512ThenSuccessfullyDecodes() throws Exception {
-		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(key()).signatureAlgorithm(SignatureAlgorithm.RS512)
+		// @formatter:off
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(key())
+				.signatureAlgorithm(SignatureAlgorithm.RS512)
 				.build();
-		assertThat(decoder.decode(RS512_SIGNED_JWT)).extracting(Jwt::getSubject).isEqualTo("test-subject");
+		assertThat(decoder.decode(RS512_SIGNED_JWT))
+				.extracting(Jwt::getSubject)
+				.isEqualTo("test-subject");
+		// @formatter:on
 	}
 
 	// gh-7049
@@ -318,20 +385,35 @@ public class NimbusJwtDecoderTests {
 	public void decodeWhenUsingPublicKeyWithKidThenStillUsesKey() throws Exception {
 		RSAPublicKey publicKey = TestKeys.DEFAULT_PUBLIC_KEY;
 		RSAPrivateKey privateKey = TestKeys.DEFAULT_PRIVATE_KEY;
-		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("one").build();
-		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject("test-subject")
-				.expirationTime(Date.from(Instant.now().plusSeconds(60))).build();
+		// @formatter:off
+		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256)
+				.keyID("one")
+				.build();
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+				.subject("test-subject")
+				.expirationTime(Date.from(Instant.now().plusSeconds(60)))
+				.build();
+		// @formatter:on
 		SignedJWT signedJwt = signedJwt(privateKey, header, claimsSet);
-		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(publicKey)
-				.signatureAlgorithm(SignatureAlgorithm.RS256).build();
-		assertThat(decoder.decode(signedJwt.serialize())).extracting(Jwt::getSubject).isEqualTo("test-subject");
+		// @formatter:off
+		NimbusJwtDecoder decoder = NimbusJwtDecoder
+				.withPublicKey(publicKey)
+				.signatureAlgorithm(SignatureAlgorithm.RS256)
+				.build();
+		assertThat(decoder.decode(signedJwt.serialize()))
+				.extracting(Jwt::getSubject)
+				.isEqualTo("test-subject");
+		// @formatter:on
 	}
 
 	@Test
 	public void decodeWhenSignatureMismatchesAlgorithmThenThrowsException() throws Exception {
 		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(key()).signatureAlgorithm(SignatureAlgorithm.RS512)
 				.build();
-		assertThatExceptionOfType(BadJwtException.class).isThrownBy(() -> decoder.decode(RS256_SIGNED_JWT));
+		// @formatter:off
+		assertThatExceptionOfType(BadJwtException.class)
+				.isThrownBy(() -> decoder.decode(RS256_SIGNED_JWT));
+		// @formatter:on
 	}
 
 	// gh-8730
@@ -343,91 +425,143 @@ public class NimbusJwtDecoderTests {
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().expirationTime(Date.from(Instant.now().plusSeconds(60)))
 				.build();
 		SignedJWT signedJwt = signedJwt(privateKey, header, claimsSet);
+		// @formatter:off
 		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(publicKey)
 				.signatureAlgorithm(SignatureAlgorithm.RS256)
-				.jwtProcessorCustomizer(
-						(p) -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
+				.jwtProcessorCustomizer((p) -> p
+						.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS")))
+				)
 				.build();
+		// @formatter:on
 		assertThat(decoder.decode(signedJwt.serialize()).containsClaim(JwtClaimNames.EXP)).isNotNull();
 	}
 
 	@Test
 	public void withPublicKeyWhenJwtProcessorCustomizerNullThenThrowsIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> NimbusJwtDecoder.withPublicKey(key()).jwtProcessorCustomizer(null))
 				.withMessage("jwtProcessorCustomizer cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void withSecretKeyWhenNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> NimbusJwtDecoder.withSecretKey(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> NimbusJwtDecoder.withSecretKey(null))
 				.withMessage("secretKey cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void withSecretKeyWhenMacAlgorithmNullThenThrowsIllegalArgumentException() {
 		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(null))
 				.withMessage("macAlgorithm cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void decodeWhenUsingSecretKeyThenSuccessfullyDecodes() throws Exception {
 		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
 		MacAlgorithm macAlgorithm = MacAlgorithm.HS256;
-		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject("test-subject")
-				.expirationTime(Date.from(Instant.now().plusSeconds(60))).build();
+		// @formatter:off
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+				.subject("test-subject")
+				.expirationTime(Date.from(Instant.now().plusSeconds(60)))
+				.build();
+		// @formatter:on
 		SignedJWT signedJWT = signedJwt(secretKey, macAlgorithm, claimsSet);
-		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(macAlgorithm).build();
-		assertThat(decoder.decode(signedJWT.serialize())).extracting(Jwt::getSubject).isEqualTo("test-subject");
+		// @formatter:off
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey)
+				.macAlgorithm(macAlgorithm)
+				.build();
+		assertThat(decoder.decode(signedJWT.serialize()))
+				.extracting(Jwt::getSubject)
+				.isEqualTo("test-subject");
+		// @formatter:on
 	}
 
 	@Test
 	public void decodeWhenUsingSecretKeyAndIncorrectAlgorithmThenThrowsJwtException() throws Exception {
 		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
 		MacAlgorithm macAlgorithm = MacAlgorithm.HS256;
-		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject("test-subject")
-				.expirationTime(Date.from(Instant.now().plusSeconds(60))).build();
+		// @formatter:off
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+				.subject("test-subject")
+				.expirationTime(Date.from(Instant.now().plusSeconds(60)))
+				.build();
+		// @formatter:on
 		SignedJWT signedJWT = signedJwt(secretKey, macAlgorithm, claimsSet);
-		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS512).build();
-		assertThatExceptionOfType(BadJwtException.class).isThrownBy(() -> decoder.decode(signedJWT.serialize()))
+		// @formatter:off
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey)
+				.macAlgorithm(MacAlgorithm.HS512)
+				.build();
+		assertThatExceptionOfType(BadJwtException.class)
+				.isThrownBy(() -> decoder.decode(signedJWT.serialize()))
 				.withMessageContaining("Unsupported algorithm of HS256");
+		// @formatter:on
 	}
 
 	// gh-7056
 	@Test
 	public void decodeWhenUsingSecertKeyWithKidThenStillUsesKey() throws Exception {
 		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
-		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.HS256).keyID("one").build();
-		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject("test-subject")
-				.expirationTime(Date.from(Instant.now().plusSeconds(60))).build();
+		// @formatter:off
+		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.HS256)
+				.keyID("one")
+				.build();
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+				.subject("test-subject")
+				.expirationTime(Date.from(Instant.now().plusSeconds(60)))
+				.build();
+		// @formatter:on
 		SignedJWT signedJwt = signedJwt(secretKey, header, claimsSet);
-		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build();
-		assertThat(decoder.decode(signedJwt.serialize())).extracting(Jwt::getSubject).isEqualTo("test-subject");
+		// @formatter:off
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey)
+				.macAlgorithm(MacAlgorithm.HS256)
+				.build();
+		assertThat(decoder.decode(signedJwt.serialize()))
+				.extracting(Jwt::getSubject)
+				.isEqualTo("test-subject");
+		// @formatter:on
 	}
 
 	// gh-8730
 	@Test
 	public void withSecretKeyWhenUsingCustomTypeHeaderThenSuccessfullyDecodes() throws Exception {
 		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
-		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.HS256).type(new JOSEObjectType("JWS")).build();
-		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().expirationTime(Date.from(Instant.now().plusSeconds(60)))
+		// @formatter:off
+		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.HS256)
+				.type(new JOSEObjectType("JWS"))
 				.build();
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+				.expirationTime(Date.from(Instant.now().plusSeconds(60)))
+				.build();
+		// @formatter:on
 		SignedJWT signedJwt = signedJwt(secretKey, header, claimsSet);
-		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256)
-				.jwtProcessorCustomizer(
-						(p) -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
+		// @formatter:off
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey)
+				.macAlgorithm(MacAlgorithm.HS256)
+				.jwtProcessorCustomizer((p) -> p
+						.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS")))
+				)
 				.build();
+		// @formatter:on
 		assertThat(decoder.decode(signedJwt.serialize()).containsClaim(JwtClaimNames.EXP)).isNotNull();
 	}
 
 	@Test
 	public void withSecretKeyWhenJwtProcessorCustomizerNullThenThrowsIllegalArgumentException() {
 		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> NimbusJwtDecoder.withSecretKey(secretKey).jwtProcessorCustomizer(null))
 				.withMessage("jwtProcessorCustomizer cannot be null");
+		// @formatter:on
 	}
 
 	@Test
@@ -443,8 +577,11 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void jwsKeySelectorWhenOneAlgorithmThenReturnsSingleSelector() {
 		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
+		// @formatter:off
 		JWSKeySelector<SecurityContext> jwsKeySelector = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
-				.jwsAlgorithm(SignatureAlgorithm.RS512).jwsKeySelector(jwkSource);
+				.jwsAlgorithm(SignatureAlgorithm.RS512)
+				.jwsKeySelector(jwkSource);
+		// @formatter:on
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
 		JWSVerificationKeySelector<?> jwsVerificationKeySelector = (JWSVerificationKeySelector<?>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS512)).isTrue();
@@ -453,9 +590,12 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void jwsKeySelectorWhenMultipleAlgorithmThenReturnsCompositeSelector() {
 		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
+		// @formatter:off
 		JWSKeySelector<SecurityContext> jwsKeySelector = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
-				.jwsAlgorithm(SignatureAlgorithm.RS256).jwsAlgorithm(SignatureAlgorithm.RS512)
+				.jwsAlgorithm(SignatureAlgorithm.RS256)
+				.jwsAlgorithm(SignatureAlgorithm.RS512)
 				.jwsKeySelector(jwkSource);
+		// @formatter:on
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
 		JWSVerificationKeySelector<?> jwsAlgorithmMapKeySelector = (JWSVerificationKeySelector<?>) jwsKeySelector;
 		assertThat(jwsAlgorithmMapKeySelector.isAllowed(JWSAlgorithm.RS256)).isTrue();
@@ -468,8 +608,11 @@ public class NimbusJwtDecoderTests {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+		// @formatter:off
 		JWTProcessor<SecurityContext> processor = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
-				.restOperations(restOperations).processor();
+				.restOperations(restOperations)
+				.processor();
+		// @formatter:on
 		NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(processor);
 		jwtDecoder.decode(SIGNED_JWT);
 		ArgumentCaptor<RequestEntity> requestEntityCaptor = ArgumentCaptor.forClass(RequestEntity.class);
@@ -484,8 +627,12 @@ public class NimbusJwtDecoderTests {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
-		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).restOperations(restOperations)
-				.cache(cache).build();
+		// @formatter:off
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
+				.restOperations(restOperations)
+				.cache(cache)
+				.build();
+		// @formatter:on
 		jwtDecoder.decode(SIGNED_JWT);
 		assertThat(cache.get(JWK_SET_URI, String.class)).isEqualTo(JWK_SET);
 		ArgumentCaptor<RequestEntity> requestEntityCaptor = ArgumentCaptor.forClass(RequestEntity.class);
@@ -500,8 +647,12 @@ public class NimbusJwtDecoderTests {
 		RestOperations restOperations = mock(RestOperations.class);
 		Cache cache = mock(Cache.class);
 		given(cache.get(eq(JWK_SET_URI), any(Callable.class))).willReturn(JWK_SET);
-		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).cache(cache)
-				.restOperations(restOperations).build();
+		// @formatter:off
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
+				.cache(cache)
+				.restOperations(restOperations)
+				.build();
+		// @formatter:on
 		jwtDecoder.decode(SIGNED_JWT);
 		verify(cache).get(eq(JWK_SET_URI), any(Callable.class));
 		verifyNoMoreInteractions(cache);
@@ -514,11 +665,16 @@ public class NimbusJwtDecoderTests {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.willThrow(new RestClientException("Cannot retrieve JWK Set"));
-		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).restOperations(restOperations)
-				.cache(cache).build();
-		assertThatExceptionOfType(JwtException.class).isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
+		// @formatter:off
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
+				.restOperations(restOperations)
+				.cache(cache)
+				.build();
+		assertThatExceptionOfType(JwtException.class)
+				.isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
 				.isNotInstanceOf(BadJwtException.class)
 				.withMessageContaining("An error occurred while attempting to decode the Jwt");
+		// @formatter:on
 	}
 
 	// gh-8730
@@ -527,20 +683,27 @@ public class NimbusJwtDecoderTests {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
-		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).restOperations(restOperations)
-				.jwtProcessorCustomizer(
-						(p) -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
+		// @formatter:off
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
+				.restOperations(restOperations)
+				.jwtProcessorCustomizer((p) -> p
+						.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS")))
+				)
 				.build();
-		assertThatExceptionOfType(BadJwtException.class).isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
+		assertThatExceptionOfType(BadJwtException.class)
+				.isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
 				.withMessageContaining("An error occurred while attempting to decode the Jwt: "
 						+ "Required JOSE header \"typ\" (type) parameter is missing");
+		// @formatter:on
 	}
 
 	@Test
 	public void withJwkSetUriWhenJwtProcessorCustomizerNullThenThrowsIllegalArgumentException() {
+		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).jwtProcessorCustomizer(null))
 				.withMessage("jwtProcessorCustomizer cannot be null");
+		// @formatter:on
 	}
 
 	private RSAPublicKey key() throws InvalidKeySpecException {
@@ -574,7 +737,11 @@ public class NimbusJwtDecoderTests {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.willReturn(new ResponseEntity<>(jwkResponse, HttpStatus.OK));
-		return NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).restOperations(restOperations).processor();
+		// @formatter:off
+		return NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
+				.restOperations(restOperations)
+				.processor();
+		// @formatter:on
 	}
 
 	private static JWTProcessor<SecurityContext> withoutSigning() {

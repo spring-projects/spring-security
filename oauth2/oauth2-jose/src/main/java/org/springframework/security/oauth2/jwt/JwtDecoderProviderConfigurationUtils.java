@@ -100,18 +100,27 @@ final class JwtDecoderProviderConfigurationUtils {
 	}
 
 	private static URI oidc(URI issuer) {
-		return UriComponentsBuilder.fromUri(issuer).replacePath(issuer.getPath() + OIDC_METADATA_PATH)
+		// @formatter:off
+		return UriComponentsBuilder.fromUri(issuer)
+				.replacePath(issuer.getPath() + OIDC_METADATA_PATH)
 				.build(Collections.emptyMap());
+		// @formatter:on
 	}
 
 	private static URI oidcRfc8414(URI issuer) {
-		return UriComponentsBuilder.fromUri(issuer).replacePath(OIDC_METADATA_PATH + issuer.getPath())
+		// @formatter:off
+		return UriComponentsBuilder.fromUri(issuer)
+				.replacePath(OIDC_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
+		// @formatter:on
 	}
 
 	private static URI oauth(URI issuer) {
-		return UriComponentsBuilder.fromUri(issuer).replacePath(OAUTH_METADATA_PATH + issuer.getPath())
+		// @formatter:off
+		return UriComponentsBuilder.fromUri(issuer)
+				.replacePath(OAUTH_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
+		// @formatter:on
 	}
 
 }

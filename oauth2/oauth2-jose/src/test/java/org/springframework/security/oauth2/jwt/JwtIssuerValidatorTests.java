@@ -36,7 +36,10 @@ public class JwtIssuerValidatorTests {
 	@Test
 	public void validateWhenIssuerMatchesThenReturnsSuccess() {
 		Jwt jwt = TestJwts.jwt().claim("iss", ISSUER).build();
-		assertThat(this.validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
+		// @formatter:off
+		assertThat(this.validator.validate(jwt))
+				.isEqualTo(OAuth2TokenValidatorResult.success());
+		// @formatter:on
 	}
 
 	@Test
@@ -58,17 +61,26 @@ public class JwtIssuerValidatorTests {
 	public void validateWhenIssuerMatchesAndIsNotAUriThenReturnsSuccess() {
 		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "issuer").build();
 		JwtIssuerValidator validator = new JwtIssuerValidator("issuer");
-		assertThat(validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
+		// @formatter:off
+		assertThat(validator.validate(jwt))
+				.isEqualTo(OAuth2TokenValidatorResult.success());
+		// @formatter:on
 	}
 
 	@Test
 	public void validateWhenJwtIsNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.validator.validate(null));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.validator.validate(null));
+		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenNullIssuerIsGivenThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new JwtIssuerValidator(null));
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtIssuerValidator(null));
+		// @formatter:on
 	}
 
 }

@@ -159,10 +159,13 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 	private Mono<Jwt> decode(JWT parsedToken) {
 		try {
-			return this.jwtProcessor.convert(parsedToken).map((set) -> createJwt(parsedToken, set))
+			// @formatter:off
+			return this.jwtProcessor.convert(parsedToken)
+					.map((set) -> createJwt(parsedToken, set))
 					.map(this::validateJwt)
 					.onErrorMap((ex) -> !(ex instanceof IllegalStateException) && !(ex instanceof JwtException),
 							(ex) -> new JwtException("An error occurred while attempting to decode the Jwt: ", ex));
+			// @formatter:on
 		}
 		catch (JwtException ex) {
 			throw ex;
