@@ -81,8 +81,12 @@ public class JdbcAclServiceTests {
 
 	@Before
 	public void setUpEmbeddedDatabase() {
-		this.embeddedDatabase = new EmbeddedDatabaseBuilder()//
-				.addScript("createAclSchemaWithAclClassIdType.sql").addScript("db/sql/test_data_hierarchy.sql").build();
+		// @formatter:off
+		this.embeddedDatabase = new EmbeddedDatabaseBuilder()
+			.addScript("createAclSchemaWithAclClassIdType.sql")
+			.addScript("db/sql/test_data_hierarchy.sql")
+			.build();
+		// @formatter:on
 	}
 
 	@After
