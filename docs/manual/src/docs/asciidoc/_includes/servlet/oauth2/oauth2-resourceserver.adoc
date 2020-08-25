@@ -761,8 +761,8 @@ public JwtAuthenticationConverter jwtAuthenticationConverter() {
     JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
     grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
-    JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
-    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
+    JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
     return jwtAuthenticationConverter;
 }
 ----
@@ -847,7 +847,7 @@ JwtDecoder jwtDecoder() {
 
      OAuth2TokenValidator<Jwt> withClockSkew = new DelegatingOAuth2TokenValidator<>(
             new JwtTimestampValidator(Duration.ofSeconds(60)),
-            new IssuerValidator(issuerUri));
+            new JwtIssuerValidator(issuerUri));
 
      jwtDecoder.setJwtValidator(withClockSkew);
 
@@ -1040,7 +1040,7 @@ To adjust the way in which Resource Server caches the JWK set, `NimbusJwtDecoder
 ```java
 @Bean
 public JwtDecoder jwtDecoder(CacheManager cacheManager) {
-    return NimbusJwtDecoder.withJwtSetUri(jwkSetUri)
+    return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
             .cache(cacheManager.getCache("jwks"))
             .build();
 }
@@ -1576,7 +1576,7 @@ To adjust the way in which Resource Server connects to the authorization server,
 public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder, OAuth2ResourceServerProperties properties) {
     RestOperations rest = builder
             .basicAuthentication(properties.getOpaquetoken().getClientId(), properties.getOpaquetoken().getClientSecret())
-            .setConnectionTimeout(Duration.ofSeconds(60))
+            .setConnectTimeout(Duration.ofSeconds(60))
             .setReadTimeout(Duration.ofSeconds(60))
             .build();
 
@@ -1634,7 +1634,7 @@ public class JwtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
     private static class ParseOnlyJWTProcessor extends DefaultJWTProcessor<SecurityContext> {
     	JWTClaimsSet process(SignedJWT jwt, SecurityContext context)
                 throws JOSEException {
-            return jwt.getJWTClaimSet();
+            return jwt.getJWTClaimsSet();
         }
     }
 }
