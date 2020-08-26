@@ -23,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.async.CallableProcessingInterceptor;
-import org.springframework.web.context.request.async.CallableProcessingInterceptorAdapter;
 
 /**
  * <p>
@@ -40,7 +39,7 @@ import org.springframework.web.context.request.async.CallableProcessingIntercept
  * @author Rob Winch
  * @since 3.2
  */
-public final class SecurityContextCallableProcessingInterceptor extends CallableProcessingInterceptorAdapter {
+public final class SecurityContextCallableProcessingInterceptor implements CallableProcessingInterceptor {
 
 	private volatile SecurityContext securityContext;
 
