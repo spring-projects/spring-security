@@ -182,6 +182,16 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		this.debugEnabled = debugEnabled;
 		return this;
 	}
+	
+	/**
+	 * Sets the custom RequestRejectedHandler for HttpStrictFirewall filter.
+	 * @param custom implementation of requestRejectedHandler
+	 * @return the {@link WebSecurity} for further customization.
+	 */
+	public WebSecurity requestRejectedHandler(RequestRejectedHandler requestRejectedHandler) {
+		this.requestRejectedHandler = requestRejectedHandler;
+		return this;
+	}
 
 	/**
 	 * <p>
