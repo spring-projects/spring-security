@@ -250,7 +250,9 @@ If you need to override the auto-configuration based on your specific requiremen
 
 The following example shows how to register a `ClientRegistrationRepository` `@Bean`:
 
-[source,java,attrs="-attributes"]
+====
+.Java
+[source,java,role="primary",attrs="-attributes"]
 ----
 @Configuration
 public class OAuth2LoginConfig {
@@ -278,6 +280,36 @@ public class OAuth2LoginConfig {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary",attrs="-attributes"]
+----
+@Configuration
+class OAuth2LoginConfig {
+    @Bean
+    fun clientRegistrationRepository(): ClientRegistrationRepository {
+        return InMemoryClientRegistrationRepository(googleClientRegistration())
+    }
+
+    private fun googleClientRegistration(): ClientRegistration {
+        return ClientRegistration.withRegistrationId("google")
+                .clientId("google-client-id")
+                .clientSecret("google-client-secret")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
+                .scope("openid", "profile", "email", "address", "phone")
+                .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
+                .tokenUri("https://www.googleapis.com/oauth2/v4/token")
+                .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
+                .userNameAttributeName(IdTokenClaimNames.SUB)
+                .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
+                .clientName("Google")
+                .build()
+    }
+}
+----
+====
 
 
 [[oauth2login-provide-websecurityconfigureradapter]]
@@ -856,13 +888,24 @@ You also need to ensure the `ClientRegistration.redirectUri` matches the custom 
 
 The following listing shows an example:
 
-[source,java,attrs="-attributes"]
+.Java
+[source,java,role="primary",attrs="-attributes"]
 ----
 return CommonOAuth2Provider.GOOGLE.getBuilder("google")
 	.clientId("google-client-id")
 	.clientSecret("google-client-secret")
 	.redirectUri("{baseUrl}/login/oauth2/callback/{registrationId}")
 	.build();
+----
+
+.Kotlin
+[source,kotlin,role="secondary",attrs="-attributes"]
+----
+return CommonOAuth2Provider.GOOGLE.getBuilder("google")
+    .clientId("google-client-id")
+    .clientSecret("google-client-secret")
+    .redirectUri("{baseUrl}/login/oauth2/callback/{registrationId}")
+    .build()
 ----
 ====
 
@@ -1166,7 +1209,9 @@ It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error 
 
 Whether you customize `DefaultOAuth2UserService` or provide your own implementation of `OAuth2UserService`, you'll need to configure it as shown in the following example:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -1188,6 +1233,30 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Login {
+                userInfoEndpoint {
+                    userService = oauth2UserService()
+                    // ...
+                }
+            }
+        }
+    }
+
+    private fun oauth2UserService(): OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+        // ...
+    }
+}
+----
+====
+
 
 [[oauth2login-advanced-oidc-user-service]]
 ===== OpenID Connect 1.0 UserService
@@ -1200,7 +1269,9 @@ If you need to customize the pre-processing of the UserInfo Request and/or the p
 
 Whether you customize `OidcUserService` or provide your own implementation of `OAuth2UserService` for OpenID Connect 1.0 Provider's, you'll need to configure it as shown in the following example:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -1222,6 +1293,30 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Login {
+                userInfoEndpoint {
+                    oidcUserService = oidcUserService()
+                    // ...
+                }
+            }
+        }
+    }
+
+    private fun oidcUserService(): OAuth2UserService<OidcUserRequest, OidcUser> {
+        // ...
+    }
+}
+----
+====
+
 
 [[oauth2login-advanced-idtoken-verify]]
 ==== ID Token Signature Verification
@@ -1237,7 +1332,9 @@ The JWS algorithm resolver is a `Function` that accepts a `ClientRegistration` a
 
 The following code shows how to configure the `OidcIdTokenDecoderFactory` `@Bean` to default to `MacAlgorithm.HS256` for all `ClientRegistration`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
@@ -1246,6 +1343,18 @@ public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
 	return idTokenDecoderFactory;
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun idTokenDecoderFactory(): JwtDecoderFactory<ClientRegistration?> {
+    val idTokenDecoderFactory = OidcIdTokenDecoderFactory()
+    idTokenDecoderFactory.setJwsAlgorithmResolver { MacAlgorithm.HS256 }
+    return idTokenDecoderFactory
+}
+----
+====
 
 [NOTE]
 For MAC based algorithms such as `HS256`, `HS384` or `HS512`, the `client-secret` corresponding to the `client-id` is used as the symmetric key for signature verification.
@@ -1281,7 +1390,9 @@ spring:
 
 ...and the `OidcClientInitiatedLogoutSuccessHandler`, which implements RP-Initiated Logout, may be configured as follows:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -1316,3 +1427,38 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 NOTE: `OidcClientInitiatedLogoutSuccessHandler` supports the `{baseUrl}` placeholder.
 If used, the application's base URL, like `https://app.example.org`, will replace it at request time.
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+    @Autowired
+    private lateinit var clientRegistrationRepository: ClientRegistrationRepository
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
+            }
+            oauth2Login { }
+            logout {
+                logoutSuccessHandler = oidcLogoutSuccessHandler()
+            }
+        }
+    }
+
+    private fun oidcLogoutSuccessHandler(): LogoutSuccessHandler {
+        val oidcLogoutSuccessHandler = OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository)
+
+        // Sets the location that the End-User's User Agent will be redirected to
+        // after the logout has been performed at the Provider
+        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}")
+        return oidcLogoutSuccessHandler
+    }
+}
+
+NOTE: `OidcClientInitiatedLogoutSuccessHandler` supports the `{baseUrl}` placeholder.
+If used, the application's base URL, like `https://app.example.org`, will replace it at request time.
+----
+====
