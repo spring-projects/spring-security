@@ -3,8 +3,6 @@ apply plugin: 'io.spring.convention.spring-sample-war'
 dependencies {
 	compile project(':spring-security-saml2-service-provider')
 	compile project(':spring-security-config')
-	compile "org.bouncycastle:bcprov-jdk15on"
-	compile "org.bouncycastle:bcpkix-jdk15on"
 
-	testCompile project(':spring-security-test')
+	testCompile 'org.springframework:spring-test'
 }
