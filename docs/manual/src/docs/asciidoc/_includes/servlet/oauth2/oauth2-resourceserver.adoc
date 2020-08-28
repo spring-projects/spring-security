@@ -282,11 +282,21 @@ For example, the second `@Bean` Spring Boot creates is a `JwtDecoder`, which <<o
 
 .JWT Decoder
 ====
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public JwtDecoder jwtDecoder() {
     return JwtDecoders.fromIssuerLocation(issuerUri);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    return JwtDecoders.fromIssuerLocation(issuerUri)
 }
 ----
 ====
@@ -456,13 +466,25 @@ This is handy when deeper configuration, like <<oauth2resourceserver-jwt-validat
 
 Or, exposing a <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> `@Bean` has the same effect as `decoder()`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public JwtDecoder jwtDecoder() {
     return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
+}
+----
+====
 
 [[oauth2resourceserver-jwt-decoder-algorithm]]
 === Configuring Trusted Algorithms
@@ -492,7 +514,9 @@ spring:
 
 For greater power, though, we can use a builder that ships with `NimbusJwtDecoder`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 JwtDecoder jwtDecoder() {
@@ -501,9 +525,22 @@ JwtDecoder jwtDecoder() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
+            .jwsAlgorithm(RS512).build()
+}
+----
+====
+
 Calling `jwsAlgorithm` more than once will configure `NimbusJwtDecoder` to trust more than one algorithm, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 JwtDecoder jwtDecoder() {
@@ -512,9 +549,22 @@ JwtDecoder jwtDecoder() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
+            .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build()
+}
+----
+====
+
 Or, you can call `jwsAlgorithms`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 JwtDecoder jwtDecoder() {
@@ -526,6 +576,20 @@ JwtDecoder jwtDecoder() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
+            .jwsAlgorithms {
+                it.add(RS512)
+                it.add(ES512)
+            }.build()
+}
+----
+====
+
 [[oauth2resourceserver-jwt-decoder-jwk-response]]
 ==== From JWK Set response
 
@@ -534,7 +598,10 @@ Since Spring Security's JWT support is based off of Nimbus, you can use all it's
 For example, Nimbus has a `JWSKeySelector` implementation that will select the set of algorithms based on the JWK Set URI response.
 You can use it to generate a `NimbusJwtDecoder` like so:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @Bean
 public JwtDecoder jwtDecoder() {
     // makes a request to the JWK Set endpoint
@@ -547,7 +614,21 @@ public JwtDecoder jwtDecoder() {
 
     return new NimbusJwtDecoder(jwtProcessor);
 }
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    // makes a request to the JWK Set endpoint
+    val jwsKeySelector: JWSKeySelector<SecurityContext> = JWSAlgorithmFamilyJWSKeySelector.fromJWKSetURL<SecurityContext>(this.jwkSetUrl)
+    val jwtProcessor: DefaultJWTProcessor<SecurityContext> = DefaultJWTProcessor()
+    jwtProcessor.jwsKeySelector = jwsKeySelector
+    return NimbusJwtDecoder(jwtProcessor)
+}
+----
+====
 
 [[oauth2resourceserver-jwt-decoder-public-key]]
 === Trusting a Single Asymmetric Key
@@ -573,7 +654,9 @@ spring:
 
 Or, to allow for a more sophisticated lookup, you can post-process the `RsaKeyConversionServicePostProcessor`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 BeanFactoryPostProcessor conversionServiceCustomizer() {
@@ -583,6 +666,19 @@ BeanFactoryPostProcessor conversionServiceCustomizer() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun conversionServiceCustomizer(): BeanFactoryPostProcessor {
+    return BeanFactoryPostProcessor { beanFactory ->
+        beanFactory.getBean<RsaKeyConversionServicePostProcessor>()
+                .setResourceLoader(CustomResourceLoader())
+    }
+}
+----
+====
+
 Specify your key's location:
 
 ```yaml
@@ -591,22 +687,46 @@ key.location: hfds://my-key.pub
 
 And then autowire the value:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @Value("${key.location}")
 RSAPublicKey key;
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Value("\${key.location}")
+val key: RSAPublicKey? = null
+----
+====
 
 [[oauth2resourceserver-jwt-decoder-public-key-builder]]
 ==== Using a Builder
 
 To wire an `RSAPublicKey` directly, you can simply use the appropriate `NimbusJwtDecoder` builder, like so:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @Bean
 public JwtDecoder jwtDecoder() {
     return NimbusJwtDecoder.withPublicKey(this.key).build();
 }
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    return NimbusJwtDecoder.withPublicKey(this.key).build()
+}
+----
+====
 
 [[oauth2resourceserver-jwt-decoder-secret-key]]
 === Trusting a Single Symmetric Key
@@ -614,13 +734,25 @@ public JwtDecoder jwtDecoder() {
 Using a single symmetric key is also simple.
 You can simply load in your `SecretKey` and use the appropriate `NimbusJwtDecoder` builder, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public JwtDecoder jwtDecoder() {
     return NimbusJwtDecoder.withSecretKey(this.key).build();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    return NimbusJwtDecoder.withSecretKey(key).build()
+}
+----
+====
 
 [[oauth2resourceserver-jwt-authorization]]
 === Configuring Authorization
@@ -724,6 +856,20 @@ public JwtAuthenticationConverter jwtAuthenticationConverter() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
+    val grantedAuthoritiesConverter = JwtGrantedAuthoritiesConverter()
+    grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities")
+
+    val jwtAuthenticationConverter = JwtAuthenticationConverter()
+    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter)
+    return jwtAuthenticationConverter
+}
+----
+
 .Xml
 [source,xml,role="secondary"]
 ----
@@ -767,6 +913,20 @@ public JwtAuthenticationConverter jwtAuthenticationConverter() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
+    val grantedAuthoritiesConverter = JwtGrantedAuthoritiesConverter()
+    grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_")
+
+    val jwtAuthenticationConverter = JwtAuthenticationConverter()
+    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter)
+    return jwtAuthenticationConverter
+}
+----
+
 .Xml
 [source,xml,role="secondary"]
 ----
@@ -795,7 +955,9 @@ Or, you can remove the prefix altogether by calling `JwtGrantedAuthoritiesConver
 
 For more flexibility, the DSL supports entirely replacing the converter with any class that implements `Converter<Jwt, AbstractAuthenticationToken>`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 static class CustomAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
     public AbstractAuthenticationToken convert(Jwt jwt) {
@@ -821,6 +983,35 @@ public class CustomAuthenticationConverterConfig extends WebSecurityConfigurerAd
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+internal class CustomAuthenticationConverter : Converter<Jwt, AbstractAuthenticationToken> {
+    override fun convert(jwt: Jwt): AbstractAuthenticationToken {
+        return CustomAuthenticationToken(jwt)
+    }
+}
+
+// ...
+
+@EnableWebSecurity
+class CustomAuthenticationConverterConfig : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+       http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
+            }
+           oauth2ResourceServer {
+               jwt {
+                   jwtAuthenticationConverter = CustomAuthenticationConverter()
+               }
+           }
+        }
+    }
+}
+----
+====
+
 [[oauth2resourceserver-jwt-validation]]
 === Configuring Validation
 
@@ -838,7 +1029,9 @@ This can cause some implementation heartburn as the number of collaborating serv
 
 Resource Server uses `JwtTimestampValidator` to verify a token's validity window, and it can be configured with a `clockSkew` to alleviate the above problem:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 JwtDecoder jwtDecoder() {
@@ -855,6 +1048,24 @@ JwtDecoder jwtDecoder() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    val jwtDecoder: NimbusJwtDecoder = JwtDecoders.fromIssuerLocation(issuerUri) as NimbusJwtDecoder
+
+    val withClockSkew: OAuth2TokenValidator<Jwt> = DelegatingOAuth2TokenValidator(
+            JwtTimestampValidator(Duration.ofSeconds(60)),
+            JwtIssuerValidator(issuerUri))
+
+    jwtDecoder.setJwtValidator(withClockSkew)
+
+    return jwtDecoder
+}
+----
+====
+
 [NOTE]
 By default, Resource Server configures a clock skew of 30 seconds.
 
@@ -863,16 +1074,29 @@ By default, Resource Server configures a clock skew of 30 seconds.
 
 Adding a check for the `aud` claim is simple with the `OAuth2TokenValidator` API:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 OAuth2TokenValidator<Jwt> audienceValidator() {
     return new JwtClaimValidator<List<String>>(AUD, aud -> aud.contains("messaging"));
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+fun audienceValidator(): OAuth2TokenValidator<Jwt?> {
+    return JwtClaimValidator<List<String>>(AUD) { aud -> aud.contains("messaging") }
+}
+----
+====
+
 Or, for more control you can implement your own `OAuth2TokenValidator`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 static class AudienceValidator implements OAuth2TokenValidator<Jwt> {
     OAuth2Error error = new OAuth2Error("custom_code", "Custom error message", null);
@@ -894,9 +1118,34 @@ OAuth2TokenValidator<Jwt> audienceValidator() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+internal class AudienceValidator : OAuth2TokenValidator<Jwt> {
+    var error: OAuth2Error = OAuth2Error("custom_code", "Custom error message", null)
+
+    override fun validate(jwt: Jwt): OAuth2TokenValidatorResult {
+        return if (jwt.audience.contains("messaging")) {
+            OAuth2TokenValidatorResult.success()
+        } else {
+            OAuth2TokenValidatorResult.failure(error)
+        }
+    }
+}
+
+// ...
+
+fun audienceValidator(): OAuth2TokenValidator<Jwt> {
+    return AudienceValidator()
+}
+----
+====
+
 Then, to add into a resource server, it's a matter of specifying the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> instance:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 JwtDecoder jwtDecoder() {
@@ -912,6 +1161,24 @@ JwtDecoder jwtDecoder() {
     return jwtDecoder;
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    val jwtDecoder: NimbusJwtDecoder = JwtDecoders.fromIssuerLocation(issuerUri) as NimbusJwtDecoder
+
+    val audienceValidator = audienceValidator()
+    val withIssuer: OAuth2TokenValidator<Jwt> = JwtValidators.createDefaultWithIssuer(issuerUri)
+    val withAudience: OAuth2TokenValidator<Jwt> = DelegatingOAuth2TokenValidator(withIssuer, audienceValidator)
+
+    jwtDecoder.setJwtValidator(withAudience)
+
+    return jwtDecoder
+}
+----
+====
 
 [[oauth2resourceserver-jwt-claimsetmapping]]
 === Configuring Claim Set Mapping
@@ -945,7 +1212,10 @@ By default, `MappedJwtClaimSetConverter` will attempt to coerce claims into the 
 
 An individual claim's conversion strategy can be configured using `MappedJwtClaimSetConverter.withDefaults`:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @Bean
 JwtDecoder jwtDecoder() {
     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
@@ -956,7 +1226,23 @@ JwtDecoder jwtDecoder() {
 
     return jwtDecoder;
 }
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    val jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
+
+    val converter = MappedJwtClaimSetConverter
+            .withDefaults(mapOf("sub" to this::lookupUserIdBySub))
+    jwtDecoder.setClaimSetConverter(converter)
+
+    return jwtDecoder
+}
+----
+====
 This will keep all the defaults, except it will override the default claim converter for `sub`.
 
 [[oauth2resourceserver-jwt-claimsetmapping-add]]
@@ -964,25 +1250,48 @@ This will keep all the defaults, except it will override the default claim conve
 
 `MappedJwtClaimSetConverter` can also be used to add a custom claim, for example, to adapt to an existing system:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 MappedJwtClaimSetConverter.withDefaults(Collections.singletonMap("custom", custom -> "value"));
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+MappedJwtClaimSetConverter.withDefaults(mapOf("custom" to Converter<Any, String> { "value" }))
+----
+====
 
 [[oauth2resourceserver-jwt-claimsetmapping-remove]]
 ==== Removing a Claim
 
 And removing a claim is also simple, using the same API:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 MappedJwtClaimSetConverter.withDefaults(Collections.singletonMap("legacyclaim", legacy -> null));
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+MappedJwtClaimSetConverter.withDefaults(mapOf("legacyclaim" to Converter<Any, Any> { null }))
+----
+====
 
 [[oauth2resourceserver-jwt-claimsetmapping-rename]]
 ==== Renaming a Claim
 
 In more sophisticated scenarios, like consulting multiple claims at once or renaming a claim, Resource Server accepts any class that implements `Converter<Map<String, Object>, Map<String,Object>>`:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 public class UsernameSubClaimAdapter implements Converter<Map<String, Object>, Map<String, Object>> {
     private final MappedJwtClaimSetConverter delegate =
             MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
@@ -996,18 +1305,48 @@ public class UsernameSubClaimAdapter implements Converter<Map<String, Object>, M
         return convertedClaims;
     }
 }
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class UsernameSubClaimAdapter : Converter<Map<String, Any?>, Map<String, Any?>> {
+    private val delegate = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap())
+    override fun convert(claims: Map<String, Any?>): Map<String, Any?> {
+        val convertedClaims = delegate.convert(claims)
+        val username = convertedClaims["user_name"] as String
+        convertedClaims["sub"] = username
+        return convertedClaims
+    }
+}
+----
+====
 
 And then, the instance can be supplied like normal:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @Bean
 JwtDecoder jwtDecoder() {
     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
     jwtDecoder.setClaimSetConverter(new UsernameSubClaimAdapter());
     return jwtDecoder;
 }
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    val jwtDecoder: NimbusJwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
+    jwtDecoder.setClaimSetConverter(UsernameSubClaimAdapter())
+    return jwtDecoder
+}
+----
+====
 
 [[oauth2resourceserver-jwt-timeouts]]
 === Configuring Timeouts
@@ -1019,7 +1358,10 @@ Further, it doesn't take into account more sophisticated patterns like back-off 
 
 To adjust the way in which Resource Server connects to the authorization server, `NimbusJwtDecoder` accepts an instance of `RestOperations`:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @Bean
 public JwtDecoder jwtDecoder(RestTemplateBuilder builder) {
     RestOperations rest = builder
@@ -1030,21 +1372,50 @@ public JwtDecoder jwtDecoder(RestTemplateBuilder builder) {
     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).restOperations(rest).build();
     return jwtDecoder;
 }
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(builder: RestTemplateBuilder): JwtDecoder {
+    val rest: RestOperations = builder
+            .setConnectTimeout(Duration.ofSeconds(60))
+            .setReadTimeout(Duration.ofSeconds(60))
+            .build()
+    return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).restOperations(rest).build()
+}
+----
+====
 
 Also by default, Resource Server caches in-memory the authorization server's JWK set for 5 minutes, which you may want to adjust.
 Further, it doesn't take into account more sophisticated caching patterns like eviction or using a shared cache.
 
 To adjust the way in which Resource Server caches the JWK set, `NimbusJwtDecoder` accepts an instance of `Cache`:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @Bean
 public JwtDecoder jwtDecoder(CacheManager cacheManager) {
     return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
             .cache(cacheManager.getCache("jwks"))
             .build();
 }
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(cacheManager: CacheManager): JwtDecoder {
+    return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+            .cache(cacheManager.getCache("jwks"))
+            .build()
+}
+----
+====
 
 When given a `Cache`, Resource Server will use the JWK Set Uri as the key and the JWK Set JSON as the value.
 
@@ -1156,7 +1527,9 @@ Once a token is authenticated, an instance of `BearerTokenAuthentication` is set
 
 This means that it's available in `@Controller` methods when using `@EnableWebMvc` in your configuration:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/foo")
 public String foo(BearerTokenAuthentication authentication) {
@@ -1164,9 +1537,21 @@ public String foo(BearerTokenAuthentication authentication) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/foo")
+fun foo(authentication: BearerTokenAuthentication): String {
+    return authentication.tokenAttributes["sub"].toString() + " is the subject"
+}
+----
+====
+
 Since `BearerTokenAuthentication` holds an `OAuth2AuthenticatedPrincipal`, that also means that it's available to controller methods, too:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/foo")
 public String foo(@AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal) {
@@ -1174,18 +1559,41 @@ public String foo(@AuthenticationPrincipal OAuth2AuthenticatedPrincipal principa
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/foo")
+fun foo(@AuthenticationPrincipal principal: OAuth2AuthenticatedPrincipal): String {
+    return principal.getAttribute<Any>("sub").toString() + " is the subject"
+}
+----
+====
+
 ==== Looking Up Attributes Via SpEL
 
 Of course, this also means that attributes can be accessed via SpEL.
 
 For example, if using `@EnableGlobalMethodSecurity` so that you can use `@PreAuthorize` annotations, you can do:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @PreAuthorize("principal?.attributes['sub'] == 'foo'")
 public String forFoosEyesOnly() {
     return "foo";
 }
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize("principal?.attributes['sub'] == 'foo'")
+fun forFoosEyesOnly(): String {
+    return "foo"
+}
+----
+====
 
 [[oauth2resourceserver-opaque-sansboot]]
 === Overriding or Replacing Boot Auto Configuration
@@ -1280,13 +1688,25 @@ Methods on the `oauth2ResourceServer` DSL will also override or replace auto con
 [[oauth2resourceserver-opaque-introspector]]
 For example, the second `@Bean` Spring Boot creates is an `OpaqueTokenIntrospector`, <<oauth2resourceserver-opaque-architecture-introspector,which decodes `String` tokens into validated instances of `OAuth2AuthenticatedPrincipal`>>:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public OpaqueTokenIntrospector introspector() {
     return new NimbusOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret);
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(): OpaqueTokenIntrospector {
+    return NimbusOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret)
+}
+----
+====
 
 If the application doesn't expose a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> bean, then Spring Boot will expose the above default one.
 
@@ -1491,6 +1911,26 @@ public class MappedAuthorities extends WebSecurityConfigurerAdapter {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class MappedAuthorities : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+       http {
+            authorizeRequests {
+                authorize("/contacts/**", hasAuthority("SCOPE_contacts"))
+                authorize("/messages/**", hasAuthority("SCOPE_messages"))
+                authorize(anyRequest, authenticated)
+            }
+           oauth2ResourceServer {
+               opaqueToken { }
+           }
+        }
+    }
+}
+----
+
 .Xml
 [source,xml,role="secondary"]
 ----
@@ -1506,10 +1946,21 @@ public class MappedAuthorities extends WebSecurityConfigurerAdapter {
 
 Or similarly with method security:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 public List<Message> getMessages(...) {}
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize("hasAuthority('SCOPE_messages')")
+fun getMessages(): List<Message?> {}
+----
+====
 
 [[oauth2resourceserver-opaque-authorization-extraction]]
 ==== Extracting Authorities Manually
@@ -1530,7 +1981,9 @@ Then Resource Server would generate an `Authentication` with two authorities, on
 
 This can, of course, be customized using a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> that takes a look at the attribute set and converts in its own way:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class CustomAuthoritiesOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
     private OpaqueTokenIntrospector delegate =
@@ -1551,15 +2004,47 @@ public class CustomAuthoritiesOpaqueTokenIntrospector implements OpaqueTokenIntr
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class CustomAuthoritiesOpaqueTokenIntrospector : OpaqueTokenIntrospector {
+    private val delegate: OpaqueTokenIntrospector = NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    override fun introspect(token: String): OAuth2AuthenticatedPrincipal {
+        val principal: OAuth2AuthenticatedPrincipal = delegate.introspect(token)
+        return DefaultOAuth2AuthenticatedPrincipal(
+                principal.name, principal.attributes, extractAuthorities(principal))
+    }
+
+    private fun extractAuthorities(principal: OAuth2AuthenticatedPrincipal): Collection<GrantedAuthority> {
+        val scopes: List<String> = principal.getAttribute(OAuth2IntrospectionClaimNames.SCOPE)
+        return scopes
+                .map { SimpleGrantedAuthority(it) }
+    }
+}
+----
+====
+
 Thereafter, this custom introspector can be configured simply by exposing it as a `@Bean`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public OpaqueTokenIntrospector introspector() {
     return new CustomAuthoritiesOpaqueTokenIntrospector();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(): OpaqueTokenIntrospector {
+    return CustomAuthoritiesOpaqueTokenIntrospector()
+}
+----
+====
 
 [[oauth2resourceserver-opaque-timeouts]]
 === Configuring Timeouts
@@ -1571,7 +2056,10 @@ Further, it doesn't take into account more sophisticated patterns like back-off 
 
 To adjust the way in which Resource Server connects to the authorization server, `NimbusOpaqueTokenIntrospector` accepts an instance of `RestOperations`:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @Bean
 public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder, OAuth2ResourceServerProperties properties) {
     RestOperations rest = builder
@@ -1582,7 +2070,22 @@ public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder, OAuth2R
 
     return new NimbusOpaqueTokenIntrospector(introspectionUri, rest);
 }
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(builder: RestTemplateBuilder, properties: OAuth2ResourceServerProperties): OpaqueTokenIntrospector? {
+    val rest: RestOperations = builder
+            .basicAuthentication(properties.opaquetoken.clientId, properties.opaquetoken.clientSecret)
+            .setConnectTimeout(Duration.ofSeconds(60))
+            .setReadTimeout(Duration.ofSeconds(60))
+            .build()
+    return NimbusOpaqueTokenIntrospector(introspectionUri, rest)
+}
+----
+====
 
 [[oauth2resourceserver-opaque-jwt-introspector]]
 === Using Introspection with JWTs
@@ -1614,7 +2117,9 @@ Now what?
 
 In this case, you can create a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> that still hits the endpoint, but then updates the returned principal to have the JWTs claims as the attributes:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class JwtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
     private OpaqueTokenIntrospector delegate =
@@ -1640,15 +2145,52 @@ public class JwtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class JwtOpaqueTokenIntrospector : OpaqueTokenIntrospector {
+    private val delegate: OpaqueTokenIntrospector = NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val jwtDecoder: JwtDecoder = NimbusJwtDecoder(ParseOnlyJWTProcessor())
+    override fun introspect(token: String): OAuth2AuthenticatedPrincipal {
+        val principal = delegate.introspect(token)
+        return try {
+            val jwt: Jwt = jwtDecoder.decode(token)
+            DefaultOAuth2AuthenticatedPrincipal(jwt.claims, NO_AUTHORITIES)
+        } catch (ex: JwtException) {
+            throw OAuth2IntrospectionException(ex.message)
+        }
+    }
+
+    private class ParseOnlyJWTProcessor : DefaultJWTProcessor<SecurityContext>() {
+        override fun process(jwt: SignedJWT, context: SecurityContext): JWTClaimsSet {
+            return jwt.jwtClaimsSet
+        }
+    }
+}
+----
+====
+
 Thereafter, this custom introspector can be configured simply by exposing it as a `@Bean`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public OpaqueTokenIntrospector introspector() {
-    return new JwtOpaqueTokenIntropsector();
+    return new JwtOpaqueTokenIntrospector();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(): OpaqueTokenIntrospector {
+    return JwtOpaqueTokenIntrospector()
+}
+----
+====
 
 [[oauth2resourceserver-opaque-userinfo]]
 === Calling a `/userinfo` Endpoint
@@ -1664,7 +2206,9 @@ This implementation below does three things:
 * Looks up the appropriate client registration associated with the `/userinfo` endpoint
 * Invokes and returns the response from the `/userinfo` endpoint
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
     private final OpaqueTokenIntrospector delegate =
@@ -1688,10 +2232,35 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class UserInfoOpaqueTokenIntrospector : OpaqueTokenIntrospector {
+    private val delegate: OpaqueTokenIntrospector = NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val oauth2UserService = DefaultOAuth2UserService()
+    private val repository: ClientRegistrationRepository? = null
+
+    // ... constructor
+
+    override fun introspect(token: String): OAuth2AuthenticatedPrincipal {
+        val authorized = delegate.introspect(token)
+        val issuedAt: Instant? = authorized.getAttribute(ISSUED_AT)
+        val expiresAt: Instant? = authorized.getAttribute(EXPIRES_AT)
+        val clientRegistration: ClientRegistration = repository!!.findByRegistrationId("registration-id")
+        val accessToken = OAuth2AccessToken(BEARER, token, issuedAt, expiresAt)
+        val oauth2UserRequest = OAuth2UserRequest(clientRegistration, accessToken)
+        return oauth2UserService.loadUser(oauth2UserRequest)
+    }
+}
+----
+====
+
 If you aren't using `spring-security-oauth2-client`, it's still quite simple.
 You will simply need to invoke the `/userinfo` with your own instance of `WebClient`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
     private final OpaqueTokenIntrospector delegate =
@@ -1706,15 +2275,42 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class UserInfoOpaqueTokenIntrospector : OpaqueTokenIntrospector {
+    private val delegate: OpaqueTokenIntrospector = NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val rest: WebClient = WebClient.create()
+
+    override fun introspect(token: String): OAuth2AuthenticatedPrincipal {
+        val authorized = delegate.introspect(token)
+        return makeUserInfoRequest(authorized)
+    }
+}
+----
+====
+
 Either way, having created your <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>>, you should publish it as a `@Bean` to override the defaults:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 OpaqueTokenIntrospector introspector() {
     return new UserInfoOpaqueTokenIntrospector(...);
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(): OpaqueTokenIntrospector {
+    return UserInfoOpaqueTokenIntrospector(...)
+}
+----
+====
 
 [[oauth2reourceserver-opaqueandjwt]]
 === Supporting both JWT and Opaque Token
@@ -1724,7 +2320,9 @@ For example, you may support more than one tenant where one tenant issues JWTs a
 
 If this decision must be made at request-time, then you can use an `AuthenticationManagerResolver` to achieve it, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerResolver() {
@@ -1742,6 +2340,26 @@ AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerReso
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun tokenAuthenticationManagerResolver(): AuthenticationManagerResolver<HttpServletRequest> {
+    val bearerToken: BearerTokenResolver = DefaultBearerTokenResolver()
+    val jwt: JwtAuthenticationProvider = jwt()
+    val opaqueToken: OpaqueTokenAuthenticationProvider = opaqueToken()
+
+    return AuthenticationManagerResolver { request ->
+        if (useJwt(request)) {
+            AuthenticationManager { jwt.authenticate(it) }
+        } else {
+            AuthenticationManager { opaqueToken.authenticate(it) }
+        }
+    }
+}
+----
+====
+
 NOTE: The implementation of `useJwt(HttpServletRequest)` will likely depend on custom request material like the path.
 
 And then specify this `AuthenticationManagerResolver` in the DSL:
@@ -1758,6 +2376,19 @@ http
     .oauth2ResourceServer(oauth2 -> oauth2
         .authenticationManagerResolver(this.tokenAuthenticationManagerResolver)
     );
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeRequests {
+        authorize(anyRequest, authenticated)
+    }
+    oauth2ResourceServer {
+        authenticationManagerResolver = tokenAuthenticationManagerResolver()
+    }
+}
 ----
 
 .Xml
@@ -1803,6 +2434,21 @@ http
     );
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val customAuthenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
+    ("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo")
+http {
+    authorizeRequests {
+        authorize(anyRequest, authenticated)
+    }
+    oauth2ResourceServer {
+        authenticationManagerResolver = customAuthenticationManagerResolver
+    }
+}
+----
+
 .Xml
 [source,xml,role="secondary"]
 ----
@@ -1831,7 +2477,9 @@ This allows for an application startup that is independent from those authorizat
 Of course, you may not want to restart the application each time a new tenant is added.
 In this case, you can configure the `JwtIssuerAuthenticationManagerResolver` with a repository of `AuthenticationManager` instances, which you can edit at runtime, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 private void addManager(Map<String, AuthenticationManager> authenticationManagers, String issuer) {
 	JwtAuthenticationProvider authenticationProvider = new JwtAuthenticationProvider
@@ -1853,6 +2501,31 @@ http
     );
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+private fun addManager(authenticationManagers: MutableMap<String, AuthenticationManager>, issuer: String) {
+    val authenticationProvider = JwtAuthenticationProvider(JwtDecoders.fromIssuerLocation(issuer))
+    authenticationManagers[issuer] = AuthenticationManager {
+        authentication: Authentication? -> authenticationProvider.authenticate(authentication)
+    }
+}
+
+// ...
+
+val customAuthenticationManagerResolver: JwtIssuerAuthenticationManagerResolver =
+    JwtIssuerAuthenticationManagerResolver(authenticationManagers::get)
+http {
+    authorizeRequests {
+        authorize(anyRequest, authenticated)
+    }
+    oauth2ResourceServer {
+        authenticationManagerResolver = customAuthenticationManagerResolver
+    }
+}
+----
+====
+
 In this case, you construct `JwtIssuerAuthenticationManagerResolver` with a strategy for obtaining the `AuthenticationManager` given the issuer.
 This approach allows us to add and remove elements from the repository (shown as a `Map` in the snippet) at runtime.
 
@@ -1865,7 +2538,9 @@ You may have observed that this strategy, while simple, comes with the trade-off
 
 This extra parsing can be alleviated by configuring the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> directly with a `JWTClaimSetAwareJWSKeySelector` from Nimbus:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Component
 public class TenantJWSKeySelector
@@ -1905,6 +2580,45 @@ public class TenantJWSKeySelector
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Component
+class TenantJWSKeySelector(tenants: TenantRepository) : JWTClaimSetAwareJWSKeySelector<SecurityContext> {
+    private val tenants: TenantRepository <1>
+    private val selectors: MutableMap<String, JWSKeySelector<SecurityContext>> = ConcurrentHashMap() <2>
+
+    init {
+        this.tenants = tenants
+    }
+
+    fun selectKeys(jwsHeader: JWSHeader?, jwtClaimsSet: JWTClaimsSet, securityContext: SecurityContext): List<Key?> {
+        return selectors.computeIfAbsent(toTenant(jwtClaimsSet)) { tenant: String -> fromTenant(tenant) }
+                .selectJWSKeys(jwsHeader, securityContext)
+    }
+
+    private fun toTenant(claimSet: JWTClaimsSet): String {
+        return claimSet.getClaim("iss") as String
+    }
+
+    private fun fromTenant(tenant: String): JWSKeySelector<SecurityContext> {
+        return Optional.ofNullable(this.tenants.findById(tenant)) <3>
+                .map { t -> t.getAttrbute("jwks_uri") }
+                .map { uri: String -> fromUri(uri) }
+                .orElseThrow { IllegalArgumentException("unknown tenant") }
+    }
+
+    private fun fromUri(uri: String): JWSKeySelector<SecurityContext?> {
+        return try {
+            JWSAlgorithmFamilyJWSKeySelector.fromJWKSetURL(URL(uri)) <4>
+        } catch (ex: Exception) {
+            throw IllegalArgumentException(ex)
+        }
+    }
+}
+----
+====
 <1> A hypothetical source for tenant information
 <2> A cache for `JWKKeySelector`s, keyed by tenant identifier
 <3> Looking up the tenant is more secure than simply calculating the JWK Set endpoint on the fly - the lookup acts as a list of allowed tenants
@@ -1918,7 +2632,9 @@ Without this, you have no guarantee that the issuer hasn't been altered by a bad
 
 Next, we can construct a `JWTProcessor`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 JWTProcessor jwtProcessor(JWTClaimSetJWSKeySelector keySelector) {
@@ -1929,13 +2645,27 @@ JWTProcessor jwtProcessor(JWTClaimSetJWSKeySelector keySelector) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtProcessor(keySelector: JWTClaimsSetAwareJWSKeySelector<SecurityContext>): JWTProcessor<SecurityContext> {
+    val jwtProcessor = DefaultJWTProcessor<SecurityContext>()
+    jwtProcessor.jwtClaimsSetAwareJWSKeySelector = keySelector
+    return jwtProcessor
+}
+----
+====
+
 As you are already seeing, the trade-off for moving tenant-awareness down to this level is more configuration.
 We have just a bit more.
 
 Next, we still want to make sure you are validating the issuer.
 But, since the issuer may be different per JWT, then you'll need a tenant-aware validator, too:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Component
 public class TenantJwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
@@ -1965,9 +2695,41 @@ public class TenantJwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Component
+class TenantJwtIssuerValidator(tenants: TenantRepository) : OAuth2TokenValidator<Jwt> {
+    private val tenants: TenantRepository
+    private val validators: MutableMap<String, JwtIssuerValidator> = ConcurrentHashMap()
+    override fun validate(token: Jwt): OAuth2TokenValidatorResult {
+        return validators.computeIfAbsent(toTenant(token)) { tenant: String -> fromTenant(tenant) }
+                .validate(token)
+    }
+
+    private fun toTenant(jwt: Jwt): String {
+        return jwt.issuer.toString()
+    }
+
+    private fun fromTenant(tenant: String): JwtIssuerValidator {
+        return Optional.ofNullable(tenants.findById(tenant))
+                .map({ t -> t.getAttribute("issuer") })
+                .map({ JwtIssuerValidator() })
+                .orElseThrow({ IllegalArgumentException("unknown tenant") })
+    }
+
+    init {
+        this.tenants = tenants
+    }
+}
+----
+====
+
 Now that we have a tenant-aware processor and a tenant-aware validator, we can proceed with creating our <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>>:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 JwtDecoder jwtDecoder(JWTProcessor jwtProcessor, OAuth2TokenValidator<Jwt> jwtValidator) {
@@ -1978,6 +2740,19 @@ JwtDecoder jwtDecoder(JWTProcessor jwtProcessor, OAuth2TokenValidator<Jwt> jwtVa
 	return decoder;
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(jwtProcessor: JWTProcessor<SecurityContext>?, jwtValidator: OAuth2TokenValidator<Jwt>?): JwtDecoder {
+    val decoder = NimbusJwtDecoder(jwtProcessor)
+    val validator: OAuth2TokenValidator<Jwt> = DelegatingOAuth2TokenValidator(JwtValidators.createDefault(), jwtValidator)
+    decoder.setJwtValidator(validator)
+    return decoder
+}
+----
+====
 
 We've finished talking about resolving the tenant.
 
@@ -2007,6 +2782,17 @@ BearerTokenResolver bearerTokenResolver() {
     DefaultBearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
     bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.PROXY_AUTHORIZATION);
     return bearerTokenResolver;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun bearerTokenResolver(): BearerTokenResolver {
+    val bearerTokenResolver = DefaultBearerTokenResolver()
+    bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.PROXY_AUTHORIZATION)
+    return bearerTokenResolver
 }
 ----
 
@@ -2043,6 +2829,18 @@ http
     );
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val resolver = DefaultBearerTokenResolver()
+resolver.setAllowFormEncodedBodyParameter(true)
+http {
+    oauth2ResourceServer {
+        bearerTokenResolver = resolver
+    }
+}
+----
+
 .Xml
 [source,xml,role="secondary"]
 ----
@@ -2062,7 +2860,9 @@ http
 Now that you're resource server has validated the token, it might be handy to pass it to downstream services.
 This is quite simple with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServletBearerExchangeFilterFunction.html[ServletBearerExchangeFilterFunction]`, which you can see in the following example:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public WebClient rest() {
@@ -2072,12 +2872,26 @@ public WebClient rest() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun rest(): WebClient {
+    return WebClient.builder()
+            .filter(ServletBearerExchangeFilterFunction())
+            .build()
+}
+----
+====
+
 When the above `WebClient` is used to perform requests, Spring Security will look up the current `Authentication` and extract any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[AbstractOAuth2Token]` credential.
 Then, it will propagate that token in the `Authorization` header.
 
 For example:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 this.rest.get()
         .uri("https://other-service.example.com/endpoint")
@@ -2086,11 +2900,24 @@ this.rest.get()
         .block()
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+this.rest.get()
+        .uri("https://other-service.example.com/endpoint")
+        .retrieve()
+        .bodyToMono<String>()
+        .block()
+----
+====
+
 Will invoke the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
 
 In places where you need to override this behavior, it's a simple matter of supplying the header yourself, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 this.rest.get()
         .uri("https://other-service.example.com/endpoint")
@@ -2099,6 +2926,18 @@ this.rest.get()
         .bodyToMono(String.class)
         .block()
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+this.rest.get()
+        .uri("https://other-service.example.com/endpoint")
+        .headers{  headers -> headers.setBearerAuth(overridingToken)}
+        .retrieve()
+        .bodyToMono<String>()
+        .block()
+----
+====
 
 In this case, the filter will fall back and simply forward the request onto the rest of the web filter chain.
 
@@ -2110,7 +2949,9 @@ To obtain this level of support, please use the OAuth 2.0 Client filter.
 
 There is no `RestTemplate` equivalent for `ServletBearerExchangeFilterFunction` at the moment, but you can propagate the request's bearer token quite simply with your own interceptor:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 RestTemplate rest() {
@@ -2133,6 +2974,31 @@ RestTemplate rest() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun rest(): RestTemplate {
+    val rest = RestTemplate()
+    rest.interceptors.add(ClientHttpRequestInterceptor { request, body, execution ->
+        val authentication: Authentication? = SecurityContextHolder.getContext().authentication
+        if (authentication != null) {
+            execution.execute(request, body)
+        }
+
+        if (authentication!!.credentials !is AbstractOAuth2Token) {
+            execution.execute(request, body)
+        }
+
+        val token: AbstractOAuth2Token = authentication.credentials as AbstractOAuth2Token
+        request.headers.setBearerAuth(token.tokenValue)
+        execution.execute(request, body)
+    })
+    return rest
+}
+----
+====
+
 
 [NOTE]
 Unlike the {security-api-url}org/springframework/security/oauth2/client/OAuth2AuthorizedClientManager.html[OAuth 2.0 Authorized Client Manager], this filter interceptor makes no attempt to renew the token, should it be expired.
@@ -2154,7 +3020,9 @@ WWW-Authenticate: Bearer error_code="invalid_token", error_description="Unsuppor
 
 Additionally, it is published as an `AuthenticationFailureBadCredentialsEvent`, which you can <<servlet-events,listen for in your application>> like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Component
 public class FailureEvents {
@@ -2166,3 +3034,18 @@ public class FailureEvents {
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Component
+class FailureEvents {
+    @EventListener
+    fun onFailure(badCredentials: AuthenticationFailureBadCredentialsEvent) {
+        if (badCredentials.authentication is BearerTokenAuthenticationToken) {
+            // ... handle
+        }
+    }
+}
+----
+====
