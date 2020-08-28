@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.servlet
 
+import org.springframework.security.authentication.AuthenticationManagerResolver
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.web.servlet.oauth2.resourceserver.JwtDsl
 import org.springframework.security.config.web.servlet.oauth2.resourceserver.OpaqueTokenDsl
@@ -23,6 +24,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.access.AccessDeniedHandler
+import javax.servlet.http.HttpServletRequest
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] OAuth 2.0 resource server support using
@@ -42,6 +44,7 @@ class OAuth2ResourceServerDsl {
     var accessDeniedHandler: AccessDeniedHandler? = null
     var authenticationEntryPoint: AuthenticationEntryPoint? = null
     var bearerTokenResolver: BearerTokenResolver? = null
+    var authenticationManagerResolver: AuthenticationManagerResolver<HttpServletRequest>? = null
 
     private var jwt: ((OAuth2ResourceServerConfigurer<HttpSecurity>.JwtConfigurer) -> Unit)? = null
     private var opaqueToken: ((OAuth2ResourceServerConfigurer<HttpSecurity>.OpaqueTokenConfigurer) -> Unit)? = null
@@ -105,6 +108,7 @@ class OAuth2ResourceServerDsl {
             accessDeniedHandler?.also { oauth2ResourceServer.accessDeniedHandler(accessDeniedHandler) }
             authenticationEntryPoint?.also { oauth2ResourceServer.authenticationEntryPoint(authenticationEntryPoint) }
             bearerTokenResolver?.also { oauth2ResourceServer.bearerTokenResolver(bearerTokenResolver) }
+            authenticationManagerResolver?.also { oauth2ResourceServer.authenticationManagerResolver(authenticationManagerResolver) }
             jwt?.also { oauth2ResourceServer.jwt(jwt) }
             opaqueToken?.also { oauth2ResourceServer.opaqueToken(opaqueToken) }
         }

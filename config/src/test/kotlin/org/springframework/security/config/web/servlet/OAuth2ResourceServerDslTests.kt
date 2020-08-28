@@ -16,11 +16,15 @@
 
 package org.springframework.security.config.web.servlet
 
+import org.assertj.core.api.Assertions
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.*
+import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationManagerResolver
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -28,11 +32,13 @@ import org.springframework.security.config.test.SpringTestRule
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.access.AccessDeniedHandler
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import javax.servlet.http.HttpServletRequest
 
 /**
  * Tests for [OAuth2ResourceServerDsl]
@@ -46,6 +52,11 @@ class OAuth2ResourceServerDslTests {
 
     @Autowired
     lateinit var mockMvc: MockMvc
+
+    private val JWT: Jwt = Jwt.withTokenValue("token")
+            .header("alg", "none")
+            .claim(SUB, "user")
+            .build()
 
     @Test
     fun `oauth2Resource server when custom entry point then entry point used`() {
@@ -116,11 +127,7 @@ class OAuth2ResourceServerDslTests {
     @Test
     fun `oauth2Resource server when custom access denied handler then handler used`() {
         this.spring.register(AccessDeniedHandlerConfig::class.java).autowire()
-        `when`(AccessDeniedHandlerConfig.DECODER.decode(anyString())).thenReturn(
-                Jwt.withTokenValue("token")
-                        .header("alg", "none")
-                        .claim(SUB, "user")
-                        .build())
+        `when`(AccessDeniedHandlerConfig.DECODER.decode(anyString())).thenReturn(JWT)
 
         this.mockMvc.get("/") {
             header("Authorization", "Bearer token")
@@ -151,6 +158,63 @@ class OAuth2ResourceServerDslTests {
         @Bean
         open fun jwtDecoder(): JwtDecoder {
             return DECODER
+        }
+    }
+
+    @Test
+    fun `oauth2Resource server when custom authentication manager resolver then resolver used`() {
+        this.spring.register(AuthenticationManagerResolverConfig::class.java).autowire()
+        `when`(AuthenticationManagerResolverConfig.RESOLVER.resolve(any())).thenReturn(
+                AuthenticationManager {
+                    JwtAuthenticationToken(JWT)
+                }
+        )
+
+        this.mockMvc.get("/") {
+            header("Authorization", "Bearer token")
+        }
+
+        verify(AuthenticationManagerResolverConfig.RESOLVER).resolve(any())
+    }
+
+    @EnableWebSecurity
+    open class AuthenticationManagerResolverConfig : WebSecurityConfigurerAdapter() {
+        companion object {
+            var RESOLVER: AuthenticationManagerResolver<*> = mock(AuthenticationManagerResolver::class.java)
+        }
+
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                oauth2ResourceServer {
+                    authenticationManagerResolver = RESOLVER as AuthenticationManagerResolver<HttpServletRequest>
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `oauth2Resource server when custom authentication manager resolver and opaque then exception`() {
+        Assertions.assertThatExceptionOfType(BeanCreationException::class.java)
+                .isThrownBy { spring.register(AuthenticationManagerResolverAndOpaqueConfig::class.java).autowire() }
+                .withMessageContaining("authenticationManagerResolver")
+    }
+
+    @EnableWebSecurity
+    open class AuthenticationManagerResolverAndOpaqueConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                oauth2ResourceServer {
+                    authenticationManagerResolver = mock(AuthenticationManagerResolver::class.java)
+                            as AuthenticationManagerResolver<HttpServletRequest>
+                    opaqueToken { }
+                }
+            }
         }
     }
 }
