@@ -40,7 +40,7 @@ Here's what you'll see in this release:
 ** Added https://github.com/spring-projects/spring-security/issues/5185[XML support]
 ** Improved https://github.com/spring-projects/spring-security/pull/7826[bearer token error handling] for JWT and Opaque Token
 * SAML 2.0
-** Added <<servlet-saml2-opensamlauthenticationprovider-authenticationmanager,AuthenticationManager>> configuration
+** Added <<servlet-saml2login-opensamlauthenticationprovider-authenticationmanager,AuthenticationManager>> configuration
 ** Added support for https://github.com/spring-projects/spring-security/issues/7711[AuthNRequest signatures]
 ** Added support for https://github.com/spring-projects/spring-security/pull/7759[AuthNRequest POST binding]
 
