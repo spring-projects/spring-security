@@ -144,23 +144,26 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		try {
 			UsernamePasswordAuthenticationToken authRequest = this.authenticationConverter.convert(request);
 			if (authRequest == null) {
+				this.logger.trace("Did not process authentication request since failed to find "
+						+ "username and password in Basic Authorization header");
 				chain.doFilter(request, response);
 				return;
 			}
 			String username = authRequest.getName();
-			this.logger.debug(
-					LogMessage.format("Basic Authentication Authorization header found for user '%s'", username));
+			this.logger.trace(LogMessage.format("Found username '%s' in Basic Authorization header", username));
 			if (authenticationIsRequired(username)) {
 				Authentication authResult = this.authenticationManager.authenticate(authRequest);
-				this.logger.debug(LogMessage.format("Authentication success: %s", authResult));
 				SecurityContextHolder.getContext().setAuthentication(authResult);
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
+				}
 				this.rememberMeServices.loginSuccess(request, response, authResult);
 				onSuccessfulAuthentication(request, response, authResult);
 			}
 		}
 		catch (AuthenticationException ex) {
 			SecurityContextHolder.clearContext();
-			this.logger.debug("Authentication request for failed!", ex);
+			this.logger.debug("Failed to process authentication request", ex);
 			this.rememberMeServices.loginFail(request, response);
 			onUnsuccessfulAuthentication(request, response, ex);
 			if (this.ignoreFailure) {
