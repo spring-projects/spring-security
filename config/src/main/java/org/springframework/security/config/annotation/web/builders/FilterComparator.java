@@ -25,6 +25,7 @@ import javax.servlet.Filter;
 
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -111,6 +112,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 		put(SessionManagementFilter.class, order.next());
 		put(ExceptionTranslationFilter.class, order.next());
 		put(FilterSecurityInterceptor.class, order.next());
+		put(AuthorizationFilter.class, order.next());
 		put(SwitchUserFilter.class, order.next());
 	}
 

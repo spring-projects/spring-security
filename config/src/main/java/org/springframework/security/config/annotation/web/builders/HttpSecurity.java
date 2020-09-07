@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.configurers.ChannelSecurityConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -1251,6 +1253,90 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		ApplicationContext context = getContext();
 		authorizeRequestsCustomizer
 				.customize(getOrApply(new ExpressionUrlAuthorizationConfigurer<>(context)).getRegistry());
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Allows restricting access based upon the {@link HttpServletRequest} using
+	 * {@link RequestMatcher} implementations (i.e. via URL patterns).
+	 *
+	 * <h2>Example Configurations</h2>
+	 *
+	 * The most basic example is to configure all URLs to require the role "ROLE_USER".
+	 * The configuration below requires authentication to every URL and will grant access
+	 * to both the user "admin" and "user".
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) ->
+	 * 				authorizeHttpRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.formLogin(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * We can also configure multiple URLs. The configuration below requires
+	 * authentication to every URL and will grant access to URLs starting with /admin/ to
+	 * only the "admin" user. All other URLs either user can access.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) ->
+	 * 				authorizeHttpRequests
+	 * 					.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.formLogin(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * Note that the matchers are considered in order. Therefore, the following is invalid
+	 * because the first matcher matches every request and will never get to the second
+	 * mapping:
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 		 	.authorizeHttpRequests((authorizeHttpRequests) ->
+	 * 		 		authorizeHttpRequests
+	 * 			 		.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			 		.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 		 	);
+	 * 	}
+	 * }
+	 * </pre>
+	 * @param authorizeHttpRequestsCustomizer the {@link Customizer} to provide more
+	 * options for the {@link AuthorizationManagerRequestMatcherRegistry}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 * @see #requestMatcher(RequestMatcher)
+	 */
+	public HttpSecurity authorizeHttpRequests(
+			Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeHttpRequestsCustomizer)
+			throws Exception {
+		ApplicationContext context = getContext();
+		authorizeHttpRequestsCustomizer
+				.customize(getOrApply(new AuthorizeHttpRequestsConfigurer<>(context)).getRegistry());
 		return HttpSecurity.this;
 	}
 
