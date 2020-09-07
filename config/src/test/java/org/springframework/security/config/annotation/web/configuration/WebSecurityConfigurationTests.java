@@ -256,6 +256,76 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Test
+	public void loadConfigWhenOnlyWebSecurityCustomizerThenDefaultFilterChainCreated() {
+		this.spring.register(WebSecurityCustomizerConfig.class).autowire();
+		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
+		assertThat(filterChains).hasSize(3);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setServletPath("/ignore1");
+		assertThat(filterChains.get(0).matches(request)).isTrue();
+		assertThat(filterChains.get(0).getFilters()).isEmpty();
+		request.setServletPath("/ignore2");
+		assertThat(filterChains.get(1).matches(request)).isTrue();
+		assertThat(filterChains.get(1).getFilters()).isEmpty();
+		request.setServletPath("/test/**");
+		assertThat(filterChains.get(2).matches(request)).isTrue();
+	}
+
+	@Test
+	public void loadConfigWhenWebSecurityCustomizerAndFilterChainThenFilterChainsOrdered() {
+		this.spring.register(CustomizerAndFilterChainConfig.class).autowire();
+		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
+		assertThat(filterChains).hasSize(3);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setServletPath("/ignore1");
+		assertThat(filterChains.get(0).matches(request)).isTrue();
+		assertThat(filterChains.get(0).getFilters()).isEmpty();
+		request.setServletPath("/ignore2");
+		assertThat(filterChains.get(1).matches(request)).isTrue();
+		assertThat(filterChains.get(1).getFilters()).isEmpty();
+		request.setServletPath("/role1/**");
+		assertThat(filterChains.get(2).matches(request)).isTrue();
+		request.setServletPath("/test/**");
+		assertThat(filterChains.get(2).matches(request)).isFalse();
+	}
+
+	@Test
+	public void loadConfigWhenWebSecurityCustomizerAndWebSecurityConfigurerAdapterThenFilterChainsOrdered() {
+		this.spring.register(CustomizerAndAdapterConfig.class).autowire();
+		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
+		assertThat(filterChains).hasSize(3);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setServletPath("/ignore1");
+		assertThat(filterChains.get(0).matches(request)).isTrue();
+		assertThat(filterChains.get(0).getFilters()).isEmpty();
+		request.setServletPath("/ignore2");
+		assertThat(filterChains.get(1).matches(request)).isTrue();
+		assertThat(filterChains.get(1).getFilters()).isEmpty();
+		request.setServletPath("/role1/**");
+		assertThat(filterChains.get(2).matches(request)).isTrue();
+		request.setServletPath("/test/**");
+		assertThat(filterChains.get(2).matches(request)).isFalse();
+	}
+
+	@Test
+	public void loadConfigWhenCustomizerAndAdapterConfigureWebSecurityThenBothConfigurationsApplied() {
+		this.spring.register(CustomizerAndAdapterIgnoringConfig.class).autowire();
+		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
+		assertThat(filterChains).hasSize(3);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setServletPath("/ignore1");
+		assertThat(filterChains.get(0).matches(request)).isTrue();
+		assertThat(filterChains.get(0).getFilters()).isEmpty();
+		request.setServletPath("/ignore2");
+		assertThat(filterChains.get(1).matches(request)).isTrue();
+		assertThat(filterChains.get(1).getFilters()).isEmpty();
+	}
+
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class SortedWebSecurityConfigurerAdaptersConfig {
@@ -676,6 +746,88 @@ public class WebSecurityConfigurationTests {
 							.anyRequest().permitAll()
 					);
 				// @formatter:on
+			}
+
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(AuthenticationTestConfiguration.class)
+	static class WebSecurityCustomizerConfig {
+
+		@Bean
+		public WebSecurityCustomizer webSecurityCustomizer() {
+			return (web) -> web.ignoring().antMatchers("/ignore1", "/ignore2");
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(AuthenticationTestConfiguration.class)
+	static class CustomizerAndFilterChainConfig {
+
+		@Bean
+		public WebSecurityCustomizer webSecurityCustomizer() {
+			return (web) -> web.ignoring().antMatchers("/ignore1", "/ignore2");
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.antMatcher("/role1/**")
+					.authorizeRequests((authorize) -> authorize
+							.anyRequest().hasRole("1")
+					)
+					.build();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(AuthenticationTestConfiguration.class)
+	static class CustomizerAndAdapterConfig {
+
+		@Bean
+		public WebSecurityCustomizer webSecurityCustomizer() {
+			return (web) -> web.ignoring().antMatchers("/ignore1", "/ignore2");
+		}
+
+		@Configuration
+		static class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
+				http
+						.antMatcher("/role1/**")
+						.authorizeRequests((authorize) -> authorize
+								.anyRequest().hasRole("1")
+						);
+				// @formatter:on
+			}
+
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(AuthenticationTestConfiguration.class)
+	static class CustomizerAndAdapterIgnoringConfig {
+
+		@Bean
+		public WebSecurityCustomizer webSecurityCustomizer() {
+			return (web) -> web.ignoring().antMatchers("/ignore1");
+		}
+
+		@Configuration
+		static class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+			@Override
+			public void configure(WebSecurity web) throws Exception {
+				web.ignoring().antMatchers("/ignore2");
 			}
 
 		}

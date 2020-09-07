@@ -77,6 +77,8 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 
 	private List<SecurityFilterChain> securityFilterChains = Collections.emptyList();
 
+	private List<WebSecurityCustomizer> webSecurityCustomizers = Collections.emptyList();
+
 	private ClassLoader beanClassLoader;
 
 	@Autowired(required = false)
@@ -118,6 +120,9 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 					break;
 				}
 			}
+		}
+		for (WebSecurityCustomizer customizer : this.webSecurityCustomizers) {
+			customizer.customize(this.webSecurity);
 		}
 		return this.webSecurity.build();
 	}
@@ -173,6 +178,12 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	void setFilterChains(List<SecurityFilterChain> securityFilterChains) {
 		securityFilterChains.sort(AnnotationAwareOrderComparator.INSTANCE);
 		this.securityFilterChains = securityFilterChains;
+	}
+
+	@Autowired(required = false)
+	void setWebSecurityCustomizers(List<WebSecurityCustomizer> webSecurityCustomizers) {
+		webSecurityCustomizers.sort(AnnotationAwareOrderComparator.INSTANCE);
+		this.webSecurityCustomizers = webSecurityCustomizers;
 	}
 
 	@Bean
