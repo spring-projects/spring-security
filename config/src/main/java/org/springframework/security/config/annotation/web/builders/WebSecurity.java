@@ -41,6 +41,7 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
@@ -69,8 +70,8 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  *
  * <p>
  * Customizations to the {@link WebSecurity} can be made by creating a
- * {@link WebSecurityConfigurer} or more likely by overriding
- * {@link WebSecurityConfigurerAdapter}.
+ * {@link WebSecurityConfigurer}, overriding {@link WebSecurityConfigurerAdapter} or
+ * exposing a {@link WebSecurityCustomizer} bean.
  * </p>
  *
  * @author Rob Winch
