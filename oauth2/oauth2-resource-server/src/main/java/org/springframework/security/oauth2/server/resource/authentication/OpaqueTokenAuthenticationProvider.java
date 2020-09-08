@@ -19,6 +19,9 @@ package org.springframework.security.oauth2.server.resource.authentication;
 import java.time.Instant;
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -61,6 +64,8 @@ import org.springframework.util.Assert;
  */
 public final class OpaqueTokenAuthenticationProvider implements AuthenticationProvider {
 
+	private final Log logger = LogFactory.getLog(getClass());
+
 	private OpaqueTokenIntrospector introspector;
 
 	/**
@@ -89,6 +94,7 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 		OAuth2AuthenticatedPrincipal principal = getOAuth2AuthenticatedPrincipal(bearer);
 		AbstractAuthenticationToken result = convert(principal, bearer.getToken());
 		result.setDetails(bearer.getDetails());
+		this.logger.debug("Authenticated token");
 		return result;
 	}
 
@@ -97,6 +103,7 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 			return this.introspector.introspect(bearer.getToken());
 		}
 		catch (BadOpaqueTokenException failed) {
+			this.logger.debug("Failed to authenticate since token was invalid");
 			throw new InvalidBearerTokenException(failed.getMessage());
 		}
 		catch (OAuth2IntrospectionException failed) {

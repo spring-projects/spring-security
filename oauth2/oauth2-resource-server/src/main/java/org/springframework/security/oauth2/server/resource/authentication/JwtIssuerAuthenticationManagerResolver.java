@@ -26,8 +26,11 @@ import java.util.function.Predicate;
 import javax.servlet.http.HttpServletRequest;
 
 import com.nimbusds.jwt.JWTParser;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.log.LogMessage;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
@@ -151,6 +154,8 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	private static class TrustedIssuerJwtAuthenticationManagerResolver
 			implements AuthenticationManagerResolver<String> {
 
+		private final Log logger = LogFactory.getLog(getClass());
+
 		private final Map<String, AuthenticationManager> authenticationManagers = new ConcurrentHashMap<>();
 
 		private final Predicate<String> trustedIssuer;
@@ -162,10 +167,17 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 		@Override
 		public AuthenticationManager resolve(String issuer) {
 			if (this.trustedIssuer.test(issuer)) {
-				return this.authenticationManagers.computeIfAbsent(issuer, (k) -> {
-					JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuer);
-					return new JwtAuthenticationProvider(jwtDecoder)::authenticate;
-				});
+				AuthenticationManager authenticationManager = this.authenticationManagers.computeIfAbsent(issuer,
+						(k) -> {
+							this.logger.debug("Constructing AuthenticationManager");
+							JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuer);
+							return new JwtAuthenticationProvider(jwtDecoder)::authenticate;
+						});
+				this.logger.debug(LogMessage.format("Resolved AuthenticationManager for issuer '%s'", issuer));
+				return authenticationManager;
+			}
+			else {
+				this.logger.debug("Did not resolve AuthenticationManager since issuer is not trusted");
 			}
 			return null;
 		}

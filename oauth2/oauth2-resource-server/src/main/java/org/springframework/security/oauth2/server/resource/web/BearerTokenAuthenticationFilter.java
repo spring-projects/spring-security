@@ -23,6 +23,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
@@ -105,10 +106,12 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 			token = this.bearerTokenResolver.resolve(request);
 		}
 		catch (OAuth2AuthenticationException invalid) {
+			this.logger.trace("Sending to authentication entry point since failed to resolve bearer token", invalid);
 			this.authenticationEntryPoint.commence(request, response, invalid);
 			return;
 		}
 		if (token == null) {
+			this.logger.trace("Did not process request since did not find bearer token");
 			filterChain.doFilter(request, response);
 			return;
 		}
@@ -120,11 +123,14 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 			SecurityContext context = SecurityContextHolder.createEmptyContext();
 			context.setAuthentication(authenticationResult);
 			SecurityContextHolder.setContext(context);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authenticationResult));
+			}
 			filterChain.doFilter(request, response);
 		}
 		catch (AuthenticationException failed) {
 			SecurityContextHolder.clearContext();
-			this.logger.debug("Authentication request for failed!", failed);
+			this.logger.trace("Failed to process authentication request", failed);
 			this.authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
 		}
 	}

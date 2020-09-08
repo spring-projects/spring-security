@@ -21,7 +21,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -36,6 +40,8 @@ import org.springframework.util.StringUtils;
  * @since 5.2
  */
 public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
+
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private static final String DEFAULT_AUTHORITY_PREFIX = "SCOPE_";
 
@@ -98,7 +104,11 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	private Collection<String> getAuthorities(Jwt jwt) {
 		String claimName = getAuthoritiesClaimName(jwt);
 		if (claimName == null) {
+			this.logger.trace("Returning no authorities since could not find any claims that might contain scopes");
 			return Collections.emptyList();
+		}
+		if (this.logger.isTraceEnabled()) {
+			this.logger.trace(LogMessage.format("Looking for scopes in claim %s", claimName));
 		}
 		Object authorities = jwt.getClaim(claimName);
 		if (authorities instanceof String) {

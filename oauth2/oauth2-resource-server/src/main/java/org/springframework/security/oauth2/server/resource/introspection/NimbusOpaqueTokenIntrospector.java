@@ -29,6 +29,8 @@ import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Audience;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
@@ -57,6 +59,8 @@ import org.springframework.web.client.RestTemplate;
  * @since 5.2
  */
 public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
+
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private Converter<String, RequestEntity<?>> requestEntityConverter;
 
@@ -128,6 +132,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		// relying solely on the authorization server to validate this token (not checking
 		// 'exp', for example)
 		if (!introspectionSuccessResponse.isActive()) {
+			this.logger.trace("Did not validate token since it is inactive");
 			throw new BadOpaqueTokenException("Provided token isn't active");
 		}
 		return convertClaimsSet(introspectionSuccessResponse);

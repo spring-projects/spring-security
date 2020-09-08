@@ -18,6 +18,9 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -60,6 +63,8 @@ import org.springframework.util.Assert;
  */
 public final class JwtAuthenticationProvider implements AuthenticationProvider {
 
+	private final Log logger = LogFactory.getLog(getClass());
+
 	private final JwtDecoder jwtDecoder;
 
 	private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter = new JwtAuthenticationConverter();
@@ -83,6 +88,7 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 		Jwt jwt = getJwt(bearer);
 		AbstractAuthenticationToken token = this.jwtAuthenticationConverter.convert(jwt);
 		token.setDetails(bearer.getDetails());
+		this.logger.debug("Authenticated token");
 		return token;
 	}
 
@@ -91,6 +97,7 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 			return this.jwtDecoder.decode(bearer.getToken());
 		}
 		catch (BadJwtException failed) {
+			this.logger.debug("Failed to authenticate since the JWT was invalid");
 			throw new InvalidBearerTokenException(failed.getMessage(), failed);
 		}
 		catch (JwtException failed) {

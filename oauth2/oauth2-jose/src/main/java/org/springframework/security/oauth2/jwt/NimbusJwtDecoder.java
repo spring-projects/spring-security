@@ -51,6 +51,8 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.cache.Cache;
 import org.springframework.core.convert.converter.Converter;
@@ -79,6 +81,8 @@ import org.springframework.web.client.RestTemplate;
  * @since 5.2
  */
 public final class NimbusJwtDecoder implements JwtDecoder {
+
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private static final String DECODING_ERROR_MESSAGE_TEMPLATE = "An error occurred while attempting to decode the Jwt: %s";
 
@@ -126,6 +130,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	public Jwt decode(String token) throws JwtException {
 		JWT jwt = parse(token);
 		if (jwt instanceof PlainJWT) {
+			this.logger.trace("Failed to decode unsigned token");
 			throw new BadJwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
 		}
 		Jwt createdJwt = createJwt(token, jwt);
@@ -137,6 +142,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			return JWTParser.parse(token);
 		}
 		catch (Exception ex) {
+			this.logger.trace("Failed to parse token", ex);
 			throw new BadJwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 		}
 	}
@@ -155,15 +161,18 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			// @formatter:on
 		}
 		catch (RemoteKeySourceException ex) {
+			this.logger.trace("Failed to retrieve JWK set", ex);
 			if (ex.getCause() instanceof ParseException) {
 				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed Jwk set"));
 			}
 			throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 		}
 		catch (JOSEException ex) {
+			this.logger.trace("Failed to process JWT", ex);
 			throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 		}
 		catch (Exception ex) {
+			this.logger.trace("Failed to process JWT", ex);
 			if (ex.getCause() instanceof ParseException) {
 				throw new BadJwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed payload"));
 			}
