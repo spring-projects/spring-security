@@ -38,7 +38,9 @@ public class SpringSecurityMessageSource extends ResourceBundleMessageSource {
 	}
 
 	public static MessageSourceAccessor getAccessor() {
-		return new MessageSourceAccessor(new SpringSecurityMessageSource());
+		final SpringSecurityMessageSource source = new SpringSecurityMessageSource();
+		source.setBundleClassLoader(SpringSecurityMessageSource.class.getClassLoader());
+		return new MessageSourceAccessor(source);
 	}
 
 }
