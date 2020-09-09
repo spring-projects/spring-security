@@ -32,6 +32,9 @@ import net.minidev.json.JSONObject;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Test;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoders;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -87,6 +90,27 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 	}
 
 	@Test
+	public void resolveWhenUsingTrustedIssuerAndCustomJwtAuthConverterThenReturnsAuthenticationManager() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String issuer = server.url("").toString();
+			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
+											 .setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
+			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
+										  new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
+			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
+			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
+					Collections.singletonList(issuer), new ReactiveJwtAuthenticationConverterAdapter(new JwtAuthenticationConverter()));
+			MockServerWebExchange exchange = withBearerToken(jws.serialize());
+			ReactiveAuthenticationManager authenticationManager = authenticationManagerResolver.resolve(exchange)
+																							   .block();
+			assertThat(authenticationManager).isNotNull();
+			ReactiveAuthenticationManager cachedAuthenticationManager = authenticationManagerResolver.resolve(exchange)
+																									 .block();
+			assertThat(authenticationManager).isSameAs(cachedAuthenticationManager);
+		}
+	}
+
+	@Test
 	public void resolveWhenUsingUntrustedIssuerThenException() {
 		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
 				"other", "issuers");
@@ -103,6 +127,16 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
 		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
 				(issuer) -> Mono.just(authenticationManager));
+		MockServerWebExchange exchange = withBearerToken(this.jwt);
+		assertThat(authenticationManagerResolver.resolve(exchange).block()).isSameAs(authenticationManager);
+	}
+
+	@Test
+	public void resolveWhenUsingCustomIssuerAuthenticationManagerResolverAndCustomIssuerConverterThenUses() {
+		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
+		Converter<ServerWebExchange, Mono<String>> jwtAuthConverter = (Converter<ServerWebExchange, Mono<String>>) mock(Converter.class);
+		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
+				(issuer) -> Mono.just(authenticationManager), jwtAuthConverter);
 		MockServerWebExchange exchange = withBearerToken(this.jwt);
 		assertThat(authenticationManagerResolver.resolve(exchange).block()).isSameAs(authenticationManager);
 	}
@@ -173,6 +207,14 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 	public void constructorWhenNullAuthenticationManagerResolverThenException() {
 		assertThatIllegalArgumentException().isThrownBy(
 				() -> new JwtIssuerReactiveAuthenticationManagerResolver((ReactiveAuthenticationManagerResolver) null));
+	}
+
+	@Test
+	public void constructWhenNullIssuerConverterThenException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtIssuerReactiveAuthenticationManagerResolver(
+						context -> Mono.just(new JwtReactiveAuthenticationManager(
+								ReactiveJwtDecoders.fromIssuerLocation("trusted"))), null));
 	}
 
 	private String jwt(String claim, String value) {
