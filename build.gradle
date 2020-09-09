@@ -41,24 +41,26 @@ subprojects {
 }
 
 allprojects {
-	apply plugin: 'io.spring.javaformat'
-	apply plugin: 'checkstyle'
+	if (!['spring-security-bom', 'spring-security-docs'].contains(project.name)) {
+		apply plugin: 'io.spring.javaformat'
+		apply plugin: 'checkstyle'
 
-	pluginManager.withPlugin("io.spring.convention.checkstyle", { plugin ->
-		configure(plugin) {
-			dependencies {
-				checkstyle "io.spring.javaformat:spring-javaformat-checkstyle:$springJavaformatVersion"
+		pluginManager.withPlugin("io.spring.convention.checkstyle", { plugin ->
+			configure(plugin) {
+				dependencies {
+					checkstyle "io.spring.javaformat:spring-javaformat-checkstyle:$springJavaformatVersion"
+				}
+				checkstyle {
+					toolVersion = '8.34'
+				}
 			}
-			checkstyle {
-				toolVersion = '8.34'
-			}
-		}
-	})
+		})
 
-	if (project.name.contains('sample')) {
-		tasks.whenTaskAdded { task ->
-			if (task.name.contains('format') || task.name.contains('checkFormat') || task.name.contains("checkstyle")) {
-				task.enabled = false
+		if (project.name.contains('sample')) {
+			tasks.whenTaskAdded { task ->
+				if (task.name.contains('format') || task.name.contains('checkFormat') || task.name.contains("checkstyle")) {
+					task.enabled = false
+				}
 			}
 		}
 	}
