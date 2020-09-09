@@ -92,20 +92,18 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
 	 * provided parameters
 	 *
-	 *	A custom {@link ReactiveJwtAuthenticationConverterAdapter} allows to use a
-	 *	custom {@link Converter} (much like {@link JwtGrantedAuthoritiesConverter})
-	 * 	to handle an untypical JWT token
-	 *
+	 * A custom {@link ReactiveJwtAuthenticationConverterAdapter} allows to use a custom
+	 * {@link Converter} (much like {@link JwtGrantedAuthoritiesConverter}) to handle an
+	 * untypical JWT token
 	 * @param trustedIssuers a collection of trusted issuers
-	 * @param reactiveJwtAuthenticationConverterAdapter a custom {@link ReactiveJwtAuthenticationConverterAdapter}
+	 * @param reactiveJwtAuthenticationConverterAdapter a custom
+	 * {@link ReactiveJwtAuthenticationConverterAdapter}
 	 */
-	public JwtIssuerReactiveAuthenticationManagerResolver(
-			Collection<String> trustedIssuers,
+	public JwtIssuerReactiveAuthenticationManagerResolver(Collection<String> trustedIssuers,
 			ReactiveJwtAuthenticationConverterAdapter reactiveJwtAuthenticationConverterAdapter) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
 		this.issuerAuthenticationManagerResolver = new TrustedIssuerJwtAuthenticationManagerResolver(
-				new ArrayList<>(trustedIssuers)::contains,
-				reactiveJwtAuthenticationConverterAdapter);
+				new ArrayList<>(trustedIssuers)::contains, reactiveJwtAuthenticationConverterAdapter);
 		this.issuerConverter = new JwtClaimIssuerConverter();
 	}
 
@@ -155,9 +153,8 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 * The keys in the {@link Map} are the trusted issuers.
 	 * @param issuerAuthenticationManagerResolver a strategy for resolving the
 	 * {@link ReactiveAuthenticationManager} by the issuer
-	 *
-	 *	@param issuerConverter a custom converter to resolve the token
-	 * 	A custom converter allows to use a custom {@link ServerBearerTokenAuthenticationConverter}
+	 * @param issuerConverter a custom converter to resolve the token A custom converter
+	 * allows to use a custom {@link ServerBearerTokenAuthenticationConverter}
 	 */
 	public JwtIssuerReactiveAuthenticationManagerResolver(
 			ReactiveAuthenticationManagerResolver<String> issuerAuthenticationManagerResolver,
@@ -221,8 +218,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 			this(trustedIssuer, null);
 		}
 
-		TrustedIssuerJwtAuthenticationManagerResolver(
-				Predicate<String> trustedIssuer,
+		TrustedIssuerJwtAuthenticationManagerResolver(Predicate<String> trustedIssuer,
 				ReactiveJwtAuthenticationConverterAdapter jwtAuthenticationConverterAdapter) {
 			this.trustedIssuer = trustedIssuer;
 			this.jwtAuthenticationConverterAdapter = jwtAuthenticationConverterAdapter;

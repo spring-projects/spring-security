@@ -89,25 +89,22 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	}
 
 	/**
-	 *	Construct a {@link JwtIssuerAuthenticationManagerResolver} with
-	 *	a custom {@link JwtAuthenticationConverter} using the provided parameters
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} with a custom
+	 * {@link JwtAuthenticationConverter} using the provided parameters
 	 *
-	 *	A custom {@link JwtAuthenticationConverter} allows to use a
-	 *	custom {@link Converter} (much like {@link JwtGrantedAuthoritiesConverter})
-	 *	to handle an untypical JWT token
-	 *
+	 * A custom {@link JwtAuthenticationConverter} allows to use a custom
+	 * {@link Converter} (much like {@link JwtGrantedAuthoritiesConverter}) to handle an
+	 * untypical JWT token
 	 * @param trustedIssuers a list of trusted issuers
 	 * @param jwtAuthenticationConverter a custom {@link JwtAuthenticationConverter}
 	 * @since 5.4
 	 */
-	public JwtIssuerAuthenticationManagerResolver(
-			Collection<String> trustedIssuers,
+	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers,
 			JwtAuthenticationConverter jwtAuthenticationConverter) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
 		Assert.notNull(jwtAuthenticationConverter, "jwtAuthenticationConverter cannot be null");
 		this.issuerAuthenticationManagerResolver = new TrustedIssuerJwtAuthenticationManagerResolver(
-				Collections.unmodifiableCollection(trustedIssuers)::contains,
-				jwtAuthenticationConverter);
+				Collections.unmodifiableCollection(trustedIssuers)::contains, jwtAuthenticationConverter);
 		this.issuerConverter = new JwtClaimIssuerConverter();
 	}
 
@@ -155,18 +152,16 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * </pre>
 	 *
 	 * The keys in the {@link Map} are the allowed issuers.
-	 *
 	 * @param issuerAuthenticationManagerResolver a strategy for resolving the
 	 * {@link AuthenticationManager} by the issuer
-	 *
-	 * @param issuerConverter a custom converter to resolve the token
-	 *	A custom converter allows to use a custom {@link BearerTokenResolver}
+	 * @param issuerConverter a custom converter to resolve the token A custom converter
+	 * allows to use a custom {@link BearerTokenResolver}
 	 *
 	 * @since 5.4
 	 */
 	public JwtIssuerAuthenticationManagerResolver(
 			AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver,
-			Converter<HttpServletRequest, String> issuerConverter){
+			Converter<HttpServletRequest, String> issuerConverter) {
 		Assert.notNull(issuerAuthenticationManagerResolver, "issuerAuthenticationManagerResolver cannot be null");
 		Assert.notNull(issuerConverter, "issuerConverter cannot be null");
 		this.issuerAuthenticationManagerResolver = issuerAuthenticationManagerResolver;
@@ -225,8 +220,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 			this(trustedIssuer, null);
 		}
 
-		TrustedIssuerJwtAuthenticationManagerResolver(
-				Predicate<String> trustedIssuer,
+		TrustedIssuerJwtAuthenticationManagerResolver(Predicate<String> trustedIssuer,
 				JwtAuthenticationConverter jwtAuthenticationConverter) {
 			this.trustedIssuer = trustedIssuer;
 			this.jwtAuthenticationConverter = jwtAuthenticationConverter;
@@ -239,13 +233,14 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 						(k) -> {
 							this.logger.debug("Constructing AuthenticationManager");
 							JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuer);
-							if(jwtAuthenticationConverter != null) {
+							if (jwtAuthenticationConverter != null) {
 								this.logger.debug(("Using custom JwtAuthenticationConverter"));
-								final JwtAuthenticationProvider jwtAuthenticationProvider =
-										new JwtAuthenticationProvider(jwtDecoder);
+								final JwtAuthenticationProvider jwtAuthenticationProvider = new JwtAuthenticationProvider(
+										jwtDecoder);
 								jwtAuthenticationProvider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
 								return jwtAuthenticationProvider::authenticate;
-							} else {
+							}
+							else {
 								this.logger.debug(("Using default JwtAuthenticationConverter"));
 								return new JwtAuthenticationProvider(jwtDecoder)::authenticate;
 							}
