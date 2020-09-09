@@ -1,7 +1,7 @@
 [[new]]
-== What's New in Spring Security 5.3
+== What's New in Spring Security 5.4
 
-Spring Security 5.3 provides a number of new features.
+Spring Security 5.4 provides a number of new features.
 Below are the highlights of the release.
 
 [[whats-new-documentation]]
@@ -11,70 +11,82 @@ We will continue our effort to rewrite the documentation.
 
 Here's what you'll see in this release:
 
-* Added <<servlet-architecture,Servlet Security: The Big Picture>>
-* Updated <<servlet-authentication,Servlet Authentication>>
-** Rewrote
-** Added how things work, including <<servlet-delegatingfilterproxy-figure,diagrams>>
-* Added {gh-samples-url}/boot/kotlin[Kotlin samples]
-* Reskinned
-** Added scrolling menu
-** Added <<servlet-authentication-userdetailsservice,toggle>>
-** Updated styles
+* Added <<oauth2resourceserver,OAuth 2.0 Resource Server diagrams>> for <<oauth2resourceserver-jwt-architecture,JWT>> and <<oauth2resourceserver-opaque-architecture,Opaque Token>>
+* Restructured <<servlet-saml2login,SAML 2.0 Relying Party documentation>> and added diagrams
+
+[[whats-new-logging]]
+=== Logging Updates
+
+We have begun an effort to restructure our logging.
+
+Here's what you'll see in this release:
+
+* Restructured https://github.com/spring-projects/spring-security/commit/fa7baf551dc55eab50b9ad94720e7521f0b1d26f[authorization logs]
+* Restructured https://github.com/spring-projects/spring-security/commit/fa7baf551dc55eab50b9ad94720e7521f0b1d26f[Form Login] and https://github.com/spring-projects/spring-security/commit/02d1516c566a58574af0a1d0391fd2ec8c5ad774[HTTP Basic] authentication logs
+* Added https://github.com/spring-projects/spring-security/commit/bf067d679fb5990d6b3d31cee292af171f8a5014[Resource Server] https://github.com/spring-projects/spring-security/commit/b2728059ae903d027d0da0f4a25bed6df213a0ce[logs]
 
 [[whats-new-servlet]]
 === Servlet
-
-* Added <<kotlin-config-httpsecurity,Kotlin DSL>>
+* Configuration
+** Added support for https://github.com/spring-projects/spring-security/issues/8804[publishing `SecurityFilterChain` as a `@Bean`]
+* Kotlin DSL
+** Added https://github.com/spring-projects/spring-security/issues/8981[`authenticationManagerResolver`]
+** Added https://github.com/spring-projects/spring-security/issues/8892[`hasAnyRole` and `hasAnyAuthority`]
+** Added https://github.com/spring-projects/spring-security/issues/8823[custom HeaderWriter support]
+** Updated to https://github.com/spring-projects/spring-security/issues/8697[use reified types]
+** Added https://github.com/spring-projects/spring-security/pull/8350[`authorize()` method that accepts `HttpMethod`]
 * OAuth 2.0 Client
-** Added Test support for <<testing-oauth2-client,OAuth 2.0 Client>>, <<testing-oauth2-login,OAuth 2.0 Login>>, and <<testing-oidc-login,OIDC Login>>
-** Improved https://github.com/spring-projects/spring-security/pull/7748[customizing the OAuth 2.0 Authorization Request]
-** Enhanced https://github.com/spring-projects/spring-security/issues/7842[OIDC logout success handler to support `\{baseUrl\}`]
-** Added https://github.com/spring-projects/spring-security/issues/7840[OAuth2Authorization success and failure handlers]
-** Added https://github.com/spring-projects/spring-security/issues/5184[XML support]
-** Added <<dbschema-oauth2-client,JDBC support for storing OAuth 2.0 tokens>>
-** Added https://github.com/spring-projects/spring-security/issues/4886[JSON serialization support for OAuth 2.0 tokens]
+** Polished <<testing-oauth2-client,OAuth 2.0 Client>> test support to not require an `HttpSessionOAuth2AuthorizedClientRepository` bean
+** Added support for https://github.com/spring-projects/spring-security/issues/8453[client ID and secret placeholders in XML support]
+** Refined `ClientRegistrations` to https://github.com/spring-projects/spring-security/issues/8514[not default scopes to the OIDC `scopes_supported` attribute]
+** Allow for https://github.com/spring-projects/spring-security/issues/8903[custom Client Authentication Method] in `ClientRegistration`
+** Enhanced `OAuth2AuthorizedClientArgumentResolver` to https://github.com/spring-projects/spring-security/issues/8700[pick up `OAuth2AuthorizedClientManager` from the application context]
+** Added https://github.com/spring-projects/spring-security/issues/8669[`OAuth2AuthorizedClientArgumentResolver` support to XML config]
+** Added `RequestCache` support to https://github.com/spring-projects/spring-security/issues/8120[`OAuth2AuthorizationCodeGrantFilter`]
+** Added https://github.com/spring-projects/spring-security/issues/8326[`issuerUri` to `ClientRegistration`]
 * OAuth 2.0 Resource Server
-** Added support for <<oauth2resourceserver-multitenancy,multiple issuers>>
-** Added <<testing-opaque-token,test support for Opaque Tokens>>
-** Added <<oauth2resourceserver-jwt-validation-custom,generic claim validator>>
-** Added https://github.com/spring-projects/spring-security/issues/5185[XML support]
-** Improved https://github.com/spring-projects/spring-security/pull/7826[bearer token error handling] for JWT and Opaque Token
+** Added <<oauth2resourceserver-jwt-timeouts,caching support in `NimbusJwtDecoder`>>
+** Made https://github.com/spring-projects/spring-security/issues/8186[principal claim configurable in `JwtAuthenticationConverter`]
+** Enhanced configuration to <<oauth2resourceserver-jwt-authorization-extraction,pick up `JwtAuthenticationConverter` as a `@Bean`>>
+** Simplified https://github.com/spring-projects/spring-security/pull/8740[attribute retrieval for opaque token]
 * SAML 2.0
-** Added <<servlet-saml2login-opensamlauthenticationprovider-authenticationmanager,AuthenticationManager>> configuration
-** Added support for https://github.com/spring-projects/spring-security/issues/7711[AuthNRequest signatures]
-** Added support for https://github.com/spring-projects/spring-security/pull/7759[AuthNRequest POST binding]
+** Made <<servlet-saml2login-sp-initiated-factory-custom-authnrequest,Open SAML `AuthnRequest` construction configurable>>
+** Enhanced <<servlet-saml2login-sp-initiated-factory-custom-authnrequest,`AuthnRequest` construction to access `HttpServletRequest` data>>
+** Opened <<servlet-saml2login-sp-initiated-factory-custom-authnrequest,`Saml2AuthenticationRequestContext` for extension>>
+** Enhanced <<servlet-saml2login-authenticatedprincipal,`Saml2AuthenticatedPrincipal` to include `<saml2:AttributeStatement>`>>
+** Enhanced <<servlet-saml2login-opensamlauthenticationprovider-userdetailsservice,`OpenSamlAuthenticationProvider` to support customizing the `Authentication` returned>>
+** Enhanced <<servlet-saml2login-opensamlauthenticationprovider-additionalvalidation,`OpenSamlAuthenticationProvider` to support customizing `<saml2:Assertion>` validation>>
+** Added support for <<servlet-saml2login-rpr-relyingpartyregistrationresolver,resolving the `RelyingPartyRegistration` from the request>>
+** Added <<servlet-saml2login-opensaml-customization,an initialization service to supercede Open SAML's `InitializationService`>>
+** Added a <<servlet-saml2login-metadata,SAML 2.0 Metadata Filter>>
+** Simplified <<servlet-saml2login-rpr-credentials,`Saml2X509Credential` construction>>
+** Restructured `RelyingPartyRegistration` to <<servlet-saml2login-relyingpartyregistration,separate relying and asserting party configurations>>
+** Added <<servlet-saml2login-relyingpartyregistration,configuration by Asserting Party Metadata endpoint>>
+** Restructured `RelyingPartyRegistration` to <<servlet-saml2login-relyingpartyregistration,reflect metadata terminology>>
+* LDAP
+** Added support for configuring https://github.com/spring-projects/spring-security/issues/8144[`ApacheDSContainer`] with a random port
+** Added support for configuring https://github.com/spring-projects/spring-security/issues/8138[application] with a random port
+* CSRF
+** Made the https://github.com/spring-projects/spring-security/pull/8749[`secure` flag configurable]
 
 [[whats-new-webflux]]
 === WebFlux
 
-* Added https://github.com/spring-projects/spring-security/issues/7636[DSL support for custom header writers]
-* OAuth 2.0 Client
-** Added Test support for https://github.com/spring-projects/spring-security/issues/7910[OAuth 2.0 Client], https://github.com/spring-projects/spring-security/issues/7828[OAuth 2.0 Login], and https://github.com/spring-projects/spring-security/issues/7680[OIDC Login]
-** Enhanced https://github.com/spring-projects/spring-security/issues/7842[OIDC logout success handler to support `\{baseUrl\}`]
-** Added https://github.com/spring-projects/spring-security/issues/7699[OAuth2Authorization success and failure handlers]
-** Added https://github.com/spring-projects/spring-security/issues/4886[JSON serialization support for OAuth 2.0 tokens]
-** Added https://github.com/spring-projects/spring-security/issues/7569[ReactiveOAuth2AuthorizedClientManager integration with AuthorizedClientService]
-* OAuth 2.0 Resource Server
-** Added support for <<webflux-oauth2resourceserver-multitenancy,multiple issuers>>
-** Added https://github.com/spring-projects/spring-security/issues/7827[test support for Opaque Tokens]
-** Improved https://github.com/spring-projects/spring-security/pull/7826[bearer token error handling] for JWT and Opaque Token
-
-[[whats-new-rsocket]]
-=== RSocket
-
-* Added support for https://github.com/spring-projects/spring-security/issues/7935[RSocket Authentication extension]
+* Added https://github.com/spring-projects/spring-security/issues/5558[Kotlin DSL for WebFlux]
+* Added https://github.com/spring-projects/spring-security/issues/8324[`AuthoritiesMapper` configuration] to OAuth 2.0 Login
+* Added https://github.com/spring-projects/spring-security/issues/8599[`SwitchUserWebFilter`]
 
 [[whats-new-additional]]
 === Additional Updates
 
-* Enhanced Authentication Event Publisher support
-** Updated https://github.com/spring-projects/spring-security/pull/7802[configuration support]
-** Added https://github.com/spring-projects/spring-security/issues/7825[default event] and https://github.com/spring-projects/spring-security/issues/7824[`Map`-based] exception mapping
-* Improved https://github.com/spring-projects/spring-security/issues/7891[integration with Spring Data]
-* Added support to https://github.com/spring-projects/spring-security/issues/7661[BCrypt to hash byte arrays]
+* Renamed https://github.com/spring-projects/spring-security/issues/8676[whitelist and blacklist to allowlist and blocklist]
+* Added https://github.com/spring-projects/spring-security/pull/7052[`RequestRejectedHandler`]
+* Strengthened https://github.com/spring-projects/spring-security/pull/8644[`StrictHttpFirewall`]
+* Made https://github.com/spring-projects/spring-security/issues/5438[`SessionRegistry` aware of `SessionIdChangedEvent`]
+* Allow https://github.com/spring-projects/spring-security/issues/8402[`AesBytesEncryptor` to be constructed with a real key]
+* https://github.com/spring-projects/spring-security/pull/8450[Deprecated OpenID 2.0 support]
 
 [[whats-new-build]]
 === Build Changes
 
-* Changed build to https://github.com/spring-projects/spring-security/issues/7788[use version ranges]
-* Removed https://github.com/spring-projects/spring-security/issues/4939[dependency on Groovy]
+* https://github.com/spring-projects/spring-security/issues/8113[Improved performance further]
