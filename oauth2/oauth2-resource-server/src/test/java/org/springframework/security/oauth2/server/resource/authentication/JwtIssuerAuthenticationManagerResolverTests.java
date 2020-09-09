@@ -89,7 +89,8 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 	}
 
 	@Test
-	public void resolveWhenUsingTrustedIssuerAndCustomJwtAuthConverterThenReturnsAuthenticationManager() throws Exception {
+	public void resolveWhenUsingTrustedIssuerAndCustomJwtAuthConverterThenReturnsAuthenticationManager()
+			throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
 			server.start();
 			String issuer = server.url("").toString();
@@ -100,7 +101,7 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 											 ));
 			// @formatter:on
 			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
-										  new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
+					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
 			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
 			JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
 					Collections.singletonList(issuer), new JwtAuthenticationConverter());
@@ -139,7 +140,8 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 	@Test
 	public void resolveWhenUsingCustomIssuerAuthenticationManagerResolverAndCustomIssuerConverterThenUses() {
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
-		Converter<HttpServletRequest, String> jwtAuthConverter = (Converter<HttpServletRequest, String>) mock(Converter.class);
+		Converter<HttpServletRequest, String> jwtAuthConverter = (Converter<HttpServletRequest, String>) mock(
+				Converter.class);
 		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
 				(issuer) -> authenticationManager, jwtAuthConverter);
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -227,11 +229,9 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 
 	@Test
 	public void constructWhenNullIssuerConverterThenException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver(
-						context -> new JwtAuthenticationProvider(
-								JwtDecoders.fromIssuerLocation("trusted"))::authenticate, null)
-				);
+		assertThatIllegalArgumentException().isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver(
+				context -> new JwtAuthenticationProvider(JwtDecoders.fromIssuerLocation("trusted"))::authenticate,
+				null));
 	}
 
 	private String jwt(String claim, String value) {

@@ -90,22 +90,24 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 	}
 
 	@Test
-	public void resolveWhenUsingTrustedIssuerAndCustomJwtAuthConverterThenReturnsAuthenticationManager() throws Exception {
+	public void resolveWhenUsingTrustedIssuerAndCustomJwtAuthConverterThenReturnsAuthenticationManager()
+			throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
 			String issuer = server.url("").toString();
 			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
-											 .setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
+					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
 			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
-										  new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
+					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
 			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
 			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
-					Collections.singletonList(issuer), new ReactiveJwtAuthenticationConverterAdapter(new JwtAuthenticationConverter()));
+					Collections.singletonList(issuer),
+					new ReactiveJwtAuthenticationConverterAdapter(new JwtAuthenticationConverter()));
 			MockServerWebExchange exchange = withBearerToken(jws.serialize());
 			ReactiveAuthenticationManager authenticationManager = authenticationManagerResolver.resolve(exchange)
-																							   .block();
+					.block();
 			assertThat(authenticationManager).isNotNull();
 			ReactiveAuthenticationManager cachedAuthenticationManager = authenticationManagerResolver.resolve(exchange)
-																									 .block();
+					.block();
 			assertThat(authenticationManager).isSameAs(cachedAuthenticationManager);
 		}
 	}
@@ -134,7 +136,8 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 	@Test
 	public void resolveWhenUsingCustomIssuerAuthenticationManagerResolverAndCustomIssuerConverterThenUses() {
 		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
-		Converter<ServerWebExchange, Mono<String>> jwtAuthConverter = (Converter<ServerWebExchange, Mono<String>>) mock(Converter.class);
+		Converter<ServerWebExchange, Mono<String>> jwtAuthConverter = (Converter<ServerWebExchange, Mono<String>>) mock(
+				Converter.class);
 		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
 				(issuer) -> Mono.just(authenticationManager), jwtAuthConverter);
 		MockServerWebExchange exchange = withBearerToken(this.jwt);
@@ -211,10 +214,10 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 
 	@Test
 	public void constructWhenNullIssuerConverterThenException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JwtIssuerReactiveAuthenticationManagerResolver(
-						context -> Mono.just(new JwtReactiveAuthenticationManager(
-								ReactiveJwtDecoders.fromIssuerLocation("trusted"))), null));
+		assertThatIllegalArgumentException().isThrownBy(() -> new JwtIssuerReactiveAuthenticationManagerResolver(
+				context -> Mono
+						.just(new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation("trusted"))),
+				null));
 	}
 
 	private String jwt(String claim, String value) {
