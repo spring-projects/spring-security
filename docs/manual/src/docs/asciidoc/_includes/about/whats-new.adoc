@@ -72,7 +72,7 @@ Here's what you'll see in this release:
 [[whats-new-webflux]]
 === WebFlux
 
-* Added https://github.com/spring-projects/spring-security/issues/8783[custom filter support] to Kotlin DSL
+* Added https://github.com/spring-projects/spring-security/issues/5558[Kotlin DSL for WebFlux]
 * Added https://github.com/spring-projects/spring-security/issues/8324[`AuthoritiesMapper` configuration] to OAuth 2.0 Login
 * Added https://github.com/spring-projects/spring-security/issues/8599[`SwitchUserWebFilter`]
 
