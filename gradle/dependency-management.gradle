@@ -7,7 +7,7 @@ if (!project.hasProperty("springVersion")) {
 }
 
 if (!project.hasProperty("springDataVersion")) {
-	ext.springDataVersion = "Moore-SR+"
+	ext.springDataVersion = "Neumann-SR+"
 }
 if (!project.hasProperty("kotlinVersion")) {
 	ext.kotlinVersion = "1.+"
