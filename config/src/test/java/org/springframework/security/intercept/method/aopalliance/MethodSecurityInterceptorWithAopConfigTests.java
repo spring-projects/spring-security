@@ -26,7 +26,7 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for SEC-428 (and SEC-1204).
@@ -97,12 +97,8 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 		// @formatter:on
 		ITargetObject target = (ITargetObject) this.appContext.getBean("target");
 		// Check both against interface and class
-		try {
-			target.makeLowerCase("TEST");
-			fail("AuthenticationCredentialsNotFoundException expected");
-		}
-		catch (AuthenticationCredentialsNotFoundException expected) {
-		}
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(() -> target.makeLowerCase("TEST"));
 		target.makeUpperCase("test");
 	}
 
@@ -128,12 +124,8 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 		// @formatter:on
 
 		ITargetObject target = (ITargetObject) this.appContext.getBean("target");
-		try {
-			target.makeLowerCase("TEST");
-			fail("AuthenticationCredentialsNotFoundException expected");
-		}
-		catch (AuthenticationCredentialsNotFoundException expected) {
-		}
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(() -> target.makeLowerCase("TEST"));
 		target.makeUpperCase("test");
 	}
 

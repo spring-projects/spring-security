@@ -24,7 +24,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.DisabledException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link BasicAuthenticationEntryPoint}.
@@ -36,13 +36,8 @@ public class BasicAuthenticationEntryPointTests {
 	@Test
 	public void testDetectsMissingRealmName() {
 		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
-		try {
-			ep.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("realmName must be specified");
-		}
+		assertThatIllegalArgumentException().isThrownBy(ep::afterPropertiesSet)
+				.withMessage("realmName must be specified");
 	}
 
 	@Test

@@ -16,7 +16,7 @@
 
 package org.springframework.security.authentication.rememberme;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -27,7 +27,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link RememberMeAuthenticationToken}.
@@ -40,26 +40,11 @@ public class RememberMeAuthenticationTokenTests {
 
 	@Test
 	public void testConstructorRejectsNulls() {
-		try {
-			new RememberMeAuthenticationToken(null, "Test", ROLES_12);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new RememberMeAuthenticationToken("key", null, ROLES_12);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			List<GrantedAuthority> authsContainingNull = new ArrayList<>();
-			authsContainingNull.add(null);
-			new RememberMeAuthenticationToken("key", "Test", authsContainingNull);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new RememberMeAuthenticationToken(null, "Test", ROLES_12));
+		assertThatIllegalArgumentException().isThrownBy(() -> new RememberMeAuthenticationToken("key", null, ROLES_12));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new RememberMeAuthenticationToken("key", "Test", Arrays.asList((GrantedAuthority) null)));
 	}
 
 	@Test

@@ -22,7 +22,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author TSARDD
@@ -34,15 +34,7 @@ public class UserDetailsByNameServiceWrapperTests {
 	@Test
 	public final void testAfterPropertiesSet() {
 		UserDetailsByNameServiceWrapper svc = new UserDetailsByNameServiceWrapper();
-		try {
-			svc.afterPropertiesSet();
-			fail("AfterPropertiesSet didn't throw expected exception");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		catch (Exception unexpected) {
-			fail("AfterPropertiesSet throws unexpected exception");
-		}
+		assertThatIllegalArgumentException().isThrownBy(svc::afterPropertiesSet);
 	}
 
 	@Test

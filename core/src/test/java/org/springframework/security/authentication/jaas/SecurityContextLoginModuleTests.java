@@ -31,7 +31,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests SecurityContextLoginModule
@@ -71,12 +71,7 @@ public class SecurityContextLoginModuleTests {
 
 	@Test
 	public void testLoginException() {
-		try {
-			this.module.login();
-			fail("LoginException expected, there is no Authentication in the SecurityContext");
-		}
-		catch (LoginException ex) {
-		}
+		assertThatExceptionOfType(LoginException.class).isThrownBy(this.module::login);
 	}
 
 	@Test
@@ -101,13 +96,8 @@ public class SecurityContextLoginModuleTests {
 
 	@Test
 	public void testNullAuthenticationInSecurityContext() {
-		try {
-			SecurityContextHolder.getContext().setAuthentication(null);
-			this.module.login();
-			fail("LoginException expected, the authentication is null in the SecurityContext");
-		}
-		catch (Exception ex) {
-		}
+		SecurityContextHolder.getContext().setAuthentication(null);
+		assertThatExceptionOfType(Exception.class).isThrownBy(this.module::login);
 	}
 
 	@Test

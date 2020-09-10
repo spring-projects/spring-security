@@ -26,22 +26,15 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 public class Http403ForbiddenEntryPointTests {
 
-	public void testCommence() {
+	public void testCommence() throws IOException {
 		MockHttpServletRequest req = new MockHttpServletRequest();
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		Http403ForbiddenEntryPoint fep = new Http403ForbiddenEntryPoint();
-		try {
-			fep.commence(req, resp, new AuthenticationCredentialsNotFoundException("test"));
-			assertThat(resp.getStatus()).withFailMessage("Incorrect status")
-					.isEqualTo(HttpServletResponse.SC_FORBIDDEN);
-		}
-		catch (IOException ex) {
-			fail("Unexpected exception thrown: " + ex);
-		}
+		fep.commence(req, resp, new AuthenticationCredentialsNotFoundException("test"));
+		assertThat(resp.getStatus()).withFailMessage("Incorrect status").isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
 
 }

@@ -47,7 +47,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -251,12 +251,8 @@ public class MethodSecurityInterceptorTests {
 		given(this.authman.authenticate(this.token)).willReturn(this.token);
 		willThrow(new AccessDeniedException("rejected")).given(this.adm).decide(any(Authentication.class),
 				any(MethodInvocation.class), any(List.class));
-		try {
-			this.advisedTarget.makeUpperCase("HELLO");
-			fail("Expected Exception");
-		}
-		catch (AccessDeniedException expected) {
-		}
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.advisedTarget.makeUpperCase("HELLO"));
 		verify(this.eventPublisher).publishEvent(any(AuthorizationFailureEvent.class));
 	}
 
@@ -297,12 +293,7 @@ public class MethodSecurityInterceptorTests {
 		this.interceptor.setRunAsManager(runAs);
 		mdsReturnsUserRole();
 		given(runAs.buildRunAs(eq(this.token), any(MethodInvocation.class), any(List.class))).willReturn(runAsToken);
-		try {
-			this.advisedTarget.makeUpperCase("hello");
-			fail("Expected Exception");
-		}
-		catch (RuntimeException success) {
-		}
+		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> this.advisedTarget.makeUpperCase("hello"));
 		// Check we've changed back
 		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.token);
@@ -323,12 +314,7 @@ public class MethodSecurityInterceptorTests {
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);
 		this.interceptor.setAfterInvocationManager(aim);
 		given(mi.proceed()).willThrow(new Throwable());
-		try {
-			this.interceptor.invoke(mi);
-			fail("Expected exception");
-		}
-		catch (Throwable expected) {
-		}
+		assertThatExceptionOfType(Throwable.class).isThrownBy(() -> this.interceptor.invoke(mi));
 		verifyZeroInteractions(aim);
 	}
 

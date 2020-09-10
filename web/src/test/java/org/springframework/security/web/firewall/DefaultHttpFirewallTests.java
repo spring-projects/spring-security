@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Luke Taylor
@@ -33,23 +33,14 @@ public class DefaultHttpFirewallTests {
 	@Test
 	public void unnormalizedPathsAreRejected() {
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
-		MockHttpServletRequest request;
 		for (String path : this.unnormalizedPaths) {
-			request = new MockHttpServletRequest();
+			MockHttpServletRequest request = new MockHttpServletRequest();
 			request.setServletPath(path);
-			try {
-				fw.getFirewalledRequest(request);
-				fail(path + " is un-normalized");
-			}
-			catch (RequestRejectedException expected) {
-			}
+			assertThatExceptionOfType(RequestRejectedException.class)
+					.isThrownBy(() -> fw.getFirewalledRequest(request));
 			request.setPathInfo(path);
-			try {
-				fw.getFirewalledRequest(request);
-				fail(path + " is un-normalized");
-			}
-			catch (RequestRejectedException expected) {
-			}
+			assertThatExceptionOfType(RequestRejectedException.class)
+					.isThrownBy(() -> fw.getFirewalledRequest(request));
 		}
 	}
 

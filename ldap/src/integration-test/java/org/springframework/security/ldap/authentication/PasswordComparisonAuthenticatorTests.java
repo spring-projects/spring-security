@@ -36,7 +36,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link PasswordComparisonAuthenticator}.
@@ -80,13 +80,8 @@ public class PasswordComparisonAuthenticatorTests {
 				.isEmpty();
 		this.authenticator.setUserSearch(new MockUserSearch(null));
 		this.authenticator.afterPropertiesSet();
-
-		try {
-			this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("Joe", "pass"));
-			fail("Expected exception on failed user search");
-		}
-		catch (UsernameNotFoundException expected) {
-		}
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(
+				() -> this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("Joe", "pass")));
 	}
 
 	@Test(expected = BadCredentialsException.class)

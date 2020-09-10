@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link PortResolverImpl}.
@@ -51,12 +51,7 @@ public class PortResolverImplTests {
 	@Test
 	public void testDetectsEmptyPortMapper() {
 		PortResolverImpl pr = new PortResolverImpl();
-		try {
-			pr.setPortMapper(null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> pr.setPortMapper(null));
 	}
 
 	@Test

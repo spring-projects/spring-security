@@ -25,7 +25,7 @@ import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Sid;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -39,27 +39,14 @@ public class AccessControlImplEntryTests {
 	@Test
 	public void testConstructorRequiredFields() {
 		// Check Acl field is present
-		try {
-			new AccessControlEntryImpl(null, null, new PrincipalSid("johndoe"), BasePermission.ADMINISTRATION, true,
-					true, true);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new AccessControlEntryImpl(null, null,
+				new PrincipalSid("johndoe"), BasePermission.ADMINISTRATION, true, true, true));
 		// Check Sid field is present
-		try {
-			new AccessControlEntryImpl(null, mock(Acl.class), null, BasePermission.ADMINISTRATION, true, true, true);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new AccessControlEntryImpl(null, mock(Acl.class), null,
+				BasePermission.ADMINISTRATION, true, true, true));
 		// Check Permission field is present
-		try {
-			new AccessControlEntryImpl(null, mock(Acl.class), new PrincipalSid("johndoe"), null, true, true, true);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new AccessControlEntryImpl(null, mock(Acl.class),
+				new PrincipalSid("johndoe"), null, true, true, true));
 	}
 
 	@Test

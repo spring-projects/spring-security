@@ -45,8 +45,7 @@ import org.springframework.web.socket.config.annotation.AbstractWebSocketMessage
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 
@@ -76,13 +75,9 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 	public void securityMappings() {
 		loadConfig(WebSocketSecurityConfig.class);
 		clientInboundChannel().send(message("/user/queue/errors", SimpMessageType.SUBSCRIBE));
-		try {
-			clientInboundChannel().send(message("/denyAll", SimpMessageType.MESSAGE));
-			fail("Expected Exception");
-		}
-		catch (MessageDeliveryException expected) {
-			assertThat(expected.getCause()).isInstanceOf(AccessDeniedException.class);
-		}
+		assertThatExceptionOfType(MessageDeliveryException.class)
+				.isThrownBy(() -> clientInboundChannel().send(message("/denyAll", SimpMessageType.MESSAGE)))
+				.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	private void loadConfig(Class<?>... configs) {

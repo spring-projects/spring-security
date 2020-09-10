@@ -17,6 +17,7 @@
 package org.springframework.security.access.vote;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
@@ -28,7 +29,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link AbstractAccessDecisionManager}.
@@ -86,23 +87,12 @@ public class AbstractAccessDecisionManagerTests {
 
 	@Test
 	public void testRejectsEmptyList() {
-		List list = new Vector();
-		try {
-			new MockDecisionManagerImpl(list);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new MockDecisionManagerImpl(Collections.emptyList()));
 	}
 
 	@Test
 	public void testRejectsNullVotersList() {
-		try {
-			new MockDecisionManagerImpl(null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new MockDecisionManagerImpl(null));
 	}
 
 	@Test
@@ -113,12 +103,7 @@ public class AbstractAccessDecisionManagerTests {
 
 	@Test
 	public void testWillNotStartIfDecisionVotersNotSet() {
-		try {
-			new MockDecisionManagerImpl(null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new MockDecisionManagerImpl(null));
 	}
 
 	private class MockDecisionManagerImpl extends AbstractAccessDecisionManager {

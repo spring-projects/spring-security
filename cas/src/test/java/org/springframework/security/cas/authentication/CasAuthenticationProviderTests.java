@@ -41,6 +41,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -192,20 +193,10 @@ public class CasAuthenticationProviderTests {
 		result = cap.authenticate(token);
 		verify(validator, times(2)).validate(ticket, serviceUrl);
 		token.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
-		try {
-			cap.authenticate(token);
-			fail("Expected Exception");
-		}
-		catch (IllegalStateException success) {
-		}
+		assertThatIllegalStateException().isThrownBy(() -> cap.authenticate(token));
 		cap.setServiceProperties(null);
 		cap.afterPropertiesSet();
-		try {
-			cap.authenticate(token);
-			fail("Expected Exception");
-		}
-		catch (IllegalStateException success) {
-		}
+		assertThatIllegalStateException().isThrownBy(() -> cap.authenticate(token));
 	}
 
 	@Test(expected = BadCredentialsException.class)

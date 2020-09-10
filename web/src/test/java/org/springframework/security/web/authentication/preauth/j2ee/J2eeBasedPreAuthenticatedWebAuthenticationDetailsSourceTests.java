@@ -35,7 +35,7 @@ import org.springframework.security.core.authority.mapping.SimpleMappableAttribu
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author TSARDD
@@ -45,15 +45,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 	@Test
 	public final void testAfterPropertiesSetException() {
 		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource t = new J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource();
-		try {
-			t.afterPropertiesSet();
-			fail("AfterPropertiesSet didn't throw expected exception");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		catch (Exception unexpected) {
-			fail("AfterPropertiesSet throws unexpected exception");
-		}
+		assertThatIllegalArgumentException().isThrownBy(t::afterPropertiesSet);
 	}
 
 	@Test
@@ -139,12 +131,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource result = new J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource();
 		result.setMappableRolesRetriever(getMappableRolesRetriever(mappedRoles));
 		result.setUserRoles2GrantedAuthoritiesMapper(getJ2eeUserRoles2GrantedAuthoritiesMapper());
-		try {
-			result.afterPropertiesSet();
-		}
-		catch (Exception expected) {
-			fail("AfterPropertiesSet throws unexpected exception");
-		}
+		result.afterPropertiesSet();
 		return result;
 	}
 

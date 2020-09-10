@@ -19,6 +19,7 @@ package org.springframework.security.util;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Luke Taylor
@@ -32,11 +33,7 @@ public class FieldUtilsTests {
 		assertThat(FieldUtils.getFieldValue(tc, "nested.protectedField")).isEqualTo("z");
 		FieldUtils.setProtectedFieldValue("protectedField", tc, "y");
 		assertThat(FieldUtils.getProtectedFieldValue("protectedField", tc)).isEqualTo("y");
-		try {
-			FieldUtils.getProtectedFieldValue("nonExistentField", tc);
-		}
-		catch (IllegalStateException expected) {
-		}
+		assertThatIllegalStateException().isThrownBy(() -> FieldUtils.getProtectedFieldValue("nonExistentField", tc));
 	}
 
 	@SuppressWarnings("unused")

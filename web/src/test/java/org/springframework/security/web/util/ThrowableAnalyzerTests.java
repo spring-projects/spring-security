@@ -22,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Test cases for {@link ThrowableAnalyzer}.
@@ -78,22 +78,15 @@ public class ThrowableAnalyzerTests {
 
 	@Test
 	public void testRegisterExtractorWithInvalidExtractor() {
-		try {
-			new ThrowableAnalyzer() {
-				/**
-				 * @see org.springframework.security.web.util.ThrowableAnalyzer#initExtractorMap()
-				 */
-				@Override
-				protected void initExtractorMap() {
-					// null is no valid extractor
-					super.registerExtractor(Exception.class, null);
-				}
-			};
-			fail("IllegalArgumentExpected");
-		}
-		catch (IllegalArgumentException ex) {
-			// ok
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new ThrowableAnalyzer() {
+
+			@Override
+			protected void initExtractorMap() {
+				// null is no valid extractor
+				super.registerExtractor(Exception.class, null);
+			}
+
+		});
 	}
 
 	@Test
@@ -199,25 +192,15 @@ public class ThrowableAnalyzerTests {
 
 	@Test
 	public void testVerifyThrowableHierarchyWithNull() {
-		try {
-			ThrowableAnalyzer.verifyThrowableHierarchy(null, Throwable.class);
-			fail("IllegalArgumentException expected");
-		}
-		catch (IllegalArgumentException ex) {
-			// ok
-		}
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> ThrowableAnalyzer.verifyThrowableHierarchy(null, Throwable.class));
 	}
 
 	@Test
 	public void testVerifyThrowableHierarchyWithNonmatchingType() {
 		Throwable throwable = new IllegalStateException("Test");
-		try {
-			ThrowableAnalyzer.verifyThrowableHierarchy(throwable, InvocationTargetException.class);
-			fail("IllegalArgumentException expected");
-		}
-		catch (IllegalArgumentException ex) {
-			// ok
-		}
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> ThrowableAnalyzer.verifyThrowableHierarchy(throwable, InvocationTargetException.class));
 	}
 
 	/**

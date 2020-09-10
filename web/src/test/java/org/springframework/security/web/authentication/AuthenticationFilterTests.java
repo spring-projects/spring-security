@@ -43,6 +43,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -205,7 +206,7 @@ public class AuthenticationFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 	}
 
-	@Test(expected = ServletException.class)
+	@Test
 	public void filterWhenConvertAndAuthenticationEmptyThenServerError() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE_USER");
 		given(this.authenticationConverter.convert(any())).willReturn(authentication);
@@ -216,14 +217,9 @@ public class AuthenticationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
-		try {
-			filter.doFilter(request, response, chain);
-		}
-		catch (ServletException ex) {
-			verifyZeroInteractions(this.successHandler);
-			assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-			throw ex;
-		}
+		assertThatExceptionOfType(ServletException.class).isThrownBy(() -> filter.doFilter(request, response, chain));
+		verifyZeroInteractions(this.successHandler);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test

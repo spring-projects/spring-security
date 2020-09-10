@@ -33,6 +33,7 @@ import org.springframework.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
@@ -112,14 +113,8 @@ public class ApacheDSContainerTests {
 		List<Integer> ports = getDefaultPorts(1);
 		server.setPort(ports.get(0));
 		server.setLdapOverSslEnabled(true);
-
-		try {
-			server.afterPropertiesSet();
-			fail("Expected an IllegalArgumentException to be thrown.");
-		}
-		catch (IllegalArgumentException ex) {
-			assertThat(ex).hasMessage("When LdapOverSsl is enabled, the keyStoreFile property must be set.");
-		}
+		assertThatIllegalArgumentException().isThrownBy(server::afterPropertiesSet)
+				.withMessage("When LdapOverSsl is enabled, the keyStoreFile property must be set.");
 	}
 
 	@Test

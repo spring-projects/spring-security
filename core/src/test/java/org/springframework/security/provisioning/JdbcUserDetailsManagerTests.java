@@ -44,7 +44,7 @@ import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -229,12 +229,8 @@ public class JdbcUserDetailsManagerTests {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		this.manager.setAuthenticationManager(am);
-		try {
-			this.manager.changePassword("password", "newPassword");
-			fail("Expected BadCredentialsException");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class)
+				.isThrownBy(() -> this.manager.changePassword("password", "newPassword"));
 		// Check password hasn't changed.
 		UserDetails newJoe = this.manager.loadUserByUsername("joe");
 		assertThat(newJoe.getPassword()).isEqualTo("password");

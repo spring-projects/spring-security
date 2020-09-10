@@ -21,7 +21,9 @@ import org.junit.Test;
 import org.springframework.security.acls.model.ObjectIdentity;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * Tests for {@link ObjectIdentityImpl}.
@@ -36,40 +38,15 @@ public class ObjectIdentityImplTests {
 	@Test
 	public void constructorsRespectRequiredFields() {
 		// Check one-argument constructor required field
-		try {
-			new ObjectIdentityImpl(null);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new ObjectIdentityImpl(null));
 		// Check String-Serializable constructor required field
-		try {
-			new ObjectIdentityImpl("", 1L);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new ObjectIdentityImpl("", 1L));
 		// Check Serializable parameter is not null
-		try {
-			new ObjectIdentityImpl(DOMAIN_CLASS, null);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new ObjectIdentityImpl(DOMAIN_CLASS, null));
 		// The correct way of using String-Serializable constructor
-		try {
-			new ObjectIdentityImpl(DOMAIN_CLASS, 1L);
-		}
-		catch (IllegalArgumentException notExpected) {
-			fail("It shouldn't have thrown IllegalArgumentException");
-		}
+		assertThatNoException().isThrownBy(() -> new ObjectIdentityImpl(DOMAIN_CLASS, 1L));
 		// Check the Class-Serializable constructor
-		try {
-			new ObjectIdentityImpl(MockIdDomainObject.class, null);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new ObjectIdentityImpl(MockIdDomainObject.class, null));
 	}
 
 	@Test
@@ -82,35 +59,17 @@ public class ObjectIdentityImplTests {
 	@Test
 	public void testGetIdMethodConstraints() {
 		// Check the getId() method is present
-		try {
-			new ObjectIdentityImpl("A_STRING_OBJECT");
-			fail("It should have thrown IdentityUnavailableException");
-		}
-		catch (IdentityUnavailableException expected) {
-		}
+		assertThatExceptionOfType(IdentityUnavailableException.class)
+				.isThrownBy(() -> new ObjectIdentityImpl("A_STRING_OBJECT"));
 		// getId() should return a non-null value
 		MockIdDomainObject mockId = new MockIdDomainObject();
-		try {
-			new ObjectIdentityImpl(mockId);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new ObjectIdentityImpl(mockId));
 		// getId() should return a Serializable object
 		mockId.setId(new MockIdDomainObject());
-		try {
-			new ObjectIdentityImpl(mockId);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new ObjectIdentityImpl(mockId));
 		// getId() should return a Serializable object
 		mockId.setId(100L);
-		try {
-			new ObjectIdentityImpl(mockId);
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatNoException().isThrownBy(() -> new ObjectIdentityImpl(mockId));
 	}
 
 	@Test(expected = IllegalArgumentException.class)

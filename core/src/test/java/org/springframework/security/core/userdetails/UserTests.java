@@ -30,7 +30,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link User}.
@@ -63,50 +64,25 @@ public class UserTests {
 
 	@Test
 	public void testNoArgConstructorDoesntExist() {
-		Class<User> clazz = User.class;
-		try {
-			clazz.getDeclaredConstructor((Class[]) null);
-			fail("Should have thrown NoSuchMethodException");
-		}
-		catch (NoSuchMethodException expected) {
-		}
+		assertThatExceptionOfType(NoSuchMethodException.class)
+				.isThrownBy(() -> User.class.getDeclaredConstructor((Class[]) null));
 	}
 
 	@Test
 	public void testNullValuesRejected() {
-		try {
-			new User(null, "koala", true, true, true, true, ROLE_12);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new User("rod", null, true, true, true, true, ROLE_12);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_ONE");
-			auths.add(null);
-			new User("rod", "koala", true, true, true, true, auths);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new User(null, "koala", true, true, true, true, ROLE_12));
+		assertThatIllegalArgumentException().isThrownBy(() -> new User("rod", null, true, true, true, true, ROLE_12));
+		List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_ONE");
+		auths.add(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new User("rod", "koala", true, true, true, true, auths));
 	}
 
 	@Test
 	public void testNullWithinGrantedAuthorityElementIsRejected() {
-		try {
-			List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_ONE");
-			auths.add(null);
-			auths.add(new SimpleGrantedAuthority("ROLE_THREE"));
-			new User(null, "koala", true, true, true, true, auths);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_ONE");
+		auths.add(null);
+		auths.add(new SimpleGrantedAuthority("ROLE_THREE"));
+		assertThatIllegalArgumentException().isThrownBy(() -> new User(null, "koala", true, true, true, true, auths));
 	}
 
 	@Test

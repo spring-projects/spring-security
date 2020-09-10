@@ -36,7 +36,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
@@ -50,15 +51,12 @@ import static org.mockito.Mockito.verify;
 @SuppressWarnings({ "unchecked" })
 public class AclEntryAfterInvocationProviderTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void rejectsMissingPermissions() {
-		try {
-			new AclEntryAfterInvocationProvider(mock(AclService.class), null);
-			fail("Exception expected");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		new AclEntryAfterInvocationProvider(mock(AclService.class), Collections.<Permission>emptyList());
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AclEntryAfterInvocationProvider(mock(AclService.class), null));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new AclEntryAfterInvocationProvider(mock(AclService.class), Collections.<Permission>emptyList()));
 	}
 
 	@Test
@@ -98,7 +96,7 @@ public class AclEntryAfterInvocationProviderTests {
 				SecurityConfig.createList("AFTER_ACL_READ"), returned));
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void accessIsDeniedIfPermissionIsNotGranted() {
 		AclService service = mock(AclService.class);
 		Acl acl = mock(Acl.class);
@@ -113,16 +111,13 @@ public class AclEntryAfterInvocationProviderTests {
 		provider.setObjectIdentityRetrievalStrategy(mock(ObjectIdentityRetrievalStrategy.class));
 		provider.setProcessDomainObjectClass(Object.class);
 		provider.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
-		try {
-			provider.decide(mock(Authentication.class), new Object(),
-					SecurityConfig.createList("UNSUPPORTED", "MY_ATTRIBUTE"), new Object());
-			fail("Expected Exception");
-		}
-		catch (AccessDeniedException expected) {
-		}
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> provider.decide(mock(Authentication.class), new Object(),
+						SecurityConfig.createList("UNSUPPORTED", "MY_ATTRIBUTE"), new Object()));
 		// Second scenario with no acls found
-		provider.decide(mock(Authentication.class), new Object(),
-				SecurityConfig.createList("UNSUPPORTED", "MY_ATTRIBUTE"), new Object());
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> provider.decide(mock(Authentication.class), new Object(),
+						SecurityConfig.createList("UNSUPPORTED", "MY_ATTRIBUTE"), new Object()));
 	}
 
 	@Test

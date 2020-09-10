@@ -29,7 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests {@link AuthenticationTag}.
@@ -106,13 +106,10 @@ public class AuthenticationTagTests {
 	public void testThrowsExceptionForUnrecognisedProperty() {
 		SecurityContextHolder.getContext().setAuthentication(this.auth);
 		this.authenticationTag.setProperty("qsq");
-		try {
+		assertThatExceptionOfType(JspException.class).isThrownBy(() -> {
 			this.authenticationTag.doStartTag();
 			this.authenticationTag.doEndTag();
-			fail("Should have throwns JspException");
-		}
-		catch (JspException expected) {
-		}
+		});
 	}
 
 	@Test

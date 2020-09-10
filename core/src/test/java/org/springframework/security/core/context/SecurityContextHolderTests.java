@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link SecurityContextHolder}.
@@ -55,12 +55,7 @@ public class SecurityContextHolderTests {
 
 	@Test
 	public void testRejectsNulls() {
-		try {
-			SecurityContextHolder.setContext(null);
-			fail("Should have rejected null");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> SecurityContextHolder.setContext(null));
 	}
 
 }

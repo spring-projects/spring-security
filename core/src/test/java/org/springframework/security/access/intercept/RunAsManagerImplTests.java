@@ -26,6 +26,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
@@ -96,12 +97,7 @@ public class RunAsManagerImplTests {
 	@Test
 	public void testStartupDetectsMissingKey() throws Exception {
 		RunAsManagerImpl runAs = new RunAsManagerImpl();
-		try {
-			runAs.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(runAs::afterPropertiesSet);
 	}
 
 	@Test

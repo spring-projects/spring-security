@@ -48,7 +48,6 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
@@ -258,16 +257,12 @@ public class ExceptionTranslationFilterTests {
 		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
 		filter.afterPropertiesSet();
 		Exception[] exceptions = { new IOException(), new ServletException(), new RuntimeException() };
-		for (Exception e : exceptions) {
+		for (Exception exception : exceptions) {
 			FilterChain fc = mock(FilterChain.class);
-			willThrow(e).given(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-			try {
-				filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), fc);
-				fail("Should have thrown Exception");
-			}
-			catch (Exception expected) {
-				assertThat(expected).isSameAs(e);
-			}
+			willThrow(exception).given(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+			assertThatExceptionOfType(Exception.class)
+					.isThrownBy(() -> filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), fc))
+					.isSameAs(exception);
 		}
 	}
 

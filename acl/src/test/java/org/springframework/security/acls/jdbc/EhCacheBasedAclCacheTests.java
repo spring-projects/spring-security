@@ -52,7 +52,7 @@ import org.springframework.security.util.FieldUtils;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -102,41 +102,11 @@ public class EhCacheBasedAclCacheTests {
 
 	@Test
 	public void methodsRejectNullParameters() {
-		try {
-			Serializable id = null;
-			this.myCache.evictFromCache(id);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			ObjectIdentity obj = null;
-			this.myCache.evictFromCache(obj);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			Serializable id = null;
-			this.myCache.getFromCache(id);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			ObjectIdentity obj = null;
-			this.myCache.getFromCache(obj);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			MutableAcl acl = null;
-			this.myCache.putInCache(acl);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> this.myCache.evictFromCache((Serializable) null));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.myCache.evictFromCache((ObjectIdentity) null));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.myCache.getFromCache((Serializable) null));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.myCache.getFromCache((ObjectIdentity) null));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.myCache.putInCache(null));
 	}
 
 	// SEC-527

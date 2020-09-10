@@ -27,7 +27,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author Rob Winch
@@ -94,12 +93,8 @@ public class StrictHttpFirewallTests {
 		for (String path : this.unnormalizedPaths) {
 			this.request = new MockHttpServletRequest("GET", "");
 			this.request.setRequestURI(path);
-			try {
-				this.firewall.getFirewalledRequest(this.request);
-				fail(path + " is un-normalized");
-			}
-			catch (RequestRejectedException expected) {
-			}
+			assertThatExceptionOfType(RequestRejectedException.class)
+					.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 		}
 	}
 
@@ -108,12 +103,8 @@ public class StrictHttpFirewallTests {
 		for (String path : this.unnormalizedPaths) {
 			this.request = new MockHttpServletRequest("GET", "");
 			this.request.setContextPath(path);
-			try {
-				this.firewall.getFirewalledRequest(this.request);
-				fail(path + " is un-normalized");
-			}
-			catch (RequestRejectedException expected) {
-			}
+			assertThatExceptionOfType(RequestRejectedException.class)
+					.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 		}
 	}
 
@@ -122,12 +113,8 @@ public class StrictHttpFirewallTests {
 		for (String path : this.unnormalizedPaths) {
 			this.request = new MockHttpServletRequest("GET", "");
 			this.request.setServletPath(path);
-			try {
-				this.firewall.getFirewalledRequest(this.request);
-				fail(path + " is un-normalized");
-			}
-			catch (RequestRejectedException expected) {
-			}
+			assertThatExceptionOfType(RequestRejectedException.class)
+					.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 		}
 	}
 
@@ -136,12 +123,8 @@ public class StrictHttpFirewallTests {
 		for (String path : this.unnormalizedPaths) {
 			this.request = new MockHttpServletRequest("GET", "");
 			this.request.setPathInfo(path);
-			try {
-				this.firewall.getFirewalledRequest(this.request);
-				fail(path + " is un-normalized");
-			}
-			catch (RequestRejectedException expected) {
-			}
+			assertThatExceptionOfType(RequestRejectedException.class)
+					.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 		}
 	}
 

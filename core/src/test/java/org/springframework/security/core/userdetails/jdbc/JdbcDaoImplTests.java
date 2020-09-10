@@ -25,7 +25,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -92,23 +93,14 @@ public class JdbcDaoImplTests {
 	@Test
 	public void testLookupFailsIfUserHasNoGrantedAuthorities() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
-		try {
-			dao.loadUserByUsername("cooper");
-			fail("Should have thrown UsernameNotFoundException");
-		}
-		catch (UsernameNotFoundException expected) {
-		}
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> dao.loadUserByUsername("cooper"));
 	}
 
 	@Test
 	public void testLookupFailsWithWrongUsername() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
-		try {
-			dao.loadUserByUsername("UNKNOWN_USER");
-			fail("Should have thrown UsernameNotFoundException");
-		}
-		catch (UsernameNotFoundException expected) {
-		}
+		assertThatExceptionOfType(UsernameNotFoundException.class)
+				.isThrownBy(() -> dao.loadUserByUsername("UNKNOWN_USER"));
 	}
 
 	@Test
@@ -152,24 +144,16 @@ public class JdbcDaoImplTests {
 	@Test
 	public void testStartupFailsIfDataSourceNotSet() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
-		try {
-			dao.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(dao::afterPropertiesSet);
 	}
 
 	@Test
 	public void testStartupFailsIfUserMapSetToNull() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
-		try {
+		assertThatIllegalArgumentException().isThrownBy(() -> {
 			dao.setDataSource(null);
 			dao.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		});
 	}
 
 	@Test(expected = IllegalArgumentException.class)

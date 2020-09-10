@@ -26,7 +26,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -74,12 +74,7 @@ public class InsecureChannelProcessorTests {
 	public void testDecideRejectsNulls() throws Exception {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
 		processor.afterPropertiesSet();
-		try {
-			processor.decide(null, null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> processor.decide(null, null));
 	}
 
 	@Test
@@ -97,34 +92,19 @@ public class InsecureChannelProcessorTests {
 	public void testMissingEntryPoint() throws Exception {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
 		processor.setEntryPoint(null);
-		try {
-			processor.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("entryPoint required");
-		}
+		assertThatIllegalArgumentException().isThrownBy(processor::afterPropertiesSet)
+				.withMessage("entryPoint required");
 	}
 
 	@Test
 	public void testMissingSecureChannelKeyword() throws Exception {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
 		processor.setInsecureKeyword(null);
-		try {
-			processor.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("insecureKeyword required");
-		}
+		assertThatIllegalArgumentException().isThrownBy(processor::afterPropertiesSet)
+				.withMessage("insecureKeyword required");
 		processor.setInsecureKeyword("");
-		try {
-			processor.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("insecureKeyword required");
-		}
+		assertThatIllegalArgumentException().isThrownBy(processor::afterPropertiesSet)
+				.withMessage("insecureKeyword required");
 	}
 
 	@Test

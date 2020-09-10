@@ -23,7 +23,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -104,18 +104,8 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 	@Test
 	public void setTargetUrlParameterEmptyTargetUrlParameter() {
 		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler();
-		try {
-			ash.setTargetUrlParameter("");
-			fail("Expected Exception");
-		}
-		catch (IllegalArgumentException success) {
-		}
-		try {
-			ash.setTargetUrlParameter("   ");
-			fail("Expected Exception");
-		}
-		catch (IllegalArgumentException success) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> ash.setTargetUrlParameter(""));
+		assertThatIllegalArgumentException().isThrownBy(() -> ash.setTargetUrlParameter("   "));
 	}
 
 }

@@ -50,6 +50,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -77,12 +78,7 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = createProvider();
 		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown BadCredentialsException");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
@@ -92,12 +88,8 @@ public class DaoAuthenticationProviderTests {
 		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken("rod", null);
-		try {
-			provider.authenticate(authenticationToken);
-			fail("Expected BadCredenialsException");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class)
+				.isThrownBy(() -> provider.authenticate(authenticationToken));
 	}
 
 	@Test
@@ -106,12 +98,7 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = createProvider();
 		provider.setUserDetailsService(new MockUserDetailsServiceUserPeterAccountExpired());
 		provider.setUserCache(new MockUserCache());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown AccountExpiredException");
-		}
-		catch (AccountExpiredException expected) {
-		}
+		assertThatExceptionOfType(AccountExpiredException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
@@ -120,35 +107,20 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = createProvider();
 		provider.setUserDetailsService(new MockUserDetailsServiceUserPeterAccountLocked());
 		provider.setUserCache(new MockUserCache());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown LockedException");
-		}
-		catch (LockedException expected) {
-		}
+		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
 	public void testAuthenticateFailsIfCredentialsExpired() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("peter", "opal");
 		DaoAuthenticationProvider provider = createProvider();
 		provider.setUserDetailsService(new MockUserDetailsServiceUserPeterCredentialsExpired());
 		provider.setUserCache(new MockUserCache());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown CredentialsExpiredException");
-		}
-		catch (CredentialsExpiredException expected) {
-		}
+		assertThatExceptionOfType(CredentialsExpiredException.class)
+				.isThrownBy(() -> provider.authenticate(new UsernamePasswordAuthenticationToken("peter", "opal")));
 		// Check that wrong password causes BadCredentialsException, rather than
 		// CredentialsExpiredException
-		token = new UsernamePasswordAuthenticationToken("peter", "wrong_password");
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown BadCredentialsException");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(
+				() -> provider.authenticate(new UsernamePasswordAuthenticationToken("peter", "wrong_password")));
 	}
 
 	@Test
@@ -157,12 +129,7 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = createProvider();
 		provider.setUserDetailsService(new MockUserDetailsServiceUserPeter());
 		provider.setUserCache(new MockUserCache());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown DisabledException");
-		}
-		catch (DisabledException expected) {
-		}
+		assertThatExceptionOfType(DisabledException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
@@ -171,12 +138,8 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = createProvider();
 		provider.setUserDetailsService(new MockUserDetailsServiceSimulateBackendError());
 		provider.setUserCache(new MockUserCache());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown InternalAuthenticationServiceException");
-		}
-		catch (InternalAuthenticationServiceException expected) {
-		}
+		assertThatExceptionOfType(InternalAuthenticationServiceException.class)
+				.isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
@@ -185,12 +148,7 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = createProvider();
 		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown BadCredentialsException");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
@@ -199,12 +157,7 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = createProvider();
 		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown BadCredentialsException");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
@@ -215,12 +168,7 @@ public class DaoAuthenticationProviderTests {
 														// UsernameNotFoundExceptions
 		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown UsernameNotFoundException");
-		}
-		catch (UsernameNotFoundException expected) {
-		}
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
@@ -230,12 +178,7 @@ public class DaoAuthenticationProviderTests {
 		assertThat(provider.isHideUserNotFoundExceptions()).isTrue();
 		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown BadCredentialsException");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
@@ -245,19 +188,9 @@ public class DaoAuthenticationProviderTests {
 		assertThat(provider.isHideUserNotFoundExceptions()).isTrue();
 		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown BadCredentialsException");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 		provider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown BadCredentialsException");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
@@ -266,12 +199,7 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = createProvider();
 		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown BadCredentialsException");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
@@ -389,14 +317,8 @@ public class DaoAuthenticationProviderTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("rod", "koala");
 		DaoAuthenticationProvider provider = createProvider();
 		provider.setUserDetailsService(new MockUserDetailsServiceReturnsNull());
-		try {
-			provider.authenticate(token);
-			fail("Should have thrown AuthenticationServiceException");
-		}
-		catch (AuthenticationServiceException expected) {
-			assertThat("UserDetailsService returned null, which is an interface contract violation")
-					.isEqualTo(expected.getMessage());
-		}
+		assertThatExceptionOfType(AuthenticationServiceException.class).isThrownBy(() -> provider.authenticate(token))
+				.withMessage("UserDetailsService returned null, which is an interface contract violation");
 	}
 
 	@Test
@@ -436,12 +358,7 @@ public class DaoAuthenticationProviderTests {
 	@Test
 	public void testStartupFailsIfNoAuthenticationDao() throws Exception {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		try {
-			provider.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(provider::afterPropertiesSet);
 	}
 
 	@Test
@@ -450,12 +367,7 @@ public class DaoAuthenticationProviderTests {
 		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		assertThat(provider.getUserCache().getClass()).isEqualTo(NullUserCache.class);
 		provider.setUserCache(null);
-		try {
-			provider.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(provider::afterPropertiesSet);
 	}
 
 	@Test
@@ -486,12 +398,7 @@ public class DaoAuthenticationProviderTests {
 		provider.setPasswordEncoder(encoder);
 		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		provider.afterPropertiesSet();
-		try {
-			provider.authenticate(token);
-			fail("Expected Exception");
-		}
-		catch (UsernameNotFoundException success) {
-		}
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(token));
 		// ensure encoder invoked w/ non-null strings since PasswordEncoder impls may fail
 		// if encoded password is null
 		verify(encoder).matches(isA(String.class), isA(String.class));
@@ -507,12 +414,7 @@ public class DaoAuthenticationProviderTests {
 		MockUserDetailsServiceUserRod userDetailsService = new MockUserDetailsServiceUserRod();
 		userDetailsService.password = encoder.encode((CharSequence) token.getCredentials());
 		provider.setUserDetailsService(userDetailsService);
-		try {
-			provider.authenticate(token);
-			fail("Expected Exception");
-		}
-		catch (UsernameNotFoundException success) {
-		}
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
@@ -521,12 +423,7 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = createProvider();
 		provider.setHideUserNotFoundExceptions(false);
 		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
-		try {
-			provider.authenticate(token);
-			fail("Expected Exception");
-		}
-		catch (UsernameNotFoundException success) {
-		}
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	/**
@@ -554,12 +451,8 @@ public class DaoAuthenticationProviderTests {
 		List<Long> userNotFoundTimes = new ArrayList<>(sampleSize);
 		for (int i = 0; i < sampleSize; i++) {
 			long start = System.currentTimeMillis();
-			try {
-				provider.authenticate(notFoundUser);
-				fail("Expected Exception");
-			}
-			catch (UsernameNotFoundException success) {
-			}
+			assertThatExceptionOfType(UsernameNotFoundException.class)
+					.isThrownBy(() -> provider.authenticate(notFoundUser));
 			userNotFoundTimes.add(System.currentTimeMillis() - start);
 		}
 		double userFoundAvg = avg(userFoundTimes);
@@ -584,12 +477,7 @@ public class DaoAuthenticationProviderTests {
 		provider.setHideUserNotFoundExceptions(false);
 		provider.setPasswordEncoder(encoder);
 		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
-		try {
-			provider.authenticate(token);
-			fail("Expected Exception");
-		}
-		catch (UsernameNotFoundException success) {
-		}
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(token));
 		verify(encoder, times(0)).matches(anyString(), anyString());
 	}
 

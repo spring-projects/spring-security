@@ -54,6 +54,7 @@ import org.springframework.security.test.web.servlet.response.SecurityMockMvcRes
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -91,11 +92,8 @@ public class AuthenticationManagerBuilderTests {
 		given(opp.postProcess(any())).willAnswer((a) -> a.getArgument(0));
 		AuthenticationManager am = new AuthenticationManagerBuilder(opp).authenticationEventPublisher(aep)
 				.inMemoryAuthentication().and().build();
-		try {
-			am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-		}
-		catch (AuthenticationException success) {
-		}
+		assertThatExceptionOfType(AuthenticationException.class)
+				.isThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "password")));
 		verify(aep).publishAuthenticationFailure(any(), any());
 	}
 

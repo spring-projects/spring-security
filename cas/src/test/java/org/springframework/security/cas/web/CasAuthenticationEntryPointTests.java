@@ -25,7 +25,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.cas.ServiceProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link CasAuthenticationEntryPoint}.
@@ -38,26 +38,16 @@ public class CasAuthenticationEntryPointTests {
 	public void testDetectsMissingLoginFormUrl() throws Exception {
 		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
 		ep.setServiceProperties(new ServiceProperties());
-		try {
-			ep.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("loginUrl must be specified");
-		}
+		assertThatIllegalArgumentException().isThrownBy(ep::afterPropertiesSet)
+				.withMessage("loginUrl must be specified");
 	}
 
 	@Test
 	public void testDetectsMissingServiceProperties() throws Exception {
 		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
 		ep.setLoginUrl("https://cas/login");
-		try {
-			ep.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("serviceProperties must be specified");
-		}
+		assertThatIllegalArgumentException().isThrownBy(ep::afterPropertiesSet)
+				.withMessage("serviceProperties must be specified");
 	}
 
 	@Test

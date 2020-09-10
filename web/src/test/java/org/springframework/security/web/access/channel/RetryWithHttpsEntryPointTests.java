@@ -27,7 +27,7 @@ import org.springframework.security.MockPortResolver;
 import org.springframework.security.web.PortMapperImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link RetryWithHttpsEntryPoint}.
@@ -39,23 +39,13 @@ public class RetryWithHttpsEntryPointTests {
 	@Test
 	public void testDetectsMissingPortMapper() {
 		RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
-		try {
-			ep.setPortMapper(null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> ep.setPortMapper(null));
 	}
 
 	@Test
 	public void testDetectsMissingPortResolver() {
 		RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
-		try {
-			ep.setPortResolver(null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> ep.setPortResolver(null));
 	}
 
 	@Test

@@ -29,7 +29,7 @@ import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link UnboundIdContainer}, specifically relating to LDIF file detection.
@@ -72,26 +72,18 @@ public class UnboundIdContainerLdifTests {
 
 	@Test
 	public void unboundIdContainerWhenMalformedLdifThenException() {
-		try {
-			this.appCtx = new AnnotationConfigApplicationContext(MalformedLdifConfig.class);
-			failBecauseExceptionWasNotThrown(IllegalStateException.class);
-		}
-		catch (Exception ex) {
-			assertThat(ex.getCause()).isInstanceOf(IllegalStateException.class);
-			assertThat(ex.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
-		}
+		assertThatExceptionOfType(Exception.class)
+				.isThrownBy(() -> this.appCtx = new AnnotationConfigApplicationContext(MalformedLdifConfig.class))
+				.withCauseInstanceOf(IllegalStateException.class)
+				.withMessageContaining("Unable to load LDIF classpath:test-server-malformed.txt");
 	}
 
 	@Test
 	public void unboundIdContainerWhenMissingLdifThenException() {
-		try {
-			this.appCtx = new AnnotationConfigApplicationContext(MissingLdifConfig.class);
-			failBecauseExceptionWasNotThrown(IllegalStateException.class);
-		}
-		catch (Exception ex) {
-			assertThat(ex.getCause()).isInstanceOf(IllegalStateException.class);
-			assertThat(ex.getMessage()).contains("Unable to load LDIF classpath:does-not-exist.ldif");
-		}
+		assertThatExceptionOfType(Exception.class)
+				.isThrownBy(() -> this.appCtx = new AnnotationConfigApplicationContext(MissingLdifConfig.class))
+				.withCauseInstanceOf(IllegalStateException.class)
+				.withMessageContaining("Unable to load LDIF classpath:does-not-exist.ldif");
 	}
 
 	@Test

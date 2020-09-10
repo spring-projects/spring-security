@@ -31,7 +31,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link AfterInvocationProviderManager}.
@@ -72,13 +72,7 @@ public class AfterInvocationProviderManagerTests {
 	public void testRejectsEmptyProvidersList() {
 		AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
 		List list = new Vector();
-		try {
-			manager.setProviders(list);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(true).isTrue();
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> manager.setProviders(list));
 	}
 
 	@Test
@@ -88,25 +82,13 @@ public class AfterInvocationProviderManagerTests {
 		list.add(new MockAfterInvocationProvider("swap1", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP1")));
 		list.add(45);
 		list.add(new MockAfterInvocationProvider("swap3", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
-		try {
-			manager.setProviders(list);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(true).isTrue();
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> manager.setProviders(list));
 	}
 
 	@Test
 	public void testRejectsNullProvidersList() throws Exception {
 		AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
-		try {
-			manager.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(true).isTrue();
-		}
+		assertThatIllegalArgumentException().isThrownBy(manager::afterPropertiesSet);
 	}
 
 	@Test

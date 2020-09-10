@@ -28,7 +28,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests {@link UnanimousBased}.
@@ -73,12 +73,7 @@ public class UnanimousBasedTests {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 		List<ConfigAttribute> config = SecurityConfig.createList(new String[] { "ROLE_1", "DENY_FOR_SURE" });
-		try {
-			mgr.decide(auth, new Object(), config);
-			fail("Should have thrown AccessDeniedException");
-		}
-		catch (AccessDeniedException expected) {
-		}
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> mgr.decide(auth, new Object(), config));
 	}
 
 	@Test
@@ -94,12 +89,7 @@ public class UnanimousBasedTests {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 		List<ConfigAttribute> config = SecurityConfig.createList("ROLE_WE_DO_NOT_HAVE");
-		try {
-			mgr.decide(auth, new Object(), config);
-			fail("Should have thrown AccessDeniedException");
-		}
-		catch (AccessDeniedException expected) {
-		}
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> mgr.decide(auth, new Object(), config));
 	}
 
 	@Test
@@ -116,12 +106,7 @@ public class UnanimousBasedTests {
 		UnanimousBased mgr = makeDecisionManager();
 		assertThat(!mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check default
 		List<ConfigAttribute> config = SecurityConfig.createList("IGNORED_BY_ALL");
-		try {
-			mgr.decide(auth, new Object(), config);
-			fail("Should have thrown AccessDeniedException");
-		}
-		catch (AccessDeniedException expected) {
-		}
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> mgr.decide(auth, new Object(), config));
 	}
 
 	@Test

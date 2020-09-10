@@ -25,7 +25,7 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -38,12 +38,7 @@ public class SavedRequestAwareAuthenticationSuccessHandlerTests {
 		handler.setDefaultTargetUrl("/acceptableRelativeUrl");
 		handler.setDefaultTargetUrl("https://some.site.org/index.html");
 		handler.setDefaultTargetUrl("https://some.site.org/index.html");
-		try {
-			handler.setDefaultTargetUrl("missingSlash");
-			fail("Shouldn't accept default target without leading slash");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> handler.setDefaultTargetUrl("missingSlash"));
 	}
 
 	@Test

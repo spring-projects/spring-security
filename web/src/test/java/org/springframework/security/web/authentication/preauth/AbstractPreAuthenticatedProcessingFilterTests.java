@@ -42,7 +42,7 @@ import org.springframework.security.web.authentication.ForwardAuthenticationSucc
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -105,15 +105,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 	@Test
 	public void testAfterPropertiesSet() {
 		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
-		try {
-			filter.afterPropertiesSet();
-			fail("AfterPropertiesSet didn't throw expected exception");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		catch (Exception unexpected) {
-			fail("AfterPropertiesSet throws unexpected exception");
-		}
+		assertThatIllegalArgumentException().isThrownBy(filter::afterPropertiesSet);
 	}
 
 	// SEC-2045

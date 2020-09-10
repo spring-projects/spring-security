@@ -38,7 +38,7 @@ import org.openid4java.message.ax.FetchResponse;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -90,18 +90,10 @@ public class OpenID4JavaConsumerTests {
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
 		given(mgr.authenticate(ArgumentMatchers.<DiscoveryInformation>any(), any(), any()))
 				.willThrow(new MessageException("msg"), new ConsumerException("msg"));
-		try {
-			consumer.beginConsumption(new MockHttpServletRequest(), "", "", "");
-			fail("OpenIDConsumerException was not thrown");
-		}
-		catch (OpenIDConsumerException expected) {
-		}
-		try {
-			consumer.beginConsumption(new MockHttpServletRequest(), "", "", "");
-			fail("OpenIDConsumerException was not thrown");
-		}
-		catch (OpenIDConsumerException expected) {
-		}
+		assertThatExceptionOfType(OpenIDConsumerException.class)
+				.isThrownBy(() -> consumer.beginConsumption(new MockHttpServletRequest(), "", "", ""));
+		assertThatExceptionOfType(OpenIDConsumerException.class)
+				.isThrownBy(() -> consumer.beginConsumption(new MockHttpServletRequest(), "", "", ""));
 	}
 
 	@Test
@@ -125,24 +117,9 @@ public class OpenID4JavaConsumerTests {
 				.willThrow(new MessageException(""), new AssociationException(""), new DiscoveryException(""));
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("x=5");
-		try {
-			consumer.endConsumption(request);
-			fail("OpenIDConsumerException was not thrown");
-		}
-		catch (OpenIDConsumerException expected) {
-		}
-		try {
-			consumer.endConsumption(request);
-			fail("OpenIDConsumerException was not thrown");
-		}
-		catch (OpenIDConsumerException expected) {
-		}
-		try {
-			consumer.endConsumption(request);
-			fail("OpenIDConsumerException was not thrown");
-		}
-		catch (OpenIDConsumerException expected) {
-		}
+		assertThatExceptionOfType(OpenIDConsumerException.class).isThrownBy(() -> consumer.endConsumption(request));
+		assertThatExceptionOfType(OpenIDConsumerException.class).isThrownBy(() -> consumer.endConsumption(request));
+		assertThatExceptionOfType(OpenIDConsumerException.class).isThrownBy(() -> consumer.endConsumption(request));
 	}
 
 	@SuppressWarnings("serial")

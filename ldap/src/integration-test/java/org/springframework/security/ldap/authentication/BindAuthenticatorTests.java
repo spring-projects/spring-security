@@ -33,7 +33,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link BindAuthenticator}.
@@ -77,13 +77,8 @@ public class BindAuthenticatorTests {
 	@Test
 	public void testAuthenticationWithInvalidUserNameFails() {
 		this.authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
-
-		try {
-			this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("nonexistentsuser", "password"));
-			fail("Shouldn't be able to bind with invalid username");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.authenticator
+				.authenticate(new UsernamePasswordAuthenticationToken("nonexistentsuser", "password")));
 	}
 
 	@Test
@@ -131,13 +126,8 @@ public class BindAuthenticatorTests {
 	@Test
 	public void testAuthenticationWithWrongPasswordFails() {
 		this.authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
-
-		try {
-			this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob", "wrongpassword"));
-			fail("Shouldn't be able to bind with wrong password");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(
+				() -> this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob", "wrongpassword")));
 	}
 
 	@Test

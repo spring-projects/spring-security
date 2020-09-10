@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -166,12 +166,7 @@ public class FirewalledResponseTests {
 	}
 
 	private void validateLineEnding(String name, String value) {
-		try {
-			this.fwResponse.validateCrlf(name, value);
-			fail("IllegalArgumentException should have thrown");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.validateCrlf(name, value));
 	}
 
 }

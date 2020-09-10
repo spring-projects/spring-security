@@ -26,7 +26,8 @@ import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * @author TSARDD
@@ -39,26 +40,13 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests {
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = new SimpleAttributes2GrantedAuthoritiesMapper();
 		mapper.setConvertAttributeToLowerCase(true);
 		mapper.setConvertAttributeToUpperCase(true);
-		try {
-			mapper.afterPropertiesSet();
-			fail("Expected exception not thrown");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		catch (Exception unexpected) {
-			fail("Unexpected exception: " + unexpected);
-		}
+		assertThatIllegalArgumentException().isThrownBy(mapper::afterPropertiesSet);
 	}
 
 	@Test
 	public final void testAfterPropertiesSet() {
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = new SimpleAttributes2GrantedAuthoritiesMapper();
-		try {
-			mapper.afterPropertiesSet();
-		}
-		catch (Exception unexpected) {
-			fail("Unexpected exception: " + unexpected);
-		}
+		assertThatNoException().isThrownBy(mapper::afterPropertiesSet);
 	}
 
 	@Test

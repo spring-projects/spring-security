@@ -110,11 +110,8 @@ public class GlobalMethodSecurityConfigurationTests {
 	@Test
 	public void methodSecurityAuthenticationManagerPublishesEvent() {
 		this.spring.register(InMemoryAuthWithGlobalMethodSecurityConfig.class).autowire();
-		try {
-			this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("foo", "bar"));
-		}
-		catch (AuthenticationException ex) {
-		}
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
+				() -> this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("foo", "bar")));
 		assertThat(this.events.getEvents()).extracting(Object::getClass)
 				.containsOnly((Class) AuthenticationFailureBadCredentialsEvent.class);
 	}

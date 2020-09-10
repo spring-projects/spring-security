@@ -32,8 +32,7 @@ import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ClassUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -78,15 +77,11 @@ public class SecurityNamespaceHandlerTests {
 
 	@Test
 	public void pre32SchemaAreNotSupported() {
-		try {
-			new InMemoryXmlApplicationContext("<user-service id='us'>"
-					+ "  <user name='bob' password='bobspassword' authorities='ROLE_A' />" + "</user-service>", "3.0.3",
-					null);
-			fail("Expected BeanDefinitionParsingException");
-		}
-		catch (BeanDefinitionParsingException expected) {
-			assertThat(expected.getMessage().contains("You cannot use a spring-security-2.0.xsd"));
-		}
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> new InMemoryXmlApplicationContext(
+						"<user-service id='us'><user name='bob' password='bobspassword' authorities='ROLE_A' /></user-service>",
+						"3.0.3", null))
+				.withMessageContaining("You cannot use a spring-security-2.0.xsd");
 	}
 
 	// SEC-1868

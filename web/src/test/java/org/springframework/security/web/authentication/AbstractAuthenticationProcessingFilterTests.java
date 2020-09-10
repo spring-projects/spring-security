@@ -48,6 +48,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -251,13 +252,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 		this.successHandler.setDefaultTargetUrl("/");
 		filter.setAuthenticationSuccessHandler(this.successHandler);
 		filter.setFilterProcessesUrl("/login");
-		try {
-			filter.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("authenticationManager must be specified");
-		}
+		assertThatIllegalArgumentException().isThrownBy(filter::afterPropertiesSet)
+				.withMessage("authenticationManager must be specified");
 	}
 
 	@Test
@@ -266,13 +262,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.setAuthenticationFailureHandler(this.failureHandler);
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
 		filter.setAuthenticationSuccessHandler(this.successHandler);
-		try {
-			filter.setFilterProcessesUrl(null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("Pattern cannot be null or empty");
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setFilterProcessesUrl(null))
+				.withMessage("Pattern cannot be null or empty");
 	}
 
 	@Test

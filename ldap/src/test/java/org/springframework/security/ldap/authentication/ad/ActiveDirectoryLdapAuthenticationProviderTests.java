@@ -54,7 +54,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider.ContextFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -169,12 +169,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		given(ctx.search(eq(new DistinguishedName("DC=mydomain,DC=eu")), any(String.class), any(Object[].class),
 				any(SearchControls.class))).willReturn(new MockNamingEnumeration(sr));
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
-		try {
-			this.provider.authenticate(this.joe);
-			fail("Expected BadCredentialsException for user with no domain information");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.provider.authenticate(this.joe));
 		this.provider.authenticate(new UsernamePasswordAuthenticationToken("joe@mydomain.eu", "password"));
 	}
 
@@ -278,12 +273,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	@Test(expected = CredentialsExpiredException.class)
 	public void expiredPasswordIsCorrectlyMapped() {
 		this.provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "532, xxxx]"));
-		try {
-			this.provider.authenticate(this.joe);
-			fail("BadCredentialsException should had been thrown");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.provider.authenticate(this.joe));
 		this.provider.setConvertSubErrorCodesToExceptions(true);
 		this.provider.authenticate(this.joe);
 	}
@@ -323,18 +313,12 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		this.provider.authenticate(this.joe);
 	}
 
-	@Test(expected = org.springframework.ldap.CommunicationException.class)
+	@Test
 	public void nonAuthenticationExceptionIsConvertedToSpringLdapException() throws Throwable {
-		try {
+		assertThatExceptionOfType(InternalAuthenticationServiceException.class).isThrownBy(() -> {
 			this.provider.contextFactory = createContextFactoryThrowing(new CommunicationException(msg));
 			this.provider.authenticate(this.joe);
-		}
-		catch (InternalAuthenticationServiceException ex) {
-			// Since GH-8418 ldap communication exception is wrapped into
-			// InternalAuthenticationServiceException.
-			// This test is about the wrapped exception, so we throw it.
-			throw ex.getCause();
-		}
+		}).withCauseInstanceOf(org.springframework.ldap.CommunicationException.class);
 	}
 
 	@Test(expected = org.springframework.security.authentication.InternalAuthenticationServiceException.class)
@@ -368,16 +352,10 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		Hashtable<String, Object> env = new Hashtable<>();
 		env.put("java.naming.ldap.factory.socket", "unknown.package.NonExistingSocketFactory");
 		this.provider.setContextEnvironmentProperties(env);
-		try {
-			this.provider.authenticate(this.joe);
-			fail("CommunicationException was expected with a root cause of ClassNotFoundException");
-		}
-		catch (InternalAuthenticationServiceException expected) {
-			assertThat(expected.getCause()).isInstanceOf(org.springframework.ldap.CommunicationException.class);
-			org.springframework.ldap.CommunicationException cause = (org.springframework.ldap.CommunicationException) expected
-					.getCause();
-			assertThat(cause.getRootCause()).isInstanceOf(ClassNotFoundException.class);
-		}
+		assertThatExceptionOfType(InternalAuthenticationServiceException.class)
+				.isThrownBy(() -> this.provider.authenticate(this.joe))
+				.withCauseInstanceOf(org.springframework.ldap.CommunicationException.class)
+				.withRootCauseInstanceOf(ClassNotFoundException.class);
 	}
 
 	ContextFactory createContextFactoryThrowing(final NamingException ex) {

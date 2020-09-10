@@ -24,7 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link EhCacheBasedTicketCache}.
@@ -67,12 +67,7 @@ public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTe
 	@Test
 	public void testStartupDetectsMissingCache() throws Exception {
 		EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
-		try {
-			cache.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(cache::afterPropertiesSet);
 		Ehcache myCache = cacheManager.getCache("castickets");
 		cache.setCache(myCache);
 		assertThat(cache.getCache()).isEqualTo(myCache);

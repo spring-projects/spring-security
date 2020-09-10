@@ -30,7 +30,7 @@ import org.springframework.security.util.SimpleMethodInvocation;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link ContextPropagatingRemoteInvocation} and
@@ -59,15 +59,10 @@ public class ContextPropagatingRemoteInvocationTests {
 		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", "koala");
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
-		try {
-			// Set up the wrong arguments.
-			remoteInvocation.setArguments(new Object[] {});
-			remoteInvocation.invoke(TargetObject.class.newInstance());
-			fail("Expected IllegalArgumentException");
-		}
-		catch (IllegalArgumentException ex) {
-			// expected
-		}
+		// Set up the wrong arguments.
+		remoteInvocation.setArguments(new Object[] {});
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> remoteInvocation.invoke(TargetObject.class.newInstance()));
 		assertThat(SecurityContextHolder.getContext().getAuthentication())
 				.withFailMessage("Authentication must be null").isNull();
 	}
