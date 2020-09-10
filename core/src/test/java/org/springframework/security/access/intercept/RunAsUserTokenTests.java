@@ -22,7 +22,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests {@link RunAsUserToken}.
@@ -52,14 +52,8 @@ public class RunAsUserTokenTests {
 
 	@Test
 	public void testNoArgConstructorDoesntExist() {
-		Class<RunAsUserToken> clazz = RunAsUserToken.class;
-		try {
-			clazz.getDeclaredConstructor((Class[]) null);
-			fail("Should have thrown NoSuchMethodException");
-		}
-		catch (NoSuchMethodException expected) {
-			assertThat(true).isTrue();
-		}
+		assertThatExceptionOfType(NoSuchMethodException.class)
+				.isThrownBy(() -> RunAsUserToken.class.getDeclaredConstructor((Class[]) null));
 	}
 
 	@Test

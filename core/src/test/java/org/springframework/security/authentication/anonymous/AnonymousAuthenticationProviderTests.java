@@ -26,7 +26,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link AnonymousAuthenticationProvider}.
@@ -40,22 +41,12 @@ public class AnonymousAuthenticationProviderTests {
 		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
 		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("WRONG_KEY", "Test",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
-		try {
-			aap.authenticate(token);
-			fail("Should have thrown BadCredentialsException");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> aap.authenticate(token));
 	}
 
 	@Test
 	public void testDetectsMissingKey() {
-		try {
-			new AnonymousAuthenticationProvider(null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new AnonymousAuthenticationProvider(null));
 	}
 
 	@Test

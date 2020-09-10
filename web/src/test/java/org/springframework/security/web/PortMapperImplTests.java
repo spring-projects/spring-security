@@ -22,7 +22,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link PortMapperImpl}.
@@ -43,23 +43,13 @@ public class PortMapperImplTests {
 	@Test
 	public void testDetectsEmptyMap() {
 		PortMapperImpl portMapper = new PortMapperImpl();
-		try {
-			portMapper.setPortMappings(new HashMap<>());
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> portMapper.setPortMappings(new HashMap<>()));
 	}
 
 	@Test
 	public void testDetectsNullMap() {
 		PortMapperImpl portMapper = new PortMapperImpl();
-		try {
-			portMapper.setPortMappings(null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> portMapper.setPortMappings(null));
 	}
 
 	@Test
@@ -73,12 +63,7 @@ public class PortMapperImplTests {
 		PortMapperImpl portMapper = new PortMapperImpl();
 		Map<String, String> map = new HashMap<>();
 		map.put("79", "80559");
-		try {
-			portMapper.setPortMappings(map);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> portMapper.setPortMappings(map));
 	}
 
 	@Test

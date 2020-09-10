@@ -31,7 +31,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link CasAuthenticationToken}.
@@ -52,44 +53,19 @@ public class CasAuthenticationTokenTests {
 
 	@Test
 	public void testConstructorRejectsNulls() {
-		final Assertion assertion = new AssertionImpl("test");
-		try {
-			new CasAuthenticationToken(null, makeUserDetails(), "Password", this.ROLES, makeUserDetails(), assertion);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new CasAuthenticationToken("key", null, "Password", this.ROLES, makeUserDetails(), assertion);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new CasAuthenticationToken("key", makeUserDetails(), null, this.ROLES, makeUserDetails(), assertion);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new CasAuthenticationToken("key", makeUserDetails(), "Password", this.ROLES, makeUserDetails(), null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new CasAuthenticationToken("key", makeUserDetails(), "Password", this.ROLES, null, assertion);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new CasAuthenticationToken("key", makeUserDetails(), "Password",
-					AuthorityUtils.createAuthorityList("ROLE_1", null), makeUserDetails(), assertion);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		Assertion assertion = new AssertionImpl("test");
+		assertThatIllegalArgumentException().isThrownBy(() -> new CasAuthenticationToken(null, makeUserDetails(),
+				"Password", this.ROLES, makeUserDetails(), assertion));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new CasAuthenticationToken("key", null, "Password", this.ROLES, makeUserDetails(), assertion));
+		assertThatIllegalArgumentException().isThrownBy(() -> new CasAuthenticationToken("key", makeUserDetails(), null,
+				this.ROLES, makeUserDetails(), assertion));
+		assertThatIllegalArgumentException().isThrownBy(() -> new CasAuthenticationToken("key", makeUserDetails(),
+				"Password", this.ROLES, makeUserDetails(), null));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new CasAuthenticationToken("key", makeUserDetails(), "Password", this.ROLES, null, assertion));
+		assertThatIllegalArgumentException().isThrownBy(() -> new CasAuthenticationToken("key", makeUserDetails(),
+				"Password", AuthorityUtils.createAuthorityList("ROLE_1", null), makeUserDetails(), assertion));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -125,12 +101,8 @@ public class CasAuthenticationTokenTests {
 
 	@Test
 	public void testNoArgConstructorDoesntExist() {
-		try {
-			CasAuthenticationToken.class.getDeclaredConstructor((Class[]) null);
-			fail("Should have thrown NoSuchMethodException");
-		}
-		catch (NoSuchMethodException expected) {
-		}
+		assertThatExceptionOfType(NoSuchMethodException.class)
+				.isThrownBy(() -> CasAuthenticationToken.class.getDeclaredConstructor((Class[]) null));
 	}
 
 	@Test

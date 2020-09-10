@@ -51,7 +51,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -179,15 +179,11 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		given(this.authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
 				.willReturn(new TestingAuthenticationToken("newuser", "not be found", "ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(expectedAuth);
-		try {
-			wrappedRequest().login(expectedAuth.getName(), String.valueOf(expectedAuth.getCredentials()));
-			fail("Expected Exception");
-		}
-		catch (ServletException success) {
-			assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(expectedAuth);
-			verifyZeroInteractions(this.authenticationEntryPoint, this.logoutHandler);
-			verify(this.request, times(0)).login(anyString(), anyString());
-		}
+		assertThatExceptionOfType(ServletException.class).isThrownBy(
+				() -> wrappedRequest().login(expectedAuth.getName(), String.valueOf(expectedAuth.getCredentials())));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(expectedAuth);
+		verifyZeroInteractions(this.authenticationEntryPoint, this.logoutHandler);
+		verify(this.request, times(0)).login(anyString(), anyString());
 	}
 
 	@Test
@@ -195,13 +191,8 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		AuthenticationException authException = new BadCredentialsException("Invalid");
 		given(this.authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
 				.willThrow(authException);
-		try {
-			wrappedRequest().login("invalid", "credentials");
-			fail("Expected Exception");
-		}
-		catch (ServletException success) {
-			assertThat(success.getCause()).isEqualTo(authException);
-		}
+		assertThatExceptionOfType(ServletException.class)
+				.isThrownBy(() -> wrappedRequest().login("invalid", "credentials")).withCause(authException);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		verifyZeroInteractions(this.authenticationEntryPoint, this.logoutHandler);
 		verify(this.request, times(0)).login(anyString(), anyString());
@@ -226,13 +217,8 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		String password = "password";
 		ServletException authException = new ServletException("Failed Login");
 		willThrow(authException).given(this.request).login(username, password);
-		try {
-			wrappedRequest().login(username, password);
-			fail("Expected Exception");
-		}
-		catch (ServletException success) {
-			assertThat(success).isEqualTo(authException);
-		}
+		assertThatExceptionOfType(ServletException.class).isThrownBy(() -> wrappedRequest().login(username, password))
+				.isEqualTo(authException);
 		verifyZeroInteractions(this.authenticationEntryPoint, this.authenticationManager, this.logoutHandler);
 	}
 

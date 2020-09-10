@@ -36,7 +36,7 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -67,18 +67,10 @@ public class LdapAuthenticationProviderTests {
 	public void testEmptyOrNullUserNameThrowsException() {
 		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
 				new MockAuthoritiesPopulator());
-		try {
-			ldapProvider.authenticate(new UsernamePasswordAuthenticationToken(null, "password"));
-			fail("Expected BadCredentialsException for empty username");
-		}
-		catch (BadCredentialsException expected) {
-		}
-		try {
-			ldapProvider.authenticate(new UsernamePasswordAuthenticationToken("", "bobspassword"));
-			fail("Expected BadCredentialsException for null username");
-		}
-		catch (BadCredentialsException expected) {
-		}
+		assertThatExceptionOfType(BadCredentialsException.class)
+				.isThrownBy(() -> ldapProvider.authenticate(new UsernamePasswordAuthenticationToken(null, "password")));
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(
+				() -> ldapProvider.authenticate(new UsernamePasswordAuthenticationToken("", "bobspassword")));
 	}
 
 	@Test(expected = BadCredentialsException.class)
@@ -156,13 +148,8 @@ public class LdapAuthenticationProviderTests {
 		CommunicationException expectedCause = new CommunicationException(new javax.naming.CommunicationException());
 		given(mockAuthenticator.authenticate(authRequest)).willThrow(expectedCause);
 		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(mockAuthenticator);
-		try {
-			ldapProvider.authenticate(authRequest);
-			fail("Expected Exception");
-		}
-		catch (InternalAuthenticationServiceException success) {
-			assertThat(success.getCause()).isSameAs(expectedCause);
-		}
+		assertThatExceptionOfType(InternalAuthenticationServiceException.class)
+				.isThrownBy(() -> ldapProvider.authenticate(authRequest)).havingCause().isSameAs(expectedCause);
 	}
 
 	class MockAuthenticator implements LdapAuthenticator {

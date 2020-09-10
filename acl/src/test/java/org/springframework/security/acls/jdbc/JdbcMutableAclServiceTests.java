@@ -55,7 +55,8 @@ import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.spy;
 
@@ -161,91 +162,80 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 		Map<ObjectIdentity, Acl> map = this.jdbcMutableAclService
 				.readAclsById(Arrays.asList(getTopParentOid(), getMiddleParentOid(), getChildOid()));
 		assertThat(map).hasSize(3);
-		// Replace our current objects with their retrieved versions
-		topParent = (MutableAcl) map.get(getTopParentOid());
-		middleParent = (MutableAcl) map.get(getMiddleParentOid());
-		child = (MutableAcl) map.get(getChildOid());
+		// Get the retrieved versions
+		MutableAcl retrievedTopParent = (MutableAcl) map.get(getTopParentOid());
+		MutableAcl retrievedMiddleParent = (MutableAcl) map.get(getMiddleParentOid());
+		MutableAcl retrievedChild = (MutableAcl) map.get(getChildOid());
 		// Check the retrieved versions has IDs
-		assertThat(topParent.getId()).isNotNull();
-		assertThat(middleParent.getId()).isNotNull();
-		assertThat(child.getId()).isNotNull();
+		assertThat(retrievedTopParent.getId()).isNotNull();
+		assertThat(retrievedMiddleParent.getId()).isNotNull();
+		assertThat(retrievedChild.getId()).isNotNull();
 		// Check their parents were correctly persisted
-		assertThat(topParent.getParentAcl()).isNull();
-		assertThat(middleParent.getParentAcl().getObjectIdentity()).isEqualTo(getTopParentOid());
-		assertThat(child.getParentAcl().getObjectIdentity()).isEqualTo(getMiddleParentOid());
+		assertThat(retrievedTopParent.getParentAcl()).isNull();
+		assertThat(retrievedMiddleParent.getParentAcl().getObjectIdentity()).isEqualTo(getTopParentOid());
+		assertThat(retrievedChild.getParentAcl().getObjectIdentity()).isEqualTo(getMiddleParentOid());
 		// Check their ACEs were correctly persisted
-		assertThat(topParent.getEntries()).hasSize(2);
-		assertThat(middleParent.getEntries()).hasSize(1);
-		assertThat(child.getEntries()).hasSize(1);
+		assertThat(retrievedTopParent.getEntries()).hasSize(2);
+		assertThat(retrievedMiddleParent.getEntries()).hasSize(1);
+		assertThat(retrievedChild.getEntries()).hasSize(1);
 		// Check the retrieved rights are correct
 		List<Permission> read = Arrays.asList(BasePermission.READ);
 		List<Permission> write = Arrays.asList(BasePermission.WRITE);
 		List<Permission> delete = Arrays.asList(BasePermission.DELETE);
 		List<Sid> pSid = Arrays.asList((Sid) new PrincipalSid(this.auth));
-		assertThat(topParent.isGranted(read, pSid, false)).isTrue();
-		assertThat(topParent.isGranted(write, pSid, false)).isFalse();
-		assertThat(middleParent.isGranted(delete, pSid, false)).isTrue();
-		assertThat(child.isGranted(delete, pSid, false)).isFalse();
-		try {
-			child.isGranted(Arrays.asList(BasePermission.ADMINISTRATION), pSid, false);
-			fail("Should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
+		assertThat(retrievedTopParent.isGranted(read, pSid, false)).isTrue();
+		assertThat(retrievedTopParent.isGranted(write, pSid, false)).isFalse();
+		assertThat(retrievedMiddleParent.isGranted(delete, pSid, false)).isTrue();
+		assertThat(retrievedChild.isGranted(delete, pSid, false)).isFalse();
+		assertThatExceptionOfType(NotFoundException.class)
+				.isThrownBy(() -> retrievedChild.isGranted(Arrays.asList(BasePermission.ADMINISTRATION), pSid, false));
 		// Now check the inherited rights (when not explicitly overridden) also look OK
-		assertThat(child.isGranted(read, pSid, false)).isTrue();
-		assertThat(child.isGranted(write, pSid, false)).isFalse();
-		assertThat(child.isGranted(delete, pSid, false)).isFalse();
+		assertThat(retrievedChild.isGranted(read, pSid, false)).isTrue();
+		assertThat(retrievedChild.isGranted(write, pSid, false)).isFalse();
+		assertThat(retrievedChild.isGranted(delete, pSid, false)).isFalse();
 		// Next change the child so it doesn't inherit permissions from above
-		child.setEntriesInheriting(false);
-		this.jdbcMutableAclService.updateAcl(child);
-		child = (MutableAcl) this.jdbcMutableAclService.readAclById(getChildOid());
-		assertThat(child.isEntriesInheriting()).isFalse();
+		retrievedChild.setEntriesInheriting(false);
+		this.jdbcMutableAclService.updateAcl(retrievedChild);
+		MutableAcl nonInheritingChild = (MutableAcl) this.jdbcMutableAclService.readAclById(getChildOid());
+		assertThat(nonInheritingChild.isEntriesInheriting()).isFalse();
 		// Check the child permissions no longer inherit
-		assertThat(child.isGranted(delete, pSid, true)).isFalse();
-		try {
-			child.isGranted(read, pSid, true);
-			fail("Should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
-		try {
-			child.isGranted(write, pSid, true);
-			fail("Should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
+		assertThat(nonInheritingChild.isGranted(delete, pSid, true)).isFalse();
+		assertThatExceptionOfType(NotFoundException.class)
+				.isThrownBy(() -> nonInheritingChild.isGranted(read, pSid, true));
+		assertThatExceptionOfType(NotFoundException.class)
+				.isThrownBy(() -> nonInheritingChild.isGranted(write, pSid, true));
 		// Let's add an identical permission to the child, but it'll appear AFTER the
 		// current permission, so has no impact
-		child.insertAce(1, BasePermission.DELETE, new PrincipalSid(this.auth), true);
+		nonInheritingChild.insertAce(1, BasePermission.DELETE, new PrincipalSid(this.auth), true);
 		// Let's also add another permission to the child
-		child.insertAce(2, BasePermission.CREATE, new PrincipalSid(this.auth), true);
+		nonInheritingChild.insertAce(2, BasePermission.CREATE, new PrincipalSid(this.auth), true);
 		// Save the changed child
-		this.jdbcMutableAclService.updateAcl(child);
-		child = (MutableAcl) this.jdbcMutableAclService.readAclById(getChildOid());
-		assertThat(child.getEntries()).hasSize(3);
+		this.jdbcMutableAclService.updateAcl(nonInheritingChild);
+		MutableAcl retrievedNonInheritingChild = (MutableAcl) this.jdbcMutableAclService.readAclById(getChildOid());
+		assertThat(retrievedNonInheritingChild.getEntries()).hasSize(3);
 		// Output permissions
-		for (int i = 0; i < child.getEntries().size(); i++) {
-			System.out.println(child.getEntries().get(i));
+		for (int i = 0; i < retrievedNonInheritingChild.getEntries().size(); i++) {
+			System.out.println(retrievedNonInheritingChild.getEntries().get(i));
 		}
 		// Check the permissions are as they should be
-		assertThat(child.isGranted(delete, pSid, true)).isFalse(); // as earlier
-																	// permission
+		assertThat(retrievedNonInheritingChild.isGranted(delete, pSid, true)).isFalse(); // as
+																							// earlier
+		// permission
 		// overrode
-		assertThat(child.isGranted(Arrays.asList(BasePermission.CREATE), pSid, true)).isTrue();
+		assertThat(retrievedNonInheritingChild.isGranted(Arrays.asList(BasePermission.CREATE), pSid, true)).isTrue();
 		// Now check the first ACE (index 0) really is DELETE for our Sid and is
 		// non-granting
-		AccessControlEntry entry = child.getEntries().get(0);
+		AccessControlEntry entry = retrievedNonInheritingChild.getEntries().get(0);
 		assertThat(entry.getPermission().getMask()).isEqualTo(BasePermission.DELETE.getMask());
 		assertThat(entry.getSid()).isEqualTo(new PrincipalSid(this.auth));
 		assertThat(entry.isGranting()).isFalse();
 		assertThat(entry.getId()).isNotNull();
 		// Now delete that first ACE
-		child.deleteAce(0);
+		retrievedNonInheritingChild.deleteAce(0);
 		// Save and check it worked
-		child = this.jdbcMutableAclService.updateAcl(child);
-		assertThat(child.getEntries()).hasSize(2);
-		assertThat(child.isGranted(delete, pSid, false)).isTrue();
+		MutableAcl savedChild = this.jdbcMutableAclService.updateAcl(retrievedNonInheritingChild);
+		assertThat(savedChild.getEntries()).hasSize(2);
+		assertThat(savedChild.isGranted(delete, pSid, false)).isTrue();
 		SecurityContextHolder.clearContext();
 	}
 
@@ -267,18 +257,10 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 		assertThat(childAcl.getParentAcl().getObjectIdentity()).isEqualTo(getMiddleParentOid());
 		// Delete the mid-parent and test if the child was deleted, as well
 		this.jdbcMutableAclService.deleteAcl(getMiddleParentOid(), true);
-		try {
-			this.jdbcMutableAclService.readAclById(getMiddleParentOid());
-			fail("It should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
-		try {
-			this.jdbcMutableAclService.readAclById(getChildOid());
-			fail("It should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
+		assertThatExceptionOfType(NotFoundException.class)
+				.isThrownBy(() -> this.jdbcMutableAclService.readAclById(getMiddleParentOid()));
+		assertThatExceptionOfType(NotFoundException.class)
+				.isThrownBy(() -> this.jdbcMutableAclService.readAclById(getChildOid()));
 		Acl acl = this.jdbcMutableAclService.readAclById(getTopParentOid());
 		assertThat(acl).isNotNull();
 		assertThat(getTopParentOid()).isEqualTo(acl.getObjectIdentity());
@@ -286,34 +268,17 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 
 	@Test
 	public void constructorRejectsNullParameters() {
-		try {
-			new JdbcMutableAclService(null, this.lookupStrategy, this.aclCache);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new JdbcMutableAclService(this.dataSource, null, this.aclCache);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new JdbcMutableAclService(this.dataSource, this.lookupStrategy, null);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JdbcMutableAclService(null, this.lookupStrategy, this.aclCache));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JdbcMutableAclService(this.dataSource, null, this.aclCache));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JdbcMutableAclService(this.dataSource, this.lookupStrategy, null));
 	}
 
 	@Test
 	public void createAclRejectsNullParameter() {
-		try {
-			this.jdbcMutableAclService.createAcl(null);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> this.jdbcMutableAclService.createAcl(null));
 	}
 
 	@Test
@@ -323,23 +288,14 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 		ObjectIdentity duplicateOid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		this.jdbcMutableAclService.createAcl(duplicateOid);
 		// Try to add the same object second time
-		try {
-			this.jdbcMutableAclService.createAcl(duplicateOid);
-			fail("It should have thrown AlreadyExistsException");
-		}
-		catch (AlreadyExistsException expected) {
-		}
+		assertThatExceptionOfType(AlreadyExistsException.class)
+				.isThrownBy(() -> this.jdbcMutableAclService.createAcl(duplicateOid));
 	}
 
 	@Test
 	@Transactional
 	public void deleteAclRejectsNullParameters() {
-		try {
-			this.jdbcMutableAclService.deleteAcl(null, true);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> this.jdbcMutableAclService.deleteAcl(null, true));
 	}
 
 	@Test
@@ -351,18 +307,16 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 		// Specify the inheritance hierarchy
 		child.setParent(parent);
 		this.jdbcMutableAclService.updateAcl(child);
+		// switch on FK
+		this.jdbcMutableAclService.setForeignKeysInDatabase(false);
 		try {
-			this.jdbcMutableAclService.setForeignKeysInDatabase(false); // switch on FK
-			// checking in the
-			// class, not database
-			this.jdbcMutableAclService.deleteAcl(getTopParentOid(), false);
-			fail("It should have thrown ChildrenExistException");
-		}
-		catch (ChildrenExistException expected) {
+			// checking in the class, not database
+			assertThatExceptionOfType(ChildrenExistException.class)
+					.isThrownBy(() -> this.jdbcMutableAclService.deleteAcl(getTopParentOid(), false));
 		}
 		finally {
-			this.jdbcMutableAclService.setForeignKeysInDatabase(true); // restore to the
-																		// default
+			// restore to the default
+			this.jdbcMutableAclService.setForeignKeysInDatabase(true);
 		}
 	}
 

@@ -48,14 +48,12 @@ import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AuditableAccessControlEntry;
 import org.springframework.security.acls.model.MutableAcl;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link BasicLookupStrategy}
@@ -290,12 +288,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 		// is already in cache and the element before it must not be stored in
 		// cache
 		List<ObjectIdentity> allOids = Arrays.asList(grandParentOid, parent1Oid, parent2Oid, childOid);
-		try {
-			foundAcls = this.strategy.readAclsById(allOids, sids);
-		}
-		catch (NotFoundException notExpected) {
-			fail("It shouldn't have thrown NotFoundException");
-		}
+		foundAcls = this.strategy.readAclsById(allOids, sids);
 		Acl foundParent2Acl = foundAcls.get(parent2Oid);
 		assertThat(foundParent2Acl).isNotNull();
 		assertThat(foundParent2Acl.isGranted(checkPermission, sids, false)).isTrue();

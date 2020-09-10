@@ -32,92 +32,36 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 public class SidTests {
 
 	@Test
 	public void testPrincipalSidConstructorsRequiredFields() {
 		// Check one String-argument constructor
-		try {
-			String string = null;
-			new PrincipalSid(string);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new PrincipalSid("");
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		new PrincipalSid("johndoe");
-		// throws no exception
+		assertThatIllegalArgumentException().isThrownBy(() -> new PrincipalSid((String) null));
+		assertThatIllegalArgumentException().isThrownBy(() -> new PrincipalSid(""));
+		assertThatNoException().isThrownBy(() -> new PrincipalSid("johndoe"));
 		// Check one Authentication-argument constructor
-		try {
-			Authentication authentication = null;
-			new PrincipalSid(authentication);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			Authentication authentication = new TestingAuthenticationToken(null, "password");
-			new PrincipalSid(authentication);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		Authentication authentication = new TestingAuthenticationToken("johndoe", "password");
-		new PrincipalSid(authentication);
-		// throws no exception
+		assertThatIllegalArgumentException().isThrownBy(() -> new PrincipalSid((Authentication) null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new PrincipalSid(new TestingAuthenticationToken(null, "password")));
+		assertThatNoException()
+				.isThrownBy(() -> new PrincipalSid(new TestingAuthenticationToken("johndoe", "password")));
 	}
 
 	@Test
 	public void testGrantedAuthoritySidConstructorsRequiredFields() {
 		// Check one String-argument constructor
-		try {
-			String string = null;
-			new GrantedAuthoritySid(string);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new GrantedAuthoritySid("");
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new GrantedAuthoritySid("ROLE_TEST");
-		}
-		catch (IllegalArgumentException notExpected) {
-			fail("It shouldn't have thrown IllegalArgumentException");
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new GrantedAuthoritySid((String) null));
+		assertThatIllegalArgumentException().isThrownBy(() -> new GrantedAuthoritySid(""));
+		assertThatNoException().isThrownBy(() -> new GrantedAuthoritySid("ROLE_TEST"));
 		// Check one GrantedAuthority-argument constructor
-		try {
-			GrantedAuthority ga = null;
-			new GrantedAuthoritySid(ga);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			GrantedAuthority ga = new SimpleGrantedAuthority(null);
-			new GrantedAuthoritySid(ga);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
-			new GrantedAuthoritySid(ga);
-		}
-		catch (IllegalArgumentException notExpected) {
-			fail("It shouldn't have thrown IllegalArgumentException");
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new GrantedAuthoritySid((GrantedAuthority) null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new GrantedAuthoritySid(new SimpleGrantedAuthority(null)));
+		assertThatNoException().isThrownBy(() -> new GrantedAuthoritySid(new SimpleGrantedAuthority("ROLE_TEST")));
 	}
 
 	@Test

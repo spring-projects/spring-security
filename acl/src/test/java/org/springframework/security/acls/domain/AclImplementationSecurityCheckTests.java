@@ -30,7 +30,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * Test class for {@link AclAuthorizationStrategyImpl} and {@link AclImpl} security
@@ -72,24 +73,12 @@ public class AclImplementationSecurityCheckTests {
 				new SimpleGrantedAuthority("ROLE_THREE"));
 		Acl acl2 = new AclImpl(identity, 1L, aclAuthorizationStrategy2, new ConsoleAuditLogger());
 		// Check access in case the principal has no authorization rights
-		try {
-			aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_GENERAL);
-			fail("It should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
-		try {
-			aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_AUDITING);
-			fail("It should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
-		try {
-			aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-			fail("It should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(
+				() -> aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_GENERAL));
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(
+				() -> aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_AUDITING));
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(
+				() -> aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_OWNERSHIP));
 	}
 
 	@Test
@@ -112,28 +101,16 @@ public class AclImplementationSecurityCheckTests {
 		// The CHANGE_AUDITING and CHANGE_OWNERSHIP should fail since the
 		// principal doesn't have these authorities,
 		// nor granting access
-		try {
-			aclAuthorizationStrategy.securityCheck(aclFirstDeny, AclAuthorizationStrategy.CHANGE_AUDITING);
-			fail("It should have thrown AccessDeniedException");
-		}
-		catch (AccessDeniedException expected) {
-		}
-		try {
-			aclAuthorizationStrategy.securityCheck(aclFirstDeny, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-			fail("It should have thrown AccessDeniedException");
-		}
-		catch (AccessDeniedException expected) {
-		}
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(
+				() -> aclAuthorizationStrategy.securityCheck(aclFirstDeny, AclAuthorizationStrategy.CHANGE_AUDITING));
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(
+				() -> aclAuthorizationStrategy.securityCheck(aclFirstDeny, AclAuthorizationStrategy.CHANGE_OWNERSHIP));
 		// Add granting access to this principal
 		aclFirstDeny.insertAce(1, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
 		// and try again for CHANGE_AUDITING - the first ACE's granting flag
 		// (false) will deny this access
-		try {
-			aclAuthorizationStrategy.securityCheck(aclFirstDeny, AclAuthorizationStrategy.CHANGE_AUDITING);
-			fail("It should have thrown AccessDeniedException");
-		}
-		catch (AccessDeniedException expected) {
-		}
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(
+				() -> aclAuthorizationStrategy.securityCheck(aclFirstDeny, AclAuthorizationStrategy.CHANGE_AUDITING));
 		// Create another ACL and give the principal the ADMINISTRATION
 		// permission, with granting access
 		MutableAcl aclFirstAllow = new AclImpl(identity, 1L, aclAuthorizationStrategy, new ConsoleAuditLogger());
@@ -143,27 +120,15 @@ public class AclImplementationSecurityCheckTests {
 		aclAuthorizationStrategy.securityCheck(aclFirstAllow, AclAuthorizationStrategy.CHANGE_AUDITING);
 		// Add a deny ACE and test again for CHANGE_AUDITING
 		aclFirstAllow.insertAce(1, BasePermission.ADMINISTRATION, new PrincipalSid(auth), false);
-		try {
-			aclAuthorizationStrategy.securityCheck(aclFirstAllow, AclAuthorizationStrategy.CHANGE_AUDITING);
-		}
-		catch (AccessDeniedException notExpected) {
-			fail("It shouldn't have thrown AccessDeniedException");
-		}
+		assertThatNoException().isThrownBy(
+				() -> aclAuthorizationStrategy.securityCheck(aclFirstAllow, AclAuthorizationStrategy.CHANGE_AUDITING));
 		// Create an ACL with no ACE
 		MutableAcl aclNoACE = new AclImpl(identity, 1L, aclAuthorizationStrategy, new ConsoleAuditLogger());
-		try {
-			aclAuthorizationStrategy.securityCheck(aclNoACE, AclAuthorizationStrategy.CHANGE_AUDITING);
-			fail("It should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(
+				() -> aclAuthorizationStrategy.securityCheck(aclNoACE, AclAuthorizationStrategy.CHANGE_AUDITING));
 		// and still grant access for CHANGE_GENERAL
-		try {
-			aclAuthorizationStrategy.securityCheck(aclNoACE, AclAuthorizationStrategy.CHANGE_GENERAL);
-		}
-		catch (NotFoundException expected) {
-			fail("It shouldn't have thrown NotFoundException");
-		}
+		assertThatNoException().isThrownBy(
+				() -> aclAuthorizationStrategy.securityCheck(aclNoACE, AclAuthorizationStrategy.CHANGE_GENERAL));
 	}
 
 	@Test
@@ -184,22 +149,14 @@ public class AclImplementationSecurityCheckTests {
 		MutableAcl childAcl = new AclImpl(identity, 2, aclAuthorizationStrategy, new ConsoleAuditLogger());
 		// Check against the 'child' acl, which doesn't offer any authorization
 		// rights on CHANGE_OWNERSHIP
-		try {
-			aclAuthorizationStrategy.securityCheck(childAcl, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-			fail("It should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(
+				() -> aclAuthorizationStrategy.securityCheck(childAcl, AclAuthorizationStrategy.CHANGE_OWNERSHIP));
 		// Link the child with its parent and test again against the
 		// CHANGE_OWNERSHIP right
 		childAcl.setParent(parentAcl);
 		childAcl.setEntriesInheriting(true);
-		try {
-			aclAuthorizationStrategy.securityCheck(childAcl, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-		}
-		catch (NotFoundException expected) {
-			fail("It shouldn't have thrown NotFoundException");
-		}
+		assertThatNoException().isThrownBy(
+				() -> aclAuthorizationStrategy.securityCheck(childAcl, AclAuthorizationStrategy.CHANGE_OWNERSHIP));
 		// Create a root parent and link it to the middle parent
 		MutableAcl rootParentAcl = new AclImpl(identity, 1, aclAuthorizationStrategy, new ConsoleAuditLogger());
 		parentAcl = new AclImpl(identity, 1, aclAuthorizationStrategy, new ConsoleAuditLogger());
@@ -207,12 +164,8 @@ public class AclImplementationSecurityCheckTests {
 		parentAcl.setEntriesInheriting(true);
 		parentAcl.setParent(rootParentAcl);
 		childAcl.setParent(parentAcl);
-		try {
-			aclAuthorizationStrategy.securityCheck(childAcl, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-		}
-		catch (NotFoundException expected) {
-			fail("It shouldn't have thrown NotFoundException");
-		}
+		assertThatNoException().isThrownBy(
+				() -> aclAuthorizationStrategy.securityCheck(childAcl, AclAuthorizationStrategy.CHANGE_OWNERSHIP));
 	}
 
 	@Test
@@ -227,24 +180,12 @@ public class AclImplementationSecurityCheckTests {
 		Acl acl = new AclImpl(identity, 1, aclAuthorizationStrategy,
 				new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()), null, null, false,
 				new PrincipalSid(auth));
-		try {
-			aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_GENERAL);
-		}
-		catch (AccessDeniedException notExpected) {
-			fail("It shouldn't have thrown AccessDeniedException");
-		}
-		try {
-			aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_AUDITING);
-			fail("It shouldn't have thrown AccessDeniedException");
-		}
-		catch (NotFoundException expected) {
-		}
-		try {
-			aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-		}
-		catch (AccessDeniedException notExpected) {
-			fail("It shouldn't have thrown AccessDeniedException");
-		}
+		assertThatNoException()
+				.isThrownBy(() -> aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_GENERAL));
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(
+				() -> aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_AUDITING));
+		assertThatNoException().isThrownBy(
+				() -> aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_OWNERSHIP));
 	}
 
 }

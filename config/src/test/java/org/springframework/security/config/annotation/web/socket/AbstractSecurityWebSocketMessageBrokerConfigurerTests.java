@@ -78,7 +78,7 @@ import org.springframework.web.socket.sockjs.transport.handler.SockJsWebSocketHa
 import org.springframework.web.socket.sockjs.transport.session.WebSocketServerSockJsSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
@@ -108,13 +108,9 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	public void simpleRegistryMappings() {
 		loadConfig(SockJsSecurityConfig.class);
 		clientInboundChannel().send(message("/permitAll"));
-		try {
-			clientInboundChannel().send(message("/denyAll"));
-			fail("Expected Exception");
-		}
-		catch (MessageDeliveryException expected) {
-			assertThat(expected.getCause()).isInstanceOf(AccessDeniedException.class);
-		}
+		assertThatExceptionOfType(MessageDeliveryException.class)
+				.isThrownBy(() -> clientInboundChannel().send(message("/denyAll")))
+				.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -158,13 +154,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
 		Message<?> message = message(headers, "/authentication");
 		MessageChannel messageChannel = clientInboundChannel();
-		try {
-			messageChannel.send(message);
-			fail("Expected Exception");
-		}
-		catch (MessageDeliveryException success) {
-			assertThat(success.getCause()).isInstanceOf(MissingCsrfTokenException.class);
-		}
+		assertThatExceptionOfType(MessageDeliveryException.class).isThrownBy(() -> messageChannel.send(message))
+				.withCauseInstanceOf(MissingCsrfTokenException.class);
 	}
 
 	@Test
@@ -173,13 +164,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
 		Message<?> message = message(headers, "/authentication");
 		MessageChannel messageChannel = clientInboundChannel();
-		try {
-			messageChannel.send(message);
-			fail("Expected Exception");
-		}
-		catch (MessageDeliveryException success) {
-			assertThat(success.getCause()).isInstanceOf(MissingCsrfTokenException.class);
-		}
+		assertThatExceptionOfType(MessageDeliveryException.class).isThrownBy(() -> messageChannel.send(message))
+				.withCauseInstanceOf(MissingCsrfTokenException.class);
 	}
 
 	@Test
@@ -236,39 +222,27 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	public void msmsRegistryCustomPatternMatcher() {
 		loadConfig(MsmsRegistryCustomPatternMatcherConfig.class);
 		clientInboundChannel().send(message("/app/a.b"));
-		try {
-			clientInboundChannel().send(message("/app/a.b.c"));
-			fail("Expected Exception");
-		}
-		catch (MessageDeliveryException expected) {
-			assertThat(expected.getCause()).isInstanceOf(AccessDeniedException.class);
-		}
+		assertThatExceptionOfType(MessageDeliveryException.class)
+				.isThrownBy(() -> clientInboundChannel().send(message("/app/a.b.c")))
+				.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	public void overrideMsmsRegistryCustomPatternMatcher() {
 		loadConfig(OverrideMsmsRegistryCustomPatternMatcherConfig.class);
 		clientInboundChannel().send(message("/app/a/b"));
-		try {
-			clientInboundChannel().send(message("/app/a/b/c"));
-			fail("Expected Exception");
-		}
-		catch (MessageDeliveryException expected) {
-			assertThat(expected.getCause()).isInstanceOf(AccessDeniedException.class);
-		}
+		assertThatExceptionOfType(MessageDeliveryException.class)
+				.isThrownBy(() -> clientInboundChannel().send(message("/app/a/b/c")))
+				.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	public void defaultPatternMatcher() {
 		loadConfig(DefaultPatternMatcherConfig.class);
 		clientInboundChannel().send(message("/app/a/b"));
-		try {
-			clientInboundChannel().send(message("/app/a/b/c"));
-			fail("Expected Exception");
-		}
-		catch (MessageDeliveryException expected) {
-			assertThat(expected.getCause()).isInstanceOf(AccessDeniedException.class);
-		}
+		assertThatExceptionOfType(MessageDeliveryException.class)
+				.isThrownBy(() -> clientInboundChannel().send(message("/app/a/b/c")))
+				.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -276,13 +250,9 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		loadConfig(CustomExpressionConfig.class);
 		clientInboundChannel().send(message("/denyRob"));
 		this.messageUser = new TestingAuthenticationToken("rob", "password", "ROLE_USER");
-		try {
-			clientInboundChannel().send(message("/denyRob"));
-			fail("Expected Exception");
-		}
-		catch (MessageDeliveryException expected) {
-			assertThat(expected.getCause()).isInstanceOf(AccessDeniedException.class);
-		}
+		assertThatExceptionOfType(MessageDeliveryException.class)
+				.isThrownBy(() -> clientInboundChannel().send(message("/denyRob")))
+				.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test

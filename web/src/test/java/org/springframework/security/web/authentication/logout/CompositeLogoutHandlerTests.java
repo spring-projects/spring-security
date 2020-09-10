@@ -29,7 +29,7 @@ import org.mockito.InOrder;
 
 import org.springframework.security.core.Authentication;
 
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.inOrder;
@@ -88,12 +88,8 @@ public class CompositeLogoutHandlerTests {
 				any(HttpServletResponse.class), any(Authentication.class));
 		List<LogoutHandler> logoutHandlers = Arrays.asList(firstLogoutHandler, secondLogoutHandler);
 		LogoutHandler handler = new CompositeLogoutHandler(logoutHandlers);
-		try {
-			handler.logout(mock(HttpServletRequest.class), mock(HttpServletResponse.class), mock(Authentication.class));
-			fail("Expected Exception");
-		}
-		catch (IllegalArgumentException success) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> handler.logout(mock(HttpServletRequest.class),
+				mock(HttpServletResponse.class), mock(Authentication.class)));
 		InOrder logoutHandlersInOrder = inOrder(firstLogoutHandler, secondLogoutHandler);
 		logoutHandlersInOrder.verify(firstLogoutHandler, times(1)).logout(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(Authentication.class));

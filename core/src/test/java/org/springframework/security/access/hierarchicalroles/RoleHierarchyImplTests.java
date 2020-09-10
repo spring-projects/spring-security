@@ -25,7 +25,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * Tests for {@link RoleHierarchyImpl}.
@@ -102,48 +103,23 @@ public class RoleHierarchyImplTests {
 	@Test
 	public void testCyclesInRoleHierarchy() {
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
-		try {
-			roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_A");
-			fail("Cycle in role hierarchy was not detected!");
-		}
-		catch (CycleInRoleHierarchyException ex) {
-		}
-		try {
-			roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_A");
-			fail("Cycle in role hierarchy was not detected!");
-		}
-		catch (CycleInRoleHierarchyException ex) {
-		}
-		try {
-			roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_A");
-			fail("Cycle in role hierarchy was not detected!");
-		}
-		catch (CycleInRoleHierarchyException ex) {
-		}
-		try {
-			roleHierarchyImpl.setHierarchy(
-					"ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_E\nROLE_E > ROLE_D\nROLE_D > ROLE_B");
-			fail("Cycle in role hierarchy was not detected!");
-		}
-		catch (CycleInRoleHierarchyException ex) {
-		}
-		try {
-			roleHierarchyImpl.setHierarchy("ROLE_C > ROLE_B\nROLE_B > ROLE_A\nROLE_A > ROLE_B");
-			fail("Cycle in role hierarchy was not detected!");
-		}
-		catch (CycleInRoleHierarchyException ex) {
-		}
+		assertThatExceptionOfType(CycleInRoleHierarchyException.class)
+				.isThrownBy(() -> roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_A"));
+		assertThatExceptionOfType(CycleInRoleHierarchyException.class)
+				.isThrownBy(() -> roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_A"));
+		assertThatExceptionOfType(CycleInRoleHierarchyException.class)
+				.isThrownBy(() -> roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_A"));
+		assertThatExceptionOfType(CycleInRoleHierarchyException.class).isThrownBy(() -> roleHierarchyImpl
+				.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_E\nROLE_E > ROLE_D\nROLE_D > ROLE_B"));
+		assertThatExceptionOfType(CycleInRoleHierarchyException.class)
+				.isThrownBy(() -> roleHierarchyImpl.setHierarchy("ROLE_C > ROLE_B\nROLE_B > ROLE_A\nROLE_A > ROLE_B"));
 	}
 
 	@Test
 	public void testNoCyclesInRoleHierarchy() {
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
-		try {
-			roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_C > ROLE_D\nROLE_B > ROLE_D");
-		}
-		catch (CycleInRoleHierarchyException ex) {
-			fail("A cycle in role hierarchy was incorrectly detected!");
-		}
+		assertThatNoException().isThrownBy(() -> roleHierarchyImpl
+				.setHierarchy("ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_C > ROLE_D\nROLE_B > ROLE_D"));
 	}
 
 	// SEC-863

@@ -27,7 +27,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link AnonymousAuthenticationToken}.
@@ -40,30 +41,11 @@ public class AnonymousAuthenticationTokenTests {
 
 	@Test
 	public void testConstructorRejectsNulls() {
-		try {
-			new AnonymousAuthenticationToken(null, "Test", ROLES_12);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new AnonymousAuthenticationToken("key", null, ROLES_12);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new AnonymousAuthenticationToken("key", "Test", null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			new AnonymousAuthenticationToken("key", "Test", AuthorityUtils.NO_AUTHORITIES);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new AnonymousAuthenticationToken(null, "Test", ROLES_12));
+		assertThatIllegalArgumentException().isThrownBy(() -> new AnonymousAuthenticationToken("key", null, ROLES_12));
+		assertThatIllegalArgumentException().isThrownBy(() -> new AnonymousAuthenticationToken("key", "Test", null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AnonymousAuthenticationToken("key", "Test", AuthorityUtils.NO_AUTHORITIES));
 	}
 
 	@Test
@@ -85,13 +67,8 @@ public class AnonymousAuthenticationTokenTests {
 
 	@Test
 	public void testNoArgConstructorDoesntExist() {
-		Class<?> clazz = AnonymousAuthenticationToken.class;
-		try {
-			clazz.getDeclaredConstructor((Class[]) null);
-			fail("Should have thrown NoSuchMethodException");
-		}
-		catch (NoSuchMethodException expected) {
-		}
+		assertThatExceptionOfType(NoSuchMethodException.class)
+				.isThrownBy(() -> AnonymousAuthenticationToken.class.getDeclaredConstructor((Class[]) null));
 	}
 
 	@Test

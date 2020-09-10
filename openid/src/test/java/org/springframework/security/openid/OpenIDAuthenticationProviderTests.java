@@ -31,7 +31,8 @@ import org.springframework.security.core.userdetails.UserDetailsByNameServiceWra
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link OpenIDAuthenticationProvider}
@@ -60,13 +61,8 @@ public class OpenIDAuthenticationProviderTests {
 		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.CANCELLED, USERNAME, "",
 				null);
 		assertThat(preAuth.isAuthenticated()).isFalse();
-		try {
-			provider.authenticate(preAuth);
-			fail("Should throw an AuthenticationException");
-		}
-		catch (AuthenticationCancelledException expected) {
-			assertThat(expected.getMessage()).isEqualTo("Log in cancelled");
-		}
+		assertThatExceptionOfType(AuthenticationCancelledException.class)
+				.isThrownBy(() -> provider.authenticate(preAuth)).withMessage("Log in cancelled");
 	}
 
 	/*
@@ -80,13 +76,8 @@ public class OpenIDAuthenticationProviderTests {
 		provider.setUserDetailsService(new MockUserDetailsService());
 		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.ERROR, USERNAME, "", null);
 		assertThat(preAuth.isAuthenticated()).isFalse();
-		try {
-			provider.authenticate(preAuth);
-			fail("Should throw an AuthenticationException");
-		}
-		catch (AuthenticationServiceException expected) {
-			assertThat(expected.getMessage()).isEqualTo("Error message from server: ");
-		}
+		assertThatExceptionOfType(AuthenticationServiceException.class).isThrownBy(() -> provider.authenticate(preAuth))
+				.withMessage("Error message from server: ");
 	}
 
 	/*
@@ -101,13 +92,8 @@ public class OpenIDAuthenticationProviderTests {
 				new UserDetailsByNameServiceWrapper<>(new MockUserDetailsService()));
 		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.FAILURE, USERNAME, "", null);
 		assertThat(preAuth.isAuthenticated()).isFalse();
-		try {
-			provider.authenticate(preAuth);
-			fail("Should throw an AuthenticationException");
-		}
-		catch (BadCredentialsException expected) {
-			assertThat("Log in failed - identity could not be verified").isEqualTo(expected.getMessage());
-		}
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(preAuth))
+				.withMessage("Log in failed - identity could not be verified");
 	}
 
 	/*
@@ -122,14 +108,8 @@ public class OpenIDAuthenticationProviderTests {
 		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SETUP_NEEDED, USERNAME, "",
 				null);
 		assertThat(preAuth.isAuthenticated()).isFalse();
-		try {
-			provider.authenticate(preAuth);
-			fail("Should throw an AuthenticationException");
-		}
-		catch (AuthenticationServiceException expected) {
-			assertThat("The server responded setup was needed, which shouldn't happen")
-					.isEqualTo(expected.getMessage());
-		}
+		assertThatExceptionOfType(AuthenticationServiceException.class).isThrownBy(() -> provider.authenticate(preAuth))
+				.withMessage("The server responded setup was needed, which shouldn't happen");
 	}
 
 	/*
@@ -158,13 +138,7 @@ public class OpenIDAuthenticationProviderTests {
 	@Test
 	public void testDetectsMissingAuthoritiesPopulator() throws Exception {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-		try {
-			provider.afterPropertiesSet();
-			fail("Should have thrown Exception");
-		}
-		catch (IllegalArgumentException expected) {
-			// ignored
-		}
+		assertThatIllegalArgumentException().isThrownBy(provider::afterPropertiesSet);
 	}
 
 	/*
@@ -207,13 +181,7 @@ public class OpenIDAuthenticationProviderTests {
 	@Test
 	public void testValidation() throws Exception {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-		try {
-			provider.afterPropertiesSet();
-			fail("IllegalArgumentException expected, ssoAuthoritiesPopulator is null");
-		}
-		catch (IllegalArgumentException ex) {
-			// expected
-		}
+		assertThatIllegalArgumentException().isThrownBy(provider::afterPropertiesSet);
 		provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
 		provider.afterPropertiesSet();

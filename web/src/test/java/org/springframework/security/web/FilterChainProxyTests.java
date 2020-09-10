@@ -43,7 +43,7 @@ import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -206,12 +206,8 @@ public class FilterChainProxyTests {
 			throw new ServletException("oops");
 		}).given(this.filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class),
 				any(FilterChain.class));
-		try {
-			this.fcp.doFilter(this.request, this.response, this.chain);
-			fail("Expected Exception");
-		}
-		catch (ServletException success) {
-		}
+		assertThatExceptionOfType(ServletException.class)
+				.isThrownBy(() -> this.fcp.doFilter(this.request, this.response, this.chain));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 

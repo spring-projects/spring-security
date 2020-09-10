@@ -28,7 +28,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link DigestAuthenticationEntryPoint}.
@@ -53,13 +53,7 @@ public class DigestAuthenticationEntryPointTests {
 	public void testDetectsMissingKey() throws Exception {
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
 		ep.setRealmName("realm");
-		try {
-			ep.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("key must be specified");
-		}
+		assertThatIllegalArgumentException().isThrownBy(ep::afterPropertiesSet).withMessage("key must be specified");
 	}
 
 	@Test
@@ -67,13 +61,8 @@ public class DigestAuthenticationEntryPointTests {
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
 		ep.setKey("dcdc");
 		ep.setNonceValiditySeconds(12);
-		try {
-			ep.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("realmName must be specified");
-		}
+		assertThatIllegalArgumentException().isThrownBy(ep::afterPropertiesSet)
+				.withMessage("realmName must be specified");
 	}
 
 	@Test

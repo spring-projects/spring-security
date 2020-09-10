@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link org.springframework.security.util.StringSplitUtils}.
@@ -90,36 +90,12 @@ public class DigestAuthUtilsTests {
 
 	@Test
 	public void testSplitRejectsNullsAndIncorrectLengthStrings() {
-		try {
-			DigestAuthUtils.split(null, "="); // null
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			DigestAuthUtils.split("", "="); // empty string
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			DigestAuthUtils.split("sdch=dfgf", null); // null
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			DigestAuthUtils.split("fvfv=dcdc", ""); // empty string
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			DigestAuthUtils.split("dfdc=dcdc", "BIGGER_THAN_ONE_CHARACTER");
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> DigestAuthUtils.split(null, "="));
+		assertThatIllegalArgumentException().isThrownBy(() -> DigestAuthUtils.split("", "="));
+		assertThatIllegalArgumentException().isThrownBy(() -> DigestAuthUtils.split("sdch=dfgf", null));
+		assertThatIllegalArgumentException().isThrownBy(() -> DigestAuthUtils.split("fvfv=dcdc", ""));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> DigestAuthUtils.split("dfdc=dcdc", "BIGGER_THAN_ONE_CHARACTER"));
 	}
 
 	@Test

@@ -46,7 +46,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.FieldUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -97,58 +98,38 @@ public class AclImplTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorsRejectNullObjectIdentity() {
-		try {
-			new AclImpl(null, 1, this.authzStrategy, this.pgs, null, null, true, new PrincipalSid("joe"));
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		new AclImpl(null, 1, this.authzStrategy, this.mockAuditLogger);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new AclImpl(null, 1, this.authzStrategy, this.pgs, null, null, true, new PrincipalSid("joe")));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AclImpl(null, 1, this.authzStrategy, this.mockAuditLogger));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorsRejectNullId() {
-		try {
-			new AclImpl(this.objectIdentity, null, this.authzStrategy, this.pgs, null, null, true,
-					new PrincipalSid("joe"));
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		new AclImpl(this.objectIdentity, null, this.authzStrategy, this.mockAuditLogger);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AclImpl(this.objectIdentity, null, this.authzStrategy,
+				this.pgs, null, null, true, new PrincipalSid("joe")));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AclImpl(this.objectIdentity, null, this.authzStrategy, this.mockAuditLogger));
 	}
 
-	@SuppressWarnings("deprecation")
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorsRejectNullAclAuthzStrategy() {
-		try {
-			new AclImpl(this.objectIdentity, 1, null, new DefaultPermissionGrantingStrategy(this.mockAuditLogger), null,
-					null, true, new PrincipalSid("joe"));
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		new AclImpl(this.objectIdentity, 1, null, this.mockAuditLogger);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AclImpl(this.objectIdentity, 1, null,
+				new DefaultPermissionGrantingStrategy(this.mockAuditLogger), null, null, true,
+				new PrincipalSid("joe")));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AclImpl(this.objectIdentity, 1, null, this.mockAuditLogger));
 	}
 
 	@Test
 	public void insertAceRejectsNullParameters() {
 		MutableAcl acl = new AclImpl(this.objectIdentity, 1, this.authzStrategy, this.pgs, null, null, true,
 				new PrincipalSid("joe"));
-		try {
-			acl.insertAce(0, null, new GrantedAuthoritySid("ROLE_IGNORED"), true);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			acl.insertAce(0, BasePermission.READ, null, true);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> acl.insertAce(0, null, new GrantedAuthoritySid("ROLE_IGNORED"), true));
+		assertThatIllegalArgumentException().isThrownBy(() -> acl.insertAce(0, BasePermission.READ, null, true));
 	}
 
 	@Test
@@ -232,12 +213,7 @@ public class AclImplTests {
 				new SimpleGrantedAuthority("ROLE_GENERAL"));
 		MutableAcl acl = new AclImpl(this.objectIdentity, (1), strategy, this.pgs, null, null, true,
 				new PrincipalSid("joe"));
-		try {
-			acl.deleteAce(99);
-			fail("It should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> acl.deleteAce(99));
 	}
 
 	@Test
@@ -245,18 +221,9 @@ public class AclImplTests {
 		MutableAcl acl = new AclImpl(this.objectIdentity, 1, this.authzStrategy, this.pgs, null, null, true,
 				new PrincipalSid("joe"));
 		Sid ben = new PrincipalSid("ben");
-		try {
-			acl.isGranted(new ArrayList<>(0), Arrays.asList(ben), false);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			acl.isGranted(READ, new ArrayList<>(0), false);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> acl.isGranted(new ArrayList<>(0), Arrays.asList(ben), false));
+		assertThatIllegalArgumentException().isThrownBy(() -> acl.isGranted(READ, new ArrayList<>(0), false));
 	}
 
 	@Test
@@ -277,25 +244,16 @@ public class AclImplTests {
 		List<Permission> permissions = Arrays.asList(BasePermission.READ, BasePermission.CREATE);
 		List<Sid> sids = Arrays.asList(new PrincipalSid("ben"), new GrantedAuthoritySid("ROLE_GUEST"));
 		assertThat(rootAcl.isGranted(permissions, sids, false)).isFalse();
-		try {
-			rootAcl.isGranted(permissions, SCOTT, false);
-			fail("It should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
+		assertThatExceptionOfType(NotFoundException.class)
+				.isThrownBy(() -> rootAcl.isGranted(permissions, SCOTT, false));
 		assertThat(rootAcl.isGranted(WRITE, SCOTT, false)).isTrue();
 		assertThat(rootAcl.isGranted(WRITE,
 				Arrays.asList(new PrincipalSid("rod"), new GrantedAuthoritySid("WRITE_ACCESS_ROLE")), false)).isFalse();
 		assertThat(rootAcl.isGranted(WRITE,
 				Arrays.asList(new GrantedAuthoritySid("WRITE_ACCESS_ROLE"), new PrincipalSid("rod")), false)).isTrue();
-		try {
-			// Change the type of the Sid and check the granting process
-			rootAcl.isGranted(WRITE,
-					Arrays.asList(new GrantedAuthoritySid("rod"), new PrincipalSid("WRITE_ACCESS_ROLE")), false);
-			fail("It should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
+		// Change the type of the Sid and check the granting process
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> rootAcl.isGranted(WRITE,
+				Arrays.asList(new GrantedAuthoritySid("rod"), new PrincipalSid("WRITE_ACCESS_ROLE")), false));
 	}
 
 	@Test
@@ -348,18 +306,9 @@ public class AclImplTests {
 		assertThat(childAcl1.isGranted(DELETE, BEN, false)).isFalse();
 		// Check granting process for child2 (doesn't inherit the permissions from its
 		// parent)
-		try {
-			assertThat(childAcl2.isGranted(CREATE, SCOTT, false)).isTrue();
-			fail("It should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
-		try {
-			childAcl2.isGranted(CREATE, Arrays.asList((Sid) new PrincipalSid("joe")), false);
-			fail("It should have thrown NotFoundException");
-		}
-		catch (NotFoundException expected) {
-		}
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> childAcl2.isGranted(CREATE, SCOTT, false));
+		assertThatExceptionOfType(NotFoundException.class)
+				.isThrownBy(() -> childAcl2.isGranted(CREATE, Arrays.asList((Sid) new PrincipalSid("joe")), false));
 	}
 
 	@Test

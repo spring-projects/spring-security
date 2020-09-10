@@ -33,6 +33,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
@@ -47,14 +48,10 @@ public class ChannelDecisionManagerImplTests {
 	@Test
 	public void testCannotSetEmptyChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-		try {
+		assertThatIllegalArgumentException().isThrownBy(() -> {
 			cdm.setChannelProcessors(new Vector());
 			cdm.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
-		}
+		}).withMessage("A list of ChannelProcessors is required");
 	}
 
 	@Test
@@ -62,25 +59,16 @@ public class ChannelDecisionManagerImplTests {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 		List list = new Vector();
 		list.add("THIS IS NOT A CHANNELPROCESSOR");
-		try {
-			cdm.setChannelProcessors(list);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> cdm.setChannelProcessors(list));
 	}
 
 	@Test
 	public void testCannotSetNullChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-		try {
+		assertThatIllegalArgumentException().isThrownBy(() -> {
 			cdm.setChannelProcessors(null);
 			cdm.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
-		}
+		}).withMessage("A list of ChannelProcessors is required");
 	}
 
 	@Test
@@ -164,13 +152,8 @@ public class ChannelDecisionManagerImplTests {
 	@Test
 	public void testStartupFailsWithEmptyChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-		try {
-			cdm.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
-		}
+		assertThatIllegalArgumentException().isThrownBy(cdm::afterPropertiesSet)
+				.withMessage("A list of ChannelProcessors is required");
 	}
 
 	private class MockChannelProcessor implements ChannelProcessor {

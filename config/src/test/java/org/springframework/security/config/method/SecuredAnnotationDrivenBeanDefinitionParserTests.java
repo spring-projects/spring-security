@@ -36,6 +36,8 @@ import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 /**
  * @author Ben Alex
  */
@@ -93,11 +95,8 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 
 	@Test(expected = AccessDeniedException.class)
 	public void targetIsSerializableAfterUse() throws Exception {
-		try {
-			this.target.someAdminMethod();
-		}
-		catch (AuthenticationCredentialsNotFoundException expected) {
-		}
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(this.target::someAdminMethod);
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("u", "p", "ROLE_A"));
 		BusinessService chompedTarget = (BusinessService) serializeAndDeserialize(this.target);
 		chompedTarget.someAdminMethod();

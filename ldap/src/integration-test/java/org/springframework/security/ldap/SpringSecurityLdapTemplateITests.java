@@ -38,7 +38,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Luke Taylor
@@ -90,14 +90,10 @@ public class SpringSecurityLdapTemplateITests {
 
 	@Test
 	public void namingExceptionIsTranslatedCorrectly() {
-		try {
-			this.template.executeReadOnly((ContextExecutor) (dirContext) -> {
-				throw new NamingException();
-			});
-			fail("Expected UncategorizedLdapException on NamingException");
-		}
-		catch (UncategorizedLdapException expected) {
-		}
+		assertThatExceptionOfType(UncategorizedLdapException.class)
+				.isThrownBy(() -> this.template.executeReadOnly((ContextExecutor) (dirContext) -> {
+					throw new NamingException();
+				}));
 	}
 
 	@Test

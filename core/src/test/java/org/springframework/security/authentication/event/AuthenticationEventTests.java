@@ -24,7 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link AbstractAuthenticationEvent} and its subclasses.
@@ -59,22 +59,13 @@ public class AuthenticationEventTests {
 	@Test
 	public void testRejectsNullAuthentication() {
 		AuthenticationException exception = new DisabledException("TEST");
-		try {
-			new AuthenticationFailureDisabledEvent(null, exception);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new AuthenticationFailureDisabledEvent(null, exception));
 	}
 
 	@Test
 	public void testRejectsNullAuthenticationException() {
-		try {
-			new AuthenticationFailureDisabledEvent(getAuthentication(), null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AuthenticationFailureDisabledEvent(getAuthentication(), null));
 	}
 
 }

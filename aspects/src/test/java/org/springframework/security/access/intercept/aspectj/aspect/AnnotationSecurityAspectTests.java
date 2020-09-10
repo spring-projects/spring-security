@@ -49,7 +49,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Luke Taylor
@@ -112,12 +112,7 @@ public class AnnotationSecurityAspectTests {
 	@Test(expected = AccessDeniedException.class)
 	public void internalPrivateCallIsIntercepted() {
 		SecurityContextHolder.getContext().setAuthentication(this.anne);
-		try {
-			this.secured.publicCallsPrivate();
-			fail("Expected AccessDeniedException");
-		}
-		catch (AccessDeniedException expected) {
-		}
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> this.secured.publicCallsPrivate());
 		this.securedSub.publicCallsPrivate();
 	}
 

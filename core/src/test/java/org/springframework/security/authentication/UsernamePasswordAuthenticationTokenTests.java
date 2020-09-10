@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link UsernamePasswordAuthenticationToken}.
@@ -32,29 +32,25 @@ public class UsernamePasswordAuthenticationTokenTests {
 
 	@Test
 	public void authenticatedPropertyContractIsSatisfied() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+		UsernamePasswordAuthenticationToken grantedToken = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.NO_AUTHORITIES);
 		// check default given we passed some GrantedAuthorty[]s (well, we passed empty
 		// list)
-		assertThat(token.isAuthenticated()).isTrue();
+		assertThat(grantedToken.isAuthenticated()).isTrue();
 		// check explicit set to untrusted (we can safely go from trusted to untrusted,
 		// but not the reverse)
-		token.setAuthenticated(false);
-		assertThat(!token.isAuthenticated()).isTrue();
+		grantedToken.setAuthenticated(false);
+		assertThat(!grantedToken.isAuthenticated()).isTrue();
 		// Now let's create a UsernamePasswordAuthenticationToken without any
 		// GrantedAuthorty[]s (different constructor)
-		token = new UsernamePasswordAuthenticationToken("Test", "Password");
-		assertThat(!token.isAuthenticated()).isTrue();
+		UsernamePasswordAuthenticationToken noneGrantedToken = new UsernamePasswordAuthenticationToken("Test",
+				"Password");
+		assertThat(!noneGrantedToken.isAuthenticated()).isTrue();
 		// check we're allowed to still set it to untrusted
-		token.setAuthenticated(false);
-		assertThat(!token.isAuthenticated()).isTrue();
+		noneGrantedToken.setAuthenticated(false);
+		assertThat(!noneGrantedToken.isAuthenticated()).isTrue();
 		// check denied changing it to trusted
-		try {
-			token.setAuthenticated(true);
-			fail("Should have prohibited setAuthenticated(true)");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> noneGrantedToken.setAuthenticated(true));
 	}
 
 	@Test

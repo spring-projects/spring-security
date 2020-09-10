@@ -59,7 +59,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.util.FieldUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Ben Alex
@@ -174,13 +174,8 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		// someOther(int) should not be matched by someOther(String), but should require
 		// ROLE_USER
 		this.target.someOther(0);
-		try {
-			// String version should required admin role
-			this.target.someOther("somestring");
-			fail("Expected AccessDeniedException");
-		}
-		catch (AccessDeniedException expected) {
-		}
+		// String version should required admin role
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> this.target.someOther("somestring"));
 	}
 
 	@Test
@@ -199,12 +194,8 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		// String method should not be protected
 		this.target.someOther("somestring");
 		// All others should require ROLE_USER
-		try {
-			this.target.someOther(0);
-			fail("Expected AuthenticationCredentialsNotFoundException");
-		}
-		catch (AuthenticationCredentialsNotFoundException expected) {
-		}
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(() -> this.target.someOther(0));
 		SecurityContextHolder.getContext()
 				.setAuthentication(new UsernamePasswordAuthenticationToken("user", "password"));
 		this.target.someOther(0);
@@ -389,12 +380,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		// External MDS should take precedence over PreAuthorize
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
 		Foo foo = (Foo) this.appContext.getBean("target");
-		try {
-			foo.foo(new SecurityConfig("A"));
-			fail("Bob can't invoke admin methods");
-		}
-		catch (AccessDeniedException expected) {
-		}
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> foo.foo(new SecurityConfig("A")));
 		SecurityContextHolder.getContext()
 				.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "password"));
 		foo.foo(new SecurityConfig("A"));
@@ -415,12 +401,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		// @formatter:on
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
 		Foo foo = (Foo) this.appContext.getBean("target");
-		try {
-			foo.foo(new SecurityConfig("A"));
-			fail("Bob can't invoke admin methods");
-		}
-		catch (AccessDeniedException expected) {
-		}
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> foo.foo(new SecurityConfig("A")));
 		SecurityContextHolder.getContext()
 				.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "password"));
 		foo.foo(new SecurityConfig("A"));

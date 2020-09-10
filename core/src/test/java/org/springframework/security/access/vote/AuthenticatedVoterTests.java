@@ -30,7 +30,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link AuthenticatedVoter}.
@@ -82,12 +82,7 @@ public class AuthenticatedVoterTests {
 	@Test
 	public void testSetterRejectsNull() {
 		AuthenticatedVoter voter = new AuthenticatedVoter();
-		try {
-			voter.setAuthenticationTrustResolver(null);
-			fail("Expected IAE");
-		}
-		catch (IllegalArgumentException expected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> voter.setAuthenticationTrustResolver(null));
 	}
 
 	@Test

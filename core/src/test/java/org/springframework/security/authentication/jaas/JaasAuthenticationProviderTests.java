@@ -46,6 +46,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionDestroyedEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -73,12 +75,8 @@ public class JaasAuthenticationProviderTests {
 
 	@Test
 	public void testBadPassword() {
-		try {
-			this.jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "asdf"));
-			fail("LoginException should have been thrown for the bad password");
-		}
-		catch (AuthenticationException ex) {
-		}
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
+				() -> this.jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "asdf")));
 		assertThat(this.eventCheck.failedEvent).as("Failure event not fired").isNotNull();
 		assertThat(this.eventCheck.failedEvent.getException()).withFailMessage("Failure event exception was null")
 				.isNotNull();
@@ -87,12 +85,8 @@ public class JaasAuthenticationProviderTests {
 
 	@Test
 	public void testBadUser() {
-		try {
-			this.jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("asdf", "password"));
-			fail("LoginException should have been thrown for the bad user");
-		}
-		catch (AuthenticationException ex) {
-		}
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
+				() -> this.jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("asdf", "password")));
 		assertThat(this.eventCheck.failedEvent).as("Failure event not fired").isNotNull();
 		assertThat(this.eventCheck.failedEvent.getException()).withFailMessage("Failure event exception was null")
 				.isNotNull();
@@ -115,13 +109,8 @@ public class JaasAuthenticationProviderTests {
 		myJaasProvider.setAuthorityGranters(this.jaasProvider.getAuthorityGranters());
 		myJaasProvider.setCallbackHandlers(this.jaasProvider.getCallbackHandlers());
 		myJaasProvider.setLoginContextName(this.jaasProvider.getLoginContextName());
-		try {
-			myJaasProvider.afterPropertiesSet();
-			fail("Should have thrown ApplicationContextException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage().startsWith("loginConfig must be set on")).isTrue();
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> myJaasProvider.afterPropertiesSet())
+				.withMessageStartingWith("loginConfig must be set on");
 	}
 
 	// SEC-1239
@@ -160,21 +149,11 @@ public class JaasAuthenticationProviderTests {
 		myJaasProvider.setCallbackHandlers(this.jaasProvider.getCallbackHandlers());
 		myJaasProvider.setLoginConfig(this.jaasProvider.getLoginConfig());
 		myJaasProvider.setLoginContextName(null);
-		try {
-			myJaasProvider.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).startsWith("loginContextName must be set on");
-		}
+		assertThatIllegalArgumentException().isThrownBy(myJaasProvider::afterPropertiesSet)
+				.withMessageStartingWith("loginContextName must be set on");
 		myJaasProvider.setLoginContextName("");
-		try {
-			myJaasProvider.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage().startsWith("loginContextName must be set on"));
-		}
+		assertThatIllegalArgumentException().isThrownBy(myJaasProvider::afterPropertiesSet)
+				.withMessageStartingWith("loginContextName must be set on");
 	}
 
 	@Test

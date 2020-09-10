@@ -27,7 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -114,12 +114,8 @@ public class UsernamePasswordAuthenticationFilterTests {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		filter.setAuthenticationManager(am);
-		try {
-			filter.attemptAuthentication(request, new MockHttpServletResponse());
-			fail("Expected AuthenticationException");
-		}
-		catch (AuthenticationException ex) {
-		}
+		assertThatExceptionOfType(AuthenticationException.class)
+				.isThrownBy(() -> filter.attemptAuthentication(request, new MockHttpServletResponse()));
 	}
 
 	/**

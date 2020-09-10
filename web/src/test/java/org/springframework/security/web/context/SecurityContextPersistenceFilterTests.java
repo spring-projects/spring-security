@@ -33,7 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIOException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -69,12 +69,7 @@ public class SecurityContextPersistenceFilterTests {
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
 		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 		willThrow(new IOException()).given(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-		try {
-			filter.doFilter(request, response, chain);
-			fail("IOException should have been thrown");
-		}
-		catch (IOException expected) {
-		}
+		assertThatIOException().isThrownBy(() -> filter.doFilter(request, response, chain));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 

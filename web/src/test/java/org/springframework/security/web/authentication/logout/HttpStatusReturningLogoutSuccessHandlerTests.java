@@ -24,7 +24,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -59,14 +59,8 @@ public class HttpStatusReturningLogoutSuccessHandlerTests {
 
 	@Test
 	public void testThatSettNullHttpStatusThrowsException() {
-		try {
-			new HttpStatusReturningLogoutSuccessHandler(null);
-		}
-		catch (IllegalArgumentException ex) {
-			assertThat(ex).hasMessage("The provided HttpStatus must not be null.");
-			return;
-		}
-		fail("Expected an IllegalArgumentException to be thrown.");
+		assertThatIllegalArgumentException().isThrownBy(() -> new HttpStatusReturningLogoutSuccessHandler(null))
+				.withMessage("The provided HttpStatus must not be null.");
 	}
 
 }

@@ -22,7 +22,8 @@ import org.springframework.security.acls.domain.AclFormattingUtils;
 import org.springframework.security.acls.model.Permission;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * Tests for {@link AclFormattingUtils}.
@@ -33,30 +34,11 @@ public class AclFormattingUtilsTests {
 
 	@Test
 	public final void testDemergePatternsParametersConstraints() {
-		try {
-			AclFormattingUtils.demergePatterns(null, "SOME STRING");
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			AclFormattingUtils.demergePatterns("SOME STRING", null);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			AclFormattingUtils.demergePatterns("SOME STRING", "LONGER SOME STRING");
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			AclFormattingUtils.demergePatterns("SOME STRING", "SAME LENGTH");
-		}
-		catch (IllegalArgumentException notExpected) {
-			fail("It shouldn't have thrown IllegalArgumentException");
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> AclFormattingUtils.demergePatterns(null, "SOME STRING"));
+		assertThatIllegalArgumentException().isThrownBy(() -> AclFormattingUtils.demergePatterns("SOME STRING", null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> AclFormattingUtils.demergePatterns("SOME STRING", "LONGER SOME STRING"));
+		assertThatNoException().isThrownBy(() -> AclFormattingUtils.demergePatterns("SOME STRING", "SAME LENGTH"));
 	}
 
 	@Test
@@ -71,29 +53,11 @@ public class AclFormattingUtilsTests {
 
 	@Test
 	public final void testMergePatternsParametersConstraints() {
-		try {
-			AclFormattingUtils.mergePatterns(null, "SOME STRING");
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			AclFormattingUtils.mergePatterns("SOME STRING", null);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			AclFormattingUtils.mergePatterns("SOME STRING", "LONGER SOME STRING");
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-		}
-		try {
-			AclFormattingUtils.mergePatterns("SOME STRING", "SAME LENGTH");
-		}
-		catch (IllegalArgumentException notExpected) {
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> AclFormattingUtils.mergePatterns(null, "SOME STRING"));
+		assertThatIllegalArgumentException().isThrownBy(() -> AclFormattingUtils.mergePatterns("SOME STRING", null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> AclFormattingUtils.mergePatterns("SOME STRING", "LONGER SOME STRING"));
+		assertThatNoException().isThrownBy(() -> AclFormattingUtils.mergePatterns("SOME STRING", "SAME LENGTH"));
 	}
 
 	@Test
@@ -108,18 +72,10 @@ public class AclFormattingUtilsTests {
 	@Test
 	public final void testBinaryPrints() {
 		assertThat(AclFormattingUtils.printBinary(15)).isEqualTo("............................****");
-		try {
-			AclFormattingUtils.printBinary(15, Permission.RESERVED_ON);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException notExpected) {
-		}
-		try {
-			AclFormattingUtils.printBinary(15, Permission.RESERVED_OFF);
-			fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException notExpected) {
-		}
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> AclFormattingUtils.printBinary(15, Permission.RESERVED_ON));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> AclFormattingUtils.printBinary(15, Permission.RESERVED_OFF));
 		assertThat(AclFormattingUtils.printBinary(15, 'x')).isEqualTo("............................xxxx");
 	}
 
