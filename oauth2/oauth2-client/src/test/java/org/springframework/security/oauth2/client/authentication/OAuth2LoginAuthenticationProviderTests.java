@@ -25,9 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 
@@ -52,7 +50,8 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2Authorization
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.BDDMockito.given;
@@ -79,9 +78,6 @@ public class OAuth2LoginAuthenticationProviderTests {
 
 	private OAuth2LoginAuthenticationProvider authenticationProvider;
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
 	@Before
 	@SuppressWarnings("unchecked")
 	public void setUp() {
@@ -98,20 +94,19 @@ public class OAuth2LoginAuthenticationProviderTests {
 
 	@Test
 	public void constructorWhenAccessTokenResponseClientIsNullThenThrowIllegalArgumentException() {
-		this.exception.expect(IllegalArgumentException.class);
-		new OAuth2LoginAuthenticationProvider(null, this.userService);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2LoginAuthenticationProvider(null, this.userService));
 	}
 
 	@Test
 	public void constructorWhenUserServiceIsNullThenThrowIllegalArgumentException() {
-		this.exception.expect(IllegalArgumentException.class);
-		new OAuth2LoginAuthenticationProvider(this.accessTokenResponseClient, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2LoginAuthenticationProvider(this.accessTokenResponseClient, null));
 	}
 
 	@Test
 	public void setAuthoritiesMapperWhenAuthoritiesMapperIsNullThenThrowIllegalArgumentException() {
-		this.exception.expect(IllegalArgumentException.class);
-		this.authenticationProvider.setAuthoritiesMapper(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authenticationProvider.setAuthoritiesMapper(null));
 	}
 
 	@Test
@@ -132,26 +127,26 @@ public class OAuth2LoginAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAuthorizationErrorResponseThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString(OAuth2ErrorCodes.INVALID_REQUEST));
 		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.error()
 				.errorCode(OAuth2ErrorCodes.INVALID_REQUEST).build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
-		this.authenticationProvider
-				.authenticate(new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(
+						new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange)))
+				.withMessageContaining(OAuth2ErrorCodes.INVALID_REQUEST);
 	}
 
 	@Test
 	public void authenticateWhenAuthorizationResponseStateNotEqualAuthorizationRequestStateThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_state_parameter"));
 		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success().state("67890")
 				.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
-		this.authenticationProvider
-				.authenticate(new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(
+						new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange)))
+				.withMessageContaining("invalid_state_parameter");
 	}
 
 	@Test

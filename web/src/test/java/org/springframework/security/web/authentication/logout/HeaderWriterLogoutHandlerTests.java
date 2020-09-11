@@ -17,15 +17,14 @@
 package org.springframework.security.web.authentication.logout;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.header.HeaderWriter;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -40,9 +39,6 @@ public class HeaderWriterLogoutHandlerTests {
 
 	private MockHttpServletRequest request;
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
 	@Before
 	public void setup() {
 		this.response = new MockHttpServletResponse();
@@ -51,9 +47,8 @@ public class HeaderWriterLogoutHandlerTests {
 
 	@Test
 	public void constructorWhenHeaderWriterIsNullThenThrowsException() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("headerWriter cannot be null");
-		new HeaderWriterLogoutHandler(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new HeaderWriterLogoutHandler(null))
+				.withMessage("headerWriter cannot be null");
 	}
 
 	@Test

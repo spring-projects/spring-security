@@ -26,18 +26,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.xml.namespace.QName;
 
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
@@ -93,9 +89,6 @@ public class OpenSamlAuthenticationProviderTests {
 	private Saml2Authentication authentication = new Saml2Authentication(this.principal, "response",
 			Collections.emptyList());
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
 	@Test
 	public void supportsWhenSaml2AuthenticationTokenThenReturnTrue() {
 		assertThat(this.provider.supports(Saml2AuthenticationToken.class))
@@ -113,53 +106,56 @@ public class OpenSamlAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenUnknownDataClassThenThrowAuthenticationException() {
-		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA));
 		Assertion assertion = (Assertion) XMLObjectProviderRegistrySupport.getBuilderFactory()
 				.getBuilder(Assertion.DEFAULT_ELEMENT_NAME).buildObject(Assertion.DEFAULT_ELEMENT_NAME);
-		this.provider
-				.authenticate(token(serialize(assertion), TestSaml2X509Credentials.relyingPartyVerifyingCredential()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(
+						token(serialize(assertion), TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
+				.satisfies(errorOf(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA));
 	}
 
 	@Test
 	public void authenticateWhenXmlErrorThenThrowAuthenticationException() {
-		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA));
 		Saml2AuthenticationToken token = token("invalid xml",
 				TestSaml2X509Credentials.relyingPartyVerifyingCredential());
-		this.provider.authenticate(token);
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA));
 	}
 
 	@Test
 	public void authenticateWhenInvalidDestinationThenThrowAuthenticationException() {
-		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.INVALID_DESTINATION));
 		Response response = TestOpenSamlObjects.response(DESTINATION + "invalid", ASSERTING_PARTY_ENTITY_ID);
 		response.getAssertions().add(TestOpenSamlObjects.assertion());
 		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
 				RELYING_PARTY_ENTITY_ID);
 		Saml2AuthenticationToken token = token(response, TestSaml2X509Credentials.relyingPartyVerifyingCredential());
-		this.provider.authenticate(token);
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.INVALID_DESTINATION));
 	}
 
 	@Test
 	public void authenticateWhenNoAssertionsPresentThenThrowAuthenticationException() {
-		this.exception.expect(
-				authenticationMatcher(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, "No assertions found in response."));
 		Saml2AuthenticationToken token = token(TestOpenSamlObjects.response(),
 				TestSaml2X509Credentials.assertingPartySigningCredential());
-		this.provider.authenticate(token);
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, "No assertions found in response."));
 	}
 
 	@Test
 	public void authenticateWhenInvalidSignatureOnAssertionThenThrowAuthenticationException() {
-		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.INVALID_SIGNATURE));
 		Response response = TestOpenSamlObjects.response();
 		response.getAssertions().add(TestOpenSamlObjects.assertion());
 		Saml2AuthenticationToken token = token(response, TestSaml2X509Credentials.relyingPartyVerifyingCredential());
-		this.provider.authenticate(token);
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.INVALID_SIGNATURE));
 	}
 
 	@Test
 	public void authenticateWhenOpenSAMLValidationErrorThenThrowAuthenticationException() throws Exception {
-		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.INVALID_ASSERTION));
 		Response response = TestOpenSamlObjects.response();
 		Assertion assertion = TestOpenSamlObjects.assertion();
 		assertion.getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData()
@@ -168,12 +164,13 @@ public class OpenSamlAuthenticationProviderTests {
 				RELYING_PARTY_ENTITY_ID);
 		response.getAssertions().add(assertion);
 		Saml2AuthenticationToken token = token(response, TestSaml2X509Credentials.relyingPartyVerifyingCredential());
-		this.provider.authenticate(token);
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.INVALID_ASSERTION));
 	}
 
 	@Test
 	public void authenticateWhenMissingSubjectThenThrowAuthenticationException() {
-		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.SUBJECT_NOT_FOUND));
 		Response response = TestOpenSamlObjects.response();
 		Assertion assertion = TestOpenSamlObjects.assertion();
 		assertion.setSubject(null);
@@ -181,12 +178,13 @@ public class OpenSamlAuthenticationProviderTests {
 				RELYING_PARTY_ENTITY_ID);
 		response.getAssertions().add(assertion);
 		Saml2AuthenticationToken token = token(response, TestSaml2X509Credentials.relyingPartyVerifyingCredential());
-		this.provider.authenticate(token);
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.SUBJECT_NOT_FOUND));
 	}
 
 	@Test
 	public void authenticateWhenUsernameMissingThenThrowAuthenticationException() throws Exception {
-		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.SUBJECT_NOT_FOUND));
 		Response response = TestOpenSamlObjects.response();
 		Assertion assertion = TestOpenSamlObjects.assertion();
 		assertion.getSubject().getNameID().setValue(null);
@@ -194,7 +192,9 @@ public class OpenSamlAuthenticationProviderTests {
 				RELYING_PARTY_ENTITY_ID);
 		response.getAssertions().add(assertion);
 		Saml2AuthenticationToken token = token(response, TestSaml2X509Credentials.relyingPartyVerifyingCredential());
-		this.provider.authenticate(token);
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.SUBJECT_NOT_FOUND));
 	}
 
 	@Test
@@ -236,13 +236,14 @@ public class OpenSamlAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenEncryptedAssertionWithoutSignatureThenItFails() throws Exception {
-		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.INVALID_SIGNATURE));
 		Response response = TestOpenSamlObjects.response();
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(TestOpenSamlObjects.assertion(),
 				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
 		Saml2AuthenticationToken token = token(response, TestSaml2X509Credentials.relyingPartyDecryptingCredential());
-		this.provider.authenticate(token);
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.INVALID_SIGNATURE));
 	}
 
 	@Test
@@ -290,28 +291,28 @@ public class OpenSamlAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenDecryptionKeysAreMissingThenThrowAuthenticationException() throws Exception {
-		this.exception
-				.expect(authenticationMatcher(Saml2ErrorCodes.DECRYPTION_ERROR, "Failed to decrypt EncryptedData"));
 		Response response = TestOpenSamlObjects.response();
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(TestOpenSamlObjects.assertion(),
 				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
 		Saml2AuthenticationToken token = token(serialize(response),
 				TestSaml2X509Credentials.relyingPartyVerifyingCredential());
-		this.provider.authenticate(token);
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.DECRYPTION_ERROR, "Failed to decrypt EncryptedData"));
 	}
 
 	@Test
 	public void authenticateWhenDecryptionKeysAreWrongThenThrowAuthenticationException() throws Exception {
-		this.exception
-				.expect(authenticationMatcher(Saml2ErrorCodes.DECRYPTION_ERROR, "Failed to decrypt EncryptedData"));
 		Response response = TestOpenSamlObjects.response();
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(TestOpenSamlObjects.assertion(),
 				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
 		Saml2AuthenticationToken token = token(serialize(response),
 				TestSaml2X509Credentials.assertingPartyPrivateCredential());
-		this.provider.authenticate(token);
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.DECRYPTION_ERROR, "Failed to decrypt EncryptedData"));
 	}
 
 	@Test
@@ -487,33 +488,15 @@ public class OpenSamlAuthenticationProviderTests {
 		}
 	}
 
-	private Matcher<Saml2AuthenticationException> authenticationMatcher(String code) {
-		return authenticationMatcher(code, null);
+	private Consumer<Saml2AuthenticationException> errorOf(String errorCode) {
+		return errorOf(errorCode, null);
 	}
 
-	private Matcher<Saml2AuthenticationException> authenticationMatcher(String code, String description) {
-		return new BaseMatcher<Saml2AuthenticationException>() {
-			@Override
-			public boolean matches(Object item) {
-				if (!(item instanceof Saml2AuthenticationException)) {
-					return false;
-				}
-				Saml2AuthenticationException ex = (Saml2AuthenticationException) item;
-				if (!code.equals(ex.getError().getErrorCode())) {
-					return false;
-				}
-				if (StringUtils.hasText(description)) {
-					if (!description.equals(ex.getError().getDescription())) {
-						return false;
-					}
-				}
-				return true;
-			}
-
-			@Override
-			public void describeTo(Description desc) {
-				String excepting = "Saml2AuthenticationException[code=" + code + "; description=" + description + "]";
-				desc.appendText(excepting);
+	private Consumer<Saml2AuthenticationException> errorOf(String errorCode, String description) {
+		return (ex) -> {
+			assertThat(ex.getError().getErrorCode()).isEqualTo(errorCode);
+			if (StringUtils.hasText(description)) {
+				assertThat(ex.getError().getDescription()).isEqualTo(description);
 			}
 		};
 	}

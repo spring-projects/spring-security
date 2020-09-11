@@ -22,9 +22,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 
 import org.springframework.security.core.Authentication;
@@ -45,14 +43,10 @@ import static org.mockito.Mockito.verify;
  */
 public class CompositeLogoutHandlerTests {
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
 	@Test
 	public void buildEmptyCompositeLogoutHandlerThrowsException() {
-		this.exception.expect(IllegalArgumentException.class);
-		this.exception.expectMessage("LogoutHandlers are required");
-		new CompositeLogoutHandler();
+		assertThatIllegalArgumentException().isThrownBy(() -> new CompositeLogoutHandler())
+				.withMessage("LogoutHandlers are required");
 	}
 
 	@Test

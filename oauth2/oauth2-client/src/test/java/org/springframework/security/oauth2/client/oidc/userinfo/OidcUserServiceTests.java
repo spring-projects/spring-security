@@ -29,9 +29,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
@@ -56,8 +54,8 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -79,9 +77,6 @@ public class OidcUserServiceTests {
 	private OidcUserService userService = new OidcUserService();
 
 	private MockWebServer server;
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	@Before
 	public void setup() throws Exception {
@@ -133,8 +128,7 @@ public class OidcUserServiceTests {
 
 	@Test
 	public void loadUserWhenUserRequestIsNullThenThrowIllegalArgumentException() {
-		this.exception.expect(IllegalArgumentException.class);
-		this.userService.loadUser(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.userService.loadUser(null));
 	}
 
 	@Test
@@ -260,8 +254,6 @@ public class OidcUserServiceTests {
 	// gh-5447
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseAndUserInfoSubjectIsNullThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_user_info_response"));
 		// @formatter:off
 		String userInfoResponse = "{\n"
 				+ "   \"email\": \"full_name@provider.com\",\n"
@@ -272,25 +264,26 @@ public class OidcUserServiceTests {
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
 				.userNameAttributeName(StandardClaimNames.EMAIL).build();
-		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.userService
+						.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken)))
+				.withMessageContaining("invalid_user_info_response");
 	}
 
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseAndUserInfoSubjectNotSameAsIdTokenSubjectThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_user_info_response"));
 		String userInfoResponse = "{\n" + "	\"sub\": \"other-subject\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
-		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.userService
+						.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken)))
+				.withMessageContaining("invalid_user_info_response");
 	}
 
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString(
-				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 		// @formatter:off
 		String userInfoResponse = "{\n"
 			+ "   \"sub\": \"subject1\",\n"
@@ -304,28 +297,34 @@ public class OidcUserServiceTests {
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
-		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.userService
+						.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken)))
+				.withMessageContaining(
+						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource");
 	}
 
 	@Test
 	public void loadUserWhenServerErrorThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString(
-				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error"));
 		this.server.enqueue(new MockResponse().setResponseCode(500));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
-		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.userService
+						.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken)))
+				.withMessageContaining(
+						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error");
 	}
 
 	@Test
 	public void loadUserWhenUserInfoUriInvalidThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString(
-				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 		String userInfoUri = "https://invalid-provider.com/user";
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
-		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.userService
+						.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken)))
+				.withMessageContaining(
+						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource");
 	}
 
 	@Test

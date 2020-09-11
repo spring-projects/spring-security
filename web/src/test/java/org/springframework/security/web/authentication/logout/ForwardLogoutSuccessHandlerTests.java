@@ -16,15 +16,14 @@
 
 package org.springframework.security.web.authentication.logout;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -34,23 +33,18 @@ import static org.mockito.Mockito.mock;
  */
 public class ForwardLogoutSuccessHandlerTests {
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
 	@Test
 	public void invalidTargetUrl() {
 		String targetUrl = "not.valid";
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("'" + targetUrl + "' is not a valid target URL");
-		new ForwardLogoutSuccessHandler(targetUrl);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ForwardLogoutSuccessHandler(targetUrl))
+				.withMessage("'" + targetUrl + "' is not a valid target URL");
 	}
 
 	@Test
 	public void emptyTargetUrl() {
 		String targetUrl = " ";
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("'" + targetUrl + "' is not a valid target URL");
-		new ForwardLogoutSuccessHandler(targetUrl);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ForwardLogoutSuccessHandler(targetUrl))
+				.withMessage("'" + targetUrl + "' is not a valid target URL");
 	}
 
 	@Test

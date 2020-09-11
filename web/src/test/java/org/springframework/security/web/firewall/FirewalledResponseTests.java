@@ -20,9 +20,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
@@ -35,8 +33,7 @@ import static org.mockito.Mockito.verify;
  */
 public class FirewalledResponseTests {
 
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
+	private static final String CRLF_MESSAGE = "Invalid characters (CR/LF)";
 
 	private HttpServletResponse response;
 
@@ -62,8 +59,8 @@ public class FirewalledResponseTests {
 
 	@Test
 	public void sendRedirectWhenHasCrlfThenThrowsException() throws Exception {
-		expectCrlfValidationException();
-		this.fwResponse.sendRedirect("/theURL\r\nsomething");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.sendRedirect("/theURL\r\nsomething"))
+				.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
@@ -80,14 +77,16 @@ public class FirewalledResponseTests {
 
 	@Test
 	public void addHeaderWhenHeaderValueHasCrlfThenException() {
-		expectCrlfValidationException();
-		this.fwResponse.addHeader("foo", "abc\r\nContent-Length:100");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.fwResponse.addHeader("foo", "abc\r\nContent-Length:100"))
+				.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
 	public void addHeaderWhenHeaderNameHasCrlfThenException() {
-		expectCrlfValidationException();
-		this.fwResponse.addHeader("abc\r\nContent-Length:100", "bar");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.fwResponse.addHeader("abc\r\nContent-Length:100", "bar"))
+				.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
@@ -115,39 +114,39 @@ public class FirewalledResponseTests {
 				return "foo\r\nbar";
 			}
 		};
-		expectCrlfValidationException();
-		this.fwResponse.addCookie(cookie);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.addCookie(cookie))
+				.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
 	public void addCookieWhenCookieValueContainsCrlfThenException() {
 		Cookie cookie = new Cookie("foo", "foo\r\nbar");
-		expectCrlfValidationException();
-		this.fwResponse.addCookie(cookie);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.addCookie(cookie))
+				.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
 	public void addCookieWhenCookiePathContainsCrlfThenException() {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setPath("/foo\r\nbar");
-		expectCrlfValidationException();
-		this.fwResponse.addCookie(cookie);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.addCookie(cookie))
+				.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
 	public void addCookieWhenCookieDomainContainsCrlfThenException() {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setDomain("foo\r\nbar");
-		expectCrlfValidationException();
-		this.fwResponse.addCookie(cookie);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.addCookie(cookie))
+				.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
 	public void addCookieWhenCookieCommentContainsCrlfThenException() {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setComment("foo\r\nbar");
-		expectCrlfValidationException();
-		this.fwResponse.addCookie(cookie);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.addCookie(cookie))
+				.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
@@ -158,11 +157,6 @@ public class FirewalledResponseTests {
 		validateLineEnding("foo\rbar", "bar");
 		validateLineEnding("foo\r\nbar", "bar");
 		validateLineEnding("foo\nbar", "bar");
-	}
-
-	private void expectCrlfValidationException() {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("Invalid characters (CR/LF)");
 	}
 
 	private void validateLineEnding(String name, String value) {

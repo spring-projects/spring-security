@@ -28,9 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 
@@ -64,7 +62,8 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.TestJwts;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -99,9 +98,6 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 			Base64.getUrlEncoder().withoutPadding(), 96);
 
 	private String nonceHash;
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	@Before
 	@SuppressWarnings("unchecked")
@@ -138,26 +134,24 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 	@Test
 	public void constructorWhenAccessTokenResponseClientIsNullThenThrowIllegalArgumentException() {
-		this.exception.expect(IllegalArgumentException.class);
-		new OidcAuthorizationCodeAuthenticationProvider(null, this.userService);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OidcAuthorizationCodeAuthenticationProvider(null, this.userService));
 	}
 
 	@Test
 	public void constructorWhenUserServiceIsNullThenThrowIllegalArgumentException() {
-		this.exception.expect(IllegalArgumentException.class);
-		new OidcAuthorizationCodeAuthenticationProvider(this.accessTokenResponseClient, null);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new OidcAuthorizationCodeAuthenticationProvider(this.accessTokenResponseClient, null));
 	}
 
 	@Test
 	public void setJwtDecoderFactoryWhenNullThenThrowIllegalArgumentException() {
-		this.exception.expect(IllegalArgumentException.class);
-		this.authenticationProvider.setJwtDecoderFactory(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authenticationProvider.setJwtDecoderFactory(null));
 	}
 
 	@Test
 	public void setAuthoritiesMapperWhenAuthoritiesMapperIsNullThenThrowIllegalArgumentException() {
-		this.exception.expect(IllegalArgumentException.class);
-		this.authenticationProvider.setAuthoritiesMapper(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authenticationProvider.setAuthoritiesMapper(null));
 	}
 
 	@Test
@@ -181,8 +175,6 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAuthorizationErrorResponseThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString(OAuth2ErrorCodes.INVALID_SCOPE));
 		// @formatter:off
 		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.error()
 				.errorCode(OAuth2ErrorCodes.INVALID_SCOPE)
@@ -190,14 +182,14 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		// @formatter:on
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
-		this.authenticationProvider
-				.authenticate(new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(
+						new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange)))
+				.withMessageContaining(OAuth2ErrorCodes.INVALID_SCOPE);
 	}
 
 	@Test
 	public void authenticateWhenAuthorizationResponseStateNotEqualAuthorizationRequestStateThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_state_parameter"));
 		// @formatter:off
 		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success()
 				.state("89012")
@@ -205,14 +197,14 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		// @formatter:on
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
-		this.authenticationProvider
-				.authenticate(new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(
+						new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange)))
+				.withMessageContaining("invalid_state_parameter");
 	}
 
 	@Test
 	public void authenticateWhenTokenResponseDoesNotContainIdTokenThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
 		// @formatter:off
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse
 				.withResponse(this.accessTokenSuccessResponse())
@@ -220,38 +212,38 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 				.build();
 		// @formatter:on
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-		this.authenticationProvider
-				.authenticate(new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(
+						new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange)))
+				.withMessageContaining("invalid_id_token");
 	}
 
 	@Test
 	public void authenticateWhenJwkSetUriNotSetThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("missing_signature_verifier"));
 		// @formatter:off
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
 				.jwkSetUri(null)
 				.build();
 		// @formatter:on
-		this.authenticationProvider
-				.authenticate(new OAuth2LoginAuthenticationToken(clientRegistration, this.authorizationExchange));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(
+						new OAuth2LoginAuthenticationToken(clientRegistration, this.authorizationExchange)))
+				.withMessageContaining("missing_signature_verifier");
 	}
 
 	@Test
 	public void authenticateWhenIdTokenValidationErrorThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("[invalid_id_token] ID Token Validation Error"));
 		JwtDecoder jwtDecoder = mock(JwtDecoder.class);
 		given(jwtDecoder.decode(anyString())).willThrow(new JwtException("ID Token Validation Error"));
 		this.authenticationProvider.setJwtDecoderFactory((registration) -> jwtDecoder);
-		this.authenticationProvider
-				.authenticate(new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(
+						new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange)))
+				.withMessageContaining("[invalid_id_token] ID Token Validation Error");
 	}
 
 	@Test
 	public void authenticateWhenIdTokenInvalidNonceThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("[invalid_nonce]"));
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
 		claims.put(IdTokenClaimNames.SUB, "subject1");
@@ -259,8 +251,10 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		claims.put(IdTokenClaimNames.AZP, "client1");
 		claims.put(IdTokenClaimNames.NONCE, "invalid-nonce-hash");
 		this.setUpIdToken(claims);
-		this.authenticationProvider
-				.authenticate(new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(
+						new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange)))
+				.withMessageContaining("[invalid_nonce]");
 	}
 
 	@Test

@@ -17,15 +17,14 @@
 package org.springframework.security.web.header.writers;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rafiullah Hamedy
@@ -40,9 +39,6 @@ public class ClearSiteDataHeaderWriterTests {
 
 	private MockHttpServletResponse response;
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
 	@Before
 	public void setup() {
 		this.request = new MockHttpServletRequest();
@@ -52,9 +48,8 @@ public class ClearSiteDataHeaderWriterTests {
 
 	@Test
 	public void createInstanceWhenMissingSourceThenThrowsException() {
-		this.thrown.expect(Exception.class);
-		this.thrown.expectMessage("directives cannot be empty or null");
-		new ClearSiteDataHeaderWriter();
+		assertThatExceptionOfType(Exception.class).isThrownBy(() -> new ClearSiteDataHeaderWriter())
+				.withMessage("directives cannot be empty or null");
 	}
 
 	@Test

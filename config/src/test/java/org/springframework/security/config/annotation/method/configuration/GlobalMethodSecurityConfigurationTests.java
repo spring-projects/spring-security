@@ -25,7 +25,6 @@ import javax.sql.DataSource;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.BeansException;
@@ -80,9 +79,6 @@ public class GlobalMethodSecurityConfigurationTests {
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
 	@Autowired(required = false)
 	private MethodSecurityService service;
 
@@ -98,8 +94,8 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	@Test
 	public void configureWhenGlobalMethodSecurityIsMissingMetadataSourceThenException() {
-		this.thrown.expect(UnsatisfiedDependencyException.class);
-		this.spring.register(IllegalStateGlobalMethodSecurityConfig.class).autowire();
+		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+				.isThrownBy(() -> this.spring.register(IllegalStateGlobalMethodSecurityConfig.class).autowire());
 	}
 
 	@Test
