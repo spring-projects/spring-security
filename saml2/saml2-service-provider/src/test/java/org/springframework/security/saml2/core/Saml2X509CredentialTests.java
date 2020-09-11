@@ -23,17 +23,15 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.security.converter.RsaKeyConverters;
 import org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType;
 
-public class Saml2X509CredentialTests {
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
+public class Saml2X509CredentialTests {
 
 	private PrivateKey key;
 
@@ -99,98 +97,90 @@ public class Saml2X509CredentialTests {
 
 	@Test
 	public void constructorWhenRelyingPartyWithoutCredentialsThenItFails() {
-		this.exception.expect(IllegalArgumentException.class);
-		new Saml2X509Credential(null, (X509Certificate) null, Saml2X509CredentialType.SIGNING);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new Saml2X509Credential(null, (X509Certificate) null, Saml2X509CredentialType.SIGNING));
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithoutPrivateKeyThenItFails() {
-		this.exception.expect(IllegalArgumentException.class);
-		new Saml2X509Credential(null, this.certificate, Saml2X509CredentialType.SIGNING);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new Saml2X509Credential(null, this.certificate, Saml2X509CredentialType.SIGNING));
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithoutCertificateThenItFails() {
-		this.exception.expect(IllegalArgumentException.class);
-		new Saml2X509Credential(this.key, null, Saml2X509CredentialType.SIGNING);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new Saml2X509Credential(this.key, null, Saml2X509CredentialType.SIGNING));
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithoutCertificateThenItFails() {
-		this.exception.expect(IllegalArgumentException.class);
-		new Saml2X509Credential(null, Saml2X509CredentialType.SIGNING);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new Saml2X509Credential(null, Saml2X509CredentialType.SIGNING));
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithEncryptionUsageThenItFails() {
-		this.exception.expect(IllegalStateException.class);
-		new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.ENCRYPTION);
+		assertThatIllegalStateException().isThrownBy(
+				() -> new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.ENCRYPTION));
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithVerificationUsageThenItFails() {
-		this.exception.expect(IllegalStateException.class);
-		new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.VERIFICATION);
+		assertThatIllegalStateException().isThrownBy(
+				() -> new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.VERIFICATION));
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithSigningUsageThenItFails() {
-		this.exception.expect(IllegalStateException.class);
-		new Saml2X509Credential(this.certificate, Saml2X509CredentialType.SIGNING);
+		assertThatIllegalStateException()
+				.isThrownBy(() -> new Saml2X509Credential(this.certificate, Saml2X509CredentialType.SIGNING));
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithDecryptionUsageThenItFails() {
-		this.exception.expect(IllegalStateException.class);
-		new Saml2X509Credential(this.certificate, Saml2X509CredentialType.DECRYPTION);
+		assertThatIllegalStateException()
+				.isThrownBy(() -> new Saml2X509Credential(this.certificate, Saml2X509CredentialType.DECRYPTION));
 	}
 
 	@Test
 	public void factoryWhenRelyingPartyForSigningWithoutCredentialsThenItFails() {
-		this.exception.expect(IllegalArgumentException.class);
-		Saml2X509Credential.signing(null, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> Saml2X509Credential.signing(null, null));
 	}
 
 	@Test
 	public void factoryWhenRelyingPartyForSigningWithoutPrivateKeyThenItFails() {
-		this.exception.expect(IllegalArgumentException.class);
-		Saml2X509Credential.signing(null, this.certificate);
+		assertThatIllegalArgumentException().isThrownBy(() -> Saml2X509Credential.signing(null, this.certificate));
 	}
 
 	@Test
 	public void factoryWhenRelyingPartyForSigningWithoutCertificateThenItFails() {
-		this.exception.expect(IllegalArgumentException.class);
-		Saml2X509Credential.signing(this.key, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> Saml2X509Credential.signing(this.key, null));
 	}
 
 	@Test
 	public void factoryWhenRelyingPartyForDecryptionWithoutCredentialsThenItFails() {
-		this.exception.expect(IllegalArgumentException.class);
-		Saml2X509Credential.decryption(null, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> Saml2X509Credential.decryption(null, null));
 	}
 
 	@Test
 	public void factoryWhenRelyingPartyForDecryptionWithoutPrivateKeyThenItFails() {
-		this.exception.expect(IllegalArgumentException.class);
-		Saml2X509Credential.decryption(null, this.certificate);
+		assertThatIllegalArgumentException().isThrownBy(() -> Saml2X509Credential.decryption(null, this.certificate));
 	}
 
 	@Test
 	public void factoryWhenRelyingPartyForDecryptionWithoutCertificateThenItFails() {
-		this.exception.expect(IllegalArgumentException.class);
-		Saml2X509Credential.decryption(this.key, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> Saml2X509Credential.decryption(this.key, null));
 	}
 
 	@Test
 	public void factoryWhenAssertingPartyForVerificationWithoutCertificateThenItFails() {
-		this.exception.expect(IllegalArgumentException.class);
-		Saml2X509Credential.verification(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> Saml2X509Credential.verification(null));
 	}
 
 	@Test
 	public void factoryWhenAssertingPartyForEncryptionWithoutCertificateThenItFails() {
-		this.exception.expect(IllegalArgumentException.class);
-		Saml2X509Credential.encryption(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> Saml2X509Credential.encryption(null));
 	}
 
 }

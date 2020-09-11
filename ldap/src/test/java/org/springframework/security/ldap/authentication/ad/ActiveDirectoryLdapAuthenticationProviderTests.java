@@ -30,14 +30,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -70,9 +64,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	public static final String EXISTING_LDAP_PROVIDER = "ldap://192.168.1.200/";
 
 	public static final String NON_EXISTING_LDAP_PROVIDER = "ldap://192.168.1.201/";
-
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
 
 	ActiveDirectoryLdapAuthenticationProvider provider;
 
@@ -245,29 +236,10 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		this.provider.contextFactory = createContextFactoryThrowing(
 				new AuthenticationException(msg + dataCode + ", xxxx]"));
 		this.provider.setConvertSubErrorCodesToExceptions(true);
-		this.thrown.expect(BadCredentialsException.class);
-		this.thrown.expect(new BaseMatcher<BadCredentialsException>() {
-			private Matcher<Object> causeInstance = CoreMatchers
-					.instanceOf(ActiveDirectoryAuthenticationException.class);
-
-			private Matcher<String> causeDataCode = CoreMatchers.equalTo(dataCode);
-
-			@Override
-			public boolean matches(Object that) {
-				Throwable t = (Throwable) that;
-				ActiveDirectoryAuthenticationException cause = (ActiveDirectoryAuthenticationException) t.getCause();
-				return this.causeInstance.matches(cause) && this.causeDataCode.matches(cause.getDataCode());
-			}
-
-			@Override
-			public void describeTo(Description desc) {
-				desc.appendText("getCause() ");
-				this.causeInstance.describeTo(desc);
-				desc.appendText("getCause().getDataCode() ");
-				this.causeDataCode.describeTo(desc);
-			}
-		});
-		this.provider.authenticate(this.joe);
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.provider.authenticate(this.joe))
+				.withCauseInstanceOf(ActiveDirectoryAuthenticationException.class)
+				.satisfies((ex) -> assertThat(((ActiveDirectoryAuthenticationException) ex.getCause()).getDataCode())
+						.isEqualTo(dataCode));
 	}
 
 	@Test(expected = CredentialsExpiredException.class)

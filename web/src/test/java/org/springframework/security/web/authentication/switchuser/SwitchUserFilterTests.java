@@ -23,9 +23,7 @@ import javax.servlet.FilterChain;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -49,6 +47,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -63,9 +62,6 @@ import static org.mockito.Mockito.verify;
 public class SwitchUserFilterTests {
 
 	private static final List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
-
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
 	public void authenticateCurrentUser() {
@@ -437,9 +433,8 @@ public class SwitchUserFilterTests {
 	// gh-3697
 	@Test
 	public void switchAuthorityRoleCannotBeNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("switchAuthorityRole cannot be null");
-		switchToUserWithAuthorityRole("dano", null);
+		assertThatIllegalArgumentException().isThrownBy(() -> switchToUserWithAuthorityRole("dano", null))
+				.withMessage("switchAuthorityRole cannot be null");
 	}
 
 	// gh-3697

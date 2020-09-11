@@ -26,9 +26,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
@@ -51,7 +49,8 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
@@ -73,9 +72,6 @@ public class DefaultOAuth2UserServiceTests {
 
 	private MockWebServer server;
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
 	@Before
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
@@ -95,40 +91,39 @@ public class DefaultOAuth2UserServiceTests {
 
 	@Test
 	public void setRequestEntityConverterWhenNullThenThrowIllegalArgumentException() {
-		this.exception.expect(IllegalArgumentException.class);
-		this.userService.setRequestEntityConverter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.userService.setRequestEntityConverter(null));
 	}
 
 	@Test
 	public void setRestOperationsWhenNullThenThrowIllegalArgumentException() {
-		this.exception.expect(IllegalArgumentException.class);
-		this.userService.setRestOperations(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.userService.setRestOperations(null));
 	}
 
 	@Test
 	public void loadUserWhenUserRequestIsNullThenThrowIllegalArgumentException() {
-		this.exception.expect(IllegalArgumentException.class);
-		this.userService.loadUser(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.userService.loadUser(null));
 	}
 
 	@Test
 	public void loadUserWhenUserInfoUriIsNullThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("missing_user_info_uri"));
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
-		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(
+						() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+				.withMessageContaining("missing_user_info_uri");
 	}
 
 	@Test
 	public void loadUserWhenUserNameAttributeNameIsNullThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("missing_user_name_attribute"));
 		// @formatter:off
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
 				.userInfoUri("https://provider.com/user")
 				.build();
 		// @formatter:on
-		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(
+						() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+				.withMessageContaining("missing_user_name_attribute");
 	}
 
 	@Test
@@ -165,9 +160,6 @@ public class DefaultOAuth2UserServiceTests {
 
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString(
-				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 		// @formatter:off
 		String userInfoResponse = "{\n"
 			+ "	\"user-name\": \"user1\",\n"
@@ -182,16 +174,15 @@ public class DefaultOAuth2UserServiceTests {
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
 				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER).userNameAttributeName("user-name").build();
-		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(
+						() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+				.withMessageContaining(
+						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource");
 	}
 
 	@Test
 	public void loadUserWhenUserInfoErrorResponseWwwAuthenticateHeaderThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString(
-				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
-		this.exception.expectMessage(
-				containsString("Error Code: insufficient_scope, Error Description: The access token expired"));
 		String wwwAuthenticateHeader = "Bearer realm=\"auth-realm\" error=\"insufficient_scope\" error_description=\"The access token expired\"";
 		MockResponse response = new MockResponse();
 		response.setHeader(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticateHeader);
@@ -200,15 +191,16 @@ public class DefaultOAuth2UserServiceTests {
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
 				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER).userNameAttributeName("user-name").build();
-		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(
+						() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+				.withMessageContaining(
+						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource")
+				.withMessageContaining("Error Code: insufficient_scope, Error Description: The access token expired");
 	}
 
 	@Test
 	public void loadUserWhenUserInfoErrorResponseThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString(
-				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
-		this.exception.expectMessage(containsString("Error Code: invalid_token"));
 		// @formatter:off
 		String userInfoErrorResponse = "{\n"
 				+ "   \"error\": \"invalid_token\"\n"
@@ -218,30 +210,37 @@ public class DefaultOAuth2UserServiceTests {
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
 				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER).userNameAttributeName("user-name").build();
-		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(
+						() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+				.withMessageContaining(
+						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource")
+				.withMessageContaining("Error Code: invalid_token");
 	}
 
 	@Test
 	public void loadUserWhenServerErrorThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString(
-				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error"));
 		this.server.enqueue(new MockResponse().setResponseCode(500));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
 				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER).userNameAttributeName("user-name").build();
-		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(
+						() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+				.withMessageContaining(
+						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error");
 	}
 
 	@Test
 	public void loadUserWhenUserInfoUriInvalidThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString(
-				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 		String userInfoUri = "https://invalid-provider.com/user";
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
 				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER).userNameAttributeName("user-name").build();
-		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(
+						() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+				.withMessageContaining(
+						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource");
 	}
 
 	// gh-5294
@@ -348,17 +347,18 @@ public class DefaultOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseInvalidContentTypeThenThrowOAuth2AuthenticationException() {
 		String userInfoUri = this.server.url("/user").toString();
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString(
-				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource "
-						+ "from '" + userInfoUri + "': response contains invalid content type 'text/plain'."));
 		MockResponse response = new MockResponse();
 		response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
 		response.setBody("invalid content type");
 		this.server.enqueue(response);
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
 				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER).userNameAttributeName("user-name").build();
-		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(
+						() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+				.withMessageContaining(
+						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource "
+								+ "from '" + userInfoUri + "': response contains invalid content type 'text/plain'.");
 	}
 
 	private DefaultOAuth2UserService withMockResponse(Map<String, Object> response) {

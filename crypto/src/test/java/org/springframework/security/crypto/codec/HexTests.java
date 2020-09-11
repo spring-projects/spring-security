@@ -16,11 +16,10 @@
 
 package org.springframework.security.crypto.codec;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Test cases for {@link Hex}.
@@ -28,9 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Kazuki Shimizu
  */
 public class HexTests {
-
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
 
 	@Test
 	public void encode() {
@@ -55,30 +51,26 @@ public class HexTests {
 
 	@Test
 	public void decodeNotEven() {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("Hex-encoded string must have an even number of characters");
-		Hex.decode("414243444");
+		assertThatIllegalArgumentException().isThrownBy(() -> Hex.decode("414243444"))
+				.withMessage("Hex-encoded string must have an even number of characters");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtFirst() {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("Detected a Non-hex character at 1 or 2 position");
-		Hex.decode("G0");
+		assertThatIllegalArgumentException().isThrownBy(() -> Hex.decode("G0"))
+				.withMessage("Detected a Non-hex character at 1 or 2 position");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtSecond() {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("Detected a Non-hex character at 3 or 4 position");
-		Hex.decode("410G");
+		assertThatIllegalArgumentException().isThrownBy(() -> Hex.decode("410G"))
+				.withMessage("Detected a Non-hex character at 3 or 4 position");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtBoth() {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("Detected a Non-hex character at 5 or 6 position");
-		Hex.decode("4142GG");
+		assertThatIllegalArgumentException().isThrownBy(() -> Hex.decode("4142GG"))
+				.withMessage("Detected a Non-hex character at 5 or 6 position");
 	}
 
 }

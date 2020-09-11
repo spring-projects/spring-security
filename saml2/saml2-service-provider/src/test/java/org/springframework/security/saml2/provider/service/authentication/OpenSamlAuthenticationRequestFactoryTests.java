@@ -21,9 +21,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -39,7 +37,6 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -60,9 +57,6 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	private RelyingPartyRegistration relyingPartyRegistration;
 
 	private AuthnRequestUnmarshaller unmarshaller;
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	@Before
 	public void setUp() {
@@ -160,9 +154,8 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	@Test
 	public void createAuthenticationRequestWhenSetUnsupportredUriThenThrowsIllegalArgumentException() {
-		this.exception.expect(IllegalArgumentException.class);
-		this.exception.expectMessage(containsString("my-invalid-binding"));
-		this.factory.setProtocolBinding("my-invalid-binding");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.factory.setProtocolBinding("my-invalid-binding"))
+				.withMessageContaining("my-invalid-binding");
 	}
 
 	@Test

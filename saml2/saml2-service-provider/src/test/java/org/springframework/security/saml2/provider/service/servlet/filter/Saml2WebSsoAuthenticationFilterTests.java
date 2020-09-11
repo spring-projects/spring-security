@@ -20,9 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -43,9 +41,6 @@ public class Saml2WebSsoAuthenticationFilterTests {
 
 	private HttpServletResponse response = new MockHttpServletResponse();
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
 	@Before
 	public void setup() {
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository);
@@ -55,9 +50,9 @@ public class Saml2WebSsoAuthenticationFilterTests {
 
 	@Test
 	public void constructingFilterWithMissingRegistrationIdVariableThenThrowsException() {
-		this.exception.expect(IllegalArgumentException.class);
-		this.exception.expectMessage("filterProcessesUrl must contain a {registrationId} match variable");
-		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/url/missing/variable");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+				() -> this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/url/missing/variable"))
+				.withMessage("filterProcessesUrl must contain a {registrationId} match variable");
 	}
 
 	@Test

@@ -22,9 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -35,6 +33,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.AuthenticationException;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -47,9 +46,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingAuthenticationFailureHandlerTests {
-
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
 
 	@Mock
 	private AuthenticationFailureHandler handler1;
@@ -110,24 +106,24 @@ public class DelegatingAuthenticationFailureHandlerTests {
 
 	@Test
 	public void handlersIsNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("handlers cannot be null or empty");
-		new DelegatingAuthenticationFailureHandler(null, this.defaultHandler);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingAuthenticationFailureHandler(null, this.defaultHandler))
+				.withMessage("handlers cannot be null or empty");
 	}
 
 	@Test
 	public void handlersIsEmpty() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("handlers cannot be null or empty");
-		new DelegatingAuthenticationFailureHandler(this.handlers, this.defaultHandler);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingAuthenticationFailureHandler(this.handlers, this.defaultHandler))
+				.withMessage("handlers cannot be null or empty");
 	}
 
 	@Test
 	public void defaultHandlerIsNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("defaultHandler cannot be null");
 		this.handlers.put(BadCredentialsException.class, this.handler1);
-		new DelegatingAuthenticationFailureHandler(this.handlers, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingAuthenticationFailureHandler(this.handlers, null))
+				.withMessage("defaultHandler cannot be null");
 	}
 
 }

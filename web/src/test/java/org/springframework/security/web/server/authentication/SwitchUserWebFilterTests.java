@@ -20,9 +20,7 @@ import java.security.Principal;
 import java.util.Collections;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -55,7 +53,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -82,9 +81,6 @@ public class SwitchUserWebFilterTests {
 
 	@Mock
 	private ServerSecurityContextRepository serverSecurityContextRepository;
-
-	@Rule
-	public ExpectedException exceptionRule = ExpectedException.none();
 
 	@Before
 	public void setUp() {
@@ -183,11 +179,12 @@ public class SwitchUserWebFilterTests {
 				.from(MockServerHttpRequest.post("/login/impersonate"));
 		final WebFilterChain chain = mock(WebFilterChain.class);
 		final SecurityContextImpl securityContext = new SecurityContextImpl(mock(Authentication.class));
-		this.exceptionRule.expect(IllegalArgumentException.class);
-		this.exceptionRule.expectMessage("The userName can not be null.");
-		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
-				.block();
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.switchUserWebFilter.filter(exchange, chain)
+						.subscriberContext(
+								ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+						.block())
+				.withMessage("The userName can not be null.");
 		verifyNoInteractions(chain);
 	}
 
@@ -219,10 +216,12 @@ public class SwitchUserWebFilterTests {
 		final SecurityContextImpl securityContext = new SecurityContextImpl(mock(Authentication.class));
 		final UserDetails switchUserDetails = switchUserDetails(targetUsername, false);
 		given(this.userDetailsService.findByUsername(any(String.class))).willReturn(Mono.just(switchUserDetails));
-		this.exceptionRule.expect(DisabledException.class);
-		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
-				.block();
+		assertThatExceptionOfType(DisabledException.class)
+				.isThrownBy(
+						() -> this.switchUserWebFilter.filter(exchange, chain)
+								.subscriberContext(
+										ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+								.block());
 		verifyNoInteractions(chain);
 	}
 
@@ -265,11 +264,12 @@ public class SwitchUserWebFilterTests {
 				"origCredentials");
 		final WebFilterChain chain = mock(WebFilterChain.class);
 		final SecurityContextImpl securityContext = new SecurityContextImpl(originalAuthentication);
-		this.exceptionRule.expect(AuthenticationCredentialsNotFoundException.class);
-		this.exceptionRule.expectMessage("Could not find original Authentication object");
-		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
-				.block();
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(() -> this.switchUserWebFilter.filter(exchange, chain)
+						.subscriberContext(
+								ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+						.block())
+				.withMessage("Could not find original Authentication object");
 		verifyNoInteractions(chain);
 	}
 
@@ -278,34 +278,35 @@ public class SwitchUserWebFilterTests {
 		final MockServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.post("/logout/impersonate"));
 		final WebFilterChain chain = mock(WebFilterChain.class);
-		this.exceptionRule.expect(AuthenticationCredentialsNotFoundException.class);
-		this.exceptionRule.expectMessage("No current user associated with this request");
-		this.switchUserWebFilter.filter(exchange, chain).block();
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(() -> this.switchUserWebFilter.filter(exchange, chain).block())
+				.withMessage("No current user associated with this request");
 		verifyNoInteractions(chain);
 	}
 
 	@Test
 	public void constructorUserDetailsServiceRequired() {
-		this.exceptionRule.expect(IllegalArgumentException.class);
-		this.exceptionRule.expectMessage("userDetailsService must be specified");
-		this.switchUserWebFilter = new SwitchUserWebFilter(null, mock(ServerAuthenticationSuccessHandler.class),
-				mock(ServerAuthenticationFailureHandler.class));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.switchUserWebFilter = new SwitchUserWebFilter(null,
+						mock(ServerAuthenticationSuccessHandler.class), mock(ServerAuthenticationFailureHandler.class)))
+				.withMessage("userDetailsService must be specified");
 	}
 
 	@Test
 	public void constructorServerAuthenticationSuccessHandlerRequired() {
-		this.exceptionRule.expect(IllegalArgumentException.class);
-		this.exceptionRule.expectMessage("successHandler must be specified");
-		this.switchUserWebFilter = new SwitchUserWebFilter(mock(ReactiveUserDetailsService.class), null,
-				mock(ServerAuthenticationFailureHandler.class));
+		assertThatIllegalArgumentException()
+				.isThrownBy(
+						() -> this.switchUserWebFilter = new SwitchUserWebFilter(mock(ReactiveUserDetailsService.class),
+								null, mock(ServerAuthenticationFailureHandler.class)))
+				.withMessage("successHandler must be specified");
 	}
 
 	@Test
 	public void constructorSuccessTargetUrlRequired() {
-		this.exceptionRule.expect(IllegalArgumentException.class);
-		this.exceptionRule.expectMessage("successTargetUrl must be specified");
-		this.switchUserWebFilter = new SwitchUserWebFilter(mock(ReactiveUserDetailsService.class), null,
-				"failure/target/url");
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.switchUserWebFilter = new SwitchUserWebFilter(mock(ReactiveUserDetailsService.class), null,
+						"failure/target/url"))
+				.withMessage("successTargetUrl must be specified");
 	}
 
 	@Test
@@ -336,10 +337,9 @@ public class SwitchUserWebFilterTests {
 
 	@Test
 	public void setSecurityContextRepositoryWhenNullThenThrowException() {
-		this.exceptionRule.expect(IllegalArgumentException.class);
-		this.exceptionRule.expectMessage("securityContextRepository cannot be null");
-		this.switchUserWebFilter.setSecurityContextRepository(null);
-		fail("Test should fail with exception");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.switchUserWebFilter.setSecurityContextRepository(null))
+				.withMessage("securityContextRepository cannot be null");
 	}
 
 	@Test
@@ -357,18 +357,14 @@ public class SwitchUserWebFilterTests {
 
 	@Test
 	public void setExitUserUrlWhenNullThenThrowException() {
-		this.exceptionRule.expect(IllegalArgumentException.class);
-		this.exceptionRule.expectMessage("exitUserUrl cannot be empty and must be a valid redirect URL");
-		this.switchUserWebFilter.setExitUserUrl(null);
-		fail("Test should fail with exception");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.switchUserWebFilter.setExitUserUrl(null))
+				.withMessage("exitUserUrl cannot be empty and must be a valid redirect URL");
 	}
 
 	@Test
 	public void setExitUserUrlWhenInvalidUrlThenThrowException() {
-		this.exceptionRule.expect(IllegalArgumentException.class);
-		this.exceptionRule.expectMessage("exitUserUrl cannot be empty and must be a valid redirect URL");
-		this.switchUserWebFilter.setExitUserUrl("wrongUrl");
-		fail("Test should fail with exception");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.switchUserWebFilter.setExitUserUrl("wrongUrl"))
+				.withMessage("exitUserUrl cannot be empty and must be a valid redirect URL");
 	}
 
 	@Test
@@ -387,10 +383,8 @@ public class SwitchUserWebFilterTests {
 
 	@Test
 	public void setExitUserMatcherWhenNullThenThrowException() {
-		this.exceptionRule.expect(IllegalArgumentException.class);
-		this.exceptionRule.expectMessage("exitUserMatcher cannot be null");
-		this.switchUserWebFilter.setExitUserMatcher(null);
-		fail("Test should fail with exception");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.switchUserWebFilter.setExitUserMatcher(null))
+				.withMessage("exitUserMatcher cannot be null");
 	}
 
 	@Test
@@ -410,18 +404,14 @@ public class SwitchUserWebFilterTests {
 
 	@Test
 	public void setSwitchUserUrlWhenNullThenThrowException() {
-		this.exceptionRule.expect(IllegalArgumentException.class);
-		this.exceptionRule.expectMessage("switchUserUrl cannot be empty and must be a valid redirect URL");
-		this.switchUserWebFilter.setSwitchUserUrl(null);
-		fail("Test should fail with exception");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.switchUserWebFilter.setSwitchUserUrl(null))
+				.withMessage("switchUserUrl cannot be empty and must be a valid redirect URL");
 	}
 
 	@Test
 	public void setSwitchUserUrlWhenInvalidThenThrowException() {
-		this.exceptionRule.expect(IllegalArgumentException.class);
-		this.exceptionRule.expectMessage("switchUserUrl cannot be empty and must be a valid redirect URL");
-		this.switchUserWebFilter.setSwitchUserUrl("wrongUrl");
-		fail("Test should fail with exception");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.switchUserWebFilter.setSwitchUserUrl("wrongUrl"))
+				.withMessage("switchUserUrl cannot be empty and must be a valid redirect URL");
 	}
 
 	@Test
@@ -440,10 +430,8 @@ public class SwitchUserWebFilterTests {
 
 	@Test
 	public void setSwitchUserMatcherWhenNullThenThrowException() {
-		this.exceptionRule.expect(IllegalArgumentException.class);
-		this.exceptionRule.expectMessage("switchUserMatcher cannot be null");
-		this.switchUserWebFilter.setSwitchUserMatcher(null);
-		fail("Test should fail with exception");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.switchUserWebFilter.setSwitchUserMatcher(null))
+				.withMessage("switchUserMatcher cannot be null");
 	}
 
 	@Test
