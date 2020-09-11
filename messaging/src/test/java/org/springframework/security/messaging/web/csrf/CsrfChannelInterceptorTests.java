@@ -35,6 +35,8 @@ import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 @RunWith(MockitoJUnitRunner.class)
 public class CsrfChannelInterceptorTests {
 
@@ -110,28 +112,32 @@ public class CsrfChannelInterceptorTests {
 		this.interceptor.preSend(message(), this.channel);
 	}
 
-	@Test(expected = InvalidCsrfTokenException.class)
+	@Test
 	public void preSendNoToken() {
 		this.messageHeaders.removeNativeHeader(this.token.getHeaderName());
-		this.interceptor.preSend(message(), this.channel);
+		assertThatExceptionOfType(InvalidCsrfTokenException.class)
+				.isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
 	}
 
-	@Test(expected = InvalidCsrfTokenException.class)
+	@Test
 	public void preSendInvalidToken() {
 		this.messageHeaders.setNativeHeader(this.token.getHeaderName(), this.token.getToken() + "invalid");
-		this.interceptor.preSend(message(), this.channel);
+		assertThatExceptionOfType(InvalidCsrfTokenException.class)
+				.isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
 	}
 
-	@Test(expected = MissingCsrfTokenException.class)
+	@Test
 	public void preSendMissingToken() {
 		this.messageHeaders.getSessionAttributes().clear();
-		this.interceptor.preSend(message(), this.channel);
+		assertThatExceptionOfType(MissingCsrfTokenException.class)
+				.isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
 	}
 
-	@Test(expected = MissingCsrfTokenException.class)
+	@Test
 	public void preSendMissingTokenNullSessionAttributes() {
 		this.messageHeaders.setSessionAttributes(null);
-		this.interceptor.preSend(message(), this.channel);
+		assertThatExceptionOfType(MissingCsrfTokenException.class)
+				.isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
 	}
 
 	private Message<String> message() {

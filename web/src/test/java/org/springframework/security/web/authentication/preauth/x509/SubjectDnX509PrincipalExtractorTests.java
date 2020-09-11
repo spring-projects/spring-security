@@ -23,6 +23,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Luke Taylor
@@ -37,9 +39,10 @@ public class SubjectDnX509PrincipalExtractorTests {
 		this.extractor.setMessageSource(new SpringSecurityMessageSource());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidRegexFails() {
-		this.extractor.setSubjectDnRegex("CN=(.*?,"); // missing closing bracket on group
+		// missing closing bracket on group
+		assertThatIllegalArgumentException().isThrownBy(() -> this.extractor.setSubjectDnRegex("CN=(.*?,"));
 	}
 
 	@Test
@@ -55,10 +58,11 @@ public class SubjectDnX509PrincipalExtractorTests {
 		assertThat(principal).isEqualTo("luke@monkeymachine");
 	}
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void matchOnShoeSizeThrowsBadCredentials() throws Exception {
 		this.extractor.setSubjectDnRegex("shoeSize=(.*?),");
-		this.extractor.extractPrincipal(X509TestUtils.buildTestCertificate());
+		assertThatExceptionOfType(BadCredentialsException.class)
+				.isThrownBy(() -> this.extractor.extractPrincipal(X509TestUtils.buildTestCertificate()));
 	}
 
 	@Test

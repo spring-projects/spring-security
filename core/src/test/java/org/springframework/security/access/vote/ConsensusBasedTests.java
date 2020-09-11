@@ -28,7 +28,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests {@link ConsensusBased}.
@@ -37,14 +37,14 @@ import static org.assertj.core.api.Assertions.fail;
  */
 public class ConsensusBasedTests {
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccessWithoutDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 		mgr.setAllowIfEqualGrantedDeniedDecisions(false);
 		assertThat(!mgr.isAllowIfEqualGrantedDeniedDecisions()).isTrue(); // check changed
 		List<ConfigAttribute> config = SecurityConfig.createList("ROLE_1", "DENY_FOR_SURE");
-		mgr.decide(auth, new Object(), config);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> mgr.decide(auth, new Object(), config));
 	}
 
 	@Test
@@ -63,20 +63,21 @@ public class ConsensusBasedTests {
 		mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_2"));
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void testOneDenyVoteTwoAbstainVotesDeniesAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
-		mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_WE_DO_NOT_HAVE"));
-		fail("Should have thrown AccessDeniedException");
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_WE_DO_NOT_HAVE")));
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void testThreeAbstainVotesDeniesAccessWithDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 		assertThat(!mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check default
-		mgr.decide(auth, new Object(), SecurityConfig.createList("IGNORED_BY_ALL"));
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> mgr.decide(auth, new Object(), SecurityConfig.createList("IGNORED_BY_ALL")));
 	}
 
 	@Test

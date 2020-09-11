@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -60,11 +61,12 @@ public class JndiDnsResolverTests {
 		assertThat(ipAddress).isEqualTo("63.246.7.80");
 	}
 
-	@Test(expected = DnsEntryNotFoundException.class)
+	@Test
 	public void testResolveIpAddressNotExisting() throws Exception {
 		given(this.context.getAttributes(any(String.class), any(String[].class)))
 				.willThrow(new NameNotFoundException("not found"));
-		this.dnsResolver.resolveIpAddress("notexisting.ansdansdugiuzgguzgioansdiandwq.foo");
+		assertThatExceptionOfType(DnsEntryNotFoundException.class)
+				.isThrownBy(() -> this.dnsResolver.resolveIpAddress("notexisting.ansdansdugiuzgguzgioansdiandwq.foo"));
 	}
 
 	@Test
@@ -75,11 +77,12 @@ public class JndiDnsResolverTests {
 		assertThat(hostname).isEqualTo("kdc.springsource.com");
 	}
 
-	@Test(expected = DnsEntryNotFoundException.class)
+	@Test
 	public void testResolveServiceEntryNotExisting() throws Exception {
 		given(this.context.getAttributes(any(String.class), any(String[].class)))
 				.willThrow(new NameNotFoundException("not found"));
-		this.dnsResolver.resolveServiceEntry("wrong", "secpod.de");
+		assertThatExceptionOfType(DnsEntryNotFoundException.class)
+				.isThrownBy(() -> this.dnsResolver.resolveServiceEntry("wrong", "secpod.de"));
 	}
 
 	@Test
@@ -92,11 +95,11 @@ public class JndiDnsResolverTests {
 		assertThat(ipAddress).isEqualTo("63.246.7.80");
 	}
 
-	@Test(expected = DnsLookupException.class)
+	@Test
 	public void testUnknowError() throws Exception {
 		given(this.context.getAttributes(any(String.class), any(String[].class)))
 				.willThrow(new NamingException("error"));
-		this.dnsResolver.resolveIpAddress("");
+		assertThatExceptionOfType(DnsLookupException.class).isThrownBy(() -> this.dnsResolver.resolveIpAddress(""));
 	}
 
 	private BasicAttributes createSrvRecords() {

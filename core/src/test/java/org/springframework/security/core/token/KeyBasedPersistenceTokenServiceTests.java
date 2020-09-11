@@ -22,12 +22,12 @@ import java.util.Date;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link KeyBasedPersistenceTokenService}.
  *
  * @author Ben Alex
- *
  */
 public class KeyBasedPersistenceTokenServiceTests {
 
@@ -80,20 +80,22 @@ public class KeyBasedPersistenceTokenServiceTests {
 		assertThat(result).isEqualTo(token);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testOperationWithMissingKey() {
 		KeyBasedPersistenceTokenService service = getService();
-		Token token = new DefaultToken("", new Date().getTime(), "");
-		service.verifyToken(token.getKey());
+		assertThatIllegalArgumentException().isThrownBy(() -> {
+			Token token = new DefaultToken("", new Date().getTime(), "");
+			service.verifyToken(token.getKey());
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testOperationWithTamperedKey() {
 		KeyBasedPersistenceTokenService service = getService();
 		Token goodToken = service.allocateToken("");
 		String fake = goodToken.getKey().toUpperCase();
 		Token token = new DefaultToken(fake, new Date().getTime(), "");
-		service.verifyToken(token.getKey());
+		assertThatIllegalArgumentException().isThrownBy(() -> service.verifyToken(token.getKey()));
 	}
 
 }

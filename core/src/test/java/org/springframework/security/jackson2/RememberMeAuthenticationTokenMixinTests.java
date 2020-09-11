@@ -30,6 +30,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Jitendra Singh
@@ -48,6 +49,7 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
 	+ "}";
 	// @formatter:on
+
 	// @formatter:off
 	private static final String REMEMBERME_AUTH_STRINGPRINCIPAL_JSON = "{"
 		+ "\"@class\": \"org.springframework.security.authentication.RememberMeAuthenticationToken\","
@@ -58,14 +60,17 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
 	+ "}";
 	// @formatter:on
-	@Test(expected = IllegalArgumentException.class)
+
+	@Test
 	public void testWithNullPrincipal() {
-		new RememberMeAuthenticationToken("key", null, Collections.<GrantedAuthority>emptyList());
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new RememberMeAuthenticationToken("key", null, Collections.<GrantedAuthority>emptyList()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testWithNullKey() {
-		new RememberMeAuthenticationToken(null, "principal", Collections.<GrantedAuthority>emptyList());
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new RememberMeAuthenticationToken(null, "principal", Collections.<GrantedAuthority>emptyList()));
 	}
 
 	@Test

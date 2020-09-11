@@ -35,6 +35,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -127,9 +128,9 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		assertThat(response.getAccessToken().getScopes()).isEqualTo(registration.getScopes());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setWebClientNullThenIllegalArgumentException() {
-		this.client.setWebClient(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.client.setWebClient(null));
 	}
 
 	@Test

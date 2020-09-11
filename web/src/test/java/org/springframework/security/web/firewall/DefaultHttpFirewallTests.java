@@ -49,7 +49,7 @@ public class DefaultHttpFirewallTests {
 	 * because the pathInfo is /a/b;/1/c which ends up being /a/b/1/c while Spring MVC
 	 * will strip the ; content from requestURI before the path is URL decoded.
 	 */
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenLowercaseEncodedPathThenException() {
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -57,10 +57,10 @@ public class DefaultHttpFirewallTests {
 		request.setContextPath("/context-root");
 		request.setServletPath("");
 		request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
-		fw.getFirewalledRequest(request);
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> fw.getFirewalledRequest(request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenUppercaseEncodedPathThenException() {
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -68,7 +68,7 @@ public class DefaultHttpFirewallTests {
 		request.setContextPath("/context-root");
 		request.setServletPath("");
 		request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
-		fw.getFirewalledRequest(request);
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> fw.getFirewalledRequest(request));
 	}
 
 	@Test

@@ -31,6 +31,7 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -40,19 +41,19 @@ import static org.mockito.Mockito.mock;
  */
 public class ChannelProcessingFilterTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testDetectsMissingChannelDecisionManager() {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "MOCK");
 		filter.setSecurityMetadataSource(fids);
-		filter.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(filter::afterPropertiesSet);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testDetectsMissingFilterInvocationSecurityMetadataSource() {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "MOCK"));
-		filter.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(filter::afterPropertiesSet);
 	}
 
 	@Test
@@ -65,14 +66,14 @@ public class ChannelProcessingFilterTests {
 		filter.afterPropertiesSet();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testDetectsUnsupportedConfigAttribute() {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SUPPORTS_MOCK_ONLY"));
 		MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true,
 				"SUPPORTS_MOCK_ONLY", "INVALID_ATTRIBUTE");
 		filter.setSecurityMetadataSource(fids);
-		filter.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(filter::afterPropertiesSet);
 	}
 
 	@Test

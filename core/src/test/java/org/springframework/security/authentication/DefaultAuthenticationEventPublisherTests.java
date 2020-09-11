@@ -36,6 +36,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -111,12 +113,13 @@ public class DefaultAuthenticationEventPublisherTests {
 		verify(appPublisher).publishEvent(isA(AuthenticationFailureDisabledEvent.class));
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test
 	public void missingEventClassExceptionCausesException() {
 		this.publisher = new DefaultAuthenticationEventPublisher();
 		Properties p = new Properties();
 		p.put(MockAuthenticationException.class.getName(), "NoSuchClass");
-		this.publisher.setAdditionalExceptionMappings(p);
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> this.publisher.setAdditionalExceptionMappings(p));
 	}
 
 	@Test
@@ -132,27 +135,27 @@ public class DefaultAuthenticationEventPublisherTests {
 		verifyZeroInteractions(appPublisher);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void emptyMapCausesException() {
 		Map<Class<? extends AuthenticationException>, Class<? extends AbstractAuthenticationFailureEvent>> mappings = new HashMap<>();
 		this.publisher = new DefaultAuthenticationEventPublisher();
-		this.publisher.setAdditionalExceptionMappings(mappings);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.publisher.setAdditionalExceptionMappings(mappings));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void missingExceptionClassCausesException() {
 		Map<Class<? extends AuthenticationException>, Class<? extends AbstractAuthenticationFailureEvent>> mappings = new HashMap<>();
 		mappings.put(null, AuthenticationFailureLockedEvent.class);
 		this.publisher = new DefaultAuthenticationEventPublisher();
-		this.publisher.setAdditionalExceptionMappings(mappings);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.publisher.setAdditionalExceptionMappings(mappings));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void missingEventClassAsMapValueCausesException() {
 		Map<Class<? extends AuthenticationException>, Class<? extends AbstractAuthenticationFailureEvent>> mappings = new HashMap<>();
 		mappings.put(LockedException.class, null);
 		this.publisher = new DefaultAuthenticationEventPublisher();
-		this.publisher.setAdditionalExceptionMappings(mappings);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.publisher.setAdditionalExceptionMappings(mappings));
 	}
 
 	@Test
@@ -168,10 +171,11 @@ public class DefaultAuthenticationEventPublisherTests {
 		verify(appPublisher).publishEvent(isA(AuthenticationFailureDisabledEvent.class));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void defaultAuthenticationFailureEventClassSetNullThen() {
 		this.publisher = new DefaultAuthenticationEventPublisher();
-		this.publisher.setDefaultAuthenticationFailureEvent(null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.publisher.setDefaultAuthenticationFailureEvent(null));
 	}
 
 	@Test
@@ -185,11 +189,11 @@ public class DefaultAuthenticationEventPublisherTests {
 		verify(appPublisher).publishEvent(isA(AuthenticationFailureBadCredentialsEvent.class));
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test
 	public void defaultAuthenticationFailureEventMissingAppropriateConstructorThen() {
 		this.publisher = new DefaultAuthenticationEventPublisher();
-		this.publisher
-				.setDefaultAuthenticationFailureEvent(AuthenticationFailureEventWithoutAppropriateConstructor.class);
+		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> this.publisher
+				.setDefaultAuthenticationFailureEvent(AuthenticationFailureEventWithoutAppropriateConstructor.class));
 	}
 
 	private static final class AuthenticationFailureEventWithoutAppropriateConstructor

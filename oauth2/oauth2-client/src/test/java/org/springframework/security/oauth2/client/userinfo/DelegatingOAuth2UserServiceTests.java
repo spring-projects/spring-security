@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -35,23 +36,24 @@ import static org.mockito.Mockito.mock;
  */
 public class DelegatingOAuth2UserServiceTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenUserServicesIsNullThenThrowIllegalArgumentException() {
-		new DelegatingOAuth2UserService<>(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DelegatingOAuth2UserService<>(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenUserServicesIsEmptyThenThrowIllegalArgumentException() {
-		new DelegatingOAuth2UserService<>(Collections.emptyList());
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingOAuth2UserService<>(Collections.emptyList()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	@SuppressWarnings("unchecked")
 	public void loadUserWhenUserRequestIsNullThenThrowIllegalArgumentException() {
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService = mock(OAuth2UserService.class);
 		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService = new DelegatingOAuth2UserService<>(
 				Arrays.asList(userService, userService));
-		delegatingUserService.loadUser(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> delegatingUserService.loadUser(null));
 	}
 
 	@Test

@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-import javax.naming.directory.DirContext;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,6 +30,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Luke Taylor
@@ -80,21 +80,14 @@ public class DefaultSpringSecurityContextSourceTests {
 	}
 
 	// SEC-1145. Confirms that there is no issue here with pooling.
-	@Test(expected = AuthenticationException.class)
+	@Test
 	public void cantBindWithWrongPasswordImmediatelyAfterSuccessfulBind() throws Exception {
-		DirContext ctx = null;
-		try {
-			ctx = this.contextSource.getContext("uid=Bob,ou=people,dc=springframework,dc=org", "bobspassword");
-		}
-		catch (Exception ex) {
-		}
-		assertThat(ctx).isNotNull();
+		this.contextSource.getContext("uid=Bob,ou=people,dc=springframework,dc=org", "bobspassword").close();
 		// com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
-		ctx.close();
 		// com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
 		// Now get it gain, with wrong password. Should fail.
-		ctx = this.contextSource.getContext("uid=Bob,ou=people,dc=springframework,dc=org", "wrongpassword");
-		ctx.close();
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> this.contextSource
+				.getContext("uid=Bob,ou=people,dc=springframework,dc=org", "wrongpassword").close());
 	}
 
 	@Test
@@ -105,12 +98,14 @@ public class DefaultSpringSecurityContextSourceTests {
 		contextSource.getContext("uid=space cadet,ou=space cadets,dc=springframework,dc=org", "spacecadetspassword");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void instantiationFailsWithEmptyServerList() {
 		List<String> serverUrls = new ArrayList<>();
-		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(serverUrls,
-				"dc=springframework,dc=org");
-		ctxSrc.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> {
+			DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(serverUrls,
+					"dc=springframework,dc=org");
+			ctxSrc.afterPropertiesSet();
+		});
 	}
 
 	@Test
@@ -140,15 +135,15 @@ public class DefaultSpringSecurityContextSourceTests {
 		assertThat(ctxSrc.isPooled()).isTrue();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void instantiationFailsWithIncorrectServerUrl() {
 		List<String> serverUrls = new ArrayList<>();
 		// a simple trailing slash should be ok
 		serverUrls.add("ldaps://blah:636/");
 		// this url should be rejected because the root DN goes into a separate parameter
 		serverUrls.add("ldap://bar:389/dc=foobar,dc=org");
-		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(serverUrls,
-				"dc=springframework,dc=org");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultSpringSecurityContextSource(serverUrls, "dc=springframework,dc=org"));
 	}
 
 	static class EnvExposingDefaultSpringSecurityContextSource extends DefaultSpringSecurityContextSource {

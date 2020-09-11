@@ -26,6 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -179,12 +180,11 @@ public class SwitchUserWebFilterTests {
 				.from(MockServerHttpRequest.post("/login/impersonate"));
 		final WebFilterChain chain = mock(WebFilterChain.class);
 		final SecurityContextImpl securityContext = new SecurityContextImpl(mock(Authentication.class));
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.switchUserWebFilter.filter(exchange, chain)
-						.subscriberContext(
-								ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
-						.block())
-				.withMessage("The userName can not be null.");
+		assertThatIllegalArgumentException().isThrownBy(() -> {
+			Context securityContextHolder = ReactiveSecurityContextHolder
+					.withSecurityContext(Mono.just(securityContext));
+			this.switchUserWebFilter.filter(exchange, chain).subscriberContext(securityContextHolder).block();
+		}).withMessage("The userName can not be null.");
 		verifyNoInteractions(chain);
 	}
 
@@ -216,12 +216,11 @@ public class SwitchUserWebFilterTests {
 		final SecurityContextImpl securityContext = new SecurityContextImpl(mock(Authentication.class));
 		final UserDetails switchUserDetails = switchUserDetails(targetUsername, false);
 		given(this.userDetailsService.findByUsername(any(String.class))).willReturn(Mono.just(switchUserDetails));
-		assertThatExceptionOfType(DisabledException.class)
-				.isThrownBy(
-						() -> this.switchUserWebFilter.filter(exchange, chain)
-								.subscriberContext(
-										ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
-								.block());
+		assertThatExceptionOfType(DisabledException.class).isThrownBy(() -> {
+			Context securityContextHolder = ReactiveSecurityContextHolder
+					.withSecurityContext(Mono.just(securityContext));
+			this.switchUserWebFilter.filter(exchange, chain).subscriberContext(securityContextHolder).block();
+		});
 		verifyNoInteractions(chain);
 	}
 
@@ -264,12 +263,11 @@ public class SwitchUserWebFilterTests {
 				"origCredentials");
 		final WebFilterChain chain = mock(WebFilterChain.class);
 		final SecurityContextImpl securityContext = new SecurityContextImpl(originalAuthentication);
-		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(() -> this.switchUserWebFilter.filter(exchange, chain)
-						.subscriberContext(
-								ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
-						.block())
-				.withMessage("Could not find original Authentication object");
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class).isThrownBy(() -> {
+			Context securityContextHolder = ReactiveSecurityContextHolder
+					.withSecurityContext(Mono.just(securityContext));
+			this.switchUserWebFilter.filter(exchange, chain).subscriberContext(securityContextHolder).block();
+		}).withMessage("Could not find original Authentication object");
 		verifyNoInteractions(chain);
 	}
 

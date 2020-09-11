@@ -36,6 +36,8 @@ import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
@@ -70,9 +72,9 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 		this.strategy = new ConcurrentSessionControlAuthenticationStrategy(this.sessionRegistry);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullRegistry() {
-		new ConcurrentSessionControlAuthenticationStrategy(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ConcurrentSessionControlAuthenticationStrategy(null));
 	}
 
 	@Test
@@ -97,13 +99,14 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 		// no exception
 	}
 
-	@Test(expected = SessionAuthenticationException.class)
+	@Test
 	public void maxSessionsWithException() {
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
 				.willReturn(Collections.<SessionInformation>singletonList(this.sessionInformation));
 		this.strategy.setMaximumSessions(1);
 		this.strategy.setExceptionIfMaximumExceeded(true);
-		this.strategy.onAuthentication(this.authentication, this.request, this.response);
+		assertThatExceptionOfType(SessionAuthenticationException.class)
+				.isThrownBy(() -> this.strategy.onAuthentication(this.authentication, this.request, this.response));
 	}
 
 	@Test
@@ -141,9 +144,9 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 		assertThat(this.sessionInformation.isExpired()).isFalse();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setMessageSourceNull() {
-		this.strategy.setMessageSource(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.strategy.setMessageSource(null));
 	}
 
 }

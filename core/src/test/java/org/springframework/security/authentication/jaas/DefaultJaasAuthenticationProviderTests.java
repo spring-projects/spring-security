@@ -45,6 +45,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
@@ -82,16 +83,16 @@ public class DefaultJaasAuthenticationProviderTests {
 		ReflectionTestUtils.setField(this.provider, "log", this.log);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void afterPropertiesSetNullConfiguration() throws Exception {
 		this.provider.setConfiguration(null);
-		this.provider.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(this.provider::afterPropertiesSet);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void afterPropertiesSetNullAuthorityGranters() throws Exception {
 		this.provider.setAuthorityGranters(null);
-		this.provider.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(this.provider::afterPropertiesSet);
 	}
 
 	@Test

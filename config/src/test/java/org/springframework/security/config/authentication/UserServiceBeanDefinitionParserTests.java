@@ -26,6 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Luke Taylor
@@ -122,26 +123,28 @@ public class UserServiceBeanDefinitionParserTests {
 		assertThat(bob.isEnabled()).isFalse();
 	}
 
-	@Test(expected = FatalBeanException.class)
+	@Test
 	public void userWithBothPropertiesAndEmbeddedUsersThrowsException() {
+		assertThatExceptionOfType(FatalBeanException.class).isThrownBy(() ->
 		// @formatter:off
-		setContext("<user-service id='service' properties='doesntmatter.props'>"
-				+ "    <user name='joe' password='joespassword' authorities='ROLE_A'/>"
-				+ "</user-service>");
+			setContext("<user-service id='service' properties='doesntmatter.props'>"
+					+ "    <user name='joe' password='joespassword' authorities='ROLE_A'/>"
+					+ "</user-service>")
 		// @formatter:on
-		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
-		userService.loadUserByUsername("Joe");
+		);
 	}
 
-	@Test(expected = FatalBeanException.class)
+	@Test
 	public void multipleTopLevelUseWithoutIdThrowsException() {
-		setContext("<user-service properties='classpath:org/springframework/security/config/users.properties'/>"
-				+ "<user-service properties='classpath:org/springframework/security/config/users.properties'/>");
+		assertThatExceptionOfType(FatalBeanException.class).isThrownBy(() -> setContext(
+				"<user-service properties='classpath:org/springframework/security/config/users.properties'/>"
+						+ "<user-service properties='classpath:org/springframework/security/config/users.properties'/>"));
 	}
 
-	@Test(expected = FatalBeanException.class)
+	@Test
 	public void userServiceWithMissingPropertiesFileThrowsException() {
-		setContext("<user-service id='service' properties='classpath:doesntexist.properties'/>");
+		assertThatExceptionOfType(FatalBeanException.class).isThrownBy(
+				() -> setContext("<user-service id='service' properties='classpath:doesntexist.properties'/>"));
 	}
 
 	private void setContext(String context) {

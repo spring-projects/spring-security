@@ -29,6 +29,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
@@ -65,9 +66,9 @@ public class DelegatingSecurityContextTaskSchedulerTests {
 		this.delegatingSecurityContextTaskScheduler = null;
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testSchedulerIsNotNull() {
-		this.delegatingSecurityContextTaskScheduler = new DelegatingSecurityContextTaskScheduler(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DelegatingSecurityContextTaskScheduler(null));
 	}
 
 	@Test

@@ -44,6 +44,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -499,10 +501,10 @@ public class HttpSessionSecurityContextRepositoryTests {
 		verify(trustResolver).isAnonymous(contextToSave.getAuthentication());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setTrustResolverNull() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-		repo.setTrustResolver(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> repo.setTrustResolver(null));
 	}
 
 	// SEC-2578
@@ -523,14 +525,14 @@ public class HttpSessionSecurityContextRepositoryTests {
 				.isEqualTo(context);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void failsWithStandardResponse() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(this.testToken);
-		repo.saveContext(context, request, response);
+		assertThatIllegalStateException().isThrownBy(() -> repo.saveContext(context, request, response));
 	}
 
 	@Test

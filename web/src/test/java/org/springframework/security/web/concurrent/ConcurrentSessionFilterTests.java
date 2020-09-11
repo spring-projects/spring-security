@@ -41,6 +41,7 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -63,26 +64,28 @@ public class ConcurrentSessionFilterTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorSessionRegistryWhenSessionRegistryNullThenExceptionThrown() {
-		new ConcurrentSessionFilter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ConcurrentSessionFilter(null));
 	}
 
+	@Test
 	@SuppressWarnings("deprecation")
-	@Test(expected = IllegalArgumentException.class)
 	public void constructorSessionRegistryExpiresUrlWhenInvalidUrlThenExceptionThrown() {
-		new ConcurrentSessionFilter(new SessionRegistryImpl(), "oops");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new ConcurrentSessionFilter(new SessionRegistryImpl(), "oops"));
 	}
 
+	@Test
 	@SuppressWarnings("deprecation")
-	@Test(expected = IllegalArgumentException.class)
 	public void constructorSessionRegistryExpiresUrlWhenSessionRegistryNullThenExceptionThrown() {
-		new ConcurrentSessionFilter(null, "/expired");
+		assertThatIllegalArgumentException().isThrownBy(() -> new ConcurrentSessionFilter(null, "/expired"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorSessionRegistrySessionInformationExpiredStrategyWhenStrategyIsNullThenThrowsException() {
-		new ConcurrentSessionFilter(new SessionRegistryImpl(), (SessionInformationExpiredStrategy) null);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new ConcurrentSessionFilter(new SessionRegistryImpl(), (SessionInformationExpiredStrategy) null));
 	}
 
 	@Test
@@ -127,9 +130,9 @@ public class ConcurrentSessionFilterTests {
 						+ "attempted as the same user).");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void detectsMissingSessionRegistry() {
-		new ConcurrentSessionFilter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ConcurrentSessionFilter(null));
 	}
 
 	@Test
@@ -264,16 +267,16 @@ public class ConcurrentSessionFilterTests {
 		verify(handler).logout(eq(request), eq(response), any());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setLogoutHandlersWhenNullThenThrowsException() {
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(new SessionRegistryImpl());
-		filter.setLogoutHandlers((List<LogoutHandler>) null);
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setLogoutHandlers((List<LogoutHandler>) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setLogoutHandlersWhenEmptyThenThrowsException() {
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(new SessionRegistryImpl());
-		filter.setLogoutHandlers(new LogoutHandler[0]);
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setLogoutHandlers(new LogoutHandler[0]));
 	}
 
 }

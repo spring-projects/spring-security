@@ -25,6 +25,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -39,16 +40,14 @@ public class WebFilterExchangeTests {
 	@Mock
 	private WebFilterChain chain;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorServerWebExchangeWebFilterChainWhenExchangeNullThenException() {
-		this.exchange = null;
-		new WebFilterExchange(this.exchange, this.chain);
+		assertThatIllegalArgumentException().isThrownBy(() -> new WebFilterExchange(null, this.chain));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorServerWebExchangeWebFilterChainWhenChainNullThenException() {
-		this.chain = null;
-		new WebFilterExchange(this.exchange, this.chain);
+		assertThatIllegalArgumentException().isThrownBy(() -> new WebFilterExchange(this.exchange, null));
 	}
 
 	@Test

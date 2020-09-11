@@ -33,6 +33,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -62,10 +63,10 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 		this.password = "pass";
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullUserDetailsService() {
-		ReactiveUserDetailsService userDetailsService = null;
-		new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new UserDetailsRepositoryReactiveAuthenticationManager(null));
 	}
 
 	@Test

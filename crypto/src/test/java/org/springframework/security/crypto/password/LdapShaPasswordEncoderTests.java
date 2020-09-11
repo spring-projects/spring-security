@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link LdapShaPasswordEncoder}.
@@ -92,15 +93,16 @@ public class LdapShaPasswordEncoderTests {
 		assertThat(this.sha.encode("somepassword").startsWith("{SSHA}"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidPrefixIsRejected() {
-		this.sha.matches("somepassword", "{MD9}xxxxxxxxxx");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.sha.matches("somepassword", "{MD9}xxxxxxxxxx"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void malformedPrefixIsRejected() {
 		// No right brace
-		this.sha.matches("somepassword", "{SSHA25ro4PKC8jhQZ26jVsozhX/xaP0suHgX");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.sha.matches("somepassword", "{SSHA25ro4PKC8jhQZ26jVsozhX/xaP0suHgX"));
 	}
 
 }

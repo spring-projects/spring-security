@@ -18,6 +18,8 @@ package org.springframework.security.web.csrf;
 
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
 /**
  * @author Rob Winch
  *
@@ -30,34 +32,40 @@ public class DefaultCsrfTokenTests {
 
 	private final String tokenValue = "tokenValue";
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullHeaderName() {
-		new DefaultCsrfToken(null, this.parameterName, this.tokenValue);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultCsrfToken(null, this.parameterName, this.tokenValue));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmptyHeaderName() {
-		new DefaultCsrfToken("", this.parameterName, this.tokenValue);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultCsrfToken("", this.parameterName, this.tokenValue));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullParameterName() {
-		new DefaultCsrfToken(this.headerName, null, this.tokenValue);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultCsrfToken(this.headerName, null, this.tokenValue));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmptyParameterName() {
-		new DefaultCsrfToken(this.headerName, "", this.tokenValue);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultCsrfToken(this.headerName, "", this.tokenValue));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullTokenValue() {
-		new DefaultCsrfToken(this.headerName, this.parameterName, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultCsrfToken(this.headerName, this.parameterName, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmptyTokenValue() {
-		new DefaultCsrfToken(this.headerName, this.parameterName, "");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultCsrfToken(this.headerName, this.parameterName, ""));
 	}
 
 }

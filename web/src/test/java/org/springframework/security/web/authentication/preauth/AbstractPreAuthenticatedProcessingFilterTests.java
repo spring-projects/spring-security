@@ -42,6 +42,7 @@ import org.springframework.security.web.authentication.ForwardAuthenticationSucc
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -90,7 +91,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 	}
 
 	/* SEC-881 */
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void exceptionIsThrownOnFailedAuthenticationIfContinueFilterChainOnUnsuccessfulAuthenticationSetToFalse()
 			throws Exception {
 		AuthenticationManager am = mock(AuthenticationManager.class);
@@ -98,7 +99,8 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		this.filter.setContinueFilterChainOnUnsuccessfulAuthentication(false);
 		this.filter.setAuthenticationManager(am);
 		this.filter.afterPropertiesSet();
-		this.filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(FilterChain.class));
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.filter
+				.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(FilterChain.class)));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 

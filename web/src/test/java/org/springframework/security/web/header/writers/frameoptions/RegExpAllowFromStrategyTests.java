@@ -23,20 +23,22 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Marten Deinum
  */
 public class RegExpAllowFromStrategyTests {
 
-	@Test(expected = PatternSyntaxException.class)
+	@Test
 	public void invalidRegularExpressionShouldLeadToException() {
-		new RegExpAllowFromStrategy("[a-z");
+		assertThatExceptionOfType(PatternSyntaxException.class).isThrownBy(() -> new RegExpAllowFromStrategy("[a-z"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void nullRegularExpressionShouldLeadToException() {
-		new RegExpAllowFromStrategy(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new RegExpAllowFromStrategy(null));
 	}
 
 	@Test

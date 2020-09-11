@@ -23,6 +23,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -78,11 +79,11 @@ public class XXssProtectionHeaderWriterTests {
 		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("0");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setBlockTrueWithEnabledFalse() {
 		this.writer.setBlock(false);
 		this.writer.setEnabled(false);
-		this.writer.setBlock(true);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setBlock(true));
 	}
 
 	@Test

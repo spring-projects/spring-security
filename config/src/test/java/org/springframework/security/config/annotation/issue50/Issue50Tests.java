@@ -38,6 +38,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -71,15 +72,17 @@ public class Issue50Tests {
 		// no exception
 	}
 
-	@Test(expected = UsernameNotFoundException.class)
+	@Test
 	public void authenticateWhenMissingUserThenUsernameNotFoundException() {
-		this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("test", "password"));
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> this.authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken("test", "password")));
 	}
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void authenticateWhenInvalidPasswordThenBadCredentialsException() {
 		this.userRepo.save(User.withUsernameAndPassword("test", "password"));
-		this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("test", "invalid"));
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken("test", "invalid")));
 	}
 
 	@Test
@@ -90,12 +93,12 @@ public class Issue50Tests {
 		assertThat(result.getName()).isEqualTo("test");
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void globalMethodSecurityIsEnabledWhenNotAllowedThenAccessDenied() {
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("test", null, "ROLE_USER"));
 		this.userRepo.save(User.withUsernameAndPassword("denied", "password"));
-		Authentication result = this.authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken("test", "password"));
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> this.authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken("test", "password")));
 	}
 
 }

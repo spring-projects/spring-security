@@ -27,6 +27,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.Header;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Test for the {@code StaticHeadersWriter}
@@ -48,29 +49,29 @@ public class StaticHeaderWriterTests {
 		this.response = new MockHttpServletResponse();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullHeaders() {
-		new StaticHeadersWriter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new StaticHeadersWriter(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmptyHeaders() {
-		new StaticHeadersWriter(Collections.<Header>emptyList());
+		assertThatIllegalArgumentException().isThrownBy(() -> new StaticHeadersWriter(Collections.<Header>emptyList()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullHeaderName() {
-		new StaticHeadersWriter(null, "value1");
+		assertThatIllegalArgumentException().isThrownBy(() -> new StaticHeadersWriter(null, "value1"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullHeaderValues() {
-		new StaticHeadersWriter("name", (String[]) null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new StaticHeadersWriter("name", (String[]) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorContainsNullHeaderValue() {
-		new StaticHeadersWriter("name", "value1", null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new StaticHeadersWriter("name", "value1", null));
 	}
 
 	@Test

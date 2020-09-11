@@ -31,6 +31,8 @@ import org.springframework.security.integration.multiannotation.SecuredService;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 /**
  * @author Luke Taylor
  */
@@ -57,16 +59,16 @@ public class MultiAnnotationTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void preAuthorizeDeniedIsDenied() {
 		SecurityContextHolder.getContext().setAuthentication(this.joe_a);
-		this.service.preAuthorizeDenyAllMethod();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.service::preAuthorizeDenyAllMethod);
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void preAuthorizeRoleAIsDeniedIfRoleMissing() {
 		SecurityContextHolder.getContext().setAuthentication(this.joe_b);
-		this.service.preAuthorizeHasRoleAMethod();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.service::preAuthorizeHasRoleAMethod);
 	}
 
 	@Test
@@ -81,10 +83,10 @@ public class MultiAnnotationTests {
 		this.service.securedAnonymousMethod();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void securedRoleAIsDeniedIfRoleMissing() {
 		SecurityContextHolder.getContext().setAuthentication(this.joe_b);
-		this.service.securedRoleAMethod();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.service::securedRoleAMethod);
 	}
 
 	@Test
@@ -93,16 +95,16 @@ public class MultiAnnotationTests {
 		this.service.securedRoleAMethod();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void preAuthorizedOnlyServiceDeniesIfRoleMissing() {
 		SecurityContextHolder.getContext().setAuthentication(this.joe_b);
-		this.preService.preAuthorizedMethod();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.preService::preAuthorizedMethod);
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void securedOnlyRoleAServiceDeniesIfRoleMissing() {
 		SecurityContextHolder.getContext().setAuthentication(this.joe_b);
-		this.secService.securedMethod();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.secService::securedMethod);
 	}
 
 }

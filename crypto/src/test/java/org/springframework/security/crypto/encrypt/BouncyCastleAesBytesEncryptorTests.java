@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
 public class BouncyCastleAesBytesEncryptorTests {
 
 	private byte[] testData;
@@ -69,14 +71,16 @@ public class BouncyCastleAesBytesEncryptorTests {
 		Assert.assertArrayEquals(this.testData, decrypted2);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void bcCbcWithWrongLengthIv() {
-		new BouncyCastleAesCbcBytesEncryptor(this.password, this.salt, KeyGenerators.secureRandom(8));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new BouncyCastleAesCbcBytesEncryptor(this.password, this.salt, KeyGenerators.secureRandom(8)));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void bcGcmWithWrongLengthIv() {
-		new BouncyCastleAesGcmBytesEncryptor(this.password, this.salt, KeyGenerators.secureRandom(8));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new BouncyCastleAesGcmBytesEncryptor(this.password, this.salt, KeyGenerators.secureRandom(8)));
 	}
 
 }

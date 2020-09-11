@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.core;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link ClientAuthenticationMethod}.
@@ -27,9 +28,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ClientAuthenticationMethodTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenValueIsNullThenThrowIllegalArgumentException() {
-		new ClientAuthenticationMethod(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ClientAuthenticationMethod(null));
 	}
 
 	@Test

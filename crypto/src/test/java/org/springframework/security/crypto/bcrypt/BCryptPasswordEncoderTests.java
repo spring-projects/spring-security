@@ -21,6 +21,7 @@ import java.security.SecureRandom;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Dave Syer
@@ -129,14 +130,14 @@ public class BCryptPasswordEncoderTests {
 		assertThat(encoder.matches("password", result)).isTrue();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void badLowCustomStrength() {
-		new BCryptPasswordEncoder(3);
+		assertThatIllegalArgumentException().isThrownBy(() -> new BCryptPasswordEncoder(3));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void badHighCustomStrength() {
-		new BCryptPasswordEncoder(32);
+		assertThatIllegalArgumentException().isThrownBy(() -> new BCryptPasswordEncoder(32));
 	}
 
 	@Test
@@ -189,22 +190,22 @@ public class BCryptPasswordEncoderTests {
 	 * @see <a href=
 	 * "https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</a>
 	 */
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void upgradeFromNonBCrypt() {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		encoder.upgradeEncoding("not-a-bcrypt-password");
+		assertThatIllegalArgumentException().isThrownBy(() -> encoder.upgradeEncoding("not-a-bcrypt-password"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void encodeNullRawPassword() {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		encoder.encode(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> encoder.encode(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void matchNullRawPassword() {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		encoder.matches(null, "does-not-matter");
+		assertThatIllegalArgumentException().isThrownBy(() -> encoder.matches(null, "does-not-matter"));
 	}
 
 }

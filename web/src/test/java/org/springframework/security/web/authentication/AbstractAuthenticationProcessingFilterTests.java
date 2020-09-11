@@ -398,10 +398,10 @@ public class AbstractAuthenticationProcessingFilterTests {
 	/**
 	 * https://github.com/spring-projects/spring-security/pull/3905
 	 */
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setRememberMeServicesShouldntAllowNulls() {
 		AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
-		filter.setRememberMeServices(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setRememberMeServices(null));
 	}
 
 	private class MockAuthenticationFilter extends AbstractAuthenticationProcessingFilter {

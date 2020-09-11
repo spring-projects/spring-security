@@ -60,9 +60,10 @@ public class BindAuthenticatorTests {
 
 	}
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void emptyPasswordIsRejected() {
-		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("jen", ""));
+		assertThatExceptionOfType(BadCredentialsException.class)
+				.isThrownBy(() -> this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("jen", "")));
 	}
 
 	@Test

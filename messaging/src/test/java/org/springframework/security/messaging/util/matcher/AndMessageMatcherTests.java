@@ -28,6 +28,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.messaging.Message;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,35 +46,37 @@ public class AndMessageMatcherTests {
 
 	private MessageMatcher<Object> matcher;
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void constructorNullArray() {
-		new AndMessageMatcher<>((MessageMatcher<Object>[]) null);
+		assertThatNullPointerException().isThrownBy(() -> new AndMessageMatcher<>((MessageMatcher<Object>[]) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorArrayContainsNull() {
-		new AndMessageMatcher<>((MessageMatcher<Object>) null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AndMessageMatcher<>((MessageMatcher<Object>) null));
 	}
 
+	@Test
 	@SuppressWarnings("unchecked")
-	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyArray() {
-		new AndMessageMatcher<>(new MessageMatcher[0]);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AndMessageMatcher<>(new MessageMatcher[0]));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullList() {
-		new AndMessageMatcher<>((List<MessageMatcher<Object>>) null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AndMessageMatcher<>((List<MessageMatcher<Object>>) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorListContainsNull() {
-		new AndMessageMatcher<>(Arrays.asList((MessageMatcher<Object>) null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AndMessageMatcher<>(Arrays.asList((MessageMatcher<Object>) null)));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmptyList() {
-		new AndMessageMatcher<>(Collections.emptyList());
+		assertThatIllegalArgumentException().isThrownBy(() -> new AndMessageMatcher<>(Collections.emptyList()));
 	}
 
 	@Test

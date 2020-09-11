@@ -23,6 +23,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -116,24 +117,24 @@ public class HttpSessionCsrfTokenRepositoryTests {
 		assertThat(this.request.getSession(false)).isNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setSessionAttributeNameEmpty() {
-		this.repo.setSessionAttributeName("");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repo.setSessionAttributeName(""));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setSessionAttributeNameNull() {
-		this.repo.setSessionAttributeName(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repo.setSessionAttributeName(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setParameterNameEmpty() {
-		this.repo.setParameterName("");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repo.setParameterName(""));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setParameterNameNull() {
-		this.repo.setParameterName(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repo.setParameterName(null));
 	}
 
 }

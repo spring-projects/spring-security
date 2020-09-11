@@ -25,6 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.SmartApplicationListener;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
@@ -75,9 +76,9 @@ public class DelegatingApplicationListenerTests {
 		verify(this.delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void addNull() {
-		this.listener.addListener(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.listener.addListener(null));
 	}
 
 }

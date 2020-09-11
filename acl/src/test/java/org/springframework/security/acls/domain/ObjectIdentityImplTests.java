@@ -72,9 +72,9 @@ public class ObjectIdentityImplTests {
 		assertThatNoException().isThrownBy(() -> new ObjectIdentityImpl(mockId));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorRejectsInvalidTypeParameter() {
-		new ObjectIdentityImpl("", 1L);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ObjectIdentityImpl("", 1L));
 	}
 
 	@Test

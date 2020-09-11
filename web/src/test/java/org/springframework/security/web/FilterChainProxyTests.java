@@ -44,6 +44,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -234,9 +235,9 @@ public class FilterChainProxyTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setRequestRejectedHandlerDoesNotAcceptNull() {
-		this.fcp.setRequestRejectedHandler(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.fcp.setRequestRejectedHandler(null));
 	}
 
 	@Test

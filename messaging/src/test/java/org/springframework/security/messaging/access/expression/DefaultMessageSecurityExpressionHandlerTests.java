@@ -36,6 +36,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -69,9 +70,9 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isFalse();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void trustResolverNull() {
-		this.handler.setTrustResolver(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setTrustResolver(null));
 	}
 
 	@Test

@@ -29,6 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -44,13 +45,14 @@ public class RequestAttributeAuthenticationFilterTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = PreAuthenticatedCredentialsNotFoundException.class)
+	@Test
 	public void rejectsMissingHeader() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
-		filter.doFilter(request, response, chain);
+		assertThatExceptionOfType(PreAuthenticatedCredentialsNotFoundException.class)
+				.isThrownBy(() -> filter.doFilter(request, response, chain));
 	}
 
 	@Test
@@ -119,14 +121,15 @@ public class RequestAttributeAuthenticationFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(dog);
 	}
 
-	@Test(expected = PreAuthenticatedCredentialsNotFoundException.class)
+	@Test
 	public void missingHeaderCausesException() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-		filter.doFilter(request, response, chain);
+		assertThatExceptionOfType(PreAuthenticatedCredentialsNotFoundException.class)
+				.isThrownBy(() -> filter.doFilter(request, response, chain));
 	}
 
 	@Test

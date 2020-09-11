@@ -29,6 +29,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.PortResolverImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class SavedRequestAwareWrapperTests {
 
@@ -144,12 +145,12 @@ public class SavedRequestAwareWrapperTests {
 		assertThat(wrapper.getDateHeader("nonexistent")).isEqualTo(-1L);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidDateHeaderIsRejected() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("header", "notadate");
 		SavedRequestAwareWrapper wrapper = createWrapper(request, new MockHttpServletRequest());
-		wrapper.getDateHeader("header");
+		assertThatIllegalArgumentException().isThrownBy(() -> wrapper.getDateHeader("header"));
 	}
 
 	@Test

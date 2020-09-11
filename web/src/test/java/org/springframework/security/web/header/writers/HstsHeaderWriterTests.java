@@ -24,6 +24,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -124,14 +125,14 @@ public class HstsHeaderWriterTests {
 				.isEqualTo("max-age=31536000 ; includeSubDomains");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setMaxAgeInSecondsToNegative() {
-		this.writer.setMaxAgeInSeconds(-1);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setMaxAgeInSeconds(-1));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setRequestMatcherToNull() {
-		this.writer.setRequestMatcher(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setRequestMatcher(null));
 	}
 
 	@Test

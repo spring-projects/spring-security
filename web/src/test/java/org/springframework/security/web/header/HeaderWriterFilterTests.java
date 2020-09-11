@@ -34,6 +34,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -55,15 +56,14 @@ public class HeaderWriterFilterTests {
 	@Mock
 	private HeaderWriter writer2;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void noHeadersConfigured() {
-		List<HeaderWriter> headerWriters = new ArrayList<>();
-		new HeaderWriterFilter(headerWriters);
+		assertThatIllegalArgumentException().isThrownBy(() -> new HeaderWriterFilter(new ArrayList<>()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullWriters() {
-		new HeaderWriterFilter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new HeaderWriterFilter(null));
 	}
 
 	@Test

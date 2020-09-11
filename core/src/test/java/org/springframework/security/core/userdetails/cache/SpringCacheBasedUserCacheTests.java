@@ -27,6 +27,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests
@@ -75,9 +76,9 @@ public class SpringCacheBasedUserCacheTests {
 		assertThat(cache.getUserFromCache("UNKNOWN_USER")).isNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void startupDetectsMissingCache() throws Exception {
-		new SpringCacheBasedUserCache(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new SpringCacheBasedUserCache(null));
 	}
 
 }

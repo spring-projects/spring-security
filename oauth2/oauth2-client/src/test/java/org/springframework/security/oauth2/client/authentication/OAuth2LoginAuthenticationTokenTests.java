@@ -33,6 +33,7 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2Authorization
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -62,14 +63,16 @@ public class OAuth2LoginAuthenticationTokenTests {
 		this.accessToken = TestOAuth2AccessTokens.noScopes();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorAuthorizationRequestResponseWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		new OAuth2LoginAuthenticationToken(null, this.authorizationExchange);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2LoginAuthenticationToken(null, this.authorizationExchange));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorAuthorizationRequestResponseWhenAuthorizationExchangeIsNullThenThrowIllegalArgumentException() {
-		new OAuth2LoginAuthenticationToken(this.clientRegistration, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2LoginAuthenticationToken(this.clientRegistration, null));
 	}
 
 	@Test
@@ -85,22 +88,24 @@ public class OAuth2LoginAuthenticationTokenTests {
 		assertThat(authentication.isAuthenticated()).isEqualTo(false);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorTokenRequestResponseWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		new OAuth2LoginAuthenticationToken(null, this.authorizationExchange, this.principal, this.authorities,
-				this.accessToken);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2LoginAuthenticationToken(null,
+				this.authorizationExchange, this.principal, this.authorities, this.accessToken));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorTokenRequestResponseWhenAuthorizationExchangeIsNullThenThrowIllegalArgumentException() {
-		new OAuth2LoginAuthenticationToken(this.clientRegistration, null, this.principal, this.authorities,
-				this.accessToken);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2LoginAuthenticationToken(this.clientRegistration, null, this.principal,
+						this.authorities, this.accessToken));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorTokenRequestResponseWhenPrincipalIsNullThenThrowIllegalArgumentException() {
-		new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange, null, this.authorities,
-				this.accessToken);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2LoginAuthenticationToken(this.clientRegistration,
+						this.authorizationExchange, null, this.authorities, this.accessToken));
 	}
 
 	@Test
@@ -115,10 +120,11 @@ public class OAuth2LoginAuthenticationTokenTests {
 				Collections.emptyList(), this.accessToken);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorTokenRequestResponseWhenAccessTokenIsNullThenThrowIllegalArgumentException() {
-		new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange, this.principal,
-				this.authorities, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2LoginAuthenticationToken(this.clientRegistration,
+						this.authorizationExchange, this.principal, this.authorities, null));
 	}
 
 	@Test

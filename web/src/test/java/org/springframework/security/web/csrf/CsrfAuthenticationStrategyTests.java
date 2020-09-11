@@ -30,6 +30,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -66,9 +67,9 @@ public class CsrfAuthenticationStrategyTests {
 		this.generatedToken = new DefaultCsrfToken("_csrf", "_csrf", "2");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullCsrfTokenRepository() {
-		new CsrfAuthenticationStrategy(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new CsrfAuthenticationStrategy(null));
 	}
 
 	@Test

@@ -23,6 +23,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -35,13 +36,14 @@ import static org.mockito.Mockito.mock;
  */
 public class RemoteAuthenticationManagerImplTests {
 
-	@Test(expected = RemoteAuthenticationException.class)
+	@Test
 	public void testFailedAuthenticationReturnsRemoteAuthenticationException() {
 		RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		manager.setAuthenticationManager(am);
-		manager.attemptAuthentication("rod", "password");
+		assertThatExceptionOfType(RemoteAuthenticationException.class)
+				.isThrownBy(() -> manager.attemptAuthentication("rod", "password"));
 	}
 
 	@Test

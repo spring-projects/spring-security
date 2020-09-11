@@ -36,6 +36,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -115,9 +116,9 @@ public class MessageExpressionVoterTests {
 		assertThat(this.voter.supports(new MessageExpressionConfigAttribute(this.expression, this.matcher))).isTrue();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setExpressionHandlerNull() {
-		this.voter.setExpressionHandler(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.voter.setExpressionHandler(null));
 	}
 
 	@Test

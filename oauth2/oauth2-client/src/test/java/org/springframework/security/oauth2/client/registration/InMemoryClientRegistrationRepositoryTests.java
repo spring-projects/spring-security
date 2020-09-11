@@ -25,6 +25,9 @@ import java.util.Map;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link InMemoryClientRegistrationRepository}.
@@ -39,21 +42,22 @@ public class InMemoryClientRegistrationRepositoryTests {
 
 	private InMemoryClientRegistrationRepository clients = new InMemoryClientRegistrationRepository(this.registration);
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorListClientRegistrationWhenNullThenIllegalArgumentException() {
-		List<ClientRegistration> registrations = null;
-		new InMemoryClientRegistrationRepository(registrations);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new InMemoryClientRegistrationRepository((List<ClientRegistration>) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorListClientRegistrationWhenEmptyThenIllegalArgumentException() {
-		List<ClientRegistration> registrations = Collections.emptyList();
-		new InMemoryClientRegistrationRepository(registrations);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new InMemoryClientRegistrationRepository(Collections.emptyList()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorMapClientRegistrationWhenNullThenIllegalArgumentException() {
-		new InMemoryClientRegistrationRepository((Map<String, ClientRegistration>) null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new InMemoryClientRegistrationRepository((Map<String, ClientRegistration>) null));
 	}
 
 	@Test
@@ -62,10 +66,10 @@ public class InMemoryClientRegistrationRepositoryTests {
 		assertThat(clients).isEmpty();
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void constructorListClientRegistrationWhenDuplicateIdThenIllegalArgumentException() {
 		List<ClientRegistration> registrations = Arrays.asList(this.registration, this.registration);
-		new InMemoryClientRegistrationRepository(registrations);
+		assertThatIllegalStateException().isThrownBy(() -> new InMemoryClientRegistrationRepository(registrations));
 	}
 
 	@Test
@@ -80,15 +84,14 @@ public class InMemoryClientRegistrationRepositoryTests {
 		assertThat(this.clients.findByRegistrationId(id)).isNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void findByRegistrationIdWhenNullIdThenIllegalArgumentException() {
-		String id = null;
-		assertThat(this.clients.findByRegistrationId(id));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.clients.findByRegistrationId(null));
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void iteratorWhenRemoveThenThrowsUnsupportedOperationException() {
-		this.clients.iterator().remove();
+		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(this.clients.iterator()::remove);
 	}
 
 	@Test

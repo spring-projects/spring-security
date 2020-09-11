@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.core.endpoint;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2AuthorizationExchange}.
@@ -27,14 +28,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class OAuth2AuthorizationExchangeTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAuthorizationRequestIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizationExchange(null, TestOAuth2AuthorizationResponses.success().build());
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new OAuth2AuthorizationExchange(null, TestOAuth2AuthorizationResponses.success().build()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAuthorizationResponseIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizationExchange(TestOAuth2AuthorizationRequests.request().build(), null);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new OAuth2AuthorizationExchange(TestOAuth2AuthorizationRequests.request().build(), null));
 	}
 
 	@Test

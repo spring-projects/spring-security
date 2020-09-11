@@ -31,6 +31,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -83,19 +84,19 @@ public class BasicAuthenticationConverterTests {
 		assertThat(authentication).isNull();
 	}
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void testWhenInvalidBasicAuthorizationTokenThenError() {
 		String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-		this.converter.convert(request);
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.converter.convert(request));
 	}
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void testWhenInvalidBase64ThenError() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic NOT_VALID_BASE64");
-		this.converter.convert(request);
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.converter.convert(request));
 	}
 
 	@Test
@@ -110,11 +111,11 @@ public class BasicAuthenticationConverterTests {
 		assertThat(authentication.getCredentials()).isEqualTo("");
 	}
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void requestWhenEmptyBasicAuthorizationHeaderTokenThenError() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic ");
-		this.converter.convert(request);
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.converter.convert(request));
 	}
 
 }

@@ -26,6 +26,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -48,9 +49,10 @@ public class OAuth2AuthenticationTokenTests {
 		this.authorizedClientRegistrationId = "client-registration-1";
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenPrincipalIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthenticationToken(null, this.authorities, this.authorizedClientRegistrationId);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new OAuth2AuthenticationToken(null, this.authorities, this.authorizedClientRegistrationId));
 	}
 
 	@Test
@@ -63,9 +65,10 @@ public class OAuth2AuthenticationTokenTests {
 		new OAuth2AuthenticationToken(this.principal, Collections.emptyList(), this.authorizedClientRegistrationId);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAuthorizedClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthenticationToken(this.principal, this.authorities, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthenticationToken(this.principal, this.authorities, null));
 	}
 
 	@Test

@@ -26,6 +26,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OidcIdToken}.
@@ -101,15 +102,16 @@ public class OidcIdTokenTests {
 		CLAIMS.put(C_HASH_CLAIM, C_HASH_VALUE);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenTokenValueIsNullThenThrowIllegalArgumentException() {
-		new OidcIdToken(null, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE), CLAIMS);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new OidcIdToken(null, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE), CLAIMS));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenClaimsIsEmptyThenThrowIllegalArgumentException() {
-		new OidcIdToken(ID_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE),
-				Collections.emptyMap());
+		assertThatIllegalArgumentException().isThrownBy(() -> new OidcIdToken(ID_TOKEN_VALUE,
+				Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE), Collections.emptyMap()));
 	}
 
 	@Test

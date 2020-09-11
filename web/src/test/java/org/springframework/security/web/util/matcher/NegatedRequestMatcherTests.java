@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -41,9 +42,9 @@ public class NegatedRequestMatcherTests {
 
 	private RequestMatcher matcher;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNull() {
-		new NegatedRequestMatcher(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new NegatedRequestMatcher(null));
 	}
 
 	@Test

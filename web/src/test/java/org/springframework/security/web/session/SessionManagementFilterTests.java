@@ -36,6 +36,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.context.SecurityContextRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -161,11 +162,11 @@ public class SessionManagementFilterTests {
 		verify(trustResolver).isAnonymous(any(Authentication.class));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setTrustResolverNull() {
 		SecurityContextRepository repo = mock(SecurityContextRepository.class);
 		SessionManagementFilter filter = new SessionManagementFilter(repo);
-		filter.setTrustResolver(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setTrustResolver(null));
 	}
 
 	private void authenticateUser() {

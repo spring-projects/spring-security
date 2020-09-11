@@ -36,6 +36,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -138,16 +139,18 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		assertThat(this.resolver.resolveArgument(showUserAnnotationString(), null)).isNull();
 	}
 
-	@Test(expected = ClassCastException.class)
+	@Test
 	public void resolveArgumentErrorOnInvalidType() throws Exception {
 		setAuthenticationPrincipal(new CustomUserPrincipal());
-		this.resolver.resolveArgument(showUserAnnotationErrorOnInvalidType(), null);
+		assertThatExceptionOfType(ClassCastException.class)
+				.isThrownBy(() -> this.resolver.resolveArgument(showUserAnnotationErrorOnInvalidType(), null));
 	}
 
-	@Test(expected = ClassCastException.class)
+	@Test
 	public void resolveArgumentCustomserErrorOnInvalidType() throws Exception {
 		setAuthenticationPrincipal(new CustomUserPrincipal());
-		this.resolver.resolveArgument(showUserAnnotationCurrentUserErrorOnInvalidType(), null);
+		assertThatExceptionOfType(ClassCastException.class).isThrownBy(
+				() -> this.resolver.resolveArgument(showUserAnnotationCurrentUserErrorOnInvalidType(), null));
 	}
 
 	@Test

@@ -21,6 +21,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * JUnit unit tests for BCrypt routines
@@ -328,19 +329,21 @@ public class BCryptTests {
 		assertThat(BCrypt.roundsForLogRounds(31)).isEqualTo(0x80000000L);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void emptyByteArrayCannotBeEncoded() {
-		BCrypt.encode_base64(new byte[0], 0, new StringBuilder());
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> BCrypt.encode_base64(new byte[0], 0, new StringBuilder()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void moreBytesThanInTheArrayCannotBeEncoded() {
-		BCrypt.encode_base64(new byte[1], 2, new StringBuilder());
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> BCrypt.encode_base64(new byte[1], 2, new StringBuilder()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void decodingMustRequestMoreThanZeroBytes() {
-		BCrypt.decode_base64("", 0);
+		assertThatIllegalArgumentException().isThrownBy(() -> BCrypt.decode_base64("", 0));
 	}
 
 	private static String encode_base64(byte d[], int len) throws IllegalArgumentException {
@@ -394,14 +397,14 @@ public class BCryptTests {
 		}
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void genSaltFailsWithTooFewRounds() {
-		BCrypt.gensalt(3);
+		assertThatIllegalArgumentException().isThrownBy(() -> BCrypt.gensalt(3));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void genSaltFailsWithTooManyRounds() {
-		BCrypt.gensalt(32);
+		assertThatIllegalArgumentException().isThrownBy(() -> BCrypt.gensalt(32));
 	}
 
 	@Test
@@ -410,24 +413,26 @@ public class BCryptTests {
 		assertThat(BCrypt.gensalt(31)).startsWith("$2a$31$");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void hashpwFailsWhenSaltIsNull() {
-		BCrypt.hashpw("password", null);
+		assertThatIllegalArgumentException().isThrownBy(() -> BCrypt.hashpw("password", null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void hashpwFailsWhenSaltSpecifiesTooFewRounds() {
-		BCrypt.hashpw("password", "$2a$03$......................");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> BCrypt.hashpw("password", "$2a$03$......................"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void hashpwFailsWhenSaltSpecifiesTooManyRounds() {
-		BCrypt.hashpw("password", "$2a$32$......................");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> BCrypt.hashpw("password", "$2a$32$......................"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void saltLengthIsChecked() {
-		BCrypt.hashpw("", "");
+		assertThatIllegalArgumentException().isThrownBy(() -> BCrypt.hashpw("", ""));
 	}
 
 	@Test
@@ -436,9 +441,10 @@ public class BCryptTests {
 				.isEqualTo("$2$05$......................bvpG2UfzdyW/S0ny/4YyEZrmczoJfVm");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void hashpwFailsWhenSaltIsTooShort() {
-		BCrypt.hashpw("password", "$2a$10$123456789012345678901");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> BCrypt.hashpw("password", "$2a$10$123456789012345678901"));
 	}
 
 	@Test

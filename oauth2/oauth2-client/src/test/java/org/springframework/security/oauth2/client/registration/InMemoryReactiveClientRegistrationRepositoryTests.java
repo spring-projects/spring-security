@@ -25,6 +25,7 @@ import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Rob Winch
@@ -60,10 +61,11 @@ public class InMemoryReactiveClientRegistrationRepositoryTests {
 				.isThrownBy(() -> new InMemoryReactiveClientRegistrationRepository(registrations));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void constructorListClientRegistrationWhenDuplicateIdThenIllegalArgumentException() {
 		List<ClientRegistration> registrations = Arrays.asList(this.registration, this.registration);
-		new InMemoryReactiveClientRegistrationRepository(registrations);
+		assertThatIllegalStateException()
+				.isThrownBy(() -> new InMemoryReactiveClientRegistrationRepository(registrations));
 	}
 
 	@Test

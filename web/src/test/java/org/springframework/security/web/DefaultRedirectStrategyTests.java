@@ -22,6 +22,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Luke Taylor
@@ -52,14 +53,15 @@ public class DefaultRedirectStrategyTests {
 		assertThat(response.getRedirectedUrl()).isEqualTo("remainder");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void contextRelativeShouldThrowExceptionIfURLDoesNotContainContextPath() throws Exception {
 		DefaultRedirectStrategy rds = new DefaultRedirectStrategy();
 		rds.setContextRelative(true);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setContextPath("/context");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		rds.sendRedirect(request, response, "https://redirectme.somewhere.else");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> rds.sendRedirect(request, response, "https://redirectme.somewhere.else"));
 	}
 
 }

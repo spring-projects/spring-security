@@ -30,6 +30,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -54,10 +55,9 @@ public class ServerAuthenticationEntryPointFailureHandlerTests {
 	@InjectMocks
 	private ServerAuthenticationEntryPointFailureHandler handler;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenNullEntryPointThenException() {
-		this.authenticationEntryPoint = null;
-		new ServerAuthenticationEntryPointFailureHandler(this.authenticationEntryPoint);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ServerAuthenticationEntryPointFailureHandler(null));
 	}
 
 	@Test

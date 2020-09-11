@@ -118,9 +118,9 @@ public class LdapUserDetailsManagerTests {
 		assertThat(bob.getAuthorities()).hasSize(1);
 	}
 
-	@Test(expected = UsernameNotFoundException.class)
+	@Test
 	public void testLoadingInvalidUsernameThrowsUsernameNotFoundException() {
-		this.mgr.loadUserByUsername("jim");
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> this.mgr.loadUserByUsername("jim"));
 	}
 
 	@Test
@@ -201,7 +201,7 @@ public class LdapUserDetailsManagerTests {
 				.isTrue();
 	}
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void testPasswordChangeWithWrongOldPasswordFails() {
 		InetOrgPerson.Essence p = new InetOrgPerson.Essence();
 		p.setDn("whocares");
@@ -210,13 +210,11 @@ public class LdapUserDetailsManagerTests {
 		p.setUid("johnyossarian");
 		p.setPassword("yossarianspassword");
 		p.setAuthorities(TEST_AUTHORITIES);
-
 		this.mgr.createUser(p.createUserDetails());
-
 		SecurityContextHolder.getContext().setAuthentication(
 				new UsernamePasswordAuthenticationToken("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
-
-		this.mgr.changePassword("wrongpassword", "yossariansnewpassword");
+		assertThatExceptionOfType(BadCredentialsException.class)
+				.isThrownBy(() -> this.mgr.changePassword("wrongpassword", "yossariansnewpassword"));
 	}
 
 }

@@ -23,6 +23,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -35,14 +36,14 @@ import static org.mockito.Mockito.mock;
  */
 public class ForwardAuthenticaionSuccessHandlerTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidForwardUrl() {
-		new ForwardAuthenticationSuccessHandler("aaa");
+		assertThatIllegalArgumentException().isThrownBy(() -> new ForwardAuthenticationSuccessHandler("aaa"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void emptyForwardUrl() {
-		new ForwardAuthenticationSuccessHandler("");
+		assertThatIllegalArgumentException().isThrownBy(() -> new ForwardAuthenticationSuccessHandler(""));
 	}
 
 	@Test

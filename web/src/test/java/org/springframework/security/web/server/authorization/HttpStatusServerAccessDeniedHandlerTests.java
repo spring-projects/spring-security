@@ -28,6 +28,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
@@ -46,9 +47,9 @@ public class HttpStatusServerAccessDeniedHandlerTests {
 
 	private AccessDeniedException exception = new AccessDeniedException("Forbidden");
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorHttpStatusWhenNullThenException() {
-		new HttpStatusServerAccessDeniedHandler(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new HttpStatusServerAccessDeniedHandler(null));
 	}
 
 	@Test

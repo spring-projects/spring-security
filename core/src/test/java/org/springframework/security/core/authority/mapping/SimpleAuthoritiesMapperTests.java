@@ -25,18 +25,19 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Luke Taylor
  */
 public class SimpleAuthoritiesMapperTests {
 
-	@Test(expected = IllegalArgumentException.class)
-	public void rejectsInvalidCaseConversionFlags() throws Exception {
+	@Test
+	public void rejectsInvalidCaseConversionFlags() {
 		SimpleAuthorityMapper mapper = new SimpleAuthorityMapper();
 		mapper.setConvertToLowerCase(true);
 		mapper.setConvertToUpperCase(true);
-		mapper.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(mapper::afterPropertiesSet);
 	}
 
 	@Test

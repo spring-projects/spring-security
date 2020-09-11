@@ -26,19 +26,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link RunAsImplAuthenticationProvider}.
  */
 public class RunAsImplAuthenticationProviderTests {
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void testAuthenticationFailDueToWrongKey() {
 		RunAsUserToken token = new RunAsUserToken("wrong_key", "Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
 		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
 		provider.setKey("hello_world");
-		provider.authenticate(token);
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
@@ -53,10 +55,10 @@ public class RunAsImplAuthenticationProviderTests {
 		assertThat(resultCast.getKeyHash()).isEqualTo("my_password".hashCode());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testStartupFailsIfNoKey() throws Exception {
 		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
-		provider.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(provider::afterPropertiesSet);
 	}
 
 	@Test

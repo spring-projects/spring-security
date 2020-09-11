@@ -27,6 +27,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Jitendra Singh
@@ -56,10 +57,11 @@ public class SimpleGrantedAuthorityMixinTests extends AbstractMixinTests {
 		assertThat(authority.getAuthority()).isNotNull().isEqualTo("ROLE_USER");
 	}
 
-	@Test(expected = JsonMappingException.class)
+	@Test
 	public void deserializeGrantedAuthorityWithoutRoleTest() throws IOException {
 		String json = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\"}";
-		this.mapper.readValue(json, SimpleGrantedAuthority.class);
+		assertThatExceptionOfType(JsonMappingException.class)
+				.isThrownBy(() -> this.mapper.readValue(json, SimpleGrantedAuthority.class));
 	}
 
 }

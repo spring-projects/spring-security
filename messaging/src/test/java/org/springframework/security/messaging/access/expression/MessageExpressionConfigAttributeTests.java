@@ -31,6 +31,7 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -51,14 +52,15 @@ public class MessageExpressionConfigAttributeTests {
 		this.attribute = new MessageExpressionConfigAttribute(this.expression, this.matcher);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullExpression() {
-		new MessageExpressionConfigAttribute(null, this.matcher);
+		assertThatIllegalArgumentException().isThrownBy(() -> new MessageExpressionConfigAttribute(null, this.matcher));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullMatcher() {
-		new MessageExpressionConfigAttribute(this.expression, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new MessageExpressionConfigAttribute(this.expression, null));
 	}
 
 	@Test

@@ -44,6 +44,7 @@ import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Sid;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -95,13 +96,14 @@ public class JdbcAclServiceTests {
 	}
 
 	// SEC-1898
-	@Test(expected = NotFoundException.class)
+	@Test
 	public void readAclByIdMissingAcl() {
 		Map<ObjectIdentity, Acl> result = new HashMap<>();
 		given(this.lookupStrategy.readAclsById(anyList(), anyList())).willReturn(result);
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(Object.class, 1);
 		List<Sid> sids = Arrays.<Sid>asList(new PrincipalSid("user"));
-		this.aclService.readAclById(objectIdentity, sids);
+		assertThatExceptionOfType(NotFoundException.class)
+				.isThrownBy(() -> this.aclService.readAclById(objectIdentity, sids));
 	}
 
 	@Test

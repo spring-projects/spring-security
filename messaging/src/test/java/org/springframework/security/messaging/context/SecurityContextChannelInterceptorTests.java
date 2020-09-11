@@ -36,6 +36,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityContextChannelInterceptorTests {
@@ -71,9 +72,9 @@ public class SecurityContextChannelInterceptorTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullHeader() {
-		new SecurityContextChannelInterceptor(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new SecurityContextChannelInterceptor(null));
 	}
 
 	@Test
@@ -92,9 +93,9 @@ public class SecurityContextChannelInterceptorTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.authentication);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setAnonymousAuthenticationNull() {
-		this.interceptor.setAnonymousAuthentication(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.interceptor.setAnonymousAuthentication(null));
 	}
 
 	@Test

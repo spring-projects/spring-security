@@ -19,6 +19,7 @@ package org.springframework.security.web.util;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class TextEscapeUtilsTests {
 
@@ -36,19 +37,19 @@ public class TextEscapeUtilsTests {
 		assertThat(TextEscapeUtils.escapeEntities(null)).isNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidLowSurrogateIsDetected() {
-		TextEscapeUtils.escapeEntities("abc\uDCCCdef");
+		assertThatIllegalArgumentException().isThrownBy(() -> TextEscapeUtils.escapeEntities("abc\uDCCCdef"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void missingLowSurrogateIsDetected() {
-		TextEscapeUtils.escapeEntities("abc\uD888a");
+		assertThatIllegalArgumentException().isThrownBy(() -> TextEscapeUtils.escapeEntities("abc\uD888a"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void highSurrogateAtEndOfStringIsRejected() {
-		TextEscapeUtils.escapeEntities("abc\uD888");
+		assertThatIllegalArgumentException().isThrownBy(() -> TextEscapeUtils.escapeEntities("abc\uD888"));
 	}
 
 	/**

@@ -43,6 +43,7 @@ import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -290,18 +291,18 @@ public class DigestAuthenticationFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void startupDetectsMissingAuthenticationEntryPoint() {
 		DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
 		filter.setUserDetailsService(mock(UserDetailsService.class));
-		filter.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(filter::afterPropertiesSet);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void startupDetectsMissingUserDetailsService() {
 		DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
 		filter.setAuthenticationEntryPoint(new DigestAuthenticationEntryPoint());
-		filter.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(filter::afterPropertiesSet);
 	}
 
 	@Test

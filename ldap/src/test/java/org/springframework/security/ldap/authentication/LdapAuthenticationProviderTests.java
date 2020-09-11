@@ -73,23 +73,23 @@ public class LdapAuthenticationProviderTests {
 				() -> ldapProvider.authenticate(new UsernamePasswordAuthenticationToken("", "bobspassword")));
 	}
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void usernameNotFoundExceptionIsHiddenByDefault() {
 		final LdapAuthenticator authenticator = mock(LdapAuthenticator.class);
 		final UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken("joe", "password");
 		given(authenticator.authenticate(joe)).willThrow(new UsernameNotFoundException("nobody"));
 		LdapAuthenticationProvider provider = new LdapAuthenticationProvider(authenticator);
-		provider.authenticate(joe);
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(joe));
 	}
 
-	@Test(expected = UsernameNotFoundException.class)
+	@Test
 	public void usernameNotFoundExceptionIsNotHiddenIfConfigured() {
 		final LdapAuthenticator authenticator = mock(LdapAuthenticator.class);
 		final UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken("joe", "password");
 		given(authenticator.authenticate(joe)).willThrow(new UsernameNotFoundException("nobody"));
 		LdapAuthenticationProvider provider = new LdapAuthenticationProvider(authenticator);
 		provider.setHideUserNotFoundExceptions(false);
-		provider.authenticate(joe);
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(joe));
 	}
 
 	@Test

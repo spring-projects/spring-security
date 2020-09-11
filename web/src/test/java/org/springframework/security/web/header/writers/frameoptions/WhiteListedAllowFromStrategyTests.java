@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Test for the {@code WhiteListedAllowFromStrategy}.
@@ -33,14 +34,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class WhiteListedAllowFromStrategyTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void emptyListShouldThrowException() {
-		new WhiteListedAllowFromStrategy(new ArrayList<>());
+		assertThatIllegalArgumentException().isThrownBy(() -> new WhiteListedAllowFromStrategy(new ArrayList<>()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void nullListShouldThrowException() {
-		new WhiteListedAllowFromStrategy(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new WhiteListedAllowFromStrategy(null));
 	}
 
 	@Test

@@ -165,7 +165,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		verifyZeroInteractions(this.postAuthenticationChecks);
 	}
 
-	@Test(expected = AccountExpiredException.class)
+	@Test
 	public void authenticateWhenAccountExpiredThenException() {
 		this.manager.setPasswordEncoder(this.encoder);
 		// @formatter:off
@@ -178,10 +178,11 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(expiredUser));
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(expiredUser,
 				expiredUser.getPassword());
-		this.manager.authenticate(token).block();
+		assertThatExceptionOfType(AccountExpiredException.class)
+				.isThrownBy(() -> this.manager.authenticate(token).block());
 	}
 
-	@Test(expected = LockedException.class)
+	@Test
 	public void authenticateWhenAccountLockedThenException() {
 		this.manager.setPasswordEncoder(this.encoder);
 		// @formatter:off
@@ -194,10 +195,10 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(lockedUser));
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(lockedUser,
 				lockedUser.getPassword());
-		this.manager.authenticate(token).block();
+		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> this.manager.authenticate(token).block());
 	}
 
-	@Test(expected = DisabledException.class)
+	@Test
 	public void authenticateWhenAccountDisabledThenException() {
 		this.manager.setPasswordEncoder(this.encoder);
 		// @formatter:off
@@ -210,7 +211,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(disabledUser));
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(disabledUser,
 				disabledUser.getPassword());
-		this.manager.authenticate(token).block();
+		assertThatExceptionOfType(DisabledException.class).isThrownBy(() -> this.manager.authenticate(token).block());
 	}
 
 }

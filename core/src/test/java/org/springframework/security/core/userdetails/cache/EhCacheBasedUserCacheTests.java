@@ -27,7 +27,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link EhCacheBasedUserCache}.
@@ -77,11 +77,10 @@ public class EhCacheBasedUserCacheTests {
 		assertThat(cache.getUserFromCache("UNKNOWN_USER")).isNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void startupDetectsMissingCache() throws Exception {
 		EhCacheBasedUserCache cache = new EhCacheBasedUserCache();
-		cache.afterPropertiesSet();
-		fail("Should have thrown IllegalArgumentException");
+		assertThatIllegalArgumentException().isThrownBy(cache::afterPropertiesSet);
 		Ehcache myCache = getCache();
 		cache.setCache(myCache);
 		assertThat(cache.getCache()).isEqualTo(myCache);

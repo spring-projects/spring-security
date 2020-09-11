@@ -30,6 +30,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Luke Taylor
@@ -51,33 +52,37 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		this.services.afterPropertiesSet();
 	}
 
-	@Test(expected = InvalidCookieException.class)
+	@Test
 	public void loginIsRejectedWithWrongNumberOfCookieTokens() {
-		this.services.processAutoLoginCookie(new String[] { "series", "token", "extra" }, new MockHttpServletRequest(),
-				new MockHttpServletResponse());
+		assertThatExceptionOfType(InvalidCookieException.class)
+				.isThrownBy(() -> this.services.processAutoLoginCookie(new String[] { "series", "token", "extra" },
+						new MockHttpServletRequest(), new MockHttpServletResponse()));
 	}
 
-	@Test(expected = RememberMeAuthenticationException.class)
+	@Test
 	public void loginIsRejectedWhenNoTokenMatchingSeriesIsFound() {
 		this.services = create(null);
-		this.services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
-				new MockHttpServletResponse());
+		assertThatExceptionOfType(RememberMeAuthenticationException.class)
+				.isThrownBy(() -> this.services.processAutoLoginCookie(new String[] { "series", "token" },
+						new MockHttpServletRequest(), new MockHttpServletResponse()));
 	}
 
-	@Test(expected = RememberMeAuthenticationException.class)
+	@Test
 	public void loginIsRejectedWhenTokenIsExpired() {
 		this.services = create(new PersistentRememberMeToken("joe", "series", "token",
 				new Date(System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(1) - 100)));
 		this.services.setTokenValiditySeconds(1);
-		this.services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
-				new MockHttpServletResponse());
+		assertThatExceptionOfType(RememberMeAuthenticationException.class)
+				.isThrownBy(() -> this.services.processAutoLoginCookie(new String[] { "series", "token" },
+						new MockHttpServletRequest(), new MockHttpServletResponse()));
 	}
 
-	@Test(expected = CookieTheftException.class)
+	@Test
 	public void cookieTheftIsDetectedWhenSeriesAndTokenDontMatch() {
 		this.services = create(new PersistentRememberMeToken("joe", "series", "wrongtoken", new Date()));
-		this.services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
-				new MockHttpServletResponse());
+		assertThatExceptionOfType(CookieTheftException.class)
+				.isThrownBy(() -> this.services.processAutoLoginCookie(new String[] { "series", "token" },
+						new MockHttpServletRequest(), new MockHttpServletResponse()));
 	}
 
 	@Test

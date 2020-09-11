@@ -60,9 +60,9 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 	private InMemoryOAuth2AuthorizedClientService authorizedClientService = new InMemoryOAuth2AuthorizedClientService(
 			this.clientRegistrationRepository);
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		new InMemoryOAuth2AuthorizedClientService(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new InMemoryOAuth2AuthorizedClientService(null));
 	}
 
 	@Test
@@ -87,14 +87,16 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 		assertThatObject(authorizedClientService.loadAuthorizedClient(registrationId, this.principalName1)).isNotNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void loadAuthorizedClientWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		this.authorizedClientService.loadAuthorizedClient(null, this.principalName1);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(null, this.principalName1));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void loadAuthorizedClientWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
-		this.authorizedClientService.loadAuthorizedClient(this.registration1.getRegistrationId(), null);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.authorizedClientService.loadAuthorizedClient(this.registration1.getRegistrationId(), null));
 	}
 
 	@Test
@@ -123,14 +125,16 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 		assertThat(loadedAuthorizedClient).isEqualTo(authorizedClient);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void saveAuthorizedClientWhenAuthorizedClientIsNullThenThrowIllegalArgumentException() {
-		this.authorizedClientService.saveAuthorizedClient(null, mock(Authentication.class));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(null, mock(Authentication.class)));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void saveAuthorizedClientWhenPrincipalIsNullThenThrowIllegalArgumentException() {
-		this.authorizedClientService.saveAuthorizedClient(mock(OAuth2AuthorizedClient.class), null);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.authorizedClientService.saveAuthorizedClient(mock(OAuth2AuthorizedClient.class), null));
 	}
 
 	@Test
@@ -145,14 +149,16 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 		assertThat(loadedAuthorizedClient).isEqualTo(authorizedClient);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void removeAuthorizedClientWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		this.authorizedClientService.removeAuthorizedClient(null, this.principalName2);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.removeAuthorizedClient(null, this.principalName2));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void removeAuthorizedClientWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
-		this.authorizedClientService.removeAuthorizedClient(this.registration3.getRegistrationId(), null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientService
+				.removeAuthorizedClient(this.registration3.getRegistrationId(), null));
 	}
 
 	@Test

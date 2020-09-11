@@ -19,6 +19,8 @@ package org.springframework.security.crypto.codec;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Luke Taylor
@@ -37,14 +39,14 @@ public class Base64Tests {
 		assertThat(Base64.isBase64(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C', (byte) '`' })).isFalse();
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void isBase64RejectsNull() {
-		Base64.isBase64(null);
+		assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> Base64.isBase64(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void isBase64RejectsInvalidLength() {
-		Base64.isBase64(new byte[] { (byte) 'A' });
+		assertThatIllegalArgumentException().isThrownBy(() -> Base64.isBase64(new byte[] { (byte) 'A' }));
 	}
 
 }

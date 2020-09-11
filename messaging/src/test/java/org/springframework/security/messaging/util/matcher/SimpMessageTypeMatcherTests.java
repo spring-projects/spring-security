@@ -25,6 +25,7 @@ import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.MessageBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class SimpMessageTypeMatcherTests {
 
@@ -35,9 +36,9 @@ public class SimpMessageTypeMatcherTests {
 		this.matcher = new SimpMessageTypeMatcher(SimpMessageType.MESSAGE);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullType() {
-		new SimpMessageTypeMatcher(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new SimpMessageTypeMatcher(null));
 	}
 
 	@Test

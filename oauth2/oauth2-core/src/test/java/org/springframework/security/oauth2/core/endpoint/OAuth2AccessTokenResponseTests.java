@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2AccessTokenResponse}.
@@ -43,24 +44,28 @@ public class OAuth2AccessTokenResponseTests {
 
 	private static final long EXPIRES_IN = Instant.now().plusSeconds(5).toEpochMilli();
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void buildWhenTokenValueIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() ->
 		// @formatter:off
-		OAuth2AccessTokenResponse.withToken(null)
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.expiresIn(EXPIRES_IN)
-				.build();
+			OAuth2AccessTokenResponse.withToken(null)
+					.tokenType(OAuth2AccessToken.TokenType.BEARER)
+					.expiresIn(EXPIRES_IN)
+					.build()
 		// @formatter:on
+		);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void buildWhenTokenTypeIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() ->
 		// @formatter:off
-		OAuth2AccessTokenResponse.withToken(TOKEN_VALUE)
-				.tokenType(null)
-				.expiresIn(EXPIRES_IN)
-				.build();
+			OAuth2AccessTokenResponse.withToken(TOKEN_VALUE)
+					.tokenType(null)
+					.expiresIn(EXPIRES_IN)
+					.build()
 		// @formatter:on
+		);
 	}
 
 	@Test

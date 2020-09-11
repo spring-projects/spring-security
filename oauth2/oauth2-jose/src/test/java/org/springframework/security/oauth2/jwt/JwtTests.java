@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link Jwt}.
@@ -82,21 +83,22 @@ public class JwtTests {
 		CLAIMS.put(JTI_CLAIM, JTI_VALUE);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenTokenValueIsNullThenThrowIllegalArgumentException() {
-		new Jwt(null, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE), HEADERS, CLAIMS);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new Jwt(null, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE), HEADERS, CLAIMS));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenHeadersIsEmptyThenThrowIllegalArgumentException() {
-		new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE),
-				Collections.emptyMap(), CLAIMS);
+		assertThatIllegalArgumentException().isThrownBy(() -> new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
+				Instant.ofEpochMilli(EXP_VALUE), Collections.emptyMap(), CLAIMS));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenClaimsIsEmptyThenThrowIllegalArgumentException() {
-		new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE), HEADERS,
-				Collections.emptyMap());
+		assertThatIllegalArgumentException().isThrownBy(() -> new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
+				Instant.ofEpochMilli(EXP_VALUE), HEADERS, Collections.emptyMap()));
 	}
 
 	@Test

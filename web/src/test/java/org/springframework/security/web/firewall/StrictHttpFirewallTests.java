@@ -128,76 +128,88 @@ public class StrictHttpFirewallTests {
 		}
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenSemicolonInContextPathThenThrowsRequestRejectedException() {
 		this.request.setContextPath(";/context");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenSemicolonInServletPathThenThrowsRequestRejectedException() {
 		this.request.setServletPath("/spring;/");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenSemicolonInPathInfoThenThrowsRequestRejectedException() {
 		this.request.setPathInfo("/path;/");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenSemicolonInRequestUriThenThrowsRequestRejectedException() {
 		this.request.setRequestURI("/path;/");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenEncodedSemicolonInContextPathThenThrowsRequestRejectedException() {
 		this.request.setContextPath("%3B/context");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenEncodedSemicolonInServletPathThenThrowsRequestRejectedException() {
 		this.request.setServletPath("/spring%3B/");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenEncodedSemicolonInPathInfoThenThrowsRequestRejectedException() {
 		this.request.setPathInfo("/path%3B/");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenEncodedSemicolonInRequestUriThenThrowsRequestRejectedException() {
 		this.request.setRequestURI("/path%3B/");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenLowercaseEncodedSemicolonInContextPathThenThrowsRequestRejectedException() {
 		this.request.setContextPath("%3b/context");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenLowercaseEncodedSemicolonInServletPathThenThrowsRequestRejectedException() {
 		this.request.setServletPath("/spring%3b/");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenLowercaseEncodedSemicolonInPathInfoThenThrowsRequestRejectedException() {
 		this.request.setPathInfo("/path%3b/");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenLowercaseEncodedSemicolonInRequestUriThenThrowsRequestRejectedException() {
 		this.request.setRequestURI("/path%3b/");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
 	@Test
@@ -290,16 +302,18 @@ public class StrictHttpFirewallTests {
 		this.firewall.getFirewalledRequest(this.request);
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenEncodedPeriodInThenThrowsRequestRejectedException() {
 		this.request.setRequestURI("/%2E/");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenLowercaseEncodedPeriodInThenThrowsRequestRejectedException() {
 		this.request.setRequestURI("/%2e/");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
 	@Test
@@ -309,10 +323,11 @@ public class StrictHttpFirewallTests {
 		this.firewall.getFirewalledRequest(this.request);
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenExceedsLowerboundAsciiThenException() {
 		this.request.setRequestURI("/\u0019");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
 	@Test
@@ -327,22 +342,25 @@ public class StrictHttpFirewallTests {
 		this.firewall.getFirewalledRequest(this.request);
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenExceedsUpperboundAsciiThenException() {
 		this.request.setRequestURI("/\u007f");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenContainsNullThenException() {
 		this.request.setRequestURI("/\0");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenContainsEncodedNullThenException() {
 		this.request.setRequestURI("/something%00/");
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
 	/**
@@ -350,22 +368,24 @@ public class StrictHttpFirewallTests {
 	 * because the pathInfo is /a/b;/1/c which ends up being /a/b/1/c while Spring MVC
 	 * will strip the ; content from requestURI before the path is URL decoded.
 	 */
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenLowercaseEncodedPathThenException() {
 		this.request.setRequestURI("/context-root/a/b;%2f1/c");
 		this.request.setContextPath("/context-root");
 		this.request.setServletPath("");
 		this.request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenUppercaseEncodedPathThenException() {
 		this.request.setRequestURI("/context-root/a/b;%2F1/c");
 		this.request.setContextPath("/context-root");
 		this.request.setServletPath("");
 		this.request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
 	@Test
@@ -536,133 +556,138 @@ public class StrictHttpFirewallTests {
 		this.firewall.getFirewalledRequest(this.request);
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenUntrustedDomainThenException() {
 		this.request.addHeader("Host", "example.org");
 		this.firewall.setAllowedHostnames((hostname) -> hostname.equals("myexample.org"));
-		this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetHeaderWhenNotAllowedHeaderNameThenException() {
 		this.firewall.setAllowedHeaderNames((name) -> !name.equals("bad name"));
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getHeader("bad name");
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("bad name"));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetHeaderWhenNotAllowedHeaderValueThenException() {
 		this.request.addHeader("good name", "bad value");
 		this.firewall.setAllowedHeaderValues((value) -> !value.equals("bad value"));
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getHeader("good name");
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("good name"));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetDateHeaderWhenControlCharacterInHeaderNameThenException() {
 		this.request.addHeader("Bad\0Name", "some value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getDateHeader("Bad\0Name");
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getDateHeader("Bad\0Name"));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetIntHeaderWhenControlCharacterInHeaderNameThenException() {
 		this.request.addHeader("Bad\0Name", "some value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getIntHeader("Bad\0Name");
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getIntHeader("Bad\0Name"));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetHeaderWhenControlCharacterInHeaderNameThenException() {
 		this.request.addHeader("Bad\0Name", "some value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getHeader("Bad\0Name");
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("Bad\0Name"));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetHeaderWhenUndefinedCharacterInHeaderNameThenException() {
 		this.request.addHeader("Bad\uFFFEName", "some value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getHeader("Bad\uFFFEName");
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("Bad\uFFFEName"));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetHeadersWhenControlCharacterInHeaderNameThenException() {
 		this.request.addHeader("Bad\0Name", "some value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getHeaders("Bad\0Name");
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeaders("Bad\0Name"));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetHeaderNamesWhenControlCharacterInHeaderNameThenException() {
 		this.request.addHeader("Bad\0Name", "some value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getHeaderNames().nextElement();
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> request.getHeaderNames().nextElement());
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetHeaderWhenControlCharacterInHeaderValueThenException() {
 		this.request.addHeader("Something", "bad\0value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getHeader("Something");
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("Something"));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetHeaderWhenUndefinedCharacterInHeaderValueThenException() {
 		this.request.addHeader("Something", "bad\uFFFEvalue");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getHeader("Something");
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("Something"));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetHeadersWhenControlCharacterInHeaderValueThenException() {
 		this.request.addHeader("Something", "bad\0value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getHeaders("Something").nextElement();
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> request.getHeaders("Something").nextElement());
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetParameterWhenControlCharacterInParameterNameThenException() {
 		this.request.addParameter("Bad\0Name", "some value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getParameter("Bad\0Name");
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getParameter("Bad\0Name"));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetParameterMapWhenControlCharacterInParameterNameThenException() {
 		this.request.addParameter("Bad\0Name", "some value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getParameterMap();
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(request::getParameterMap);
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetParameterNamesWhenControlCharacterInParameterNameThenException() {
 		this.request.addParameter("Bad\0Name", "some value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getParameterNames().nextElement();
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(request.getParameterNames()::nextElement);
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetParameterNamesWhenUndefinedCharacterInParameterNameThenException() {
 		this.request.addParameter("Bad\uFFFEName", "some value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getParameterNames().nextElement();
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(request.getParameterNames()::nextElement);
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetParameterValuesWhenNotAllowedInParameterValueThenException() {
 		this.firewall.setAllowedParameterValues((value) -> !value.equals("bad value"));
 		this.request.addParameter("Something", "bad value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getParameterValues("Something");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> request.getParameterValues("Something"));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestGetParameterValuesWhenNotAllowedInParameterNameThenException() {
 		this.firewall.setAllowedParameterNames((value) -> !value.equals("bad name"));
 		this.request.addParameter("bad name", "good value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
-		request.getParameterValues("bad name");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> request.getParameterValues("bad name"));
 	}
 
 }

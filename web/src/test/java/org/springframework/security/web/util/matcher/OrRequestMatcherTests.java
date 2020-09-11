@@ -28,6 +28,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -48,34 +50,36 @@ public class OrRequestMatcherTests {
 
 	private RequestMatcher matcher;
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void constructorNullArray() {
-		new OrRequestMatcher((RequestMatcher[]) null);
+		assertThatNullPointerException().isThrownBy(() -> new OrRequestMatcher((RequestMatcher[]) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorArrayContainsNull() {
-		new OrRequestMatcher((RequestMatcher) null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OrRequestMatcher((RequestMatcher) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmptyArray() {
-		new OrRequestMatcher(new RequestMatcher[0]);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OrRequestMatcher(new RequestMatcher[0]));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullList() {
-		new OrRequestMatcher((List<RequestMatcher>) null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OrRequestMatcher((List<RequestMatcher>) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorListContainsNull() {
-		new OrRequestMatcher(Arrays.asList((RequestMatcher) null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OrRequestMatcher(Arrays.asList((RequestMatcher) null)));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmptyList() {
-		new OrRequestMatcher(Collections.<RequestMatcher>emptyList());
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OrRequestMatcher(Collections.<RequestMatcher>emptyList()));
 	}
 
 	@Test

@@ -40,6 +40,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Luke Taylor
@@ -82,9 +83,10 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 		this.target.unprotected();
 	}
 
-	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	@Test
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
-		this.target.doSomething();
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(this.target::doSomething);
 	}
 
 	@Test
@@ -95,17 +97,17 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 		this.target.doSomething();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-		this.target.doSomething();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.target::doSomething);
 	}
 
-	@Test(expected = AuthenticationException.class)
+	@Test
 	public void transactionalMethodsShouldBeSecured() {
-		this.transactionalTarget.doSomething();
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(this.transactionalTarget::doSomething);
 	}
 
 	@Override

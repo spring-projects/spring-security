@@ -39,6 +39,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -86,9 +88,9 @@ public class ChannelSecurityInterceptorTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorMessageSecurityMetadataSourceNull() {
-		new ChannelSecurityInterceptor(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ChannelSecurityInterceptor(null));
 	}
 
 	@Test
@@ -113,12 +115,13 @@ public class ChannelSecurityInterceptorTests {
 		assertThat(result).isSameAs(this.message);
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void preSendDeny() {
 		given(this.source.getAttributes(this.message)).willReturn(this.attrs);
 		willThrow(new AccessDeniedException("")).given(this.accessDecisionManager).decide(any(Authentication.class),
 				eq(this.message), eq(this.attrs));
-		this.interceptor.preSend(this.message, this.channel);
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.interceptor.preSend(this.message, this.channel));
 	}
 
 	@SuppressWarnings("unchecked")

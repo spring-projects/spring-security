@@ -23,6 +23,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Joe Grandja
@@ -102,10 +103,10 @@ public class ContentSecurityPolicyHeaderWriterTests {
 		assertThat(this.response.getHeader("Content-Security-Policy-Report-Only")).isEqualTo(policyDirectives);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void writeHeadersContentSecurityPolicyInvalid() {
-		this.writer = new ContentSecurityPolicyHeaderWriter("");
-		this.writer = new ContentSecurityPolicyHeaderWriter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ContentSecurityPolicyHeaderWriter(""));
+		assertThatIllegalArgumentException().isThrownBy(() -> new ContentSecurityPolicyHeaderWriter(null));
 	}
 
 	@Test

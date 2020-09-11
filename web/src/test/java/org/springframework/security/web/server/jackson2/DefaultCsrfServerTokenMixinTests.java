@@ -28,6 +28,7 @@ import org.springframework.security.web.jackson2.AbstractMixinTests;
 import org.springframework.security.web.server.csrf.DefaultCsrfToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Boris Finkelshteyn
@@ -59,16 +60,18 @@ public class DefaultCsrfServerTokenMixinTests extends AbstractMixinTests {
 		assertThat(token.getToken()).isEqualTo("1");
 	}
 
-	@Test(expected = JsonMappingException.class)
+	@Test
 	public void defaultCsrfTokenDeserializeWithoutClassTest() throws IOException {
 		String tokenJson = "{\"headerName\": \"csrf-header\", \"parameterName\": \"_csrf\", \"token\": \"1\"}";
-		this.mapper.readValue(tokenJson, DefaultCsrfToken.class);
+		assertThatExceptionOfType(JsonMappingException.class)
+				.isThrownBy(() -> this.mapper.readValue(tokenJson, DefaultCsrfToken.class));
 	}
 
-	@Test(expected = JsonMappingException.class)
+	@Test
 	public void defaultCsrfTokenDeserializeNullValuesTest() throws IOException {
 		String tokenJson = "{\"@class\": \"org.springframework.security.web.server.csrf.DefaultCsrfToken\", \"headerName\": \"\", \"parameterName\": null, \"token\": \"1\"}";
-		this.mapper.readValue(tokenJson, DefaultCsrfToken.class);
+		assertThatExceptionOfType(JsonMappingException.class)
+				.isThrownBy(() -> this.mapper.readValue(tokenJson, DefaultCsrfToken.class));
 	}
 
 }

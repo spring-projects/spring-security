@@ -27,6 +27,7 @@ import reactor.test.StepVerifier;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -50,14 +51,14 @@ public class ReactiveAuthenticationManagerAdapterTests {
 		this.manager = new ReactiveAuthenticationManagerAdapter(this.delegate);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullAuthenticationManager() {
-		new ReactiveAuthenticationManagerAdapter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ReactiveAuthenticationManagerAdapter(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setSchedulerNull() {
-		this.manager.setScheduler(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.manager.setScheduler(null));
 	}
 
 	@Test

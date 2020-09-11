@@ -76,12 +76,13 @@ public class OpenID4JavaConsumerTests {
 		consumer.beginConsumption(request, "", "", "");
 	}
 
-	@Test(expected = OpenIDConsumerException.class)
+	@Test
 	public void discoveryExceptionRaisesOpenIDException() throws Exception {
 		ConsumerManager mgr = mock(ConsumerManager.class);
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
 		given(mgr.discover(any())).willThrow(new DiscoveryException("msg"));
-		consumer.beginConsumption(new MockHttpServletRequest(), "", "", "");
+		assertThatExceptionOfType(OpenIDConsumerException.class)
+				.isThrownBy(() -> consumer.beginConsumption(new MockHttpServletRequest(), "", "", ""));
 	}
 
 	@Test
@@ -154,7 +155,7 @@ public class OpenID4JavaConsumerTests {
 		assertThat(fetched.get(0).getValues()).hasSize(2);
 	}
 
-	@Test(expected = OpenIDConsumerException.class)
+	@Test
 	public void messageExceptionFetchingAttributesRaisesOpenIDException() throws Exception {
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(new NullAxFetchListFactory());
 		Message msg = mock(Message.class);
@@ -162,13 +163,15 @@ public class OpenID4JavaConsumerTests {
 		given(msg.hasExtension(AxMessage.OPENID_NS_AX)).willReturn(true);
 		given(msg.getExtension(AxMessage.OPENID_NS_AX)).willThrow(new MessageException(""));
 		given(fr.getAttributeValues("a")).willReturn(Arrays.asList("x", "y"));
-		consumer.fetchAxAttributes(msg, this.attributes);
+		assertThatExceptionOfType(OpenIDConsumerException.class)
+				.isThrownBy(() -> consumer.fetchAxAttributes(msg, this.attributes));
 	}
 
-	@Test(expected = OpenIDConsumerException.class)
+	@Test
 	public void missingDiscoveryInformationThrowsException() throws Exception {
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(new NullAxFetchListFactory());
-		consumer.endConsumption(new MockHttpServletRequest());
+		assertThatExceptionOfType(OpenIDConsumerException.class)
+				.isThrownBy(() -> consumer.endConsumption(new MockHttpServletRequest()));
 	}
 
 	@Test

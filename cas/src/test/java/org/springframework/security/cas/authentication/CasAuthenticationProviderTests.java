@@ -41,6 +41,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -199,7 +201,7 @@ public class CasAuthenticationProviderTests {
 		assertThatIllegalStateException().isThrownBy(() -> cap.authenticate(token));
 	}
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void missingTicketIdIsDetected() throws Exception {
 		CasAuthenticationProvider cap = new CasAuthenticationProvider();
 		cap.setAuthenticationUserDetailsService(new MockAuthoritiesPopulator());
@@ -211,10 +213,10 @@ public class CasAuthenticationProviderTests {
 		cap.afterPropertiesSet();
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER, "");
-		cap.authenticate(token);
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> cap.authenticate(token));
 	}
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void invalidKeyIsDetected() throws Exception {
 		final Assertion assertion = new AssertionImpl("test");
 		CasAuthenticationProvider cap = new CasAuthenticationProvider();
@@ -227,30 +229,30 @@ public class CasAuthenticationProviderTests {
 		cap.afterPropertiesSet();
 		CasAuthenticationToken token = new CasAuthenticationToken("WRONG_KEY", makeUserDetails(), "credentials",
 				AuthorityUtils.createAuthorityList("XX"), makeUserDetails(), assertion);
-		cap.authenticate(token);
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> cap.authenticate(token));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void detectsMissingAuthoritiesPopulator() throws Exception {
 		CasAuthenticationProvider cap = new CasAuthenticationProvider();
 		cap.setKey("qwerty");
 		cap.setStatelessTicketCache(new MockStatelessTicketCache());
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.setServiceProperties(makeServiceProperties());
-		cap.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> cap.afterPropertiesSet());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void detectsMissingKey() throws Exception {
 		CasAuthenticationProvider cap = new CasAuthenticationProvider();
 		cap.setAuthenticationUserDetailsService(new MockAuthoritiesPopulator());
 		cap.setStatelessTicketCache(new MockStatelessTicketCache());
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.setServiceProperties(makeServiceProperties());
-		cap.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> cap.afterPropertiesSet());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void detectsMissingStatelessTicketCache() throws Exception {
 		CasAuthenticationProvider cap = new CasAuthenticationProvider();
 		// set this explicitly to null to test failure
@@ -259,17 +261,17 @@ public class CasAuthenticationProviderTests {
 		cap.setKey("qwerty");
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.setServiceProperties(makeServiceProperties());
-		cap.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> cap.afterPropertiesSet());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void detectsMissingTicketValidator() throws Exception {
 		CasAuthenticationProvider cap = new CasAuthenticationProvider();
 		cap.setAuthenticationUserDetailsService(new MockAuthoritiesPopulator());
 		cap.setKey("qwerty");
 		cap.setStatelessTicketCache(new MockStatelessTicketCache());
 		cap.setServiceProperties(makeServiceProperties());
-		cap.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> cap.afterPropertiesSet());
 	}
 
 	@Test

@@ -31,10 +31,10 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 public class ServicePropertiesTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void detectsMissingService() throws Exception {
 		ServiceProperties sp = new ServiceProperties();
-		sp.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(sp::afterPropertiesSet);
 	}
 
 	@Test

@@ -72,19 +72,21 @@ public class DelegatingPasswordEncoderTests {
 		this.passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenIdForEncodeNullThenIllegalArgumentException() {
-		new DelegatingPasswordEncoder(null, this.delegates);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DelegatingPasswordEncoder(null, this.delegates));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenIdForEncodeDoesNotExistThenIllegalArgumentException() {
-		new DelegatingPasswordEncoder(this.bcryptId + "INVALID", this.delegates);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId + "INVALID", this.delegates));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setDefaultPasswordEncoderForMatchesWhenNullThenIllegalArgumentException() {
-		this.passwordEncoder.setDefaultPasswordEncoderForMatches(null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.passwordEncoder.setDefaultPasswordEncoderForMatches(null));
 	}
 
 	@Test
@@ -180,9 +182,9 @@ public class DelegatingPasswordEncoderTests {
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void matchesWhenRawPasswordNotNullAndEncodedPasswordNullThenThrowsIllegalArgumentException() {
-		this.passwordEncoder.matches(this.rawPassword, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, null));
 	}
 
 	@Test

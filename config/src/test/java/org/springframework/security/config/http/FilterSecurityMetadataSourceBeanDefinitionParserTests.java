@@ -36,6 +36,7 @@ import org.springframework.security.web.access.expression.ExpressionBasedFilterI
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link FilterInvocationSecurityMetadataSourceParser}.
@@ -119,11 +120,12 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 		// @formatter:on
 	}
 
-	@Test(expected = BeanDefinitionParsingException.class)
+	@Test
 	public void parsingInterceptUrlServletPathFails() {
-		setContext("<filter-security-metadata-source id='fids' use-expressions='false'>"
-				+ "   <intercept-url pattern='/secure' access='ROLE_USER' servlet-path='/spring' />"
-				+ "</filter-security-metadata-source>");
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> setContext("<filter-security-metadata-source id='fids' use-expressions='false'>"
+						+ "   <intercept-url pattern='/secure' access='ROLE_USER' servlet-path='/spring' />"
+						+ "</filter-security-metadata-source>"));
 	}
 
 	private FilterInvocation createFilterInvocation(String path, String method) {

@@ -30,6 +30,7 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -41,14 +42,16 @@ public class Sec2515Tests {
 	public final SpringTestRule spring = new SpringTestRule();
 
 	// SEC-2515
-	@Test(expected = FatalBeanException.class)
+	@Test
 	public void loadConfigWhenAuthenticationManagerNotConfiguredAndRegisterBeanThenThrowFatalBeanException() {
-		this.spring.register(StackOverflowSecurityConfig.class).autowire();
+		assertThatExceptionOfType(FatalBeanException.class)
+				.isThrownBy(() -> this.spring.register(StackOverflowSecurityConfig.class).autowire());
 	}
 
-	@Test(expected = FatalBeanException.class)
+	@Test
 	public void loadConfigWhenAuthenticationManagerNotConfiguredAndRegisterBeanCustomNameThenThrowFatalBeanException() {
-		this.spring.register(CustomBeanNameStackOverflowSecurityConfig.class).autowire();
+		assertThatExceptionOfType(FatalBeanException.class)
+				.isThrownBy(() -> this.spring.register(CustomBeanNameStackOverflowSecurityConfig.class).autowire());
 	}
 
 	// SEC-2549

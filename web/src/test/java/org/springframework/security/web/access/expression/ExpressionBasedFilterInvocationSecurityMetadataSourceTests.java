@@ -28,6 +28,7 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Luke Taylor
@@ -50,12 +51,13 @@ public class ExpressionBasedFilterInvocationSecurityMetadataSourceTests {
 		assertThat(attribute.toString()).isEqualTo(expression);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidExpressionIsRejected() {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 		requestMap.put(AnyRequestMatcher.INSTANCE, SecurityConfig.createList("hasRole('X'"));
-		ExpressionBasedFilterInvocationSecurityMetadataSource mds = new ExpressionBasedFilterInvocationSecurityMetadataSource(
-				requestMap, new DefaultWebSecurityExpressionHandler());
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap,
+						new DefaultWebSecurityExpressionHandler()));
 	}
 
 }

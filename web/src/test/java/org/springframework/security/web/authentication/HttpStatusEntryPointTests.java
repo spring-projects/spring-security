@@ -25,6 +25,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -50,9 +51,9 @@ public class HttpStatusEntryPointTests {
 		this.entryPoint = new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullStatus() {
-		new HttpStatusEntryPoint(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new HttpStatusEntryPoint(null));
 	}
 
 	@Test

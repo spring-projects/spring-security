@@ -33,6 +33,7 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -56,9 +57,9 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException(
 			"Authentication Required");
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorStringWhenNullLocationThenException() {
-		new RedirectServerAuthenticationEntryPoint(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new RedirectServerAuthenticationEntryPoint(null));
 	}
 
 	@Test
@@ -87,9 +88,9 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 		redirectResult.assertWasSubscribed();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setRedirectStrategyWhenNullThenException() {
-		this.handler.setRedirectStrategy(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setRedirectStrategy(null));
 	}
 
 	private WebFilterExchange createExchange() {
