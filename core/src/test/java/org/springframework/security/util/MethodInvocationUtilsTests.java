@@ -25,6 +25,7 @@ import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.security.access.annotation.BusinessServiceImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Luke Taylor
@@ -44,9 +45,10 @@ public class MethodInvocationUtilsTests {
 		assertThat(mi).isNotNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void exceptionIsRaisedIfArgInfoOmittedAndMethodNameIsNotUnique() {
-		MethodInvocationUtils.createFromClass(BusinessServiceImpl.class, "methodReturningAList");
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> MethodInvocationUtils.createFromClass(BusinessServiceImpl.class, "methodReturningAList"));
 	}
 
 	@Test

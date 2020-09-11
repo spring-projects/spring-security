@@ -31,6 +31,7 @@ import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -55,9 +56,9 @@ public class RedirectServerAuthenticationEntryPointTests {
 	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException(
 			"Authentication Required");
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorStringWhenNullLocationThenException() {
-		new RedirectServerAuthenticationEntryPoint(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new RedirectServerAuthenticationEntryPoint(null));
 	}
 
 	@Test
@@ -86,9 +87,9 @@ public class RedirectServerAuthenticationEntryPointTests {
 		redirectResult.assertWasSubscribed();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setRedirectStrategyWhenNullThenException() {
-		this.entryPoint.setRedirectStrategy(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.entryPoint.setRedirectStrategy(null));
 	}
 
 }

@@ -28,6 +28,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -48,34 +50,36 @@ public class AndRequestMatcherTests {
 
 	private RequestMatcher matcher;
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void constructorNullArray() {
-		new AndRequestMatcher((RequestMatcher[]) null);
+		assertThatNullPointerException().isThrownBy(() -> new AndRequestMatcher((RequestMatcher[]) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorArrayContainsNull() {
-		new AndRequestMatcher((RequestMatcher) null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AndRequestMatcher((RequestMatcher) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmptyArray() {
-		new AndRequestMatcher(new RequestMatcher[0]);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AndRequestMatcher(new RequestMatcher[0]));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullList() {
-		new AndRequestMatcher((List<RequestMatcher>) null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AndRequestMatcher((List<RequestMatcher>) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorListContainsNull() {
-		new AndRequestMatcher(Arrays.asList((RequestMatcher) null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AndRequestMatcher(Arrays.asList((RequestMatcher) null)));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmptyList() {
-		new AndRequestMatcher(Collections.<RequestMatcher>emptyList());
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AndRequestMatcher(Collections.<RequestMatcher>emptyList()));
 	}
 
 	@Test

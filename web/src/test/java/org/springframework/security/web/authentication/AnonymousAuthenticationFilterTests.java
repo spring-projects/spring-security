@@ -37,6 +37,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
@@ -59,14 +60,14 @@ public class AnonymousAuthenticationFilterTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testDetectsMissingKey() {
-		new AnonymousAuthenticationFilter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AnonymousAuthenticationFilter(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testDetectsUserAttribute() {
-		new AnonymousAuthenticationFilter("qwerty", null, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AnonymousAuthenticationFilter("qwerty", null, null));
 	}
 
 	@Test

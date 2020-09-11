@@ -43,6 +43,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Luke Taylor
@@ -62,9 +63,10 @@ public class AbstractRememberMeServicesTests {
 		this.uds = new MockUserDetailsService(joe, false);
 	}
 
-	@Test(expected = InvalidCookieException.class)
+	@Test
 	public void nonBase64CookieShouldBeDetected() {
-		new MockRememberMeServices(this.uds).decodeCookie("nonBase64CookieValue%");
+		assertThatExceptionOfType(InvalidCookieException.class)
+				.isThrownBy(() -> new MockRememberMeServices(this.uds).decodeCookie("nonBase64CookieValue%"));
 	}
 
 	@Test
@@ -265,19 +267,21 @@ public class AbstractRememberMeServicesTests {
 		assertThat(returnedCookie.getSecure()).isEqualTo(true);
 	}
 
-	@Test(expected = CookieTheftException.class)
+	@Test
 	public void cookieTheftExceptionShouldBeRethrown() {
 		MockRememberMeServices services = new MockRememberMeServices(this.uds) {
+
 			@Override
 			protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
 					HttpServletResponse response) {
 				throw new CookieTheftException("Pretending cookie was stolen");
 			}
+
 		};
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setCookies(createLoginCookie("cookie:1:2"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		services.autoLogin(request, response);
+		assertThatExceptionOfType(CookieTheftException.class).isThrownBy(() -> services.autoLogin(request, response));
 	}
 
 	@Test

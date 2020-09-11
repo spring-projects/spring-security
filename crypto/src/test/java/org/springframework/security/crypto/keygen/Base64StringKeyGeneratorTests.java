@@ -21,6 +21,7 @@ import java.util.Base64;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -28,15 +29,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class Base64StringKeyGeneratorTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorIntWhenLessThan32ThenIllegalArgumentException() {
-		new Base64StringKeyGenerator(31);
+		assertThatIllegalArgumentException().isThrownBy(() -> new Base64StringKeyGenerator(31));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEncoderWhenEncoderNullThenThrowsIllegalArgumentException() {
-		Base64.Encoder encoder = null;
-		new Base64StringKeyGenerator(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new Base64StringKeyGenerator(null));
 	}
 
 	@Test

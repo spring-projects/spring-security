@@ -30,6 +30,7 @@ import org.springframework.security.access.prepost.PreInvocationAttribute;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link ExpressionBasedPreInvocationAdvice}
@@ -50,21 +51,23 @@ public class ExpressionBasedPreInvocationAdviceTests {
 		this.expressionBasedPreInvocationAdvice = new ExpressionBasedPreInvocationAdvice();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void findFilterTargetNameProvidedButNotMatch() throws Exception {
 		PreInvocationAttribute attribute = new PreInvocationExpressionAttribute("true", "filterTargetDoesNotMatch",
 				null);
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingCollection", new Class[] { List.class }, new Object[] { new ArrayList<>() });
-		this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void findFilterTargetNameProvidedArrayUnsupported() throws Exception {
 		PreInvocationAttribute attribute = new PreInvocationExpressionAttribute("true", "param", null);
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingArray", new Class[] { String[].class }, new Object[] { new String[0] });
-		this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute));
 	}
 
 	@Test
@@ -77,12 +80,13 @@ public class ExpressionBasedPreInvocationAdviceTests {
 		assertThat(result).isTrue();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void findFilterTargetNameNotProvidedArrayUnsupported() throws Exception {
 		PreInvocationAttribute attribute = new PreInvocationExpressionAttribute("true", "", null);
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingArray", new Class[] { String[].class }, new Object[] { new String[0] });
-		this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute));
 	}
 
 	@Test
@@ -95,21 +99,23 @@ public class ExpressionBasedPreInvocationAdviceTests {
 		assertThat(result).isTrue();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void findFilterTargetNameNotProvidedTypeNotSupported() throws Exception {
 		PreInvocationAttribute attribute = new PreInvocationExpressionAttribute("true", "", null);
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingString", new Class[] { String.class }, new Object[] { "param" });
-		this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void findFilterTargetNameNotProvidedMethodAcceptMoreThenOneArgument() throws Exception {
 		PreInvocationAttribute attribute = new PreInvocationExpressionAttribute("true", "", null);
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingTwoArgs", new Class[] { String.class, List.class },
 				new Object[] { "param", new ArrayList<>() });
-		this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute));
 	}
 
 	private class TestClass {

@@ -29,6 +29,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Tim Ysewyn
@@ -166,19 +167,20 @@ public class HpkpHeaderWriterTests {
 		assertThat(this.response.getHeaderNames()).isEmpty();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setMaxAgeInSecondsToNegative() {
-		this.writer.setMaxAgeInSeconds(-1);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setMaxAgeInSeconds(-1));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void addSha256PinsWithNullPin() {
-		this.writer.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.writer.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setIncorrectReportUri() {
-		this.writer.setReportUri("some url here...");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setReportUri("some url here..."));
 	}
 
 	@Test

@@ -68,10 +68,11 @@ public class CasAuthenticationTokenTests {
 				"Password", AuthorityUtils.createAuthorityList("ROLE_1", null), makeUserDetails(), assertion));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenEmptyKeyThenThrowsException() {
-		new CasAuthenticationToken("", "user", "password", Collections.<GrantedAuthority>emptyList(),
-				new User("user", "password", Collections.<GrantedAuthority>emptyList()), null);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new CasAuthenticationToken("", "user", "password", Collections.<GrantedAuthority>emptyList(),
+						new User("user", "password", Collections.<GrantedAuthority>emptyList()), null));
 	}
 
 	@Test

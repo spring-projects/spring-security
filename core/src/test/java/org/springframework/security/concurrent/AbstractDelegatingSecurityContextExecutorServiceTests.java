@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -57,9 +58,9 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
 	}
 
 	@Override
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullDelegate() {
-		new DelegatingSecurityContextExecutorService(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DelegatingSecurityContextExecutorService(null));
 	}
 
 	@Test

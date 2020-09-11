@@ -22,6 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -42,9 +43,9 @@ public abstract class AbstractDelegatingSecurityContextExecutorTests
 
 	private DelegatingSecurityContextExecutor executor;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullDelegate() {
-		new DelegatingSecurityContextExecutor(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DelegatingSecurityContextExecutor(null));
 	}
 
 	@Test

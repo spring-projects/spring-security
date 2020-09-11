@@ -32,6 +32,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -68,35 +69,40 @@ public class ReactivePreAuthenticatedAuthenticationManagerTests {
 		assertThat(authentication.isAuthenticated()).isEqualTo(true);
 	}
 
-	@Test(expected = UsernameNotFoundException.class)
+	@Test
 	public void returnsNullForNonExistingAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.empty());
-		this.manager.authenticate(tokenForUser(this.nonExistingAccount.getUsername())).block();
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(
+				() -> this.manager.authenticate(tokenForUser(this.nonExistingAccount.getUsername())).block());
 	}
 
-	@Test(expected = LockedException.class)
+	@Test
 	public void throwsExceptionForLockedAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.lockedAccount));
-		this.manager.authenticate(tokenForUser(this.lockedAccount.getUsername())).block();
+		assertThatExceptionOfType(LockedException.class)
+				.isThrownBy(() -> this.manager.authenticate(tokenForUser(this.lockedAccount.getUsername())).block());
 	}
 
-	@Test(expected = DisabledException.class)
+	@Test
 	public void throwsExceptionForDisabledAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.disabledAccount));
-		this.manager.authenticate(tokenForUser(this.disabledAccount.getUsername())).block();
+		assertThatExceptionOfType(DisabledException.class)
+				.isThrownBy(() -> this.manager.authenticate(tokenForUser(this.disabledAccount.getUsername())).block());
 	}
 
-	@Test(expected = AccountExpiredException.class)
+	@Test
 	public void throwsExceptionForExpiredAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.expiredAccount));
-		this.manager.authenticate(tokenForUser(this.expiredAccount.getUsername())).block();
+		assertThatExceptionOfType(AccountExpiredException.class)
+				.isThrownBy(() -> this.manager.authenticate(tokenForUser(this.expiredAccount.getUsername())).block());
 	}
 
-	@Test(expected = CredentialsExpiredException.class)
+	@Test
 	public void throwsExceptionForAccountWithExpiredCredentials() {
 		given(this.mockUserDetailsService.findByUsername(anyString()))
 				.willReturn(Mono.just(this.accountWithExpiredCredentials));
-		this.manager.authenticate(tokenForUser(this.accountWithExpiredCredentials.getUsername())).block();
+		assertThatExceptionOfType(CredentialsExpiredException.class).isThrownBy(() -> this.manager
+				.authenticate(tokenForUser(this.accountWithExpiredCredentials.getUsername())).block());
 	}
 
 	private Authentication tokenForUser(String username) {

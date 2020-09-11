@@ -29,6 +29,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Jitendra Singh
@@ -64,12 +65,13 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 		assertThat(token.getAuthorities()).isNotNull().hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 	}
 
-	@Test(expected = JsonMappingException.class)
+	@Test
 	public void deserializeAnonymousAuthenticationTokenWithoutAuthoritiesTest() throws IOException {
 		String jsonString = "{\"@class\": \"org.springframework.security.authentication.AnonymousAuthenticationToken\", \"details\": null,"
 				+ "\"principal\": \"user\", \"authenticated\": true, \"keyHash\": " + HASH_KEY.hashCode() + ","
 				+ "\"authorities\": [\"java.util.ArrayList\", []]}";
-		this.mapper.readValue(jsonString, AnonymousAuthenticationToken.class);
+		assertThatExceptionOfType(JsonMappingException.class)
+				.isThrownBy(() -> this.mapper.readValue(jsonString, AnonymousAuthenticationToken.class));
 	}
 
 	@Test

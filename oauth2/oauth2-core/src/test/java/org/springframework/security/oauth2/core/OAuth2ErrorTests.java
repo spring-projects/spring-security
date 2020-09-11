@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.core;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2Error}.
@@ -33,9 +34,9 @@ public class OAuth2ErrorTests {
 
 	private static final String ERROR_URI = "error-uri";
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenErrorCodeIsNullThenThrowIllegalArgumentException() {
-		new OAuth2Error(null, ERROR_DESCRIPTION, ERROR_URI);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2Error(null, ERROR_DESCRIPTION, ERROR_URI));
 	}
 
 	@Test

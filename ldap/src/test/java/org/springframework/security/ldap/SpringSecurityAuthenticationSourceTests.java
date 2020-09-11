@@ -30,6 +30,7 @@ import org.springframework.security.ldap.authentication.SpringSecurityAuthentica
 import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Luke Taylor
@@ -57,11 +58,11 @@ public class SpringSecurityAuthenticationSourceTests {
 		assertThat(source.getPrincipal()).isEqualTo("");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void getPrincipalRejectsNonLdapUserDetailsObject() {
 		AuthenticationSource source = new SpringSecurityAuthenticationSource();
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(new Object(), "password"));
-		source.getPrincipal();
+		assertThatIllegalArgumentException().isThrownBy(source::getPrincipal);
 	}
 
 	@Test

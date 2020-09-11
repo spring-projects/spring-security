@@ -34,6 +34,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.verify;
 
@@ -74,24 +75,26 @@ public class DelegatingSecurityContextRunnableTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullDelegate() {
-		new DelegatingSecurityContextRunnable(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DelegatingSecurityContextRunnable(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullDelegateNonNullSecurityContext() {
-		new DelegatingSecurityContextRunnable(null, this.securityContext);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingSecurityContextRunnable(null, this.securityContext));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullDelegateAndSecurityContext() {
-		new DelegatingSecurityContextRunnable(null, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DelegatingSecurityContextRunnable(null, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullSecurityContext() {
-		new DelegatingSecurityContextRunnable(this.delegate, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingSecurityContextRunnable(this.delegate, null));
 	}
 
 	@Test
@@ -119,14 +122,15 @@ public class DelegatingSecurityContextRunnableTests {
 		assertWrapped(this.runnable);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void createNullDelegate() {
-		DelegatingSecurityContextRunnable.create(null, this.securityContext);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> DelegatingSecurityContextRunnable.create(null, this.securityContext));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void createNullDelegateAndSecurityContext() {
-		DelegatingSecurityContextRunnable.create(null, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> DelegatingSecurityContextRunnable.create(null, null));
 	}
 
 	@Test

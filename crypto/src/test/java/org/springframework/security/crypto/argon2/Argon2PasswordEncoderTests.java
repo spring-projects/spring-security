@@ -28,6 +28,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Simeon Macke
@@ -181,9 +182,9 @@ public class Argon2PasswordEncoderTests {
 		assertThat(this.encoder.upgradeEncoding("")).isFalse();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void upgradeEncodingWhenEncodedPassIsBogusThenThrowException() {
-		this.encoder.upgradeEncoding("thisIsNoValidHash");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.encoder.upgradeEncoding("thisIsNoValidHash"));
 	}
 
 	private void injectPredictableSaltGen() throws Exception {

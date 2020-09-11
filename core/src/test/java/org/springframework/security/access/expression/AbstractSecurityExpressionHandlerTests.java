@@ -27,6 +27,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -57,9 +58,9 @@ public class AbstractSecurityExpressionHandlerTests {
 				.isEqualTo(true);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setExpressionParserNull() {
-		this.handler.setExpressionParser(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setExpressionParser(null));
 	}
 
 	@Test

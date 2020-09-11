@@ -38,6 +38,7 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -63,14 +64,16 @@ public class RememberMeAuthenticationFilterTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testDetectsAuthenticationManagerProperty() {
-		new RememberMeAuthenticationFilter(null, new NullRememberMeServices());
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new RememberMeAuthenticationFilter(null, new NullRememberMeServices()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testDetectsRememberMeServicesProperty() {
-		new RememberMeAuthenticationFilter(mock(AuthenticationManager.class), null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new RememberMeAuthenticationFilter(mock(AuthenticationManager.class), null));
 	}
 
 	@Test

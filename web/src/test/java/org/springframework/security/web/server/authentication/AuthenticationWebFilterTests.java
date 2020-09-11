@@ -36,6 +36,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -235,9 +236,9 @@ public class AuthenticationWebFilterTests {
 		verifyZeroInteractions(this.successHandler, this.failureHandler);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setRequiresAuthenticationMatcherWhenNullThenException() {
-		this.filter.setRequiresAuthenticationMatcher(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRequiresAuthenticationMatcher(null));
 	}
 
 }

@@ -43,6 +43,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -103,16 +104,16 @@ public class GrantedAuthorityDefaultsXmlTests {
 		this.messageService.getJsrMessage();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void messageDenied() {
 		setup("DENIED");
-		this.messageService.getMessage();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.messageService::getMessage);
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void jsrMessageDenied() {
 		setup("DENIED");
-		this.messageService.getJsrMessage();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.messageService::getJsrMessage);
 	}
 
 	// SEC-2926

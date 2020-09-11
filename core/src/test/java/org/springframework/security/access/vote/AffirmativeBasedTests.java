@@ -30,6 +30,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -89,19 +90,21 @@ public class AffirmativeBasedTests {
 		this.mgr.decide(this.user, new Object(), this.attrs);
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void oneDenyVoteTwoAbstainVotesDeniesAccess() {
 		this.mgr = new AffirmativeBased(
 				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.deny, this.abstain, this.abstain));
-		this.mgr.decide(this.user, new Object(), this.attrs);
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.mgr.decide(this.user, new Object(), this.attrs));
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void onlyAbstainVotesDeniesAccessWithDefault() {
 		this.mgr = new AffirmativeBased(
 				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.abstain, this.abstain, this.abstain));
 		assertThat(!this.mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check default
-		this.mgr.decide(this.user, new Object(), this.attrs);
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.mgr.decide(this.user, new Object(), this.attrs));
 	}
 
 	@Test

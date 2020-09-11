@@ -33,6 +33,7 @@ import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -55,41 +56,45 @@ public class MediaTypeRequestMatcherTests {
 		this.request = new MockHttpServletRequest();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenNullCNSThenIAE() {
 		ContentNegotiationStrategy c = null;
-		new MediaTypeRequestMatcher(c, MediaType.ALL);
+		assertThatIllegalArgumentException().isThrownBy(() -> new MediaTypeRequestMatcher(c, MediaType.ALL));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullCNSSet() {
-		new MediaTypeRequestMatcher(null, Collections.singleton(MediaType.ALL));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new MediaTypeRequestMatcher(null, Collections.singleton(MediaType.ALL)));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNoVarargs() {
-		new MediaTypeRequestMatcher(this.negotiationStrategy);
+		assertThatIllegalArgumentException().isThrownBy(() -> new MediaTypeRequestMatcher(this.negotiationStrategy));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullMediaTypes() {
 		Collection<MediaType> mediaTypes = null;
-		new MediaTypeRequestMatcher(this.negotiationStrategy, mediaTypes);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new MediaTypeRequestMatcher(this.negotiationStrategy, mediaTypes));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmtpyMediaTypes() {
-		new MediaTypeRequestMatcher(this.negotiationStrategy, Collections.<MediaType>emptyList());
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new MediaTypeRequestMatcher(this.negotiationStrategy, Collections.<MediaType>emptyList()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenEmptyMediaTypeThenIAE() {
-		new MediaTypeRequestMatcher();
+		assertThatIllegalArgumentException().isThrownBy(() -> new MediaTypeRequestMatcher());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenEmptyMediaTypeCollectionThenIAE() {
-		new MediaTypeRequestMatcher(Collections.<MediaType>emptyList());
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new MediaTypeRequestMatcher(Collections.<MediaType>emptyList()));
 	}
 
 	@Test

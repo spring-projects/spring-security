@@ -42,6 +42,7 @@ import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.context.SecurityContextRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -116,9 +117,10 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 				this.authority2);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void userRolesWithRolePrefixErrors() {
-		user("user").roles("ROLE_INVALID").postProcessRequest(this.request);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> user("user").roles("ROLE_INVALID").postProcessRequest(this.request));
 	}
 
 	@Test

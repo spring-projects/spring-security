@@ -27,6 +27,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -46,12 +47,13 @@ public class AbstractAuthenticationTokenTests {
 		this.authorities = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void testAuthoritiesAreImmutable() {
 		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password", this.authorities);
 		List<GrantedAuthority> gotAuthorities = (List<GrantedAuthority>) token.getAuthorities();
 		assertThat(gotAuthorities).isNotSameAs(this.authorities);
-		gotAuthorities.set(0, new SimpleGrantedAuthority("ROLE_SUPER_USER"));
+		assertThatExceptionOfType(UnsupportedOperationException.class)
+				.isThrownBy(() -> gotAuthorities.set(0, new SimpleGrantedAuthority("ROLE_SUPER_USER")));
 	}
 
 	@Test

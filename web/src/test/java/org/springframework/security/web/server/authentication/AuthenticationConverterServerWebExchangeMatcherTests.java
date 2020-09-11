@@ -30,6 +30,7 @@ import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -57,9 +58,10 @@ public class AuthenticationConverterServerWebExchangeMatcherTests {
 		this.matcher = new AuthenticationConverterServerWebExchangeMatcher(this.converter);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorConverterWhenConverterNullThenThrowsException() {
-		new AuthenticationConverterServerWebExchangeMatcher(null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AuthenticationConverterServerWebExchangeMatcher(null));
 	}
 
 	@Test

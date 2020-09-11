@@ -19,6 +19,8 @@ package org.springframework.security.access;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link SecurityConfig}.
@@ -33,19 +35,20 @@ public class SecurityConfigTests {
 		assertThat(config.hashCode()).isEqualTo("TEST".hashCode());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testCannotConstructWithNullAttribute() {
-		new SecurityConfig(null); // SEC-727
+		assertThatIllegalArgumentException().isThrownBy(() -> new SecurityConfig(null)); // SEC-727
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testCannotConstructWithEmptyAttribute() {
-		new SecurityConfig(""); // SEC-727
+		assertThatIllegalArgumentException().isThrownBy(() -> new SecurityConfig("")); // SEC-727
 	}
 
-	@Test(expected = NoSuchMethodException.class)
+	@Test
 	public void testNoArgConstructorDoesntExist() throws Exception {
-		SecurityConfig.class.getDeclaredConstructor((Class[]) null);
+		assertThatExceptionOfType(NoSuchMethodException.class)
+				.isThrownBy(() -> SecurityConfig.class.getDeclaredConstructor((Class[]) null));
 	}
 
 	@Test

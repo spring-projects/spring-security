@@ -37,6 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link PasswordComparisonAuthenticator}.
@@ -84,11 +85,12 @@ public class PasswordComparisonAuthenticatorTests {
 				() -> this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("Joe", "pass")));
 	}
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void testLdapPasswordCompareFailsWithWrongPassword() {
 		// Don't retrieve the password
 		this.authenticator.setUserAttributes(new String[] { "uid", "cn", "sn" });
-		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob", "wrongpass"));
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(
+				() -> this.authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob", "wrongpass")));
 	}
 
 	@Test
@@ -121,9 +123,9 @@ public class PasswordComparisonAuthenticatorTests {
 		this.authenticator.authenticate(this.ben);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testPasswordEncoderCantBeNull() {
-		this.authenticator.setPasswordEncoder(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authenticator.setPasswordEncoder(null));
 	}
 
 	@Test

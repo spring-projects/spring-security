@@ -23,6 +23,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests
@@ -56,9 +57,9 @@ public class SpringCacheBasedTicketCacheTests extends AbstractStatelessTicketCac
 		assertThat(cache.getByTicketId("UNKNOWN_SERVICE_TICKET")).isNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testStartupDetectsMissingCache() throws Exception {
-		new SpringCacheBasedTicketCache(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new SpringCacheBasedTicketCache(null));
 	}
 
 }

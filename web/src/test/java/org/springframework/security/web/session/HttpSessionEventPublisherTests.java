@@ -26,6 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.StaticWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * The HttpSessionEventPublisher tests
@@ -94,32 +95,31 @@ public class HttpSessionEventPublisherTests {
 	}
 
 	// SEC-2599
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void sessionCreatedNullApplicationContext() {
 		HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
 		MockServletContext servletContext = new MockServletContext();
 		MockHttpSession session = new MockHttpSession(servletContext);
 		HttpSessionEvent event = new HttpSessionEvent(session);
-		publisher.sessionCreated(event);
+		assertThatIllegalStateException().isThrownBy(() -> publisher.sessionCreated(event));
 	}
 
-	// SEC-2599
-	@Test(expected = IllegalStateException.class)
+	@Test // SEC-2599
 	public void sessionDestroyedNullApplicationContext() {
 		HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
 		MockServletContext servletContext = new MockServletContext();
 		MockHttpSession session = new MockHttpSession(servletContext);
 		HttpSessionEvent event = new HttpSessionEvent(session);
-		publisher.sessionDestroyed(event);
+		assertThatIllegalStateException().isThrownBy(() -> publisher.sessionDestroyed(event));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void sessionIdChangeNullApplicationContext() {
 		HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
 		MockServletContext servletContext = new MockServletContext();
 		MockHttpSession session = new MockHttpSession(servletContext);
 		HttpSessionEvent event = new HttpSessionEvent(session);
-		publisher.sessionIdChanged(event, "oldSessionId");
+		assertThatIllegalStateException().isThrownBy(() -> publisher.sessionIdChanged(event, "oldSessionId"));
 	}
 
 }

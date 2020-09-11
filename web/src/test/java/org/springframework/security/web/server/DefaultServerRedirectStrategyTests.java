@@ -29,6 +29,7 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
@@ -45,14 +46,14 @@ public class DefaultServerRedirectStrategyTests {
 
 	private DefaultServerRedirectStrategy strategy = new DefaultServerRedirectStrategy();
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void sendRedirectWhenLocationNullThenException() {
-		this.strategy.sendRedirect(this.exchange, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.strategy.sendRedirect(this.exchange, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void sendRedirectWhenExchangeNullThenException() {
-		this.strategy.sendRedirect(null, this.location);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.strategy.sendRedirect(null, this.location));
 	}
 
 	@Test
@@ -106,9 +107,9 @@ public class DefaultServerRedirectStrategyTests {
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location.getPath());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setHttpStatusWhenNullThenException() {
-		this.strategy.setHttpStatus(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.strategy.setHttpStatus(null));
 	}
 
 	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {

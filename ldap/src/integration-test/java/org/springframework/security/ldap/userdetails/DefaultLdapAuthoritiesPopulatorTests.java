@@ -37,6 +37,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Luke Taylor
@@ -198,9 +199,9 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 		assertThat(authorities).allMatch(LdapAuthority.class::isInstance);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void customAuthoritiesMappingFunctionThrowsIfNull() {
-		this.populator.setAuthorityMapper(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.populator.setAuthorityMapper(null));
 	}
 
 }

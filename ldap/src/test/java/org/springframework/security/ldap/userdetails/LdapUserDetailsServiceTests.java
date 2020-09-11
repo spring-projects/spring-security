@@ -31,6 +31,7 @@ import org.springframework.security.ldap.authentication.MockUserSearch;
 import org.springframework.security.ldap.authentication.NullLdapAuthoritiesPopulator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link LdapUserDetailsService}
@@ -39,14 +40,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class LdapUserDetailsServiceTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void rejectsNullSearchObject() {
-		new LdapUserDetailsService(null, new NullLdapAuthoritiesPopulator());
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new LdapUserDetailsService(null, new NullLdapAuthoritiesPopulator()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void rejectsNullAuthoritiesPopulator() {
-		new LdapUserDetailsService(new MockUserSearch(), null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new LdapUserDetailsService(new MockUserSearch(), null));
 	}
 
 	@Test

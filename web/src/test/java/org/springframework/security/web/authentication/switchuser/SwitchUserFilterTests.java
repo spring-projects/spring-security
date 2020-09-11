@@ -47,6 +47,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -181,33 +182,33 @@ public class SwitchUserFilterTests {
 		assertThat(filter.requiresSwitchUser(request)).isTrue();
 	}
 
-	@Test(expected = UsernameNotFoundException.class)
+	@Test
 	public void attemptSwitchToUnknownUserFails() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "user-that-doesnt-exist");
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setUserDetailsService(new MockUserDetailsService());
-		filter.attemptSwitchUser(request);
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> filter.attemptSwitchUser(request));
 	}
 
-	@Test(expected = DisabledException.class)
+	@Test
 	public void attemptSwitchToUserThatIsDisabledFails() {
-		switchToUser("mcgarrett");
+		assertThatExceptionOfType(DisabledException.class).isThrownBy(() -> switchToUser("mcgarrett"));
 	}
 
-	@Test(expected = AccountExpiredException.class)
+	@Test
 	public void attemptSwitchToUserWithAccountExpiredFails() {
-		switchToUser("wofat");
+		assertThatExceptionOfType(AccountExpiredException.class).isThrownBy(() -> switchToUser("wofat"));
 	}
 
-	@Test(expected = CredentialsExpiredException.class)
+	@Test
 	public void attemptSwitchToUserWithExpiredCredentialsFails() {
-		switchToUser("steve");
+		assertThatExceptionOfType(CredentialsExpiredException.class).isThrownBy(() -> switchToUser("steve"));
 	}
 
-	@Test(expected = UsernameNotFoundException.class)
+	@Test
 	public void switchUserWithNullUsernameThrowsException() {
-		switchToUser(null);
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> switchToUser(null));
 	}
 
 	@Test
@@ -246,22 +247,22 @@ public class SwitchUserFilterTests {
 		assertThat(FieldUtils.getFieldValue(filter, "switchFailureUrl")).isEqualTo("/switchfailed");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void configMissingUserDetailsServiceFails() {
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setSwitchUserUrl("/login/impersonate");
 		filter.setExitUserUrl("/logout/impersonate");
 		filter.setTargetUrl("/main.jsp");
-		filter.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(filter::afterPropertiesSet);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testBadConfigMissingTargetUrl() {
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setUserDetailsService(new MockUserDetailsService());
 		filter.setSwitchUserUrl("/login/impersonate");
 		filter.setExitUserUrl("/logout/impersonate");
-		filter.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(filter::afterPropertiesSet);
 	}
 
 	@Test
@@ -304,7 +305,7 @@ public class SwitchUserFilterTests {
 		assertThat(targetAuth.getPrincipal()).isEqualTo("dano");
 	}
 
-	@Test(expected = AuthenticationException.class)
+	@Test
 	public void exitUserWithNoCurrentUserFails() throws Exception {
 		// no current user in secure context
 		SecurityContextHolder.clearContext();
@@ -317,7 +318,8 @@ public class SwitchUserFilterTests {
 		// run 'exit', expect fail due to no current user
 		FilterChain chain = mock(FilterChain.class);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		filter.doFilter(request, response, chain);
+		assertThatExceptionOfType(AuthenticationException.class)
+				.isThrownBy(() -> filter.doFilter(request, response, chain));
 		verify(chain, never()).doFilter(request, response);
 	}
 
@@ -459,16 +461,16 @@ public class SwitchUserFilterTests {
 		assertThat(switchAuthorityRole).isEqualTo(switchedFrom.getAuthority());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setSwitchFailureUrlWhenNullThenThrowException() {
 		SwitchUserFilter filter = new SwitchUserFilter();
-		filter.setSwitchFailureUrl(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setSwitchFailureUrl(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setSwitchFailureUrlWhenEmptyThenThrowException() {
 		SwitchUserFilter filter = new SwitchUserFilter();
-		filter.setSwitchFailureUrl("");
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setSwitchFailureUrl(""));
 	}
 
 	@Test

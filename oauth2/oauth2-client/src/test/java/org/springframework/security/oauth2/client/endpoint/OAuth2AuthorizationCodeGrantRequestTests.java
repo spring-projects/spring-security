@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExch
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeGrantRequest}.
@@ -44,14 +45,16 @@ public class OAuth2AuthorizationCodeGrantRequestTests {
 		this.authorizationExchange = TestOAuth2AuthorizationExchanges.success();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizationCodeGrantRequest(null, this.authorizationExchange);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizationCodeGrantRequest(null, this.authorizationExchange));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAuthorizationExchangeIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, null));
 	}
 
 	@Test

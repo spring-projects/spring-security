@@ -96,10 +96,11 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		this.target = null;
 	}
 
-	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	@Test
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
 		loadContext();
-		this.target.someUserMethod1();
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(this.target::someUserMethod1);
 	}
 
 	@Test
@@ -114,13 +115,13 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		assertThat(((MethodSecurityMetadataSourceAdvisor) advisors[0]).getOrder()).isEqualTo(1001);
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
 		loadContext();
 		TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password", "ROLE_SOMEOTHERROLE");
 		token.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(token);
-		this.target.someAdminMethod();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.target::someAdminMethod);
 	}
 
 	@Test
@@ -138,7 +139,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		assertThat(service.getPostProcessorWasHere()).isEqualTo("Hello from the post processor!");
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void worksWithAspectJAutoproxy() {
 		// @formatter:off
 		setContext("<global-method-security>"
@@ -155,7 +156,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-		service.loadUserByUsername("notused");
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> service.loadUserByUsername("notused"));
 	}
 
 	@Test
@@ -201,13 +202,14 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		this.target.someOther(0);
 	}
 
-	@Test(expected = BeanDefinitionParsingException.class)
+	@Test
 	public void duplicateElementCausesError() {
-		setContext("<global-method-security />" + "<global-method-security />");
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> setContext("<global-method-security />" + "<global-method-security />"));
 	}
 
 	// SEC-936
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void worksWithoutTargetOrClass() {
 		// @formatter:off
 		setContext("<global-method-security secured-annotations='enabled'/>"
@@ -221,7 +223,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 		this.target = (BusinessService) this.appContext.getBean("businessService");
-		this.target.someUserMethod1();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.target::someUserMethod1);
 	}
 
 	// Expression configuration tests
@@ -242,7 +244,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				.isSameAs(FieldUtils.getFieldValue(aip, "postAdvice.expressionHandler"));
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void accessIsDeniedForHasRoleExpression() {
 		// @formatter:off
 		setContext("<global-method-security pre-post-annotations='enabled'/>"
@@ -251,7 +253,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		// @formatter:on
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
 		this.target = (BusinessService) this.appContext.getBean("target");
-		this.target.someAdminMethod();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.target::someAdminMethod);
 	}
 
 	@Test
@@ -322,7 +324,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	}
 
 	// SEC-1450
-	@Test(expected = AuthenticationException.class)
+	@Test
 	@SuppressWarnings("unchecked")
 	public void genericsAreMatchedByProtectPointcut() {
 		// @formatter:off
@@ -334,7 +336,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 						+ ConfigTestUtils.AUTH_PROVIDER_XML);
 		// @formatter:on
 		Foo foo = (Foo) this.appContext.getBean("target");
-		foo.foo(new SecurityConfig("A"));
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> foo.foo(new SecurityConfig("A")));
 	}
 
 	// SEC-1448

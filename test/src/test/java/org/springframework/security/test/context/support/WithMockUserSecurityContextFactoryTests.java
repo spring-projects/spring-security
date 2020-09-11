@@ -23,6 +23,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -38,9 +40,9 @@ public class WithMockUserSecurityContextFactoryTests {
 		this.factory = new WithMockUserSecurityContextFactory();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void usernameNull() {
-		this.factory.createSecurityContext(this.withUser);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.factory.createSecurityContext(this.withUser));
 	}
 
 	@Test
@@ -83,20 +85,20 @@ public class WithMockUserSecurityContextFactoryTests {
 				.extracting("authority").containsOnly("USER", "CUSTOM");
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void authoritiesAndRolesInvalid() {
 		given(this.withUser.value()).willReturn("valueUser");
 		given(this.withUser.roles()).willReturn(new String[] { "CUSTOM" });
 		given(this.withUser.authorities()).willReturn(new String[] { "USER", "CUSTOM" });
-		this.factory.createSecurityContext(this.withUser);
+		assertThatIllegalStateException().isThrownBy(() -> this.factory.createSecurityContext(this.withUser));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void rolesWithRolePrefixFails() {
 		given(this.withUser.value()).willReturn("valueUser");
 		given(this.withUser.roles()).willReturn(new String[] { "ROLE_FAIL" });
 		given(this.withUser.authorities()).willReturn(new String[] {});
-		this.factory.createSecurityContext(this.withUser);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.factory.createSecurityContext(this.withUser));
 	}
 
 }

@@ -34,6 +34,7 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.util.AntPathMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -96,9 +97,9 @@ public class MessageSecurityMetadataSourceRegistryTests {
 		assertThat(getAttribute()).isEqualTo("permitAll");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void pathMatcherNull() {
-		this.messages.simpDestPathMatcher(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.messages.simpDestPathMatcher(null));
 	}
 
 	@Test

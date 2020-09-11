@@ -22,6 +22,8 @@ import org.springframework.security.access.event.AuthenticationCredentialsNotFou
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.util.SimpleMethodInvocation;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
 /**
  * Tests {@link AuthenticationCredentialsNotFoundEvent}.
  *
@@ -29,22 +31,24 @@ import org.springframework.security.util.SimpleMethodInvocation;
  */
 public class AuthenticationCredentialsNotFoundEventTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testRejectsNulls() {
-		new AuthenticationCredentialsNotFoundEvent(null, SecurityConfig.createList("TEST"),
-				new AuthenticationCredentialsNotFoundException("test"));
+		assertThatIllegalArgumentException().isThrownBy(() -> new AuthenticationCredentialsNotFoundEvent(null,
+				SecurityConfig.createList("TEST"), new AuthenticationCredentialsNotFoundException("test")));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testRejectsNulls2() {
-		new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), null,
-				new AuthenticationCredentialsNotFoundException("test"));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), null,
+						new AuthenticationCredentialsNotFoundException("test")));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testRejectsNulls3() {
-		new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), SecurityConfig.createList("TEST"),
-				null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(),
+						SecurityConfig.createList("TEST"), null));
 	}
 
 }

@@ -42,6 +42,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -268,9 +269,9 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setWebClientNullThenIllegalArgumentException() {
-		this.tokenResponseClient.setWebClient(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setWebClient(null));
 	}
 
 	@Test

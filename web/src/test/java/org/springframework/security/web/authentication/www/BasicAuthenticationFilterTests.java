@@ -41,6 +41,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -182,14 +183,14 @@ public class BasicAuthenticationFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testStartupDetectsMissingAuthenticationEntryPoint() {
-		new BasicAuthenticationFilter(this.manager, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new BasicAuthenticationFilter(this.manager, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testStartupDetectsMissingAuthenticationManager() {
-		BasicAuthenticationFilter filter = new BasicAuthenticationFilter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new BasicAuthenticationFilter(null));
 	}
 
 	@Test

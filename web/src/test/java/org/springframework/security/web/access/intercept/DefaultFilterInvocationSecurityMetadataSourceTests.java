@@ -32,6 +32,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -87,9 +88,9 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 								// sign).isEqualTo(def)
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void unknownHttpMethodIsRejected() {
-		createFids("/someAdminPage.html**", "UNKNOWN");
+		assertThatIllegalArgumentException().isThrownBy(() -> createFids("/someAdminPage.html**", "UNKNOWN"));
 	}
 
 	@Test

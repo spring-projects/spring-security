@@ -32,6 +32,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 @SuppressWarnings("unchecked")
 public class MethodExpressionVoterTests {
@@ -86,28 +87,28 @@ public class MethodExpressionVoterTests {
 		assertThat(arg).containsExactly("joe", "sam");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void arraysCannotBePrefiltered() throws Exception {
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingAnArray(),
 				createArrayArg("sam", "joe"));
-		this.am.vote(this.joe, mi,
-				createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'jim')", "someArray", null)));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.am.vote(this.joe, mi,
+				createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'jim')", "someArray", null))));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void incorrectFilterTargetNameIsRejected() throws Exception {
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingACollection(),
 				createCollectionArg("joe", "bob"));
-		this.am.vote(this.joe, mi,
-				createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'joe')", "collcetion", null)));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.am.vote(this.joe, mi,
+				createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'joe')", "collcetion", null))));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void nullNamedFilterTargetIsRejected() throws Exception {
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingACollection(),
 				new Object[] { null });
-		this.am.vote(this.joe, mi,
-				createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'joe')", "collection", null)));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.am.vote(this.joe, mi,
+				createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'joe')", "collection", null))));
 	}
 
 	@Test

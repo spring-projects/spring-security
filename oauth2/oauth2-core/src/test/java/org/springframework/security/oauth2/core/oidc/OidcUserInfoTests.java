@@ -24,6 +24,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OidcUserInfo}.
@@ -149,9 +150,9 @@ public class OidcUserInfoTests {
 		CLAIMS.put(UPDATED_AT_CLAIM, UPDATED_AT_VALUE);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenClaimsIsEmptyThenThrowIllegalArgumentException() {
-		new OidcUserInfo(Collections.emptyMap());
+		assertThatIllegalArgumentException().isThrownBy(() -> new OidcUserInfo(Collections.emptyMap()));
 	}
 
 	@Test

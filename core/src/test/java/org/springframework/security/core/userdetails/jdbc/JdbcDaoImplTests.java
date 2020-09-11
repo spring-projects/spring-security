@@ -156,10 +156,10 @@ public class JdbcDaoImplTests {
 		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setMessageSourceWhenNullThenThrowsException() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
-		dao.setMessageSource(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> dao.setMessageSource(null));
 	}
 
 	@Test

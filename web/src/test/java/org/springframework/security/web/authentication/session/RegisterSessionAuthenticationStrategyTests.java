@@ -28,6 +28,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.SessionRegistry;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -56,9 +57,9 @@ public class RegisterSessionAuthenticationStrategyTests {
 		this.response = new MockHttpServletResponse();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullRegistry() {
-		new RegisterSessionAuthenticationStrategy(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new RegisterSessionAuthenticationStrategy(null));
 	}
 
 	@Test

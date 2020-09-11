@@ -31,6 +31,8 @@ import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 /**
  * Tests for {@link AuthenticationProviderBeanDefinitionParser}.
  *
@@ -140,18 +142,20 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 	}
 
 	// SEC-1466
-	@Test(expected = BeanDefinitionParsingException.class)
+	@Test
 	public void exernalProviderDoesNotSupportChildElements() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() ->
 		// @formatter:off
-		this.appContext = new InMemoryXmlApplicationContext("    <authentication-manager>"
-				+ "      <authentication-provider ref='aProvider'> "
-				+ "        <password-encoder ref='customPasswordEncoder'/>"
-				+ "      </authentication-provider>"
-				+ "    </authentication-manager>"
-				+ "    <b:bean id='aProvider' class='org.springframework.security.authentication.TestingAuthenticationProvider'/>"
-				+ "    <b:bean id='customPasswordEncoder' "
-				+ "        class='org.springframework.security.authentication.encoding.Md5PasswordEncoder'/>");
+			this.appContext = new InMemoryXmlApplicationContext("    <authentication-manager>"
+					+ "      <authentication-provider ref='aProvider'> "
+					+ "        <password-encoder ref='customPasswordEncoder'/>"
+					+ "      </authentication-provider>"
+					+ "    </authentication-manager>"
+					+ "    <b:bean id='aProvider' class='org.springframework.security.authentication.TestingAuthenticationProvider'/>"
+					+ "    <b:bean id='customPasswordEncoder' "
+					+ "        class='org.springframework.security.authentication.encoding.Md5PasswordEncoder'/>")
 		// @formatter:on
+		);
 	}
 
 	private AuthenticationProvider getProvider() {

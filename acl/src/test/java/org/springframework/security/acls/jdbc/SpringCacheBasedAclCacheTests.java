@@ -43,6 +43,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.FieldUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link org.springframework.security.acls.domain.SpringCacheBasedAclCache}
@@ -74,9 +75,9 @@ public class SpringCacheBasedAclCacheTests {
 		return cache;
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorRejectsNullParameters() {
-		new SpringCacheBasedAclCache(null, null, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new SpringCacheBasedAclCache(null, null, null));
 	}
 
 	@SuppressWarnings("rawtypes")

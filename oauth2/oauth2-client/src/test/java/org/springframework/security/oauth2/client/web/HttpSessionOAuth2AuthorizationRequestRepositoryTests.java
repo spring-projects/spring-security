@@ -42,9 +42,10 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 
 	private HttpSessionOAuth2AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void loadAuthorizationRequestWhenHttpServletRequestIsNullThenThrowIllegalArgumentException() {
-		this.authorizationRequestRepository.loadAuthorizationRequest(null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizationRequestRepository.loadAuthorizationRequest(null));
 	}
 
 	@Test

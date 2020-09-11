@@ -26,6 +26,7 @@ import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author TSARDD
@@ -33,20 +34,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testGetUserDetailsInvalidType() {
 		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
 		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("dummy", "dummy");
 		token.setDetails(new Object());
-		svc.loadUserDetails(token);
+		assertThatIllegalArgumentException().isThrownBy(() -> svc.loadUserDetails(token));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testGetUserDetailsNoDetails() {
 		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
 		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("dummy", "dummy");
 		token.setDetails(null);
-		svc.loadUserDetails(token);
+		assertThatIllegalArgumentException().isThrownBy(() -> svc.loadUserDetails(token));
 	}
 
 	@Test

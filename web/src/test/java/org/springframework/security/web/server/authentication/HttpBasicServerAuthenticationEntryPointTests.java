@@ -29,6 +29,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
@@ -70,9 +71,9 @@ public class HttpBasicServerAuthenticationEntryPointTests {
 				.containsOnly("Basic realm=\"Custom\"");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setRealmWhenNullThenException() {
-		this.entryPoint.setRealm(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.entryPoint.setRealm(null));
 	}
 
 	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {

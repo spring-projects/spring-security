@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.springframework.ldap.UncategorizedLdapException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -67,18 +68,20 @@ public class PasswordPolicyAwareContextSourceTests {
 		assertThat(this.ctxSource.getContext("user", "ignored")).isNotNull();
 	}
 
-	@Test(expected = UncategorizedLdapException.class)
+	@Test
 	public void standardExceptionIsPropagatedWhenExceptionRaisedAndNoControlsAreSet() throws Exception {
 		willThrow(new NamingException("some LDAP exception")).given(this.ctx).reconnect(any(Control[].class));
-		this.ctxSource.getContext("user", "ignored");
+		assertThatExceptionOfType(UncategorizedLdapException.class)
+				.isThrownBy(() -> this.ctxSource.getContext("user", "ignored"));
 	}
 
-	@Test(expected = PasswordPolicyException.class)
+	@Test
 	public void lockedPasswordPolicyControlRaisesPasswordPolicyException() throws Exception {
 		given(this.ctx.getResponseControls()).willReturn(new Control[] {
 				new PasswordPolicyResponseControl(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL) });
 		willThrow(new NamingException("locked message")).given(this.ctx).reconnect(any(Control[].class));
-		this.ctxSource.getContext("user", "ignored");
+		assertThatExceptionOfType(PasswordPolicyException.class)
+				.isThrownBy(() -> this.ctxSource.getContext("user", "ignored"));
 	}
 
 }

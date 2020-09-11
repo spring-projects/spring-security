@@ -26,6 +26,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -51,9 +52,9 @@ public class CsrfLogoutHandlerTests {
 		this.handler = new CsrfLogoutHandler(this.csrfTokenRepository);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullCsrfTokenRepository() {
-		new CsrfLogoutHandler(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new CsrfLogoutHandler(null));
 	}
 
 	@Test

@@ -189,9 +189,10 @@ public class JdbcUserDetailsManagerTests {
 		assertThat(this.cache.getUserMap().containsKey("joe")).isTrue();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void changePasswordFailsForUnauthenticatedUser() {
-		this.manager.changePassword("password", "newPassword");
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.manager.changePassword("password", "newPassword"));
 	}
 
 	@Test

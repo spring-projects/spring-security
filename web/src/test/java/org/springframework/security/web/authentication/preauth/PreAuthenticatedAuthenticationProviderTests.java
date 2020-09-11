@@ -27,6 +27,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author TSARDD
@@ -34,10 +36,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class PreAuthenticatedAuthenticationProviderTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public final void afterPropertiesSet() {
 		PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
-		provider.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(provider::afterPropertiesSet);
 	}
 
 	@Test
@@ -79,12 +81,12 @@ public class PreAuthenticatedAuthenticationProviderTests {
 		// @TODO: Add more asserts?
 	}
 
-	@Test(expected = UsernameNotFoundException.class)
+	@Test
 	public final void authenticateUnknownUserThrowsException() throws Exception {
 		UserDetails ud = new User("dummyUser1", "dummyPwd", true, true, true, true, AuthorityUtils.NO_AUTHORITIES);
 		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
 		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser2", "dummyPwd");
-		provider.authenticate(request);
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(request));
 	}
 
 	@Test

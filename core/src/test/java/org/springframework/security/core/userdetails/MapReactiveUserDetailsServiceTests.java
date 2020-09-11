@@ -24,6 +24,7 @@ import org.junit.Test;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class MapReactiveUserDetailsServiceTests {
 
@@ -35,16 +36,16 @@ public class MapReactiveUserDetailsServiceTests {
 	// @formatter:on
 	private MapReactiveUserDetailsService users = new MapReactiveUserDetailsService(Arrays.asList(USER_DETAILS));
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullUsers() {
-		Collection<UserDetails> users = null;
-		new MapReactiveUserDetailsService(users);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new MapReactiveUserDetailsService((Collection<UserDetails>) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmptyUsers() {
-		Collection<UserDetails> users = Collections.emptyList();
-		new MapReactiveUserDetailsService(users);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new MapReactiveUserDetailsService(Collections.emptyList()));
 	}
 
 	@Test

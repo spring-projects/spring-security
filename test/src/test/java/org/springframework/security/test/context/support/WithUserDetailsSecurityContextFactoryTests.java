@@ -33,6 +33,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -61,15 +62,15 @@ public class WithUserDetailsSecurityContextFactoryTests {
 		this.factory = new WithUserDetailsSecurityContextFactory(this.beans);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void createSecurityContextNullValue() {
-		this.factory.createSecurityContext(this.withUserDetails);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.factory.createSecurityContext(this.withUserDetails));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void createSecurityContextEmptyValue() {
 		given(this.withUserDetails.value()).willReturn("");
-		this.factory.createSecurityContext(this.withUserDetails);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.factory.createSecurityContext(this.withUserDetails));
 	}
 
 	@Test

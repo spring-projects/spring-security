@@ -48,6 +48,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -124,63 +125,63 @@ public class MethodSecurityInterceptorTests {
 		assertThat(this.interceptor.getAfterInvocationManager()).isEqualTo(aim);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void missingAccessDecisionManagerIsDetected() throws Exception {
 		this.interceptor.setAccessDecisionManager(null);
-		this.interceptor.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> this.interceptor.afterPropertiesSet());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void missingAuthenticationManagerIsDetected() throws Exception {
 		this.interceptor.setAuthenticationManager(null);
-		this.interceptor.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> this.interceptor.afterPropertiesSet());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void missingMethodSecurityMetadataSourceIsRejected() throws Exception {
 		this.interceptor.setSecurityMetadataSource(null);
-		this.interceptor.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> this.interceptor.afterPropertiesSet());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void missingRunAsManagerIsRejected() throws Exception {
 		this.interceptor.setRunAsManager(null);
-		this.interceptor.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> this.interceptor.afterPropertiesSet());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void initializationRejectsSecurityMetadataSourceThatDoesNotSupportMethodInvocation() throws Throwable {
 		given(this.mds.supports(MethodInvocation.class)).willReturn(false);
-		this.interceptor.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> this.interceptor.afterPropertiesSet());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void initializationRejectsAccessDecisionManagerThatDoesNotSupportMethodInvocation() throws Exception {
 		given(this.mds.supports(MethodInvocation.class)).willReturn(true);
 		given(this.adm.supports(MethodInvocation.class)).willReturn(false);
-		this.interceptor.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> this.interceptor.afterPropertiesSet());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void intitalizationRejectsRunAsManagerThatDoesNotSupportMethodInvocation() throws Exception {
 		final RunAsManager ram = mock(RunAsManager.class);
 		given(ram.supports(MethodInvocation.class)).willReturn(false);
 		this.interceptor.setRunAsManager(ram);
-		this.interceptor.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> this.interceptor.afterPropertiesSet());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void intitalizationRejectsAfterInvocationManagerThatDoesNotSupportMethodInvocation() throws Exception {
 		final AfterInvocationManager aim = mock(AfterInvocationManager.class);
 		given(aim.supports(MethodInvocation.class)).willReturn(false);
 		this.interceptor.setAfterInvocationManager(aim);
-		this.interceptor.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> this.interceptor.afterPropertiesSet());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void initializationFailsIfAccessDecisionManagerRejectsConfigAttributes() throws Exception {
 		given(this.adm.supports(any(ConfigAttribute.class))).willReturn(false);
-		this.interceptor.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> this.interceptor.afterPropertiesSet());
 	}
 
 	@Test
@@ -219,13 +220,14 @@ public class MethodSecurityInterceptorTests {
 		assertThat(!this.token.isAuthenticated()).isTrue();
 	}
 
-	@Test(expected = AuthenticationException.class)
+	@Test
 	public void callIsntMadeWhenAuthenticationManagerRejectsAuthentication() {
 		final TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password");
 		SecurityContextHolder.getContext().setAuthentication(token);
 		mdsReturnsUserRole();
 		given(this.authman.authenticate(token)).willThrow(new BadCredentialsException("rejected"));
-		this.advisedTarget.makeLowerCase("HELLO");
+		assertThatExceptionOfType(AuthenticationException.class)
+				.isThrownBy(() -> this.advisedTarget.makeLowerCase("HELLO"));
 	}
 
 	@Test
@@ -256,9 +258,9 @@ public class MethodSecurityInterceptorTests {
 		verify(this.eventPublisher).publishEvent(any(AuthorizationFailureEvent.class));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void rejectsNullSecuredObjects() throws Throwable {
-		this.interceptor.invoke(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.interceptor.invoke(null));
 	}
 
 	@Test
@@ -299,10 +301,11 @@ public class MethodSecurityInterceptorTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.token);
 	}
 
-	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	@Test
 	public void emptySecurityContextIsRejected() {
 		mdsReturnsUserRole();
-		this.advisedTarget.makeUpperCase("hello");
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(() -> this.advisedTarget.makeUpperCase("hello"));
 	}
 
 	@Test

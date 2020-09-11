@@ -24,27 +24,30 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.session.SessionInformation;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
 /**
  * @author Rob Winch
  * @since 4.2
  */
 public class SessionInformationExpiredEventTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenSessionInformationNullThenThrowsException() {
-		new SessionInformationExpiredEvent(null, new MockHttpServletRequest(), new MockHttpServletResponse());
+		assertThatIllegalArgumentException().isThrownBy(() -> new SessionInformationExpiredEvent(null,
+				new MockHttpServletRequest(), new MockHttpServletResponse()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenRequestNullThenThrowsException() {
-		new SessionInformationExpiredEvent(new SessionInformation("fake", "sessionId", new Date()), null,
-				new MockHttpServletResponse());
+		assertThatIllegalArgumentException().isThrownBy(() -> new SessionInformationExpiredEvent(
+				new SessionInformation("fake", "sessionId", new Date()), null, new MockHttpServletResponse()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenResponseNullThenThrowsException() {
-		new SessionInformationExpiredEvent(new SessionInformation("fake", "sessionId", new Date()),
-				new MockHttpServletRequest(), null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new SessionInformationExpiredEvent(
+				new SessionInformation("fake", "sessionId", new Date()), new MockHttpServletRequest(), null));
 	}
 
 }

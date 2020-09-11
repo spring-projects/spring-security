@@ -23,6 +23,7 @@ import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.util.SimpleMethodInvocation;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.mock;
  */
 public class AbstractSecurityInterceptorTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void detectsIfInvocationPassedIncompatibleSecureObject() {
 		MockSecurityInterceptorWhichOnlySupportsStrings si = new MockSecurityInterceptorWhichOnlySupportsStrings();
 		si.setRunAsManager(mock(RunAsManager.class));
@@ -41,10 +42,10 @@ public class AbstractSecurityInterceptorTests {
 		si.setAfterInvocationManager(mock(AfterInvocationManager.class));
 		si.setAccessDecisionManager(mock(AccessDecisionManager.class));
 		si.setSecurityMetadataSource(mock(SecurityMetadataSource.class));
-		si.beforeInvocation(new SimpleMethodInvocation());
+		assertThatIllegalArgumentException().isThrownBy(() -> si.beforeInvocation(new SimpleMethodInvocation()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void detectsViolationOfGetSecureObjectClassMethod() throws Exception {
 		MockSecurityInterceptorReturnsNull si = new MockSecurityInterceptorReturnsNull();
 		si.setRunAsManager(mock(RunAsManager.class));
@@ -52,7 +53,7 @@ public class AbstractSecurityInterceptorTests {
 		si.setAfterInvocationManager(mock(AfterInvocationManager.class));
 		si.setAccessDecisionManager(mock(AccessDecisionManager.class));
 		si.setSecurityMetadataSource(mock(SecurityMetadataSource.class));
-		si.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(si::afterPropertiesSet);
 	}
 
 	private class MockSecurityInterceptorReturnsNull extends AbstractSecurityInterceptor {

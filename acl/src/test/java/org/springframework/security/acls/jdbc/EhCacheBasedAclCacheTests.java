@@ -94,10 +94,11 @@ public class EhCacheBasedAclCacheTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorRejectsNullParameters() {
-		new EhCacheBasedAclCache(null, new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()),
-				new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_USER")));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new EhCacheBasedAclCache(null, new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()),
+						new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_USER"))));
 	}
 
 	@Test

@@ -31,6 +31,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedC
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -46,13 +47,14 @@ public class RequestHeaderAuthenticationFilterTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = PreAuthenticatedCredentialsNotFoundException.class)
+	@Test
 	public void rejectsMissingHeader() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
-		filter.doFilter(request, response, chain);
+		assertThatExceptionOfType(PreAuthenticatedCredentialsNotFoundException.class)
+				.isThrownBy(() -> filter.doFilter(request, response, chain));
 	}
 
 	@Test
@@ -120,14 +122,15 @@ public class RequestHeaderAuthenticationFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(dog);
 	}
 
-	@Test(expected = PreAuthenticatedCredentialsNotFoundException.class)
+	@Test
 	public void missingHeaderCausesException() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-		filter.doFilter(request, response, chain);
+		assertThatExceptionOfType(PreAuthenticatedCredentialsNotFoundException.class)
+				.isThrownBy(() -> filter.doFilter(request, response, chain));
 	}
 
 	@Test

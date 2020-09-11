@@ -32,6 +32,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Jitendra Singh
@@ -67,11 +68,12 @@ public class UserDeserializerTests extends AbstractMixinTests {
 		JSONAssert.assertEquals(userWithNoAuthoritiesJson(), userJson, true);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void deserializeUserWithNullPasswordEmptyAuthorityTest() throws IOException {
 		String userJsonWithoutPasswordString = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
 				"[]");
-		this.mapper.readValue(userJsonWithoutPasswordString, User.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.mapper.readValue(userJsonWithoutPasswordString, User.class));
 	}
 
 	@Test
@@ -85,11 +87,11 @@ public class UserDeserializerTests extends AbstractMixinTests {
 		assertThat(user.isEnabled()).isEqualTo(true);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void deserializeUserWithNoClassIdInAuthoritiesTest() throws Exception {
 		String userJson = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
 				"[{\"authority\": \"ROLE_USER\"}]");
-		this.mapper.readValue(userJson, User.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.mapper.readValue(userJson, User.class));
 	}
 
 	@Test

@@ -54,6 +54,7 @@ import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link BasicLookupStrategy}
@@ -294,12 +295,13 @@ public abstract class AbstractBasicLookupStrategyTests {
 		assertThat(foundParent2Acl.isGranted(checkPermission, sids, false)).isTrue();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void nullOwnerIsNotSupported() {
 		String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (6,2,104,null,null,1);";
 		getJdbcTemplate().execute(query);
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 104L);
-		this.strategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.strategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID)));
 	}
 
 	@Test

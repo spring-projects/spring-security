@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -63,10 +64,11 @@ public class UsernamePasswordAuthenticationTokenTests {
 		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities())).contains("ROLE_TWO");
 	}
 
-	@Test(expected = NoSuchMethodException.class)
+	@Test
 	public void testNoArgConstructorDoesntExist() throws Exception {
 		Class<?> clazz = UsernamePasswordAuthenticationToken.class;
-		clazz.getDeclaredConstructor((Class[]) null);
+		assertThatExceptionOfType(NoSuchMethodException.class)
+				.isThrownBy(() -> clazz.getDeclaredConstructor((Class[]) null));
 	}
 
 }

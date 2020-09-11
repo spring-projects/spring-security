@@ -31,6 +31,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for FilterBasedLdapUserSearch.
@@ -81,16 +82,17 @@ public class FilterBasedLdapUserSearchTests {
 		assertThat(ben.getStringAttribute("cn")).isEqualTo("Ben Alex");
 	}
 
-	@Test(expected = IncorrectResultSizeDataAccessException.class)
+	@Test
 	public void searchFailsOnMultipleMatches() {
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(cn=*)", this.contextSource);
-		locator.searchForUser("Ignored");
+		assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
+				.isThrownBy(() -> locator.searchForUser("Ignored"));
 	}
 
-	@Test(expected = UsernameNotFoundException.class)
+	@Test
 	public void searchForInvalidUserFails() {
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", this.contextSource);
-		locator.searchForUser("Joe");
+		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> locator.searchForUser("Joe"));
 	}
 
 	@Test

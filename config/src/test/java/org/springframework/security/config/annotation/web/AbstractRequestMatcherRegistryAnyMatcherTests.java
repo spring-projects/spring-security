@@ -26,6 +26,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 /**
  * Tests for {@link AbstractRequestMatcherRegistry}.
  *
@@ -33,29 +35,34 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  */
 public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
-	@Test(expected = BeanCreationException.class)
+	@Test
 	public void antMatchersCanNotWorkAfterAnyRequest() {
-		loadConfig(AntMatchersAfterAnyRequestConfig.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> loadConfig(AntMatchersAfterAnyRequestConfig.class));
 	}
 
-	@Test(expected = BeanCreationException.class)
+	@Test
 	public void mvcMatchersCanNotWorkAfterAnyRequest() {
-		loadConfig(MvcMatchersAfterAnyRequestConfig.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> loadConfig(MvcMatchersAfterAnyRequestConfig.class));
 	}
 
-	@Test(expected = BeanCreationException.class)
+	@Test
 	public void regexMatchersCanNotWorkAfterAnyRequest() {
-		loadConfig(RegexMatchersAfterAnyRequestConfig.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> loadConfig(RegexMatchersAfterAnyRequestConfig.class));
 	}
 
-	@Test(expected = BeanCreationException.class)
+	@Test
 	public void anyRequestCanNotWorkAfterItself() {
-		loadConfig(AnyRequestAfterItselfConfig.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> loadConfig(AnyRequestAfterItselfConfig.class));
 	}
 
-	@Test(expected = BeanCreationException.class)
+	@Test
 	public void requestMatchersCanNotWorkAfterAnyRequest() {
-		loadConfig(RequestMatchersAfterAnyRequestConfig.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> loadConfig(RequestMatchersAfterAnyRequestConfig.class));
 	}
 
 	private void loadConfig(Class<?>... configs) {

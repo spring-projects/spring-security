@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2AuthorizedClient}.
@@ -46,19 +47,22 @@ public class OAuth2AuthorizedClientTests {
 		this.accessToken = TestOAuth2AccessTokens.noScopes();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizedClient(null, this.principalName, this.accessToken);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizedClient(null, this.principalName, this.accessToken));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizedClient(this.clientRegistration, null, this.accessToken);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizedClient(this.clientRegistration, null, this.accessToken));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAccessTokenIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizedClient(this.clientRegistration, this.principalName, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizedClient(this.clientRegistration, this.principalName, null));
 	}
 
 	@Test

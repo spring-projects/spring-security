@@ -26,6 +26,8 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 /**
  * @author Rob Winch
  *
@@ -34,14 +36,14 @@ public class Sec2196Tests {
 
 	private ConfigurableApplicationContext context;
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void genericMethodsProtected() {
 		loadContext("<global-method-security secured-annotations=\"enabled\" pre-post-annotations=\"enabled\"/>"
 				+ "<b:bean class='" + Service.class.getName() + "'/>");
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("test", "pass", "ROLE_USER"));
 		Service service = this.context.getBean(Service.class);
-		service.save(new User());
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> service.save(new User()));
 	}
 
 	@Test

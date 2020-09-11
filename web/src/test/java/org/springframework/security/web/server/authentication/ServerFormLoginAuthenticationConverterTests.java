@@ -29,6 +29,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -86,14 +87,14 @@ public class ServerFormLoginAuthenticationConverterTests {
 		assertThat(authentication.getAuthorities()).isEmpty();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setUsernameParameterWhenNullThenIllegalArgumentException() {
-		this.converter.setUsernameParameter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setUsernameParameter(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setPasswordParameterWhenNullThenIllegalArgumentException() {
-		this.converter.setPasswordParameter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setPasswordParameter(null));
 	}
 
 }

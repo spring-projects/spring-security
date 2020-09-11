@@ -27,6 +27,8 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 /**
  * @author Luke Taylor
  * @since 2.0
@@ -35,17 +37,17 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SEC936ApplicationContextTests {
 
-	@Autowired
 	/**
 	 * SessionRegistry is used as the test service interface (nothing to do with the test)
 	 */
+	@Autowired
 	private SessionRegistry sessionRegistry;
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void securityInterceptorHandlesCallWithNoTargetObject() {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new UsernamePasswordAuthenticationToken("bob", "bobspassword"));
-		this.sessionRegistry.getAllPrincipals();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.sessionRegistry::getAllPrincipals);
 	}
 
 }

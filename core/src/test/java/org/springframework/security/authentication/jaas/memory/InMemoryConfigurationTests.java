@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.springframework.security.authentication.jaas.TestLoginModule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link InMemoryConfiguration}.
@@ -55,9 +56,10 @@ public class InMemoryConfigurationTests {
 		assertThat(new InMemoryConfiguration((AppConfigurationEntry[]) null).getAppConfigurationEntry("name")).isNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullMapped() {
-		new InMemoryConfiguration((Map<String, AppConfigurationEntry[]>) null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new InMemoryConfiguration((Map<String, AppConfigurationEntry[]>) null));
 	}
 
 	@Test
@@ -72,9 +74,9 @@ public class InMemoryConfigurationTests {
 				.getAppConfigurationEntry("name")).isNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullMapNullDefault() {
-		new InMemoryConfiguration(null, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new InMemoryConfiguration(null, null));
 	}
 
 	@Test

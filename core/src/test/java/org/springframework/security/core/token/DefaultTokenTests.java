@@ -21,6 +21,7 @@ import java.util.Date;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link DefaultToken}.
@@ -40,11 +41,11 @@ public class DefaultTokenTests {
 		assertThat(t2).isEqualTo(t1);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testRejectsNullExtendedInformation() {
 		String key = "key";
 		long created = new Date().getTime();
-		new DefaultToken(key, created, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultToken(key, created, null));
 	}
 
 	@Test

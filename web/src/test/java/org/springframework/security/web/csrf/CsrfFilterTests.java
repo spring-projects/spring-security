@@ -39,6 +39,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -95,9 +96,9 @@ public class CsrfFilterTests {
 		this.response = new MockHttpServletResponse();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullRepository() {
-		new CsrfFilter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new CsrfFilter(null));
 	}
 
 	// SEC-2276
@@ -319,14 +320,14 @@ public class CsrfFilterTests {
 		verifyZeroInteractions(repository);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setRequireCsrfProtectionMatcherNull() {
-		this.filter.setRequireCsrfProtectionMatcher(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRequireCsrfProtectionMatcher(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setAccessDeniedHandlerNull() {
-		this.filter.setAccessDeniedHandler(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAccessDeniedHandler(null));
 	}
 
 	private static CsrfTokenAssert assertToken(Object token) {

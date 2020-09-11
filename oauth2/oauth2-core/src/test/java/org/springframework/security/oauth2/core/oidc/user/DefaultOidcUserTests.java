@@ -32,6 +32,7 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link DefaultOidcUser}.
@@ -65,19 +66,19 @@ public class DefaultOidcUserTests {
 
 	private static final OidcUserInfo USER_INFO = new OidcUserInfo(USER_INFO_CLAIMS);
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAuthoritiesIsNullThenThrowIllegalArgumentException() {
-		new DefaultOidcUser(null, ID_TOKEN);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultOidcUser(null, ID_TOKEN));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenIdTokenIsNullThenThrowIllegalArgumentException() {
-		new DefaultOidcUser(AUTHORITIES, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultOidcUser(AUTHORITIES, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenNameAttributeKeyInvalidThenThrowIllegalArgumentException() {
-		new DefaultOidcUser(AUTHORITIES, ID_TOKEN, "invalid");
+		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultOidcUser(AUTHORITIES, ID_TOKEN, "invalid"));
 	}
 
 	@Test

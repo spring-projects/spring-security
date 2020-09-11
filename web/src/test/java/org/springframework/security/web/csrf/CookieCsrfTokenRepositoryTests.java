@@ -25,6 +25,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -235,19 +236,19 @@ public class CookieCsrfTokenRepositoryTests {
 		assertThat(loadToken.getToken()).isEqualTo(value);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setCookieNameNullIllegalArgumentException() {
-		this.repository.setCookieName(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCookieName(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setParameterNameNullIllegalArgumentException() {
-		this.repository.setParameterName(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setParameterName(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setHeaderNameNullIllegalArgumentException() {
-		this.repository.setHeaderName(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setHeaderName(null));
 	}
 
 }

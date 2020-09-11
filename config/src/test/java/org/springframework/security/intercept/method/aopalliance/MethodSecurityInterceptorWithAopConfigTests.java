@@ -84,7 +84,7 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 		}
 	}
 
-	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	@Test
 	public void securityInterceptorIsAppliedWhenUsedWithAopConfig() {
 		// @formatter:off
 		setContext("<aop:config>"
@@ -99,10 +99,11 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 		// Check both against interface and class
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
 				.isThrownBy(() -> target.makeLowerCase("TEST"));
-		target.makeUpperCase("test");
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(() -> target.makeUpperCase("test"));
 	}
 
-	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	@Test
 	public void securityInterceptorIsAppliedWhenUsedWithBeanNameAutoProxyCreator() {
 		// @formatter:off
 		setContext("<b:bean id='autoProxyCreator' class='org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator'>"
@@ -126,7 +127,8 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 		ITargetObject target = (ITargetObject) this.appContext.getBean("target");
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
 				.isThrownBy(() -> target.makeLowerCase("TEST"));
-		target.makeUpperCase("test");
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(() -> target.makeUpperCase("test"));
 	}
 
 	private void setContext(String context) {

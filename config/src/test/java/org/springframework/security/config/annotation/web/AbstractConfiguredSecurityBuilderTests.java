@@ -27,6 +27,8 @@ import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -44,14 +46,14 @@ public class AbstractConfiguredSecurityBuilderTests {
 		this.builder = new TestConfiguredSecurityBuilder(mock(ObjectPostProcessor.class));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenObjectPostProcessorIsNullThenThrowIllegalArgumentException() {
-		new TestConfiguredSecurityBuilder(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new TestConfiguredSecurityBuilder(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void objectPostProcessorWhenNullThenThrowIllegalArgumentException() {
-		this.builder.objectPostProcessor(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.builder.objectPostProcessor(null));
 	}
 
 	@Test
@@ -61,15 +63,15 @@ public class AbstractConfiguredSecurityBuilderTests {
 		assertThat(this.builder.getConfigurers(TestSecurityConfigurer.class)).hasSize(1);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void buildWhenBuildTwiceThenThrowIllegalStateException() throws Exception {
 		this.builder.build();
-		this.builder.build();
+		assertThatIllegalStateException().isThrownBy(() -> this.builder.build());
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void getObjectWhenNotBuiltThenThrowIllegalStateException() {
-		this.builder.getObject();
+		assertThatIllegalStateException().isThrownBy(this.builder::getObject);
 	}
 
 	@Test
@@ -81,22 +83,22 @@ public class AbstractConfiguredSecurityBuilderTests {
 		verify(DelegateSecurityConfigurer.CONFIGURER).configure(this.builder);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void getConfigurerWhenMultipleConfigurersThenThrowIllegalStateException() throws Exception {
 		TestConfiguredSecurityBuilder builder = new TestConfiguredSecurityBuilder(mock(ObjectPostProcessor.class),
 				true);
 		builder.apply(new DelegateSecurityConfigurer());
 		builder.apply(new DelegateSecurityConfigurer());
-		builder.getConfigurer(DelegateSecurityConfigurer.class);
+		assertThatIllegalStateException().isThrownBy(() -> builder.getConfigurer(DelegateSecurityConfigurer.class));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void removeConfigurerWhenMultipleConfigurersThenThrowIllegalStateException() throws Exception {
 		TestConfiguredSecurityBuilder builder = new TestConfiguredSecurityBuilder(mock(ObjectPostProcessor.class),
 				true);
 		builder.apply(new DelegateSecurityConfigurer());
 		builder.apply(new DelegateSecurityConfigurer());
-		builder.removeConfigurer(DelegateSecurityConfigurer.class);
+		assertThatIllegalStateException().isThrownBy(() -> builder.removeConfigurer(DelegateSecurityConfigurer.class));
 	}
 
 	@Test

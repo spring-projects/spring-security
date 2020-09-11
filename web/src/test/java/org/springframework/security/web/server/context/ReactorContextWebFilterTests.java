@@ -38,6 +38,7 @@ import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -69,10 +70,9 @@ public class ReactorContextWebFilterTests {
 		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullSecurityContextRepository() {
-		ServerSecurityContextRepository repository = null;
-		new ReactorContextWebFilter(repository);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ReactorContextWebFilter(null));
 	}
 
 	@Test

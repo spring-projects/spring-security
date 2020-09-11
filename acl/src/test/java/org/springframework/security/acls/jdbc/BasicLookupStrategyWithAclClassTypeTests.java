@@ -37,6 +37,8 @@ import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.ObjectIdentity;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 /**
  * Tests {@link BasicLookupStrategy} with Acl Class type id set to UUID.
  *
@@ -110,10 +112,11 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 		Assert.assertNotNull(foundAcls.get(oid));
 	}
 
-	@Test(expected = ConversionFailedException.class)
+	@Test
 	public void testReadObjectIdentityUsingNonUuidInDatabase() {
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, OBJECT_IDENTITY_LONG_AS_UUID);
-		this.uuidEnabledStrategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID));
+		assertThatExceptionOfType(ConversionFailedException.class)
+				.isThrownBy(() -> this.uuidEnabledStrategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID)));
 	}
 
 }

@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.TestJwts;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link JwtGrantedAuthoritiesConverter}
@@ -37,10 +38,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class JwtGrantedAuthoritiesConverterTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setAuthorityPrefixWithNullThenException() {
 		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-		jwtGrantedAuthoritiesConverter.setAuthorityPrefix(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> jwtGrantedAuthoritiesConverter.setAuthorityPrefix(null));
 	}
 
 	@Test

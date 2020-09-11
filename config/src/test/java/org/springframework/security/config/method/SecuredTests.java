@@ -27,6 +27,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 /**
  * @author Rob Winch
  *
@@ -43,11 +45,11 @@ public class SecuredTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void securedAdminRoleDenied() {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
-		this.service.securedAdminRole();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.service::securedAdminRole);
 	}
 
 	@Test

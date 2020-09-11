@@ -27,6 +27,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -57,14 +58,16 @@ public class DelegatingRequestMatcherHeaderWriterTests {
 		this.headerWriter = new DelegatingRequestMatcherHeaderWriter(this.matcher, this.delegate);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullRequestMatcher() {
-		new DelegatingRequestMatcherHeaderWriter(null, this.delegate);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingRequestMatcherHeaderWriter(null, this.delegate));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullDelegate() {
-		new DelegatingRequestMatcherHeaderWriter(this.matcher, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingRequestMatcherHeaderWriter(this.matcher, null));
 	}
 
 	@Test

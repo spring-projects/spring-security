@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.springframework.util.SerializationUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2AccessToken}.
@@ -49,24 +50,28 @@ public class OAuth2AccessTokenTests {
 		assertThat(OAuth2AccessToken.TokenType.BEARER.getValue()).isEqualTo("Bearer");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenTokenTypeIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AccessToken(null, TOKEN_VALUE, ISSUED_AT, EXPIRES_AT);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AccessToken(null, TOKEN_VALUE, ISSUED_AT, EXPIRES_AT));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenTokenValueIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AccessToken(TOKEN_TYPE, null, ISSUED_AT, EXPIRES_AT);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AccessToken(TOKEN_TYPE, null, ISSUED_AT, EXPIRES_AT));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenIssuedAtAfterExpiresAtThenThrowIllegalArgumentException() {
-		new OAuth2AccessToken(TOKEN_TYPE, TOKEN_VALUE, Instant.from(EXPIRES_AT).plusSeconds(1), EXPIRES_AT);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2AccessToken(TOKEN_TYPE, TOKEN_VALUE,
+				Instant.from(EXPIRES_AT).plusSeconds(1), EXPIRES_AT));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenExpiresAtBeforeIssuedAtThenThrowIllegalArgumentException() {
-		new OAuth2AccessToken(TOKEN_TYPE, TOKEN_VALUE, ISSUED_AT, Instant.from(ISSUED_AT).minusSeconds(1));
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2AccessToken(TOKEN_TYPE, TOKEN_VALUE, ISSUED_AT,
+				Instant.from(ISSUED_AT).minusSeconds(1)));
 	}
 
 	@Test

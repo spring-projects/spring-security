@@ -65,9 +65,10 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	@Test
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
-		this.target.someUserMethod1();
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(this.target::someUserMethod1);
 	}
 
 	@Test
@@ -78,28 +79,29 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 		this.target.someUserMethod1();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-		this.target.someAdminMethod();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.target::someAdminMethod);
 	}
 
 	// SEC-1387
-	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	@Test
 	public void targetIsSerializableBeforeUse() throws Exception {
 		BusinessService chompedTarget = (BusinessService) serializeAndDeserialize(this.target);
-		chompedTarget.someAdminMethod();
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(chompedTarget::someAdminMethod);
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void targetIsSerializableAfterUse() throws Exception {
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
 				.isThrownBy(this.target::someAdminMethod);
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("u", "p", "ROLE_A"));
 		BusinessService chompedTarget = (BusinessService) serializeAndDeserialize(this.target);
-		chompedTarget.someAdminMethod();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(chompedTarget::someAdminMethod);
 	}
 
 	private Object serializeAndDeserialize(Object o) throws IOException, ClassNotFoundException {

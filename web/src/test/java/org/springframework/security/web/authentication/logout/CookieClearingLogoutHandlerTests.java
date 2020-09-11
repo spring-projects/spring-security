@@ -25,6 +25,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -107,16 +108,12 @@ public class CookieClearingLogoutHandlerTests {
 		}
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidAge() {
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setContextPath("/foo/bar");
 		Cookie cookie1 = new Cookie("my_cookie", null);
 		cookie1.setPath("/foo");
 		cookie1.setMaxAge(100);
-		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler(cookie1);
-		handler.logout(request, response, mock(Authentication.class));
+		assertThatIllegalArgumentException().isThrownBy(() -> new CookieClearingLogoutHandler(cookie1));
 	}
 
 }

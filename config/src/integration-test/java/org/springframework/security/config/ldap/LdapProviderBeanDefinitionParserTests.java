@@ -33,6 +33,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class LdapProviderBeanDefinitionParserTests {
 
@@ -73,10 +74,10 @@ public class LdapProviderBeanDefinitionParserTests {
 				.containsExactly("member={0}", "uniqueMember={0}");
 	}
 
-	@Test(expected = ApplicationContextException.class)
+	@Test
 	public void missingServerEltCausesConfigException() {
-		new InMemoryXmlApplicationContext(
-				"<authentication-manager>" + "  <ldap-authentication-provider />" + "</authentication-manager>");
+		assertThatExceptionOfType(ApplicationContextException.class).isThrownBy(() -> new InMemoryXmlApplicationContext(
+				"<authentication-manager>" + "  <ldap-authentication-provider />" + "</authentication-manager>"));
 	}
 
 	@Test

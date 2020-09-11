@@ -25,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.util.SimpleMethodInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link AuthorizationFailureEvent}.
@@ -39,24 +40,29 @@ public class AuthorizationFailureEventTests {
 
 	private AccessDeniedException exception = new AuthorizationServiceException("error", new Throwable());
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void rejectsNullSecureObject() {
-		new AuthorizationFailureEvent(null, this.attributes, this.foo, this.exception);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AuthorizationFailureEvent(null, this.attributes, this.foo, this.exception));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void rejectsNullAttributesList() {
-		new AuthorizationFailureEvent(new SimpleMethodInvocation(), null, this.foo, this.exception);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new AuthorizationFailureEvent(new SimpleMethodInvocation(), null, this.foo, this.exception));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void rejectsNullAuthentication() {
-		new AuthorizationFailureEvent(new SimpleMethodInvocation(), this.attributes, null, this.exception);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AuthorizationFailureEvent(new SimpleMethodInvocation(), this.attributes, null,
+						this.exception));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void rejectsNullException() {
-		new AuthorizationFailureEvent(new SimpleMethodInvocation(), this.attributes, this.foo, null);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new AuthorizationFailureEvent(new SimpleMethodInvocation(), this.attributes, this.foo, null));
 	}
 
 	@Test

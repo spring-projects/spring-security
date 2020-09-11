@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OidcUserAuthority}.
@@ -58,9 +59,9 @@ public class OidcUserAuthorityTests {
 
 	private static final OidcUserInfo USER_INFO = new OidcUserInfo(USER_INFO_CLAIMS);
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenIdTokenIsNullThenThrowIllegalArgumentException() {
-		new OidcUserAuthority(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OidcUserAuthority(null));
 	}
 
 	@Test
@@ -68,9 +69,9 @@ public class OidcUserAuthorityTests {
 		new OidcUserAuthority(ID_TOKEN, null);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAuthorityIsNullThenThrowIllegalArgumentException() {
-		new OidcUserAuthority(null, ID_TOKEN, USER_INFO);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OidcUserAuthority(null, ID_TOKEN, USER_INFO));
 	}
 
 	@Test

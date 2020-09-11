@@ -37,6 +37,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -200,7 +201,7 @@ public class TokenBasedRememberMeServicesTests {
 		assertThat(returnedCookie.getMaxAge()).isZero();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void autoLoginClearsCookieIfUserServiceMisconfigured() {
 		udsWillReturnNull();
 		Cookie cookie = new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
@@ -209,7 +210,7 @@ public class TokenBasedRememberMeServicesTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setCookies(cookie);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		this.services.autoLogin(request, response);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.services.autoLogin(request, response));
 	}
 
 	@Test

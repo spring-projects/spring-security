@@ -29,6 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -51,9 +52,9 @@ public class SecurityContextCallableProcessingInterceptorTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNull() {
-		new SecurityContextCallableProcessingInterceptor(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new SecurityContextCallableProcessingInterceptor(null));
 	}
 
 	@Test

@@ -47,14 +47,16 @@ public class InvalidConfigurationTests {
 	}
 
 	// Parser should throw a SAXParseException
-	@Test(expected = XmlBeanDefinitionStoreException.class)
+	@Test
 	public void passwordEncoderCannotAppearAtTopLevel() {
-		setContext("<password-encoder hash='md5'/>");
+		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
+				.isThrownBy(() -> setContext("<password-encoder hash='md5'/>"));
 	}
 
-	@Test(expected = XmlBeanDefinitionStoreException.class)
+	@Test
 	public void authenticationProviderCannotAppearAtTopLevel() {
-		setContext("<authentication-provider ref='blah'/>");
+		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
+				.isThrownBy(() -> setContext("<authentication-provider ref='blah'/>"));
 	}
 
 	@Test

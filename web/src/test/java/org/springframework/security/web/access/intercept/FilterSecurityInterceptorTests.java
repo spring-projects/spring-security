@@ -43,6 +43,7 @@ import org.springframework.security.web.FilterInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
@@ -95,16 +96,16 @@ public class FilterSecurityInterceptorTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass() throws Exception {
 		given(this.adm.supports(FilterInvocation.class)).willReturn(true);
-		this.interceptor.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(this.interceptor::afterPropertiesSet);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testEnsuresRunAsManagerSupportsFilterInvocationClass() throws Exception {
 		given(this.adm.supports(FilterInvocation.class)).willReturn(false);
-		this.interceptor.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(this.interceptor::afterPropertiesSet);
 	}
 
 	/**

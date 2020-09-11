@@ -25,6 +25,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class SecurityEvaluationContextExtensionTests {
 
@@ -40,9 +41,9 @@ public class SecurityEvaluationContextExtensionTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void getRootObjectSecurityContextHolderAuthenticationNull() {
-		getRoot().getAuthentication();
+		assertThatIllegalArgumentException().isThrownBy(() -> getRoot().getAuthentication());
 	}
 
 	@Test

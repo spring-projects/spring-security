@@ -101,19 +101,21 @@ public class AnonymousAuthenticationTokenTests {
 		assertThat(!token.isAuthenticated()).isTrue();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenNullAuthoritiesThenThrowIllegalArgumentException() {
-		new AnonymousAuthenticationToken("key", "principal", null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AnonymousAuthenticationToken("key", "principal", null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenEmptyAuthoritiesThenThrowIllegalArgumentException() {
-		new AnonymousAuthenticationToken("key", "principal", Collections.<GrantedAuthority>emptyList());
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new AnonymousAuthenticationToken("key", "principal", Collections.<GrantedAuthority>emptyList()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenPrincipalIsEmptyStringThenThrowIllegalArgumentException() {
-		new AnonymousAuthenticationToken("key", "", ROLES_12);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AnonymousAuthenticationToken("key", "", ROLES_12));
 	}
 
 }

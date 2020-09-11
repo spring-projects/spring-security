@@ -31,6 +31,7 @@ import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -86,11 +87,11 @@ public class SecurityMockMvcConfigurerTests {
 		assertFilterAdded(this.filter);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void beforeMockMvcCreatedNoFilter() {
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer();
 		configurer.afterConfigurerAdded(this.builder);
-		configurer.beforeMockMvcCreated(this.builder, this.context);
+		assertThatIllegalStateException().isThrownBy(() -> configurer.beforeMockMvcCreated(this.builder, this.context));
 	}
 
 	private void assertFilterAdded(Filter filter) {

@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -59,14 +60,15 @@ public class LazyCsrfTokenRepositoryTests {
 		given(this.request.getAttribute(HttpServletResponse.class.getName())).willReturn(this.response);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructNullDelegateThrowsIllegalArgumentException() {
-		new LazyCsrfTokenRepository(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new LazyCsrfTokenRepository(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void generateTokenNullResponseAttribute() {
-		this.repository.generateToken(mock(HttpServletRequest.class));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.repository.generateToken(mock(HttpServletRequest.class)));
 	}
 
 	@Test

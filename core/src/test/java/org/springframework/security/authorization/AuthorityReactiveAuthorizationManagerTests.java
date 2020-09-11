@@ -29,6 +29,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -120,42 +121,40 @@ public class AuthorityReactiveAuthorizationManagerTests {
 		assertThat(granted).isFalse();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void hasRoleWhenNullThenException() {
-		String role = null;
-		AuthorityReactiveAuthorizationManager.hasRole(role);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasRole((String) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void hasAuthorityWhenNullThenException() {
-		String authority = null;
-		AuthorityReactiveAuthorizationManager.hasAuthority(authority);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAuthority((String) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void hasAnyRoleWhenNullThenException() {
-		String role = null;
-		AuthorityReactiveAuthorizationManager.hasAnyRole(role);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAnyRole((String) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void hasAnyAuthorityWhenNullThenException() {
-		String authority = null;
-		AuthorityReactiveAuthorizationManager.hasAnyAuthority(authority);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAnyAuthority((String) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void hasAnyRoleWhenOneIsNullThenException() {
-		String role1 = "ROLE_ADMIN";
-		String role2 = null;
-		AuthorityReactiveAuthorizationManager.hasAnyRole(role1, role2);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAnyRole("ROLE_ADMIN", (String) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void hasAnyAuthorityWhenOneIsNullThenException() {
-		String authority1 = "ADMIN";
-		String authority2 = null;
-		AuthorityReactiveAuthorizationManager.hasAnyAuthority(authority1, authority2);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAnyAuthority("ADMIN", (String) null));
 	}
 
 }

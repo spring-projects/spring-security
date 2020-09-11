@@ -36,6 +36,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -76,13 +77,14 @@ public class CasAuthenticationFilterTests {
 		assertThat(result != null).isTrue();
 	}
 
-	@Test(expected = AuthenticationException.class)
+	@Test
 	public void testNullServiceTicketHandledGracefully() throws Exception {
 		CasAuthenticationFilter filter = new CasAuthenticationFilter();
 		filter.setAuthenticationManager((a) -> {
 			throw new BadCredentialsException("Rejected");
 		});
-		filter.attemptAuthentication(new MockHttpServletRequest(), new MockHttpServletResponse());
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
+				() -> filter.attemptAuthentication(new MockHttpServletRequest(), new MockHttpServletResponse()));
 	}
 
 	@Test

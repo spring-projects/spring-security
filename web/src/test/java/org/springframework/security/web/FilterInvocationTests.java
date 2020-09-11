@@ -28,6 +28,8 @@ import org.springframework.security.web.FilterInvocation.DummyRequest;
 import org.springframework.security.web.util.UrlUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -61,23 +63,25 @@ public class FilterInvocationTests {
 		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld/some/more/segments.html");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testRejectsNullFilterChain() {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		new FilterInvocation(request, response, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new FilterInvocation(request, response, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testRejectsNullServletRequest() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		new FilterInvocation(null, response, mock(FilterChain.class));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new FilterInvocation(null, response, mock(FilterChain.class)));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testRejectsNullServletResponse() {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
-		new FilterInvocation(request, null, mock(FilterChain.class));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new FilterInvocation(request, null, mock(FilterChain.class)));
 	}
 
 	@Test
@@ -113,9 +117,10 @@ public class FilterInvocationTests {
 		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld");
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void dummyChainRejectsInvocation() throws Exception {
-		FilterInvocation.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class));
+		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> FilterInvocation.DUMMY_CHAIN
+				.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class)));
 	}
 
 	@Test

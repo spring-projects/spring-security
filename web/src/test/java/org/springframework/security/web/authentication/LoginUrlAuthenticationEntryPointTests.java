@@ -27,6 +27,7 @@ import org.springframework.security.MockPortResolver;
 import org.springframework.security.web.PortMapperImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link LoginUrlAuthenticationEntryPoint}.
@@ -36,21 +37,21 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class LoginUrlAuthenticationEntryPointTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testDetectsMissingLoginFormUrl() {
-		new LoginUrlAuthenticationEntryPoint(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new LoginUrlAuthenticationEntryPoint(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testDetectsMissingPortMapper() {
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/login");
-		ep.setPortMapper(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> ep.setPortMapper(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testDetectsMissingPortResolver() {
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/login");
-		ep.setPortResolver(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> ep.setPortResolver(null));
 	}
 
 	@Test
@@ -222,12 +223,12 @@ public class LoginUrlAuthenticationEntryPointTests {
 		assertThat(response.getRedirectedUrl()).isEqualTo(loginFormUrl);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void absoluteLoginFormUrlCantBeUsedWithForwarding() throws Exception {
 		final String loginFormUrl = "https://somesite.com/login";
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("https://somesite.com/login");
 		ep.setUseForward(true);
-		ep.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(ep::afterPropertiesSet);
 	}
 
 }

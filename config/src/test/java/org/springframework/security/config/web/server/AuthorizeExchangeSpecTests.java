@@ -23,6 +23,8 @@ import org.springframework.security.config.annotation.web.reactive.ServerHttpSec
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+
 /**
  * @author Rob Winch
  * @since 5.0
@@ -105,31 +107,34 @@ public class AuthorizeExchangeSpecTests {
 		// @formatter:on
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void antMatchersWhenNoAccessAndAnotherMatcherThenThrowsException() {
 		this.http.authorizeExchange().pathMatchers("/incomplete");
-		this.http.authorizeExchange().pathMatchers("/throws-exception");
+		assertThatIllegalStateException()
+				.isThrownBy(() -> this.http.authorizeExchange().pathMatchers("/throws-exception"));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void anyExchangeWhenFollowedByMatcherThenThrowsException() {
+		assertThatIllegalStateException().isThrownBy(() ->
 		// @formatter:off
-		this.http.authorizeExchange()
-				.anyExchange().denyAll()
-				.pathMatchers("/never-reached");
+			this.http.authorizeExchange()
+					.anyExchange().denyAll()
+					.pathMatchers("/never-reached")
 		// @formatter:on
+		);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void buildWhenMatcherDefinedWithNoAccessThenThrowsException() {
 		this.http.authorizeExchange().pathMatchers("/incomplete");
-		this.http.build();
+		assertThatIllegalStateException().isThrownBy(this.http::build);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void buildWhenMatcherDefinedWithNoAccessInLambdaThenThrowsException() {
 		this.http.authorizeExchange((exchanges) -> exchanges.pathMatchers("/incomplete"));
-		this.http.build();
+		assertThatIllegalStateException().isThrownBy(this.http::build);
 	}
 
 	private WebTestClient buildClient() {

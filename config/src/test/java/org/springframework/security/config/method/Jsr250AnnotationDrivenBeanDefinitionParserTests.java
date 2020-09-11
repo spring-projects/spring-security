@@ -29,6 +29,8 @@ import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 /**
  * @author Luke Taylor
  */
@@ -57,9 +59,10 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	@Test
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
-		this.target.someUserMethod1();
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(() -> this.target.someUserMethod1());
 	}
 
 	@Test
@@ -78,12 +81,12 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 		this.target.someUserMethod1();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-		this.target.someAdminMethod();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.target::someAdminMethod);
 	}
 
 	@Test

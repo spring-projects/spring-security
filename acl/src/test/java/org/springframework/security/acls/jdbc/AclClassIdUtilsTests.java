@@ -31,6 +31,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.convert.ConversionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -125,14 +126,14 @@ public class AclClassIdUtilsTests {
 		assertThat(newIdentifier).isEqualTo(identifier);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void shouldNotAcceptNullConversionServiceInConstruction() {
-		new AclClassIdUtils(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AclClassIdUtils(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void shouldNotAcceptNullConversionServiceInSetter() {
-		this.aclClassIdUtils.setConversionService(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.aclClassIdUtils.setConversionService(null));
 	}
 
 }

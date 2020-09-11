@@ -27,6 +27,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -51,19 +52,20 @@ public class FrameOptionsHeaderWriterTests {
 		this.response = new MockHttpServletResponse();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullMode() {
-		new XFrameOptionsHeaderWriter((XFrameOptionsMode) null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new XFrameOptionsHeaderWriter((XFrameOptionsMode) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorAllowFromNoAllowFromStrategy() {
-		new XFrameOptionsHeaderWriter(XFrameOptionsMode.ALLOW_FROM);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new XFrameOptionsHeaderWriter(XFrameOptionsMode.ALLOW_FROM));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullAllowFromStrategy() {
-		new XFrameOptionsHeaderWriter((AllowFromStrategy) null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new XFrameOptionsHeaderWriter((AllowFromStrategy) null));
 	}
 
 	@Test

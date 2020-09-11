@@ -32,6 +32,7 @@ import org.springframework.web.server.session.DefaultWebSessionManager;
 import org.springframework.web.util.pattern.PathPattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -65,14 +66,16 @@ public class PathMatcherServerWebExchangeMatcherTests {
 		this.matcher = new PathPatternParserServerWebExchangeMatcher(this.pattern);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorPatternWhenPatternNullThenThrowsException() {
-		new PathPatternParserServerWebExchangeMatcher((PathPattern) null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new PathPatternParserServerWebExchangeMatcher((PathPattern) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorPatternAndMethodWhenPatternNullThenThrowsException() {
-		new PathPatternParserServerWebExchangeMatcher((PathPattern) null, HttpMethod.GET);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new PathPatternParserServerWebExchangeMatcher((PathPattern) null, HttpMethod.GET));
 	}
 
 	@Test

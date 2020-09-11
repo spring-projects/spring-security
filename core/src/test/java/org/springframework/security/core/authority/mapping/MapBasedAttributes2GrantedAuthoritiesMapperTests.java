@@ -28,6 +28,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Ruud Senden
@@ -35,44 +36,41 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SuppressWarnings("unchecked")
 public class MapBasedAttributes2GrantedAuthoritiesMapperTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testAfterPropertiesSetNoMap() throws Exception {
 		MapBasedAttributes2GrantedAuthoritiesMapper mapper = new MapBasedAttributes2GrantedAuthoritiesMapper();
-		mapper.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(mapper::afterPropertiesSet);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testAfterPropertiesSetEmptyMap() throws Exception {
 		MapBasedAttributes2GrantedAuthoritiesMapper mapper = new MapBasedAttributes2GrantedAuthoritiesMapper();
-		mapper.setAttributes2grantedAuthoritiesMap(new HashMap());
-		mapper.afterPropertiesSet();
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> mapper.setAttributes2grantedAuthoritiesMap(new HashMap()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testAfterPropertiesSetInvalidKeyTypeMap() throws Exception {
 		MapBasedAttributes2GrantedAuthoritiesMapper mapper = new MapBasedAttributes2GrantedAuthoritiesMapper();
 		HashMap m = new HashMap();
 		m.put(new Object(), "ga1");
-		mapper.setAttributes2grantedAuthoritiesMap(m);
-		mapper.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> mapper.setAttributes2grantedAuthoritiesMap(m));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testAfterPropertiesSetInvalidValueTypeMap1() throws Exception {
 		MapBasedAttributes2GrantedAuthoritiesMapper mapper = new MapBasedAttributes2GrantedAuthoritiesMapper();
 		HashMap m = new HashMap();
 		m.put("role1", new Object());
-		mapper.setAttributes2grantedAuthoritiesMap(m);
-		mapper.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> mapper.setAttributes2grantedAuthoritiesMap(m));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testAfterPropertiesSetInvalidValueTypeMap2() throws Exception {
 		MapBasedAttributes2GrantedAuthoritiesMapper mapper = new MapBasedAttributes2GrantedAuthoritiesMapper();
 		HashMap m = new HashMap();
 		m.put("role1", new Object[] { new String[] { "ga1", "ga2" }, new Object() });
-		mapper.setAttributes2grantedAuthoritiesMap(m);
-		mapper.afterPropertiesSet();
+		assertThatIllegalArgumentException().isThrownBy(() -> mapper.setAttributes2grantedAuthoritiesMap(m));
 	}
 
 	@Test

@@ -27,6 +27,7 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -36,28 +37,28 @@ public class MediaTypeServerWebExchangeMatcherTests {
 
 	private MediaTypeServerWebExchangeMatcher matcher;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorMediaTypeArrayWhenNullThenThrowsIllegalArgumentException() {
 		MediaType[] types = null;
-		new MediaTypeServerWebExchangeMatcher(types);
+		assertThatIllegalArgumentException().isThrownBy(() -> new MediaTypeServerWebExchangeMatcher(types));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorMediaTypeArrayWhenContainsNullThenThrowsIllegalArgumentException() {
 		MediaType[] types = { null };
-		new MediaTypeServerWebExchangeMatcher(types);
+		assertThatIllegalArgumentException().isThrownBy(() -> new MediaTypeServerWebExchangeMatcher(types));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorMediaTypeListWhenNullThenThrowsIllegalArgumentException() {
 		List<MediaType> types = null;
-		new MediaTypeServerWebExchangeMatcher(types);
+		assertThatIllegalArgumentException().isThrownBy(() -> new MediaTypeServerWebExchangeMatcher(types));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorMediaTypeListWhenContainsNullThenThrowsIllegalArgumentException() {
 		List<MediaType> types = Collections.singletonList(null);
-		new MediaTypeServerWebExchangeMatcher(types);
+		assertThatIllegalArgumentException().isThrownBy(() -> new MediaTypeServerWebExchangeMatcher(types));
 	}
 
 	@Test

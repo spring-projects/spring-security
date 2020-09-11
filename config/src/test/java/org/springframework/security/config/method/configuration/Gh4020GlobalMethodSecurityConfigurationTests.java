@@ -31,6 +31,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -44,9 +45,9 @@ public class Gh4020GlobalMethodSecurityConfigurationTests {
 	DenyAllService denyAll;
 
 	// gh-4020
-	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	@Test
 	public void denyAll() {
-		this.denyAll.denyAll();
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class).isThrownBy(this.denyAll::denyAll);
 	}
 
 	@Configuration

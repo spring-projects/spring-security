@@ -19,6 +19,7 @@ package org.springframework.security.crypto.password;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * <p>
@@ -112,9 +113,9 @@ public class MessageDigestPasswordEncoderTests {
 		assertThat(pe.matches(raw, "{THIS_IS_A_SALT}4b79b7de23eb23b78cc5ede227d532b8a51f89b2ec166f808af76b0dbedc47d7"));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void testInvalidStrength() {
-		new MessageDigestPasswordEncoder("SHA-666");
+		assertThatIllegalStateException().isThrownBy(() -> new MessageDigestPasswordEncoder("SHA-666"));
 	}
 
 }

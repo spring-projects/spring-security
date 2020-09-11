@@ -24,6 +24,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Eddú Meléndez
@@ -64,9 +65,9 @@ public class ReferrerPolicyHeaderWriterTests {
 		assertThat(this.response.getHeader("Referrer-Policy")).isEqualTo("same-origin");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void writeHeaderReferrerPolicyInvalid() {
-		this.writer = new ReferrerPolicyHeaderWriter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ReferrerPolicyHeaderWriter(null));
 	}
 
 	@Test

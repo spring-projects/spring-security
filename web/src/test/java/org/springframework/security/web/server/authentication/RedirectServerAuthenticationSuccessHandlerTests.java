@@ -34,6 +34,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -62,9 +63,9 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 
 	private RedirectServerAuthenticationSuccessHandler handler = new RedirectServerAuthenticationSuccessHandler();
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorStringWhenNullLocationThenException() {
-		new RedirectServerAuthenticationEntryPoint(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new RedirectServerAuthenticationEntryPoint(null));
 	}
 
 	@Test
@@ -96,14 +97,14 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 		verify(this.redirectStrategy).sendRedirect(any(), eq(this.location));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setRedirectStrategyWhenNullThenException() {
-		this.handler.setRedirectStrategy(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setRedirectStrategy(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setLocationWhenNullThenException() {
-		this.handler.setLocation(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setLocation(null));
 	}
 
 }

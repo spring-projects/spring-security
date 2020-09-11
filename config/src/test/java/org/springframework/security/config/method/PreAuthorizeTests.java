@@ -27,6 +27,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 /**
  * @author Rob Winch
  *
@@ -43,11 +45,11 @@ public class PreAuthorizeTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void preAuthorizeAdminRoleDenied() {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
-		this.service.preAuthorizeAdminRole();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.service::preAuthorizeAdminRole);
 	}
 
 	@Test
@@ -64,11 +66,12 @@ public class PreAuthorizeTests {
 		this.service.contactPermission(new Contact("user"));
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void preAuthorizeContactPermissionDenied() {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
-		this.service.contactPermission(new Contact("admin"));
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.service.contactPermission(new Contact("admin")));
 	}
 
 }

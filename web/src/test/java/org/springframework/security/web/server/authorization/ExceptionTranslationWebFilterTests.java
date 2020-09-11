@@ -35,6 +35,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -128,14 +129,14 @@ public class ExceptionTranslationWebFilterTests {
 		this.entryPointPublisher.assertWasNotSubscribed();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setAccessDeniedHandlerWhenNullThenException() {
-		this.filter.setAccessDeniedHandler(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAccessDeniedHandler(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setAuthenticationEntryPointWhenNullThenException() {
-		this.filter.setAuthenticationEntryPoint(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthenticationEntryPoint(null));
 	}
 
 }

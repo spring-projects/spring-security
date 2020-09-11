@@ -26,6 +26,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class SimpDestinationMessageMatcherTests {
 
@@ -42,9 +43,9 @@ public class SimpDestinationMessageMatcherTests {
 		this.pathMatcher = new AntPathMatcher();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorPatternNull() {
-		new SimpDestinationMessageMatcher(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new SimpDestinationMessageMatcher(null));
 	}
 
 	public void constructorOnlyPathNoError() {

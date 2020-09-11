@@ -31,6 +31,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -42,9 +43,10 @@ public class WithMockUserTests {
 	@Autowired
 	private MessageService messageService;
 
-	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	@Test
 	public void getMessageUnauthenticated() {
-		this.messageService.getMessage();
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(() -> this.messageService.getMessage());
 	}
 
 	@Test

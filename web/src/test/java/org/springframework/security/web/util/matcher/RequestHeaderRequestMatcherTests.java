@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -40,14 +41,14 @@ public class RequestHeaderRequestMatcherTests {
 		this.request = new MockHttpServletRequest();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullHeaderName() {
-		new RequestHeaderRequestMatcher(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new RequestHeaderRequestMatcher(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullHeaderNameNonNullHeaderValue() {
-		new RequestHeaderRequestMatcher(null, "v");
+		assertThatIllegalArgumentException().isThrownBy(() -> new RequestHeaderRequestMatcher(null, "v"));
 	}
 
 	@Test

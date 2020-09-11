@@ -27,6 +27,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.SerializationUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link DefaultOAuth2User}.
@@ -46,34 +47,39 @@ public class DefaultOAuth2UserTests {
 
 	private static final Map<String, Object> ATTRIBUTES = Collections.singletonMap(ATTRIBUTE_NAME_KEY, USERNAME);
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAuthoritiesIsNullThenThrowIllegalArgumentException() {
-		new DefaultOAuth2User(null, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultOAuth2User(null, ATTRIBUTES, ATTRIBUTE_NAME_KEY));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAuthoritiesIsEmptyThenThrowIllegalArgumentException() {
-		new DefaultOAuth2User(Collections.emptySet(), ATTRIBUTES, ATTRIBUTE_NAME_KEY);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultOAuth2User(Collections.emptySet(), ATTRIBUTES, ATTRIBUTE_NAME_KEY));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAttributesIsNullThenThrowIllegalArgumentException() {
-		new DefaultOAuth2User(AUTHORITIES, null, ATTRIBUTE_NAME_KEY);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultOAuth2User(AUTHORITIES, null, ATTRIBUTE_NAME_KEY));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAttributesIsEmptyThenThrowIllegalArgumentException() {
-		new DefaultOAuth2User(AUTHORITIES, Collections.emptyMap(), ATTRIBUTE_NAME_KEY);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultOAuth2User(AUTHORITIES, Collections.emptyMap(), ATTRIBUTE_NAME_KEY));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenNameAttributeKeyIsNullThenThrowIllegalArgumentException() {
-		new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenNameAttributeKeyIsInvalidThenThrowIllegalArgumentException() {
-		new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, "invalid");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, "invalid"));
 	}
 
 	@Test

@@ -29,6 +29,7 @@ import org.springframework.security.core.AuthenticationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -45,7 +46,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  */
 public class ProviderManagerTests {
 
-	@Test(expected = ProviderNotFoundException.class)
+	@Test
 	public void authenticationFailsWithUnsupportedToken() {
 		Authentication token = new AbstractAuthenticationToken(null) {
 			@Override
@@ -60,7 +61,7 @@ public class ProviderManagerTests {
 		};
 		ProviderManager mgr = makeProviderManager();
 		mgr.setMessageSource(mock(MessageSource.class));
-		mgr.authenticate(token);
+		assertThatExceptionOfType(ProviderNotFoundException.class).isThrownBy(() -> mgr.authenticate(token));
 	}
 
 	@Test
@@ -98,19 +99,20 @@ public class ProviderManagerTests {
 		verify(publisher).publishAuthenticationSuccess(result);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testStartupFailsIfProvidersNotSetAsList() {
-		new ProviderManager((List<AuthenticationProvider>) null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ProviderManager((List<AuthenticationProvider>) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testStartupFailsIfProvidersNotSetAsVarargs() {
-		new ProviderManager((AuthenticationProvider) null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ProviderManager((AuthenticationProvider) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testStartupFailsIfProvidersContainNullElement() {
-		new ProviderManager(Arrays.asList(mock(AuthenticationProvider.class), null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new ProviderManager(Arrays.asList(mock(AuthenticationProvider.class), null)));
 	}
 
 	// gh-8689

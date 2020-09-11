@@ -166,7 +166,7 @@ public class AclImplTests {
 		assertThat(acl.getEntries().get(2).getSid()).isEqualTo(new GrantedAuthoritySid("ROLE_TEST2"));
 	}
 
-	@Test(expected = NotFoundException.class)
+	@Test
 	public void insertAceFailsForNonExistentElement() {
 		MutableAcl acl = new AclImpl(this.objectIdentity, 1, this.authzStrategy, this.pgs, null, null, true,
 				new PrincipalSid("joe"));
@@ -174,7 +174,8 @@ public class AclImplTests {
 		// Insert one permission
 		acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST1"), true);
 		service.updateAcl(acl);
-		acl.insertAce(55, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true);
+		assertThatExceptionOfType(NotFoundException.class)
+				.isThrownBy(() -> acl.insertAce(55, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true));
 	}
 
 	@Test
@@ -411,38 +412,40 @@ public class AclImplTests {
 						.isFalse();
 	}
 
-	@Test(expected = NotFoundException.class)
+	@Test
 	public void insertAceRaisesNotFoundExceptionForIndexLessThanZero() {
 		AclImpl acl = new AclImpl(this.objectIdentity, 1, this.authzStrategy, this.pgs, null, null, true,
 				new PrincipalSid("joe"));
-		acl.insertAce(-1, mock(Permission.class), mock(Sid.class), true);
+		assertThatExceptionOfType(NotFoundException.class)
+				.isThrownBy(() -> acl.insertAce(-1, mock(Permission.class), mock(Sid.class), true));
 	}
 
-	@Test(expected = NotFoundException.class)
+	@Test
 	public void deleteAceRaisesNotFoundExceptionForIndexLessThanZero() {
 		AclImpl acl = new AclImpl(this.objectIdentity, 1, this.authzStrategy, this.pgs, null, null, true,
 				new PrincipalSid("joe"));
-		acl.deleteAce(-1);
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> acl.deleteAce(-1));
 	}
 
-	@Test(expected = NotFoundException.class)
+	@Test
 	public void insertAceRaisesNotFoundExceptionForIndexGreaterThanSize() {
 		AclImpl acl = new AclImpl(this.objectIdentity, 1, this.authzStrategy, this.pgs, null, null, true,
 				new PrincipalSid("joe"));
 		// Insert at zero, OK.
 		acl.insertAce(0, mock(Permission.class), mock(Sid.class), true);
 		// Size is now 1
-		acl.insertAce(2, mock(Permission.class), mock(Sid.class), true);
+		assertThatExceptionOfType(NotFoundException.class)
+				.isThrownBy(() -> acl.insertAce(2, mock(Permission.class), mock(Sid.class), true));
 	}
 
 	// SEC-1151
-	@Test(expected = NotFoundException.class)
+	@Test
 	public void deleteAceRaisesNotFoundExceptionForIndexEqualToSize() {
 		AclImpl acl = new AclImpl(this.objectIdentity, 1, this.authzStrategy, this.pgs, null, null, true,
 				new PrincipalSid("joe"));
 		acl.insertAce(0, mock(Permission.class), mock(Sid.class), true);
 		// Size is now 1
-		acl.deleteAce(1);
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> acl.deleteAce(1));
 	}
 
 	// SEC-1795

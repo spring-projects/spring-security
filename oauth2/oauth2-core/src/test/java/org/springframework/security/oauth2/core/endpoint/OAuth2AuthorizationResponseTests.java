@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.core.endpoint;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2AuthorizationResponse}.
@@ -39,24 +40,28 @@ public class OAuth2AuthorizationResponseTests {
 
 	private static final String ERROR_URI = "error-uri";
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void buildSuccessResponseWhenAuthCodeIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() ->
 		// @formatter:off
-		OAuth2AuthorizationResponse.success(null)
-				.redirectUri(REDIRECT_URI)
-				.state(STATE)
-				.build();
+			OAuth2AuthorizationResponse.success(null)
+					.redirectUri(REDIRECT_URI)
+					.state(STATE)
+					.build()
 		// @formatter:on
+		);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void buildSuccessResponseWhenRedirectUriIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() ->
 		// @formatter:off
-		OAuth2AuthorizationResponse.success(AUTH_CODE)
-				.redirectUri(null)
-				.state(STATE)
-				.build();
+			OAuth2AuthorizationResponse.success(AUTH_CODE)
+					.redirectUri(null)
+					.state(STATE)
+					.build()
 		// @formatter:on
+		);
 	}
 
 	@Test
@@ -85,35 +90,41 @@ public class OAuth2AuthorizationResponseTests {
 		// @formatter:on
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void buildSuccessResponseWhenErrorCodeIsSetThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() ->
 		// @formatter:off
-		OAuth2AuthorizationResponse.success(AUTH_CODE)
-				.redirectUri(REDIRECT_URI)
-				.state(STATE)
-				.errorCode(ERROR_CODE)
-				.build();
+			OAuth2AuthorizationResponse.success(AUTH_CODE)
+					.redirectUri(REDIRECT_URI)
+					.state(STATE)
+					.errorCode(ERROR_CODE)
+					.build()
 		// @formatter:on
+		);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void buildErrorResponseWhenErrorCodeIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() ->
 		// @formatter:off
-		OAuth2AuthorizationResponse.error(null)
-				.redirectUri(REDIRECT_URI)
-				.state(STATE)
-				.build();
+			OAuth2AuthorizationResponse.error(null)
+					.redirectUri(REDIRECT_URI)
+					.state(STATE)
+					.build()
 		// @formatter:on
+		);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void buildErrorResponseWhenRedirectUriIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() ->
 		// @formatter:off
-		OAuth2AuthorizationResponse.error(ERROR_CODE)
-				.redirectUri(null)
-				.state(STATE)
-				.build();
+			OAuth2AuthorizationResponse.error(ERROR_CODE)
+					.redirectUri(null)
+					.state(STATE)
+					.build()
 		// @formatter:on
+		);
 	}
 
 	@Test
@@ -148,15 +159,17 @@ public class OAuth2AuthorizationResponseTests {
 		// @formatter:on
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void buildErrorResponseWhenAuthCodeIsSetThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() ->
 		// @formatter:off
-		OAuth2AuthorizationResponse.error(ERROR_CODE)
-				.redirectUri(REDIRECT_URI)
-				.state(STATE)
-				.code(AUTH_CODE)
-				.build();
+			OAuth2AuthorizationResponse.error(ERROR_CODE)
+					.redirectUri(REDIRECT_URI)
+					.state(STATE)
+					.code(AUTH_CODE)
+					.build()
 		// @formatter:on
+		);
 	}
 
 }
