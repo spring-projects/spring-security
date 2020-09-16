@@ -19,6 +19,7 @@ package org.springframework.security.web.server.csrf;
 import java.util.UUID;
 
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
@@ -67,7 +68,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 
 	@Override
 	public Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
-		return Mono.fromCallable(this::createCsrfToken);
+		return Mono.fromCallable(this::createCsrfToken).subscribeOn(Schedulers.boundedElastic());
 	}
 
 	@Override
