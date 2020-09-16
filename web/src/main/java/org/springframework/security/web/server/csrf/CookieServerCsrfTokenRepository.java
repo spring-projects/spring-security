@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * A {@link ServerCsrfTokenRepository} that persists the CSRF token in a cookie named "XSRF-TOKEN" and
@@ -62,7 +63,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 
 	@Override
 	public Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
-		return Mono.fromCallable(this::createCsrfToken);
+		return Mono.fromCallable(this::createCsrfToken).subscribeOn(Schedulers.boundedElastic());
 	}
 
 	@Override
