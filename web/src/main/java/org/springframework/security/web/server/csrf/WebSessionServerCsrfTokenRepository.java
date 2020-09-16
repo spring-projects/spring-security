@@ -52,8 +52,7 @@ public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepos
 
 	@Override
 	public Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
-		Mono.just(exchange).publishOn(Schedulers.boundedElastic());
-		return Mono.fromCallable(() -> createCsrfToken());
+		return Mono.fromCallable(() -> createCsrfToken()).subscribeOn(Schedulers.boundedElastic());
 	}
 
 	@Override
