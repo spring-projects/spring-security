@@ -37,7 +37,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -219,9 +218,9 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoUriInvalidThenThrowAuthenticationServiceException() {
+	public void loadUserWhenUserInfoUriInvalidThenThrowOAuth2AuthenticationException() {
 		this.clientRegistration.userInfoUri("https://invalid-provider.com/user");
-		assertThatExceptionOfType(AuthenticationServiceException.class)
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block());
 	}
 

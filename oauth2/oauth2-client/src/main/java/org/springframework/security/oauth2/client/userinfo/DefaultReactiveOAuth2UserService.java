@@ -16,7 +16,6 @@
 
 package org.springframework.security.oauth2.client.userinfo;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +29,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
@@ -131,15 +129,15 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 
 				return new DefaultOAuth2User(authorities, attrs, userNameAttributeName);
 			})
-			.onErrorMap(IOException.class,
-					(ex) -> new AuthenticationServiceException("Unable to access the userInfoEndpoint " + userInfoUri,
-							ex)
-			)
-			.onErrorMap(UnsupportedMediaTypeException.class, (ex) -> {
+			.onErrorMap((ex) -> (ex instanceof UnsupportedMediaTypeException ||
+					ex.getCause() instanceof UnsupportedMediaTypeException), (ex) -> {
+				String contentType = (ex instanceof UnsupportedMediaTypeException) ?
+						((UnsupportedMediaTypeException) ex).getContentType().toString() :
+						((UnsupportedMediaTypeException) ex.getCause()).getContentType().toString();
 				String errorMessage = "An error occurred while attempting to retrieve the UserInfo Resource from '"
 						+ userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
 								.getUri()
-						+ "': response contains invalid content type '" + ex.getContentType().toString() + "'. "
+						+ "': response contains invalid content type '" + contentType + "'. "
 						+ "The UserInfo Response should return a JSON object (content type 'application/json') "
 						+ "that contains a collection of name and value pairs of the claims about the authenticated End-User. "
 						+ "Please ensure the UserInfo Uri in UserInfoEndpoint for Client Registration '"
@@ -150,10 +148,10 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 			})
-			.onErrorMap((t) -> !(t instanceof AuthenticationServiceException), (t) -> {
+			.onErrorMap((ex) -> {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
-						"An error occurred reading the UserInfo Success response: " + t.getMessage(), null);
-				return new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), t);
+						"An error occurred reading the UserInfo response: " + ex.getMessage(), null);
+				return new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 			});
 		});
 		// @formatter:on
