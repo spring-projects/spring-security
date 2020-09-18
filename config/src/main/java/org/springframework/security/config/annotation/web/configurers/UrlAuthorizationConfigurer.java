@@ -194,7 +194,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	public final class StandardInterceptUrlRegistry extends
-			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<StandardInterceptUrlRegistry, AuthorizedUrl> {
+			UrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<StandardInterceptUrlRegistry, AuthorizedUrl> {
 
 		private StandardInterceptUrlRegistry(ApplicationContext context) {
 			setApplicationContext(context);
