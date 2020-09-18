@@ -137,7 +137,6 @@ public class NimbusJwtDecoderJwkSupportTests {
 	public void decodeWhenJwkResponseIsMalformedThenReturnsStockException() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
 			server.enqueue(new MockResponse().setBody(MALFORMED_JWK_SET));
-			server.enqueue(new MockResponse().setBody(MALFORMED_JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
 			// @formatter:off
@@ -152,7 +151,6 @@ public class NimbusJwtDecoderJwkSupportTests {
 	@Test
 	public void decodeWhenJwkEndpointIsUnresponsiveThenReturnsJwtException() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.enqueue(new MockResponse().setBody(MALFORMED_JWK_SET));
 			server.enqueue(new MockResponse().setBody(MALFORMED_JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
@@ -169,7 +167,6 @@ public class NimbusJwtDecoderJwkSupportTests {
 	@Test
 	public void decodeWhenCustomRestOperationsSetThenUsed() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.enqueue(new MockResponse().setBody(JWK_SET));
 			server.enqueue(new MockResponse().setBody(JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);

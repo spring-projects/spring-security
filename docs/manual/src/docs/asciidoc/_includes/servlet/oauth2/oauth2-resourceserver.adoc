@@ -99,9 +99,10 @@ When this property and these dependencies are used, Resource Server will automat
 
 It achieves this through a deterministic startup process:
 
-1. Hit the Provider Configuration or Authorization Server Metadata endpoint, processing the response for the `jwks_url` property
-2. Configure the validation strategy to query `jwks_url` for valid public keys
-3. Configure the validation strategy to validate each JWTs `iss` claim against `https://idp.example.com`.
+1. Query the Provider Configuration or Authorization Server Metadata endpoint for the `jwks_url` property
+2. Query the `jwks_url` endpoint for supported algorithms
+3. Configure the validation strategy to query `jwks_url` for valid public keys of the algorithms found
+4. Configure the validation strategy to validate each JWTs `iss` claim against `https://idp.example.com`.
 
 A consequence of this process is that the authorization server must be up and receiving requests in order for Resource Server to successfully start up.
 

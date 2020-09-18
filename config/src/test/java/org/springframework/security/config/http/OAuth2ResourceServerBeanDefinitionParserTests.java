@@ -148,7 +148,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	public void getWhenUsingJwkSetUriThenAcceptsRequest() throws Exception {
 		this.spring.configLocations(xml("WebServer"), xml("JwkSetUri")).autowire();
 		mockWebServer(jwks("Default"));
-		mockWebServer(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))

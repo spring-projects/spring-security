@@ -18,11 +18,25 @@ package org.springframework.security.oauth2.jwt;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.KeySourceException;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKMatcher;
+import com.nimbusds.jose.jwk.JWKSelector;
+import com.nimbusds.jose.jwk.KeyType;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -66,6 +80,40 @@ final class JwtDecoderProviderConfigurationUtils {
 		String metadataIssuer = getMetadataIssuer(configuration);
 		Assert.state(issuer.equals(metadataIssuer), () -> "The Issuer \"" + metadataIssuer
 				+ "\" provided in the configuration did not " + "match the requested issuer \"" + issuer + "\"");
+	}
+
+	static Set<SignatureAlgorithm> getSignatureAlgorithms(JWKSource<SecurityContext> jwkSource) {
+		JWKMatcher jwkMatcher = new JWKMatcher.Builder().publicOnly(true).keyUses(KeyUse.SIGNATURE, null)
+				.keyTypes(KeyType.RSA, KeyType.EC).build();
+		Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
+		try {
+			List<? extends JWK> jwks = jwkSource.get(new JWKSelector(jwkMatcher), null);
+			for (JWK jwk : jwks) {
+				if (jwk.getAlgorithm() != null) {
+					jwsAlgorithms.add((JWSAlgorithm) jwk.getAlgorithm());
+				}
+				else {
+					if (jwk.getKeyType() == KeyType.RSA) {
+						jwsAlgorithms.addAll(JWSAlgorithm.Family.RSA);
+					}
+					else if (jwk.getKeyType() == KeyType.EC) {
+						jwsAlgorithms.addAll(JWSAlgorithm.Family.EC);
+					}
+				}
+			}
+		}
+		catch (KeySourceException ex) {
+			throw new IllegalStateException(ex);
+		}
+		Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
+		for (JWSAlgorithm jwsAlgorithm : jwsAlgorithms) {
+			SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.from(jwsAlgorithm.getName());
+			if (signatureAlgorithm != null) {
+				signatureAlgorithms.add(signatureAlgorithm);
+			}
+		}
+		Assert.notEmpty(signatureAlgorithms, "Failed to find any algorithms from the JWK set");
+		return signatureAlgorithms;
 	}
 
 	private static String getMetadataIssuer(Map<String, Object> configuration) {

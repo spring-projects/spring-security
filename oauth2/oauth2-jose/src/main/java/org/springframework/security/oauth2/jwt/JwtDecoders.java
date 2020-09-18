@@ -16,9 +16,17 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URL;
 import java.util.Map;
+import java.util.Set;
+
+import com.nimbusds.jose.jwk.source.RemoteJWKSet;
+import com.nimbusds.jose.proc.SecurityContext;
 
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 
 /**
@@ -106,9 +114,23 @@ public final class JwtDecoders {
 	private static JwtDecoder withProviderConfiguration(Map<String, Object> configuration, String issuer) {
 		JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
 		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
-		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(configuration.get("jwks_uri").toString()).build();
+		String jwkSetUri = configuration.get("jwks_uri").toString();
+		RemoteJWKSet<SecurityContext> jwkSource = new RemoteJWKSet<>(url(jwkSetUri));
+		Set<SignatureAlgorithm> signatureAlgorithms = JwtDecoderProviderConfigurationUtils
+				.getSignatureAlgorithms(jwkSource);
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+				.jwsAlgorithms((algs) -> algs.addAll(signatureAlgorithms)).build();
 		jwtDecoder.setJwtValidator(jwtValidator);
 		return jwtDecoder;
+	}
+
+	private static URL url(String url) {
+		try {
+			return new URL(url);
+		}
+		catch (IOException ex) {
+			throw new UncheckedIOException(ex);
+		}
 	}
 
 }
