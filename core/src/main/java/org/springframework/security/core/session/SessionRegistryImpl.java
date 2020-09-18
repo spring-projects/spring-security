@@ -108,9 +108,11 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 		else if (event instanceof SessionIdChangedEvent) {
 			SessionIdChangedEvent sessionIdChangedEvent = (SessionIdChangedEvent) event;
 			String oldSessionId = sessionIdChangedEvent.getOldSessionId();
-			Object principal = this.sessionIds.get(oldSessionId).getPrincipal();
-			removeSessionInformation(oldSessionId);
-			registerNewSession(sessionIdChangedEvent.getNewSessionId(), principal);
+			if (this.sessionIds.containsKey(oldSessionId)) {
+				Object principal = this.sessionIds.get(oldSessionId).getPrincipal();
+				removeSessionInformation(oldSessionId);
+				registerNewSession(sessionIdChangedEvent.getNewSessionId(), principal);
+			}
 		}
 	}
 

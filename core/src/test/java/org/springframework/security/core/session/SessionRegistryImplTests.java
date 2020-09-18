@@ -173,6 +173,25 @@ public class SessionRegistryImplTests {
 		assertThat(this.sessionRegistry.getAllSessions(principal, false)).isEmpty();
 	}
 
+	@Test
+	public void sessionIdChangedEventWhenSessionIdNotSavedThenDoesNothing() {
+		final String oldSessionId = "old-session-id";
+		final String newSessionId = "new-session-id";
+		this.sessionRegistry.onApplicationEvent(new SessionIdChangedEvent("") {
+			@Override
+			public String getOldSessionId() {
+				return oldSessionId;
+			}
+
+			@Override
+			public String getNewSessionId() {
+				return newSessionId;
+			}
+		});
+		assertThat(this.sessionRegistry.getSessionInformation(oldSessionId)).isNull();
+		assertThat(this.sessionRegistry.getSessionInformation(newSessionId)).isNull();
+	}
+
 	private boolean contains(String sessionId, Object principal) {
 		List<SessionInformation> info = this.sessionRegistry.getAllSessions(principal, false);
 		for (SessionInformation sessionInformation : info) {
