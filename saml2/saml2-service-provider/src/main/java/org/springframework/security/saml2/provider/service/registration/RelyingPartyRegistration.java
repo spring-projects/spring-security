@@ -18,6 +18,8 @@ package org.springframework.security.saml2.provider.service.registration;
 
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,6 +28,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
@@ -438,10 +442,12 @@ public final class RelyingPartyRegistration {
 
 		private final Saml2MessageBinding singleSignOnServiceBinding;
 
+		private List<String> signingMethodAlgorithms;
+
 		private AssertingPartyDetails(String entityId, boolean wantAuthnRequestsSigned,
 				Collection<Saml2X509Credential> verificationX509Credentials,
 				Collection<Saml2X509Credential> encryptionX509Credentials, String singleSignOnServiceLocation,
-				Saml2MessageBinding singleSignOnServiceBinding) {
+				Saml2MessageBinding singleSignOnServiceBinding, List<String> signingMethodAlgorithms) {
 			Assert.hasText(entityId, "entityId cannot be null or empty");
 			Assert.notNull(verificationX509Credentials, "verificationX509Credentials cannot be null");
 			for (Saml2X509Credential credential : verificationX509Credentials) {
@@ -457,12 +463,14 @@ public final class RelyingPartyRegistration {
 			}
 			Assert.notNull(singleSignOnServiceLocation, "singleSignOnServiceLocation cannot be null");
 			Assert.notNull(singleSignOnServiceBinding, "singleSignOnServiceBinding cannot be null");
+			Assert.notEmpty(signingMethodAlgorithms, "signingMethodAlgorithms cannot be empty");
 			this.entityId = entityId;
 			this.wantAuthnRequestsSigned = wantAuthnRequestsSigned;
 			this.verificationX509Credentials = verificationX509Credentials;
 			this.encryptionX509Credentials = encryptionX509Credentials;
 			this.singleSignOnServiceLocation = singleSignOnServiceLocation;
 			this.singleSignOnServiceBinding = singleSignOnServiceBinding;
+			this.signingMethodAlgorithms = signingMethodAlgorithms;
 		}
 
 		/**
@@ -542,6 +550,15 @@ public final class RelyingPartyRegistration {
 			return this.singleSignOnServiceBinding;
 		}
 
+		/**
+		 * Return the list of preferred signature algorithm URIs, in preference order.
+		 * @return the list of signature algorithm URIs
+		 * @since 5.5
+		 */
+		public List<String> getSigningMethodAlgorithms() {
+			return this.signingMethodAlgorithms;
+		}
+
 		public static final class Builder {
 
 			private String entityId;
@@ -555,6 +572,8 @@ public final class RelyingPartyRegistration {
 			private String singleSignOnServiceLocation;
 
 			private Saml2MessageBinding singleSignOnServiceBinding = Saml2MessageBinding.REDIRECT;
+
+			private List<String> signingMethodAlgorithms = new ArrayList<>();
 
 			/**
 			 * Set the asserting party's <a href=
@@ -640,14 +659,30 @@ public final class RelyingPartyRegistration {
 			}
 
 			/**
+			 * Apply this {@link Consumer} to the list of signature algorithm URIs
+			 * @param signingMethodAlgorithmsConsumer a {@link Consumer} of the list of
+			 * signature algorithm URIs
+			 * @return this {@code Builder}
+			 * @since 5.5
+			 */
+			public Builder signingMethodAlgorithms(Consumer<List<String>> signingMethodAlgorithmsConsumer) {
+				signingMethodAlgorithmsConsumer.accept(this.signingMethodAlgorithms);
+				return this;
+			}
+
+			/**
 			 * Creates an immutable ProviderDetails object representing the configuration
 			 * for an Identity Provider, IDP
 			 * @return immutable ProviderDetails object
 			 */
 			public AssertingPartyDetails build() {
+				List<String> signingMethodAlgorithmsCopy = this.signingMethodAlgorithms.isEmpty()
+						? Arrays.asList(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256)
+						: Collections.unmodifiableList(this.signingMethodAlgorithms);
+
 				return new AssertingPartyDetails(this.entityId, this.wantAuthnRequestsSigned,
 						this.verificationX509Credentials, this.encryptionX509Credentials,
-						this.singleSignOnServiceLocation, this.singleSignOnServiceBinding);
+						this.singleSignOnServiceLocation, this.singleSignOnServiceBinding, signingMethodAlgorithmsCopy);
 			}
 
 		}

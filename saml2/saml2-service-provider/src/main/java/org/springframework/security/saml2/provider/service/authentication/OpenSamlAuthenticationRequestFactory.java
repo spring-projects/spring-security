@@ -274,7 +274,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 
 	private SignatureSigningParameters resolveSigningParameters(RelyingPartyRegistration relyingPartyRegistration) {
 		List<Credential> credentials = resolveSigningCredentials(relyingPartyRegistration);
-		List<String> algorithms = Collections.singletonList(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
+		List<String> algorithms = relyingPartyRegistration.getAssertingPartyDetails().getSigningMethodAlgorithms();
 		List<String> digests = Collections.singletonList(SignatureConstants.ALGO_ID_DIGEST_SHA256);
 		String canonicalization = SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS;
 		SignatureSigningParametersResolver resolver = new SAMLMetadataSignatureSigningParametersResolver();
