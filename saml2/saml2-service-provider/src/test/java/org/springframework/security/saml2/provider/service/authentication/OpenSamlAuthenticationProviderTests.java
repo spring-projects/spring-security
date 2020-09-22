@@ -52,6 +52,7 @@ import org.opensaml.saml.saml2.core.impl.EncryptedAssertionBuilder;
 import org.opensaml.saml.saml2.core.impl.EncryptedIDBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
 import org.opensaml.xmlsec.encryption.impl.EncryptedDataBuilder;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.w3c.dom.Element;
 
 import org.springframework.core.convert.converter.Converter;
@@ -461,6 +462,17 @@ public class OpenSamlAuthenticationProviderTests {
 				.satisfies((error) -> assertThat(error).hasMessageContaining("Invalid assertion"));
 		// @formatter:on
 		verify(context, atLeastOnce()).getStaticParameters();
+	}
+
+	@Test
+	public void authenticateWithSHA1SignatureThenItSucceeds() throws Exception {
+		Response response = TestOpenSamlObjects.response();
+		Assertion assertion = TestOpenSamlObjects.signed(TestOpenSamlObjects.assertion(),
+				TestSaml2X509Credentials.assertingPartySigningCredential(), RELYING_PARTY_ENTITY_ID,
+				SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
+		response.getAssertions().add(assertion);
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		this.provider.authenticate(token);
 	}
 
 	@Test

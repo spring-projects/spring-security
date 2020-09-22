@@ -205,11 +205,12 @@ public final class TestOpenSamlObjects {
 		return CredentialSupport.getSimpleCredential(credential.getCertificate(), credential.getPrivateKey());
 	}
 
-	static <T extends SignableSAMLObject> T signed(T signable, Saml2X509Credential credential, String entityId) {
+	static <T extends SignableSAMLObject> T signed(T signable, Saml2X509Credential credential, String entityId,
+			String signAlgorithmUri) {
 		SignatureSigningParameters parameters = new SignatureSigningParameters();
 		Credential signingCredential = getSigningCredential(credential, entityId);
 		parameters.setSigningCredential(signingCredential);
-		parameters.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
+		parameters.setSignatureAlgorithm(signAlgorithmUri);
 		parameters.setSignatureReferenceDigestMethod(SignatureConstants.ALGO_ID_DIGEST_SHA256);
 		parameters.setSignatureCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 		try {
@@ -219,6 +220,10 @@ public final class TestOpenSamlObjects {
 			throw new Saml2Exception(ex);
 		}
 		return signable;
+	}
+
+	static <T extends SignableSAMLObject> T signed(T signable, Saml2X509Credential credential, String entityId) {
+		return signed(signable, credential, entityId, SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
 	}
 
 	static EncryptedAssertion encrypted(Assertion assertion, Saml2X509Credential credential) {

@@ -240,6 +240,22 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 		assertThat(inflated).contains("ProtocolBinding=\"" + SAMLConstants.SAML2_REDIRECT_BINDING_URI + "\"");
 	}
 
+	@Test
+	public void createRedirectAuthenticationRequestWhenSHA1SignRequestThenSignatureIsPresent() {
+		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationBuilder
+				.assertingPartyDetails(
+						(a) -> a.signingMethodAlgorithms((c) -> c.add(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1)))
+				.build();
+		Saml2AuthenticationRequestContext context = this.contextBuilder.relayState("Relay State Value")
+				.relyingPartyRegistration(relyingPartyRegistration).build();
+		Saml2RedirectAuthenticationRequest result = this.factory.createRedirectAuthenticationRequest(context);
+		assertThat(result.getSamlRequest()).isNotEmpty();
+		assertThat(result.getRelayState()).isEqualTo("Relay State Value");
+		assertThat(result.getSigAlg()).isEqualTo(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
+		assertThat(result.getSignature()).isNotNull();
+		assertThat(result.getBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
+	}
+
 	private AuthnRequest getAuthNRequest(Saml2MessageBinding binding) {
 		AbstractSaml2AuthenticationRequest result = (binding == Saml2MessageBinding.REDIRECT)
 				? this.factory.createRedirectAuthenticationRequest(this.context)
