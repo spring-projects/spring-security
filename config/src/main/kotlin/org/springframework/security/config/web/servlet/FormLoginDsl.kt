@@ -32,7 +32,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
  * @property authenticationSuccessHandler the [AuthenticationSuccessHandler] used after
  * authentication success
  * @property authenticationFailureHandler the [AuthenticationFailureHandler] used after
- * authentication success
+ * authentication failure
  * @property failureUrl the URL to send users if authentication fails
  * @property loginProcessingUrl the URL to validate the credentials
  * @property permitAll whether to grant access to the urls for [failureUrl] as well as
