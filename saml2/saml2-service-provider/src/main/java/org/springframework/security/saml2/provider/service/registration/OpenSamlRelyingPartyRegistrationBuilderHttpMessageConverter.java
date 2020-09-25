@@ -26,13 +26,15 @@ import java.util.List;
 
 import net.shibboleth.utilities.java.support.xml.ParserPool;
 import org.opensaml.core.config.ConfigurationService;
+import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
+import org.opensaml.core.xml.io.Unmarshaller;
 import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml.saml2.metadata.SingleSignOnService;
-import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorUnmarshaller;
 import org.opensaml.security.credential.UsageType;
 import org.opensaml.xmlsec.keyinfo.KeyInfoSupport;
 import org.w3c.dom.Document;
@@ -82,7 +84,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 		OpenSamlInitializationService.initialize();
 	}
 
-	private final EntityDescriptorUnmarshaller unmarshaller;
+	private final XMLObjectProviderRegistry registry;
 
 	private final ParserPool parserPool;
 
@@ -90,10 +92,8 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 	 * Creates a {@link OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter}
 	 */
 	public OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter() {
-		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
-		this.unmarshaller = (EntityDescriptorUnmarshaller) registry.getUnmarshallerFactory()
-				.getUnmarshaller(EntityDescriptor.DEFAULT_ELEMENT_NAME);
-		this.parserPool = registry.getParserPool();
+		this.registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
+		this.parserPool = this.registry.getParserPool();
 	}
 
 	@Override
@@ -207,10 +207,30 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 	}
 
 	private EntityDescriptor entityDescriptor(InputStream inputStream) {
+		Document document = document(inputStream);
+		Element element = document.getDocumentElement();
+		Unmarshaller unmarshaller = this.registry.getUnmarshallerFactory().getUnmarshaller(element);
+		if (unmarshaller == null) {
+			throw new Saml2Exception("Unsupported element of type " + element.getTagName());
+		}
 		try {
-			Document document = this.parserPool.parse(inputStream);
-			Element element = document.getDocumentElement();
-			return (EntityDescriptor) this.unmarshaller.unmarshall(element);
+			XMLObject object = unmarshaller.unmarshall(element);
+			if (object instanceof EntitiesDescriptor) {
+				return ((EntitiesDescriptor) object).getEntityDescriptors().get(0);
+			}
+			if (object instanceof EntityDescriptor) {
+				return (EntityDescriptor) object;
+			}
+		}
+		catch (Exception ex) {
+			throw new Saml2Exception(ex);
+		}
+		throw new Saml2Exception("Unsupported element of type " + element.getTagName());
+	}
+
+	private Document document(InputStream inputStream) {
+		try {
+			return this.parserPool.parse(inputStream);
 		}
 		catch (Exception ex) {
 			throw new Saml2Exception(ex);

@@ -36,8 +36,10 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 
 	private static final String CERTIFICATE = "MIIEEzCCAvugAwIBAgIJAIc1qzLrv+5nMA0GCSqGSIb3DQEBCwUAMIGfMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQ08xFDASBgNVBAcMC0Nhc3RsZSBSb2NrMRwwGgYDVQQKDBNTYW1sIFRlc3RpbmcgU2VydmVyMQswCQYDVQQLDAJJVDEgMB4GA1UEAwwXc2ltcGxlc2FtbHBocC5jZmFwcHMuaW8xIDAeBgkqhkiG9w0BCQEWEWZoYW5pa0BwaXZvdGFsLmlvMB4XDTE1MDIyMzIyNDUwM1oXDTI1MDIyMjIyNDUwM1owgZ8xCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJDTzEUMBIGA1UEBwwLQ2FzdGxlIFJvY2sxHDAaBgNVBAoME1NhbWwgVGVzdGluZyBTZXJ2ZXIxCzAJBgNVBAsMAklUMSAwHgYDVQQDDBdzaW1wbGVzYW1scGhwLmNmYXBwcy5pbzEgMB4GCSqGSIb3DQEJARYRZmhhbmlrQHBpdm90YWwuaW8wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4cn62E1xLqpN34PmbrKBbkOXFjzWgJ9b+pXuaRft6A339uuIQeoeH5qeSKRVTl32L0gdz2ZivLwZXW+cqvftVW1tvEHvzJFyxeTW3fCUeCQsebLnA2qRa07RkxTo6Nf244mWWRDodcoHEfDUSbxfTZ6IExSojSIU2RnD6WllYWFdD1GFpBJOmQB8rAc8wJIBdHFdQnX8Ttl7hZ6rtgqEYMzYVMuJ2F2r1HSU1zSAvwpdYP6rRGFRJEfdA9mm3WKfNLSc5cljz0X/TXy0vVlAV95l9qcfFzPmrkNIst9FZSwpvB49LyAVke04FQPPwLgVH4gphiJH3jvZ7I+J5lS8VAgMBAAGjUDBOMB0GA1UdDgQWBBTTyP6Cc5HlBJ5+ucVCwGc5ogKNGzAfBgNVHSMEGDAWgBTTyP6Cc5HlBJ5+ucVCwGc5ogKNGzAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAvMS4EQeP/ipV4jOG5lO6/tYCb/iJeAduOnRhkJk0DbX329lDLZhTTL/x/w/9muCVcvLrzEp6PN+VWfw5E5FWtZN0yhGtP9R+vZnrV+oc2zGD+no1/ySFOe3EiJCO5dehxKjYEmBRv5sU/LZFKZpozKN/BMEa6CqLuxbzb7ykxVr7EVFXwltPxzE9TmL9OACNNyF5eJHWMRMllarUvkcXlh4pux4ks9e6zV9DQBy2zds9f1I3qxg0eX6JnGrXi/ZiCT+lJgVe3ZFXiejiLAiKB04sXW3ti0LW3lx13Y1YlQ4/tlpgTgfIJxKV6nyPiLoK0nywbMd+vpAirDt2Oc+hk";
 
-	private static final String ENTITY_DESCRIPTOR_TEMPLATE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-			+ "<md:EntityDescriptor xmlns:md=\"urn:oasis:names:tc:SAML:2.0:metadata\" " + "entityID=\"entity-id\" "
+	private static final String ENTITIES_DESCRIPTOR_TEMPLATE = "<md:EntitiesDescriptor xmlns:md=\"urn:oasis:names:tc:SAML:2.0:metadata\">\n%s</md:EntitiesDescriptor>";
+
+	private static final String ENTITY_DESCRIPTOR_TEMPLATE = "<md:EntityDescriptor xmlns:md=\"urn:oasis:names:tc:SAML:2.0:metadata\" "
+			+ "entityID=\"entity-id\" "
 			+ "ID=\"_bf133aac099b99b3d81286e1a341f2d34188043a77fe15bf4bf1487dae9b2ea3\">\n%s"
 			+ "</md:EntityDescriptor>";
 
@@ -112,6 +114,31 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 				.isEqualTo(x509Certificate(CERTIFICATE));
 	}
 
+	// gh-9051
+	@Test
+	public void readWhenEntitiesDescriptorThenConfigures() throws Exception {
+		String payload = String.format(ENTITIES_DESCRIPTOR_TEMPLATE,
+				String.format(ENTITY_DESCRIPTOR_TEMPLATE,
+						String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
+								String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"signing\"")
+										+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"")
+										+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE))));
+		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), HttpStatus.OK);
+		RelyingPartyRegistration registration = this.converter.read(RelyingPartyRegistration.Builder.class, response)
+				.registrationId("one").build();
+		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+		assertThat(details.getWantAuthnRequestsSigned()).isFalse();
+		assertThat(details.getSingleSignOnServiceLocation()).isEqualTo("sso-location");
+		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
+		assertThat(details.getEntityId()).isEqualTo("entity-id");
+		assertThat(details.getVerificationX509Credentials()).hasSize(1);
+		assertThat(details.getVerificationX509Credentials().iterator().next().getCertificate())
+				.isEqualTo(x509Certificate(CERTIFICATE));
+		assertThat(details.getEncryptionX509Credentials()).hasSize(1);
+		assertThat(details.getEncryptionX509Credentials().iterator().next().getCertificate())
+				.isEqualTo(x509Certificate(CERTIFICATE));
+	}
+
 	@Test
 	public void readWhenKeyDescriptorHasNoUseThenConfiguresBothKeyTypes() throws Exception {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE, String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
@@ -135,6 +162,16 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 		catch (Exception ex) {
 			throw new IllegalArgumentException(ex);
 		}
+	}
+
+	// gh-9051
+	@Test
+	public void readWhenUnsupportedElementThenSaml2Exception() {
+		String payload = "<saml2:Assertion xmlns:saml2=\"https://some.endpoint\"/>";
+		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), HttpStatus.OK);
+		assertThatExceptionOfType(Saml2Exception.class)
+				.isThrownBy(() -> this.converter.read(RelyingPartyRegistration.Builder.class, response))
+				.withMessage("Unsupported element of type saml2:Assertion");
 	}
 
 }
