@@ -148,7 +148,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 *
 	 * <p>
 	 * Allows customizing the {@link XXssProtectionHeaderWriter} which adds the <a href=
-	 * "https://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
+	 * "https://web.archive.org/web/20160201174302/https://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
 	 * >X-XSS-Protection header</a>
 	 * </p>
 	 * @return the {@link XXssConfig} for additional customizations
@@ -162,7 +162,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 *
 	 * <p>
 	 * Allows customizing the {@link XXssProtectionHeaderWriter} which adds the <a href=
-	 * "https://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
+	 * "https://web.archive.org/web/20160201174302/https://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
 	 * >X-XSS-Protection header</a>
 	 * </p>
 	 * @param xssCustomizer the {@link Customizer} to provide more options for the
