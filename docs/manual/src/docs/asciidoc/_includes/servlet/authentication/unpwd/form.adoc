@@ -197,8 +197,8 @@ A minimal sample `LoginController` can be see below:
 
 .LoginController
 ====
-.src/main/java/example/LoginController.java
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 @Controller
 class LoginController {
@@ -206,6 +206,18 @@ class LoginController {
 	String login() {
 		return "login";
 	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Controller
+class LoginController {
+    @GetMapping("/login")
+    fun login(): String {
+        return "login"
+    }
 }
 ----
 ====
