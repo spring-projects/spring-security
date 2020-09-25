@@ -171,32 +171,6 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 				"Metadata response is missing a SingleSignOnService, necessary for sending AuthnRequests");
 	}
 
-	private List<Saml2X509Credential> getVerification(IDPSSODescriptor idpssoDescriptor) {
-		List<Saml2X509Credential> verification = new ArrayList<>();
-		for (KeyDescriptor keyDescriptor : idpssoDescriptor.getKeyDescriptors()) {
-			if (keyDescriptor.getUse().equals(UsageType.SIGNING)) {
-				List<X509Certificate> certificates = certificates(keyDescriptor);
-				for (X509Certificate certificate : certificates) {
-					verification.add(Saml2X509Credential.verification(certificate));
-				}
-			}
-		}
-		return verification;
-	}
-
-	private List<Saml2X509Credential> getEncryption(IDPSSODescriptor idpssoDescriptor) {
-		List<Saml2X509Credential> encryption = new ArrayList<>();
-		for (KeyDescriptor keyDescriptor : idpssoDescriptor.getKeyDescriptors()) {
-			if (keyDescriptor.getUse().equals(UsageType.ENCRYPTION)) {
-				List<X509Certificate> certificates = certificates(keyDescriptor);
-				for (X509Certificate certificate : certificates) {
-					encryption.add(Saml2X509Credential.encryption(certificate));
-				}
-			}
-		}
-		return encryption;
-	}
-
 	private List<X509Certificate> certificates(KeyDescriptor keyDescriptor) {
 		try {
 			return KeyInfoSupport.getCertificates(keyDescriptor.getKeyInfo());
