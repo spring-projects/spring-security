@@ -26,16 +26,20 @@ import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestUnmarshaller;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.credentials.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -111,6 +115,28 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	}
 
 	@Test
+	public void createRedirectAuthenticationRequestWhenSignRequestThenSignatureIsPresent() {
+		this.context = this.contextBuilder.relayState("Relay State Value")
+				.relyingPartyRegistration(this.relyingPartyRegistration).build();
+		Saml2RedirectAuthenticationRequest request = this.factory.createRedirectAuthenticationRequest(this.context);
+		assertThat(request.getRelayState()).isEqualTo("Relay State Value");
+		assertThat(request.getSigAlg()).isEqualTo(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
+		assertThat(request.getSignature()).isNotNull();
+	}
+
+	@Test
+	public void createRedirectAuthenticationRequestWhenSignRequestThenCredentialIsRequired() {
+		Saml2X509Credential credential = org.springframework.security.saml2.core.TestSaml2X509Credentials
+				.relyingPartyVerifyingCredential();
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.noCredentials()
+				.assertingPartyDetails((party) -> party.verificationX509Credentials((c) -> c.add(credential))).build();
+		this.context = this.contextBuilder.relayState("Relay State Value").relyingPartyRegistration(registration)
+				.build();
+		assertThatExceptionOfType(Saml2Exception.class)
+				.isThrownBy(() -> this.factory.createPostAuthenticationRequest(this.context));
+	}
+
+	@Test
 	public void createPostAuthenticationRequestWhenNotSignRequestThenNoSignatureIsPresent() {
 		this.context = this.contextBuilder.relayState("Relay State Value")
 				.relyingPartyRegistration(
@@ -137,6 +163,18 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 		assertThat(result.getBinding()).isEqualTo(Saml2MessageBinding.POST);
 		assertThat(new String(Saml2Utils.samlDecode(result.getSamlRequest()), StandardCharsets.UTF_8))
 				.contains("ds:Signature");
+	}
+
+	@Test
+	public void createPostAuthenticationRequestWhenSignRequestThenCredentialIsRequired() {
+		Saml2X509Credential credential = org.springframework.security.saml2.core.TestSaml2X509Credentials
+				.relyingPartyVerifyingCredential();
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.noCredentials()
+				.assertingPartyDetails((party) -> party.verificationX509Credentials((c) -> c.add(credential))).build();
+		this.context = this.contextBuilder.relayState("Relay State Value").relyingPartyRegistration(registration)
+				.build();
+		assertThatExceptionOfType(Saml2Exception.class)
+				.isThrownBy(() -> this.factory.createPostAuthenticationRequest(this.context));
 	}
 
 	@Test
