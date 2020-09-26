@@ -29,7 +29,8 @@ public class SecurityConfig {
 		auth
 			.ldapAuthentication()
 				.userDnPatterns("uid={0},ou=people")
-				.groupSearchBase("ou=groups");
+				.groupSearchBase("ou=groups")
+				.contextSource().port(0);
 	}
 	// @formatter:on
 }
