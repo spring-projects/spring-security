@@ -96,6 +96,16 @@ public class JndiDnsResolverTests {
 	}
 
 	@Test
+	public void resolveServiceIpAddressWithPort() throws Exception {
+		BasicAttributes srvRecords = createSrvRecords();
+		BasicAttributes aRecords = new BasicAttributes("A", "63.246.7.80");
+		given(this.context.getAttributes("_ldap._tcp.springsource.com", new String[] { "SRV" })).willReturn(srvRecords);
+		given(this.context.getAttributes("kdc.springsource.com", new String[] { "A" })).willReturn(aRecords);
+		String ipAddress = this.dnsResolver.resolveServiceIpAddressAndPort("ldap", "springsource.com");
+		assertThat(ipAddress).isEqualTo("63.246.7.80:389");
+	}
+
+	@Test
 	public void testUnknowError() throws Exception {
 		given(this.context.getAttributes(any(String.class), any(String[].class)))
 				.willThrow(new NamingException("error"));
