@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.SpringVersion;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -108,8 +109,9 @@ public class SpringSecurityCoreVersion {
 	 */
 	private static String getSpringVersion() {
 		Properties properties = new Properties();
-		try {
-			properties.load(SpringSecurityCoreVersion.class.getClassLoader().getResourceAsStream("META-INF/spring-security.versions"));
+		try (InputStream is = SpringSecurityCoreVersion.class.getClassLoader()
+				.getResourceAsStream("META-INF/spring-security.versions")) {
+			properties.load(is);
 		} catch (IOException | NullPointerException e) {
 			return null;
 		}
