@@ -56,6 +56,7 @@ import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 import org.springframework.security.saml2.credentials.TestSaml2X509Credentials;
+import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider.ResponseToken;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -446,8 +447,7 @@ public class OpenSamlAuthenticationProviderTests {
 	public void createDefaultResponseAuthenticationConverterWhenResponseThenConverts() {
 		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion();
 		Saml2AuthenticationToken token = token(response, TestSaml2X509Credentials.relyingPartyVerifyingCredential());
-		OpenSamlAuthenticationProvider.ResponseToken responseToken = new OpenSamlAuthenticationProvider.ResponseToken(
-				response, token);
+		ResponseToken responseToken = new ResponseToken(response, token);
 		Saml2Authentication authentication = OpenSamlAuthenticationProvider
 				.createDefaultResponseAuthenticationConverter().convert(responseToken);
 		assertThat(authentication.getName()).isEqualTo("test@saml.user");
@@ -455,8 +455,7 @@ public class OpenSamlAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenResponseAuthenticationConverterConfiguredThenUses() {
-		Converter<OpenSamlAuthenticationProvider.ResponseToken, Saml2Authentication> authenticationConverter = mock(
-				Converter.class);
+		Converter<ResponseToken, Saml2Authentication> authenticationConverter = mock(Converter.class);
 		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
 		provider.setResponseAuthenticationConverter(authenticationConverter);
 		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion();
@@ -471,6 +470,57 @@ public class OpenSamlAuthenticationProviderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.provider.setResponseAuthenticationConverter(null));
 		// @formatter:on
+	}
+
+	@Test
+	public void setAssertionDecrypterWhenNullThenIllegalArgument() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.provider.setAssertionDecrypter(null));
+	}
+
+	@Test
+	public void setPrincipalDecrypterWhenNullThenIllegalArgument() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.provider.setPrincipalDecrypter(null));
+	}
+
+	@Test
+	public void setAssertionDecrypterThenChangesAssertion() {
+		Response response = TestOpenSamlObjects.response();
+		Assertion assertion = TestOpenSamlObjects.assertion();
+		assertion.getSubject().getSubjectConfirmations()
+				.forEach((sc) -> sc.getSubjectConfirmationData().setAddress("10.10.10.10"));
+		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
+				RELYING_PARTY_ENTITY_ID);
+		response.getAssertions().add(assertion);
+		Saml2AuthenticationToken token = token(response, TestSaml2X509Credentials.relyingPartyVerifyingCredential());
+		this.provider.setAssertionDecrypter(mockAssertionAndPrincipalDecrypter());
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.INVALID_SIGNATURE));
+		assertThat(response.getAssertions().get(0).equals(TestOpenSamlObjects.assertion("1", "2", "3", "4")));
+	}
+
+	@Test
+	public void setPrincipalDecrypterThenChangesAssertion() {
+		Response response = TestOpenSamlObjects.response();
+		Assertion assertion = TestOpenSamlObjects.assertion();
+		assertion.getSubject().getSubjectConfirmations()
+				.forEach((sc) -> sc.getSubjectConfirmationData().setAddress("10.10.10.10"));
+		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
+				RELYING_PARTY_ENTITY_ID);
+		response.getAssertions().add(assertion);
+		Saml2AuthenticationToken token = token(response, TestSaml2X509Credentials.relyingPartyVerifyingCredential());
+		this.provider.setPrincipalDecrypter(mockAssertionAndPrincipalDecrypter());
+		this.provider.authenticate(token);
+		assertThat(response.getAssertions().get(0).equals(TestOpenSamlObjects.assertion("1", "2", "3", "4")));
+	}
+
+	private Consumer<ResponseToken> mockAssertionAndPrincipalDecrypter() {
+		return (responseToken) -> {
+			responseToken.getResponse().getAssertions().clear();
+			responseToken.getResponse().getAssertions()
+					.add(TestOpenSamlObjects.signed(TestOpenSamlObjects.assertion("1", "2", "3", "4"),
+							TestSaml2X509Credentials.assertingPartySigningCredential(), RELYING_PARTY_ENTITY_ID));
+		};
 	}
 
 	private <T extends XMLObject> T build(QName qName) {
