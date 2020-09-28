@@ -16,6 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
+import java.io.File;
+
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Test;
@@ -85,7 +87,7 @@ public class RelyingPartyRegistrationsTests {
 			+ "   </md:ContactPerson>\n" + "    \n" + "</md:EntityDescriptor>";
 
 	@Test
-	public void fromMetadataLocationWhenResolvableThenPopulatesBuilder() throws Exception {
+	public void fromMetadataUrlLocationWhenResolvableThenPopulatesBuilder() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
 			server.enqueue(new MockResponse().setBody(IDP_SSO_DESCRIPTOR_PAYLOAD).setResponseCode(200));
 			RelyingPartyRegistration registration = RelyingPartyRegistrations
@@ -101,7 +103,7 @@ public class RelyingPartyRegistrationsTests {
 	}
 
 	@Test
-	public void fromMetadataLocationWhenUnresolvableThenSaml2Exception() throws Exception {
+	public void fromMetadataUrlLocationWhenUnresolvableThenSaml2Exception() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
 			server.enqueue(new MockResponse().setBody(IDP_SSO_DESCRIPTOR_PAYLOAD).setResponseCode(200));
 			String url = server.url("/").toString();
@@ -112,13 +114,33 @@ public class RelyingPartyRegistrationsTests {
 	}
 
 	@Test
-	public void fromMetadataLocationWhenMalformedResponseThenSaml2Exception() throws Exception {
+	public void fromMetadataUrlLocationWhenMalformedResponseThenSaml2Exception() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
 			server.enqueue(new MockResponse().setBody("malformed").setResponseCode(200));
 			String url = server.url("/").toString();
 			assertThatExceptionOfType(Saml2Exception.class)
 					.isThrownBy(() -> RelyingPartyRegistrations.fromMetadataLocation(url));
 		}
+	}
+
+	@Test
+	public void fromMetadataFileLocationWhenResolvableThenPopulatesBuilder() {
+		File file = new File("src/test/resources/test-metadata.xml");
+		RelyingPartyRegistration registration = RelyingPartyRegistrations
+				.fromMetadataLocation("file:" + file.getAbsolutePath()).entityId("rp").build();
+		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+		assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
+		assertThat(details.getSingleSignOnServiceLocation())
+				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
+		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
+		assertThat(details.getVerificationX509Credentials()).hasSize(1);
+		assertThat(details.getEncryptionX509Credentials()).hasSize(1);
+	}
+
+	@Test
+	public void fromMetadataFileLocationWhenNotFoundThenSaml2Exception() {
+		assertThatExceptionOfType(Saml2Exception.class)
+				.isThrownBy(() -> RelyingPartyRegistrations.fromMetadataLocation("filePath"));
 	}
 
 }
