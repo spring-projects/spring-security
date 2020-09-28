@@ -6,7 +6,9 @@ For each authentication that succeeds or fails, a `AuthenticationSuccessEvent` o
 To listen for these events, you must first publish an `AuthenticationEventPublisher`.
 Spring Security's `DefaultAuthenticationEventPublisher` will probably do fine:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public AuthenticationEventPublisher authenticationEventPublisher
@@ -15,9 +17,22 @@ public AuthenticationEventPublisher authenticationEventPublisher
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationEventPublisher
+        (applicationEventPublisher: ApplicationEventPublisher?): AuthenticationEventPublisher {
+    return DefaultAuthenticationEventPublisher(applicationEventPublisher)
+}
+----
+====
+
 Then, you can use Spring's `@EventListener` support:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Component
 public class AuthenticationEvents {
@@ -32,6 +47,24 @@ public class AuthenticationEvents {
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Component
+class AuthenticationEvents {
+    @EventListener
+    fun onSuccess(success: AuthenticationSuccessEvent?) {
+        // ...
+    }
+
+    @EventListener
+    fun onFailure(failures: AbstractAuthenticationFailureEvent?) {
+        // ...
+    }
+}
+----
+====
 
 While similar to `AuthenticationSuccessHandler` and `AuthenticationFailureHandler`, these are nice in that they can be used independently from the servlet API.
 
@@ -56,7 +89,9 @@ The publisher does an exact `Exception` match, which means that sub-classes of t
 
 To that end, you may want to supply additional mappings to the publisher via the `setAdditionalExceptionMappings` method:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public AuthenticationEventPublisher authenticationEventPublisher
@@ -71,11 +106,28 @@ public AuthenticationEventPublisher authenticationEventPublisher
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationEventPublisher
+        (applicationEventPublisher: ApplicationEventPublisher?): AuthenticationEventPublisher {
+    val mapping: Map<Class<out AuthenticationException>, Class<out AbstractAuthenticationFailureEvent>> =
+            mapOf(Pair(FooException::class.java, FooEvent::class.java))
+    val authenticationEventPublisher = DefaultAuthenticationEventPublisher(applicationEventPublisher)
+    authenticationEventPublisher.setAdditionalExceptionMappings(mapping)
+    return authenticationEventPublisher
+}
+----
+====
+
 === Default Event
 
 And, you can supply a catch-all event to fire in the case of any `AuthenticationException`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public AuthenticationEventPublisher authenticationEventPublisher
@@ -87,3 +139,16 @@ public AuthenticationEventPublisher authenticationEventPublisher
     return authenticationEventPublisher;
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationEventPublisher
+        (applicationEventPublisher: ApplicationEventPublisher?): AuthenticationEventPublisher {
+    val authenticationEventPublisher = DefaultAuthenticationEventPublisher(applicationEventPublisher)
+    authenticationEventPublisher.setDefaultAuthenticationFailureEvent(GenericAuthenticationFailureEvent::class.java)
+    return authenticationEventPublisher
+}
+----
+====
