@@ -66,6 +66,13 @@ allprojects {
 	}
 }
 
+if (hasProperty('buildScan')) {
+	buildScan {
+		termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+		termsOfServiceAgree = 'yes'
+	}
+}
+
 nohttp {
 	allowlistFile = project.file("etc/nohttp/allowlist.lines")
 }
