@@ -114,7 +114,9 @@ So if you aren't using the namespace and want to use expressions, you will have 
 If you wish to extend the expressions that are available, you can easily refer to any Spring Bean you expose.
 For example, assuming you have a Bean with the name of `webSecurity` that contains the following method signature:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class WebSecurity {
 		public boolean check(Authentication authentication, HttpServletRequest request) {
@@ -122,6 +124,17 @@ public class WebSecurity {
 		}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class WebSecurity {
+    fun check(authentication: Authentication?, request: HttpServletRequest?): Boolean {
+        // ...
+    }
+}
+----
+====
 
 You could refer to the method using:
 
@@ -167,7 +180,9 @@ For example, consider a RESTful application that looks up a user by id from the 
 You can easily refer to the path variable by placing it in the pattern.
 For example, if you had a Bean with the name of `webSecurity` that contains the following method signature:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class WebSecurity {
 		public boolean checkUserId(Authentication authentication, int id) {
@@ -175,6 +190,17 @@ public class WebSecurity {
 		}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class WebSecurity {
+    fun checkUserId(authentication: Authentication?, id: Int): Boolean {
+        // ...
+    }
+}
+----
+====
 
 You could refer to the method using:
 
@@ -234,21 +260,41 @@ Their use is enabled through the `global-method-security` namespace element:
 The most obviously useful annotation is `@PreAuthorize` which decides whether a method can actually be invoked or not.
 For example (from the "Contacts" sample application)
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @PreAuthorize("hasRole('USER')")
 public void create(Contact contact);
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize("hasRole('USER')")
+fun create(contact: Contact?)
+----
+====
+
 which means that access will only be allowed for users with the role "ROLE_USER".
 Obviously the same thing could easily be achieved using a traditional configuration and a simple configuration attribute for the required role.
 But what about:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @PreAuthorize("hasPermission(#contact, 'admin')")
 public void deletePermission(Contact contact, Sid recipient, Permission permission);
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize("hasPermission(#contact, 'admin')")
+fun deletePermission(contact: Contact?, recipient: Sid?, permission: Permission?)
+----
+====
 
 Here we're actually using a method argument as part of the expression to decide whether the current user has the "admin"permission for the given contact.
 The built-in `hasPermission()` expression is linked into the Spring Security ACL module through the application context, as we'll <<el-permission-evaluator,see below>>.
@@ -264,7 +310,9 @@ For example:
 
 +
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 import org.springframework.security.access.method.P;
 
@@ -273,6 +321,18 @@ import org.springframework.security.access.method.P;
 @PreAuthorize("#c.name == authentication.name")
 public void doSomething(@P("c") Contact contact);
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.access.method.P
+
+...
+
+@PreAuthorize("#c.name == authentication.name")
+fun doSomething(@P("c") contact: Contact?)
+----
+====
 
 +
 
@@ -284,7 +344,9 @@ For example:
 
 +
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 import org.springframework.data.repository.query.Param;
 
@@ -293,6 +355,18 @@ import org.springframework.data.repository.query.Param;
 @PreAuthorize("#n == authentication.name")
 Contact findContactByName(@Param("n") String name);
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.springframework.data.repository.query.Param
+
+...
+
+@PreAuthorize("#n == authentication.name")
+fun findContactByName(@Param("n") name: String?): Contact?
+----
+====
 
 +
 
@@ -311,11 +385,21 @@ Any Spring-EL functionality is available within the expression, so you can also 
 For example, if you wanted a particular method to only allow access to a user whose username matched that of the contact, you could write
 --
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @PreAuthorize("#contact.name == authentication.name")
 public void doSomething(Contact contact);
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize("#contact.name == authentication.name")
+fun doSomething(contact: Contact?)
+----
+====
 
 Here we are accessing another built-in expression, `authentication`, which is the `Authentication` stored in the security context.
 You can also access its "principal" property directly, using the expression `principal`.
@@ -333,12 +417,23 @@ Spring Security supports filtering of collections, arrays, maps and streams usin
 This is most commonly performed on the return value of a method.
 For example:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @PreAuthorize("hasRole('USER')")
 @PostFilter("hasPermission(filterObject, 'read') or hasPermission(filterObject, 'admin')")
 public List<Contact> getAll();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize("hasRole('USER')")
+@PostFilter("hasPermission(filterObject, 'read') or hasPermission(filterObject, 'admin')")
+fun getAll(): List<Contact?>
+----
+====
 
 When using the `@PostFilter` annotation, Spring Security iterates through the returned collection or map and removes any elements for which the supplied expression is false.
 For an array, a new array instance will be returned containing filtered elements.
@@ -412,12 +507,23 @@ For example, consider the following:
 
 Instead of repeating this everywhere, we can create a meta annotation that can be used instead.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Retention(RetentionPolicy.RUNTIME)
 @PreAuthorize("#contact.name == authentication.name")
 public @interface ContactPermission {}
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Retention(AnnotationRetention.RUNTIME)
+@PreAuthorize("#contact.name == authentication.name")
+annotation class ContactPermission
+----
+====
 
 Meta annotations can be used for any of the Spring Security method security annotations.
 In order to remain compliant with the specification JSR-250 annotations do not support meta annotations.
