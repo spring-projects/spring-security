@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.client;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -35,6 +36,9 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
+import org.springframework.jdbc.support.lob.DefaultLobHandler;
+import org.springframework.jdbc.support.lob.LobCreator;
+import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -56,6 +60,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Joe Grandja
  * @author Stav Shamir
+ * @author Craig Andrews
  * @since 5.3
  * @see OAuth2AuthorizedClientService
  * @see OAuth2AuthorizedClient
@@ -107,6 +112,8 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 
 	protected Function<OAuth2AuthorizedClientHolder, List<SqlParameterValue>> authorizedClientParametersMapper;
 
+	protected final LobHandler lobHandler;
+
 	/**
 	 * Constructs a {@code JdbcOAuth2AuthorizedClientService} using the provided
 	 * parameters.
@@ -115,10 +122,28 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 	 */
 	public JdbcOAuth2AuthorizedClientService(JdbcOperations jdbcOperations,
 			ClientRegistrationRepository clientRegistrationRepository) {
+		this(jdbcOperations, clientRegistrationRepository, new DefaultLobHandler());
+	}
+
+	/**
+	 * Constructs a {@code JdbcOAuth2AuthorizedClientService} using the provided
+	 * parameters.
+	 * @param jdbcOperations the JDBC operations
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * @param lobHandler the handler for large binary fields and large text fields
+	 * @since 5.5
+	 */
+	public JdbcOAuth2AuthorizedClientService(JdbcOperations jdbcOperations,
+			ClientRegistrationRepository clientRegistrationRepository, LobHandler lobHandler) {
 		Assert.notNull(jdbcOperations, "jdbcOperations cannot be null");
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
+		Assert.notNull(lobHandler, "lobHandler cannot be null");
 		this.jdbcOperations = jdbcOperations;
-		this.authorizedClientRowMapper = new OAuth2AuthorizedClientRowMapper(clientRegistrationRepository);
+		this.lobHandler = lobHandler;
+		OAuth2AuthorizedClientRowMapper authorizedClientRowMapper = new OAuth2AuthorizedClientRowMapper(
+				clientRegistrationRepository);
+		authorizedClientRowMapper.setLobHandler(lobHandler);
+		this.authorizedClientRowMapper = authorizedClientRowMapper;
 		this.authorizedClientParametersMapper = new OAuth2AuthorizedClientParametersMapper();
 	}
 
@@ -163,15 +188,21 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		SqlParameterValue principalNameParameter = parameters.remove(0);
 		parameters.add(clientRegistrationIdParameter);
 		parameters.add(principalNameParameter);
-		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
-		this.jdbcOperations.update(UPDATE_AUTHORIZED_CLIENT_SQL, pss);
+		try (LobCreator lobCreator = this.lobHandler.getLobCreator()) {
+			PreparedStatementSetter pss = new LobCreatorArgumentPreparedStatementSetter(lobCreator,
+					parameters.toArray());
+			this.jdbcOperations.update(UPDATE_AUTHORIZED_CLIENT_SQL, pss);
+		}
 	}
 
 	private void insertAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		List<SqlParameterValue> parameters = this.authorizedClientParametersMapper
 				.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal));
-		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
-		this.jdbcOperations.update(SAVE_AUTHORIZED_CLIENT_SQL, pss);
+		try (LobCreator lobCreator = this.lobHandler.getLobCreator()) {
+			PreparedStatementSetter pss = new LobCreatorArgumentPreparedStatementSetter(lobCreator,
+					parameters.toArray());
+			this.jdbcOperations.update(SAVE_AUTHORIZED_CLIENT_SQL, pss);
+		}
 	}
 
 	@Override
@@ -218,9 +249,16 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 
 		protected final ClientRegistrationRepository clientRegistrationRepository;
 
+		protected LobHandler lobHandler = new DefaultLobHandler();
+
 		public OAuth2AuthorizedClientRowMapper(ClientRegistrationRepository clientRegistrationRepository) {
 			Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 			this.clientRegistrationRepository = clientRegistrationRepository;
+		}
+
+		public final void setLobHandler(LobHandler lobHandler) {
+			Assert.notNull(lobHandler, "lobHandler cannot be null");
+			this.lobHandler = lobHandler;
 		}
 
 		@Override
@@ -237,7 +275,8 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 			if (OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(rs.getString("access_token_type"))) {
 				tokenType = OAuth2AccessToken.TokenType.BEARER;
 			}
-			String tokenValue = new String(rs.getBytes("access_token_value"), StandardCharsets.UTF_8);
+			String tokenValue = new String(this.lobHandler.getBlobAsBytes(rs, "access_token_value"),
+					StandardCharsets.UTF_8);
 			Instant issuedAt = rs.getTimestamp("access_token_issued_at").toInstant();
 			Instant expiresAt = rs.getTimestamp("access_token_expires_at").toInstant();
 			Set<String> scopes = Collections.emptySet();
@@ -247,7 +286,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 			}
 			OAuth2AccessToken accessToken = new OAuth2AccessToken(tokenType, tokenValue, issuedAt, expiresAt, scopes);
 			OAuth2RefreshToken refreshToken = null;
-			byte[] refreshTokenValue = rs.getBytes("refresh_token_value");
+			byte[] refreshTokenValue = this.lobHandler.getBlobAsBytes(rs, "refresh_token_value");
 			if (refreshTokenValue != null) {
 				tokenValue = new String(refreshTokenValue, StandardCharsets.UTF_8);
 				issuedAt = null;
@@ -342,6 +381,34 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		 */
 		public Authentication getPrincipal() {
 			return this.principal;
+		}
+
+	}
+
+	private static final class LobCreatorArgumentPreparedStatementSetter extends ArgumentPreparedStatementSetter {
+
+		protected final LobCreator lobCreator;
+
+		private LobCreatorArgumentPreparedStatementSetter(LobCreator lobCreator, Object[] args) {
+			super(args);
+			this.lobCreator = lobCreator;
+		}
+
+		@Override
+		protected void doSetValue(PreparedStatement ps, int parameterPosition, Object argValue) throws SQLException {
+			if (argValue instanceof SqlParameterValue) {
+				SqlParameterValue paramValue = (SqlParameterValue) argValue;
+				if (paramValue.getSqlType() == Types.BLOB) {
+					if (paramValue.getValue() != null) {
+						Assert.isInstanceOf(byte[].class, paramValue.getValue(),
+								"Value of blob parameter must be byte[]");
+					}
+					byte[] valueBytes = (byte[]) paramValue.getValue();
+					this.lobCreator.setBlobAsBytes(ps, parameterPosition, valueBytes);
+					return;
+				}
+			}
+			super.doSetValue(ps, parameterPosition, argValue);
 		}
 
 	}
