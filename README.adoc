@@ -1,6 +1,8 @@
 image::https://badges.gitter.im/Join%20Chat.svg[Gitter,link=https://gitter.im/spring-projects/spring-security?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge]
 
-= Spring Security
+= Spring Framework and Spring Security
+
+The Spring Framework is an application framework and inversion of control container for the Java platform.
 
 Spring Security provides security services for the https://docs.spring.io[Spring IO Platform]. Spring Security 5.0 requires Spring 5.0 as
 a minimum and also requires Java 8.
