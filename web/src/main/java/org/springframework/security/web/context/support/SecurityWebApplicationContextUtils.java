@@ -16,8 +16,6 @@
 
 package org.springframework.security.web.context.support;
 
-import java.util.Enumeration;
-
 import javax.servlet.ServletContext;
 
 import org.springframework.util.Assert;
@@ -48,32 +46,9 @@ public abstract class SecurityWebApplicationContextUtils extends WebApplicationC
 	 * @see ServletContext#getAttributeNames()
 	 */
 	public static WebApplicationContext findRequiredWebApplicationContext(ServletContext servletContext) {
-		WebApplicationContext webApplicationContext = compatiblyFindWebApplicationContext(servletContext);
+		WebApplicationContext webApplicationContext = findWebApplicationContext(servletContext);
 		Assert.state(webApplicationContext != null,
 				"No WebApplicationContext found: no ContextLoaderListener registered?");
 		return webApplicationContext;
 	}
-
-	/**
-	 * Copy of {@link #findWebApplicationContext(ServletContext)} for compatibility with
-	 * spring framework 4.1.x.
-	 * @see #findWebApplicationContext(ServletContext)
-	 */
-	private static WebApplicationContext compatiblyFindWebApplicationContext(ServletContext sc) {
-		WebApplicationContext webApplicationContext = getWebApplicationContext(sc);
-		if (webApplicationContext == null) {
-			Enumeration<String> attrNames = sc.getAttributeNames();
-			while (attrNames.hasMoreElements()) {
-				String attrName = attrNames.nextElement();
-				Object attrValue = sc.getAttribute(attrName);
-				if (attrValue instanceof WebApplicationContext) {
-					Assert.state(webApplicationContext == null, "No unique WebApplicationContext found: more than one "
-							+ "DispatcherServlet registered with publishContext=true?");
-					webApplicationContext = (WebApplicationContext) attrValue;
-				}
-			}
-		}
-		return webApplicationContext;
-	}
-
 }
