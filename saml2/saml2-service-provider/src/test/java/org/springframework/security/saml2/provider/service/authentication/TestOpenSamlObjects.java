@@ -19,10 +19,7 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.crypto.SecretKey;
@@ -50,8 +47,6 @@ import org.opensaml.core.xml.schema.impl.XSStringBuilder;
 import org.opensaml.core.xml.schema.impl.XSURIBuilder;
 import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.common.SignableSAMLObject;
-import org.opensaml.saml.common.assertion.ValidationContext;
-import org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -206,41 +201,11 @@ public final class TestOpenSamlObjects {
 		return cred;
 	}
 
-	static Credential getSigningCredential(
-			org.springframework.security.saml2.credentials.Saml2X509Credential credential, String entityId) {
-		BasicCredential cred = getBasicCredential(credential);
-		cred.setEntityId(entityId);
-		cred.setUsageType(UsageType.SIGNING);
-		return cred;
-	}
-
 	static BasicCredential getBasicCredential(Saml2X509Credential credential) {
 		return CredentialSupport.getSimpleCredential(credential.getCertificate(), credential.getPrivateKey());
 	}
 
-	static BasicCredential getBasicCredential(
-			org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
-		return CredentialSupport.getSimpleCredential(credential.getCertificate(), credential.getPrivateKey());
-	}
-
 	static <T extends SignableSAMLObject> T signed(T signable, Saml2X509Credential credential, String entityId) {
-		SignatureSigningParameters parameters = new SignatureSigningParameters();
-		Credential signingCredential = getSigningCredential(credential, entityId);
-		parameters.setSigningCredential(signingCredential);
-		parameters.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
-		parameters.setSignatureReferenceDigestMethod(SignatureConstants.ALGO_ID_DIGEST_SHA256);
-		parameters.setSignatureCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-		try {
-			SignatureSupport.signObject(signable, parameters);
-		}
-		catch (MarshallingException | SignatureException | SecurityException ex) {
-			throw new Saml2Exception(ex);
-		}
-		return signable;
-	}
-
-	static <T extends SignableSAMLObject> T signed(T signable,
-			org.springframework.security.saml2.credentials.Saml2X509Credential credential, String entityId) {
 		SignatureSigningParameters parameters = new SignatureSigningParameters();
 		Credential signingCredential = getSigningCredential(credential, entityId);
 		parameters.setSigningCredential(signingCredential);
@@ -267,31 +232,7 @@ public final class TestOpenSamlObjects {
 		}
 	}
 
-	static EncryptedAssertion encrypted(Assertion assertion,
-			org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
-		X509Certificate certificate = credential.getCertificate();
-		Encrypter encrypter = getEncrypter(certificate);
-		try {
-			return encrypter.encrypt(assertion);
-		}
-		catch (EncryptionException ex) {
-			throw new Saml2Exception("Unable to encrypt assertion.", ex);
-		}
-	}
-
 	static EncryptedID encrypted(NameID nameId, Saml2X509Credential credential) {
-		X509Certificate certificate = credential.getCertificate();
-		Encrypter encrypter = getEncrypter(certificate);
-		try {
-			return encrypter.encrypt(nameId);
-		}
-		catch (EncryptionException ex) {
-			throw new Saml2Exception("Unable to encrypt nameID.", ex);
-		}
-	}
-
-	static EncryptedID encrypted(NameID nameId,
-			org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
 		X509Certificate certificate = credential.getCertificate();
 		Encrypter encrypter = getEncrypter(certificate);
 		try {
@@ -390,12 +331,6 @@ public final class TestOpenSamlObjects {
 		attrStmt2.getAttributes().add(registeredDateAttr);
 		attributeStatements.add(attrStmt2);
 		return attributeStatements;
-	}
-
-	static ValidationContext validationContext() {
-		Map<String, Object> params = new HashMap<>();
-		params.put(SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS, Collections.singleton(DESTINATION));
-		return new ValidationContext(params);
 	}
 
 	static <T extends XMLObject> T build(QName qName) {
