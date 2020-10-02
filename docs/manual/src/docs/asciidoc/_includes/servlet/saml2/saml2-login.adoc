@@ -1,3 +1,4 @@
+
 [[servlet-saml2login]]
 == SAML 2.0 Login
 :figures: images/servlet/saml2
@@ -165,24 +166,27 @@ image:{icondir}/number_2.png[] The <<servlet-authentication-providermanager,`Aut
 image:{icondir}/number_3.png[] The authentication provider deserializes the response into an OpenSAML `Response` and checks its signature.
 If the signature is invalid, authentication fails.
 
-image:{icondir}/number_4.png[] Next, the provider validates the response's `Issuer` and `Destination` values.
-If they don't match what's in the `RelyingPartyRegistration`, authentication fails.
-
-image:{icondir}/number_5.png[] Then, the provider decrypts any encrypted assertions.
+image:{icondir}/number_4.png[] Then, the provider <<servlet-saml2login-opensamlauthenticationprovider-decryption,decrypts any `EncryptedAssertion` elements>>.
 If any decryptions fail, authentication fails.
+
+image:{icondir}/number_5.png[] Next, the provider validates the response's `Issuer` and `Destination` values.
+If they don't match what's in the `RelyingPartyRegistration`, authentication fails.
 
 image:{icondir}/number_6.png[] After that, the provider verifies the signature of each `Assertion`.
 If any signature is invalid, authentication fails.
 Also, if neither the response nor the assertions have signatures, authentication fails.
-It is required that either the response or the assertions have signatures.
+Either the response or all the assertions must have signatures.
 
-image:{icondir}/number_7.png[] Then, the provider validates each assertion's `ExpiresAt` and `NotBefore` timestamps, the `<Subject>` and any `<AudienceRestriction>` conditions.
+image:{icondir}/number_7.png[] Then, the provider <<servlet-saml2login-opensamlauthenticationprovider-decryption,decrypts any `EncryptedID` or `EncryptedAttribute` elements>>.
+If any decryptions fail, authentication fails.
+
+image:{icondir}/number_8.png[] Next, the provider validates each assertion's `ExpiresAt` and `NotBefore` timestamps, the `<Subject>` and any `<AudienceRestriction>` conditions.
 If any validations fail, authentication fails.
 
-image:{icondir}/number_8.png[] Following that, the provider takes the first assertion's `AttributeStatement` and maps it to a `Map<String, List<Object>>`.
+image:{icondir}/number_9.png[] Following that, the provider takes the first assertion's `AttributeStatement` and maps it to a `Map<String, List<Object>>`.
 It also grants the `ROLE_USER` granted authority.
 
-image:{icondir}/number_9.png[] And finally, it takes the `NameID` from the first assertion, the `Map` of attributes, and the `GrantedAuthority` and constructs a `Saml2AuthenticatedPrincipal`.
+image:{icondir}/number_10.png[] And finally, it takes the `NameID` from the first assertion, the `Map` of attributes, and the `GrantedAuthority` and constructs a `Saml2AuthenticatedPrincipal`.
 Then, it places that principal and the authorities into a `Saml2Authentication`.
 
 The resulting `Authentication#getPrincipal` is a Spring Security `Saml2AuthenticatedPrincipal` object, and `Authentication#getName` maps to the first assertion's `NameID` element.
@@ -769,6 +773,7 @@ You can configure this in a number of ways including:
 1. Setting a clock skew to timestamp validation
 2. Mapping the response to a list of `GrantedAuthority` instances
 3. Customizing the strategy for validating assertions
+4. Customizing the strategy for decrypting response and assertion elements
 
 To configure these, you'll use the `saml2Login#authenticationManager` method in the DSL.
 
@@ -889,6 +894,36 @@ provider.setAssertionValidator(assertionToken -> {
 [NOTE]
 While recommended, it's not necessary to call `OpenSamlAuthenticationProvider` 's default assertion validator.
 A circumstance where you would skip it would be if you don't need it to check the `<AudienceRestriction>` or the `<SubjectConfirmation>` since you are doing those yourself.
+
+[[servlet-saml2login-opensamlauthenticationprovider-decryption]]
+==== Customizing Decryption
+
+Spring Security decrypts `<saml2:EncryptedAssertion>`, `<saml2:EncryptedAttribute>`, and `<saml2:EncryptedID>` elements automatically by using the decryption <<servlet-saml2login-rpr-credentials,`Saml2X509Credential` instances>> registered in the <<servlet-saml2login-relyingpartyregistration,`RelyingPartyRegistration`>>.
+
+`OpenSamlAuthenticationProvider` exposes <<servlet-saml2login-architecture,two decryption strategies>>.
+The response decrypter is for decrypting encrypted elements of the `<saml2:Response>`, like `<saml2:EncryptedAssertion>`.
+The assertion decrypter is for decrypting encrypted elements of the `<saml2:Assertion>`, like `<saml2:EncryptedAttribute>` and `<saml2:EncryptedID>`.
+
+You can replace `OpenSamlAuthenticationProvider`'s default decryption strategy with your own.
+For example, if you have a separate service that decrypts the assertions in a `<saml2:Response>`, you can use it instead like so:
+
+[source,java]
+----
+MyDecryptionService decryptionService = ...;
+OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+provider.setResponseElementsDecrypter((responseToken) -> decryptionService.decrypt(responseToken.getResponse()));
+----
+
+If you are also decrypting individual elements in a `<saml2:Assertion>`, you can customize the assertion decrypter, too:
+
+[source,java]
+----
+provider.setAssertionElementsDecrypter((assertionToken) -> decryptionService.decrypt(assertionToken.getAssertion()));
+----
+
+NOTE: There are two separate decrypters since assertions can be signed separately from responses.
+Trying to decrypt a signed assertion's elements before signature verification may invalidate the signature.
+If your asserting party signs the response only, then it's safe to decrypt all elements using only the response decrypter.
 
 [[servlet-saml2login-authenticationmanager-custom]]
 ==== Using a Custom Authentication Manager
