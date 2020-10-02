@@ -59,6 +59,7 @@ import org.opensaml.saml.saml2.core.AttributeValue;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Conditions;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
+import org.opensaml.saml.saml2.core.EncryptedAttribute;
 import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameID;
@@ -301,6 +302,18 @@ public final class TestOpenSamlObjects {
 		}
 	}
 
+	static EncryptedAttribute encrypted(String name, String value, Saml2X509Credential credential) {
+		Attribute attribute = attribute(name, value);
+		X509Certificate certificate = credential.getCertificate();
+		Encrypter encrypter = getEncrypter(certificate);
+		try {
+			return encrypter.encrypt(attribute);
+		}
+		catch (EncryptionException ex) {
+			throw new Saml2Exception("Unable to encrypt nameID.", ex);
+		}
+	}
+
 	private static Encrypter getEncrypter(X509Certificate certificate) {
 		String dataAlgorithm = XMLCipherParameters.AES_256;
 		String keyAlgorithm = XMLCipherParameters.RSA_1_5;
@@ -316,6 +329,15 @@ public final class TestOpenSamlObjects {
 		Encrypter.KeyPlacement keyPlacement = Encrypter.KeyPlacement.valueOf("PEER");
 		encrypter.setKeyPlacement(keyPlacement);
 		return encrypter;
+	}
+
+	static Attribute attribute(String name, String value) {
+		Attribute attribute = build(Attribute.DEFAULT_ELEMENT_NAME);
+		attribute.setName(name);
+		XSString xsValue = new XSStringBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
+		xsValue.setValue(value);
+		attribute.getAttributeValues().add(xsValue);
+		return attribute;
 	}
 
 	static List<AttributeStatement> attributeStatements() {

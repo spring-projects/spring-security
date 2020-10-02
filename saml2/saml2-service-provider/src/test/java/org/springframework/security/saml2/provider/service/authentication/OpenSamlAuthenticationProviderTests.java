@@ -43,6 +43,7 @@ import org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
+import org.opensaml.saml.saml2.core.EncryptedAttribute;
 import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.OneTimeUse;
@@ -296,6 +297,25 @@ public class OpenSamlAuthenticationProviderTests {
 		Saml2AuthenticationToken token = token(response, TestSaml2X509Credentials.relyingPartyVerifyingCredential(),
 				TestSaml2X509Credentials.relyingPartyDecryptingCredential());
 		this.provider.authenticate(token);
+	}
+
+	@Test
+	public void authenticateWhenEncryptedAttributeThenDecrypts() {
+		Response response = TestOpenSamlObjects.response();
+		Assertion assertion = TestOpenSamlObjects.assertion();
+		EncryptedAttribute attribute = TestOpenSamlObjects.encrypted("name", "value",
+				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
+		AttributeStatement statement = build(AttributeStatement.DEFAULT_ELEMENT_NAME);
+		statement.getEncryptedAttributes().add(attribute);
+		assertion.getAttributeStatements().add(statement);
+		response.getAssertions().add(assertion);
+		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
+				RELYING_PARTY_ENTITY_ID);
+		Saml2AuthenticationToken token = token(response, TestSaml2X509Credentials.relyingPartyVerifyingCredential(),
+				TestSaml2X509Credentials.relyingPartyDecryptingCredential());
+		Saml2Authentication authentication = (Saml2Authentication) this.provider.authenticate(token);
+		Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
+		assertThat(principal.getAttribute("name")).containsExactly("value");
 	}
 
 	@Test

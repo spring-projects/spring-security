@@ -69,6 +69,7 @@ import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.Condition;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
+import org.opensaml.saml.saml2.core.EncryptedAttribute;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.OneTimeUse;
 import org.opensaml.saml.saml2.core.Response;
@@ -647,6 +648,17 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		return (assertionToken) -> {
 			Decrypter decrypter = this.decrypterConverter.convert(assertionToken.getToken());
 			Assertion assertion = assertionToken.getAssertion();
+			for (AttributeStatement statement : assertion.getAttributeStatements()) {
+				for (EncryptedAttribute encryptedAttribute : statement.getEncryptedAttributes()) {
+					try {
+						Attribute attribute = decrypter.decrypt(encryptedAttribute);
+						statement.getAttributes().add(attribute);
+					}
+					catch (Exception ex) {
+						throw createAuthenticationException(Saml2ErrorCodes.DECRYPTION_ERROR, ex.getMessage(), ex);
+					}
+				}
+			}
 			if (assertion.getSubject() == null) {
 				return;
 			}
