@@ -16,12 +16,15 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.server.resource;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
@@ -48,8 +51,15 @@ import org.springframework.security.oauth2.server.resource.web.DefaultBearerToke
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.web.accept.ContentNegotiationStrategy;
+import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 /**
  *
@@ -129,6 +139,9 @@ import org.springframework.util.Assert;
  */
 public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<OAuth2ResourceServerConfigurer<H>, H> {
+
+	private static final RequestHeaderRequestMatcher X_REQUESTED_WITH = new RequestHeaderRequestMatcher(
+			"X-Requested-With", "XMLHttpRequest");
 
 	private final ApplicationContext context;
 
@@ -273,7 +286,25 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	private void registerDefaultEntryPoint(H http) {
 		ExceptionHandlingConfigurer<H> exceptionHandling = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptionHandling != null) {
-			exceptionHandling.defaultAuthenticationEntryPointFor(this.authenticationEntryPoint, this.requestMatcher);
+			ContentNegotiationStrategy contentNegotiationStrategy = http
+					.getSharedObject(ContentNegotiationStrategy.class);
+			if (contentNegotiationStrategy == null) {
+				contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
+			}
+			MediaTypeRequestMatcher restMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy,
+					MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON,
+					MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML, MediaType.MULTIPART_FORM_DATA,
+					MediaType.TEXT_XML);
+			restMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+			MediaTypeRequestMatcher allMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.ALL);
+			allMatcher.setUseEquals(true);
+			RequestMatcher notHtmlMatcher = new NegatedRequestMatcher(
+					new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.TEXT_HTML));
+			RequestMatcher restNotHtmlMatcher = new AndRequestMatcher(
+					Arrays.<RequestMatcher>asList(notHtmlMatcher, restMatcher));
+			RequestMatcher preferredMatcher = new OrRequestMatcher(
+					Arrays.asList(this.requestMatcher, X_REQUESTED_WITH, restNotHtmlMatcher, allMatcher));
+			exceptionHandling.defaultAuthenticationEntryPointFor(this.authenticationEntryPoint, preferredMatcher);
 		}
 	}
 

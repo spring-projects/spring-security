@@ -89,6 +89,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -1108,7 +1112,8 @@ public class OAuth2ResourceServerConfigurerTests {
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(anyString())).willThrow(JwtException.class);
 		// @formatter:off
-		MvcResult result = this.mvc.perform(get("/authenticated"))
+		MvcResult result = this.mvc.perform(get("/authenticated")
+				.header("Accept", "text/html"))
 				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andReturn();
@@ -1120,6 +1125,15 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andReturn();
 		// @formatter:on
 		assertThat(result.getRequest().getSession(false)).isNull();
+	}
+
+	@Test
+	public void unauthenticatedRequestWhenFormOAuth2LoginAndResourceServerThenNegotiates() throws Exception {
+		this.spring.register(OAuth2LoginAndResourceServerConfig.class, JwtDecoderConfig.class).autowire();
+		this.mvc.perform(get("/any").header("X-Requested-With", "XMLHttpRequest")).andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/any").header("Accept", "application/json")).andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/any").header("Accept", "text/html")).andExpect(status().is3xxRedirection());
+		this.mvc.perform(get("/any").header("Accept", "image/jpg")).andExpect(status().is3xxRedirection());
 	}
 
 	@Test
@@ -1717,6 +1731,31 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.jwt();
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginAndResourceServerConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests((authz) -> authz
+					.anyRequest().authenticated()
+				)
+				.oauth2Login(withDefaults())
+				.oauth2ResourceServer((oauth2) -> oauth2
+					.jwt()
+				);
+			// @formatter:on
+		}
+
+		@Bean
+		ClientRegistrationRepository clients() {
+			ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
+			return new InMemoryClientRegistrationRepository(registration);
 		}
 
 	}
