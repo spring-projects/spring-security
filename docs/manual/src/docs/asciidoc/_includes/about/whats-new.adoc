@@ -81,7 +81,7 @@ Here's what you'll see in this release:
 
 * Renamed https://github.com/spring-projects/spring-security/issues/8676[whitelist and blacklist to allowlist and blocklist]
 * Added https://github.com/spring-projects/spring-security/pull/7052[`RequestRejectedHandler`]
-* Strengthened https://github.com/spring-projects/spring-security/pull/8644[`StrictHttpFirewall`]
+* Strengthened https://github.com/spring-projects/spring-security/pull/8644[`StrictHttpFirewall`] to <<servlet-httpfirewall-headers-parameters,verify header and parameter names and values>>
 * Made https://github.com/spring-projects/spring-security/issues/5438[`SessionRegistry` aware of `SessionIdChangedEvent`]
 * Allow https://github.com/spring-projects/spring-security/issues/8402[`AesBytesEncryptor` to be constructed with a real key]
 * https://github.com/spring-projects/spring-security/pull/8450[Deprecated OpenID 2.0 support]
