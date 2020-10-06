@@ -89,32 +89,6 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 	}
 
 	@Test
-	public void resolveWhenUsingTrustedIssuerAndCustomJwtAuthConverterThenReturnsAuthenticationManager()
-			throws Exception {
-		try (MockWebServer server = new MockWebServer()) {
-			server.start();
-			String issuer = server.url("").toString();
-			// @formatter:off
-			server.enqueue(new MockResponse().setResponseCode(200)
-											 .setHeader("Content-Type", "application/json")
-											 .setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)
-											 ));
-			// @formatter:on
-			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
-					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
-			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
-			JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
-					Collections.singletonList(issuer), new JwtAuthenticationConverter());
-			MockHttpServletRequest request = new MockHttpServletRequest();
-			request.addHeader("Authorization", "Bearer " + jws.serialize());
-			AuthenticationManager authenticationManager = authenticationManagerResolver.resolve(request);
-			assertThat(authenticationManager).isNotNull();
-			AuthenticationManager cachedAuthenticationManager = authenticationManagerResolver.resolve(request);
-			assertThat(authenticationManager).isSameAs(cachedAuthenticationManager);
-		}
-	}
-
-	@Test
 	public void resolveWhenUsingUntrustedIssuerThenException() {
 		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
 				"other", "issuers");

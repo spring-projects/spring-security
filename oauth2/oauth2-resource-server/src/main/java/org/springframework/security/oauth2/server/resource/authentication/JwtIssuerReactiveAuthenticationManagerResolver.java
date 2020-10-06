@@ -65,7 +65,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 
 	private final ReactiveAuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
 
-	private final Converter<ServerWebExchange, Mono<String>> issuerConverter;
+	private Converter<ServerWebExchange, Mono<String>> issuerConverter;
 
 	/**
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
@@ -85,25 +85,6 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
 		this.issuerAuthenticationManagerResolver = new TrustedIssuerJwtAuthenticationManagerResolver(
 				new ArrayList<>(trustedIssuers)::contains);
-		this.issuerConverter = new JwtClaimIssuerConverter();
-	}
-
-	/**
-	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
-	 * provided parameters
-	 *
-	 * A custom {@link ReactiveJwtAuthenticationConverterAdapter} allows to use a custom
-	 * {@link Converter} (much like {@link JwtGrantedAuthoritiesConverter}) to handle an
-	 * untypical JWT token
-	 * @param trustedIssuers a collection of trusted issuers
-	 * @param reactiveJwtAuthenticationConverterAdapter a custom
-	 * {@link ReactiveJwtAuthenticationConverterAdapter}
-	 */
-	public JwtIssuerReactiveAuthenticationManagerResolver(Collection<String> trustedIssuers,
-			ReactiveJwtAuthenticationConverterAdapter reactiveJwtAuthenticationConverterAdapter) {
-		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
-		this.issuerAuthenticationManagerResolver = new TrustedIssuerJwtAuthenticationManagerResolver(
-				new ArrayList<>(trustedIssuers)::contains, reactiveJwtAuthenticationConverterAdapter);
 		this.issuerConverter = new JwtClaimIssuerConverter();
 	}
 
@@ -182,6 +163,10 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 		// @formatter:on
 	}
 
+	public void setIssuerConverter(Converter<ServerWebExchange, Mono<String>> issuerConverter) {
+		this.issuerConverter = issuerConverter;
+	}
+
 	private static class JwtClaimIssuerConverter implements Converter<ServerWebExchange, Mono<String>> {
 
 		private final ServerBearerTokenAuthenticationConverter converter = new ServerBearerTokenAuthenticationConverter();
@@ -231,18 +216,19 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 			}
 			// @formatter:off
 			return this.authenticationManagers.computeIfAbsent(issuer,
-				   (k) -> Mono.<ReactiveAuthenticationManager>fromCallable(() -> {
-					   if(jwtAuthenticationConverterAdapter != null) {
-						   final JwtReactiveAuthenticationManager authenticationManager =
-								   new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k));
-						   authenticationManager.setJwtAuthenticationConverter(jwtAuthenticationConverterAdapter);
-						   return authenticationManager;
-					   } else {
-						   return new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k));
-					   }
-				   })
-				   .subscribeOn(Schedulers.boundedElastic())
-				   .cache()
+					(k) -> Mono.<ReactiveAuthenticationManager>fromCallable(() -> {
+						if (this.jwtAuthenticationConverterAdapter != null) {
+							final JwtReactiveAuthenticationManager authenticationManager =
+									new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k));
+							authenticationManager.setJwtAuthenticationConverter(this.jwtAuthenticationConverterAdapter);
+							return authenticationManager;
+						}
+						else {
+							return new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k));
+						}
+					})
+					.subscribeOn(Schedulers.boundedElastic())
+					.cache()
 			);
 			// @formatter:on
 		}

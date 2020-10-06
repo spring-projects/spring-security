@@ -65,7 +65,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 
 	private final AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
 
-	private final Converter<HttpServletRequest, String> issuerConverter;
+	private Converter<HttpServletRequest, String> issuerConverter;
 
 	/**
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
@@ -78,6 +78,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 
 	/**
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
+	 *
 	 * parameters
 	 * @param trustedIssuers a list of trusted issuers
 	 */
@@ -85,26 +86,6 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
 		this.issuerAuthenticationManagerResolver = new TrustedIssuerJwtAuthenticationManagerResolver(
 				Collections.unmodifiableCollection(trustedIssuers)::contains);
-		this.issuerConverter = new JwtClaimIssuerConverter();
-	}
-
-	/**
-	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} with a custom
-	 * {@link JwtAuthenticationConverter} using the provided parameters
-	 *
-	 * A custom {@link JwtAuthenticationConverter} allows to use a custom
-	 * {@link Converter} (much like {@link JwtGrantedAuthoritiesConverter}) to handle an
-	 * untypical JWT token
-	 * @param trustedIssuers a list of trusted issuers
-	 * @param jwtAuthenticationConverter a custom {@link JwtAuthenticationConverter}
-	 * @since 5.4
-	 */
-	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers,
-			JwtAuthenticationConverter jwtAuthenticationConverter) {
-		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
-		Assert.notNull(jwtAuthenticationConverter, "jwtAuthenticationConverter cannot be null");
-		this.issuerAuthenticationManagerResolver = new TrustedIssuerJwtAuthenticationManagerResolver(
-				Collections.unmodifiableCollection(trustedIssuers)::contains, jwtAuthenticationConverter);
 		this.issuerConverter = new JwtClaimIssuerConverter();
 	}
 
@@ -184,6 +165,10 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 		return authenticationManager;
 	}
 
+	public void setIssuerConverter(Converter<HttpServletRequest, String> issuerConverter) {
+		this.issuerConverter = issuerConverter;
+	}
+
 	private static class JwtClaimIssuerConverter implements Converter<HttpServletRequest, String> {
 
 		private final BearerTokenResolver resolver = new DefaultBearerTokenResolver();
@@ -233,11 +218,12 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 						(k) -> {
 							this.logger.debug("Constructing AuthenticationManager");
 							JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuer);
-							if (jwtAuthenticationConverter != null) {
+							if (this.jwtAuthenticationConverter != null) {
 								this.logger.debug(("Using custom JwtAuthenticationConverter"));
 								final JwtAuthenticationProvider jwtAuthenticationProvider = new JwtAuthenticationProvider(
 										jwtDecoder);
-								jwtAuthenticationProvider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
+								jwtAuthenticationProvider
+										.setJwtAuthenticationConverter(this.jwtAuthenticationConverter);
 								return jwtAuthenticationProvider::authenticate;
 							}
 							else {
