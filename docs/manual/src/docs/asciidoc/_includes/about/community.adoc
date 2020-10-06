@@ -18,8 +18,8 @@ The following are some of the best ways to get help:
 [[community-becoming-involved]]
 == Becoming Involved
 We welcome your involvement in the Spring Security project.
-There are many ways to contribute, including answering questions on StackOverflow, writing new code, improving existing code, assisting with documentation, developing samples or tutorials, reporting bugs, or simply making suggestions.
-For more information, see our https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.md[Contributing] documentation.
+There are many ways to contribute, including answering questions on Stack Overflow, writing new code, improving existing code, assisting with documentation, developing samples or tutorials, reporting bugs, or simply making suggestions.
+For more information, see our https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.adoc[Contributing] documentation.
 
 [[community-source]]
 == Source Code
