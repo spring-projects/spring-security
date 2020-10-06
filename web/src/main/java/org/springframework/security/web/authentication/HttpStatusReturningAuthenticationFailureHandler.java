@@ -26,8 +26,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthenticationFailureHandler} that returns an HTTP status code of
- * {@code 401} (Unauthorized) by default.
+ * An {@link AuthenticationFailureHandler} that returns an HTTP status code of {@code 401}
+ * (Unauthorized) by default.
  *
  * @author Matthias Luppi
  * @since 5.5

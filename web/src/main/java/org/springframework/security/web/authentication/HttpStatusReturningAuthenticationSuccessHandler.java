@@ -26,8 +26,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthenticationSuccessHandler} that returns an HTTP status code of
- * {@code 200} (OK) by default.
+ * An {@link AuthenticationSuccessHandler} that returns an HTTP status code of {@code 200}
+ * (OK) by default.
  *
  * @author Matthias Luppi
  * @since 5.5
