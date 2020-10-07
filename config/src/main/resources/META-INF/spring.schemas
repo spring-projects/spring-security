@@ -1,4 +1,5 @@
-http\://www.springframework.org/schema/security/spring-security.xsd=org/springframework/security/config/spring-security-5.4.xsd
+http\://www.springframework.org/schema/security/spring-security.xsd=org/springframework/security/config/spring-security-5.5.xsd
+http\://www.springframework.org/schema/security/spring-security-5.5.xsd=org/springframework/security/config/spring-security-5.5.xsd
 http\://www.springframework.org/schema/security/spring-security-5.4.xsd=org/springframework/security/config/spring-security-5.4.xsd
 http\://www.springframework.org/schema/security/spring-security-5.3.xsd=org/springframework/security/config/spring-security-5.3.xsd
 http\://www.springframework.org/schema/security/spring-security-5.2.xsd=org/springframework/security/config/spring-security-5.2.xsd
