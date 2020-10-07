@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -105,6 +106,9 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 		}
 		if (auth.getPrincipal() instanceof UserDetails) {
 			return ((UserDetails) auth.getPrincipal()).getUsername();
+		}
+		if (auth.getPrincipal() instanceof AuthenticatedPrincipal) {
+			return ((AuthenticatedPrincipal) auth.getPrincipal()).getName();
 		}
 		return auth.getPrincipal().toString();
 	}
