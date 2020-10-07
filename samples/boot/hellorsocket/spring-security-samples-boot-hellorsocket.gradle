@@ -9,5 +9,3 @@ dependencies {
 	testCompile project(':spring-security-test')
 	testCompile 'org.springframework.boot:spring-boot-starter-test'
 }
-
-ext['rsocket.version'] = '1.0.1'
