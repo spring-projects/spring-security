@@ -8,7 +8,7 @@ Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CO
 
 = Similar but different
 
-Each Spring module is slightly different from others in terms of team size, number of issues, etc. Therefore, each project is managed slightly different. You will notice that this document is very similar to the https://github.com/spring-projects/spring-framework/wiki/Contributor-guidelines[Spring Framework Contributor guidelines]. However, there are some subtle differences between the two documents, so please be sure to read this document thoroughly.
+Each Spring module is slightly different from one another in terms of team size, number of issues, etc. Therefore, each project is managed slightly different. You will notice that this document is very similar to the https://github.com/spring-projects/spring-framework/wiki/Contributor-guidelines[Spring Framework Contributor guidelines]. However, there are some subtle differences between the two documents, so please be sure to read this document thoroughly.
 
 = Importing into IDE
 
@@ -49,7 +49,7 @@ Create your topic branch to be submitted as a pull request from master. The Spri
 
 = Use short branch names
 
-Branches used when submitting pull requests should preferably be named according to GitHub issues, e.g. `gh-1234` or `gh-1234-fix-npe`. Otherwise, use succinct, lower-case, dash (`-`) delimited names, such as `fix-warnings`, `fix-typo`, etc. This is important, because branch names show up in the merge commits that result from accepting pull requests, and should be as expressive and concise as possible.
+Branches used when submitting pull requests should preferably be named according to GitHub issues, e.g. `gh-1234` or `gh-1234-fix-npe`. Otherwise, use succinct, lower-case, dash (`-`) delimited names, such as `fix-warnings` or `fix-typo`. This is important, because branch names show up in the merge commits that result from accepting pull requests, and should be as expressive and concise as possible.
 
 = Keep commits focused
 
@@ -137,7 +137,7 @@ Changes to the XML schema will be overwritten by the Gradle build task.
 
 = Squash commits
 
-Use `git rebase --interactive`, `git add --patch` and other tools to "squash" multiple commits into atomic changes. In addition to the man pages for git, there are many resources online to help you understand how these tools work. Here is one: https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History[https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History].
+Use `git rebase --interactive`, `git add --patch` and other tools to "squash" multiple commits into atomic changes. In addition to the man pages for `git`, there are https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History[many resources online] to help you understand how these tools work.
 
 = Use real name in git commits
 
