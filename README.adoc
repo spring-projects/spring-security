@@ -11,7 +11,7 @@ For a detailed list of features and access to the latest release, please visit h
 Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CONDUCT.md[code of conduct]
 
 == Downloading Artifacts
-See https://github.com/spring-projects/spring-framework/wiki/Downloading-Spring-artifacts[downloading Spring artifacts] for Maven repository information.
+See https://docs.spring.io/spring-security/site/docs/current/reference/html5/#gettingdownloading Spring artifacts] for how to obtain Spring Security.
 
 == Documentation
 Be sure to read the https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/[Spring Security Reference].
