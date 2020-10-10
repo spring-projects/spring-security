@@ -333,8 +333,9 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 						"Response realm name '{0}' does not match system realm name of '{1}'"));
 			}
 			// Check nonce was Base64 encoded (as sent by DigestAuthenticationEntryPoint)
+			final byte[] nonceBytes;
 			try {
-				Base64.getDecoder().decode(this.nonce.getBytes());
+				nonceBytes = Base64.getDecoder().decode(this.nonce.getBytes());
 			}
 			catch (IllegalArgumentException ex) {
 				throw new BadCredentialsException(
@@ -343,7 +344,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 			}
 			// Decode nonce from Base64 format of nonce is: base64(expirationTime + ":" +
 			// md5Hex(expirationTime + ":" + key))
-			String nonceAsPlainText = new String(Base64.getDecoder().decode(this.nonce.getBytes()));
+			String nonceAsPlainText = new String(nonceBytes);
 			String[] nonceTokens = StringUtils.delimitedListToStringArray(nonceAsPlainText, ":");
 			if (nonceTokens.length != 2) {
 				throw new BadCredentialsException(DigestAuthenticationFilter.this.messages.getMessage(
