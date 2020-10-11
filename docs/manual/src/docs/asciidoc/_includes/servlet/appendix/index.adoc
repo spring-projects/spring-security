@@ -1,7 +1,7 @@
 
 = Appendix
 
-include::database-schema.adoc[]
+include::database-schema.adoc[leveloffset=+1]
 
 include::namespace.adoc[]
 
