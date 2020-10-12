@@ -57,7 +57,6 @@ public final class RelyingPartyRegistrations {
 	 * applications will also need to provide a registrationId, like so:
 	 *
 	 * <pre>
-	 *  String metadataLocation = "file:C:\\saml\\metadata.xml"
 	 *	RelyingPartyRegistration registration = RelyingPartyRegistrations
 	 * 		.fromMetadataLocation(metadataLocation)
 	 * 		.registrationId("registration-id")
