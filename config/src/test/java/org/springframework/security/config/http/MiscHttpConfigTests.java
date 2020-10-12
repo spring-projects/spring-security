@@ -802,18 +802,18 @@ public class MiscHttpConfigTests {
 	static class AuthenticationController {
 
 		@GetMapping("/password")
-		String password(@AuthenticationPrincipal Authentication authentication) {
+		String password(Authentication authentication) {
 			return (String) authentication.getCredentials();
 		}
 
 		@GetMapping("/roles")
-		String roles(@AuthenticationPrincipal Authentication authentication) {
+		String roles(Authentication authentication) {
 			return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 					.collect(Collectors.joining(","));
 		}
 
 		@GetMapping("/details")
-		String details(@AuthenticationPrincipal Authentication authentication) {
+		String details(Authentication authentication) {
 			return authentication.getDetails().getClass().getName();
 		}
 

@@ -176,7 +176,7 @@ class OpaqueTokenDslTests {
     @RestController
     class AuthenticationController {
         @GetMapping("/authenticated")
-        fun authenticated(@AuthenticationPrincipal authentication: Authentication): String {
+        fun authenticated(authentication: Authentication): String {
             return authentication.name
         }
     }
