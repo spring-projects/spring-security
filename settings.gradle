@@ -10,6 +10,8 @@ plugins {
 	id "io.spring.ge.conventions" version "0.0.6"
 }
 
+enableFeaturePreview("VERSION_ORDERING_V2")
+
 rootProject.name = 'spring-security'
 
 FileTree buildFiles = fileTree(rootDir) {
