@@ -822,19 +822,19 @@ public class MiscHttpConfigTests {
 	@RestController
 	static class AuthenticationController {
 		@GetMapping("/password")
-		public String password(@AuthenticationPrincipal Authentication authentication) {
+		public String password(Authentication authentication) {
 			return (String) authentication.getCredentials();
 		}
 
 		@GetMapping("/roles")
-		public String roles(@AuthenticationPrincipal Authentication authentication) {
+		public String roles(Authentication authentication) {
 			return authentication.getAuthorities().stream()
 					.map(GrantedAuthority::getAuthority)
 					.collect(Collectors.joining(","));
 		}
 
 		@GetMapping("/details")
-		public String details(@AuthenticationPrincipal Authentication authentication) {
+		public String details(Authentication authentication) {
 			return authentication.getDetails().getClass().getName();
 		}
 	}
