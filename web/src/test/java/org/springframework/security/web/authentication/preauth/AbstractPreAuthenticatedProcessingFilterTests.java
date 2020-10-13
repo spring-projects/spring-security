@@ -23,11 +23,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.BDDMockito;
 import org.mockito.stubbing.Answer;
 
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -46,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -359,6 +362,28 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.afterPropertiesSet();
 		filter.doFilter(request, response, chain);
 		verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
+	}
+
+	@Test
+	public void shouldGetNewSessionWhenExistingAlreadyInvalidated() throws Exception {
+		Object currentPrincipal = new Object();
+		TestingAuthenticationToken authRequest = new TestingAuthenticationToken(currentPrincipal, "something",
+				"ROLE_USER");
+		SecurityContextHolder.getContext().setAuthentication(authRequest);
+		MockHttpServletRequest request = mock(MockHttpServletRequest.class);
+		MockHttpSession mockHttpSession = BDDMockito.mock(MockHttpSession.class);
+		given(request.getSession(false)).willReturn(mockHttpSession);
+		willThrow(new IllegalStateException()).given(mockHttpSession).invalidate();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+		filter.setCheckForPrincipalChanges(true);
+		filter.principal = new Object();
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		filter.setAuthenticationManager(am);
+		filter.afterPropertiesSet();
+		filter.doFilter(request, response, chain);
+		verify(request).getSession();
 	}
 
 	private void testDoFilter(boolean grantAccess) throws Exception {

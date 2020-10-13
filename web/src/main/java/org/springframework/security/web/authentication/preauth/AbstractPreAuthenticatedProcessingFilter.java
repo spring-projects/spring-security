@@ -351,11 +351,20 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 				HttpSession session = request.getSession(false);
 				if (session != null) {
 					AbstractPreAuthenticatedProcessingFilter.this.logger.debug("Invalidating existing session");
-					session.invalidate();
+					invalidateSessionIfNotAlreadyInvalidated(session);
 					request.getSession();
 				}
 			}
 			return true;
+		}
+
+		private void invalidateSessionIfNotAlreadyInvalidated(HttpSession session) {
+			try {
+				session.invalidate();
+			}
+			catch (IllegalStateException exception) {
+				AbstractPreAuthenticatedProcessingFilter.this.logger.info("Session already invalidated");
+			}
 		}
 
 	}
