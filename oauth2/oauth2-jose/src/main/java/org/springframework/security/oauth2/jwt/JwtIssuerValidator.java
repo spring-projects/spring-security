@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.util.function.Predicate;
+
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.util.Assert;
@@ -28,7 +30,7 @@ import org.springframework.util.Assert;
  */
 public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 
-	private final JwtClaimValidator<String> validator;
+	private final JwtClaimValidator<Object> validator;
 
 	/**
 	 * Constructs a {@link JwtIssuerValidator} using the provided parameters
@@ -36,7 +38,9 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 	 */
 	public JwtIssuerValidator(String issuer) {
 		Assert.notNull(issuer, "issuer cannot be null");
-		this.validator = new JwtClaimValidator(JwtClaimNames.ISS, issuer::equals);
+
+		Predicate<Object> testClaimValue = (claimValue) -> (claimValue != null) && issuer.equals(claimValue.toString());
+		this.validator = new JwtClaimValidator<>(JwtClaimNames.ISS, testClaimValue);
 	}
 
 	@Override

@@ -16,6 +16,9 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.junit.Test;
 
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
@@ -43,9 +46,25 @@ public class JwtIssuerValidatorTests {
 	}
 
 	@Test
+	public void validateWhenIssuerUrlMatchesThenReturnsSuccess() throws MalformedURLException {
+		Jwt jwt = TestJwts.jwt().claim("iss", new URL(ISSUER)).build();
+
+		assertThat(this.validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
+	}
+
+	@Test
 	public void validateWhenIssuerMismatchesThenReturnsError() {
 		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "https://other").build();
 		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
+		assertThat(result.getErrors()).isNotEmpty();
+	}
+
+	@Test
+	public void validateWhenIssuerUrlMismatchesThenReturnsError() throws MalformedURLException {
+		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, new URL("https://other")).build();
+
+		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
+
 		assertThat(result.getErrors()).isNotEmpty();
 	}
 
