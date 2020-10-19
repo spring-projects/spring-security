@@ -1,0 +1,207 @@
+[[recipe-securing-a-client-application-with-oauth]]
+== Recipe: Securing a Client Application with OAuth
+
+This section describes how to create an OAuth client application.
+
+NOTE: We use "`OAuth`" and "`OAuth2`" interchangeably. Spring Security has moved away from the first version of OAuth.
+
+[[understanding-oauth]]
+=== Understanding OAuth
+
+Another way to secure an application is with OAuth. According to one https://oauth.net/[OAuth web site], OAuth is "`An open protocol to allow secure authorization in a simple and standard method from web, mobile and desktop applications.`"
+
+To understand OAuth, you should first understand the difference between authentication and authorization.
+Authentication is the process of proving that someone is who they say they are.
+Authentication is typically done with a login screen that prompts for a user name and password (though it can be done by other means, such as fingerprint readers).
+Authorization is the process of granting permission to do something.
+Authorization does not (with one notable exception, which we cover later in this section) involve authentication.
+
+In the typical OAuth authorization scenario, a third-party application wants authorization to do some action on another application, and it wants authorization to do whatever that action may be.
+Consider the following common scenario. An application wants to add content (perhaps news about a certain subject) to your Facebook feed.
+The application that wants to add news stories is the third-party application, and the end user can authorize Facebook to let that happen.
+In this scenario (and many similar scenarios), we see three roles:
+
+* User: The person who wants to get news stories added to their Facebook page.
+* Client: The third-party application that has the news stories.
+* Resource Server: Facebook's API that can grant authorization.
+
+Another part of the process is the authorization server, which is the resource server's user interface that lets the Facebook user say OK to those news stories being added.
+For small applications, the resource server and the authentication server may be the same thing. For larger applications, the authorization server is a separate application.
+
+To make things more clear, consider the flow of actions in the process to which we have so far alluded in this section:
+
+. The user finds a web application that offers to add news stories to their Facebook page and thinks that is a fine idea.
+. The user clicks a button to make that happen.
+. The news application (the client in this scenario) redirects to Facebook's authorization server.
+The user may have to log in to the resource server (Facebook, in this case) at this point, to verify their identity.
+. The user clicks an Accept (or similar) button to tell Facebook to grant permission to the news application.
+. The user returns to the news application, which now has permission to add news stories to the user's Facebook page.
+
+The whole process is not complicated, but it is substantially different than the security scenarios we have covered in other recipes, notably logging in may not be required.
+Again, we deal with authorization rather than authentication.
+
+==== OAuth and Redirect URIs
+
+OAuth applications do not accept redirects from just anywhere.
+Before such a redirect can work, the third-party (client) application must register with the resource server application (Facebook in our example).
+Then the resource server knows that redirects from the client application are OK.
+
+==== The Client ID and the Secret
+
+When the user in the example we described earlier authorizes the client (the news service in our example), the resource server (Facebook in our example) sends a client ID to the client and may also send a secret to the client.
+The client ID is public and identifies the user for the client application (the news service).
+The secret (if it is sent) makes it easy for the client to complete transactions (sending news stories to the user's Facebook page).
+
+===== When to Not Send Secrets
+
+If the client cannot keep a secret, the resource server should not send a secret.
+That happens for single-page web applications (such as the Angular application from the <<recipe-securing-an-angular-web-application>> recipe) and for mobile applications.
+Because bad actors can get the secret in those situations, the resource server should not send a secret to mobile and single-page applications.
+
+Instead, the resource server and client can use a secret that is generated for each request.
+One standard for doing so is https://oauth.net/2/pkce/[PKCE] (Proof Key for Code Exchange).
+PKCE exists "`to prevent certain attacks and to be able to securely perform the OAuth exchange from public clients.`"
+
+For the resource server, the trick is knowing when to send a secret and when to use PKCE.
+This can be determined when the client registers with the resource server.
+
+=== Writing the Client Application
+
+NOTE: This section, including the application, was adapted from a Spring Security example at https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2login. You can find many other Spring Security examples in the project that contains this application.
+
+To create a client application that accesses Facebook, you must:
+
+. <<oauth-adding-a-new-application,Add a new application>>
+
+. Configure application.yml
+
+. Boot up the application
+
+[[oauth-adding-a-new-application]]
+==== Adding a New Application
+
+To use Facebook’s OAuth 2.0 authentication system for login, you must first https://developers.facebook.com/apps[Add a New App].
+
+To do so from Facebook's New App page:
+
+. Select *Create a New App*
++
+The "Create a New App ID" page appears.
+
+. Enter the *Display Name*, *Contact Email*, and *Category*
++
+NOTE: The selection for the *Category* field is not relevant, but the field is requred. Select "Local" for its value.
+
+. Click *Create App ID*.
++
+The next page to appear is "Product Setup".
+
+. Click the *Get Started* button for the Facebook Login product.
+
+. In the left sidebar, under *Products → Facebook Login*, select *Settings*.
+
+. For the field Valid OAuth redirect URIs, enter `http://localhost:8080/login/oauth2/code/facebook`.
++
+For a real application, you would almost certainly have a URI that did not use `localhost`.
+However the sample shown in this recipe uses localhost, so that you can run it locally.
+
+. Click *Save Changes*.
+
+The OAuth redirect URI is the path in the application that the end-user’s user-agent is redirected back to after they have authenticated with Facebook and have granted access to the application on the Authorize application page.
+
+TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`. The `registrationId` is a unique identifier for the `ClientRegistration`.
+
+IMPORTANT: If the application runs behind a proxy server, you should check https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#appendix-proxy-server[Proxy Server Configuration] to ensure that the application is correctly configured. Also, see the supported https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#oauth2Client-auth-code-redirect-uri[URI template variables] for `redirect-uri`.
+
+===== Configuring the `application.yml`
+
+Now that you have created a new application with Facebook, you need to configure the sample application to use the application for the authentication flow. To do so:
+
+. Go to `application.yml` (in the `resources` directory) and set the following configuration:
++
+====
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:	<1>
+          facebook:		<2>
+            client-id: facebook-client-id
+            client-secret: facebook-client-secret
+----
+<1> `spring.security.oauth2.client.registration` is the base property prefix for OAuth client properties.
+<2> The base property prefix follows the ID for the `ClientRegistration` -- in this case, `facebook`.
+====
+
+. Replace the values in the client-id and client-secret property with the OAuth 2.0 credentials you created earlier.
+
+===== Creating the Application
+
+The application consists of two small classes: a class with a main method that is annotated with `@SpringBootApplication` to create a Spring Boot application and an OAuth2 login controller. The following listing shows the application class:
+
+====
+[source,java]
+----
+package sample;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+/**
+ * @author Joe Grandja
+ */
+@SpringBootApplication
+public class OAuth2LoginApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(OAuth2LoginApplication.class, args);
+	}
+}
+----
+====
+
+The following listing shows the OAuth2 login controller class:
+
+====
+[source,java]
+----
+package sample.web;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+/**
+ * @author Joe Grandja
+ * @author Rob Winch
+ */
+@Controller
+public class OAuth2LoginController {
+
+	@GetMapping("/")
+	public String index(Model model,
+						@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient,
+						@AuthenticationPrincipal OAuth2User oauth2User) {
+		model.addAttribute("userName", oauth2User.getName());
+		model.addAttribute("clientName", authorizedClient.getClientRegistration().getClientName());
+		model.addAttribute("userAttributes", oauth2User.getAttributes());
+		return "index";
+	}
+}
+----
+====
+
+You can find the original source for these classes plus test classes in the Spring Security samples at https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2login.
+
+=== OAuth Resources
+
+OAuth2 is defined by https://tools.ietf.org/html/rfc6749[IETF RFC (Request for Comment) 6749].
+Two highly regarded and closely related web sites offer more detail.
+Those sites are https://oauth.net/ and https://oauth.com/.
+https://oauth.net/ is organized as a wiki. https://oauth.com/ is organized as a book.
+Both are worth reading if you need to understand OAuth2 in depth.

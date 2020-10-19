@@ -1,0 +1,247 @@
+[[recipe-authenticating-with-a-database]]
+== Recipe: Authenticating with a Database
+
+NOTE: For this recipe, we secure the application described in the Basic Auth recipe. See <<security-cookbook-the-web-application>>.
+
+One of the most common ways to store user data is in a database.
+It is so common that Spring Security even has its own database schema with which it can work.
+You can either use the Spring Security schema or create a custom one.
+In this example, we use a MySQL database.
+You can use many other databases, though.
+Spring Security supports many databases, and you can write custom classes to support pretty much any database.
+
+For the sake of simplicity, we use the Spring Security schema in this example.
+To match the Spring Security schema, we can use the following SQL statements in MySQL's command line to create the tables we need:
+
+====
+[source,sql]
+----
+create table users(
+	username varchar(50) not null primary key,
+	password varchar(100) not null,
+	enabled boolean not null
+);
+create table authorities (
+	username varchar(50) not null,
+	authority varchar(50) not null,
+	constraint fk_authorities_users foreign key(username) references users(username)
+);
+----
+====
+
+We also need an index, which we can create with the following command:
+
+====
+[source,sql]
+----
+create unique index ix_auth_username on authorities (username,authority);
+----
+====
+
+From there, we can create our user record and set up its authority, as follows:
+
+====
+[source,sql]
+----
+insert into users(username,password,enabled) values('user','$2a$10$FShxdbQCgfQK/4D5r5siFe8Fx/MJesnji49Tttgk.4ax52mEwNS8y',true);
+insert into authorities(username,authority)  values('user','ROLE_USER');
+----
+====
+
+What is going on with that password?
+We encoded the password (which is `password`, as it was in the basic auth example <<security-getting-started-basic-authentication,shown earlier>>) with bcrypt.
+The user types `password`, and `BCryptPasswordEncoder` turns it into that string for us so that it matches the value in the database.
+We cover that a bit later in this section.
+
+How did we get that string?
+We wrote a simple program that converts the string, `password`, into a bcrypt value.
+The following listing shows that program:
+
+====
+[source,java]
+----
+package security.utilities.passwordencoder;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+public class PasswordEncoder {
+
+	public static void main(String[] args) {
+		String encodedpassword=new BCryptPasswordEncoder().encode("password");
+		System.out.println(encodedpassword);
+	}
+
+}
+----
+====
+
+To get our database to work, we need to set some values in the `application properties` file (in the `resources` directory of our application).
+The following listing shows those values:
+
+====
+[source]
+----
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+spring.datasource.url=jdbc:mysql://localhost:3306/security?useSSL=false
+spring.datasource.username=root
+spring.datasource.password=password
+----
+====
+
+CAUTION: Do NOT set your username to `root` and your password to `password` for a real application.
+We did it here because this is an example.
+
+To get the application to work, we have to add two dependencies: a MySQL connection and Spring Data JDBC.
+The following listing shows the new `pom.xml` file:
+
+====
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.0.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>securing-web</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>securing-web</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency> <1>
+    		<groupId>mysql</groupId>
+    		<artifactId>mysql-connector-java</artifactId>
+    		<version>5.1.25</version>
+		</dependency>
+		<dependency> <2>
+      		<groupId>org.springframework.boot</groupId>
+      		<artifactId>spring-boot-starter-data-jdbc</artifactId>
+    	</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+----
+<1> The connector dependency.
+<2> The Spring Data JDBC dependency.
+====
+
+We also need substantial changes to our `WebSecurityConfig` class.
+In particular, we can remove the `UserDetailsService` bean, and we need to add a `configure` method that uses `AuthenticationManagerBuilder` as a parameter.
+We also need to define a data source (which finds our database).
+Note that this method is an override of the `configure` method in `WebSecurityConfigurerAdapter`.
+The following listing shows our new `WebSecurityConfig` class:
+
+====
+[source,java]
+----
+package com.example.securingweb;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+@Configuration
+@EnableWebSecurity
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	private DataSource dataSource; <1>
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+
+        http
+            .authorizeRequests()
+                .antMatchers("/", "/home").permitAll()
+                .anyRequest().authenticated()
+                .and()
+            .formLogin()
+                .loginPage("/login")
+                .permitAll()
+                .and()
+            .logout()
+                .permitAll();
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception { <2>
+
+      auth.jdbcAuthentication().dataSource(dataSource)
+          .usersByUsernameQuery("select username, password, enabled"
+              + " from users where username=?")
+          .authoritiesByUsernameQuery("select username, authority "
+              + "from authorities where username=?")
+          .passwordEncoder(new BCryptPasswordEncoder());
+    }
+
+}
+----
+<1> Autowire the data source.
+<2> The `configure` method that has `AuthenticationManagerBuilder` as a parameter.
+====
+
+We rely on Spring Boot to find our database (from the information in `application.properties`), so we need only autowire it here to get it to work.
+
+What does that `configure(AuthenticationManagerBuilder auth)` method do?
+The `AuthenticationManagerBuilder` exposes a method called `jdbcAuthentication`, which supports chaining other methods to define the user query that we use to see if a user matches the user name and password provided in the HTML form.
+The `jdbcAuthentication` method lets us specify the data source and then add two queries, one for the user and one for the authority.
+It also lets us specify the password encoder.
+Since we specify `BCryptPasswordEncoder`, the password provided by the user in the form matches the bcrypt-encoded password that we inserted into the database earlier, so long as the user types `password`.
+
+Why do we not need `UserDetailsService`?
+The `jdbcAuthentication` method provides a `JdbcUserDetailsManagerConfigurer` object, which does the same thing as `UserDetailsService` and lets us connect to a database.
+`AuthenticationManagerBuilder.jdbcAuthentication` is the heart of this example.

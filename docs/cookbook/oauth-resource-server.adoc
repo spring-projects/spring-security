@@ -1,0 +1,261 @@
+[[recipe-creating-an-oauth-resource-server]]
+== Recipe: Creating an OAuth Resource Server
+
+NOTE: We use "OAuth" and "OAuth2" interchangeably. Spring Security has moved away from the first version of OAuth.
+
+The previous recipe, <<oauth-client-recipe>>, detailed how to create a client that is secured by OAuth2.
+To really understand this recipe, you should probably read the <<understanding-oauth>> section within that recipe.
+This recipe describes how to create an OAuth2 Resource Server.
+
+According to the https://tools.ietf.org/html/rfc6749[RFC that defines OAuth2], "In OAuth, the client requests access to resources controlled by the resource owner and hosted by the resource server."
+In other words, https://www.oauth.com/oauth2-servers/the-resource-server/[as the folks at oauth.com write], an OAuth2 "resource server handles authenticated requests after the application has obtained an access token."
+
+NOTE: The code and much of the description for this recipe comes from the Spring Security samples at https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2resourceserver.
+You can find many other https://github.com/spring-projects/spring-security/tree/master/samples[Spring Security samples] in that project.
+
+=== OAuth Resources
+
+OAuth2 is defined by https://tools.ietf.org/html/rfc6749[IETF RFC (Request for Comment) 6749].
+Two highly regarded and closely related web sites offer more detail.
+Those sites are https://oauth.net/ and https://oauth.com/.
+https://oauth.net/ is organized as a wiki. https://oauth.com/ is organized as a book.
+Both are worth reading if you need to understand OAuth2 in depth.
+
+=== Writing the Resource Server
+
+To begin, you need a build file. In this case, we use a `build.gradle` file, as follows:
+
+====
+[source,java]
+----
+apply plugin: 'io.spring.convention.spring-sample-boot'
+
+dependencies {
+	compile project(':spring-security-config')
+	compile project(':spring-security-oauth2-jose')
+	compile project(':spring-security-oauth2-resource-server')
+
+	compile 'org.springframework.boot:spring-boot-starter-web'
+	compile 'com.squareup.okhttp3:mockwebserver'
+
+	testCompile project(':spring-security-test')
+	testCompile 'org.springframework.boot:spring-boot-starter-test'
+}
+----
+====
+
+Then you can create a Spring Boot application class, as follows:
+
+====
+[source,java]
+----
+package sample;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+/**
+ * @author Josh Cummings
+ */
+@SpringBootApplication
+public class OAuth2ResourceServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(OAuth2ResourceServerApplication.class, args);
+	}
+}
+----
+====
+
+The application does nothing until you add more classes.
+In this case, we need two more classes:
+
+* `OAuth2ResourceServerSecurityConfiguration` to hold the configuration.
+* `OAuth2ResourceServerController` to handle requests.
+
+The following listing shows the `OAuth2ResourceServerSecurityConfiguration` class:
+
+====
+[source,java]
+----
+package sample;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+
+/**
+ * @author Josh Cummings
+ */
+@EnableWebSecurity
+public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+	@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwkSetUri;
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		// @formatter:off
+		http
+			.authorizeRequests((authorizeRequests) ->
+				authorizeRequests
+					.antMatchers(HttpMethod.GET, "/message/**").hasAuthority("SCOPE_message:read")
+					.antMatchers(HttpMethod.POST, "/message/**").hasAuthority("SCOPE_message:write")
+					.anyRequest().authenticated()
+			)
+			.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+		// @formatter:on
+	}
+
+	@Bean
+	JwtDecoder jwtDecoder() {
+		return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
+	}
+}
+----
+====
+
+The following listing shows the `OAuth2ResourceServerController` class:
+
+====
+[source,java]
+----
+package sample;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * @author Josh Cummings
+ */
+@RestController
+public class OAuth2ResourceServerController {
+
+	@GetMapping("/")
+	public String index(@AuthenticationPrincipal Jwt jwt) {
+		return String.format("Hello, %s!", jwt.getSubject());
+	}
+
+	@GetMapping("/message")
+	public String message() {
+		return "secret message";
+	}
+
+	@PostMapping("/message")
+	public String createMessage(@RequestBody String message) {
+		return String.format("Message was created. Content: %s", message);
+	}
+}
+----
+====
+
+=== Running the Resource Server
+
+The application class lets you run the resource server with the following command (provided you run it from the directory that holds the build file):
+
+====
+[source,bash]
+----
+./gradlew bootRun
+----
+====
+
+Once the application is running, you can define a token for it to use, as follows:
+
+====
+[source,bash]
+----
+export TOKEN=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdWJqZWN0IiwiZXhwIjoyMTY0MjQ1ODgwLCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwianRpIjoiMDFkOThlZWEtNjc0MC00OGRlLTk4ODAtYzM5ZjgyMGZiNzVlIiwiY2xpZW50X2lkIjoibm9zY29wZXMiLCJzY29wZSI6WyJub25lIl19.VOzgGLOUuQ_R2Ur1Ke41VaobddhKgUZgto7Y3AGxst7SuxLQ4LgWwdSSDRx-jRvypjsCgYPbjAYLhn9nCbfwtCitkymUKUNKdebvVAI0y8YvliWTL5S-GiJD9dN8SSsXUla9A4xB_9Mt5JAlRpQotQSCLojVSKQmjhMpQWmYAlKVjnlImoRwQFPI4w3Ijn4G4EMTKWUYRfrD0-WNT9ZYWBeza6QgV6sraP7ToRB3eQLy2p04cU40X-RHLeYCsMBfxsMMh89CJff-9tn7VDKi1hAGc_Lp9yS9ZaItJuFJTjf8S_vsjVB1nBhvdS_6IED_m_fOU52KiGSO2qL6shxHvg
+----
+====
+
+Then you can use curl to make a request, as follows:
+
+====
+[source,bash]
+----
+curl -H "Authorization: Bearer $TOKEN" localhost:8080
+----
+====
+
+The application responds as follows:
+
+====
+[source,bash]
+----
+Hello, subject!
+----
+====
+
+`subject` is the value of the `sub` field in the JWT returned by the Authorization Server.
+
+==== Handling GET Requests
+
+You can make the resource server handle get request by using a different token.
+To do, set the token as follows:
+
+====
+[source,bash]
+----
+export TOKEN=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdWJqZWN0IiwiZXhwIjoyMTY0MjQ1NjQ4LCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwianRpIjoiY2I1ZGMwNDYtMDkyMi00ZGJmLWE5MzAtOGI2M2FhZTYzZjk2IiwiY2xpZW50X2lkIjoicmVhZGVyIiwic2NvcGUiOlsibWVzc2FnZTpyZWFkIl19.Pre2ksnMiOGYWQtuIgHB0i3uTnNzD0SMFM34iyQJHK5RLlSjge08s9qHdx6uv5cZ4gZm_cB1D6f4-fLx76bCblK6mVcabbR74w_eCdSBXNXuqG-HNrOYYmmx5iJtdwx5fXPmF8TyVzsq_LvRm_LN4lWNYquT4y36Tox6ZD3feYxXvHQ3XyZn9mVKnlzv-GCwkBohCR3yPow5uVmr04qh_al52VIwKMrvJBr44igr4fTZmzwRAZmQw5rZeyep0b4nsCjadNcndHtMtYKNVuG5zbDLsB7GGvilcI9TDDnUXtwthB_3iq32DAd9x8wJmJ5K8gmX6GjZFtYzKk_zEboXoQ
+----
+====
+
+Then you can use curl to make a GET request, as follows:
+
+====
+[source,bash]
+----
+curl -H "Authorization: Bearer $TOKEN" localhost:8080/message
+----
+====
+
+The resource server responds as follows:
+
+====
+[source,bash]
+----
+secret message
+----
+====
+
+==== Handling POST Requests
+
+You can make the resource server handle get request by using a different token.
+To do, set the token as follows:
+
+====
+[source,bash]
+----
+export TOKEN=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdWJqZWN0IiwiZXhwIjoyMTY0MjQzOTA0LCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwianRpIjoiZGI4ZjgwMzQtM2VlNy00NjBjLTk3NTEtMDJiMDA1OWI5NzA4IiwiY2xpZW50X2lkIjoid3JpdGVyIiwic2NvcGUiOlsibWVzc2FnZTp3cml0ZSJdfQ.USvpx_ntKXtchLmc93auJq0qSav6vLm4B7ItPzhrDH2xmogBP35eKeklwXK5GCb7ck1aKJV5SpguBlTCz0bZC1zAWKB6gyFIqedALPAran5QR-8WpGfl0wFqds7d8Jw3xmpUUBduRLab9hkeAhgoVgxevc8d6ITM7kRnHo5wT3VzvBU8DquedVXm5fbBnRPgG4_jOWJKbqYpqaR2z2TnZRWh3CqL82Orh1Ww1dJYF_fae1dTVV4tvN5iSndYcGxMoBaiw3kRRi6EyNxnXnt1pFtZqc1f6D9x4AHiri8_vpBp2vwG5OfQD5-rrleP_XlIB3rNQT7tu3fiqu4vUzQaEg
+----
+====
+
+Then you can use curl to make a POST request, as follows:
+
+====
+[source,bash]
+----
+curl -H "Authorization: Bearer $TOKEN" -d "my message" localhost:8080/message
+----
+====
+
+The resource server responds as follows:
+
+====
+[source,bash]
+----
+Message was created. Content: my message
+----
+====
+
+If you want to see more ways of running this resource server, The https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2resourceserver[Spring Security sample from which this code comes] has both integration and unit tests.

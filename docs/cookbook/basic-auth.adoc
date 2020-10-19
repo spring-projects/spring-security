@@ -1,0 +1,474 @@
+[[recipe-basic-auth]]
+== Recipe: Basic Auth
+
+NOTE: You should not use basic auth for projects other than proofs of concept and demonstrations.
+We include it in the cookbook because it lets us show the basic pattern of Spring Security with the fewest additional details.
+(In other words, it is the simplest example.)
+If you are already familiar with Spring Security, you might want to skip this recipe.
+If you are new to Spring Security, this recipe is worth reviewing, to learn the basics.
+
+[[security-cookbook-the-web-application]]
+=== The Application to Secure
+
+Spring Security secures applications, so we need an application to secure.
+A simple web application suffices as an example that we can then secure in the various recipes.
+
+NOTE: We use the same example that we used in the "`Securing a Web Application`" guide, which you can find on the Spring web site at https://spring.io/guides/gs/securing-web/[https://spring.io/guides/gs/securing-web/].
+
+We use Spring Boot with the Spring Web and Thymeleaf dependencies.
+There are lots of ways to make a web application, but we know this one well, since we have documented it elsewhere.
+
+We start with the build files for both Maven and Gradle (in case you prefer one or the other).
+The following listing shows the build file for Maven (`pom.xml`):
+
+====
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.0.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>securing-web</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>securing-web</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+----
+====
+
+The following listing shows the build file for Gradle (`build.gradle`):
+
+====
+[source,java]
+----
+plugins {
+	id 'org.springframework.boot' version '2.2.0.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+	id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
+----
+====
+
+After the build files, we need some HTML files.
+We start where a visitor would start, at `home.html`.
+
+IMPORTANT: The HTML files go in the `resources/templates` directory.
+Spring Boot knows to look for them in that location.
+
+The following listing shows our `home.html` file:
+
+====
+[source,html]
+----
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head>
+        <title>Spring Security Example</title>
+    </head>
+    <body>
+        <h1>Welcome!</h1>
+
+        <p>Click <a th:href="@{/hello}">here</a> to see a greeting.</p>
+    </body>
+</html>
+----
+====
+
+We also need a `hello.html` file, so that visitors to our web site can see the greeting we mention in the `home.html` file.
+The following listing shows the `home.html` file:
+
+====
+[source,html]
+----
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head>
+        <title>Hello, World!</title>
+    </head>
+    <body>
+        <h1>Hello, world!</h1>
+    </body>
+</html>
+----
+====
+
+Once we have HTML pages for our visitors to see, we need to route them to the pages.
+We do that with a class that implements the `WebMvcConfigurer` (from the Spring framework).
+The following listing shows that class, which is called `MvcConfig`:
+
+====
+[source,java]
+----
+package com.example.securingweb;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class MvcConfig implements WebMvcConfigurer {
+
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/home").setViewName("home");
+        registry.addViewController("/").setViewName("home");
+        registry.addViewController("/hello").setViewName("hello");
+    }
+
+}
+----
+====
+
+Finally, we need an application class to give us an entry point for our program.
+We call it `SecuringWebApplication`, even though it is not yet secure.
+We cover how to secure it in the various recipes.
+The following application shows the `SecuringWebApplication` class:
+
+====
+[source,java]
+----
+package com.example.securingweb;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SecuringWebApplication {
+
+    public static void main(String[] args) throws Throwable {
+        SpringApplication.run(SecuringWebApplication.class, args);
+    }
+
+}
+----
+====
+
+If we run this application now, we would see an unsecured web application.
+Now we can make it be a secure application.
+
+=== Securing the Application
+
+To secure the simple web application presented in the <<security-cookbook-the-web-application,preceding section>>, we need to add the appropriate Spring Security dependencies to our build file (we show both Maven and Gradle).
+
+For Gradle, we need to add the following two lines to the `dependencies` block in our `build.gradle` file:
+
+====
+[source,java]
+----
+implementation 'org.springframework.boot:spring-boot-starter-security'
+implementation 'org.springframework.security:spring-security-test'
+----
+====
+
+The following listing shows the final `build.gradle` file:
+
+====
+[source,java]
+----
+plugins {
+	id 'org.springframework.boot' version '2.2.0.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+	id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security:spring-security-test'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
+----
+====
+
+For Maven, we need to add the following two dependencies to the `dependencies` element in our `pom.xml` file:
+
+====
+[source,xml]
+----
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+<dependency>
+	<groupId>org.springframework.security</groupId>
+	<artifactId>spring-security-test</artifactId>
+	<scope>test</scope>
+</dependency>
+----
+====
+
+The following listing shows the final `pom.xml` file:
+
+====
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.0.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>securing-web</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>securing-web</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+----
+====
+
+We also need a login page. The following HTML file serves that need:
+
+====
+[source,html]
+----
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head>
+        <title>Spring Security Example </title>
+    </head>
+    <body>
+        <div th:if="${param.error}">
+            Invalid username and password.
+        </div>
+        <div th:if="${param.logout}">
+            You have been logged out.
+        </div>
+        <form th:action="@{/login}" method="post">
+            <div><label> User Name : <input type="text" name="username"/> </label></div>
+            <div><label> Password: <input type="password" name="password"/> </label></div>
+            <div><input type="submit" value="Sign In"/></div>
+        </form>
+    </body>
+</html>
+----
+====
+
+We also need to add a line to our `MvcConfig` class, as the following listing shows:
+
+====
+[source,java]
+----
+package com.example.securingweb;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class MvcConfig implements WebMvcConfigurer {
+
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/home").setViewName("home");
+        registry.addViewController("/").setViewName("home");
+        registry.addViewController("/hello").setViewName("hello");
+        registry.addViewController("/login").setViewName("login"); <1>
+    }
+
+}
+----
+<1> We need to add this line to make the `/login` path work.
+====
+
+We also need a class to configure security for our web application.
+The following listing shows that class (called `WebSecurityConfig`):
+
+====
+[source,java]
+----
+package com.example.securingweb;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+
+@Configuration
+@EnableWebSecurity
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .authorizeRequests() <1>
+                .antMatchers("/", "/home").permitAll() <2>
+                .anyRequest().authenticated() <3>
+                .and()
+            .formLogin() <4>
+                .loginPage("/login") <5>
+                .permitAll()
+                .and()
+            .logout() <6>
+                .permitAll();
+    }
+
+    @Bean
+    @Override
+    public UserDetailsService userDetailsService() {
+        UserDetails user = <7>
+             User.withDefaultPasswordEncoder()
+                .username("user") <8>
+                .password("password") <9>
+                .roles("USER") <10>
+                .build(); <11>
+
+        return new InMemoryUserDetailsManager(user);
+    }
+}
+----
+<1> Turn on security by authorizing request.
+<2> Let anyone see the default and `home` paths.
+<3> Require that any request be authenticated. (This is where we apply security.)
+<4> Allow a login form.
+<5> Allow that form from the `/login` path.
+<6> Let anyone see the logout page.
+<7> Define a user object.
+<8> The user's user name is `user`.
+<9> The user's user name is `password`.
+<10> The user's role is `USER`.
+<11> Build the user object.
+====
+
+WARNING: _NEVER_ put user names and passwords in code for a real application.
+It is tolerable for demonstrations and samples, but it is very poor practice for real applications.
+
+The `WebSecurityConfig` class has two key parts: A `configure` method (which overrides the `configure` method in `WebSecurityConfigurerAdapter`) and a `UserDetailsService` bean.
+The `configure` method has a chain of methods that define the security for the paths in our application.
+In essence, the preceding configuration says, "`Let anyone see the login and logout pages. Make everyone authenticate (log in) to see anything else.`"
+We also define the one and only user who can view our web application.
+Normally, we would get user details from a database or an LDAP or OAuth server (or from some other source - many options exist).
+We created this simple arrangement to show the basic outline of what happens.
