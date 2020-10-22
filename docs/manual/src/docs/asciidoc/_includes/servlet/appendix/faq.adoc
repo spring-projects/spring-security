@@ -233,7 +233,7 @@ You cannot have two separate sessions at once.
 So if you log in again in another window or tab you are just reauthenticating in the same session.
 The server doesn't know anything about tabs, windows or browser instances.
 All it sees are HTTP requests and it ties those to a particular session according to the value of the JSESSIONID cookie that they contain.
-When a user authenticates during a session, Spring Security's concurrent session control checks the number of__other authenticated sessions__ that they have.
+When a user authenticates during a session, Spring Security's concurrent session control checks the number of __other authenticated sessions__ that they have.
 If they are already authenticated with the same session, then re-authenticating will have no effect.
 
 
