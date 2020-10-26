@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,15 +94,15 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) {
-		List<SessionInformation> sessions = this.sessionRegistry.getAllSessions(authentication.getPrincipal(), false);
-		int sessionCount = sessions.size();
 		int allowedSessions = getMaximumSessionsForThisUser(authentication);
-		if (sessionCount < allowedSessions) {
-			// They haven't got too many login sessions running at present
-			return;
-		}
 		if (allowedSessions == -1) {
 			// We permit unlimited logins
+			return;
+		}
+		List<SessionInformation> sessions = this.sessionRegistry.getAllSessions(authentication.getPrincipal(), false);
+		int sessionCount = sessions.size();
+		if (sessionCount < allowedSessions) {
+			// They haven't got too many login sessions running at present
 			return;
 		}
 		if (sessionCount == allowedSessions) {
