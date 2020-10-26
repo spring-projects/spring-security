@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2016 the original author or authors.
+ * Copyright 2004-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
@@ -77,7 +79,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Ben Alex
  * @author colin sampaleanu
  */
-public class ExceptionTranslationFilter extends GenericFilterBean {
+public class ExceptionTranslationFilter extends GenericFilterBean implements MessageSourceAware {
 
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
@@ -89,7 +91,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
 
-	private final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	public ExceptionTranslationFilter(AuthenticationEntryPoint authenticationEntryPoint) {
 		this(authenticationEntryPoint, new HttpSessionRequestCache());
@@ -224,6 +226,15 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 	public void setThrowableAnalyzer(ThrowableAnalyzer throwableAnalyzer) {
 		Assert.notNull(throwableAnalyzer, "throwableAnalyzer must not be null");
 		this.throwableAnalyzer = throwableAnalyzer;
+	}
+
+	/**
+	 * @since 5.5
+	 */
+	@Override
+	public void setMessageSource(MessageSource messageSource) {
+		Assert.notNull(messageSource, "messageSource cannot be null");
+		this.messages = new MessageSourceAccessor(messageSource);
 	}
 
 	/**

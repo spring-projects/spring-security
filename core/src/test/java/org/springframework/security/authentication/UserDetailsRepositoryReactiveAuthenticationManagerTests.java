@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -34,10 +35,12 @@ import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -212,6 +215,20 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(disabledUser,
 				disabledUser.getPassword());
 		assertThatExceptionOfType(DisabledException.class).isThrownBy(() -> this.manager.authenticate(token).block());
+	}
+
+	@Test
+	public void setMessageSourceWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.manager.setMessageSource(null));
+	}
+
+	@Test
+	public void setMessageSourceWhenNotNullThenCanGet() {
+		MessageSource source = mock(MessageSource.class);
+		this.manager.setMessageSource(source);
+		String code = "code";
+		this.manager.messages.getMessage(code);
+		verify(source).getMessage(eq(code), any(), any());
 	}
 
 }

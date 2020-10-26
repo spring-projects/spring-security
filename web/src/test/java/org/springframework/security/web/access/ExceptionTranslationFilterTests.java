@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2016 the original author or authors.
+ * Copyright 2004-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -50,8 +51,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
@@ -282,6 +285,22 @@ public class ExceptionTranslationFilterTests {
 		assertThatExceptionOfType(ServletException.class).isThrownBy(() -> filter.doFilter(request, response, chain))
 				.withCauseInstanceOf(AccessDeniedException.class);
 		verifyZeroInteractions(this.mockEntryPoint);
+	}
+
+	@Test
+	public void setMessageSourceWhenNullThenThrowsException() {
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setMessageSource(null));
+	}
+
+	@Test
+	public void setMessageSourceWhenNotNullThenCanGet() {
+		MessageSource source = mock(MessageSource.class);
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
+		filter.setMessageSource(source);
+		String code = "code";
+		filter.messages.getMessage(code);
+		verify(source).getMessage(eq(code), any(), any());
 	}
 
 	private AuthenticationEntryPoint mockEntryPoint = (request, response, authException) -> response
