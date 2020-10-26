@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
@@ -45,7 +47,8 @@ import org.springframework.util.Assert;
  * @author Eddú Meléndez
  * @since 5.2
  */
-public abstract class AbstractUserDetailsReactiveAuthenticationManager implements ReactiveAuthenticationManager {
+public abstract class AbstractUserDetailsReactiveAuthenticationManager
+		implements ReactiveAuthenticationManager, MessageSourceAware {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
@@ -162,6 +165,15 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 	public void setPostAuthenticationChecks(UserDetailsChecker postAuthenticationChecks) {
 		Assert.notNull(this.postAuthenticationChecks, "postAuthenticationChecks cannot be null");
 		this.postAuthenticationChecks = postAuthenticationChecks;
+	}
+
+	/**
+	 * @since 5.5
+	 */
+	@Override
+	public void setMessageSource(MessageSource messageSource) {
+		Assert.notNull(messageSource, "messageSource cannot be null");
+		this.messages = new MessageSourceAccessor(messageSource);
 	}
 
 	/**

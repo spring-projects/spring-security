@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AccountStatusException;
@@ -59,7 +61,8 @@ import org.springframework.util.StringUtils;
  * @author Onur Kagan Ozcan
  * @since 2.0
  */
-public abstract class AbstractRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
+public abstract class AbstractRememberMeServices
+		implements RememberMeServices, InitializingBean, LogoutHandler, MessageSourceAware {
 
 	public static final String SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY = "remember-me";
 
@@ -71,7 +74,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	protected final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	private UserDetailsService userDetailsService;
 
@@ -479,6 +482,15 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
 	public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		this.authoritiesMapper = authoritiesMapper;
+	}
+
+	/**
+	 * @since 5.5
+	 */
+	@Override
+	public void setMessageSource(MessageSource messageSource) {
+		Assert.notNull(messageSource, "messageSource cannot be null");
+		this.messages = new MessageSourceAccessor(messageSource);
 	}
 
 }

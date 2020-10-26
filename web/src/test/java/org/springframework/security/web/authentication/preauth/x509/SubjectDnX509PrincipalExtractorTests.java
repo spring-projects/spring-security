@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,16 @@ package org.springframework.security.web.authentication.preauth.x509;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.SpringSecurityMessageSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Luke Taylor
@@ -36,7 +40,6 @@ public class SubjectDnX509PrincipalExtractorTests {
 	@Before
 	public void setUp() {
 		this.extractor = new SubjectDnX509PrincipalExtractor();
-		this.extractor.setMessageSource(new SpringSecurityMessageSource());
 	}
 
 	@Test
@@ -69,6 +72,20 @@ public class SubjectDnX509PrincipalExtractorTests {
 	public void defaultCNPatternReturnsPrincipalAtEndOfDNString() throws Exception {
 		Object principal = this.extractor.extractPrincipal(X509TestUtils.buildTestCertificateWithCnAtEnd());
 		assertThat(principal).isEqualTo("Duke");
+	}
+
+	@Test
+	public void setMessageSourceWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.extractor.setMessageSource(null));
+	}
+
+	@Test
+	public void setMessageSourceWhenNotNullThenCanGet() {
+		MessageSource source = mock(MessageSource.class);
+		this.extractor.setMessageSource(source);
+		String code = "code";
+		this.extractor.messages.getMessage(code);
+		verify(source).getMessage(eq(code), any(), any());
 	}
 
 }
