@@ -124,3 +124,6 @@ class HelloWebfluxSecurityConfig {
 
 This configuration explicitly sets up all the same things as our minimal configuration.
 From here you can easily make the changes to the defaults.
+
+You can find more examples of explicit configuration in unit tests, by searching https://github.com/spring-projects/spring-security/search?q=path%3Aconfig%2Fsrc%2Ftest%2F+EnableWebFluxSecurity[EnableWebFluxSecurity in the `config/src/test/` directory], e.g. https://github.com/spring-projects/spring-security/blob/9cf3129d7afa2abb439aba6aadfee0a2c8c784bf/config/src/test/java/org/springframework/security/config/annotation/web/reactive/EnableWebFluxSecurityTests.java#L349-L366[MultiSecurityHttpConfig] illustrating multiple `SecurityWebFilterChain` beans.
+
