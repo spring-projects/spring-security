@@ -62,7 +62,7 @@ class CsrfDslTests {
 
         this.mockMvc.post("/test1")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
     }
 
@@ -73,7 +73,7 @@ class CsrfDslTests {
         this.mockMvc.post("/test1") {
             with(csrf())
         }.andExpect {
-            status { isOk }
+            status { isOk() }
         }
 
     }
@@ -93,7 +93,7 @@ class CsrfDslTests {
 
         this.mockMvc.post("/test1")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
     }
 
@@ -141,12 +141,12 @@ class CsrfDslTests {
 
         this.mockMvc.post("/test1")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
 
         this.mockMvc.post("/test2")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
     }
 
@@ -204,12 +204,12 @@ class CsrfDslTests {
 
         this.mockMvc.post("/test1")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
 
         this.mockMvc.post("/test2")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
     }
 
@@ -231,12 +231,12 @@ class CsrfDslTests {
 
         this.mockMvc.post("/test1")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
 
         this.mockMvc.post("/test2")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
     }
 

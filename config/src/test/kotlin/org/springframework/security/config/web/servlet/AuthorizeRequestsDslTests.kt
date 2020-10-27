@@ -65,7 +65,7 @@ class AuthorizeRequestsDslTests {
 
         this.mockMvc.get("/private")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
     }
 
@@ -75,7 +75,7 @@ class AuthorizeRequestsDslTests {
 
         this.mockMvc.get("/path")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
     }
 
@@ -85,12 +85,12 @@ class AuthorizeRequestsDslTests {
 
         this.mockMvc.post("/onlyPostPermitted") { with(csrf()) }
             .andExpect {
-                status { isOk }
+                status { isOk() }
             }
 
         this.mockMvc.get("/onlyPostPermitted")
             .andExpect {
-                status { isForbidden }
+                status { isForbidden() }
             }
     }
 
@@ -125,7 +125,7 @@ class AuthorizeRequestsDslTests {
 
         this.mockMvc.get("/private")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
     }
 
@@ -135,17 +135,17 @@ class AuthorizeRequestsDslTests {
 
         this.mockMvc.get("/path")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
 
         this.mockMvc.get("/path.html")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
 
         this.mockMvc.get("/path/")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
     }
 
@@ -182,12 +182,12 @@ class AuthorizeRequestsDslTests {
 
         this.mockMvc.get("/user/user")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
 
         this.mockMvc.get("/user/deny")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
     }
 
@@ -217,7 +217,7 @@ class AuthorizeRequestsDslTests {
         this.mockMvc.get("/") {
             with(httpBasic("admin", "password"))
         }.andExpect {
-            status { isOk }
+            status { isOk() }
         }
     }
 
@@ -228,7 +228,7 @@ class AuthorizeRequestsDslTests {
         this.mockMvc.get("/") {
             with(httpBasic("user", "password"))
         }.andExpect {
-            status { isForbidden }
+            status { isForbidden() }
         }
     }
 
@@ -274,13 +274,13 @@ class AuthorizeRequestsDslTests {
         this.mockMvc.get("/") {
             with(httpBasic("user", "password"))
         }.andExpect {
-            status { isOk }
+            status { isOk() }
         }
 
         this.mockMvc.get("/") {
             with(httpBasic("admin", "password"))
         }.andExpect {
-            status { isOk }
+            status { isOk() }
         }
     }
 
@@ -291,7 +291,7 @@ class AuthorizeRequestsDslTests {
         this.mockMvc.get("/") {
             with(httpBasic("other", "password"))
         }.andExpect {
-            status { isForbidden }
+            status { isForbidden() }
         }
     }
 
@@ -342,13 +342,13 @@ class AuthorizeRequestsDslTests {
         this.mockMvc.get("/") {
             with(httpBasic("user", "password"))
         }.andExpect {
-            status { isOk }
+            status { isOk() }
         }
 
         this.mockMvc.get("/") {
             with(httpBasic("admin", "password"))
         }.andExpect {
-            status { isOk }
+            status { isOk() }
         }
     }
 
@@ -359,7 +359,7 @@ class AuthorizeRequestsDslTests {
         this.mockMvc.get("/") {
             with(httpBasic("other", "password"))
         }.andExpect {
-            status { isForbidden }
+            status { isForbidden() }
         }
     }
 
@@ -469,12 +469,12 @@ class AuthorizeRequestsDslTests {
 
         this.mockMvc.get("/path")
             .andExpect {
-                status { isOk }
+                status { isOk() }
             }
 
         this.mockMvc.put("/path") { with(csrf()) }
             .andExpect {
-                status { isForbidden }
+                status { isForbidden() }
             }
     }
 

@@ -119,7 +119,7 @@ class AnonymousDslTests {
 
         this.mockMvc.get("/principal")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
     }
 

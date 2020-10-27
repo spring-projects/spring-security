@@ -63,7 +63,7 @@ class HttpSecurityDslTests {
 
         this.mockMvc.post("/")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
     }
 
@@ -124,7 +124,7 @@ class HttpSecurityDslTests {
 
         this.mockMvc.get("/")
                 .andExpect {
-                    status { isNotFound }
+                    status { isNotFound() }
                 }
     }
 
@@ -134,7 +134,7 @@ class HttpSecurityDslTests {
 
         this.mockMvc.get("/path")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
     }
 
@@ -156,7 +156,7 @@ class HttpSecurityDslTests {
 
         this.mockMvc.get("/")
                 .andExpect {
-                    status { isNotFound }
+                    status { isNotFound() }
                 }
     }
 
@@ -166,7 +166,7 @@ class HttpSecurityDslTests {
 
         this.mockMvc.get("/path")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
     }
 
@@ -189,17 +189,17 @@ class HttpSecurityDslTests {
 
         this.mockMvc.get("/path1")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
 
         this.mockMvc.get("/path2")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
 
         this.mockMvc.get("/path3")
                 .andExpect {
-                    status { isNotFound }
+                    status { isNotFound() }
                 }
     }
 

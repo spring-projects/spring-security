@@ -72,7 +72,7 @@ class OAuth2LoginDslTests {
 
         this.mockMvc.get("/login")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
     }
 
@@ -91,7 +91,7 @@ class OAuth2LoginDslTests {
 
         this.mockMvc.get("/custom-login")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
     }
 

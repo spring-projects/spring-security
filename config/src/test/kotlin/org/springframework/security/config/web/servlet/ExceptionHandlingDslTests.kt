@@ -52,7 +52,7 @@ class ExceptionHandlingDslTests {
 
         this.mockMvc.get("/")
                 .andExpect {
-                    status { isForbidden }
+                    status { isForbidden() }
                 }
     }
 
@@ -97,7 +97,7 @@ class ExceptionHandlingDslTests {
         this.mockMvc.get("/admin") {
             with(user(withUsername("user").password("password").roles("USER").build()))
         }.andExpect {
-            status { isForbidden }
+            status { isForbidden() }
             forwardedUrl("/access-denied")
         }
     }
@@ -125,7 +125,7 @@ class ExceptionHandlingDslTests {
         this.mockMvc.get("/admin") {
             with(user(withUsername("user").password("password").roles("USER").build()))
         }.andExpect {
-            status { isForbidden }
+            status { isForbidden() }
             forwardedUrl("/access-denied")
         }
     }
@@ -155,14 +155,14 @@ class ExceptionHandlingDslTests {
         this.mockMvc.get("/admin1") {
             with(user(withUsername("user").password("password").roles("USER").build()))
         }.andExpect {
-            status { isForbidden }
+            status { isForbidden() }
             forwardedUrl("/access-denied1")
         }
 
         this.mockMvc.get("/admin2") {
             with(user(withUsername("user").password("password").roles("USER").build()))
         }.andExpect {
-            status { isForbidden }
+            status { isForbidden() }
             forwardedUrl("/access-denied2")
         }
     }
@@ -195,7 +195,7 @@ class ExceptionHandlingDslTests {
 
         this.mockMvc.get("/")
                 .andExpect {
-                    status { isFound }
+                    status { isFound() }
                     redirectedUrl("http://localhost/custom-login")
                 }
     }
@@ -221,13 +221,13 @@ class ExceptionHandlingDslTests {
 
         this.mockMvc.get("/secured1")
                 .andExpect {
-                    status { isFound }
+                    status { isFound() }
                     redirectedUrl("http://localhost/custom-login1")
                 }
 
         this.mockMvc.get("/secured2")
                 .andExpect {
-                    status { isFound }
+                    status { isFound() }
                     redirectedUrl("http://localhost/custom-login2")
                 }
     }

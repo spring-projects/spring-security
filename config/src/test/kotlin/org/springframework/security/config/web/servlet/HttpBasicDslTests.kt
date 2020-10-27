@@ -61,7 +61,7 @@ class HttpBasicDslTests {
 
         this.mockMvc.get("/")
                 .andExpect {
-                    status { isUnauthorized }
+                    status { isUnauthorized() }
                 }
     }
 
@@ -82,7 +82,7 @@ class HttpBasicDslTests {
         this.mockMvc.get("/") {
             with(httpBasic("user", "password"))
         }.andExpect {
-            status { isOk }
+            status { isOk() }
         }
     }
 

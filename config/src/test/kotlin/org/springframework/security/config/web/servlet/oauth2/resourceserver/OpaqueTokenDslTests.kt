@@ -72,7 +72,7 @@ class OpaqueTokenDslTests {
         this.mockMvc.get("/authenticated") {
             header("Authorization", "Bearer token")
         }.andExpect {
-            status { isOk }
+            status { isOk() }
             content { string("test-subject") }
         }
     }

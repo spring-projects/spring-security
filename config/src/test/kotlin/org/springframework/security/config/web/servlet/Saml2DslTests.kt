@@ -72,7 +72,7 @@ class Saml2DslTests {
 
         this.mockMvc.get("/login")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
     }
 

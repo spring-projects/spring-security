@@ -58,7 +58,7 @@ class LogoutDslTests {
         this.mockMvc.post("/custom/logout") {
             with(csrf())
         }.andExpect {
-            status { isFound }
+            status { isFound() }
             redirectedUrl("/login?logout")
         }
     }
@@ -81,7 +81,7 @@ class LogoutDslTests {
         this.mockMvc.post("/custom/logout") {
             with(csrf())
         }.andExpect {
-            status { isFound }
+            status { isFound() }
             redirectedUrl("/login?logout")
         }
     }
@@ -104,7 +104,7 @@ class LogoutDslTests {
         this.mockMvc.post("/logout") {
             with(csrf())
         }.andExpect {
-            status { isFound }
+            status { isFound() }
             redirectedUrl("/login")
         }
     }
@@ -127,7 +127,7 @@ class LogoutDslTests {
         this.mockMvc.post("/logout") {
             with(csrf())
         }.andExpect {
-            status { isFound }
+            status { isFound() }
             redirectedUrl("/")
         }
     }
@@ -150,7 +150,7 @@ class LogoutDslTests {
         this.mockMvc.post("/custom/logout") {
             with(csrf())
         }.andExpect {
-            status { isFound }
+            status { isFound() }
             redirectedUrl("/login?logout")
         }
     }
@@ -182,7 +182,7 @@ class LogoutDslTests {
             with(csrf())
             session = currentSession
         }.andExpect {
-            status { isFound }
+            status { isFound() }
             redirectedUrl("/login?logout")
         }
 
@@ -209,7 +209,7 @@ class LogoutDslTests {
             with(csrf())
             session = currentSession
         }.andExpect {
-            status { isFound }
+            status { isFound() }
             redirectedUrl("/login?logout")
         }
 
@@ -234,7 +234,7 @@ class LogoutDslTests {
         this.mockMvc.post("/logout") {
             with(csrf())
         }.andExpect {
-            status { isFound }
+            status { isFound() }
             redirectedUrl("/login?logout")
             cookie { maxAge("remove", 0) }
         }
@@ -258,14 +258,14 @@ class LogoutDslTests {
         this.mockMvc.post("/logout/default") {
             with(csrf())
         }.andExpect {
-            status { isFound }
+            status { isFound() }
             redirectedUrl("/login?logout")
         }
 
         this.mockMvc.post("/logout/custom") {
             with(csrf())
         }.andExpect {
-            status { isFound }
+            status { isFound() }
             redirectedUrl("/")
         }
     }
