@@ -13,7 +13,7 @@ if (!project.hasProperty("kotlinVersion")) {
 	ext.kotlinVersion = "1.+"
 }
 if (!project.hasProperty("rsocketVersion")) {
-	ext.rsocketVersion = "1.0.+"
+	ext.rsocketVersion = "1.1.0"
 }
 if (!project.hasProperty("locksDisabled")) {
 	dependencyLocking {
