@@ -1,5 +1,5 @@
 if (!project.hasProperty("reactorVersion")) {
-	ext.reactorVersion = "Dysprosium-SR+"
+	ext.reactorVersion = "2020.0.+"
 }
 
 if (!project.hasProperty("springVersion")) {
