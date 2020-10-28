@@ -1,9 +1,7 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
 dependencies {
-	compile project(':spring-security-config')
-	compile project(':spring-security-oauth2-client')
-	compile project(':spring-security-oauth2-jose')
+	compile project(':spring-boot-starter-oauth2-client')
 	compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	compile 'org.springframework.boot:spring-boot-starter-web'
 	compile 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
