@@ -136,8 +136,10 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 *
 	 * @since 5.5
 	 */
-	public void setServerBearerTokenAuthenticationConverter(ServerBearerTokenAuthenticationConverter serverBearerTokenAuthenticationConverter) {
-		Assert.notNull(serverBearerTokenAuthenticationConverter, "serverBearerTokenAuthenticationConverter cannot be null");
+	public void setServerBearerTokenAuthenticationConverter(
+			ServerBearerTokenAuthenticationConverter serverBearerTokenAuthenticationConverter) {
+		Assert.notNull(serverBearerTokenAuthenticationConverter,
+				"serverBearerTokenAuthenticationConverter cannot be null");
 		this.issuerConverter = new JwtClaimIssuerConverter(serverBearerTokenAuthenticationConverter);
 	}
 
@@ -150,7 +152,8 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 		}
 
 		JwtClaimIssuerConverter(ServerBearerTokenAuthenticationConverter serverBearerTokenAuthenticationConverter) {
-			Assert.notNull(serverBearerTokenAuthenticationConverter, "serverBearerTokenAuthenticationConverter cannot be null");
+			Assert.notNull(serverBearerTokenAuthenticationConverter,
+					"serverBearerTokenAuthenticationConverter cannot be null");
 			this.converter = serverBearerTokenAuthenticationConverter;
 		}
 
