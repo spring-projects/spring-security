@@ -65,7 +65,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 
 	private final AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
 
-	private final Converter<HttpServletRequest, String> issuerConverter = new JwtClaimIssuerConverter();
+	private Converter<HttpServletRequest, String> issuerConverter = new JwtClaimIssuerConverter();
 
 	/**
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
@@ -130,9 +130,28 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 		return authenticationManager;
 	}
 
+	/**
+	 * Set a custom bearer token resolver
+	 *
+	 * @since 5.5
+	 */
+	public void setBearerTokenResolver(BearerTokenResolver bearerTokenResolver) {
+		Assert.notNull(bearerTokenResolver, "bearerTokenResolver cannot be null");
+		this.issuerConverter = new JwtClaimIssuerConverter(bearerTokenResolver);
+	}
+
 	private static class JwtClaimIssuerConverter implements Converter<HttpServletRequest, String> {
 
-		private final BearerTokenResolver resolver = new DefaultBearerTokenResolver();
+		private final BearerTokenResolver resolver;
+
+		JwtClaimIssuerConverter() {
+			this(new DefaultBearerTokenResolver());
+		}
+
+		JwtClaimIssuerConverter(BearerTokenResolver bearerTokenResolver) {
+			Assert.notNull(bearerTokenResolver, "bearerTokenResolver cannot be null");
+			this.resolver = bearerTokenResolver;
+		}
 
 		@Override
 		public String convert(@NonNull HttpServletRequest request) {

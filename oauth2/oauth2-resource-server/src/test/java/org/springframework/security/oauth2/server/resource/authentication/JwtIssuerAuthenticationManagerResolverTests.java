@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSObject;
@@ -39,11 +41,15 @@ import org.springframework.security.authentication.AuthenticationManagerResolver
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link JwtIssuerAuthenticationManagerResolver}
@@ -111,6 +117,19 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + this.jwt);
 		assertThat(authenticationManagerResolver.resolve(request)).isSameAs(authenticationManager);
+	}
+
+	@Test
+	public void resolveWhenUsingCustomIssuerAuthenticationManagerResolverAndCustomBearerTokenResolverThenUses() {
+		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+				(issuer) -> authenticationManager);
+		BearerTokenResolver bearerTokenResolverSpy = spy(new TestBearerTokenResolver());
+		authenticationManagerResolver.setBearerTokenResolver(bearerTokenResolverSpy);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Bearer " + this.jwt);
+		assertThat(authenticationManagerResolver.resolve(request)).isSameAs(authenticationManager);
+		verify(bearerTokenResolverSpy).resolve(any());
 	}
 
 	@Test
@@ -194,6 +213,15 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 	private String jwt(String claim, String value) {
 		PlainJWT jwt = new PlainJWT(new JWTClaimsSet.Builder().claim(claim, value).build());
 		return jwt.serialize();
+	}
+
+	static class TestBearerTokenResolver implements BearerTokenResolver {
+
+		@Override
+		public String resolve(HttpServletRequest request) {
+			return "eyJhbGciOiJub25lIn0.eyJpc3MiOiJ0cnVzdGVkIn0.";
+		}
+
 	}
 
 }

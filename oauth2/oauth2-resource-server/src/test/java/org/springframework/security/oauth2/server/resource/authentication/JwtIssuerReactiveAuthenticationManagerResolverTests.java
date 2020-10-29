@@ -41,11 +41,15 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link JwtIssuerReactiveAuthenticationManagerResolver}
@@ -109,6 +113,20 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 				(issuer) -> Mono.just(authenticationManager));
 		MockServerWebExchange exchange = withBearerToken(this.jwt);
 		assertThat(authenticationManagerResolver.resolve(exchange).block()).isSameAs(authenticationManager);
+	}
+
+	@Test
+	public void resolveWhenUsingCustomIssuerAuthenticationManagerResolverAndCustomServerBearerTokenAuthenticationConverterThenUses() {
+		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
+		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
+				(issuer) -> Mono.just(authenticationManager));
+		ServerBearerTokenAuthenticationConverter serverBearerTokenAuthenticationConverterSpy = spy(
+				new ServerBearerTokenAuthenticationConverter());
+		authenticationManagerResolver
+				.setServerBearerTokenAuthenticationConverter(serverBearerTokenAuthenticationConverterSpy);
+		MockServerWebExchange exchange = withBearerToken(this.jwt);
+		assertThat(authenticationManagerResolver.resolve(exchange).block()).isSameAs(authenticationManager);
+		verify(serverBearerTokenAuthenticationConverterSpy).convert(any());
 	}
 
 	@Test

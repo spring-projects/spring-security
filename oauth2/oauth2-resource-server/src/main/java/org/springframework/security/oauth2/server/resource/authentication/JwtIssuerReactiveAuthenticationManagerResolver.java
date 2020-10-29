@@ -65,7 +65,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 
 	private final ReactiveAuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
 
-	private final Converter<ServerWebExchange, Mono<String>> issuerConverter = new JwtClaimIssuerConverter();
+	private Converter<ServerWebExchange, Mono<String>> issuerConverter = new JwtClaimIssuerConverter();
 
 	/**
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
@@ -131,9 +131,31 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 		// @formatter:on
 	}
 
+	/**
+	 * Set a custom server bearer token authentication converter
+	 *
+	 * @since 5.5
+	 */
+	public void setServerBearerTokenAuthenticationConverter(
+			ServerBearerTokenAuthenticationConverter serverBearerTokenAuthenticationConverter) {
+		Assert.notNull(serverBearerTokenAuthenticationConverter,
+				"serverBearerTokenAuthenticationConverter cannot be null");
+		this.issuerConverter = new JwtClaimIssuerConverter(serverBearerTokenAuthenticationConverter);
+	}
+
 	private static class JwtClaimIssuerConverter implements Converter<ServerWebExchange, Mono<String>> {
 
-		private final ServerBearerTokenAuthenticationConverter converter = new ServerBearerTokenAuthenticationConverter();
+		private final ServerBearerTokenAuthenticationConverter converter;
+
+		JwtClaimIssuerConverter() {
+			this(new ServerBearerTokenAuthenticationConverter());
+		}
+
+		JwtClaimIssuerConverter(ServerBearerTokenAuthenticationConverter serverBearerTokenAuthenticationConverter) {
+			Assert.notNull(serverBearerTokenAuthenticationConverter,
+					"serverBearerTokenAuthenticationConverter cannot be null");
+			this.converter = serverBearerTokenAuthenticationConverter;
+		}
 
 		@Override
 		public Mono<String> convert(@NonNull ServerWebExchange exchange) {
