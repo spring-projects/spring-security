@@ -65,7 +65,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 
 	private final ReactiveAuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
 
-	private final Converter<ServerWebExchange, Mono<String>> issuerConverter = new JwtClaimIssuerConverter();
+	private Converter<ServerWebExchange, Mono<String>> issuerConverter = new JwtClaimIssuerConverter();
 
 	/**
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
@@ -129,6 +129,16 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 						.switchIfEmpty(Mono.error(() -> new InvalidBearerTokenException("Invalid issuer " + issuer)))
 				);
 		// @formatter:on
+	}
+
+	/**
+	 * Set a custom issuer converter
+	 *
+	 * @since 5.5
+	 */
+	public void setIssuerConverter(Converter<ServerWebExchange, Mono<String>> issuerConverter) {
+		Assert.notNull(issuerConverter, "converter cannot be null");
+		this.issuerConverter = issuerConverter;
 	}
 
 	private static class JwtClaimIssuerConverter implements Converter<ServerWebExchange, Mono<String>> {

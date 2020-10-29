@@ -65,7 +65,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 
 	private final AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
 
-	private final Converter<HttpServletRequest, String> issuerConverter = new JwtClaimIssuerConverter();
+	private Converter<HttpServletRequest, String> issuerConverter = new JwtClaimIssuerConverter();
 
 	/**
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
@@ -128,6 +128,16 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 			throw new InvalidBearerTokenException("Invalid issuer");
 		}
 		return authenticationManager;
+	}
+
+	/**
+	 * Set a custom issuer converter
+	 *
+	 * @since 5.5
+	 */
+	public void setIssuerConverter(Converter<HttpServletRequest, String> issuerConverter) {
+		Assert.notNull(issuerConverter, "issuerConverter cannot be null");
+		this.issuerConverter = issuerConverter;
 	}
 
 	private static class JwtClaimIssuerConverter implements Converter<HttpServletRequest, String> {
