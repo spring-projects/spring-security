@@ -125,5 +125,65 @@ class HelloWebfluxSecurityConfig {
 This configuration explicitly sets up all the same things as our minimal configuration.
 From here you can easily make the changes to the defaults.
 
-You can find more examples of explicit configuration in unit tests, by searching https://github.com/spring-projects/spring-security/search?q=path%3Aconfig%2Fsrc%2Ftest%2F+EnableWebFluxSecurity[EnableWebFluxSecurity in the `config/src/test/` directory], e.g. https://github.com/spring-projects/spring-security/blob/9cf3129d7afa2abb439aba6aadfee0a2c8c784bf/config/src/test/java/org/springframework/security/config/annotation/web/reactive/EnableWebFluxSecurityTests.java#L349-L366[MultiSecurityHttpConfig] illustrating multiple `SecurityWebFilterChain` beans.
+You can find more examples of explicit configuration in unit tests, by searching https://github.com/spring-projects/spring-security/search?q=path%3Aconfig%2Fsrc%2Ftest%2F+EnableWebFluxSecurity[EnableWebFluxSecurity in the `config/src/test/` directory], e.g. https://github.com/spring-projects/spring-security/blob/9cf3129d7afa2abb439aba6aadfee0a2c8c784bf/config/src/test/java/org/springframework/security/config/annotation/web/reactive/EnableWebFluxSecurityTests.java#L349-L366[MultiSecurityHttpConfig] illustrating multiple `SecurityWebFilterChain` beans, which is also explained in section below.
+
+=== Multiple chains support
+
+We can configure multiple `SecurityWebFilterChain` instances.
+
+For example, the following is an example of having a different configuration for URL's that start with `/v2/`
+
+[source,java]
+----
+@Configuration
+@EnableWebFluxSecurity
+public class MultiWebfluxHttpSecurityConfig {
+
+	@Bean
+	public MapReactiveUserDetailsService userDetailsService() {
+		UserDetails user = User.withDefaultPasswordEncoder()
+			.username("user")
+			.password("user")
+			.roles("USER")
+			.build();
+		return new MapReactiveUserDetailsService(user);
+	}
+
+
+	@Order(SecurityProperties.BASIC_AUTH_ORDER - 10)                                                     <1>
+	@Bean
+	public SecurityWebFilterChain osbUnRestrictedSpringSecurityFilterChain(ServerHttpSecurity http) {
+		http
+			.csrf().disable()
+			//Scope this filter only to /v2 requests, otherwise this will handle other filters as well
+			//see background at https://spring.io/guides/topicals/spring-security-architecture#_creating_and_customizing_filter_chains
+			.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/v2/**"))                    <2>
+			.authorizeExchange()
+				.anyExchange().permitAll();
+		return http.build();
+	}
+
+	@Bean
+	public SecurityWebFilterChain actuatorSpringSecurityFilterChain(ServerHttpSecurity http) {           <3>
+		http.authorizeExchange((exchanges) -> exchanges
+			.matchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
+			.matchers(EndpointRequest.toAnyEndpoint().excluding(HealthEndpoint.class)).hasRole("USER"));
+		//http basic and form login are configured for all matchers above. If a different config is needed, then
+		//we need to split it into a distinct spring-security filter
+		http.httpBasic(Customizer.withDefaults());                                                       <4>
+		http.formLogin(Customizer.withDefaults());
+		return http.build();
+	}
+
+
+}
+----
+
+<1> Configure a SecurityWebFilterChain with an `@Order` to specify which `SecurityWebFilterChain` should be considered first
+<2> The `PathPatternParserServerWebExchangeMatcher` states that this `SecurityWebFilterChain` will only be applicable to URLs that start with `/v2/`
+<3> Create another instance of `SecurityWebFilterChain`
+<4> Some configurations applies to all matchers within the `SecurityWebFilterChain`
+
+If the URL does not start with `/v2/` the `osbUnRestrictedSpringSecurityFilterChain` configuration will be used.
+This configuration is considered before `actuatorSpringSecurityFilterChain` since it has an `@Order` value `SecurityProperties.BASIC_AUTH_ORDER - 10` (no `@Order` defaults to last).
 
