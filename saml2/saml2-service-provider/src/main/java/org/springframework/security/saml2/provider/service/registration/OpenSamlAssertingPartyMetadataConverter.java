@@ -28,8 +28,10 @@ import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.io.Unmarshaller;
 import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.ext.saml2alg.SigningMethod;
 import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.Extensions;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml.saml2.metadata.SingleSignOnService;
@@ -98,6 +100,11 @@ class OpenSamlAssertingPartyMetadataConverter {
 						.wantAuthnRequestsSigned(Boolean.TRUE.equals(idpssoDescriptor.getWantAuthnRequestsSigned()))
 						.verificationX509Credentials((c) -> c.addAll(verification))
 						.encryptionX509Credentials((c) -> c.addAll(encryption)));
+		List<SigningMethod> signingMethods = signingMethods(idpssoDescriptor);
+		for (SigningMethod method : signingMethods) {
+			builder.assertingPartyDetails(
+					(party) -> party.signingAlgorithms((algorithms) -> algorithms.add(method.getAlgorithm())));
+		}
 		for (SingleSignOnService singleSignOnService : idpssoDescriptor.getSingleSignOnServices()) {
 			Saml2MessageBinding binding;
 			if (singleSignOnService.getBinding().equals(Saml2MessageBinding.POST.getUrn())) {
@@ -125,6 +132,17 @@ class OpenSamlAssertingPartyMetadataConverter {
 		catch (CertificateException ex) {
 			throw new Saml2Exception(ex);
 		}
+	}
+
+	private List<SigningMethod> signingMethods(IDPSSODescriptor idpssoDescriptor) {
+		Extensions extensions = idpssoDescriptor.getExtensions();
+		List<SigningMethod> result = signingMethods(extensions);
+		if (!result.isEmpty()) {
+			return result;
+		}
+		EntityDescriptor descriptor = (EntityDescriptor) idpssoDescriptor.getParent();
+		extensions = descriptor.getExtensions();
+		return signingMethods(extensions);
 	}
 
 	private EntityDescriptor entityDescriptor(InputStream inputStream) {
@@ -156,6 +174,13 @@ class OpenSamlAssertingPartyMetadataConverter {
 		catch (Exception ex) {
 			throw new Saml2Exception(ex);
 		}
+	}
+
+	private <T> List<T> signingMethods(Extensions extensions) {
+		if (extensions != null) {
+			return (List<T>) extensions.getUnknownXMLObjects(SigningMethod.DEFAULT_ELEMENT_NAME);
+		}
+		return new ArrayList<>();
 	}
 
 }

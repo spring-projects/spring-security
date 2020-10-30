@@ -24,6 +24,7 @@ import java.util.Base64;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
 import org.springframework.security.saml2.Saml2Exception;
 
@@ -37,7 +38,7 @@ public class OpenSamlAssertingPartyMetadataConverterTests {
 	private static final String ENTITIES_DESCRIPTOR_TEMPLATE = "<md:EntitiesDescriptor xmlns:md=\"urn:oasis:names:tc:SAML:2.0:metadata\">\n%s</md:EntitiesDescriptor>";
 
 	private static final String ENTITY_DESCRIPTOR_TEMPLATE = "<md:EntityDescriptor xmlns:md=\"urn:oasis:names:tc:SAML:2.0:metadata\" "
-			+ "entityID=\"entity-id\" "
+			+ "xmlns:alg=\"urn:oasis:names:tc:SAML:metadata:algsupport\" " + "entityID=\"entity-id\" "
 			+ "ID=\"_bf133aac099b99b3d81286e1a341f2d34188043a77fe15bf4bf1487dae9b2ea3\">\n%s"
 			+ "</md:EntityDescriptor>";
 
@@ -48,6 +49,9 @@ public class OpenSamlAssertingPartyMetadataConverterTests {
 			+ "<ds:KeyInfo xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\n" + "<ds:X509Data>\n"
 			+ "<ds:X509Certificate>" + CERTIFICATE + "</ds:X509Certificate>\n" + "</ds:X509Data>\n" + "</ds:KeyInfo>\n"
 			+ "</md:KeyDescriptor>";
+
+	private static final String EXTENSIONS_TEMPLATE = "<md:Extensions>" + "<alg:SigningMethod Algorithm=\""
+			+ SignatureConstants.ALGO_ID_DIGEST_SHA512 + "\"/>" + "</md:Extensions>";
 
 	private static final String SINGLE_SIGN_ON_SERVICE_TEMPLATE = "<md:SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" "
 			+ "Location=\"sso-location\"/>";
@@ -91,12 +95,13 @@ public class OpenSamlAssertingPartyMetadataConverterTests {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE,
 				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
 						String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"signing\"")
-								+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"")
+								+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"") + EXTENSIONS_TEMPLATE
 								+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
 		RelyingPartyRegistration registration = this.converter.convert(inputStream).registrationId("one").build();
 		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
 		assertThat(details.getWantAuthnRequestsSigned()).isFalse();
+		assertThat(details.getSigningAlgorithms()).containsExactly(SignatureConstants.ALGO_ID_DIGEST_SHA512);
 		assertThat(details.getSingleSignOnServiceLocation()).isEqualTo("sso-location");
 		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
 		assertThat(details.getEntityId()).isEqualTo("entity-id");
