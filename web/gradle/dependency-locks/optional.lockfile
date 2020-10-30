@@ -1,0 +1,24 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+com.fasterxml.jackson.core:jackson-annotations:2.12.0-rc1
+com.fasterxml.jackson.core:jackson-core:2.12.0-rc1
+com.fasterxml.jackson.core:jackson-databind:2.12.0-rc1
+com.fasterxml.jackson:jackson-bom:2.12.0-rc1
+io.projectreactor:reactor-bom:2020.0.0
+io.projectreactor:reactor-core:3.4.0
+org.jetbrains.kotlin:kotlin-bom:1.4.10
+org.reactivestreams:reactive-streams:1.0.3
+org.springframework.data:spring-data-releasetrain:Neumann-SR5
+org.springframework:spring-aop:5.3.0
+org.springframework:spring-beans:5.3.0
+org.springframework:spring-context:5.3.0
+org.springframework:spring-core:5.3.0
+org.springframework:spring-expression:5.3.0
+org.springframework:spring-framework-bom:5.3.0
+org.springframework:spring-jcl:5.3.0
+org.springframework:spring-jdbc:5.3.0
+org.springframework:spring-tx:5.3.0
+org.springframework:spring-web:5.3.0
+org.springframework:spring-webflux:5.3.0
+org.springframework:spring-webmvc:5.3.0
