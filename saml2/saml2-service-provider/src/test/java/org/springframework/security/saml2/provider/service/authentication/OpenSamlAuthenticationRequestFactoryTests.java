@@ -244,7 +244,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	public void createRedirectAuthenticationRequestWhenSHA1SignRequestThenSignatureIsPresent() {
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationBuilder
 				.assertingPartyDetails(
-						(a) -> a.signingMethodAlgorithms((c) -> c.add(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1)))
+						(a) -> a.signingAlgorithms((algs) -> algs.add(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1)))
 				.build();
 		Saml2AuthenticationRequestContext context = this.contextBuilder.relayState("Relay State Value")
 				.relyingPartyRegistration(relyingPartyRegistration).build();

@@ -28,8 +28,9 @@ public class RelyingPartyRegistrationTests {
 	@Test
 	public void withRelyingPartyRegistrationWorks() {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
-				.providerDetails((p) -> p.binding(Saml2MessageBinding.POST))
-				.providerDetails((p) -> p.signAuthNRequest(false))
+				.assertingPartyDetails((a) -> a.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+				.assertingPartyDetails((a) -> a.wantAuthnRequestsSigned(false))
+				.assertingPartyDetails((a) -> a.signingAlgorithms((algs) -> algs.add("alg")))
 				.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT).build();
 		RelyingPartyRegistration copy = RelyingPartyRegistration.withRelyingPartyRegistration(registration).build();
 		compareRegistrations(registration, copy);
@@ -71,6 +72,8 @@ public class RelyingPartyRegistrationTests {
 				.isEqualTo(registration.getAssertingPartyDetails().getEncryptionX509Credentials());
 		assertThat(copy.getAssertingPartyDetails().getVerificationX509Credentials())
 				.isEqualTo(registration.getAssertingPartyDetails().getVerificationX509Credentials());
+		assertThat(copy.getAssertingPartyDetails().getSigningAlgorithms())
+				.isEqualTo(registration.getAssertingPartyDetails().getSigningAlgorithms());
 	}
 
 	@Test
