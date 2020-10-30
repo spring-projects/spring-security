@@ -684,6 +684,28 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.wit
 
 Otherwise, you will need to specify a private key to `RelyingPartyRegistration#signingX509Credentials` so that Spring Security can sign the `<saml2:AuthnRequest>` before sending.
 
+[[servlet-saml2login-sp-initiated-factory-algorithm]]
+By default, Spring Security will sign the `<saml2:AuthnRequest>` using `rsa-sha256`, though some asserting parties will require a different algorithm, as indicated in their metadata.
+
+You can configure the algorithm based on the asserting party's <<servlet-saml2login-relyingpartyregistrationrepository,metadata using `RelyingPartyRegistrations`>>.
+
+Or, you can provide it manually:
+
+[source,java]
+----
+String metadataLocation = "classpath:asserting-party-metadata.xml";
+RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations.fromMetadataLocation(metadataLocation)
+        // ...
+        .assertingPartyDetails((party) -> party
+            // ...
+            .signingAlgorithms((sign) -> sign.add(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512))
+        );
+----
+
+NOTE: The snippet above uses the OpenSAML `SignatureConstants` class to supply the algorithm name.
+But, that's just for convenience.
+Since the datatype is `String`, you can supply the name of the algorithm directly.
+
 [[servlet-saml2login-sp-initiated-factory-binding]]
 Some asserting parties require that the `<saml2:AuthnRequest>` be POSTed.
 This can be configured automatically via `RelyingPartyRegistrations`, or you can supply it manually, like so:
@@ -697,6 +719,7 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.wit
             .singleSignOnServiceBinding(Saml2MessageType.POST)
         );
 ----
+
 
 [[servlet-saml2login-sp-initiated-factory-custom-authnrequest]]
 ==== Customizing OpenSAML's `AuthnRequest` Instance
