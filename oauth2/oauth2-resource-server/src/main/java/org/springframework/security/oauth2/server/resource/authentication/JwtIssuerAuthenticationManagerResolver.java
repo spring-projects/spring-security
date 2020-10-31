@@ -131,7 +131,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	}
 
 	/**
-	 * Set a custom issuer converter
+	 * Set a custom bearer token resolver
 	 *
 	 * @since 5.5
 	 */
@@ -142,10 +142,10 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 
 	private static class JwtClaimIssuerConverter implements Converter<HttpServletRequest, String> {
 
-		private BearerTokenResolver resolver;
+		private final BearerTokenResolver resolver;
 
 		JwtClaimIssuerConverter() {
-			this.resolver = new DefaultBearerTokenResolver();
+			this(new DefaultBearerTokenResolver());
 		}
 
 		JwtClaimIssuerConverter(BearerTokenResolver bearerTokenResolver) {

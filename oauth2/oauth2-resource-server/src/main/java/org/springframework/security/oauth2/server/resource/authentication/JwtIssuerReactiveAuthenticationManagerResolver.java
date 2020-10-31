@@ -132,7 +132,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	}
 
 	/**
-	 * Set a custom issuer converter
+	 * Set a custom server bearer token authentication converter
 	 *
 	 * @since 5.5
 	 */
@@ -145,10 +145,10 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 
 	private static class JwtClaimIssuerConverter implements Converter<ServerWebExchange, Mono<String>> {
 
-		private ServerBearerTokenAuthenticationConverter converter;
+		private final ServerBearerTokenAuthenticationConverter converter;
 
 		JwtClaimIssuerConverter() {
-			this.converter = new ServerBearerTokenAuthenticationConverter();
+			this(new ServerBearerTokenAuthenticationConverter());
 		}
 
 		JwtClaimIssuerConverter(ServerBearerTokenAuthenticationConverter serverBearerTokenAuthenticationConverter) {
