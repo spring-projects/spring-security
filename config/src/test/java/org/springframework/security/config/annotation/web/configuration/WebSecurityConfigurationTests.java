@@ -326,6 +326,21 @@ public class WebSecurityConfigurationTests {
 		assertThat(filterChains.get(1).getFilters()).isEmpty();
 	}
 
+	@Test
+	public void loadConfigWhenCustomizersHaveOrderThenCustomizersOrdered() {
+		this.spring.register(OrderedCustomizerConfig.class).autowire();
+		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
+		assertThat(filterChains).hasSize(3);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setServletPath("/ignore1");
+		assertThat(filterChains.get(0).matches(request)).isTrue();
+		assertThat(filterChains.get(0).getFilters()).isEmpty();
+		request.setServletPath("/ignore2");
+		assertThat(filterChains.get(1).matches(request)).isTrue();
+		assertThat(filterChains.get(1).getFilters()).isEmpty();
+	}
+
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class SortedWebSecurityConfigurerAdaptersConfig {
@@ -830,6 +845,24 @@ public class WebSecurityConfigurationTests {
 				web.ignoring().antMatchers("/ignore2");
 			}
 
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(AuthenticationTestConfiguration.class)
+	static class OrderedCustomizerConfig {
+
+		@Order(1)
+		@Bean
+		public WebSecurityCustomizer webSecurityCustomizer1() {
+			return (web) -> web.ignoring().antMatchers("/ignore1");
+		}
+
+		@Order(2)
+		@Bean
+		public WebSecurityCustomizer webSecurityCustomizer2() {
+			return (web) -> web.ignoring().antMatchers("/ignore2");
 		}
 
 	}
