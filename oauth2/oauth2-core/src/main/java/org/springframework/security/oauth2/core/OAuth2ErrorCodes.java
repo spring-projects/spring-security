@@ -119,4 +119,14 @@ public interface OAuth2ErrorCodes {
 	 */
 	String UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
 
+	/**
+	 * {@code unsupported_token_type} - The authorization server does not support the
+	 * revocation of the presented token type.
+	 *
+	 * @since 5.5
+	 * @see <a href="https://tools.ietf.org/html/rfc7009#section-2.2.1">RFC-7009 - Section
+	 * 2.2.1 - Error Response</a>
+	 */
+	String UNSUPPORTED_TOKEN_TYPE = "unsupported_token_type";
+
 }
