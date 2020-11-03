@@ -18,8 +18,8 @@ package org.springframework.security.oauth2.core.endpoint;
 
 /**
  * Standard and custom (non-standard) parameter names defined in the OAuth Parameters
- * Registry and used by the authorization endpoint, token endpoint and
- * token revocation endpoint.
+ * Registry and used by the authorization endpoint, token endpoint and token revocation
+ * endpoint.
  *
  * @author Joe Grandja
  * @since 5.0
