@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ package org.springframework.security.oauth2.core.endpoint;
 
 /**
  * Standard and custom (non-standard) parameter names defined in the OAuth Parameters
- * Registry and used by the authorization endpoint and token endpoint.
+ * Registry and used by the authorization endpoint, token endpoint and
+ * token revocation endpoint.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -118,5 +119,17 @@ public interface OAuth2ParameterNames {
 	 * Non-standard parameter (used internally).
 	 */
 	String REGISTRATION_ID = "registration_id";
+
+	/**
+	 * {@code token} - used in Token Revocation Request.
+	 * @since 5.5
+	 */
+	String TOKEN = "token";
+
+	/**
+	 * {@code token_type_hint} - used in Token Revocation Request.
+	 * @since 5.5
+	 */
+	String TOKEN_TYPE_HINT = "token_type_hint";
 
 }
