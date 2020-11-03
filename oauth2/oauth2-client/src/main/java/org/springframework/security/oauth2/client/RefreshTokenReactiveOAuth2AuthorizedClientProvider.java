@@ -30,9 +30,9 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGra
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.util.Assert;
 
 /**
@@ -100,7 +100,7 @@ public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 						tokenResponse.getAccessToken(), tokenResponse.getRefreshToken()));
 	}
 
-	private boolean hasTokenExpired(AbstractOAuth2Token token) {
+	private boolean hasTokenExpired(OAuth2Token token) {
 		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
 	}
 

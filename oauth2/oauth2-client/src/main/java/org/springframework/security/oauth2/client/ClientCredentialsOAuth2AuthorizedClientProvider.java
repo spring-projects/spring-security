@@ -25,9 +25,9 @@ import org.springframework.security.oauth2.client.endpoint.DefaultClientCredenti
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
 
@@ -97,7 +97,7 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 		}
 	}
 
-	private boolean hasTokenExpired(AbstractOAuth2Token token) {
+	private boolean hasTokenExpired(OAuth2Token token) {
 		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
 	}
 

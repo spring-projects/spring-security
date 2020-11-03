@@ -28,9 +28,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
-import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
 
@@ -106,7 +106,7 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 		}
 	}
 
-	private boolean hasTokenExpired(AbstractOAuth2Token token) {
+	private boolean hasTokenExpired(OAuth2Token token) {
 		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,11 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see OAuth2Token
  * @see OAuth2AccessToken
+ * @see OAuth2RefreshToken
  */
-public abstract class AbstractOAuth2Token implements Serializable {
+public abstract class AbstractOAuth2Token implements OAuth2Token, Serializable {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
@@ -51,9 +53,9 @@ public abstract class AbstractOAuth2Token implements Serializable {
 	/**
 	 * Sub-class constructor.
 	 * @param tokenValue the token value
-	 * @param issuedAt the time at which the token was issued, may be null
+	 * @param issuedAt the time at which the token was issued, may be {@code null}
 	 * @param expiresAt the expiration time on or after which the token MUST NOT be
-	 * accepted, may be null
+	 * accepted, may be {@code null}
 	 */
 	protected AbstractOAuth2Token(String tokenValue, @Nullable Instant issuedAt, @Nullable Instant expiresAt) {
 		Assert.hasText(tokenValue, "tokenValue cannot be empty");
@@ -75,17 +77,19 @@ public abstract class AbstractOAuth2Token implements Serializable {
 
 	/**
 	 * Returns the time at which the token was issued.
-	 * @return the time the token was issued or null
+	 * @return the time the token was issued or {@code null}
 	 */
-	public @Nullable Instant getIssuedAt() {
+	@Nullable
+	public Instant getIssuedAt() {
 		return this.issuedAt;
 	}
 
 	/**
 	 * Returns the expiration time on or after which the token MUST NOT be accepted.
-	 * @return the expiration time of the token or null
+	 * @return the token expiration time or {@code null}
 	 */
-	public @Nullable Instant getExpiresAt() {
+	@Nullable
+	public Instant getExpiresAt() {
 		return this.expiresAt;
 	}
 
