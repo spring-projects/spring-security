@@ -34,12 +34,13 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
+import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
-import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.util.Assert;
 
 /**
@@ -63,9 +64,7 @@ import org.springframework.util.Assert;
  */
 public final class JwtIssuerAuthenticationManagerResolver implements AuthenticationManagerResolver<HttpServletRequest> {
 
-	private final AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
-
-	private Converter<HttpServletRequest, String> issuerConverter = new JwtClaimIssuerConverter();
+	private final AuthenticationManager authenticationManager;
 
 	/**
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
@@ -83,8 +82,9 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 */
 	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
-		this.issuerAuthenticationManagerResolver = new TrustedIssuerJwtAuthenticationManagerResolver(
-				Collections.unmodifiableCollection(trustedIssuers)::contains);
+		this.authenticationManager = new ResolvingAuthenticationManager(
+				new TrustedIssuerJwtAuthenticationManagerResolver(
+						Collections.unmodifiableCollection(trustedIssuers)::contains));
 	}
 
 	/**
@@ -111,7 +111,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	public JwtIssuerAuthenticationManagerResolver(
 			AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
 		Assert.notNull(issuerAuthenticationManagerResolver, "issuerAuthenticationManagerResolver cannot be null");
-		this.issuerAuthenticationManagerResolver = issuerAuthenticationManagerResolver;
+		this.authenticationManager = new ResolvingAuthenticationManager(issuerAuthenticationManagerResolver);
 	}
 
 	/**
@@ -122,40 +122,39 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 */
 	@Override
 	public AuthenticationManager resolve(HttpServletRequest request) {
-		String issuer = this.issuerConverter.convert(request);
-		AuthenticationManager authenticationManager = this.issuerAuthenticationManagerResolver.resolve(issuer);
-		if (authenticationManager == null) {
-			throw new InvalidBearerTokenException("Invalid issuer");
-		}
-		return authenticationManager;
+		return this.authenticationManager;
 	}
 
-	/**
-	 * Set a custom bearer token resolver
-	 *
-	 * @since 5.5
-	 */
-	public void setBearerTokenResolver(BearerTokenResolver bearerTokenResolver) {
-		Assert.notNull(bearerTokenResolver, "bearerTokenResolver cannot be null");
-		this.issuerConverter = new JwtClaimIssuerConverter(bearerTokenResolver);
-	}
+	private static class ResolvingAuthenticationManager implements AuthenticationManager {
 
-	private static class JwtClaimIssuerConverter implements Converter<HttpServletRequest, String> {
+		private final Converter<BearerTokenAuthenticationToken, String> issuerConverter = new JwtClaimIssuerConverter();
 
-		private final BearerTokenResolver resolver;
+		private final AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
 
-		JwtClaimIssuerConverter() {
-			this(new DefaultBearerTokenResolver());
-		}
-
-		JwtClaimIssuerConverter(BearerTokenResolver bearerTokenResolver) {
-			Assert.notNull(bearerTokenResolver, "bearerTokenResolver cannot be null");
-			this.resolver = bearerTokenResolver;
+		ResolvingAuthenticationManager(AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
+			this.issuerAuthenticationManagerResolver = issuerAuthenticationManagerResolver;
 		}
 
 		@Override
-		public String convert(@NonNull HttpServletRequest request) {
-			String token = this.resolver.resolve(request);
+		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+			Assert.isTrue(authentication instanceof BearerTokenAuthenticationToken,
+					"Authentication must be of type BearerTokenAuthenticationToken");
+			BearerTokenAuthenticationToken token = (BearerTokenAuthenticationToken) authentication;
+			String issuer = this.issuerConverter.convert(token);
+			AuthenticationManager authenticationManager = this.issuerAuthenticationManagerResolver.resolve(issuer);
+			if (authenticationManager == null) {
+				throw new InvalidBearerTokenException("Invalid issuer");
+			}
+			return authenticationManager.authenticate(authentication);
+		}
+
+	}
+
+	private static class JwtClaimIssuerConverter implements Converter<BearerTokenAuthenticationToken, String> {
+
+		@Override
+		public String convert(@NonNull BearerTokenAuthenticationToken authentication) {
+			String token = authentication.getToken();
 			try {
 				String issuer = JWTParser.parse(token).getJWTClaimsSet().getIssuer();
 				if (issuer != null) {
@@ -170,8 +169,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 
 	}
 
-	private static class TrustedIssuerJwtAuthenticationManagerResolver
-			implements AuthenticationManagerResolver<String> {
+	static class TrustedIssuerJwtAuthenticationManagerResolver implements AuthenticationManagerResolver<String> {
 
 		private final Log logger = LogFactory.getLog(getClass());
 

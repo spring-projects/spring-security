@@ -32,11 +32,11 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoders;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
-import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -63,9 +63,7 @@ import org.springframework.web.server.ServerWebExchange;
 public final class JwtIssuerReactiveAuthenticationManagerResolver
 		implements ReactiveAuthenticationManagerResolver<ServerWebExchange> {
 
-	private final ReactiveAuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
-
-	private Converter<ServerWebExchange, Mono<String>> issuerConverter = new JwtClaimIssuerConverter();
+	private final ReactiveAuthenticationManager authenticationManager;
 
 	/**
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
@@ -83,8 +81,8 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 */
 	public JwtIssuerReactiveAuthenticationManagerResolver(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
-		this.issuerAuthenticationManagerResolver = new TrustedIssuerJwtAuthenticationManagerResolver(
-				new ArrayList<>(trustedIssuers)::contains);
+		this.authenticationManager = new ResolvingAuthenticationManager(
+				new TrustedIssuerJwtAuthenticationManagerResolver(new ArrayList<>(trustedIssuers)::contains));
 	}
 
 	/**
@@ -111,7 +109,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	public JwtIssuerReactiveAuthenticationManagerResolver(
 			ReactiveAuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
 		Assert.notNull(issuerAuthenticationManagerResolver, "issuerAuthenticationManagerResolver cannot be null");
-		this.issuerAuthenticationManagerResolver = issuerAuthenticationManagerResolver;
+		this.authenticationManager = new ResolvingAuthenticationManager(issuerAuthenticationManagerResolver);
 	}
 
 	/**
@@ -122,61 +120,53 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 */
 	@Override
 	public Mono<ReactiveAuthenticationManager> resolve(ServerWebExchange exchange) {
-		// @formatter:off
-		return this.issuerConverter.convert(exchange)
-				.flatMap((issuer) -> this.issuerAuthenticationManagerResolver
-						.resolve(issuer)
-						.switchIfEmpty(Mono.error(() -> new InvalidBearerTokenException("Invalid issuer " + issuer)))
-				);
-		// @formatter:on
+		return Mono.just(this.authenticationManager);
 	}
 
-	/**
-	 * Set a custom server bearer token authentication converter
-	 *
-	 * @since 5.5
-	 */
-	public void setServerBearerTokenAuthenticationConverter(
-			ServerBearerTokenAuthenticationConverter serverBearerTokenAuthenticationConverter) {
-		Assert.notNull(serverBearerTokenAuthenticationConverter,
-				"serverBearerTokenAuthenticationConverter cannot be null");
-		this.issuerConverter = new JwtClaimIssuerConverter(serverBearerTokenAuthenticationConverter);
-	}
+	private static class ResolvingAuthenticationManager implements ReactiveAuthenticationManager {
 
-	private static class JwtClaimIssuerConverter implements Converter<ServerWebExchange, Mono<String>> {
+		private final Converter<BearerTokenAuthenticationToken, Mono<String>> issuerConverter = new JwtClaimIssuerConverter();
 
-		private final ServerBearerTokenAuthenticationConverter converter;
+		private final ReactiveAuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
 
-		JwtClaimIssuerConverter() {
-			this(new ServerBearerTokenAuthenticationConverter());
-		}
+		ResolvingAuthenticationManager(
+				ReactiveAuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
 
-		JwtClaimIssuerConverter(ServerBearerTokenAuthenticationConverter serverBearerTokenAuthenticationConverter) {
-			Assert.notNull(serverBearerTokenAuthenticationConverter,
-					"serverBearerTokenAuthenticationConverter cannot be null");
-			this.converter = serverBearerTokenAuthenticationConverter;
+			this.issuerAuthenticationManagerResolver = issuerAuthenticationManagerResolver;
 		}
 
 		@Override
-		public Mono<String> convert(@NonNull ServerWebExchange exchange) {
-			return this.converter.convert(exchange).map((convertedToken) -> {
-				BearerTokenAuthenticationToken token = (BearerTokenAuthenticationToken) convertedToken;
-				try {
-					String issuer = JWTParser.parse(token.getToken()).getJWTClaimsSet().getIssuer();
-					if (issuer == null) {
-						throw new InvalidBearerTokenException("Missing issuer");
-					}
-					return issuer;
-				}
-				catch (Exception ex) {
-					throw new InvalidBearerTokenException(ex.getMessage(), ex);
-				}
-			});
+		public Mono<Authentication> authenticate(Authentication authentication) {
+			Assert.isTrue(authentication instanceof BearerTokenAuthenticationToken,
+					"Authentication must be of type BearerTokenAuthenticationToken");
+			BearerTokenAuthenticationToken token = (BearerTokenAuthenticationToken) authentication;
+			return this.issuerConverter.convert(token)
+					.flatMap((issuer) -> this.issuerAuthenticationManagerResolver.resolve(issuer).switchIfEmpty(
+							Mono.error(() -> new InvalidBearerTokenException("Invalid issuer " + issuer))))
+					.flatMap((manager) -> manager.authenticate(authentication));
 		}
 
 	}
 
-	private static class TrustedIssuerJwtAuthenticationManagerResolver
+	private static class JwtClaimIssuerConverter implements Converter<BearerTokenAuthenticationToken, Mono<String>> {
+
+		@Override
+		public Mono<String> convert(@NonNull BearerTokenAuthenticationToken token) {
+			try {
+				String issuer = JWTParser.parse(token.getToken()).getJWTClaimsSet().getIssuer();
+				if (issuer == null) {
+					throw new InvalidBearerTokenException("Missing issuer");
+				}
+				return Mono.just(issuer);
+			}
+			catch (Exception ex) {
+				return Mono.error(() -> new InvalidBearerTokenException(ex.getMessage(), ex));
+			}
+		}
+
+	}
+
+	static class TrustedIssuerJwtAuthenticationManagerResolver
 			implements ReactiveAuthenticationManagerResolver<String> {
 
 		private final Map<String, Mono<ReactiveAuthenticationManager>> authenticationManagers = new ConcurrentHashMap<>();
