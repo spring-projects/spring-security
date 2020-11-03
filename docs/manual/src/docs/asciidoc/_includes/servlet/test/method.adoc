@@ -135,6 +135,28 @@ For example, the following would run every test with a user with the username "a
 public class WithMockUserTests {
 ----
 
+If you are using JUnit 5's `@Nested` test support, you can also place the annotation on the enclosing class to apply to all nested classes.
+For example, the following would run every test with a user with the username "admin", the password "password", and the roles "ROLE_USER" and "ROLE_ADMIN" for both test methods.
+
+[source,java]
+----
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration
+@WithMockUser(username="admin",roles={"USER","ADMIN"})
+public class WithMockUserTests {
+
+	@Nested
+	public class TestSuite1 {
+		// ... all test methods use admin user
+	}
+
+	@Nested
+	public class TestSuite2 {
+		// ... all test methods use admin user
+	}
+}
+----
+
 By default the `SecurityContext` is set during the `TestExecutionListener.beforeTestMethod` event.
 This is the equivalent of happening before JUnit's `@Before`.
 You can change this to happen during the `TestExecutionListener.beforeTestExecution` event which is after JUnit's `@Before` but before the test method is invoked.
