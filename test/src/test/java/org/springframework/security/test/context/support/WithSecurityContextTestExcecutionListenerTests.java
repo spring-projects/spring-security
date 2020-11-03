@@ -92,6 +92,30 @@ public class WithSecurityContextTestExcecutionListenerTests {
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
 	}
 
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void beforeTestMethodInnerClass() throws Exception {
+		Class testClass = OuterClass.InnerClass.class;
+		Method testNoAnnotation = ReflectionUtils.findMethod(testClass, "testNoAnnotation");
+		given(this.testContext.getTestClass()).willReturn(testClass);
+		given(this.testContext.getTestMethod()).willReturn(testNoAnnotation);
+		given(this.testContext.getApplicationContext()).willThrow(new IllegalStateException(""));
+		this.listener.beforeTestMethod(this.testContext);
+		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
+	}
+
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void beforeTestMethodInnerInnerClass() throws Exception {
+		Class testClass = OuterClass.InnerClass.InnerInnerClass.class;
+		Method testNoAnnotation = ReflectionUtils.findMethod(testClass, "testNoAnnotation");
+		given(this.testContext.getTestClass()).willReturn(testClass);
+		given(this.testContext.getTestMethod()).willReturn(testNoAnnotation);
+		given(this.testContext.getApplicationContext()).willThrow(new IllegalStateException(""));
+		this.listener.beforeTestMethod(this.testContext);
+		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
+	}
+
 	// gh-3962
 	@Test
 	public void withSecurityContextAfterSqlScripts() {
@@ -163,6 +187,25 @@ public class WithSecurityContextTestExcecutionListenerTests {
 
 	@Configuration
 	static class Config {
+
+	}
+
+	@WithMockUser
+	static class OuterClass {
+
+		static class InnerClass {
+
+			void testNoAnnotation() {
+			}
+
+			static class InnerInnerClass {
+
+				void testNoAnnotation() {
+				}
+
+			}
+
+		}
 
 	}
 
