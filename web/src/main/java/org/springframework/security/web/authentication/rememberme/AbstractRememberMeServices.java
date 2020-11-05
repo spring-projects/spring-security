@@ -205,13 +205,13 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 		for (int j = 0; j < cookieValue.length() % 4; j++) {
 			cookieValue = cookieValue + "=";
 		}
+		String cookieAsPlainText
 		try {
-			Base64.getDecoder().decode(cookieValue.getBytes());
+			cookieAsPlainText = new String(Base64.getDecoder().decode(cookieValue.getBytes()));
 		}
 		catch (IllegalArgumentException ex) {
 			throw new InvalidCookieException("Cookie token was not Base64 encoded; value was '" + cookieValue + "'");
 		}
-		String cookieAsPlainText = new String(Base64.getDecoder().decode(cookieValue.getBytes()));
 		String[] tokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, DELIMITER);
 		for (int i = 0; i < tokens.length; i++) {
 			try {
