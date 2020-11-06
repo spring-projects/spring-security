@@ -39,6 +39,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.TestSecurityContextHolder;
+import org.springframework.test.context.NestedTestConfiguration;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
 import org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener;
@@ -116,6 +117,17 @@ public class WithSecurityContextTestExcecutionListenerTests {
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
 	}
 
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void beforeTestMethodInnerClassWhenOverride() throws Exception {
+		Class testClass = OverrideOuterClass.InnerClass.class;
+		Method testNoAnnotation = ReflectionUtils.findMethod(testClass, "testNoAnnotation");
+		given(this.testContext.getTestClass()).willReturn(testClass);
+		given(this.testContext.getTestMethod()).willReturn(testNoAnnotation);
+		this.listener.beforeTestMethod(this.testContext);
+		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isNull();
+	}
+
 	// gh-3962
 	@Test
 	public void withSecurityContextAfterSqlScripts() {
@@ -191,14 +203,34 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	}
 
 	@WithMockUser
-	static class OuterClass {
+	class OuterClass {
 
-		static class InnerClass {
+		class InnerClass {
 
 			void testNoAnnotation() {
 			}
 
-			static class InnerInnerClass {
+			class InnerInnerClass {
+
+				void testNoAnnotation() {
+				}
+
+			}
+
+		}
+
+	}
+
+	@WithMockUser
+	@NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
+	class OverrideOuterClass {
+
+		class InnerClass {
+
+			void testNoAnnotation() {
+			}
+
+			class InnerInnerClass {
 
 				void testNoAnnotation() {
 				}

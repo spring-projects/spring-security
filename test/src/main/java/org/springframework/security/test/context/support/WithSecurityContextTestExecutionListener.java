@@ -29,6 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.TestContext;
+import org.springframework.test.context.TestContextAnnotationUtils;
 import org.springframework.test.context.TestExecutionListener;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,7 +61,10 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 	 */
 	@Override
 	public void beforeTestMethod(TestContext testContext) {
-		TestSecurityContext testSecurityContext = findTestSecurityContext(testContext);
+		TestSecurityContext testSecurityContext = createTestSecurityContext(testContext.getTestMethod(), testContext);
+		if (testSecurityContext == null) {
+			testSecurityContext = createTestSecurityContext(testContext.getTestClass(), testContext);
+		}
 		if (testSecurityContext == null) {
 			return;
 		}
@@ -71,21 +75,6 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 		else {
 			testContext.setAttribute(SECURITY_CONTEXT_ATTR_NAME, supplier);
 		}
-	}
-
-	private TestSecurityContext findTestSecurityContext(TestContext testContext) {
-		TestSecurityContext testSecurityContext = createTestSecurityContext(testContext.getTestMethod(), testContext);
-		if (testSecurityContext != null) {
-			return testSecurityContext;
-		}
-		for (Class<?> classToSearch = testContext.getTestClass(); classToSearch != null; classToSearch = classToSearch
-				.getEnclosingClass()) {
-			testSecurityContext = createTestSecurityContext(classToSearch, testContext);
-			if (testSecurityContext != null) {
-				return testSecurityContext;
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -108,8 +97,14 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 	}
 
 	private TestSecurityContext createTestSecurityContext(Class<?> annotated, TestContext context) {
-		WithSecurityContext withSecurityContext = AnnotationUtils.findAnnotation(annotated, WithSecurityContext.class);
-		return createTestSecurityContext(annotated, withSecurityContext, context);
+		TestContextAnnotationUtils.AnnotationDescriptor<WithSecurityContext> withSecurityContextDescriptor = TestContextAnnotationUtils
+				.findAnnotationDescriptor(annotated, WithSecurityContext.class);
+		if (withSecurityContextDescriptor == null) {
+			return null;
+		}
+		WithSecurityContext withSecurityContext = withSecurityContextDescriptor.getAnnotation();
+		Class<?> rootDeclaringClass = withSecurityContextDescriptor.getRootDeclaringClass();
+		return createTestSecurityContext(rootDeclaringClass, withSecurityContext, context);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
