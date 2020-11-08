@@ -52,5 +52,4 @@ public abstract class SecurityWebApplicationContextUtils extends WebApplicationC
 		return webApplicationContext;
 	}
 
-
 }
