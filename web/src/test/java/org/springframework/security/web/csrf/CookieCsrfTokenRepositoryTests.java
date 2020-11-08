@@ -191,6 +191,16 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
+	public void saveTokenWithCookieMaxAge() {
+		int maxAge = 1200;
+		this.repository.setCookieMaxAge(maxAge);
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+		assertThat(tokenCookie.getMaxAge()).isEqualTo(maxAge);
+	}
+
+	@Test
 	public void loadTokenNoCookiesNull() {
 		assertThat(this.repository.loadToken(this.request)).isNull();
 	}
@@ -249,6 +259,11 @@ public class CookieCsrfTokenRepositoryTests {
 	@Test
 	public void setHeaderNameNullIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setHeaderName(null));
+	}
+
+	@Test
+	public void setCookieMaxAgeZeroIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCookieMaxAge(0));
 	}
 
 }

@@ -57,6 +57,8 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private Boolean secure;
 
+	private int cookieMaxAge = -1;
+
 	public CookieCsrfTokenRepository() {
 	}
 
@@ -71,7 +73,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		Cookie cookie = new Cookie(this.cookieName, tokenValue);
 		cookie.setSecure((this.secure != null) ? this.secure : request.isSecure());
 		cookie.setPath(StringUtils.hasLength(this.cookiePath) ? this.cookiePath : this.getRequestContext(request));
-		cookie.setMaxAge((token != null) ? -1 : 0);
+		cookie.setMaxAge((token != null) ? this.cookieMaxAge : 0);
 		cookie.setHttpOnly(this.cookieHttpOnly);
 		if (StringUtils.hasLength(this.cookieDomain)) {
 			cookie.setDomain(this.cookieDomain);
@@ -190,6 +192,32 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 */
 	public void setSecure(Boolean secure) {
 		this.secure = secure;
+	}
+
+	/**
+	 * Sets maximum age in seconds for the cookie that the expected CSRF token is saved to
+	 * and read from. By default maximum age value is -1.
+	 *
+	 * <p>
+	 * A positive value indicates that the cookie will expire after that many seconds have
+	 * passed. Note that the value is the <i>maximum</i> age when the cookie will expire,
+	 * not the cookie's current age.
+	 *
+	 * <p>
+	 * A negative value means that the cookie is not stored persistently and will be
+	 * deleted when the Web browser exits.
+	 *
+	 * <p>
+	 * A zero value causes the cookie to be deleted immediately therefore it is not a
+	 * valid value and in that case an {@link IllegalArgumentException} will be thrown.
+	 * @param cookieMaxAge an integer specifying the maximum age of the cookie in seconds;
+	 * if negative, means the cookie is not stored; if zero, the method throws an
+	 * {@link IllegalArgumentException}
+	 * @since 5.5
+	 */
+	public void setCookieMaxAge(int cookieMaxAge) {
+		Assert.isTrue(cookieMaxAge != 0, "cookieMaxAge is not zero");
+		this.cookieMaxAge = cookieMaxAge;
 	}
 
 }
