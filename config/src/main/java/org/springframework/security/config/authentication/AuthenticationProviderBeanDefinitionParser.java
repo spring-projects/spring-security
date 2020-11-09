@@ -74,7 +74,7 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 			else {
 				pc.getReaderContext().error("A user-service is required", element);
 			}
-			// Pinch the cache-ref from the UserDetailService element, if set.
+			// Pinch the cache-ref from the UserDetailsService element, if set.
 			String cacheRef = userServiceElt.getAttribute(AbstractUserDetailsServiceBeanDefinitionParser.CACHE_REF);
 
 			if (StringUtils.hasText(cacheRef)) {
