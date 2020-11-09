@@ -371,8 +371,8 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 
 	/**
 	 * Sets the authentication data access object.
-	 * @param userDetailsService The <tt>UserDetailsService</tt> which will be used to load
-	 * information for the user that is being switched to.
+	 * @param userDetailsService The <tt>UserDetailsService</tt> which will be used to
+	 * load information for the user that is being switched to.
 	 */
 	public void setUserDetailsService(UserDetailsService userDetailsService) {
 		this.userDetailsService = userDetailsService;
