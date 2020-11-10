@@ -38,7 +38,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 /**
- * <tt>UserDetailsServiceRetrieves</tt> implementation which retrieves the user details
+ * <tt>UserDetailsService</tt> implementation which retrieves the user details
  * (username, password, enabled flag, and authorities) from a database using JDBC queries.
  *
  * <h3>Default Schema</h3> A default database schema is assumed, with two tables "users"
