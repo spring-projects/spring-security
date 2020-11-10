@@ -1,0 +1,17 @@
+name: Clean build artifacts
+on:
+  schedule:
+    - cron: '0 10 * * *' # Once per day at 10am UTC
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete artifacts in cron job
+        env:
+          GH_ACTIONS_REPO_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+        run: |
+          echo "Running clean build artifacts logic"
+          output=$(curl -X GET -H "Authorization: token $GH_ACTIONS_REPO_TOKEN" https://api.github.com/repos/spring-projects/spring-security/actions/artifacts | grep '"id"' | cut -d : -f2 | sed 's/,*$//g')
+          echo Output is $output
+          for id in $output; do curl -X DELETE -H "Authorization: token $GH_ACTIONS_REPO_TOKEN" https://api.github.com/repos/spring-projects/spring-security/actions/artifacts/$id; done;

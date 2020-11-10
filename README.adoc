@@ -1,5 +1,7 @@
 image::https://badges.gitter.im/Join%20Chat.svg[Gitter,link=https://gitter.im/spring-projects/spring-security?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge]
 
+image:https://github.com/spring-projects/spring-security/workflows/CI/badge.svg?branch=master["Build Status", link="https://github.com/spring-projects/spring-security/actions?query=workflow%3ACI"]
+
 = Spring Security
 
 Spring Security provides security services for the https://docs.spring.io[Spring IO Platform]. Spring Security 5.0 requires Spring 5.0 as
