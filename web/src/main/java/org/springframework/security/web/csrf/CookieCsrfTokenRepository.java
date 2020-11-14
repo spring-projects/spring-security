@@ -100,7 +100,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 * provide a token
 	 */
 	public void setParameterName(String parameterName) {
-		Assert.notNull(parameterName, "parameterName is not null");
+		Assert.notNull(parameterName, "parameterName cannot be null");
 		this.parameterName = parameterName;
 	}
 
@@ -110,7 +110,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 * token
 	 */
 	public void setHeaderName(String headerName) {
-		Assert.notNull(headerName, "headerName is not null");
+		Assert.notNull(headerName, "headerName cannot be null");
 		this.headerName = headerName;
 	}
 
@@ -120,7 +120,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 * and read from
 	 */
 	public void setCookieName(String cookieName) {
-		Assert.notNull(cookieName, "cookieName is not null");
+		Assert.notNull(cookieName, "cookieName cannot be null");
 		this.cookieName = cookieName;
 	}
 
@@ -216,7 +216,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 * @since 5.5
 	 */
 	public void setCookieMaxAge(int cookieMaxAge) {
-		Assert.isTrue(cookieMaxAge != 0, "cookieMaxAge is not zero");
+		Assert.isTrue(cookieMaxAge != 0, "cookieMaxAge cannot be zero");
 		this.cookieMaxAge = cookieMaxAge;
 	}
 
