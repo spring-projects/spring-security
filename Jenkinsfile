@@ -33,12 +33,13 @@ try {
 				sh "git clean -dfx"
 				try {
 					withCredentials([GRADLE_ENTERPRISE_CACHE_USER,
-						 GRADLE_ENTERPRISE_SECRET_ACCESS_KEY]) {
+						 GRADLE_ENTERPRISE_SECRET_ACCESS_KEY,
+						 ARTIFACTORY_CREDENTIALS]) {
 						withEnv([jdkEnv(),
 							 "GRADLE_ENTERPRISE_CACHE_USERNAME=${GRADLE_ENTERPRISE_CACHE_USERNAME}",
 							 "GRADLE_ENTERPRISE_CACHE_PASSWORD=${GRADLE_ENTERPRISE_CACHE_PASSWORD}",
 							 "GRADLE_ENTERPRISE_ACCESS_KEY=${GRADLE_ENTERPRISE_ACCESS_KEY}"]) {
-							sh "./gradlew check --stacktrace"
+							sh "./gradlew check -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --stacktrace"
 						}
 					}
 				} catch(Exception e) {
@@ -57,16 +58,17 @@ try {
 				sh "git clean -dfx"
 				withCredentials([SONAR_LOGIN_CREDENTIALS,
 					GRADLE_ENTERPRISE_CACHE_USER,
-					GRADLE_ENTERPRISE_SECRET_ACCESS_KEY]) {
+					GRADLE_ENTERPRISE_SECRET_ACCESS_KEY,
+					ARTIFACTORY_CREDENTIALS]) {
 					try {
 						withEnv([jdkEnv(),
 							 "GRADLE_ENTERPRISE_CACHE_USERNAME=${GRADLE_ENTERPRISE_CACHE_USERNAME}",
 							 "GRADLE_ENTERPRISE_CACHE_PASSWORD=${GRADLE_ENTERPRISE_CACHE_PASSWORD}",
 							 "GRADLE_ENTERPRISE_ACCESS_KEY=${GRADLE_ENTERPRISE_ACCESS_KEY}"]) {
 							if ("master" == env.BRANCH_NAME) {
-								sh "./gradlew sonarqube -PexcludeProjects='**/samples/**' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --stacktrace"
+								sh "./gradlew sonarqube -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD -PexcludeProjects='**/samples/**' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --stacktrace"
 							} else {
-								sh "./gradlew sonarqube -PexcludeProjects='**/samples/**' -Dsonar.projectKey='spring-security-${env.BRANCH_NAME}' -Dsonar.projectName='spring-security-${env.BRANCH_NAME}' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --stacktrace"
+								sh "./gradlew sonarqube -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD -PexcludeProjects='**/samples/**' -Dsonar.projectKey='spring-security-${env.BRANCH_NAME}' -Dsonar.projectName='spring-security-${env.BRANCH_NAME}' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --stacktrace"
 							}
 						}
 					} catch(Exception e) {
@@ -84,12 +86,13 @@ try {
 				sh "git clean -dfx"
 				try {
 					withCredentials([GRADLE_ENTERPRISE_CACHE_USER,
-						 GRADLE_ENTERPRISE_SECRET_ACCESS_KEY]) {
+						 GRADLE_ENTERPRISE_SECRET_ACCESS_KEY,
+						 ARTIFACTORY_CREDENTIALS]) {
 						withEnv([jdkEnv(),
 							 "GRADLE_ENTERPRISE_CACHE_USERNAME=${GRADLE_ENTERPRISE_CACHE_USERNAME}",
 							 "GRADLE_ENTERPRISE_CACHE_PASSWORD=${GRADLE_ENTERPRISE_CACHE_PASSWORD}",
 							 "GRADLE_ENTERPRISE_ACCESS_KEY=${GRADLE_ENTERPRISE_ACCESS_KEY}"]) {
-							sh "./gradlew test --refresh-dependencies -PforceMavenRepositories=snapshot -PspringVersion='5.2.+' -PreactorVersion='Dysprosium-BUILD-SNAPSHOT' -PspringDataVersion='Neumann-BUILD-SNAPSHOT' -PrsocketVersion='1.0.+' -PspringBootVersion='2.3.+' -PlocksDisabled --stacktrace"
+							sh "./gradlew test -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies -PforceMavenRepositories=snapshot -PspringVersion='5.2.+' -PreactorVersion='Dysprosium-BUILD-SNAPSHOT' -PspringDataVersion='Neumann-BUILD-SNAPSHOT' -PrsocketVersion='1.0.+' -PspringBootVersion='2.3.+' -PlocksDisabled --stacktrace"
 						}
 					}
 				} catch(Exception e) {
@@ -107,12 +110,13 @@ try {
 				try {
 
 					withCredentials([GRADLE_ENTERPRISE_CACHE_USER,
-						 GRADLE_ENTERPRISE_SECRET_ACCESS_KEY]) {
+						 GRADLE_ENTERPRISE_SECRET_ACCESS_KEY,
+						 ARTIFACTORY_CREDENTIALS]) {
 						withEnv([jdkEnv("jdk11"),
 						 "GRADLE_ENTERPRISE_CACHE_USERNAME=${GRADLE_ENTERPRISE_CACHE_USERNAME}",
 						 "GRADLE_ENTERPRISE_CACHE_PASSWORD=${GRADLE_ENTERPRISE_CACHE_PASSWORD}",
 						 "GRADLE_ENTERPRISE_ACCESS_KEY=${GRADLE_ENTERPRISE_ACCESS_KEY}"]) {
-							sh "./gradlew test --stacktrace"
+							sh "./gradlew test -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --stacktrace"
 						}
 					}
 				} catch(Exception e) {
@@ -129,12 +133,13 @@ try {
 				sh "git clean -dfx"
 				try {
 					withCredentials([GRADLE_ENTERPRISE_CACHE_USER,
-						 GRADLE_ENTERPRISE_SECRET_ACCESS_KEY]) {
+						 GRADLE_ENTERPRISE_SECRET_ACCESS_KEY,
+						 ARTIFACTORY_CREDENTIALS]) {
 						withEnv([jdkEnv("openjdk12"),
 						 "GRADLE_ENTERPRISE_CACHE_USERNAME=${GRADLE_ENTERPRISE_CACHE_USERNAME}",
 						 "GRADLE_ENTERPRISE_CACHE_PASSWORD=${GRADLE_ENTERPRISE_CACHE_PASSWORD}",
 						 "GRADLE_ENTERPRISE_ACCESS_KEY=${GRADLE_ENTERPRISE_ACCESS_KEY}"]) {
-							sh "./gradlew test --stacktrace"
+							sh "./gradlew test -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --stacktrace"
 						}
 					}
 				} catch(Exception e) {
