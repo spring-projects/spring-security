@@ -8,7 +8,15 @@ buildscript {
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 	}
 	repositories {
-		maven { url 'https://repo.spring.io/plugins-snapshot' }
+		maven {
+			url = 'https://repo.spring.io/plugins-snapshot'
+			if (project.hasProperty('artifactoryUsername')) {
+				credentials {
+					username "$artifactoryUsername"
+					password "$artifactoryPassword"
+				}
+			}
+		}
 		maven { url 'https://plugins.gradle.org/m2/' }
 	}
 }
