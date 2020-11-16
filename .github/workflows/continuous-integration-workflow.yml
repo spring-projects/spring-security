@@ -14,6 +14,8 @@ env:
   GRADLE_ENTERPRISE_SECRET_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
   COMMIT_OWNER: ${{ github.event.pusher.name }}
   COMMIT_SHA: ${{ github.sha }}
+  ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+  ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
 
 jobs:
   initiate_error_tracking:
@@ -49,7 +51,7 @@ jobs:
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          ./gradlew clean build --continue
+          ./gradlew clean build --continue -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD"
       - name: Track error step
         uses: spring-projects/track-build-errors-action@v1
         if: ${{ failure() }}
