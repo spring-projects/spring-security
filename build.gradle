@@ -1,7 +1,14 @@
 buildscript {
 	repositories {
-		maven { url "https://repo.spring.io/plugins-release" }
-		maven { url "https://repo.spring.io/plugins-snapshot" }
+		maven {
+			url = 'https://repo.spring.io/plugins-snapshot'
+			if (project.hasProperty('artifactoryUsername')) {
+				credentials {
+					username "$artifactoryUsername"
+					password "$artifactoryPassword"
+				}
+			}
+		}
 	}
 	dependencies {
 		classpath "com.github.ben-manes:gradle-versions-plugin:0.17.0"
@@ -202,4 +209,21 @@ artifacts {
 	archives dist
 	archives project(':docs').docsZip
 	archives project(':docs').schemaZip
+}
+
+
+if (project.hasProperty('artifactoryUsername')) {
+	allprojects { project ->
+		project.repositories { repos ->
+			all { repo ->
+				if (!repo.url.toString().startsWith("https://repo.spring.io/")) {
+					return;
+				}
+				repo.credentials {
+					username = artifactoryUsername
+					password = artifactoryPassword
+				}
+			}
+		}
+	}
 }
