@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,6 @@ import org.springframework.util.Assert;
  */
 public class OAuth2RefreshTokenGrantRequest extends AbstractOAuth2AuthorizationGrantRequest {
 
-	private final ClientRegistration clientRegistration;
-
 	private final OAuth2AccessToken accessToken;
 
 	private final OAuth2RefreshToken refreshToken;
@@ -67,23 +65,13 @@ public class OAuth2RefreshTokenGrantRequest extends AbstractOAuth2AuthorizationG
 	 */
 	public OAuth2RefreshTokenGrantRequest(ClientRegistration clientRegistration, OAuth2AccessToken accessToken,
 			OAuth2RefreshToken refreshToken, Set<String> scopes) {
-		super(AuthorizationGrantType.REFRESH_TOKEN);
-		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
+		super(AuthorizationGrantType.REFRESH_TOKEN, clientRegistration);
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		Assert.notNull(refreshToken, "refreshToken cannot be null");
-		this.clientRegistration = clientRegistration;
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.scopes = Collections
 				.unmodifiableSet((scopes != null) ? new LinkedHashSet<>(scopes) : Collections.emptySet());
-	}
-
-	/**
-	 * Returns the authorized client's {@link ClientRegistration registration}.
-	 * @return the {@link ClientRegistration}
-	 */
-	public ClientRegistration getClientRegistration() {
-		return this.clientRegistration;
 	}
 
 	/**

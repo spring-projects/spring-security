@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package org.springframework.security.oauth2.client.endpoint;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -30,6 +32,10 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link OAuth2PasswordGrantRequestEntityConverter}.
@@ -38,26 +44,76 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class OAuth2PasswordGrantRequestEntityConverterTests {
 
-	private OAuth2PasswordGrantRequestEntityConverter converter = new OAuth2PasswordGrantRequestEntityConverter();
-
-	private OAuth2PasswordGrantRequest passwordGrantRequest;
+	private OAuth2PasswordGrantRequestEntityConverter converter;
 
 	@Before
 	public void setup() {
-		// @formatter:off
-		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-				.scope("read", "write")
-				.build();
-		// @formatter:on
-		this.passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, "user1", "password");
+		this.converter = new OAuth2PasswordGrantRequestEntityConverter();
+	}
+
+	@Test
+	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setHeadersConverter(null))
+				.withMessage("headersConverter cannot be null");
+	}
+
+	@Test
+	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.addHeadersConverter(null))
+				.withMessage("headersConverter cannot be null");
+	}
+
+	@Test
+	public void setParametersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setParametersConverter(null))
+				.withMessage("parametersConverter cannot be null");
+	}
+
+	@Test
+	public void addParametersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.addParametersConverter(null))
+				.withMessage("parametersConverter cannot be null");
+	}
+
+	@Test
+	public void convertWhenHeadersConverterSetThenCalled() {
+		Converter<OAuth2PasswordGrantRequest, HttpHeaders> headersConverter1 = mock(Converter.class);
+		this.converter.setHeadersConverter(headersConverter1);
+		Converter<OAuth2PasswordGrantRequest, HttpHeaders> headersConverter2 = mock(Converter.class);
+		this.converter.addHeadersConverter(headersConverter2);
+		ClientRegistration clientRegistration = TestClientRegistrations.password().build();
+		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, "user1",
+				"password");
+		this.converter.convert(passwordGrantRequest);
+		InOrder inOrder = inOrder(headersConverter1, headersConverter2);
+		inOrder.verify(headersConverter1).convert(any(OAuth2PasswordGrantRequest.class));
+		inOrder.verify(headersConverter2).convert(any(OAuth2PasswordGrantRequest.class));
+	}
+
+	@Test
+	public void convertWhenParametersConverterSetThenCalled() {
+		Converter<OAuth2PasswordGrantRequest, MultiValueMap<String, String>> parametersConverter1 = mock(
+				Converter.class);
+		this.converter.setParametersConverter(parametersConverter1);
+		Converter<OAuth2PasswordGrantRequest, MultiValueMap<String, String>> parametersConverter2 = mock(
+				Converter.class);
+		this.converter.addParametersConverter(parametersConverter2);
+		ClientRegistration clientRegistration = TestClientRegistrations.password().build();
+		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, "user1",
+				"password");
+		this.converter.convert(passwordGrantRequest);
+		InOrder inOrder = inOrder(parametersConverter1, parametersConverter2);
+		inOrder.verify(parametersConverter1).convert(any(OAuth2PasswordGrantRequest.class));
+		inOrder.verify(parametersConverter2).convert(any(OAuth2PasswordGrantRequest.class));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void convertWhenGrantRequestValidThenConverts() {
-		RequestEntity<?> requestEntity = this.converter.convert(this.passwordGrantRequest);
-		ClientRegistration clientRegistration = this.passwordGrantRequest.getClientRegistration();
+		ClientRegistration clientRegistration = TestClientRegistrations.password().build();
+		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, "user1",
+				"password");
+		RequestEntity<?> requestEntity = this.converter.convert(passwordGrantRequest);
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
 		assertThat(requestEntity.getUrl().toASCIIString())
 				.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
@@ -71,7 +127,7 @@ public class OAuth2PasswordGrantRequestEntityConverterTests {
 				.isEqualTo(AuthorizationGrantType.PASSWORD.getValue());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.USERNAME)).isEqualTo("user1");
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.PASSWORD)).isEqualTo("password");
-		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).isEqualTo("read write");
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).contains(clientRegistration.getScopes());
 	}
 
 }

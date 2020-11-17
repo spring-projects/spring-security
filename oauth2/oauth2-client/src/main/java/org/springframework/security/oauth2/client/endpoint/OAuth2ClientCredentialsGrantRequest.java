@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,27 +34,15 @@ import org.springframework.util.Assert;
  */
 public class OAuth2ClientCredentialsGrantRequest extends AbstractOAuth2AuthorizationGrantRequest {
 
-	private final ClientRegistration clientRegistration;
-
 	/**
 	 * Constructs an {@code OAuth2ClientCredentialsGrantRequest} using the provided
 	 * parameters.
 	 * @param clientRegistration the client registration
 	 */
 	public OAuth2ClientCredentialsGrantRequest(ClientRegistration clientRegistration) {
-		super(AuthorizationGrantType.CLIENT_CREDENTIALS);
-		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
+		super(AuthorizationGrantType.CLIENT_CREDENTIALS, clientRegistration);
 		Assert.isTrue(AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType()),
 				"clientRegistration.authorizationGrantType must be AuthorizationGrantType.CLIENT_CREDENTIALS");
-		this.clientRegistration = clientRegistration;
-	}
-
-	/**
-	 * Returns the {@link ClientRegistration client registration}.
-	 * @return the {@link ClientRegistration}
-	 */
-	public ClientRegistration getClientRegistration() {
-		return this.clientRegistration;
 	}
 
 }
