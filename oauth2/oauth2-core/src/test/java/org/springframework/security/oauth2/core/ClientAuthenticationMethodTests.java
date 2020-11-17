@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,16 @@ public class ClientAuthenticationMethodTests {
 	@Test
 	public void getValueWhenAuthenticationMethodClientSecretPostThenReturnClientSecretPost() {
 		assertThat(ClientAuthenticationMethod.CLIENT_SECRET_POST.getValue()).isEqualTo("client_secret_post");
+	}
+
+	@Test
+	public void getValueWhenAuthenticationMethodClientSecretJwtThenReturnClientSecretJwt() {
+		assertThat(ClientAuthenticationMethod.CLIENT_SECRET_JWT.getValue()).isEqualTo("client_secret_jwt");
+	}
+
+	@Test
+	public void getValueWhenAuthenticationMethodPrivateKeyJwtThenReturnPrivateKeyJwt() {
+		assertThat(ClientAuthenticationMethod.PRIVATE_KEY_JWT.getValue()).isEqualTo("private_key_jwt");
 	}
 
 	@Test

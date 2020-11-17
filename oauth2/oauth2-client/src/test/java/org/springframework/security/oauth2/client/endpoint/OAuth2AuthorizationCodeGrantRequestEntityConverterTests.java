@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.http.HttpHeaders;
@@ -28,16 +27,23 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
 import org.springframework.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeGrantRequestEntityConverter}.
@@ -46,49 +52,40 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class OAuth2AuthorizationCodeGrantRequestEntityConverterTests {
 
-	private OAuth2AuthorizationCodeGrantRequestEntityConverter converter = new OAuth2AuthorizationCodeGrantRequestEntityConverter();
+	private OAuth2AuthorizationCodeGrantRequestEntityConverter converter;
 
-	// @formatter:off
-	private ClientRegistration.Builder clientRegistrationBuilder = ClientRegistration
-			.withRegistrationId("registration-1")
-			.clientId("client-1")
-			.clientSecret("secret")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUri("https://client.com/callback/client-1")
-			.scope("read", "write")
-			.authorizationUri("https://provider.com/oauth2/authorize")
-			.tokenUri("https://provider.com/oauth2/token")
-			.userInfoUri("https://provider.com/user")
-			.userNameAttributeName("id")
-			.clientName("client-1");
-	// @formatter:on
+	@Before
+	public void setup() {
+		this.converter = new OAuth2AuthorizationCodeGrantRequestEntityConverter();
+	}
 
-	// @formatter:off
-	private OAuth2AuthorizationRequest.Builder authorizationRequestBuilder = OAuth2AuthorizationRequest
-			.authorizationCode()
-			.clientId("client-1")
-			.state("state-1234")
-			.authorizationUri("https://provider.com/oauth2/authorize")
-			.redirectUri("https://client.com/callback/client-1")
-			.scopes(new HashSet(Arrays.asList("read", "write")));
-	// @formatter:on
+	@Test
+	public void setCustomizerWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setCustomizer(null))
+				.withMessage("customizer cannot be null");
+	}
 
-	// @formatter:off
-	private OAuth2AuthorizationResponse.Builder authorizationResponseBuilder = OAuth2AuthorizationResponse
-			.success("code-1234")
-			.state("state-1234")
-			.redirectUri("https://client.com/callback/client-1");
-	// @formatter:on
+	@Test
+	public void convertWhenCustomizerSetThenCalled() {
+		OAuth2AuthorizationGrantRequestEntityConverter.Customizer<OAuth2AuthorizationCodeGrantRequest> customizer = mock(
+				OAuth2AuthorizationGrantRequestEntityConverter.Customizer.class);
+		this.converter.setCustomizer(customizer);
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		OAuth2AuthorizationExchange authorizationExchange = TestOAuth2AuthorizationExchanges.success();
+		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = new OAuth2AuthorizationCodeGrantRequest(
+				clientRegistration, authorizationExchange);
+		this.converter.convert(authorizationCodeGrantRequest);
+		verify(customizer).customize(any(OAuth2AuthorizationCodeGrantRequest.class), any(HttpHeaders.class),
+				any(MultiValueMap.class));
+	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void convertWhenGrantRequestValidThenConverts() {
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
-		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestBuilder.build();
-		OAuth2AuthorizationResponse authorizationResponse = this.authorizationResponseBuilder.build();
-		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
-				authorizationResponse);
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		OAuth2AuthorizationExchange authorizationExchange = TestOAuth2AuthorizationExchanges.success();
+		OAuth2AuthorizationRequest authorizationRequest = authorizationExchange.getAuthorizationRequest();
+		OAuth2AuthorizationResponse authorizationResponse = authorizationExchange.getAuthorizationResponse();
 		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = new OAuth2AuthorizationCodeGrantRequest(
 				clientRegistration, authorizationExchange);
 		RequestEntity<?> requestEntity = this.converter.convert(authorizationCodeGrantRequest);
@@ -96,32 +93,32 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverterTests {
 		assertThat(requestEntity.getUrl().toASCIIString())
 				.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
 		HttpHeaders headers = requestEntity.getHeaders();
-		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
+		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON);
 		assertThat(headers.getContentType())
 				.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
 		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE))
 				.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
-		assertThat(formParameters.getFirst(OAuth2ParameterNames.CODE)).isEqualTo("code-1234");
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.CODE)).isEqualTo(authorizationResponse.getCode());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.CLIENT_ID)).isNull();
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.REDIRECT_URI))
-				.isEqualTo(clientRegistration.getRedirectUri());
+				.isEqualTo(authorizationRequest.getRedirectUri());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void convertWhenPkceGrantRequestValidThenConverts() {
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder.clientAuthenticationMethod(null)
-				.clientSecret(null).build();
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
+				.clientAuthenticationMethod(null).clientSecret(null).build();
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(PkceParameterNames.CODE_VERIFIER, "code-verifier-1234");
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, "code-challenge-1234");
 		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
-		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestBuilder.attributes(attributes)
-				.additionalParameters(additionalParameters).build();
-		OAuth2AuthorizationResponse authorizationResponse = this.authorizationResponseBuilder.build();
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+				.attributes(attributes).additionalParameters(additionalParameters).build();
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success().build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
 		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = new OAuth2AuthorizationCodeGrantRequest(
@@ -131,18 +128,20 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverterTests {
 		assertThat(requestEntity.getUrl().toASCIIString())
 				.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
 		HttpHeaders headers = requestEntity.getHeaders();
-		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
+		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON);
 		assertThat(headers.getContentType())
 				.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isNull();
 		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE))
 				.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
-		assertThat(formParameters.getFirst(OAuth2ParameterNames.CODE)).isEqualTo("code-1234");
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.CODE)).isEqualTo(authorizationResponse.getCode());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.REDIRECT_URI))
-				.isEqualTo(clientRegistration.getRedirectUri());
-		assertThat(formParameters.getFirst(OAuth2ParameterNames.CLIENT_ID)).isEqualTo("client-1");
-		assertThat(formParameters.getFirst(PkceParameterNames.CODE_VERIFIER)).isEqualTo("code-verifier-1234");
+				.isEqualTo(authorizationRequest.getRedirectUri());
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.CLIENT_ID))
+				.isEqualTo(authorizationRequest.getClientId());
+		assertThat(formParameters.getFirst(PkceParameterNames.CODE_VERIFIER))
+				.isEqualTo(authorizationRequest.getAttribute(PkceParameterNames.CODE_VERIFIER));
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,10 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link OAuth2PasswordGrantRequestEntityConverter}.
@@ -38,31 +42,44 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class OAuth2PasswordGrantRequestEntityConverterTests {
 
-	private OAuth2PasswordGrantRequestEntityConverter converter = new OAuth2PasswordGrantRequestEntityConverter();
-
-	private OAuth2PasswordGrantRequest passwordGrantRequest;
+	private OAuth2PasswordGrantRequestEntityConverter converter;
 
 	@Before
 	public void setup() {
-		// @formatter:off
-		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-				.scope("read", "write")
-				.build();
-		// @formatter:on
-		this.passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, "user1", "password");
+		this.converter = new OAuth2PasswordGrantRequestEntityConverter();
+	}
+
+	@Test
+	public void setCustomizerWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setCustomizer(null))
+				.withMessage("customizer cannot be null");
+	}
+
+	@Test
+	public void convertWhenCustomizerSetThenCalled() {
+		OAuth2AuthorizationGrantRequestEntityConverter.Customizer<OAuth2PasswordGrantRequest> customizer = mock(
+				OAuth2AuthorizationGrantRequestEntityConverter.Customizer.class);
+		this.converter.setCustomizer(customizer);
+		ClientRegistration clientRegistration = TestClientRegistrations.password().build();
+		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, "user1",
+				"password");
+		this.converter.convert(passwordGrantRequest);
+		verify(customizer).customize(any(OAuth2PasswordGrantRequest.class), any(HttpHeaders.class),
+				any(MultiValueMap.class));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void convertWhenGrantRequestValidThenConverts() {
-		RequestEntity<?> requestEntity = this.converter.convert(this.passwordGrantRequest);
-		ClientRegistration clientRegistration = this.passwordGrantRequest.getClientRegistration();
+		ClientRegistration clientRegistration = TestClientRegistrations.password().build();
+		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, "user1",
+				"password");
+		RequestEntity<?> requestEntity = this.converter.convert(passwordGrantRequest);
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
 		assertThat(requestEntity.getUrl().toASCIIString())
 				.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
 		HttpHeaders headers = requestEntity.getHeaders();
-		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
+		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON);
 		assertThat(headers.getContentType())
 				.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
@@ -71,7 +88,7 @@ public class OAuth2PasswordGrantRequestEntityConverterTests {
 				.isEqualTo(AuthorizationGrantType.PASSWORD.getValue());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.USERNAME)).isEqualTo("user1");
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.PASSWORD)).isEqualTo("password");
-		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).isEqualTo("read write");
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).contains(clientRegistration.getScopes());
 	}
 
 }
