@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,18 @@ public interface OAuth2ParameterNames {
 	 * {@code client_secret} - used in Access Token Request.
 	 */
 	String CLIENT_SECRET = "client_secret";
+
+	/**
+	 * {@code client_assertion_type} - used in Access Token Request.
+	 * @since 5.5
+	 */
+	String CLIENT_ASSERTION_TYPE = "client_assertion_type";
+
+	/**
+	 * {@code client_assertion} - used in Access Token Request.
+	 * @since 5.5
+	 */
+	String CLIENT_ASSERTION = "client_assertion";
 
 	/**
 	 * {@code redirect_uri} - used in Authorization Request and Access Token Request.

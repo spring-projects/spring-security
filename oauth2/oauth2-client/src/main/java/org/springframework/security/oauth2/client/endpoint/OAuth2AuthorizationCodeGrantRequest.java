@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,6 @@ import org.springframework.util.Assert;
  */
 public class OAuth2AuthorizationCodeGrantRequest extends AbstractOAuth2AuthorizationGrantRequest {
 
-	private final ClientRegistration clientRegistration;
-
 	private final OAuth2AuthorizationExchange authorizationExchange;
 
 	/**
@@ -49,19 +47,9 @@ public class OAuth2AuthorizationCodeGrantRequest extends AbstractOAuth2Authoriza
 	 */
 	public OAuth2AuthorizationCodeGrantRequest(ClientRegistration clientRegistration,
 			OAuth2AuthorizationExchange authorizationExchange) {
-		super(AuthorizationGrantType.AUTHORIZATION_CODE);
-		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
+		super(AuthorizationGrantType.AUTHORIZATION_CODE, clientRegistration);
 		Assert.notNull(authorizationExchange, "authorizationExchange cannot be null");
-		this.clientRegistration = clientRegistration;
 		this.authorizationExchange = authorizationExchange;
-	}
-
-	/**
-	 * Returns the {@link ClientRegistration client registration}.
-	 * @return the {@link ClientRegistration}
-	 */
-	public ClientRegistration getClientRegistration() {
-		return this.clientRegistration;
 	}
 
 	/**

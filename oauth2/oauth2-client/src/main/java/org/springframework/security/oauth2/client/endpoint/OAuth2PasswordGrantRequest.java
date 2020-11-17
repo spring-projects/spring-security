@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,6 @@ import org.springframework.util.Assert;
  */
 public class OAuth2PasswordGrantRequest extends AbstractOAuth2AuthorizationGrantRequest {
 
-	private final ClientRegistration clientRegistration;
-
 	private final String username;
 
 	private final String password;
@@ -46,23 +44,13 @@ public class OAuth2PasswordGrantRequest extends AbstractOAuth2AuthorizationGrant
 	 * @param password the resource owner's password
 	 */
 	public OAuth2PasswordGrantRequest(ClientRegistration clientRegistration, String username, String password) {
-		super(AuthorizationGrantType.PASSWORD);
-		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
+		super(AuthorizationGrantType.PASSWORD, clientRegistration);
 		Assert.isTrue(AuthorizationGrantType.PASSWORD.equals(clientRegistration.getAuthorizationGrantType()),
 				"clientRegistration.authorizationGrantType must be AuthorizationGrantType.PASSWORD");
 		Assert.hasText(username, "username cannot be empty");
 		Assert.hasText(password, "password cannot be empty");
-		this.clientRegistration = clientRegistration;
 		this.username = username;
 		this.password = password;
-	}
-
-	/**
-	 * Returns the {@link ClientRegistration client registration}.
-	 * @return the {@link ClientRegistration}
-	 */
-	public ClientRegistration getClientRegistration() {
-		return this.clientRegistration;
 	}
 
 	/**
