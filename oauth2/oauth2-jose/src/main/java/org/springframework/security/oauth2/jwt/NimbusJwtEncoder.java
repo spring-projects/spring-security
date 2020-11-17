@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.endpoint;
+package org.springframework.security.oauth2.jwt;
 
 import java.net.URI;
 import java.net.URL;
@@ -46,38 +46,23 @@ import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-/*
- * NOTE:
- * This originated in gh-9208 (JwtEncoder),
- * which is required to realize the feature in gh-8175 (JWT Client Authentication).
- * However, we decided not to merge gh-9208 as part of the 5.5.0 release
- * and instead packaged it up privately with the gh-8175 feature.
- * We MAY merge gh-9208 in a later release but that is yet to be determined.
- *
- * gh-9208 Introduce JwtEncoder
- * https://github.com/spring-projects/spring-security/pull/9208
- *
- * gh-8175 Support JWT for Client Authentication
- * https://github.com/spring-projects/spring-security/issues/8175
- */
-
 /**
- * A JWT encoder that encodes a JSON Web Token (JWT) using the JSON Web Signature (JWS)
- * Compact Serialization format. The private/secret key used for signing the JWS is
- * supplied by the {@code com.nimbusds.jose.jwk.source.JWKSource} provided via the
- * constructor.
+ * An implementation of a {@link JwtEncoder} that encodes a JSON Web Token (JWT) using the
+ * JSON Web Signature (JWS) Compact Serialization format. The private/secret key used for
+ * signing the JWS is supplied by the {@code com.nimbusds.jose.jwk.source.JWKSource}
+ * provided via the constructor.
  *
  * <p>
  * <b>NOTE:</b> This implementation uses the Nimbus JOSE + JWT SDK.
  *
  * @author Joe Grandja
- * @since 5.5
+ * @since 5.6
+ * @see JwtEncoder
  * @see com.nimbusds.jose.jwk.source.JWKSource
  * @see com.nimbusds.jose.jwk.JWK
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token
@@ -89,9 +74,11 @@ import org.springframework.util.StringUtils;
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus
  * JOSE + JWT SDK</a>
  */
-final class NimbusJwsEncoder {
+public final class NimbusJwtEncoder implements JwtEncoder {
 
 	private static final String ENCODING_ERROR_MESSAGE_TEMPLATE = "An error occurred while attempting to encode the Jwt: %s";
+
+	private static final JwsHeader DEFAULT_JWS_HEADER = JwsHeader.with(SignatureAlgorithm.RS256).build();
 
 	private static final JWSSignerFactory JWS_SIGNER_FACTORY = new DefaultJWSSignerFactory();
 
@@ -100,17 +87,23 @@ final class NimbusJwsEncoder {
 	private final JWKSource<SecurityContext> jwkSource;
 
 	/**
-	 * Constructs a {@code NimbusJwsEncoder} using the provided parameters.
+	 * Constructs a {@code NimbusJwtEncoder} using the provided parameters.
 	 * @param jwkSource the {@code com.nimbusds.jose.jwk.source.JWKSource}
 	 */
-	NimbusJwsEncoder(JWKSource<SecurityContext> jwkSource) {
+	public NimbusJwtEncoder(JWKSource<SecurityContext> jwkSource) {
 		Assert.notNull(jwkSource, "jwkSource cannot be null");
 		this.jwkSource = jwkSource;
 	}
 
-	Jwt encode(JoseHeader headers, JwtClaimsSet claims) throws JwtEncodingException {
-		Assert.notNull(headers, "headers cannot be null");
-		Assert.notNull(claims, "claims cannot be null");
+	@Override
+	public Jwt encode(JwtEncoderParameters parameters) throws JwtEncodingException {
+		Assert.notNull(parameters, "parameters cannot be null");
+
+		JwsHeader headers = parameters.getJwsHeader();
+		if (headers == null) {
+			headers = DEFAULT_JWS_HEADER;
+		}
+		JwtClaimsSet claims = parameters.getClaims();
 
 		JWK jwk = selectJwk(headers);
 		headers = addKeyIdentifierHeadersIfNecessary(headers, jwk);
@@ -120,7 +113,7 @@ final class NimbusJwsEncoder {
 		return new Jwt(jws, claims.getIssuedAt(), claims.getExpiresAt(), headers.getHeaders(), claims.getClaims());
 	}
 
-	private JWK selectJwk(JoseHeader headers) {
+	private JWK selectJwk(JwsHeader headers) {
 		List<JWK> jwks;
 		try {
 			JWKSelector jwkSelector = new JWKSelector(createJwkMatcher(headers));
@@ -144,11 +137,11 @@ final class NimbusJwsEncoder {
 		return jwks.get(0);
 	}
 
-	private String serialize(JoseHeader headers, JwtClaimsSet claims, JWK jwk) {
+	private String serialize(JwsHeader headers, JwtClaimsSet claims, JWK jwk) {
 		JWSHeader jwsHeader = convert(headers);
 		JWTClaimsSet jwtClaimsSet = convert(claims);
 
-		JWSSigner jwsSigner = this.jwsSigners.computeIfAbsent(jwk, NimbusJwsEncoder::createSigner);
+		JWSSigner jwsSigner = this.jwsSigners.computeIfAbsent(jwk, NimbusJwtEncoder::createSigner);
 
 		SignedJWT signedJwt = new SignedJWT(jwsHeader, jwtClaimsSet);
 		try {
@@ -161,7 +154,7 @@ final class NimbusJwsEncoder {
 		return signedJwt.serialize();
 	}
 
-	private static JWKMatcher createJwkMatcher(JoseHeader headers) {
+	private static JWKMatcher createJwkMatcher(JwsHeader headers) {
 		JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(headers.getAlgorithm().getName());
 
 		if (JWSAlgorithm.Family.RSA.contains(jwsAlgorithm) || JWSAlgorithm.Family.EC.contains(jwsAlgorithm)) {
@@ -189,7 +182,7 @@ final class NimbusJwsEncoder {
 		return null;
 	}
 
-	private static JoseHeader addKeyIdentifierHeadersIfNecessary(JoseHeader headers, JWK jwk) {
+	private static JwsHeader addKeyIdentifierHeadersIfNecessary(JwsHeader headers, JWK jwk) {
 		// Check if headers have already been added
 		if (StringUtils.hasText(headers.getKeyId()) && StringUtils.hasText(headers.getX509SHA256Thumbprint())) {
 			return headers;
@@ -199,7 +192,7 @@ final class NimbusJwsEncoder {
 			return headers;
 		}
 
-		JoseHeader.Builder headersBuilder = JoseHeader.from(headers);
+		JwsHeader.Builder headersBuilder = JwsHeader.from(headers);
 		if (!StringUtils.hasText(headers.getKeyId()) && StringUtils.hasText(jwk.getKeyID())) {
 			headersBuilder.keyId(jwk.getKeyID());
 		}
@@ -220,7 +213,7 @@ final class NimbusJwsEncoder {
 		}
 	}
 
-	private static JWSHeader convert(JoseHeader headers) {
+	private static JWSHeader convert(JwsHeader headers) {
 		JWSHeader.Builder builder = new JWSHeader.Builder(JWSAlgorithm.parse(headers.getAlgorithm().getName()));
 
 		if (headers.getJwkSetUrl() != null) {

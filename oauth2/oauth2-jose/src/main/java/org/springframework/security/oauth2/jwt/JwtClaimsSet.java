@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.endpoint;
+package org.springframework.security.oauth2.jwt;
 
 import java.net.URL;
 import java.time.Instant;
@@ -25,25 +25,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.springframework.security.oauth2.core.converter.ClaimConversionService;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimAccessor;
-import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.util.Assert;
-
-/*
- * NOTE:
- * This originated in gh-9208 (JwtEncoder),
- * which is required to realize the feature in gh-8175 (JWT Client Authentication).
- * However, we decided not to merge gh-9208 as part of the 5.5.0 release
- * and instead packaged it up privately with the gh-8175 feature.
- * We MAY merge gh-9208 in a later release but that is yet to be determined.
- *
- * gh-9208 Introduce JwtEncoder
- * https://github.com/spring-projects/spring-security/pull/9208
- *
- * gh-8175 Support JWT for Client Authentication
- * https://github.com/spring-projects/spring-security/issues/8175
- */
 
 /**
  * The {@link Jwt JWT} Claims Set is a JSON object representing the claims conveyed by a
@@ -51,13 +33,13 @@ import org.springframework.util.Assert;
  *
  * @author Anoop Garlapati
  * @author Joe Grandja
- * @since 5.5
+ * @since 5.6
  * @see Jwt
  * @see JwtClaimAccessor
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519#section-4">JWT Claims
  * Set</a>
  */
-final class JwtClaimsSet implements JwtClaimAccessor {
+public final class JwtClaimsSet implements JwtClaimAccessor {
 
 	private final Map<String, Object> claims;
 
@@ -74,7 +56,7 @@ final class JwtClaimsSet implements JwtClaimAccessor {
 	 * Returns a new {@link Builder}.
 	 * @return the {@link Builder}
 	 */
-	static Builder builder() {
+	public static Builder builder() {
 		return new Builder();
 	}
 
@@ -83,16 +65,16 @@ final class JwtClaimsSet implements JwtClaimAccessor {
 	 * @param claims a JWT claims set
 	 * @return the {@link Builder}
 	 */
-	static Builder from(JwtClaimsSet claims) {
+	public static Builder from(JwtClaimsSet claims) {
 		return new Builder(claims);
 	}
 
 	/**
 	 * A builder for {@link JwtClaimsSet}.
 	 */
-	static final class Builder {
+	public static final class Builder {
 
-		final Map<String, Object> claims = new HashMap<>();
+		private final Map<String, Object> claims = new HashMap<>();
 
 		private Builder() {
 		}
@@ -108,7 +90,7 @@ final class JwtClaimsSet implements JwtClaimAccessor {
 		 * @param issuer the issuer identifier
 		 * @return the {@link Builder}
 		 */
-		Builder issuer(String issuer) {
+		public Builder issuer(String issuer) {
 			return claim(JwtClaimNames.ISS, issuer);
 		}
 
@@ -118,7 +100,7 @@ final class JwtClaimsSet implements JwtClaimAccessor {
 		 * @param subject the subject identifier
 		 * @return the {@link Builder}
 		 */
-		Builder subject(String subject) {
+		public Builder subject(String subject) {
 			return claim(JwtClaimNames.SUB, subject);
 		}
 
@@ -128,7 +110,7 @@ final class JwtClaimsSet implements JwtClaimAccessor {
 		 * @param audience the audience that this JWT is intended for
 		 * @return the {@link Builder}
 		 */
-		Builder audience(List<String> audience) {
+		public Builder audience(List<String> audience) {
 			return claim(JwtClaimNames.AUD, audience);
 		}
 
@@ -139,7 +121,7 @@ final class JwtClaimsSet implements JwtClaimAccessor {
 		 * processing
 		 * @return the {@link Builder}
 		 */
-		Builder expiresAt(Instant expiresAt) {
+		public Builder expiresAt(Instant expiresAt) {
 			return claim(JwtClaimNames.EXP, expiresAt);
 		}
 
@@ -150,7 +132,7 @@ final class JwtClaimsSet implements JwtClaimAccessor {
 		 * processing
 		 * @return the {@link Builder}
 		 */
-		Builder notBefore(Instant notBefore) {
+		public Builder notBefore(Instant notBefore) {
 			return claim(JwtClaimNames.NBF, notBefore);
 		}
 
@@ -160,7 +142,7 @@ final class JwtClaimsSet implements JwtClaimAccessor {
 		 * @param issuedAt the time at which the JWT was issued
 		 * @return the {@link Builder}
 		 */
-		Builder issuedAt(Instant issuedAt) {
+		public Builder issuedAt(Instant issuedAt) {
 			return claim(JwtClaimNames.IAT, issuedAt);
 		}
 
@@ -170,7 +152,7 @@ final class JwtClaimsSet implements JwtClaimAccessor {
 		 * @param jti the unique identifier for the JWT
 		 * @return the {@link Builder}
 		 */
-		Builder id(String jti) {
+		public Builder id(String jti) {
 			return claim(JwtClaimNames.JTI, jti);
 		}
 
@@ -180,7 +162,7 @@ final class JwtClaimsSet implements JwtClaimAccessor {
 		 * @param value the claim value
 		 * @return the {@link Builder}
 		 */
-		Builder claim(String name, Object value) {
+		public Builder claim(String name, Object value) {
 			Assert.hasText(name, "name cannot be empty");
 			Assert.notNull(value, "value cannot be null");
 			this.claims.put(name, value);
@@ -192,7 +174,7 @@ final class JwtClaimsSet implements JwtClaimAccessor {
 		 * add, replace, or remove.
 		 * @param claimsConsumer a {@code Consumer} of the claims
 		 */
-		Builder claims(Consumer<Map<String, Object>> claimsConsumer) {
+		public Builder claims(Consumer<Map<String, Object>> claimsConsumer) {
 			claimsConsumer.accept(this.claims);
 			return this;
 		}
@@ -201,7 +183,7 @@ final class JwtClaimsSet implements JwtClaimAccessor {
 		 * Builds a new {@link JwtClaimsSet}.
 		 * @return a {@link JwtClaimsSet}
 		 */
-		JwtClaimsSet build() {
+		public JwtClaimsSet build() {
 			Assert.notEmpty(this.claims, "claims cannot be empty");
 
 			// The value of the 'iss' claim is a String or URL (StringOrURI).

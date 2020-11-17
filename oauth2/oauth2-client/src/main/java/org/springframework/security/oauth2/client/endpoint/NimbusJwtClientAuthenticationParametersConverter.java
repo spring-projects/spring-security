@@ -40,7 +40,12 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -122,7 +127,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 			throw new OAuth2AuthorizationException(oauth2Error);
 		}
 
-		JoseHeader.Builder headersBuilder = JoseHeader.withAlgorithm(jwsAlgorithm);
+		JwsHeader.Builder headersBuilder = JwsHeader.with(jwsAlgorithm);
 
 		Instant issuedAt = Instant.now();
 		Instant expiresAt = issuedAt.plus(Duration.ofSeconds(60));
@@ -137,7 +142,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 				.expiresAt(expiresAt);
 		// @formatter:on
 
-		JoseHeader joseHeader = headersBuilder.build();
+		JwsHeader jwsHeader = headersBuilder.build();
 		JwtClaimsSet jwtClaimsSet = claimsBuilder.build();
 
 		JwsEncoderHolder jwsEncoderHolder = this.jwsEncoders.compute(clientRegistration.getRegistrationId(),
@@ -146,11 +151,11 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 						return currentJwsEncoderHolder;
 					}
 					JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
-					return new JwsEncoderHolder(new NimbusJwsEncoder(jwkSource), jwk);
+					return new JwsEncoderHolder(new NimbusJwtEncoder(jwkSource), jwk);
 				});
 
-		NimbusJwsEncoder jwsEncoder = jwsEncoderHolder.getJwsEncoder();
-		Jwt jws = jwsEncoder.encode(joseHeader, jwtClaimsSet);
+		JwtEncoder jwsEncoder = jwsEncoderHolder.getJwsEncoder();
+		Jwt jws = jwsEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet));
 
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.set(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE, CLIENT_ASSERTION_TYPE_VALUE);
@@ -186,16 +191,16 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 
 	private static final class JwsEncoderHolder {
 
-		private final NimbusJwsEncoder jwsEncoder;
+		private final JwtEncoder jwsEncoder;
 
 		private final JWK jwk;
 
-		private JwsEncoderHolder(NimbusJwsEncoder jwsEncoder, JWK jwk) {
+		private JwsEncoderHolder(JwtEncoder jwsEncoder, JWK jwk) {
 			this.jwsEncoder = jwsEncoder;
 			this.jwk = jwk;
 		}
 
-		private NimbusJwsEncoder getJwsEncoder() {
+		private JwtEncoder getJwsEncoder() {
 			return this.jwsEncoder;
 		}
 

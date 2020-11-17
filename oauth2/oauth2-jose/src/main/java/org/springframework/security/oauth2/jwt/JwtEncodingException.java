@@ -14,39 +14,22 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.endpoint;
-
-import org.springframework.security.oauth2.jwt.JwtException;
-
-/*
- * NOTE:
- * This originated in gh-9208 (JwtEncoder),
- * which is required to realize the feature in gh-8175 (JWT Client Authentication).
- * However, we decided not to merge gh-9208 as part of the 5.5.0 release
- * and instead packaged it up privately with the gh-8175 feature.
- * We MAY merge gh-9208 in a later release but that is yet to be determined.
- *
- * gh-9208 Introduce JwtEncoder
- * https://github.com/spring-projects/spring-security/pull/9208
- *
- * gh-8175 Support JWT for Client Authentication
- * https://github.com/spring-projects/spring-security/issues/8175
- */
+package org.springframework.security.oauth2.jwt;
 
 /**
  * This exception is thrown when an error occurs while attempting to encode a JSON Web
  * Token (JWT).
  *
  * @author Joe Grandja
- * @since 5.5
+ * @since 5.6
  */
-class JwtEncodingException extends JwtException {
+public class JwtEncodingException extends JwtException {
 
 	/**
 	 * Constructs a {@code JwtEncodingException} using the provided parameters.
 	 * @param message the detail message
 	 */
-	JwtEncodingException(String message) {
+	public JwtEncodingException(String message) {
 		super(message);
 	}
 
@@ -55,7 +38,7 @@ class JwtEncodingException extends JwtException {
 	 * @param message the detail message
 	 * @param cause the root cause
 	 */
-	JwtEncodingException(String message, Throwable cause) {
+	public JwtEncodingException(String message, Throwable cause) {
 		super(message, cause);
 	}
 

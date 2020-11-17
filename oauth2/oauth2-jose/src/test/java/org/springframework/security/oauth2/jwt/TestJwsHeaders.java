@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.endpoint;
+package org.springframework.security.oauth2.jwt;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,36 +22,21 @@ import java.util.Map;
 
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 
-/*
- * NOTE:
- * This originated in gh-9208 (JwtEncoder),
- * which is required to realize the feature in gh-8175 (JWT Client Authentication).
- * However, we decided not to merge gh-9208 as part of the 5.5.0 release
- * and instead packaged it up privately with the gh-8175 feature.
- * We MAY merge gh-9208 in a later release but that is yet to be determined.
- *
- * gh-9208 Introduce JwtEncoder
- * https://github.com/spring-projects/spring-security/pull/9208
- *
- * gh-8175 Support JWT for Client Authentication
- * https://github.com/spring-projects/spring-security/issues/8175
- */
-
 /**
  * @author Joe Grandja
  */
-final class TestJoseHeaders {
+public final class TestJwsHeaders {
 
-	private TestJoseHeaders() {
+	private TestJwsHeaders() {
 	}
 
-	static JoseHeader.Builder joseHeader() {
-		return joseHeader(SignatureAlgorithm.RS256);
+	public static JwsHeader.Builder jwsHeader() {
+		return jwsHeader(SignatureAlgorithm.RS256);
 	}
 
-	static JoseHeader.Builder joseHeader(SignatureAlgorithm signatureAlgorithm) {
+	public static JwsHeader.Builder jwsHeader(SignatureAlgorithm signatureAlgorithm) {
 		// @formatter:off
-		return JoseHeader.withAlgorithm(signatureAlgorithm)
+		return JwsHeader.with(signatureAlgorithm)
 				.jwkSetUrl("https://provider.com/oauth2/jwks")
 				.jwk(rsaJwk())
 				.keyId("keyId")
