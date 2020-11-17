@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.endpoint;
+package org.springframework.security.oauth2.jwt;
 
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -42,8 +42,6 @@ import org.mockito.stubbing.Answer;
 import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -53,21 +51,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-
-/*
- * NOTE:
- * This originated in gh-9208 (JwtEncoder),
- * which is required to realize the feature in gh-8175 (JWT Client Authentication).
- * However, we decided not to merge gh-9208 as part of the 5.5.0 release
- * and instead packaged it up privately with the gh-8175 feature.
- * We MAY merge gh-9208 in a later release but that is yet to be determined.
- *
- * gh-9208 Introduce JwtEncoder
- * https://github.com/spring-projects/spring-security/pull/9208
- *
- * gh-8175 Support JWT for Client Authentication
- * https://github.com/spring-projects/spring-security/issues/8175
- */
 
 /**
  * Tests for {@link NimbusJwsEncoder}.

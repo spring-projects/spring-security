@@ -14,22 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.endpoint;
-
-/*
- * NOTE:
- * This originated in gh-9208 (JwtEncoder),
- * which is required to realize the feature in gh-8175 (JWT Client Authentication).
- * However, we decided not to merge gh-9208 as part of the 5.5.0 release
- * and instead packaged it up privately with the gh-8175 feature.
- * We MAY merge gh-9208 in a later release but that is yet to be determined.
- *
- * gh-9208 Introduce JwtEncoder
- * https://github.com/spring-projects/spring-security/pull/9208
- *
- * gh-8175 Support JWT for Client Authentication
- * https://github.com/spring-projects/spring-security/issues/8175
- */
+package org.springframework.security.oauth2.jwt;
 
 /**
  * The Registered Header Parameter Names defined by the JSON Web Token (JWT), JSON Web
@@ -38,7 +23,7 @@ package org.springframework.security.oauth2.client.endpoint;
  *
  * @author Anoop Garlapati
  * @author Joe Grandja
- * @since 5.5
+ * @since 5.6
  * @see JoseHeader
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519#section-5">JWT JOSE
  * Header</a>
@@ -47,53 +32,53 @@ package org.springframework.security.oauth2.client.endpoint;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7516#section-4">JWE JOSE
  * Header</a>
  */
-final class JoseHeaderNames {
+public final class JoseHeaderNames {
 
 	/**
 	 * {@code alg} - the algorithm header identifies the cryptographic algorithm used to
 	 * secure a JWS or JWE
 	 */
-	static final String ALG = "alg";
+	public static final String ALG = "alg";
 
 	/**
 	 * {@code jku} - the JWK Set URL header is a URI that refers to a resource for a set
 	 * of JSON-encoded public keys, one of which corresponds to the key used to digitally
 	 * sign a JWS or encrypt a JWE
 	 */
-	static final String JKU = "jku";
+	public static final String JKU = "jku";
 
 	/**
 	 * {@code jwk} - the JSON Web Key header is the public key that corresponds to the key
 	 * used to digitally sign a JWS or encrypt a JWE
 	 */
-	static final String JWK = "jwk";
+	public static final String JWK = "jwk";
 
 	/**
 	 * {@code kid} - the key ID header is a hint indicating which key was used to secure a
 	 * JWS or JWE
 	 */
-	static final String KID = "kid";
+	public static final String KID = "kid";
 
 	/**
 	 * {@code x5u} - the X.509 URL header is a URI that refers to a resource for the X.509
 	 * public key certificate or certificate chain corresponding to the key used to
 	 * digitally sign a JWS or encrypt a JWE
 	 */
-	static final String X5U = "x5u";
+	public static final String X5U = "x5u";
 
 	/**
 	 * {@code x5c} - the X.509 certificate chain header contains the X.509 public key
 	 * certificate or certificate chain corresponding to the key used to digitally sign a
 	 * JWS or encrypt a JWE
 	 */
-	static final String X5C = "x5c";
+	public static final String X5C = "x5c";
 
 	/**
 	 * {@code x5t} - the X.509 certificate SHA-1 thumbprint header is a base64url-encoded
 	 * SHA-1 thumbprint (a.k.a. digest) of the DER encoding of the X.509 certificate
 	 * corresponding to the key used to digitally sign a JWS or encrypt a JWE
 	 */
-	static final String X5T = "x5t";
+	public static final String X5T = "x5t";
 
 	/**
 	 * {@code x5t#S256} - the X.509 certificate SHA-256 thumbprint header is a
@@ -101,25 +86,25 @@ final class JoseHeaderNames {
 	 * X.509 certificate corresponding to the key used to digitally sign a JWS or encrypt
 	 * a JWE
 	 */
-	static final String X5T_S256 = "x5t#S256";
+	public static final String X5T_S256 = "x5t#S256";
 
 	/**
 	 * {@code typ} - the type header is used by JWS/JWE applications to declare the media
 	 * type of a JWS/JWE
 	 */
-	static final String TYP = "typ";
+	public static final String TYP = "typ";
 
 	/**
 	 * {@code cty} - the content type header is used by JWS/JWE applications to declare
 	 * the media type of the secured content (the payload)
 	 */
-	static final String CTY = "cty";
+	public static final String CTY = "cty";
 
 	/**
 	 * {@code crit} - the critical header indicates that extensions to the JWS/JWE/JWA
 	 * specifications are being used that MUST be understood and processed
 	 */
-	static final String CRIT = "crit";
+	public static final String CRIT = "crit";
 
 	private JoseHeaderNames() {
 	}

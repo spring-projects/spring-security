@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.endpoint;
+package org.springframework.security.oauth2.jwt;
 
 import java.net.URI;
 import java.net.URL;
@@ -46,38 +46,22 @@ import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-/*
- * NOTE:
- * This originated in gh-9208 (JwtEncoder),
- * which is required to realize the feature in gh-8175 (JWT Client Authentication).
- * However, we decided not to merge gh-9208 as part of the 5.5.0 release
- * and instead packaged it up privately with the gh-8175 feature.
- * We MAY merge gh-9208 in a later release but that is yet to be determined.
- *
- * gh-9208 Introduce JwtEncoder
- * https://github.com/spring-projects/spring-security/pull/9208
- *
- * gh-8175 Support JWT for Client Authentication
- * https://github.com/spring-projects/spring-security/issues/8175
- */
-
 /**
- * A JWT encoder that encodes a JSON Web Token (JWT) using the JSON Web Signature (JWS)
- * Compact Serialization format. The private/secret key used for signing the JWS is
- * supplied by the {@code com.nimbusds.jose.jwk.source.JWKSource} provided via the
- * constructor.
+ * An implementation of a {@link JwtEncoder} that encodes a JSON Web Token (JWT) using the
+ * JSON Web Signature (JWS) Compact Serialization format. The private/secret key used for
+ * signing the JWS is supplied by the {@code com.nimbusds.jose.jwk.source.JWKSource}
+ * provided via the constructor.
  *
  * <p>
  * <b>NOTE:</b> This implementation uses the Nimbus JOSE + JWT SDK.
  *
  * @author Joe Grandja
- * @since 5.5
+ * @since 5.6
+ * @see JwtEncoder
  * @see com.nimbusds.jose.jwk.source.JWKSource
  * @see com.nimbusds.jose.jwk.JWK
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token
@@ -89,7 +73,7 @@ import org.springframework.util.StringUtils;
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus
  * JOSE + JWT SDK</a>
  */
-final class NimbusJwsEncoder {
+public final class NimbusJwsEncoder implements JwtEncoder {
 
 	private static final String ENCODING_ERROR_MESSAGE_TEMPLATE = "An error occurred while attempting to encode the Jwt: %s";
 
@@ -103,12 +87,13 @@ final class NimbusJwsEncoder {
 	 * Constructs a {@code NimbusJwsEncoder} using the provided parameters.
 	 * @param jwkSource the {@code com.nimbusds.jose.jwk.source.JWKSource}
 	 */
-	NimbusJwsEncoder(JWKSource<SecurityContext> jwkSource) {
+	public NimbusJwsEncoder(JWKSource<SecurityContext> jwkSource) {
 		Assert.notNull(jwkSource, "jwkSource cannot be null");
 		this.jwkSource = jwkSource;
 	}
 
-	Jwt encode(JoseHeader headers, JwtClaimsSet claims) throws JwtEncodingException {
+	@Override
+	public Jwt encode(JoseHeader headers, JwtClaimsSet claims) throws JwtEncodingException {
 		Assert.notNull(headers, "headers cannot be null");
 		Assert.notNull(claims, "claims cannot be null");
 
