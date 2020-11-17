@@ -43,3 +43,19 @@ subprojects {
 		options.encoding = "UTF-8"
 	}
 }
+
+if (project.hasProperty('artifactoryUsername') {
+	allprojects { project ->
+		project.repositories { repos ->
+			all { repo ->
+				if (!repo.url.toString().startsWith("https://repo.spring.io/")) {
+					return;
+				}
+				repo.credentials {
+					username = artifactoryUsername
+					password = artifactoryPassword
+				}
+			}
+		}
+	}
+}
