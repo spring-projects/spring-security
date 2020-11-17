@@ -81,8 +81,10 @@ try {
 				checkout scm
 				sh "git clean -dfx"
 				try {
-					withEnv(["JAVA_HOME=${ tool 'jdk9' }"]) {
-						sh "./gradlew clean test -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace"
+					withCredentials([ARTIFACTORY_CREDENTIALS]) {
+						withEnv(["JAVA_HOME=${ tool 'jdk9' }"]) {
+							sh "./gradlew clean test -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace"
+						}
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: jdk9'
