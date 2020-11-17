@@ -44,7 +44,7 @@ subprojects {
 	}
 }
 
-if (project.hasProperty('artifactoryUsername') {
+if (project.hasProperty('artifactoryUsername')) {
 	allprojects { project ->
 		project.repositories { repos ->
 			all { repo ->
