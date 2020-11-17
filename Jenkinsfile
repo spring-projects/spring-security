@@ -8,6 +8,9 @@ properties(projectProperties)
 def SUCCESS = hudson.model.Result.SUCCESS.toString()
 currentBuild.result = SUCCESS
 
+
+def ARTIFACTORY_CREDENTIALS = usernamePassword(credentialsId: '02bd1690-b54f-4c9f-819d-a77cb7a9822c', usernameVariable: 'ARTIFACTORY_USERNAME', passwordVariable: 'ARTIFACTORY_PASSWORD')
+
 try {
 	parallel check: {
 		stage('Check') {
@@ -15,10 +18,13 @@ try {
 				checkout scm
 				sh "git clean -dfx"
 				try {
-					withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
-						sh "./gradlew clean check  --refresh-dependencies --no-daemon --stacktrace"
+					withCredentials([ARTIFACTORY_CREDENTIALS]) {
+						withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
+							sh "./gradlew clean check -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace"
+						}
 					}
 				} catch(Exception e) {
+
 					currentBuild.result = 'FAILED: check'
 					throw e
 				} finally {
@@ -34,11 +40,13 @@ try {
 				sh "git clean -dfx"
 				withCredentials([string(credentialsId: 'spring-sonar.login', variable: 'SONAR_LOGIN')]) {
 					try {
-						withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
-							if ("master" == env.BRANCH_NAME) {
-								sh "./gradlew sonarqube -PexcludeProjects='**/samples/**' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon --stacktrace"
-							} else {
-								sh "./gradlew sonarqube -PexcludeProjects='**/samples/**' -Dsonar.projectKey='spring-security-${env.BRANCH_NAME}' -Dsonar.projectName='spring-security-${env.BRANCH_NAME}' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon --stacktrace"
+						withCredentials([ARTIFACTORY_CREDENTIALS]) {
+							withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
+								if ("master" == env.BRANCH_NAME) {
+									sh "./gradlew sonarqube -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD -PexcludeProjects='**/samples/**' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon --stacktrace"
+								} else {
+									sh "./gradlew sonarqube -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD -PexcludeProjects='**/samples/**' -Dsonar.projectKey='spring-security-${env.BRANCH_NAME}' -Dsonar.projectName='spring-security-${env.BRANCH_NAME}' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon --stacktrace"
+								}
 							}
 						}
 					} catch(Exception e) {
@@ -55,8 +63,10 @@ try {
 				checkout scm
 				sh "git clean -dfx"
 				try {
-					withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
-						sh "./gradlew clean test -PforceMavenRepositories=snapshot -PspringVersion='5.2.+' -PreactorVersion=Dysprosium-BUILD-SNAPSHOT -PspringDataVersion=Lovelace-BUILD-SNAPSHOT --refresh-dependencies --no-daemon --stacktrace"
+					withCredentials([ARTIFACTORY_CREDENTIALS]) {
+						withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
+							sh "./gradlew clean test -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD -PforceMavenRepositories=snapshot -PspringVersion='5.2.+' -PreactorVersion=Dysprosium-BUILD-SNAPSHOT -PspringDataVersion=Lovelace-BUILD-SNAPSHOT --refresh-dependencies --no-daemon --stacktrace"
+						}
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: snapshots'
@@ -72,7 +82,7 @@ try {
 				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk9' }"]) {
-						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
+						sh "./gradlew clean test -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace"
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: jdk9'
@@ -87,8 +97,10 @@ try {
 				checkout scm
 				sh "git clean -dfx"
 				try {
-					withEnv(["JAVA_HOME=${ tool 'jdk10' }"]) {
-						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
+					withCredentials([ARTIFACTORY_CREDENTIALS]) {
+						withEnv(["JAVA_HOME=${ tool 'jdk10' }"]) {
+							sh "./gradlew clean test -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace"
+						}
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: jdk10'
@@ -103,8 +115,10 @@ try {
 				checkout scm
 				sh "git clean -dfx"
 				try {
-					withEnv(["JAVA_HOME=${ tool 'jdk11' }"]) {
-						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
+					withCredentials([ARTIFACTORY_CREDENTIALS]) {
+						withEnv(["JAVA_HOME=${ tool 'jdk11' }"]) {
+							sh "./gradlew clean test -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace"
+						}
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: jdk11'
@@ -119,8 +133,10 @@ try {
 				checkout scm
 				sh "git clean -dfx"
 				try {
-					withEnv(["JAVA_HOME=${ tool 'openjdk12' }"]) {
-						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
+					withCredentials([ARTIFACTORY_CREDENTIALS]) {
+						withEnv(["JAVA_HOME=${ tool 'openjdk12' }"]) {
+							sh "./gradlew clean test -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace"
+						}
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: jdk12'
@@ -139,7 +155,7 @@ try {
 					withCredentials([file(credentialsId: 'spring-signing-secring.gpg', variable: 'SIGNING_KEYRING_FILE')]) {
 						withCredentials([string(credentialsId: 'spring-gpg-passphrase', variable: 'SIGNING_PASSWORD')]) {
 							withCredentials([usernamePassword(credentialsId: 'oss-token', passwordVariable: 'OSSRH_PASSWORD', usernameVariable: 'OSSRH_USERNAME')]) {
-								withCredentials([usernamePassword(credentialsId: '02bd1690-b54f-4c9f-819d-a77cb7a9822c', usernameVariable: 'ARTIFACTORY_USERNAME', passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+								withCredentials([ARTIFACTORY_CREDENTIALS]) {
 									withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
 										sh "./gradlew deployArtifacts finalizeDeployArtifacts -Psigning.secretKeyRingFile=$SIGNING_KEYRING_FILE -Psigning.keyId=$SPRING_SIGNING_KEYID -Psigning.password='$SIGNING_PASSWORD' -PossrhUsername=$OSSRH_USERNAME -PossrhPassword=$OSSRH_PASSWORD -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace"
 									}
