@@ -21,12 +21,17 @@ import org.junit.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests {@link SecurityContextHolderAwareRequestWrapper}.
@@ -128,6 +133,20 @@ public class SecurityContextHolderAwareRequestWrapperTests {
 				"ROLE_");
 		assertThat(wrapper.isUserInRole("ROLE_HELLO")).isTrue();
 		assertThat(wrapper.isUserInRole("ROLE_FOOBAR")).isTrue();
+	}
+
+	@Test
+	public void testGetRemoteUserStringWithAuthenticatedPrincipal() {
+		String username = "authPrincipalUsername";
+		AuthenticatedPrincipal principal = mock(AuthenticatedPrincipal.class);
+		given(principal.getName()).willReturn(username);
+		Authentication auth = new TestingAuthenticationToken(principal, "user");
+		SecurityContextHolder.getContext().setAuthentication(auth);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/");
+		SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, "");
+		assertThat(wrapper.getRemoteUser()).isEqualTo(username);
+		verify(principal, times(1)).getName();
 	}
 
 }
