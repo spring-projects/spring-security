@@ -29,6 +29,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @author Josh Cummings
  * @author Evgeniy Cheban
+ * @author Olivier Antoine
  * @since 5.1
  */
 public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
@@ -43,8 +44,8 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 		if (this.principalClaimName == null) {
 			return new JwtAuthenticationToken(jwt, authorities);
 		}
-		String name = jwt.getClaim(this.principalClaimName);
-		return new JwtAuthenticationToken(jwt, authorities, name);
+		String principalClaimValue = jwt.getClaimAsString(this.principalClaimName);
+		return new JwtAuthenticationToken(jwt, authorities, principalClaimValue);
 	}
 
 	/**
