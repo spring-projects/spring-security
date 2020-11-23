@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Josh Cummings
  * @author Evgeniy Cheban
+ * @author Olivier Antoine
  */
 public class JwtAuthenticationConverterTests {
 
@@ -99,6 +100,14 @@ public class JwtAuthenticationConverterTests {
 	public void convertWhenPrincipalClaimNameSet() {
 		this.jwtAuthenticationConverter.setPrincipalClaimName("user_id");
 		Jwt jwt = TestJwts.jwt().claim("user_id", "100").build();
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
+		assertThat(authentication.getName()).isEqualTo("100");
+	}
+
+	@Test
+	public void convertWhenPrincipalClaimNameSetAndClaimValueIsNotString() {
+		this.jwtAuthenticationConverter.setPrincipalClaimName("user_id");
+		Jwt jwt = TestJwts.jwt().claim("user_id", 100).build();
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
 		assertThat(authentication.getName()).isEqualTo("100");
 	}
