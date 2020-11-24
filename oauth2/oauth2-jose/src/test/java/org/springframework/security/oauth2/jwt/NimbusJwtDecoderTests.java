@@ -261,7 +261,7 @@ public class NimbusJwtDecoderTests {
 	public void decodeWhenSignedThenOk() {
 		NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withSigning(JWK_SET));
 		Jwt jwt = jwtDecoder.decode(SIGNED_JWT);
-		assertThat(jwt.containsClaim(JwtClaimNames.EXP)).isNotNull();
+		assertThat(jwt.hasClaim(JwtClaimNames.EXP)).isNotNull();
 	}
 
 	@Test
@@ -435,7 +435,7 @@ public class NimbusJwtDecoderTests {
 				)
 				.build();
 		// @formatter:on
-		assertThat(decoder.decode(signedJwt.serialize()).containsClaim(JwtClaimNames.EXP)).isNotNull();
+		assertThat(decoder.decode(signedJwt.serialize()).hasClaim(JwtClaimNames.EXP)).isNotNull();
 	}
 
 	@Test
@@ -553,7 +553,7 @@ public class NimbusJwtDecoderTests {
 				)
 				.build();
 		// @formatter:on
-		assertThat(decoder.decode(signedJwt.serialize()).containsClaim(JwtClaimNames.EXP)).isNotNull();
+		assertThat(decoder.decode(signedJwt.serialize()).hasClaim(JwtClaimNames.EXP)).isNotNull();
 	}
 
 	@Test

@@ -50,7 +50,7 @@ public interface ClaimAccessor {
 	 */
 	@SuppressWarnings("unchecked")
 	default <T> T getClaim(String claim) {
-		return !containsClaim(claim) ? null : (T) getClaims().get(claim);
+		return !hasClaim(claim) ? null : (T) getClaims().get(claim);
 	}
 
 	/**
@@ -58,10 +58,24 @@ public interface ClaimAccessor {
 	 * {@code false}.
 	 * @param claim the name of the claim
 	 * @return {@code true} if the claim exists, otherwise {@code false}
+	 * @since 5.5
 	 */
-	default Boolean containsClaim(String claim) {
+	default boolean hasClaim(String claim) {
 		Assert.notNull(claim, "claim cannot be null");
 		return getClaims().containsKey(claim);
+	}
+
+	/**
+	 * Returns {@code true} if the claim exists in {@link #getClaims()}, otherwise
+	 * {@code false}.
+	 * @param claim the name of the claim
+	 * @return {@code true} if the claim exists, otherwise {@code false}
+	 * @deprecated Use
+	 * {@link org.springframework.security.oauth2.core.ClaimAccessor#hasClaim} instead.
+	 */
+	@Deprecated
+	default Boolean containsClaim(String claim) {
+		return hasClaim(claim);
 	}
 
 	/**
@@ -72,7 +86,7 @@ public interface ClaimAccessor {
 	 * {@code null}
 	 */
 	default String getClaimAsString(String claim) {
-		return !containsClaim(claim) ? null
+		return !hasClaim(claim) ? null
 				: ClaimConversionService.getSharedInstance().convert(getClaims().get(claim), String.class);
 	}
 
@@ -82,7 +96,7 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if it does not exist
 	 */
 	default Boolean getClaimAsBoolean(String claim) {
-		return !containsClaim(claim) ? null
+		return !hasClaim(claim) ? null
 				: ClaimConversionService.getSharedInstance().convert(getClaims().get(claim), Boolean.class);
 	}
 
@@ -92,7 +106,7 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if it does not exist
 	 */
 	default Instant getClaimAsInstant(String claim) {
-		if (!containsClaim(claim)) {
+		if (!hasClaim(claim)) {
 			return null;
 		}
 		Object claimValue = getClaims().get(claim);
@@ -108,7 +122,7 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if it does not exist
 	 */
 	default URL getClaimAsURL(String claim) {
-		if (!containsClaim(claim)) {
+		if (!hasClaim(claim)) {
 			return null;
 		}
 		Object claimValue = getClaims().get(claim);
@@ -127,7 +141,7 @@ public interface ClaimAccessor {
 	 */
 	@SuppressWarnings("unchecked")
 	default Map<String, Object> getClaimAsMap(String claim) {
-		if (!containsClaim(claim)) {
+		if (!hasClaim(claim)) {
 			return null;
 		}
 		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
@@ -150,7 +164,7 @@ public interface ClaimAccessor {
 	 */
 	@SuppressWarnings("unchecked")
 	default List<String> getClaimAsStringList(String claim) {
-		if (!containsClaim(claim)) {
+		if (!hasClaim(claim)) {
 			return null;
 		}
 		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
