@@ -16,60 +16,65 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.util.Assert;
 
 /**
- * Implementation of {@link Converter} that wraps multiple {@link Converter} instances into one.
+ * A {@link Jwt} to {@link GrantedAuthority} {@link Converter} that is a composite of
+ * converters.
  *
  * @author Laszlo Stahorszki
+ * @author Josh Cummings
  * @since 5.5
+ * @see org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
  */
 public class DelegatingJwtGrantedAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
-	private final Collection<Converter<Jwt, Collection<GrantedAuthority>>> converters = new HashSet<>();
+	private final Collection<Converter<Jwt, Collection<GrantedAuthority>>> authoritiesConverters;
 
 	/**
-	 * Constructs a {@link DelegatingJwtGrantedAuthoritiesConverter} using the provided {@link Collection} of
-	 * {@link Converter}s
-	 *
-	 * @param converters the {@link Collection} of {@link Converter}s to use
+	 * Constructs a {@link DelegatingJwtGrantedAuthoritiesConverter} using the provided
+	 * {@link Collection} of {@link Converter}s
+	 * @param authoritiesConverters the {@link Collection} of {@link Converter}s to use
 	 */
-	public DelegatingJwtGrantedAuthoritiesConverter(Collection<Converter<Jwt, Collection<GrantedAuthority>>> converters) {
-		this.converters.addAll(converters);
+	public DelegatingJwtGrantedAuthoritiesConverter(
+			Collection<Converter<Jwt, Collection<GrantedAuthority>>> authoritiesConverters) {
+		Assert.notNull(authoritiesConverters, "authoritiesConverters cannot be null");
+		this.authoritiesConverters = new ArrayList<>(authoritiesConverters);
 	}
 
 	/**
-	 * Constructs a {@link DelegatingJwtGrantedAuthoritiesConverter} using the provided array of
-	 * {@link Converter}s
-	 *
-	 * @param converters the array of {@link Converter}s to use
+	 * Constructs a {@link DelegatingJwtGrantedAuthoritiesConverter} using the provided
+	 * array of {@link Converter}s
+	 * @param authoritiesConverters the array of {@link Converter}s to use
 	 */
 	@SafeVarargs
-	public DelegatingJwtGrantedAuthoritiesConverter(Converter<Jwt, Collection<GrantedAuthority>>... converters) {
-		this(Arrays.asList(converters));
+	public DelegatingJwtGrantedAuthoritiesConverter(
+			Converter<Jwt, Collection<GrantedAuthority>>... authoritiesConverters) {
+		this(Arrays.asList(authoritiesConverters));
 	}
 
 	/**
-	 * Collects the {@link Collection} of authorities from the provided {@link Jwt} token. The method iterates through
-	 * all the {@link Converter}s provided during construction and returns the union of {@link GrantedAuthority}s
-	 * they extract.
-	 * @param source the source object to convert, which must be an instance of {@code S} (never {@code null})
-	 * @return the converted object, which must be an instance of {@code T} (potentially {@code null})
-	 * @throws IllegalArgumentException if the source cannot be converted to the desired target type
+	 * Extract {@link GrantedAuthority}s from the given {@link Jwt}.
+	 * <p>
+	 * The authorities are extracted from each delegated {@link Converter} one at a time.
+	 * For each converter, its authorities are added in order, with duplicates removed.
+	 * @param jwt The {@link Jwt} token
+	 * @return The {@link GrantedAuthority authorities} read from the token scopes
 	 */
 	@Override
-	public Collection<GrantedAuthority> convert(Jwt source) {
+	public Collection<GrantedAuthority> convert(Jwt jwt) {
 		Collection<GrantedAuthority> result = new LinkedHashSet<>();
 
-		for (Converter<Jwt, Collection<GrantedAuthority>> converter: this.converters) {
-			Collection<GrantedAuthority> authorities = converter.convert(source);
+		for (Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter : this.authoritiesConverters) {
+			Collection<GrantedAuthority> authorities = authoritiesConverter.convert(jwt);
 			if (authorities != null) {
 				result.addAll(authorities);
 			}
@@ -77,4 +82,5 @@ public class DelegatingJwtGrantedAuthoritiesConverter implements Converter<Jwt, 
 
 		return result;
 	}
+
 }
