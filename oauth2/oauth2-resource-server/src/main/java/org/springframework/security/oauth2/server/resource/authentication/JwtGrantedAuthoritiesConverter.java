@@ -94,7 +94,7 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 			return this.authoritiesClaimName;
 		}
 		for (String claimName : WELL_KNOWN_AUTHORITIES_CLAIM_NAMES) {
-			if (jwt.containsClaim(claimName)) {
+			if (jwt.hasClaim(claimName)) {
 				return claimName;
 			}
 		}
