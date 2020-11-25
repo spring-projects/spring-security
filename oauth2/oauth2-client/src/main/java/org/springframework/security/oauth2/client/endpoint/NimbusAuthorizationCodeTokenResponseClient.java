@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,9 @@ public class NimbusAuthorizationCodeTokenResponseClient
 		// Set the credentials to authenticate the client at the token endpoint
 		ClientID clientId = new ClientID(clientRegistration.getClientId());
 		Secret clientSecret = new Secret(clientRegistration.getClientSecret());
-		boolean isPost = ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod());
+		boolean isPost = ClientAuthenticationMethod.CLIENT_SECRET_POST
+				.equals(clientRegistration.getClientAuthenticationMethod())
+				|| ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod());
 		ClientAuthentication clientAuthentication = isPost ? new ClientSecretPost(clientId, clientSecret)
 				: new ClientSecretBasic(clientId, clientSecret);
 		com.nimbusds.oauth2.sdk.TokenResponse tokenResponse = getTokenResponse(authorizationCodeGrant, tokenUri,

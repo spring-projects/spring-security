@@ -496,7 +496,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		// @formatter:off
 		return ClientRegistration.withRegistrationId("fine-redirect-uri-template-client-registration")
 				.redirectUri("{baseScheme}://{baseHost}{basePort}{basePath}/{action}/oauth2/code/{registrationId}")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.scope("read:user")
 				.authorizationUri("https://example.com/login/oauth/authorize")

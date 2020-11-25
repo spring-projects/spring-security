@@ -125,7 +125,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.clientAuthenticationMethod(ClientAuthenticationMethod.POST).build();
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST).build();
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration,
 				this.username, this.password);
 		this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block();

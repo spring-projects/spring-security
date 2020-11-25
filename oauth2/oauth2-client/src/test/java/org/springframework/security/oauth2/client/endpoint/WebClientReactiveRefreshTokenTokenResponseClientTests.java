@@ -129,7 +129,7 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.clientAuthenticationMethod(ClientAuthenticationMethod.POST).build();
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST).build();
 		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken);
 		this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest).block();

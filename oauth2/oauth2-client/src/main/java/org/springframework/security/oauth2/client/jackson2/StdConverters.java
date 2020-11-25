@@ -50,11 +50,13 @@ abstract class StdConverters {
 		@Override
 		public ClientAuthenticationMethod convert(JsonNode jsonNode) {
 			String value = JsonNodeUtils.findStringValue(jsonNode, "value");
-			if (ClientAuthenticationMethod.BASIC.getValue().equalsIgnoreCase(value)) {
-				return ClientAuthenticationMethod.BASIC;
+			if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.getValue().equalsIgnoreCase(value)
+					|| ClientAuthenticationMethod.BASIC.getValue().equalsIgnoreCase(value)) {
+				return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 			}
-			if (ClientAuthenticationMethod.POST.getValue().equalsIgnoreCase(value)) {
-				return ClientAuthenticationMethod.POST;
+			if (ClientAuthenticationMethod.CLIENT_SECRET_POST.getValue().equalsIgnoreCase(value)
+					|| ClientAuthenticationMethod.POST.getValue().equalsIgnoreCase(value)) {
+				return ClientAuthenticationMethod.CLIENT_SECRET_POST;
 			}
 			if (ClientAuthenticationMethod.NONE.getValue().equalsIgnoreCase(value)) {
 				return ClientAuthenticationMethod.NONE;

@@ -34,7 +34,7 @@
 		<client-registration registration-id="google-login"
 							 client-id="google-client-id"
 							 client-secret="google-client-secret"
-							 client-authentication-method="basic"
+							 client-authentication-method="client_secret_basic"
 							 authorization-grant-type="authorization_code"
 							 redirect-uri="{baseUrl}/login/oauth2/code/{registrationId}"
 							 scope="openid,profile,email"

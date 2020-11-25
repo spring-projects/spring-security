@@ -32,7 +32,7 @@ public final class TestClientRegistrations {
 		// @formatter:off
 		return ClientRegistration.withRegistrationId("registration-id")
 				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.scope("read:user")
 				.authorizationUri("https://example.com/login/oauth/authorize")
@@ -51,7 +51,7 @@ public final class TestClientRegistrations {
 		// @formatter:off
 		return ClientRegistration.withRegistrationId("registration-id-2")
 				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.scope("read:user")
 				.authorizationUri("https://example.com/login/oauth/authorize")
@@ -76,7 +76,7 @@ public final class TestClientRegistrations {
 	public static ClientRegistration.Builder password() {
 		// @formatter:off
 		return ClientRegistration.withRegistrationId("password")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
 				.scope("read", "write")
 				.tokenUri("https://example.com/login/oauth/access_token")

@@ -53,7 +53,7 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverterTests {
 			.withRegistrationId("registration-1")
 			.clientId("client-1")
 			.clientSecret("secret")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.redirectUri("https://client.com/callback/client-1")
 			.scope("read", "write")

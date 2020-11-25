@@ -77,7 +77,7 @@ public class ClientRegistrationTests {
 			ClientRegistration.withRegistrationId(REGISTRATION_ID)
 					.clientId(CLIENT_ID)
 					.clientSecret(CLIENT_SECRET)
-					.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+					.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 					.authorizationGrantType(null)
 					.redirectUri(REDIRECT_URI)
 					.scope(SCOPES.toArray(new String[0]))
@@ -97,7 +97,7 @@ public class ClientRegistrationTests {
 		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
@@ -113,7 +113,8 @@ public class ClientRegistrationTests {
 		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(REDIRECT_URI);
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
@@ -135,7 +136,7 @@ public class ClientRegistrationTests {
 			ClientRegistration.withRegistrationId(null)
 					.clientId(CLIENT_ID)
 					.clientSecret(CLIENT_SECRET)
-					.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+					.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 					.redirectUri(REDIRECT_URI)
 					.scope(SCOPES.toArray(new String[0]))
@@ -156,7 +157,7 @@ public class ClientRegistrationTests {
 			ClientRegistration.withRegistrationId(REGISTRATION_ID)
 					.clientId(null)
 					.clientSecret(CLIENT_SECRET)
-					.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+					.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 					.redirectUri(REDIRECT_URI)
 					.scope(SCOPES.toArray(new String[0]))
@@ -176,7 +177,7 @@ public class ClientRegistrationTests {
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(null)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
@@ -206,7 +207,8 @@ public class ClientRegistrationTests {
 				.clientName(CLIENT_NAME)
 				.build();
 		// @formatter:on
-		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(clientRegistration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 	}
 
 	@Test
@@ -255,7 +257,7 @@ public class ClientRegistrationTests {
 			ClientRegistration.withRegistrationId(REGISTRATION_ID)
 					.clientId(CLIENT_ID)
 					.clientSecret(CLIENT_SECRET)
-					.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+					.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 					.redirectUri(null)
 					.scope(SCOPES.toArray(new String[0]))
@@ -276,7 +278,7 @@ public class ClientRegistrationTests {
 		ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.redirectUri(REDIRECT_URI)
 				.scope((String[]) null)
@@ -296,7 +298,7 @@ public class ClientRegistrationTests {
 			ClientRegistration.withRegistrationId(REGISTRATION_ID)
 					.clientId(CLIENT_ID)
 					.clientSecret(CLIENT_SECRET)
-					.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+					.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 					.redirectUri(REDIRECT_URI)
 					.scope(SCOPES.toArray(new String[0]))
@@ -317,7 +319,7 @@ public class ClientRegistrationTests {
 			ClientRegistration.withRegistrationId(REGISTRATION_ID)
 					.clientId(CLIENT_ID)
 					.clientSecret(CLIENT_SECRET)
-					.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+					.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 					.redirectUri(REDIRECT_URI)
 					.scope(SCOPES.toArray(new String[0]))
@@ -337,7 +339,7 @@ public class ClientRegistrationTests {
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
@@ -356,7 +358,7 @@ public class ClientRegistrationTests {
 		ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.redirectUri(REDIRECT_URI)
 				.scope("scope1")
@@ -375,7 +377,7 @@ public class ClientRegistrationTests {
 		ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.redirectUri(REDIRECT_URI)
 				.authorizationUri(AUTHORIZATION_URI)
@@ -391,7 +393,7 @@ public class ClientRegistrationTests {
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
@@ -413,7 +415,7 @@ public class ClientRegistrationTests {
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
@@ -560,7 +562,7 @@ public class ClientRegistrationTests {
 				.registrationId(overriddenId)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
@@ -579,7 +581,7 @@ public class ClientRegistrationTests {
 		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
 				.scope(SCOPES.toArray(new String[0]))
 				.tokenUri(TOKEN_URI)
@@ -589,7 +591,8 @@ public class ClientRegistrationTests {
 		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.CLIENT_CREDENTIALS);
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
 		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
@@ -598,17 +601,18 @@ public class ClientRegistrationTests {
 
 	@Test
 	public void buildWhenClientCredentialsGrantRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> ClientRegistration.withRegistrationId(null).clientId(CLIENT_ID)
-						.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> ClientRegistration.withRegistrationId(null).clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(TOKEN_URI).build());
 	}
 
 	@Test
 	public void buildWhenClientCredentialsGrantClientIdIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(null).clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(TOKEN_URI).build());
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(null).clientSecret(CLIENT_SECRET)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(TOKEN_URI).build());
 	}
 
 	@Test
@@ -617,7 +621,7 @@ public class ClientRegistrationTests {
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(null)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
 				.tokenUri(TOKEN_URI)
 				.build();
@@ -635,15 +639,16 @@ public class ClientRegistrationTests {
 				.tokenUri(TOKEN_URI)
 				.build();
 		// @formatter:on
-		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(clientRegistration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 	}
 
 	@Test
 	public void buildWhenClientCredentialsGrantTokenUriIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
-						.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(null).build());
+		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(null).build());
 	}
 
 	// gh-6256
@@ -665,7 +670,7 @@ public class ClientRegistrationTests {
 		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
 				.scope(SCOPES.toArray(new String[0]))
 				.tokenUri(TOKEN_URI)
@@ -675,7 +680,8 @@ public class ClientRegistrationTests {
 		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.PASSWORD);
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
 		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
@@ -689,7 +695,7 @@ public class ClientRegistrationTests {
 				.isThrownBy(() -> ClientRegistration.withRegistrationId(null)
 						.clientId(CLIENT_ID)
 						.clientSecret(CLIENT_SECRET)
-						.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 						.authorizationGrantType(AuthorizationGrantType.PASSWORD)
 						.tokenUri(TOKEN_URI)
 						.build()
@@ -704,7 +710,7 @@ public class ClientRegistrationTests {
 				.withRegistrationId(REGISTRATION_ID)
 				.clientId(null)
 				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
 				.tokenUri(TOKEN_URI)
 				.build()
@@ -718,7 +724,7 @@ public class ClientRegistrationTests {
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(null)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
 				.tokenUri(TOKEN_URI)
 				.build();
@@ -736,7 +742,8 @@ public class ClientRegistrationTests {
 				.tokenUri(TOKEN_URI)
 				.build();
 		// @formatter:on
-		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(clientRegistration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 	}
 
 	@Test
@@ -746,7 +753,7 @@ public class ClientRegistrationTests {
 				.isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID)
 						.clientId(CLIENT_ID)
 						.clientSecret(CLIENT_SECRET)
-						.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 						.authorizationGrantType(AuthorizationGrantType.PASSWORD)
 						.tokenUri(null)
 						.build()
@@ -762,7 +769,7 @@ public class ClientRegistrationTests {
 				.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(customGrantType)
 				.scope(SCOPES.toArray(new String[0]))
 				.tokenUri(TOKEN_URI)
@@ -772,7 +779,8 @@ public class ClientRegistrationTests {
 		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(customGrantType);
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
 		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);

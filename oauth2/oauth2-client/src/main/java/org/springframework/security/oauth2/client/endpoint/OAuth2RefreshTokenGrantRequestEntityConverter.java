@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,8 @@ public class OAuth2RefreshTokenGrantRequestEntityConverter
 			formParameters.add(OAuth2ParameterNames.SCOPE,
 					StringUtils.collectionToDelimitedString(refreshTokenGrantRequest.getScopes(), " "));
 		}
-		if (ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
+		if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(clientRegistration.getClientAuthenticationMethod())
+				|| ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
 			formParameters.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
 			formParameters.add(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
 		}

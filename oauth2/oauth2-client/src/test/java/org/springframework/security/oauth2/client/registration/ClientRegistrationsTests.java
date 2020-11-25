@@ -157,7 +157,8 @@ public class ClientRegistrationsTests {
 	}
 
 	private void assertIssuerMetadata(ClientRegistration registration, ClientRegistration.ProviderDetails provider) {
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRegistrationId()).isEqualTo(this.server.getHostName());
 		assertThat(registration.getClientName()).isEqualTo(this.issuer);
@@ -262,28 +263,32 @@ public class ClientRegistrationsTests {
 	public void issuerWhenTokenEndpointAuthMethodsNullThenDefaulted() throws Exception {
 		this.response.remove("token_endpoint_auth_methods_supported");
 		ClientRegistration registration = registration("").build();
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 	}
 
 	@Test
 	public void issuerWhenOAuth2TokenEndpointAuthMethodsNullThenDefaulted() throws Exception {
 		this.response.remove("token_endpoint_auth_methods_supported");
 		ClientRegistration registration = registrationOAuth2("", null).build();
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 	}
 
 	@Test
 	public void issuerWhenTokenEndpointAuthMethodsPostThenMethodIsPost() throws Exception {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_post"));
 		ClientRegistration registration = registration("").build();
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.POST);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_POST);
 	}
 
 	@Test
 	public void issuerWhenOAuth2TokenEndpointAuthMethodsPostThenMethodIsPost() throws Exception {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_post"));
 		ClientRegistration registration = registrationOAuth2("", null).build();
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.POST);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_POST);
 	}
 
 	@Test
@@ -310,7 +315,7 @@ public class ClientRegistrationsTests {
 		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> registration(""))
-				.withMessageContaining("Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and "
+				.withMessageContaining("Only ClientAuthenticationMethod.CLIENT_SECRET_BASIC, ClientAuthenticationMethod.CLIENT_SECRET_POST and "
 						+ "ClientAuthenticationMethod.NONE are supported. The issuer \"" + this.issuer
 						+ "\" returned a configuration of [tls_client_auth]");
 		// @formatter:on
@@ -322,7 +327,7 @@ public class ClientRegistrationsTests {
 		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> registrationOAuth2("", null))
-				.withMessageContaining("Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and "
+				.withMessageContaining("Only ClientAuthenticationMethod.CLIENT_SECRET_BASIC, ClientAuthenticationMethod.CLIENT_SECRET_POST and "
 						+ "ClientAuthenticationMethod.NONE are supported. The issuer \"" + this.issuer
 						+ "\" returned a configuration of [tls_client_auth]");
 		// @formatter:on

@@ -92,7 +92,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenPostThenSuccess() throws Exception {
 		ClientRegistration registration = this.clientRegistration
-				.clientAuthenticationMethod(ClientAuthenticationMethod.POST).build();
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST).build();
 		// @formatter:off
 		enqueueJson("{\n"
 			+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"

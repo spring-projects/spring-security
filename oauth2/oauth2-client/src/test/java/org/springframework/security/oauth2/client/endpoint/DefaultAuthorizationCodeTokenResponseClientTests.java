@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 				.withRegistrationId("registration-1")
 				.clientId("client-1")
 				.clientSecret("secret")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.redirectUri("https://client.com/callback/client-1")
 				.scope("read", "write")
@@ -161,7 +161,7 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		ClientRegistration clientRegistration = this.from(this.clientRegistration)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.POST).build();
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST).build();
 		this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest(clientRegistration));
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		assertThat(recordedRequest.getHeader(HttpHeaders.AUTHORIZATION)).isNull();

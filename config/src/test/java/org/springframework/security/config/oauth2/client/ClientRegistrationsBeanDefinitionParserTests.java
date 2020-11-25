@@ -152,7 +152,8 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleRegistration.getRegistrationId()).isEqualTo("google-login");
 		assertThat(googleRegistration.getClientId()).isEqualTo("google-client-id");
 		assertThat(googleRegistration.getClientSecret()).isEqualTo("google-client-secret");
-		assertThat(googleRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(googleRegistration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(googleRegistration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(googleRegistration.getRedirectUri()).isEqualTo("{baseUrl}/{action}/oauth2/code/{registrationId}");
 		assertThat(googleRegistration.getScopes()).isNull();
@@ -180,7 +181,8 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleRegistration.getRegistrationId()).isEqualTo("google-login");
 		assertThat(googleRegistration.getClientId()).isEqualTo("google-client-id");
 		assertThat(googleRegistration.getClientSecret()).isEqualTo("google-client-secret");
-		assertThat(googleRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(googleRegistration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(googleRegistration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(googleRegistration.getRedirectUri()).isEqualTo("{baseUrl}/login/oauth2/code/{registrationId}");
 		assertThat(googleRegistration.getScopes())
@@ -203,7 +205,8 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(githubRegistration.getRegistrationId()).isEqualTo("github-login");
 		assertThat(githubRegistration.getClientId()).isEqualTo("github-client-id");
 		assertThat(githubRegistration.getClientSecret()).isEqualTo("github-client-secret");
-		assertThat(githubRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(githubRegistration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(githubRegistration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(githubRegistration.getRedirectUri()).isEqualTo("{baseUrl}/login/oauth2/code/{registrationId}");
 		assertThat(googleRegistration.getScopes())

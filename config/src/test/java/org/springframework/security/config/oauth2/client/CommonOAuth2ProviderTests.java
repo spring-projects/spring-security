@@ -46,7 +46,8 @@ public class CommonOAuth2ProviderTests {
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo(IdTokenClaimNames.SUB);
 		assertThat(providerDetails.getJwkSetUri()).isEqualTo("https://www.googleapis.com/oauth2/v3/certs");
 		assertThat(providerDetails.getIssuerUri()).isEqualTo("https://accounts.google.com");
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email");
@@ -63,7 +64,8 @@ public class CommonOAuth2ProviderTests {
 		assertThat(providerDetails.getUserInfoEndpoint().getUri()).isEqualTo("https://api.github.com/user");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo("id");
 		assertThat(providerDetails.getJwkSetUri()).isNull();
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("read:user");
@@ -81,7 +83,8 @@ public class CommonOAuth2ProviderTests {
 				.isEqualTo("https://graph.facebook.com/me?fields=id,name,email");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo("id");
 		assertThat(providerDetails.getJwkSetUri()).isNull();
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.POST);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_POST);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("public_profile", "email");
@@ -100,7 +103,8 @@ public class CommonOAuth2ProviderTests {
 		assertThat(providerDetails.getUserInfoEndpoint().getUri()).isEqualTo("https://example.com/info");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo(IdTokenClaimNames.SUB);
 		assertThat(providerDetails.getJwkSetUri()).isEqualTo("https://example.com/jwkset");
-		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email");

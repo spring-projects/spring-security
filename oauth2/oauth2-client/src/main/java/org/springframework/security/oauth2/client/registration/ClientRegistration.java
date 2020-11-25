@@ -647,7 +647,7 @@ public final class ClientRegistration implements Serializable {
 					&& !StringUtils.hasText(this.clientSecret)) {
 				return ClientAuthenticationMethod.NONE;
 			}
-			return ClientAuthenticationMethod.BASIC;
+			return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 		}
 
 		private ProviderDetails createProviderDetails(ClientRegistration clientRegistration) {

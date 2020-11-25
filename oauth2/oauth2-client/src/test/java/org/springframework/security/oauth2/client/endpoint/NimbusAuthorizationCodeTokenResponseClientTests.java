@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	@Before
 	public void setUp() {
 		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration()
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC);
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		this.authorizationRequest = TestOAuth2AuthorizationRequests.request().build();
 		this.authorizationResponse = TestOAuth2AuthorizationResponses.success().build();
 		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,

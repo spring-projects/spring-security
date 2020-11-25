@@ -269,17 +269,18 @@ public final class ClientRegistrations {
 		if (metadataAuthMethods == null || metadataAuthMethods
 				.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)) {
 			// If null, the default includes client_secret_basic
-			return ClientAuthenticationMethod.BASIC;
+			return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 		}
 		if (metadataAuthMethods.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_POST)) {
-			return ClientAuthenticationMethod.POST;
+			return ClientAuthenticationMethod.CLIENT_SECRET_POST;
 		}
 		if (metadataAuthMethods.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.NONE)) {
 			return ClientAuthenticationMethod.NONE;
 		}
-		throw new IllegalArgumentException("Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and "
-				+ "ClientAuthenticationMethod.NONE are supported. The issuer \"" + issuer
-				+ "\" returned a configuration of " + metadataAuthMethods);
+		throw new IllegalArgumentException(
+				"Only ClientAuthenticationMethod.CLIENT_SECRET_BASIC, ClientAuthenticationMethod.CLIENT_SECRET_POST and "
+						+ "ClientAuthenticationMethod.NONE are supported. The issuer \"" + issuer
+						+ "\" returned a configuration of " + metadataAuthMethods);
 	}
 
 	private interface ThrowingFunction<S, T, E extends Throwable> {

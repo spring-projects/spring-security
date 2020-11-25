@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -223,7 +223,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		ClientRegistration registrationNotFound = ClientRegistration.withRegistrationId("registration-not-found")
 				.clientId("client-1")
 				.clientSecret("secret")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
 				.scope("user")

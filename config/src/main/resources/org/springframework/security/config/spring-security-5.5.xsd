@@ -1657,12 +1657,14 @@
       <xs:attribute name="client-authentication-method">
          <xs:annotation>
             <xs:documentation>The method used to authenticate the client with the provider. The supported values are
-                basic, post and none (public clients).
+                client_secret_basic, client_secret_post and none (public clients).
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
             <xs:restriction base="xs:token">
+               <xs:enumeration value="client_secret_basic"/>
                <xs:enumeration value="basic"/>
+               <xs:enumeration value="client_secret_post"/>
                <xs:enumeration value="post"/>
                <xs:enumeration value="none"/>
             </xs:restriction>
