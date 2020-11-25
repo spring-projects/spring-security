@@ -45,6 +45,7 @@ import org.springframework.security.crypto.util.EncodingUtils;
  *
  * @author Rob Worsnop
  * @author Rob Winch
+ * @author Loïc Guibert
  * @since 4.1
  */
 public class Pbkdf2PasswordEncoder implements PasswordEncoder {
@@ -95,6 +96,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	 * {@value #DEFAULT_HASH_WIDTH} bits.
 	 * @param secret the secret
 	 * @param saltLength the salt length (in bytes)
+	 * @since 5.5
 	 */
 	public Pbkdf2PasswordEncoder(CharSequence secret, int saltLength) {
 		this(secret, saltLength, DEFAULT_ITERATIONS, DEFAULT_HASH_WIDTH);
@@ -120,6 +122,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	 * @param iterations the number of iterations. Users should aim for taking about .5
 	 * seconds on their own system.
 	 * @param hashWidth the size of the hash (in bits)
+	 * @since 5.5
 	 */
 	public Pbkdf2PasswordEncoder(CharSequence secret, int saltLength, int iterations, int hashWidth) {
 		this.secret = Utf8.encode(secret);
