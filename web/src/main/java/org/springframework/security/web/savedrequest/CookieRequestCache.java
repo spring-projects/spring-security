@@ -17,7 +17,6 @@
 package org.springframework.security.web.savedrequest;
 
 import java.util.Base64;
-import java.util.HashMap;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -79,11 +78,6 @@ public class CookieRequestCache implements RequestCache {
 		DefaultSavedRequest.Builder builder = new DefaultSavedRequest.Builder();
 		int port = getPort(uriComponents);
 		MultiValueMap<String, String> queryParams = uriComponents.getQueryParams();
-		if (!queryParams.isEmpty()) {
-			HashMap<String, String[]> parameters = new HashMap<>(queryParams.size());
-			queryParams.forEach((key, value) -> parameters.put(key, value.toArray(new String[] {})));
-			builder.setParameters(parameters);
-		}
 		return builder.setScheme(uriComponents.getScheme()).setServerName(uriComponents.getHost())
 				.setRequestURI(uriComponents.getPath()).setQueryString(uriComponents.getQuery()).setServerPort(port)
 				.setMethod(request.getMethod()).build();
