@@ -154,6 +154,25 @@ public class CookieRequestCacheTests {
 	}
 
 	@Test
+	public void matchingRequestWhenUrlEncodedQueryParametersThenDoesNotDuplicate() {
+		CookieRequestCache cookieRequestCache = new CookieRequestCache();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServerPort(443);
+		request.setSecure(true);
+		request.setScheme("https");
+		request.setServerName("abc.com");
+		request.setRequestURI("/destination");
+		request.setQueryString("goto=https%3A%2F%2Fstart.spring.io");
+		request.setParameter("goto", "https://start.spring.io");
+		String redirectUrl = "https://abc.com/destination?goto=https%3A%2F%2Fstart.spring.io";
+		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		final HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(request, response);
+		assertThat(matchingRequest).isNotNull();
+		assertThat(matchingRequest.getParameterValues("goto")).containsExactly("https://start.spring.io");
+	}
+
+	@Test
 	public void removeRequestWhenInvokedThenSetsAnExpiredCookieOnResponse() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
 		MockHttpServletResponse response = new MockHttpServletResponse();
