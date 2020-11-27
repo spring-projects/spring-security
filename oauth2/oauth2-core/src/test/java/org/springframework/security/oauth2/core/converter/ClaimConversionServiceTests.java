@@ -15,9 +15,10 @@
  */
 package org.springframework.security.oauth2.core.converter;
 
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
-import org.springframework.core.convert.ConversionService;
 
 import java.net.URL;
 import java.time.Instant;
@@ -28,6 +29,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.core.convert.ConversionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -141,15 +144,26 @@ public class ClaimConversionServiceTests {
 	}
 
 	@Test
-	public void convertCollectionStringWhenListStringThenReturnSame() {
+	public void convertCollectionStringWhenListStringThenReturnNotSameButEqual() {
 		List<String> list = Lists.list("1", "2", "3", "4");
-		assertThat(this.conversionService.convert(list, Collection.class)).isSameAs(list);
+		assertThat(this.conversionService.convert(list, Collection.class)).isNotSameAs(list).isEqualTo(list);
 	}
 
 	@Test
 	public void convertCollectionStringWhenListNumberThenConverts() {
 		assertThat(this.conversionService.convert(Lists.list(1, 2, 3, 4), Collection.class))
 				.isEqualTo(Lists.list("1", "2", "3", "4"));
+	}
+
+	@Test
+	public void convertListStringWhenJsonArrayThenConverts() {
+		JSONArray jsonArray = new JSONArray();
+		jsonArray.add("1");
+		jsonArray.add("2");
+		jsonArray.add("3");
+		jsonArray.add(null);
+		assertThat(this.conversionService.convert(jsonArray, List.class)).isNotInstanceOf(JSONArray.class)
+				.isEqualTo(Lists.list("1", "2", "3"));
 	}
 
 	@Test
@@ -165,9 +179,9 @@ public class ClaimConversionServiceTests {
 	}
 
 	@Test
-	public void convertListStringWhenListStringThenReturnSame() {
+	public void convertListStringWhenListStringThenReturnNotSameButEqual() {
 		List<String> list = Lists.list("1", "2", "3", "4");
-		assertThat(this.conversionService.convert(list, List.class)).isSameAs(list);
+		assertThat(this.conversionService.convert(list, List.class)).isNotSameAs(list).isEqualTo(list);
 	}
 
 	@Test
@@ -189,7 +203,7 @@ public class ClaimConversionServiceTests {
 	}
 
 	@Test
-	public void convertMapStringObjectWhenMapStringObjectThenReturnSame() {
+	public void convertMapStringObjectWhenMapStringObjectThenReturnNotSameButEqual() {
 		Map<String, Object> mapStringObject = new HashMap<String, Object>() {
 			{
 				put("key1", "value1");
@@ -197,7 +211,8 @@ public class ClaimConversionServiceTests {
 				put("key3", "value3");
 			}
 		};
-		assertThat(this.conversionService.convert(mapStringObject, Map.class)).isSameAs(mapStringObject);
+		assertThat(this.conversionService.convert(mapStringObject, Map.class)).isNotSameAs(mapStringObject)
+				.isEqualTo(mapStringObject);
 	}
 
 	@Test
@@ -217,6 +232,22 @@ public class ClaimConversionServiceTests {
 			}
 		};
 		assertThat(this.conversionService.convert(mapIntegerObject, Map.class)).isEqualTo(mapStringObject);
+	}
+
+	@Test
+	public void convertMapStringObjectWhenJsonObjectThenConverts() {
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("1", "value1");
+		jsonObject.put("2", "value2");
+
+		Map<String, Object> mapStringObject = new HashMap<String, Object>() {
+			{
+				put("1", "value1");
+				put("2", "value2");
+			}
+		};
+		assertThat(this.conversionService.convert(jsonObject, Map.class)).isNotInstanceOf(JSONObject.class)
+				.isEqualTo(mapStringObject);
 	}
 
 	@Test
