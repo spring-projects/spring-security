@@ -23,7 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.nimbusds.jose.shaded.json.JSONArray;
+import com.nimbusds.jose.shaded.json.JSONObject;
 import org.assertj.core.util.Lists;
+import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,6 +57,10 @@ public class ClaimTypeConverterTests {
 	private static final String LIST_STRING_CLAIM = "list-string-claim";
 
 	private static final String MAP_STRING_OBJECT_CLAIM = "map-string-object-claim";
+
+	private static final String JSON_ARRAY_CLAIM = "json-array-claim";
+
+	private static final String JSON_OBJECT_CLAIM = "json-object-claim";
 
 	private ClaimTypeConverter claimTypeConverter;
 
@@ -115,6 +122,12 @@ public class ClaimTypeConverterTests {
 		mapIntegerObject.put(1, "value1");
 		Map<String, Object> mapStringObject = new HashMap<>();
 		mapStringObject.put("1", "value1");
+		JSONArray jsonArray = new JSONArray();
+		jsonArray.add("1");
+		List<String> jsonArrayListString = Lists.list("1");
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("1", "value1");
+		Map<String, Object> jsonObjectMap = Maps.newHashMap("1", "value1");
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(STRING_CLAIM, Boolean.TRUE);
 		claims.put(BOOLEAN_CLAIM, "true");
@@ -123,6 +136,8 @@ public class ClaimTypeConverterTests {
 		claims.put(COLLECTION_STRING_CLAIM, listNumber);
 		claims.put(LIST_STRING_CLAIM, listNumber);
 		claims.put(MAP_STRING_OBJECT_CLAIM, mapIntegerObject);
+		claims.put(JSON_ARRAY_CLAIM, jsonArray);
+		claims.put(JSON_OBJECT_CLAIM, jsonObject);
 		claims = this.claimTypeConverter.convert(claims);
 		assertThat(claims.get(STRING_CLAIM)).isEqualTo("true");
 		assertThat(claims.get(BOOLEAN_CLAIM)).isEqualTo(Boolean.TRUE);
@@ -131,6 +146,8 @@ public class ClaimTypeConverterTests {
 		assertThat(claims.get(COLLECTION_STRING_CLAIM)).isEqualTo(listString);
 		assertThat(claims.get(LIST_STRING_CLAIM)).isEqualTo(listString);
 		assertThat(claims.get(MAP_STRING_OBJECT_CLAIM)).isEqualTo(mapStringObject);
+		assertThat(claims.get(JSON_ARRAY_CLAIM)).isEqualTo(jsonArrayListString);
+		assertThat(claims.get(JSON_OBJECT_CLAIM)).isEqualTo(jsonObjectMap);
 	}
 
 	@Test
@@ -155,9 +172,9 @@ public class ClaimTypeConverterTests {
 		assertThat(claims.get(BOOLEAN_CLAIM)).isSameAs(bool);
 		assertThat(claims.get(INSTANT_CLAIM)).isSameAs(instant);
 		assertThat(claims.get(URL_CLAIM)).isSameAs(url);
-		assertThat(claims.get(COLLECTION_STRING_CLAIM)).isSameAs(listString);
-		assertThat(claims.get(LIST_STRING_CLAIM)).isSameAs(listString);
-		assertThat(claims.get(MAP_STRING_OBJECT_CLAIM)).isSameAs(mapStringObject);
+		assertThat(claims.get(COLLECTION_STRING_CLAIM)).isNotSameAs(listString).isEqualTo(listString);
+		assertThat(claims.get(LIST_STRING_CLAIM)).isNotSameAs(listString).isEqualTo(listString);
+		assertThat(claims.get(MAP_STRING_OBJECT_CLAIM)).isNotSameAs(mapStringObject).isEqualTo(mapStringObject);
 	}
 
 	@Test

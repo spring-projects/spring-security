@@ -56,12 +56,6 @@ final class ObjectToListStringConverter implements ConditionalGenericConverter {
 		if (source == null) {
 			return null;
 		}
-		if (source instanceof List) {
-			List<?> sourceList = (List<?>) source;
-			if (!sourceList.isEmpty() && sourceList.get(0) instanceof String) {
-				return source;
-			}
-		}
 		if (source instanceof Collection) {
 			Collection<String> results = new ArrayList<>();
 			for (Object object : ((Collection<?>) source)) {
