@@ -53,9 +53,6 @@ final class ObjectToMapStringObjectConverter implements ConditionalGenericConver
 			return null;
 		}
 		Map<?, ?> sourceMap = (Map<?, ?>) source;
-		if (!sourceMap.isEmpty() && sourceMap.keySet().iterator().next() instanceof String) {
-			return source;
-		}
 		Map<String, Object> result = new HashMap<>();
 		sourceMap.forEach((k, v) -> result.put(k.toString(), v));
 		return result;
