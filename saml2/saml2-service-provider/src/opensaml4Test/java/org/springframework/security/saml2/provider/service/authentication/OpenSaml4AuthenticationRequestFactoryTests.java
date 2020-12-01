@@ -242,6 +242,18 @@ public class OpenSaml4AuthenticationRequestFactoryTests {
 		assertThat(result.getBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
 	}
 
+	@Test
+	public void createAuthenticationRequestWhenSetNameIDPolicyThenReturnsCorrectNameIDPolicy() {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().nameIdFormat("format").build();
+		this.context = this.contextBuilder.relayState("Relay State Value").relyingPartyRegistration(registration)
+				.build();
+		AuthnRequest authn = getAuthNRequest(Saml2MessageBinding.POST);
+		assertThat(authn.getNameIDPolicy()).isNotNull();
+		assertThat(authn.getNameIDPolicy().getAllowCreate()).isFalse();
+		assertThat(authn.getNameIDPolicy().getFormat()).isEqualTo("format");
+		assertThat(authn.getNameIDPolicy().getSPNameQualifier()).isNull();
+	}
+
 	private AuthnRequest authnRequest() {
 		AuthnRequest authnRequest = TestOpenSamlObjects.authnRequest();
 		authnRequest.setIssueInstant(Instant.now());

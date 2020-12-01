@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,10 @@ import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
+import org.opensaml.saml.saml2.core.NameIDPolicy;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder;
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
+import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
@@ -56,6 +58,8 @@ public final class OpenSaml4AuthenticationRequestFactory implements Saml2Authent
 
 	private final IssuerBuilder issuerBuilder;
 
+	private final NameIDPolicyBuilder nameIdPolicyBuilder;
+
 	private Clock clock = Clock.systemUTC();
 
 	private Converter<Saml2AuthenticationRequestContext, AuthnRequest> authenticationRequestContextConverter;
@@ -69,6 +73,8 @@ public final class OpenSaml4AuthenticationRequestFactory implements Saml2Authent
 		this.authnRequestBuilder = (AuthnRequestBuilder) registry.getBuilderFactory()
 				.getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
 		this.issuerBuilder = (IssuerBuilder) registry.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+		this.nameIdPolicyBuilder = (NameIDPolicyBuilder) registry.getBuilderFactory()
+				.getBuilder(NameIDPolicy.DEFAULT_ELEMENT_NAME);
 	}
 
 	/**
@@ -152,12 +158,24 @@ public final class OpenSaml4AuthenticationRequestFactory implements Saml2Authent
 			auth.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
 		}
 		auth.setProtocolBinding(protocolBinding);
+		if (auth.getNameIDPolicy() == null) {
+			setNameIdPolicy(auth, context.getRelyingPartyRegistration());
+		}
 		Issuer iss = this.issuerBuilder.buildObject();
 		iss.setValue(issuer);
 		auth.setIssuer(iss);
 		auth.setDestination(destination);
 		auth.setAssertionConsumerServiceURL(assertionConsumerServiceUrl);
 		return auth;
+	}
+
+	private void setNameIdPolicy(AuthnRequest authnRequest, RelyingPartyRegistration registration) {
+		if (!StringUtils.hasText(registration.getNameIdFormat())) {
+			return;
+		}
+		NameIDPolicy nameIdPolicy = this.nameIdPolicyBuilder.buildObject();
+		nameIdPolicy.setFormat(registration.getNameIdFormat());
+		authnRequest.setNameIDPolicy(nameIdPolicy);
 	}
 
 	/**
