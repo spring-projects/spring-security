@@ -61,4 +61,13 @@ public class OpenSamlMetadataResolverTests {
 				.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"");
 	}
 
+	@Test
+	public void resolveWhenRelyingPartyNameIDFormatThenMetadataMatches() {
+		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full().nameIDFormat("format")
+				.build();
+		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
+		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
+		assertThat(metadata).contains("<md:NameIDFormat>format</md:NameIDFormat>");
+	}
+
 }

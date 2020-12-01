@@ -31,6 +31,7 @@ import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
+import org.opensaml.saml.saml2.metadata.NameIDFormat;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorMarshaller;
@@ -86,7 +87,13 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		spSsoDescriptor.getKeyDescriptors()
 				.addAll(buildKeys(registration.getDecryptionX509Credentials(), UsageType.ENCRYPTION));
 		spSsoDescriptor.getAssertionConsumerServices().add(buildAssertionConsumerService(registration));
+<<<<<<< Upstream, based on upstream/main
 		spSsoDescriptor.getSingleLogoutServices().add(buildSingleLogoutService(registration));
+=======
+		if (registration.getNameIDFormat() != null) {
+			spSsoDescriptor.getNameIDFormats().add(buildNameIDFormat(registration));
+		}
+>>>>>>> 7056a31 make SP NameIDPolicy configurable in RelyingPartyRegistration
 		return spSsoDescriptor;
 	}
 
@@ -125,12 +132,19 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		return assertionConsumerService;
 	}
 
+<<<<<<< Upstream, based on upstream/main
 	private SingleLogoutService buildSingleLogoutService(RelyingPartyRegistration registration) {
 		SingleLogoutService singleLogoutService = build(SingleLogoutService.DEFAULT_ELEMENT_NAME);
 		singleLogoutService.setLocation(registration.getSingleLogoutServiceLocation());
 		singleLogoutService.setResponseLocation(registration.getSingleLogoutServiceResponseLocation());
 		singleLogoutService.setBinding(registration.getSingleLogoutServiceBinding().getUrn());
 		return singleLogoutService;
+=======
+	private NameIDFormat buildNameIDFormat(RelyingPartyRegistration registration) {
+		NameIDFormat nameIDFormat = build(NameIDFormat.DEFAULT_ELEMENT_NAME);
+		nameIDFormat.setFormat(registration.getNameIDFormat());
+		return nameIDFormat;
+>>>>>>> 7056a31 make SP NameIDPolicy configurable in RelyingPartyRegistration
 	}
 
 	@SuppressWarnings("unchecked")
