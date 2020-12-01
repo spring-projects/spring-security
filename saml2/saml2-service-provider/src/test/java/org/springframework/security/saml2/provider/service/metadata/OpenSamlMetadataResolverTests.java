@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,15 @@ public class OpenSamlMetadataResolverTests {
 				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\"")
 				.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
 				.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"");
+	}
+
+	@Test
+	public void resolveWhenRelyingPartyNameIDFormatThenMetadataMatches() {
+		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full().nameIdFormat("format")
+				.build();
+		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
+		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
+		assertThat(metadata).contains("<md:NameIDFormat>format</md:NameIDFormat>");
 	}
 
 }

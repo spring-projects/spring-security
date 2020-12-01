@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
+import org.opensaml.saml.saml2.metadata.NameIDFormat;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorMarshaller;
@@ -87,6 +88,9 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 				.addAll(buildKeys(registration.getDecryptionX509Credentials(), UsageType.ENCRYPTION));
 		spSsoDescriptor.getAssertionConsumerServices().add(buildAssertionConsumerService(registration));
 		spSsoDescriptor.getSingleLogoutServices().add(buildSingleLogoutService(registration));
+		if (registration.getNameIdFormat() != null) {
+			spSsoDescriptor.getNameIDFormats().add(buildNameIDFormat(registration));
+		}
 		return spSsoDescriptor;
 	}
 
@@ -131,6 +135,12 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		singleLogoutService.setResponseLocation(registration.getSingleLogoutServiceResponseLocation());
 		singleLogoutService.setBinding(registration.getSingleLogoutServiceBinding().getUrn());
 		return singleLogoutService;
+	}
+
+	private NameIDFormat buildNameIDFormat(RelyingPartyRegistration registration) {
+		NameIDFormat nameIdFormat = build(NameIDFormat.DEFAULT_ELEMENT_NAME);
+		nameIdFormat.setFormat(registration.getNameIdFormat());
+		return nameIdFormat;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -87,6 +87,8 @@ public final class RelyingPartyRegistration {
 
 	private final Saml2MessageBinding singleLogoutServiceBinding;
 
+	private final String nameIdFormat;
+
 	private final ProviderDetails providerDetails;
 
 	private final List<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials;
@@ -98,7 +100,7 @@ public final class RelyingPartyRegistration {
 	private RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
 			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
 			String singleLogoutServiceResponseLocation, Saml2MessageBinding singleLogoutServiceBinding,
-			ProviderDetails providerDetails,
+			ProviderDetails providerDetails, String nameIdFormat,
 			Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials,
 			Collection<Saml2X509Credential> decryptionX509Credentials,
 			Collection<Saml2X509Credential> signingX509Credentials) {
@@ -129,6 +131,7 @@ public final class RelyingPartyRegistration {
 		this.singleLogoutServiceLocation = singleLogoutServiceLocation;
 		this.singleLogoutServiceResponseLocation = singleLogoutServiceResponseLocation;
 		this.singleLogoutServiceBinding = singleLogoutServiceBinding;
+		this.nameIdFormat = nameIdFormat;
 		this.providerDetails = providerDetails;
 		this.credentials = Collections.unmodifiableList(new LinkedList<>(credentials));
 		this.decryptionX509Credentials = Collections.unmodifiableList(new LinkedList<>(decryptionX509Credentials));
@@ -232,6 +235,15 @@ public final class RelyingPartyRegistration {
 	 */
 	public String getSingleLogoutServiceResponseLocation() {
 		return this.singleLogoutServiceResponseLocation;
+	}
+
+	/**
+	 * Get the NameID format.
+	 * @return the NameID format
+	 * @since 5.7
+	 */
+	public String getNameIdFormat() {
+		return this.nameIdFormat;
 	}
 
 	/**
@@ -424,6 +436,7 @@ public final class RelyingPartyRegistration {
 				.singleLogoutServiceLocation(registration.getSingleLogoutServiceLocation())
 				.singleLogoutServiceResponseLocation(registration.getSingleLogoutServiceResponseLocation())
 				.singleLogoutServiceBinding(registration.getSingleLogoutServiceBinding())
+				.nameIdFormat(registration.getNameIdFormat())
 				.assertingPartyDetails((assertingParty) -> assertingParty
 						.entityId(registration.getAssertingPartyDetails().getEntityId())
 						.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
@@ -1018,6 +1031,8 @@ public final class RelyingPartyRegistration {
 
 		private Saml2MessageBinding singleLogoutServiceBinding = Saml2MessageBinding.POST;
 
+		private String nameIdFormat = null;
+
 		private ProviderDetails.Builder providerDetails = new ProviderDetails.Builder();
 
 		private Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials = new HashSet<>();
@@ -1174,6 +1189,17 @@ public final class RelyingPartyRegistration {
 		}
 
 		/**
+		 * Set the NameID format
+		 * @param nameIdFormat
+		 * @return the {@link Builder} for further configuration
+		 * @since 5.7
+		 */
+		public Builder nameIdFormat(String nameIdFormat) {
+			this.nameIdFormat = nameIdFormat;
+			return this;
+		}
+
+		/**
 		 * Apply this {@link Consumer} to further configure the Asserting Party details
 		 * @param assertingPartyDetails The {@link Consumer} to apply
 		 * @return the {@link Builder} for further configuration
@@ -1321,7 +1347,7 @@ public final class RelyingPartyRegistration {
 			return new RelyingPartyRegistration(this.registrationId, this.entityId,
 					this.assertionConsumerServiceLocation, this.assertionConsumerServiceBinding,
 					this.singleLogoutServiceLocation, this.singleLogoutServiceResponseLocation,
-					this.singleLogoutServiceBinding, this.providerDetails.build(), this.credentials,
+					this.singleLogoutServiceBinding, this.providerDetails.build(), this.nameIdFormat, this.credentials,
 					this.decryptionX509Credentials, this.signingX509Credentials);
 		}
 
