@@ -1,0 +1,20 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+io.projectreactor:reactor-bom:Dysprosium-SR14
+org.jetbrains.kotlin:kotlin-allopen:1.4.20
+org.jetbrains.kotlin:kotlin-bom:1.4.20
+org.jetbrains.kotlin:kotlin-gradle-plugin-api:1.4.20
+org.jetbrains.kotlin:kotlin-gradle-plugin-model:1.4.20
+org.jetbrains.kotlin:kotlin-script-runtime:1.4.20
+org.jetbrains.kotlin:kotlin-scripting-common:1.4.20
+org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:1.4.20
+org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:1.4.20
+org.jetbrains.kotlin:kotlin-scripting-jvm:1.4.20
+org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20
+org.jetbrains.kotlin:kotlin-stdlib:1.4.20
+org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.4.1
+org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1
+org.jetbrains:annotations:13.0
+org.springframework.data:spring-data-releasetrain:Neumann-SR5
+org.springframework:spring-framework-bom:5.2.11.RELEASE

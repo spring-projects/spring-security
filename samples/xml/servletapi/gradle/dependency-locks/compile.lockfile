@@ -1,0 +1,17 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+io.projectreactor:reactor-bom:Dysprosium-SR14
+javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2
+javax.servlet:javax.servlet-api:4.0.1
+org.jetbrains.kotlin:kotlin-bom:1.4.20
+org.springframework.data:spring-data-releasetrain:Neumann-SR5
+org.springframework:spring-aop:5.2.11.RELEASE
+org.springframework:spring-beans:5.2.11.RELEASE
+org.springframework:spring-context:5.2.11.RELEASE
+org.springframework:spring-core:5.2.11.RELEASE
+org.springframework:spring-expression:5.2.11.RELEASE
+org.springframework:spring-framework-bom:5.2.11.RELEASE
+org.springframework:spring-jcl:5.2.11.RELEASE
+org.springframework:spring-web:5.2.11.RELEASE
+org.springframework:spring-webmvc:5.2.11.RELEASE
