@@ -43,14 +43,14 @@ class KotlinApplicationTests {
     fun `index page is not protected`() {
         this.mockMvc.get("/")
                 .andExpect {
-                    status { isOk }
+                    status { isOk() }
                 }
     }
 
     @Test
     fun `protected page redirects to login`() {
         val mvcResult = this.mockMvc.get("/user/index")
-                .andExpect { status { is3xxRedirection } }
+                .andExpect { status { is3xxRedirection() } }
                 .andReturn()
 
         assertThat(mvcResult.response.redirectedUrl).endsWith("/log-in")
@@ -79,7 +79,7 @@ class KotlinApplicationTests {
         this.mockMvc.get("/user/index") {
             session = httpSession
         }.andExpect {
-            status { isOk }
+            status { isOk() }
         }
     }
 }
