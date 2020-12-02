@@ -969,6 +969,15 @@ You can change this by calling the `setRequestMatcher` method on the filter:
 
 [source,java]
 ----
+filter.setRequestMatcher(new AntPathRequestMatcher("/saml2/metadata/{registrationId}", "GET"));
+----
+
+ensuring that the `registrationId` hint is at the end of the path.
+
+Or, if you have registered a custom relying party registration resolver in the constructor, then you can specify a path without a `registrationId` hint, like so:
+
+[source,java]
+----
 filter.setRequestMatcher(new AntPathRequestMatcher("/saml2/metadata", "GET"));
 ----
 
