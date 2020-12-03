@@ -107,8 +107,8 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 		if (auth.getPrincipal() instanceof UserDetails) {
 			return ((UserDetails) auth.getPrincipal()).getUsername();
 		}
-		if (auth.getPrincipal() instanceof AbstractAuthenticationToken) {
-			return ((AbstractAuthenticationToken) auth.getPrincipal()).getName();
+		if (auth instanceof AbstractAuthenticationToken) {
+			return auth.getName();
 		}
 		return auth.getPrincipal().toString();
 	}
