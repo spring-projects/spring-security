@@ -89,7 +89,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * </p>
 	 *
 	 * <p>
-	 * If a URL is specified or this is not being used in conjuction with
+	 * If a URL is specified or this is not being used in conjunction with
 	 * {@link WebSecurityConfigurerAdapter}, users are required to process the specified
 	 * URL to generate a login page. In general, the login page should create a form that
 	 * submits a request with the following requirements to work with

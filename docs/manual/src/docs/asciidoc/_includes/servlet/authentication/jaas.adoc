@@ -66,7 +66,7 @@ For details, refer to the class level javadoc of `InMemoryConfiguration`.
 
 [[jaas-djap-config]]
 ==== DefaultJaasAuthenticationProvider Example Configuration
-While the Spring configuration for `InMemoryConfiguration` can be more verbose than the standarad JAAS configuration files, using it in conjuction with `DefaultJaasAuthenticationProvider` is more flexible than `JaasAuthenticationProvider` since it not dependant on the default `Configuration` implementation.
+While the Spring configuration for `InMemoryConfiguration` can be more verbose than the standard JAAS configuration files, using it in conjunction with `DefaultJaasAuthenticationProvider` is more flexible than `JaasAuthenticationProvider` since it not dependant on the default `Configuration` implementation.
 
 An example configuration of `DefaultJaasAuthenticationProvider` using `InMemoryConfiguration` is provided below.
 Note that custom implementations of `Configuration` can easily be injected into `DefaultJaasAuthenticationProvider` as well.

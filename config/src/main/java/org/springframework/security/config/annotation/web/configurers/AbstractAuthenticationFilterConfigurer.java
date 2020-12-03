@@ -299,7 +299,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * </p>
 	 *
 	 * <p>
-	 * If a URL is specified or this is not being used in conjuction with
+	 * If a URL is specified or this is not being used in conjunction with
 	 * {@link WebSecurityConfigurerAdapter}, users are required to process the specified
 	 * URL to generate a login page.
 	 * </p>

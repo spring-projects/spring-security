@@ -54,7 +54,7 @@ import org.springframework.util.ReflectionUtils;
  * </pre>
  *
  * <p>
- * It is common for users to use {@link AnnotationParameterNameDiscoverer} in conjuction
+ * It is common for users to use {@link AnnotationParameterNameDiscoverer} in conjunction
  * with {@link PrioritizedParameterNameDiscoverer}. In fact, Spring Security's
  * {@link DefaultSecurityParameterNameDiscoverer} (which is used by default with method
  * level security) extends {@link PrioritizedParameterNameDiscoverer} and will
