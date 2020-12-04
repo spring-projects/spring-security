@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *
  * @see LdapJackson2Module
  * @see SecurityJackson2Modules
- * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY,
