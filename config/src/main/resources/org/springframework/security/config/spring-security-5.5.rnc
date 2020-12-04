@@ -919,7 +919,7 @@ csrf-options.attlist &=
 
 headers =
 ## Element for configuration of the HeaderWritersFilter. Enables easy setting for the X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
-element headers { headers-options.attlist, (cache-control? & xss-protection? & hsts? & frame-options? & content-type-options? & hpkp? & content-security-policy? & referrer-policy? & feature-policy? & header*)}
+element headers { headers-options.attlist, (cache-control? & xss-protection? & hsts? & frame-options? & content-type-options? & hpkp? & content-security-policy? & referrer-policy? & feature-policy? & permissions-policy? & header*)}
 headers-options.attlist &=
 	## Specifies if the default headers should be disabled. Default false.
 	attribute defaults-disabled {xsd:token}?
@@ -1006,6 +1006,13 @@ feature-policy =
 feature-options.attlist &=
 	## The security policy directive(s) for the Feature-Policy header.
 	attribute policy-directives {xsd:token}?
+
+permissions-policy =
+	## Adds support for Permissions Policy
+	element permissions-policy {permissions-options.attlist}
+permissions-options.attlist &=
+	## The policies for the Permissions-Policy header.
+	attribute policy {xsd:token}?
 
 cache-control =
 	## Adds Cache-Control no-cache, no-store, must-revalidate, Pragma no-cache, and Expires 0 for every request

@@ -2692,6 +2692,7 @@
             <xs:element ref="security:content-security-policy"/>
             <xs:element ref="security:referrer-policy"/>
             <xs:element ref="security:feature-policy"/>
+            <xs:element ref="security:permissions-policy"/>
             <xs:element ref="security:header"/>
          </xs:choice>
          <xs:attributeGroup ref="security:headers-options.attlist"/>
@@ -2922,6 +2923,23 @@
       <xs:attribute name="policy-directives" type="xs:token">
          <xs:annotation>
             <xs:documentation>The security policy directive(s) for the Feature-Policy header.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="permissions-policy">
+      <xs:annotation>
+         <xs:documentation>Adds support for Permissions Policy
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:permissions-options.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="permissions-options.attlist">
+      <xs:attribute name="policy" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The policies for the Permissions-Policy header.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

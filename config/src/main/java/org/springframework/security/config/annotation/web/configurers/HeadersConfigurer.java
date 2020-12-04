@@ -34,6 +34,7 @@ import org.springframework.security.web.header.writers.ContentSecurityPolicyHead
 import org.springframework.security.web.header.writers.FeaturePolicyHeaderWriter;
 import org.springframework.security.web.header.writers.HpkpHeaderWriter;
 import org.springframework.security.web.header.writers.HstsHeaderWriter;
+import org.springframework.security.web.header.writers.PermissionsPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.security.web.header.writers.XContentTypeOptionsHeaderWriter;
@@ -92,6 +93,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	private final ReferrerPolicyConfig referrerPolicy = new ReferrerPolicyConfig();
 
 	private final FeaturePolicyConfig featurePolicy = new FeaturePolicyConfig();
+
+	private final PermissionsPolicyConfig permissionsPolicy = new PermissionsPolicyConfig();
 
 	/**
 	 * Creates a new instance
@@ -387,6 +390,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		addIfNotNull(writers, this.contentSecurityPolicy.writer);
 		addIfNotNull(writers, this.referrerPolicy.writer);
 		addIfNotNull(writers, this.featurePolicy.writer);
+		addIfNotNull(writers, this.permissionsPolicy.writer);
 		writers.addAll(this.headerWriters);
 		return writers;
 	}
@@ -487,10 +491,56 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
 	 * @since 5.1
 	 * @see FeaturePolicyHeaderWriter
+	 * @deprecated Use {@link #permissionsPolicy(Customizer)} instead.
 	 */
+	@Deprecated
 	public FeaturePolicyConfig featurePolicy(String policyDirectives) {
 		this.featurePolicy.writer = new FeaturePolicyHeaderWriter(policyDirectives);
 		return this.featurePolicy;
+	}
+
+	/**
+	 * <p>
+	 * Allows configuration for
+	 * <a href="https://w3c.github.io/webappsec-permissions-policy/">Permissions
+	 * Policy</a>.
+	 * </p>
+	 *
+	 * <p>
+	 * Configuration is provided to the {@link PermissionsPolicyHeaderWriter} which
+	 * support the writing of the header as detailed in the W3C Technical Report:
+	 * </p>
+	 * <ul>
+	 * <li>Permissions-Policy</li>
+	 * </ul>
+	 * @return the {@link PermissionsPolicyConfig} for additional configuration
+	 * @since 5.5
+	 * @see PermissionsPolicyHeaderWriter
+	 */
+	public PermissionsPolicyConfig permissionsPolicy() {
+		this.permissionsPolicy.writer = new PermissionsPolicyHeaderWriter();
+		return this.permissionsPolicy;
+	}
+
+	/**
+	 * Allows configuration for
+	 * <a href="https://w3c.github.io/webappsec-permissions-policy/"> Permissions
+	 * Policy</a>.
+	 * <p>
+	 * Calling this method automatically enables (includes) the {@code Permissions-Policy}
+	 * header in the response using the supplied policy directive(s).
+	 * <p>
+	 * Configuration is provided to the {@link PermissionsPolicyHeaderWriter} which is
+	 * responsible for writing the header.
+	 * @return the {@link PermissionsPolicyConfig} for additional configuration
+	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
+	 * @since 5.5
+	 * @see PermissionsPolicyHeaderWriter
+	 */
+	public PermissionsPolicyConfig permissionsPolicy(Customizer<PermissionsPolicyConfig> permissionsPolicyCustomizer) {
+		this.permissionsPolicy.writer = new PermissionsPolicyHeaderWriter();
+		permissionsPolicyCustomizer.customize(this.permissionsPolicy);
+		return this.permissionsPolicy;
 	}
 
 	public final class ContentTypeOptionsConfig {
@@ -1055,6 +1105,35 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		/**
 		 * Allows completing configuration of Feature Policy and continuing configuration
 		 * of headers.
+		 * @return the {@link HeadersConfigurer} for additional configuration
+		 */
+		public HeadersConfigurer<H> and() {
+			return HeadersConfigurer.this;
+		}
+
+	}
+
+	public final class PermissionsPolicyConfig {
+
+		private PermissionsPolicyHeaderWriter writer;
+
+		private PermissionsPolicyConfig() {
+		}
+
+		/**
+		 * Sets the policy to be used in the response header.
+		 * @param policy a permissions policy
+		 * @return the {@link PermissionsPolicyConfig} for additional configuration
+		 * @throws IllegalArgumentException if policy is null
+		 */
+		public PermissionsPolicyConfig policy(String policy) {
+			this.writer.setPolicy(policy);
+			return this;
+		}
+
+		/**
+		 * Allows completing configuration of Permissions Policy and continuing
+		 * configuration of headers.
 		 * @return the {@link HeadersConfigurer} for additional configuration
 		 */
 		public HeadersConfigurer<H> and() {

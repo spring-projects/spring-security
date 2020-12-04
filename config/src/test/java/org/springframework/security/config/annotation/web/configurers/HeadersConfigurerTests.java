@@ -448,6 +448,44 @@ public class HeadersConfigurerTests {
 	}
 
 	@Test
+	public void getWhenPermissionsPolicyConfiguredThenPermissionsPolicyHeaderInResponse() throws Exception {
+		this.spring.register(PermissionsPolicyConfig.class).autowire();
+		ResultMatcher permissionsPolicy = header().string("Permissions-Policy", "geolocation=(self)");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(permissionsPolicy)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Permissions-Policy");
+	}
+
+	@Test
+	public void getWhenPermissionsPolicyConfiguredWithStringThenPermissionsPolicyHeaderInResponse() throws Exception {
+		this.spring.register(PermissionsPolicyStringConfig.class).autowire();
+		ResultMatcher permissionsPolicy = header().string("Permissions-Policy", "geolocation=(self)");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(permissionsPolicy)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Permissions-Policy");
+	}
+
+	@Test
+	public void configureWhenPermissionsPolicyEmptyThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(PermissionsPolicyInvalidConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void configureWhenPermissionsPolicyStringEmptyThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(PermissionsPolicyInvalidStringConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
 	public void getWhenHstsConfiguredWithPreloadThenStrictTransportSecurityHeaderWithPreloadInResponse()
 			throws Exception {
 		this.spring.register(HstsWithPreloadConfig.class).autowire();
@@ -1007,6 +1045,68 @@ public class HeadersConfigurerTests {
 				.headers()
 					.defaultsDisabled()
 					.featurePolicy("");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class PermissionsPolicyConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					.defaultsDisabled()
+					.permissionsPolicy((permissionsPolicy) -> permissionsPolicy.policy("geolocation=(self)"));
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class PermissionsPolicyStringConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					.defaultsDisabled()
+					.permissionsPolicy()
+					.policy("geolocation=(self)");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class PermissionsPolicyInvalidConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					.defaultsDisabled()
+					.permissionsPolicy((permissionsPolicy) -> permissionsPolicy.policy(null));
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class PermissionsPolicyInvalidStringConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					.defaultsDisabled()
+					.permissionsPolicy()
+					.policy("");
 			// @formatter:on
 		}
 

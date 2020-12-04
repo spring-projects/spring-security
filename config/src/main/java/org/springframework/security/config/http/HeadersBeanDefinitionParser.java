@@ -39,6 +39,7 @@ import org.springframework.security.web.header.writers.ContentSecurityPolicyHead
 import org.springframework.security.web.header.writers.FeaturePolicyHeaderWriter;
 import org.springframework.security.web.header.writers.HpkpHeaderWriter;
 import org.springframework.security.web.header.writers.HstsHeaderWriter;
+import org.springframework.security.web.header.writers.PermissionsPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
@@ -119,6 +120,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String FEATURE_POLICY_ELEMENT = "feature-policy";
 
+	private static final String PERMISSIONS_POLICY_ELEMENT = "permissions-policy";
+
 	private static final String ALLOW_FROM = "ALLOW-FROM";
 
 	private ManagedList<BeanMetadataElement> headerWriters;
@@ -140,6 +143,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		parseContentSecurityPolicyElement(disabled, element, parserContext);
 		parseReferrerPolicyElement(element, parserContext);
 		parseFeaturePolicyElement(element, parserContext);
+		parsePermissionsPolicyElement(element, parserContext);
 		parseHeaderElements(element);
 		boolean noWriters = this.headerWriters.isEmpty();
 		if (disabled && !noWriters) {
@@ -344,6 +348,27 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		if (!StringUtils.hasText(policyDirectives)) {
 			context.getReaderContext().error(ATT_POLICY_DIRECTIVES + " requires a 'value' to be set.",
 					featurePolicyElement);
+		}
+		else {
+			headersWriter.addConstructorArgValue(policyDirectives);
+		}
+		this.headerWriters.add(headersWriter.getBeanDefinition());
+	}
+
+	private void parsePermissionsPolicyElement(Element element, ParserContext context) {
+		Element permissionsPolicyElement = (element != null)
+				? DomUtils.getChildElementByTagName(element, PERMISSIONS_POLICY_ELEMENT) : null;
+		if (permissionsPolicyElement != null) {
+			addPermissionsPolicy(permissionsPolicyElement, context);
+		}
+	}
+
+	private void addPermissionsPolicy(Element permissionsPolicyElement, ParserContext context) {
+		BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder
+				.genericBeanDefinition(PermissionsPolicyHeaderWriter.class);
+		String policyDirectives = permissionsPolicyElement.getAttribute(ATT_POLICY);
+		if (!StringUtils.hasText(policyDirectives)) {
+			context.getReaderContext().error(ATT_POLICY + " requires a 'value' to be set.", permissionsPolicyElement);
 		}
 		else {
 			headersWriter.addConstructorArgValue(policyDirectives);

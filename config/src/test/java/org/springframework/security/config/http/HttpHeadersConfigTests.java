@@ -333,6 +333,17 @@ public class HttpHeadersConfigTests {
 	}
 
 	@Test
+	public void requestWhenPermissionsPolicyConfiguredWithGeolocationSelfThenGeolocationSelf() throws Exception {
+		this.spring.configLocations(this.xml("DefaultsDisabledWithPermissionsPolicy")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isOk())
+				.andExpect(excludesDefaults())
+				.andExpect(header().string("Permissions-Policy", "geolocation=(self)"));
+		// @formatter:on
+	}
+
+	@Test
 	public void requestWhenUsingXssProtectionThenDefaultsToModeBlock() throws Exception {
 		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
 		excludedHeaders.remove("X-XSS-Protection");
