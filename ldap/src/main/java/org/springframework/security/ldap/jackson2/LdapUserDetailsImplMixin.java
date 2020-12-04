@@ -1,7 +1,6 @@
 package org.springframework.security.ldap.jackson2;
 
 import org.springframework.security.jackson2.SecurityJackson2Modules;
-import org.springframework.security.jackson2.SimpleGrantedAuthorityMixin;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -10,10 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 /**
  * This is a Jackson mixin class helps in serialize/deserialize
  * {@link org.springframework.security.ldap.userdetails.LdapUserDetailsImpl} class.
- * To use this class you need to register it with
- * {@link com.fasterxml.jackson.databind.ObjectMapper} and
- * {@link SimpleGrantedAuthorityMixin} because AnonymousAuthenticationToken contains
- * SimpleGrantedAuthority. <pre>
+ * To use this class you need to register it with {@link com.fasterxml.jackson.databind.ObjectMapper} .
+ * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new LdapJackson2Module());
  * </pre>
