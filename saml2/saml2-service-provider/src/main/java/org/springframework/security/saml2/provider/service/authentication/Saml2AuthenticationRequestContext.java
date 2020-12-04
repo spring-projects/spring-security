@@ -16,6 +16,10 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.Assert;
 
@@ -39,6 +43,12 @@ public class Saml2AuthenticationRequestContext {
 
 	private final String relayState;
 
+	private final List<String> requestAuthnContextRefs;
+
+	private final Boolean isPassive;
+
+	private final Boolean forceAuthn;
+
 	protected Saml2AuthenticationRequestContext(RelyingPartyRegistration relyingPartyRegistration, String issuer,
 			String assertionConsumerServiceUrl, String relayState) {
 		Assert.hasText(issuer, "issuer cannot be null or empty");
@@ -48,6 +58,23 @@ public class Saml2AuthenticationRequestContext {
 		this.relyingPartyRegistration = relyingPartyRegistration;
 		this.assertionConsumerServiceUrl = assertionConsumerServiceUrl;
 		this.relayState = relayState;
+		this.isPassive = false;
+		this.forceAuthn = false;
+		this.requestAuthnContextRefs = new ArrayList<>();
+	}
+
+	private Saml2AuthenticationRequestContext(Builder builder) {
+
+		Assert.hasText(builder.issuer, "issuer cannot be null or empty");
+		Assert.notNull(builder.relyingPartyRegistration, "relyingPartyRegistration cannot be null");
+		Assert.hasText(builder.assertionConsumerServiceUrl, "spAssertionConsumerServiceUrl cannot be null or empty");
+		this.issuer = builder.issuer;
+		this.relyingPartyRegistration = builder.relyingPartyRegistration;
+		this.assertionConsumerServiceUrl = builder.assertionConsumerServiceUrl;
+		this.relayState = builder.relayState;
+		this.isPassive = builder.isPassive;
+		this.forceAuthn = builder.forceAuthn;
+		this.requestAuthnContextRefs = builder.requestAuthnContextRefs;
 	}
 
 	/**
@@ -70,9 +97,10 @@ public class Saml2AuthenticationRequestContext {
 	}
 
 	/**
-	 * Returns the desired {@code AssertionConsumerServiceUrl} that this SP wishes to
-	 * receive the assertion on. The IDP may or may not honor this request. This property
-	 * populates the {@code AuthNRequest.AssertionConsumerServiceURL} XML attribute.
+	 * Returns the desired {@code AssertionConsumerServiceUrl} that this relying party
+	 * wishes to receive the assertion on. The IDP may or may not honor this request. This
+	 * property populates the {@code AuthNRequest.AssertionConsumerServiceURL} XML
+	 * attribute.
 	 * @return the AssertionConsumerServiceURL value
 	 */
 	public String getAssertionConsumerServiceUrl() {
@@ -85,6 +113,41 @@ public class Saml2AuthenticationRequestContext {
 	 */
 	public String getRelayState() {
 		return this.relayState;
+	}
+
+	/**
+	 * Returns the desired ({@code AuthnContextClassRef} that this relying party wishes to
+	 * set in the request.This property populates the
+	 * {@code AuthNRequest.RequestedAuthnContext.AuthnContextClassRef} XML attribute.
+	 * @return the AuthnContextClassRef value
+	 * @since 5.5
+	 */
+	public List<String> getRequestAuthnContextRefs() {
+		return this.requestAuthnContextRefs;
+	}
+
+	/**
+	 * Returns the isPassive value, if present in the parameters
+	 * @return the isPassive value, default is set to false
+	 * @since 5.5
+	 * @see <a href=
+	 * "https://wiki.shibboleth.net/confluence/display/SP3/isPassive">OpenSAML 3
+	 * isPassive</a>
+	 */
+	public Boolean getIsPassive() {
+		return this.isPassive;
+	}
+
+	/**
+	 * Returns the ForceAuthn value, if present in the parameters
+	 * @return this forceAuthn value, default is set to false
+	 * @since 5.5
+	 * @see <a href=
+	 * "https://wiki.shibboleth.net/confluence/display/SP3/ForceAuthn">OpenSAML 3
+	 * ForceAuthn</a>
+	 */
+	public Boolean getForceAuthn() {
+		return this.forceAuthn;
 	}
 
 	/**
@@ -115,6 +178,12 @@ public class Saml2AuthenticationRequestContext {
 		private String assertionConsumerServiceUrl;
 
 		private String relayState;
+
+		private List<String> requestAuthnContextRefs = new ArrayList<>();
+
+		private Boolean isPassive;
+
+		private Boolean forceAuthn;
 
 		private RelyingPartyRegistration relyingPartyRegistration;
 
@@ -165,13 +234,47 @@ public class Saml2AuthenticationRequestContext {
 		}
 
 		/**
+		 * Sets this {@link Consumer} AuthnContextClassRef parameter that will accompany
+		 * this AuthNRequest.
+		 * @param requestAuthnContextRefsConsumer a {@link Consumer} of the list of
+		 * AuthnContextClassRef
+		 * @return this object
+		 * @since 5.5
+		 */
+		public Builder requestAuthnContextRefs(Consumer<List<String>> requestAuthnContextRefsConsumer) {
+			requestAuthnContextRefsConsumer.accept(this.requestAuthnContextRefs);
+			return this;
+		}
+
+		/**
+		 * Sets the {@code IsPassive} parameter that will accompany this AuthNRequest
+		 * @param isPassive the isPassive value. if null or empty, defaults to false.
+		 * @return this object
+		 * @since 5.5
+		 */
+		public Builder isPassive(Boolean isPassive) {
+			this.isPassive = isPassive;
+			return this;
+		}
+
+		/**
+		 * Sets the {@code ForceAuth} parameter that will accompany this AuthNRequest
+		 * @param forceAuth the foceAuth value. if null or empty, defaults to false.
+		 * @return this object
+		 * @since 5.5
+		 */
+		public Builder forceAuthn(Boolean forceAuthn) {
+			this.forceAuthn = forceAuthn;
+			return this;
+		}
+
+		/**
 		 * Creates a {@link Saml2AuthenticationRequestContext} object.
 		 * @return the Saml2AuthenticationRequest object
 		 * @throws IllegalArgumentException if a required property is not set
 		 */
 		public Saml2AuthenticationRequestContext build() {
-			return new Saml2AuthenticationRequestContext(this.relyingPartyRegistration, this.issuer,
-					this.assertionConsumerServiceUrl, this.relayState);
+			return new Saml2AuthenticationRequestContext(this);
 		}
 
 	}

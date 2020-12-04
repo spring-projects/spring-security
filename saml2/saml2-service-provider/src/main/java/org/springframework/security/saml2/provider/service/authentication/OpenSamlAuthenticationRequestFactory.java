@@ -35,11 +35,16 @@ import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.saml2.core.AuthnContextClassRef;
+import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
+import org.opensaml.saml.saml2.core.RequestedAuthnContext;
+import org.opensaml.saml.saml2.core.impl.AuthnContextClassRefBuilder;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestMarshaller;
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
+import org.opensaml.saml.saml2.core.impl.RequestedAuthnContextBuilder;
 import org.opensaml.saml.security.impl.SAMLMetadataSignatureSigningParametersResolver;
 import org.opensaml.security.SecurityException;
 import org.opensaml.security.credential.BasicCredential;
@@ -84,6 +89,8 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 
 	private IssuerBuilder issuerBuilder;
 
+	private RequestedAuthnContextBuilder reqAuthnContextBuilder;
+
 	private Converter<Saml2AuthenticationRequestContext, String> protocolBindingResolver = (context) -> {
 		if (context == null) {
 			return SAMLConstants.SAML2_POST_BINDING_URI;
@@ -103,13 +110,16 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		this.authnRequestBuilder = (AuthnRequestBuilder) registry.getBuilderFactory()
 				.getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
 		this.issuerBuilder = (IssuerBuilder) registry.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+		this.reqAuthnContextBuilder = (RequestedAuthnContextBuilder) registry.getBuilderFactory()
+				.getBuilder(RequestedAuthnContext.DEFAULT_ELEMENT_NAME);
 	}
 
 	@Override
 	@Deprecated
 	public String createAuthenticationRequest(Saml2AuthenticationRequest request) {
 		AuthnRequest authnRequest = createAuthnRequest(request.getIssuer(), request.getDestination(),
-				request.getAssertionConsumerServiceUrl(), this.protocolBindingResolver.convert(null));
+				request.getAssertionConsumerServiceUrl(), this.protocolBindingResolver.convert(null), null, false,
+				false);
 		for (org.springframework.security.saml2.credentials.Saml2X509Credential credential : request.getCredentials()) {
 			if (credential.isSigningCredential()) {
 				X509Certificate certificate = credential.getCertificate();
@@ -160,17 +170,29 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 
 	private AuthnRequest createAuthnRequest(Saml2AuthenticationRequestContext context) {
 		return createAuthnRequest(context.getIssuer(), context.getDestination(),
-				context.getAssertionConsumerServiceUrl(), this.protocolBindingResolver.convert(context));
+				context.getAssertionConsumerServiceUrl(), this.protocolBindingResolver.convert(context),
+				context.getRequestAuthnContextRefs(), context.getIsPassive(), context.getForceAuthn());
 	}
 
 	private AuthnRequest createAuthnRequest(String issuer, String destination, String assertionConsumerServiceUrl,
-			String protocolBinding) {
+			String protocolBinding, List<String> requestAuthnContextRefs, Boolean isPassive, Boolean forceAuth) {
 		AuthnRequest auth = this.authnRequestBuilder.buildObject();
 		auth.setID("ARQ" + UUID.randomUUID().toString().substring(1));
 		auth.setIssueInstant(new DateTime(this.clock.millis()));
-		auth.setForceAuthn(Boolean.FALSE);
-		auth.setIsPassive(Boolean.FALSE);
 		auth.setProtocolBinding(protocolBinding);
+		auth.setIsPassive(isPassive);
+		auth.setForceAuthn(forceAuth);
+		if (requestAuthnContextRefs != null) {
+			RequestedAuthnContext requestAuthnContext = this.reqAuthnContextBuilder.buildObject();
+			requestAuthnContext.setComparison(AuthnContextComparisonTypeEnumeration.EXACT);
+			requestAuthnContextRefs.forEach((r) -> {
+				AuthnContextClassRef authnContextClassRef = new AuthnContextClassRefBuilder().buildObject();
+				authnContextClassRef.setAuthnContextClassRef(r);
+				requestAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
+			});
+			auth.setRequestedAuthnContext(requestAuthnContext);
+		}
+
 		Issuer iss = this.issuerBuilder.buildObject();
 		iss.setValue(issuer);
 		auth.setIssuer(iss);
