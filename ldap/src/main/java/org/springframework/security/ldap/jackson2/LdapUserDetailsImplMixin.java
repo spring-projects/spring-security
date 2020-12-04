@@ -9,7 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 /**
  * This is a Jackson mixin class helps in serialize/deserialize
  * {@link org.springframework.security.ldap.userdetails.LdapUserDetailsImpl} class.
- * To use this class you need to register it with {@link com.fasterxml.jackson.databind.ObjectMapper} .
+ * To use this class you need to register it with {@link com.fasterxml.jackson.databind.ObjectMapper}.
+ *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new LdapJackson2Module());

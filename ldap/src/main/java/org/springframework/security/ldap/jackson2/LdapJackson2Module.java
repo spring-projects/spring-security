@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
- * Jackson module for spring-security-ldap. This module register {@link LdapAuthorityMixin},
+ * Jackson module for spring-security-ldap. This module registers {@link LdapAuthorityMixin},
  * {@link LdapUserDetailsImplMixin}, {@link PersonMixin}, {@link InetOrgPersonMixin}.
  * If no default typing enabled by default then it'll enable it because typing info is needed to properly
  * serialize/deserialize objects. In order to use this module just add this module into your ObjectMapper configuration.
@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new LdapJackson2Module());
  * </pre>
+ *
  * <b>Note: use {@link SecurityJackson2Modules#getModules(ClassLoader)} to get list of all security modules.</b>
  *
  * @see SecurityJackson2Modules
