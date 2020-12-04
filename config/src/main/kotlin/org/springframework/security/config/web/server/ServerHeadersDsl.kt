@@ -34,6 +34,7 @@ class ServerHeadersDsl {
     private var contentSecurityPolicy: ((ServerHttpSecurity.HeaderSpec.ContentSecurityPolicySpec) -> Unit)? = null
     private var referrerPolicy: ((ServerHttpSecurity.HeaderSpec.ReferrerPolicySpec) -> Unit)? = null
     private var featurePolicyDirectives: String? = null
+    private var permissionsPolicy: ((ServerHttpSecurity.HeaderSpec.PermissionsPolicySpec) -> Unit)? = null
 
     private var disabled = false
 
@@ -141,6 +142,21 @@ class ServerHeadersDsl {
     }
 
     /**
+     * Allows configuration for <a href="https://w3c.github.io/webappsec-permissions-policy/">Permissions
+     * Policy</a>.
+     *
+     * <p>
+     * Calling this method automatically enables (includes) the Permissions-Policy
+     * header in the response using the supplied policy directive(s).
+     * <p>
+     *
+     * @param permissionsPolicyConfig the customization to apply to the header
+     */
+    fun permissionsPolicy(permissionsPolicyConfig: ServerPermissionsPolicyDsl.() -> Unit) {
+        this.permissionsPolicy = ServerPermissionsPolicyDsl().apply(permissionsPolicyConfig).get()
+    }
+
+    /**
      * Disables HTTP response headers.
      */
     fun disable() {
@@ -169,6 +185,9 @@ class ServerHeadersDsl {
             }
             featurePolicyDirectives?.also {
                 headers.featurePolicy(featurePolicyDirectives)
+            }
+            permissionsPolicy?.also {
+                headers.permissionsPolicy(permissionsPolicy)
             }
             referrerPolicy?.also {
                 headers.referrerPolicy(referrerPolicy)

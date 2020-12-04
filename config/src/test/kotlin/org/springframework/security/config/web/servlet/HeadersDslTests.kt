@@ -24,6 +24,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.web.servlet.headers.PermissionsPolicyDsl
 import org.springframework.security.web.header.writers.StaticHeadersWriter
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter
@@ -88,6 +89,29 @@ class HeadersDslTests {
             http {
                 headers {
                     featurePolicy(policyDirectives = "geolocation 'self'")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `headers when permissions policy configured then header in response`() {
+        this.spring.register(PermissionsPolicyConfig::class.java).autowire()
+
+        this.mockMvc.get("/")
+                .andExpect {
+                    header { string("Permissions-Policy", "geolocation=(self)") }
+                }
+    }
+
+    @EnableWebSecurity
+    open class PermissionsPolicyConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                headers {
+                    permissionsPolicy {
+                        policy = "geolocation=(self)"
+                    }
                 }
             }
         }

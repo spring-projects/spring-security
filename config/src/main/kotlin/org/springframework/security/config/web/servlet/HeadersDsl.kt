@@ -41,6 +41,7 @@ class HeadersDsl {
     private var contentSecurityPolicy: ((HeadersConfigurer<HttpSecurity>.ContentSecurityPolicyConfig) -> Unit)? = null
     private var referrerPolicy: ((HeadersConfigurer<HttpSecurity>.ReferrerPolicyConfig) -> Unit)? = null
     private var featurePolicyDirectives: String? = null
+    private var permissionsPolicy: ((HeadersConfigurer<HttpSecurity>.PermissionsPolicyConfig) -> Unit)? = null
     private var disabled = false
     private var headerWriters = mutableListOf<HeaderWriter>()
 
@@ -165,6 +166,21 @@ class HeadersDsl {
     }
 
     /**
+     * Allows configuration for <a href="https://w3c.github.io/webappsec-permissions-policy/">Permissions
+     * Policy</a>.
+     *
+     * <p>
+     * Calling this method automatically enables (includes) the Permissions-Policy
+     * header in the response using the supplied policy directive(s).
+     * <p>
+     *
+     * @param policyDirectives policyDirectives the security policy directive(s)
+     */
+    fun permissionsPolicy(permissionsPolicyConfig: PermissionsPolicyDsl.() -> Unit) {
+        this.permissionsPolicy = PermissionsPolicyDsl().apply(permissionsPolicyConfig).get()
+    }
+
+    /**
      * Adds a [HeaderWriter] instance.
      *
      * @param headerWriter the [HeaderWriter] instance to add
@@ -216,6 +232,9 @@ class HeadersDsl {
             }
             featurePolicyDirectives?.also {
                 headers.featurePolicy(featurePolicyDirectives)
+            }
+            permissionsPolicy?.also {
+                headers.permissionsPolicy(permissionsPolicy)
             }
             headerWriters.forEach { headerWriter ->
                 headers.addHeaderWriter(headerWriter)
