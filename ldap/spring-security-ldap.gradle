@@ -8,6 +8,7 @@ dependencies {
 	api 'org.springframework:spring-core'
 	api 'org.springframework:spring-tx'
 
+	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'ldapsdk:ldapsdk'
 	optional "com.unboundid:unboundid-ldapsdk"
 	optional "org.apache.directory.server:apacheds-core"
