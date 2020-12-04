@@ -8,6 +8,7 @@ dependencies {
 	api 'org.springframework:spring-core'
 	api 'org.springframework:spring-tx'
 
+	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'ldapsdk:ldapsdk'
 	optional "com.unboundid:unboundid-ldapsdk"
 	optional "org.apache.directory.server:apacheds-core"
@@ -34,6 +35,7 @@ dependencies {
 	testImplementation "org.mockito:mockito-core"
 	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
+	testImplementation 'org.skyscreamer:jsonassert'
 }
 
 integrationTest {

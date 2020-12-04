@@ -84,6 +84,8 @@ public final class SecurityJackson2Modules {
 
 	private static final String javaTimeJackson2ModuleClass = "com.fasterxml.jackson.datatype.jsr310.JavaTimeModule";
 
+	private static final String ldapJackson2ModuleClass = "org.springframework.security.ldap.jackson2.LdapJackson2Module";
+
 	private SecurityJackson2Modules() {
 	}
 
@@ -128,6 +130,9 @@ public final class SecurityJackson2Modules {
 		}
 		if (ClassUtils.isPresent(javaTimeJackson2ModuleClass, loader)) {
 			addToModulesList(loader, modules, javaTimeJackson2ModuleClass);
+		}
+		if (ClassUtils.isPresent(ldapJackson2ModuleClass, loader)) {
+			addToModulesList(loader, modules, ldapJackson2ModuleClass);
 		}
 		return modules;
 	}
