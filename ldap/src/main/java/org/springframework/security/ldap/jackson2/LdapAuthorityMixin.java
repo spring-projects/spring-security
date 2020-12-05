@@ -13,8 +13,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * This is a Jackson mixin class helps in serialize/deserialize
- * {@link org.springframework.security.ldap.userdetails.LdapAuthority} class.
- * To use this class you need to register it with {@link com.fasterxml.jackson.databind.ObjectMapper}.
+ * {@link org.springframework.security.ldap.userdetails.LdapAuthority} class. To use this
+ * class you need to register it with {@link com.fasterxml.jackson.databind.ObjectMapper}.
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
@@ -31,18 +31,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class LdapAuthorityMixin {
 
-    /**
-     * Constructor used by Jackson to create object of
-     * {@link org.springframework.security.ldap.userdetails.LdapAuthority}.
-     * @param role
-     * @param dn
-     * @param attributes
-     */
-    @JsonCreator
-    LdapAuthorityMixin(
-            @JsonProperty("role") String role,
-            @JsonProperty("dn") String dn,
-            @JsonProperty("attributes") Map<String, List<String>> attributes) {
-    }
+	/**
+	 * Constructor used by Jackson to create object of
+	 * {@link org.springframework.security.ldap.userdetails.LdapAuthority}.
+	 * @param role
+	 * @param dn
+	 * @param attributes
+	 */
+	@JsonCreator
+	LdapAuthorityMixin(@JsonProperty("role") String role, @JsonProperty("dn") String dn,
+			@JsonProperty("attributes") Map<String, List<String>> attributes) {
+	}
 
 }

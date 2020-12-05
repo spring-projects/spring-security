@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * This is a Jackson mixin class helps in serialize/deserialize
- * {@link org.springframework.security.ldap.userdetails.InetOrgPerson} class.
- * To use this class you need to register it with {@link com.fasterxml.jackson.databind.ObjectMapper}.
+ * {@link org.springframework.security.ldap.userdetails.InetOrgPerson} class. To use this
+ * class you need to register it with {@link com.fasterxml.jackson.databind.ObjectMapper}.
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
@@ -22,8 +22,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @see SecurityJackson2Modules
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY,
-        getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
+		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class InetOrgPersonMixin {
+
 }
