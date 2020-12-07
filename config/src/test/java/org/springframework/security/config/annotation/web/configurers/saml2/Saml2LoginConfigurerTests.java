@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.configurers.saml2;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,8 +62,9 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
-import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
@@ -235,11 +237,8 @@ public class Saml2LoginConfigurerTests {
 				"authenticationManager");
 		ProviderManager pm = (ProviderManager) manager;
 		AuthenticationProvider provider = pm.getProviders().stream()
-				.filter((p) -> p instanceof OpenSamlAuthenticationProvider).findFirst().get();
-		Assert.assertSame(AUTHORITIES_EXTRACTOR, ReflectionTestUtils.getField(provider, "authoritiesExtractor"));
-		Assert.assertSame(AUTHORITIES_MAPPER, ReflectionTestUtils.getField(provider, "authoritiesMapper"));
-		Assert.assertSame(RESPONSE_TIME_VALIDATION_SKEW,
-				ReflectionTestUtils.getField(provider, "responseTimeValidationSkew"));
+				.filter((p) -> p instanceof OpenSaml4AuthenticationProvider).findFirst().get();
+		assertThat(provider).isNotNull();
 	}
 
 	private Saml2WebSsoAuthenticationFilter getSaml2SsoFilter(FilterChainProxy chain) {
@@ -370,9 +369,10 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		Saml2AuthenticationRequestFactory authenticationRequestFactory() {
-			OpenSamlAuthenticationRequestFactory authenticationRequestFactory = new OpenSamlAuthenticationRequestFactory();
+			OpenSaml4AuthenticationRequestFactory authenticationRequestFactory = new OpenSaml4AuthenticationRequestFactory();
 			authenticationRequestFactory.setAuthenticationRequestContextConverter((context) -> {
 				AuthnRequest authnRequest = TestOpenSamlObjects.authnRequest();
+				authnRequest.setIssueInstant(Instant.now());
 				authnRequest.setForceAuthn(true);
 				return authnRequest;
 			});

@@ -1,14 +1,48 @@
 apply plugin: 'io.spring.convention.spring-module'
 
+build.dependsOn(project(":saml2-service-provider-core").tasks["build"])
+build.dependsOn(project(":saml2-service-provider-opensaml3").tasks["build"])
+build.dependsOn(project(":saml2-service-provider-opensaml4").tasks["build"])
+
+check.dependsOn(project(":saml2-service-provider-core").tasks["check"])
+check.dependsOn(project(":saml2-service-provider-opensaml3").tasks["check"])
+check.dependsOn(project(":saml2-service-provider-opensaml4").tasks["check"])
+
+test.dependsOn(project(":saml2-service-provider-core").tasks["test"])
+test.dependsOn(project(":saml2-service-provider-opensaml3").tasks["test"])
+test.dependsOn(project(":saml2-service-provider-opensaml4").tasks["test"])
+
+clean.dependsOn(project(":saml2-service-provider-core").tasks["clean"])
+clean.dependsOn(project(":saml2-service-provider-opensaml3").tasks["clean"])
+clean.dependsOn(project(":saml2-service-provider-opensaml4").tasks["clean"])
+
+format.dependsOn(project(":saml2-service-provider-core").tasks["format"])
+format.dependsOn(project(":saml2-service-provider-opensaml3").tasks["format"])
+format.dependsOn(project(":saml2-service-provider-opensaml4").tasks["format"])
+
+configurations {
+	core {
+		canBeConsumed = false
+		canBeResolved = true
+	}
+	opensaml3 {
+		canBeConsumed = false
+		canBeResolved = true
+	}
+	opensaml4 {
+		canBeConsumed = false
+		canBeResolved = true
+	}
+}
+
 dependencies {
-	compile project(':spring-security-core')
-	compile project(':spring-security-web')
+	core(project(path: ":saml2-service-provider-core", configuration: 'classesOnlyElements'))
+	opensaml3(project(path: ":saml2-service-provider-opensaml3", configuration: 'classesOnlyElements'))
+	opensaml4(project(path: ":saml2-service-provider-opensaml4", configuration: 'classesOnlyElements'))
+}
 
-	compile("org.opensaml:opensaml-core")
-	compile("org.opensaml:opensaml-saml-api")
-	compile("org.opensaml:opensaml-saml-impl")
-
-	provided 'javax.servlet:javax.servlet-api'
-
-	testCompile 'com.squareup.okhttp3:mockwebserver'
+jar {
+	from configurations.core
+	from configurations.opensaml3
+	from configurations.opensaml4
 }

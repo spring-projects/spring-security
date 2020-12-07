@@ -4,6 +4,10 @@ apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'trang'
 apply plugin: 'kotlin'
 
+repositories {
+	maven { url "https://build.shibboleth.net/nexus/content/repositories/releases/" }
+}
+
 dependencies {
 	// NB: Don't add other compile time dependencies to the config module as this breaks tooling
 	compile project(':spring-security-core')
@@ -14,7 +18,8 @@ dependencies {
 
 	optional project(':spring-security-ldap')
 	optional project(':spring-security-messaging')
-	optional project(':spring-security-saml2-service-provider')
+	optional project(':saml2-service-provider-opensaml3')
+	optional project(':saml2-service-provider-opensaml4')
 	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-oauth2-jose')
 	optional project(':spring-security-oauth2-resource-server')
@@ -42,7 +47,8 @@ dependencies {
 	testCompile project(path : ':spring-security-ldap', configuration : 'tests')
 	testCompile project(path : ':spring-security-oauth2-client', configuration : 'tests')
 	testCompile project(path : ':spring-security-oauth2-resource-server', configuration : 'tests')
-	testCompile project(path : ':spring-security-saml2-service-provider', configuration : 'tests')
+	testCompile project(path : ':saml2-service-provider-core', configuration : 'tests')
+	testCompile project(path : ':saml2-service-provider-opensaml4', configuration : 'tests')
 	testCompile project(path : ':spring-security-web', configuration : 'tests')
 	testCompile apachedsDependencies
 	testCompile powerMock2Dependencies

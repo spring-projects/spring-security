@@ -21,15 +21,20 @@ import java.util.Map;
 
 import javax.servlet.Filter;
 
+import org.opensaml.core.Version;
+
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
@@ -190,7 +195,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * <li>The {@code loginProcessingUrl} is set</li>
 	 * <li>A custom login page is configured, <b>or</b></li>
 	 * <li>A default login page with all SAML 2.0 Identity Providers is configured</li>
-	 * <li>An {@link OpenSamlAuthenticationProvider} is configured</li>
+	 * <li>An {@link AuthenticationProvider} is configured</li>
 	 * </ul>
 	 */
 	@Override
@@ -256,8 +261,12 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private void registerDefaultAuthenticationProvider(B http) {
-		OpenSamlAuthenticationProvider provider = postProcess(new OpenSamlAuthenticationProvider());
-		http.authenticationProvider(provider);
+		if (Version.getVersion().startsWith("4")) {
+			http.authenticationProvider(postProcess(new OpenSaml4AuthenticationProvider()));
+		}
+		else {
+			http.authenticationProvider(postProcess(new OpenSamlAuthenticationProvider()));
+		}
 	}
 
 	private void registerDefaultCsrfOverride(B http) {
@@ -337,7 +346,10 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		private Saml2AuthenticationRequestFactory getResolver(B http) {
 			Saml2AuthenticationRequestFactory resolver = getSharedOrBean(http, Saml2AuthenticationRequestFactory.class);
 			if (resolver == null) {
-				resolver = new OpenSamlAuthenticationRequestFactory();
+				if (Version.getVersion().startsWith("4")) {
+					return new OpenSaml4AuthenticationRequestFactory();
+				}
+				return new OpenSamlAuthenticationRequestFactory();
 			}
 			return resolver;
 		}

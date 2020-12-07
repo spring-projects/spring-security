@@ -1,7 +1,11 @@
 apply plugin: 'io.spring.convention.spring-sample-war'
 
+repositories {
+	maven { url "https://build.shibboleth.net/nexus/content/repositories/releases/" }
+}
+
 dependencies {
-	compile project(':spring-security-saml2-service-provider')
+	compile project(':saml2-service-provider-opensaml3')
 	compile project(':spring-security-config')
 	compile slf4jDependencies
 
