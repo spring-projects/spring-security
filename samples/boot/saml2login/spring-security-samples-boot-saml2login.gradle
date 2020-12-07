@@ -16,9 +16,15 @@
 
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
+sourceCompatibility = '11'
+
+repositories {
+	maven { url "https://build.shibboleth.net/nexus/content/repositories/releases/" }
+}
+
 dependencies {
 	compile project(':spring-security-config')
-	compile project(':spring-security-saml2-service-provider')
+	compile project(':saml2-service-provider-opensaml4')
 	compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	compile 'org.springframework.boot:spring-boot-starter-web'
 	compile 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'

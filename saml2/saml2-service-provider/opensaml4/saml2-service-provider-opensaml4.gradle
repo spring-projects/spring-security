@@ -1,0 +1,58 @@
+buildscript {
+	repositories {
+		maven { url 'https://repo.spring.io/plugins-release' }
+	}
+	dependencies {
+		classpath 'io.spring.gradle:propdeps-plugin:0.0.10.RELEASE'
+	}
+}
+
+plugins {
+	id 'java-library'
+	id 'io.spring.convention.repository'
+	id 'io.spring.convention.springdependencymangement'
+	id 'io.spring.convention.dependency-set'
+	id 'io.spring.convention.checkstyle'
+	id 'io.spring.convention.tests-configuration'
+	id 'io.spring.convention.integration-test'
+	id 'propdeps'
+}
+
+configurations {
+	classesOnlyElements {
+		canBeConsumed = true
+		canBeResolved = false
+		attributes {
+			attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 11)
+		}
+	}
+}
+
+artifacts {
+	classesOnlyElements(compileJava.destinationDir)
+}
+
+sourceCompatibility = '11'
+
+repositories {
+	maven { url "https://build.shibboleth.net/nexus/content/repositories/releases/" }
+}
+
+dependencies {
+	constraints {
+		management("org.opensaml:opensaml-core:4.+")
+		management("org.opensaml:opensaml-saml-api:4.+")
+		management("org.opensaml:opensaml-saml-impl:4.+")
+	}
+
+	compile project(':saml2-service-provider-core')
+
+	compile("org.opensaml:opensaml-core")
+	compile("org.opensaml:opensaml-saml-api")
+	compile("org.opensaml:opensaml-saml-impl")
+
+	provided 'javax.servlet:javax.servlet-api'
+
+	testCompile 'com.squareup.okhttp3:mockwebserver'
+	testCompile project(path : ':saml2-service-provider-core', configuration : 'tests')
+}
