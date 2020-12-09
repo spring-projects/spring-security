@@ -232,14 +232,14 @@ public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurit
 	private boolean flag;
 
 	@Override
-	public void init(H http) throws Exception {
+	public void init(HttpSecurity http) throws Exception {
 		// any method that adds another configurer
 		// must be done in the init method
 		http.csrf().disable();
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(HttpSecurity http) throws Exception {
 		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
 
 		// here we lookup from the ApplicationContext. You can also just create a new instance.
