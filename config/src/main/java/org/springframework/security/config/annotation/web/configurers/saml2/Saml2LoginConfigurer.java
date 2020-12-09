@@ -19,8 +19,6 @@ package org.springframework.security.config.annotation.web.configurers.saml2;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.servlet.Filter;
-
 import org.opensaml.core.Version;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -50,6 +48,7 @@ import org.springframework.security.saml2.provider.service.web.RelyingPartyRegis
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
+import org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
@@ -115,9 +114,11 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private String loginPage;
 
-	private String loginProcessingUrl = Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
+	private String authenticationRequestUri = "/saml2/authenticate/{registrationId}";
 
-	private AuthenticationRequestEndpointConfig authenticationRequestEndpoint = new AuthenticationRequestEndpointConfig();
+	private Saml2AuthenticationRequestResolver authenticationRequestResolver;
+
+	private String loginProcessingUrl = Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
 
 	private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
@@ -177,6 +178,20 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	/**
+	 * Use this {@link Saml2AuthenticationRequestResolver} for generating SAML 2.0
+	 * Authentication Requests.
+	 * @param authenticationRequestResolver
+	 * @return the {@link Saml2LoginConfigurer} for further configuration
+	 * @since 5.7
+	 */
+	public Saml2LoginConfigurer<B> authenticationRequestResolver(
+			Saml2AuthenticationRequestResolver authenticationRequestResolver) {
+		Assert.notNull(authenticationRequestResolver, "authenticationRequestResolver cannot be null");
+		this.authenticationRequestResolver = authenticationRequestResolver;
+		return this;
+	}
+
+	/**
 	 * Specifies the URL to validate the credentials. If specified a custom URL, consider
 	 * specifying a custom {@link AuthenticationConverter} via
 	 * {@link #authenticationConverter(AuthenticationConverter)}, since the default
@@ -200,7 +215,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * <p>
 	 * Initializes this filter chain for SAML 2 Login. The following actions are taken:
 	 * <ul>
 	 * <li>The WebSSO endpoint has CSRF disabled, typically {@code /login/saml2/sso}</li>
@@ -226,8 +241,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			super.init(http);
 		}
 		else {
-			Map<String, String> providerUrlMap = getIdentityProviderUrlMap(
-					this.authenticationRequestEndpoint.filterProcessingUrl, this.relyingPartyRegistrationRepository);
+			Map<String, String> providerUrlMap = getIdentityProviderUrlMap(this.authenticationRequestUri,
+					this.relyingPartyRegistrationRepository);
 			boolean singleProvider = providerUrlMap.size() == 1;
 			if (singleProvider) {
 				// Setup auto-redirect to provider login page
@@ -247,14 +262,16 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * <p>
 	 * During the {@code configure} phase, a
 	 * {@link Saml2WebSsoAuthenticationRequestFilter} is added to handle SAML 2.0
 	 * AuthNRequest redirects
 	 */
 	@Override
 	public void configure(B http) throws Exception {
-		http.addFilter(this.authenticationRequestEndpoint.build(http));
+		Saml2WebSsoAuthenticationRequestFilter filter = getAuthenticationRequestFilter(http);
+		filter.setAuthenticationRequestRepository(getAuthenticationRequestRepository(http));
+		http.addFilter(postProcess(filter));
 		super.configure(http);
 		if (this.authenticationManager == null) {
 			registerDefaultAuthenticationProvider(http);
@@ -262,6 +279,11 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		else {
 			this.saml2WebSsoAuthenticationFilter.setAuthenticationManager(this.authenticationManager);
 		}
+	}
+
+	private RelyingPartyRegistrationResolver relyingPartyRegistrationResolver(B http) {
+		RelyingPartyRegistrationRepository registrations = relyingPartyRegistrationRepository(http);
+		return new DefaultRelyingPartyRegistrationResolver(registrations);
 	}
 
 	RelyingPartyRegistrationRepository relyingPartyRegistrationRepository(B http) {
@@ -274,6 +296,46 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	private void setAuthenticationRequestRepository(B http,
 			Saml2WebSsoAuthenticationFilter saml2WebSsoAuthenticationFilter) {
 		saml2WebSsoAuthenticationFilter.setAuthenticationRequestRepository(getAuthenticationRequestRepository(http));
+	}
+
+	private Saml2WebSsoAuthenticationRequestFilter getAuthenticationRequestFilter(B http) {
+		Saml2AuthenticationRequestResolver authenticationRequestResolver = getAuthenticationRequestResolver(http);
+		if (authenticationRequestResolver != null) {
+			return new Saml2WebSsoAuthenticationRequestFilter(authenticationRequestResolver);
+		}
+		return new Saml2WebSsoAuthenticationRequestFilter(getAuthenticationRequestContextResolver(http),
+				getAuthenticationRequestFactory(http));
+	}
+
+	private Saml2AuthenticationRequestResolver getAuthenticationRequestResolver(B http) {
+		if (this.authenticationRequestResolver != null) {
+			return this.authenticationRequestResolver;
+		}
+		return getBeanOrNull(http, Saml2AuthenticationRequestResolver.class);
+	}
+
+	private Saml2AuthenticationRequestFactory getAuthenticationRequestFactory(B http) {
+		Saml2AuthenticationRequestFactory resolver = getSharedOrBean(http, Saml2AuthenticationRequestFactory.class);
+		if (resolver != null) {
+			return resolver;
+		}
+		if (version().startsWith("4")) {
+			return new OpenSaml4AuthenticationRequestFactory();
+		}
+		else {
+			return new OpenSamlAuthenticationRequestFactory();
+		}
+	}
+
+	private Saml2AuthenticationRequestContextResolver getAuthenticationRequestContextResolver(B http) {
+		Saml2AuthenticationRequestContextResolver resolver = getBeanOrNull(http,
+				Saml2AuthenticationRequestContextResolver.class);
+		if (resolver != null) {
+			return resolver;
+		}
+		RelyingPartyRegistrationResolver registrationResolver = new DefaultRelyingPartyRegistrationResolver(
+				this.relyingPartyRegistrationRepository);
+		return new DefaultSaml2AuthenticationRequestContextResolver(registrationResolver);
 	}
 
 	private AuthenticationConverter getAuthenticationConverter(B http) {
@@ -325,8 +387,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			return;
 		}
 		loginPageGeneratingFilter.setSaml2LoginEnabled(true);
-		loginPageGeneratingFilter.setSaml2AuthenticationUrlToProviderName(this.getIdentityProviderUrlMap(
-				this.authenticationRequestEndpoint.filterProcessingUrl, this.relyingPartyRegistrationRepository));
+		loginPageGeneratingFilter.setSaml2AuthenticationUrlToProviderName(
+				this.getIdentityProviderUrlMap(this.authenticationRequestUri, this.relyingPartyRegistrationRepository));
 		loginPageGeneratingFilter.setLoginPageUrl(this.getLoginPage());
 		loginPageGeneratingFilter.setFailureUrl(this.getFailureUrl());
 	}
@@ -378,48 +440,6 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (http.getSharedObject(clazz) == null) {
 			http.setSharedObject(clazz, object);
 		}
-	}
-
-	private final class AuthenticationRequestEndpointConfig {
-
-		private String filterProcessingUrl = "/saml2/authenticate/{registrationId}";
-
-		private AuthenticationRequestEndpointConfig() {
-		}
-
-		private Filter build(B http) {
-			Saml2AuthenticationRequestFactory authenticationRequestResolver = getResolver(http);
-			Saml2AuthenticationRequestContextResolver contextResolver = getContextResolver(http);
-			Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> repository = getAuthenticationRequestRepository(
-					http);
-			Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(contextResolver,
-					authenticationRequestResolver);
-			filter.setAuthenticationRequestRepository(repository);
-			return postProcess(filter);
-		}
-
-		private Saml2AuthenticationRequestFactory getResolver(B http) {
-			Saml2AuthenticationRequestFactory resolver = getSharedOrBean(http, Saml2AuthenticationRequestFactory.class);
-			if (resolver == null) {
-				if (version().startsWith("4")) {
-					return new OpenSaml4AuthenticationRequestFactory();
-				}
-				return new OpenSamlAuthenticationRequestFactory();
-			}
-			return resolver;
-		}
-
-		private Saml2AuthenticationRequestContextResolver getContextResolver(B http) {
-			Saml2AuthenticationRequestContextResolver resolver = getBeanOrNull(http,
-					Saml2AuthenticationRequestContextResolver.class);
-			if (resolver == null) {
-				RelyingPartyRegistrationResolver relyingPartyRegistrationResolver = new DefaultRelyingPartyRegistrationResolver(
-						Saml2LoginConfigurer.this.relyingPartyRegistrationRepository);
-				return new DefaultSaml2AuthenticationRequestContextResolver(relyingPartyRegistrationResolver);
-			}
-			return resolver;
-		}
-
 	}
 
 }

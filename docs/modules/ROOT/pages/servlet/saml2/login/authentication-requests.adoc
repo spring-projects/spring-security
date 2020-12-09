@@ -176,92 +176,21 @@ var relyingPartyRegistration: RelyingPartyRegistration? =
 There are a number of reasons that you may want to adjust an `AuthnRequest`.
 For example, you may want `ForceAuthN` to be set to `true`, which Spring Security sets to `false` by default.
 
-If you don't need information from the `HttpServletRequest` to make your decision, then the easiest way is to xref:servlet/saml2/login/overview.adoc#servlet-saml2login-opensaml-customization[register a custom `AuthnRequestMarshaller` with OpenSAML].
-This will give you access to post-process the `AuthnRequest` instance before it's serialized.
-
-But, if you do need something from the request, then you can use create a custom `Saml2AuthenticationRequestContext` implementation and then a `Converter<Saml2AuthenticationRequestContext, AuthnRequest>` to build an `AuthnRequest` yourself, like so:
-
-====
-.Java
-[source,java,role="primary"]
-----
-@Component
-public class AuthnRequestConverter implements
-        Converter<Saml2AuthenticationRequestContext, AuthnRequest> {
-
-    private final AuthnRequestBuilder authnRequestBuilder;
-    private final IssuerBuilder issuerBuilder;
-
-    // ... constructor
-
-    public AuthnRequest convert(Saml2AuthenticationRequestContext context) {
-        MySaml2AuthenticationRequestContext myContext = (MySaml2AuthenticationRequestContext) context;
-        Issuer issuer = issuerBuilder.buildObject();
-        issuer.setValue(myContext.getIssuer());
-
-        AuthnRequest authnRequest = authnRequestBuilder.buildObject();
-        authnRequest.setIssuer(issuer);
-        authnRequest.setDestination(myContext.getDestination());
-        authnRequest.setAssertionConsumerServiceURL(myContext.getAssertionConsumerServiceUrl());
-
-        // ... additional settings
-
-        authRequest.setForceAuthn(myContext.getForceAuthn());
-        return authnRequest;
-    }
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@Component
-class AuthnRequestConverter : Converter<Saml2AuthenticationRequestContext, AuthnRequest> {
-    private val authnRequestBuilder: AuthnRequestBuilder? = null
-    private val issuerBuilder: IssuerBuilder? = null
-
-    // ... constructor
-    override fun convert(context: Saml2AuthenticationRequestContext): AuthnRequest {
-        val myContext: MySaml2AuthenticationRequestContext = context
-        val issuer: Issuer = issuerBuilder.buildObject()
-        issuer.value = myContext.getIssuer()
-        val authnRequest: AuthnRequest = authnRequestBuilder.buildObject()
-        authnRequest.issuer = issuer
-        authnRequest.destination = myContext.getDestination()
-        authnRequest.assertionConsumerServiceURL = myContext.getAssertionConsumerServiceUrl()
-
-        // ... additional settings
-        authRequest.setForceAuthn(myContext.getForceAuthn())
-        return authnRequest
-    }
-}
-----
-====
-
-Then, you can construct your own `Saml2AuthenticationRequestContextResolver` and `Saml2AuthenticationRequestFactory` and publish them as ``@Bean``s:
+You can customize elements of OpenSAML's `AuthnRequest` by publishing an `OpenSaml4AuthenticationRequestResolver` as a `@Bean`, like so:
 
 ====
 .Java
 [source,java,role="primary"]
 ----
 @Bean
-Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver() {
-    Saml2AuthenticationRequestContextResolver resolver =
-            new DefaultSaml2AuthenticationRequestContextResolver();
-    return request -> {
-        Saml2AuthenticationRequestContext context = resolver.resolve(request);
-        return new MySaml2AuthenticationRequestContext(context, request.getParameter("force") != null);
-    };
-}
-
-@Bean
-Saml2AuthenticationRequestFactory authenticationRequestFactory(
-        AuthnRequestConverter authnRequestConverter) {
-
-    OpenSaml4AuthenticationRequestFactory authenticationRequestFactory =
-            new OpenSaml4AuthenticationRequestFactory();
-    authenticationRequestFactory.setAuthenticationRequestContextConverter(authnRequestConverter);
-    return authenticationRequestFactory;
+Saml2AuthenticationRequestResolver authenticationRequestResolver(RelyingPartyRegistrationRepository registrations) {
+    RelyingPartyRegistrationResolver registrationResolver =
+            new DefaultRelyingPartyRegistrationResolver(registrations);
+    OpenSaml4AuthenticationRequestResolver authenticationRequestResolver =
+            new OpenSaml4AuthenticationRequestResolver(registrationResolver);
+    authenticationRequestResolver.setAuthnRequestCustomizer((context) -> context
+            .getAuthnRequest().setForceAuthn(true));
+    return authenticationRequestResolver;
 }
 ----
 
@@ -269,24 +198,14 @@ Saml2AuthenticationRequestFactory authenticationRequestFactory(
 [source,kotlin,role="secondary"]
 ----
 @Bean
-open fun authenticationRequestContextResolver(): Saml2AuthenticationRequestContextResolver {
-    val resolver: Saml2AuthenticationRequestContextResolver = DefaultSaml2AuthenticationRequestContextResolver()
-    return Saml2AuthenticationRequestContextResolver { request: HttpServletRequest ->
-        val context = resolver.resolve(request)
-        MySaml2AuthenticationRequestContext(
-            context,
-            request.getParameter("force") != null
-        )
-    }
-}
-
-@Bean
-open fun authenticationRequestFactory(
-    authnRequestConverter: AuthnRequestConverter?
-): Saml2AuthenticationRequestFactory? {
-    val authenticationRequestFactory = OpenSaml4AuthenticationRequestFactory()
-    authenticationRequestFactory.setAuthenticationRequestContextConverter(authnRequestConverter)
-    return authenticationRequestFactory
+fun authenticationRequestResolver(registrations : RelyingPartyRegistrationRepository) : Saml2AuthenticationRequestResolver {
+    val registrationResolver : RelyingPartyRegistrationResolver =
+            new DefaultRelyingPartyRegistrationResolver(registrations)
+    val authenticationRequestResolver : OpenSaml4AuthenticationRequestResolver =
+            new OpenSaml4AuthenticationRequestResolver(registrationResolver)
+    authenticationRequestResolver.setAuthnRequestCustomizer((context) -> context
+            .getAuthnRequest().setForceAuthn(true))
+    return authenticationRequestResolver
 }
 ----
 ====

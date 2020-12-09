@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
 /**
@@ -75,6 +76,18 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	 */
 	public static Builder withAuthenticationRequestContext(Saml2AuthenticationRequestContext context) {
 		return new Builder().authenticationRequestUri(context.getDestination()).relayState(context.getRelayState());
+	}
+
+	/**
+	 * Constructs a {@link Saml2PostAuthenticationRequest.Builder} from a
+	 * {@link RelyingPartyRegistration} object.
+	 * @param registration a relying party registration
+	 * @return a modifiable builder object
+	 * @since 5.7
+	 */
+	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
+		String location = registration.getAssertingPartyDetails().getSingleSignOnServiceLocation();
+		return new Builder().authenticationRequestUri(location);
 	}
 
 	/**
