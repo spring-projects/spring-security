@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +46,7 @@ import org.springframework.security.saml2.provider.service.web.DefaultSaml2Authe
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
+import org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.util.HtmlUtils;
@@ -69,6 +73,9 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 
 	private Saml2AuthenticationRequestContextResolver resolver = mock(Saml2AuthenticationRequestContextResolver.class);
 
+	private Saml2AuthenticationRequestResolver authenticationRequestResolver = mock(
+			Saml2AuthenticationRequestResolver.class);
+
 	private Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository = mock(
 			Saml2AuthenticationRequestRepository.class);
 
@@ -86,7 +93,12 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 		this.request.setPathInfo("/saml2/authenticate/registration-id");
-		this.filterChain = new MockFilterChain();
+		this.filterChain = new MockFilterChain() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response) {
+				((HttpServletResponse) response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			}
+		};
 		this.rpBuilder = RelyingPartyRegistration.withRegistrationId("registration-id")
 				.providerDetails((c) -> c.entityId("idp-entity-id")).providerDetails((c) -> c.webSsoUrl(IDP_SSO_URL))
 				.assertionConsumerServiceUrlTemplate("template")
@@ -111,6 +123,12 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	private static Saml2RedirectAuthenticationRequest.Builder redirectAuthenticationRequest(
 			Saml2AuthenticationRequestContext context) {
 		return Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context).samlRequest("request")
+				.authenticationRequestUri(IDP_SSO_URL);
+	}
+
+	private static Saml2RedirectAuthenticationRequest.Builder redirectAuthenticationRequest(
+			RelyingPartyRegistration registration) {
+		return Saml2RedirectAuthenticationRequest.withRelyingPartyRegistration(registration).samlRequest("request")
 				.authenticationRequestUri(IDP_SSO_URL);
 	}
 
@@ -285,6 +303,17 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		this.request.setPathInfo("/registration-id/saml2/authenticate");
 		this.filter.doFilter(this.request, this.response, new MockFilterChain());
 		verify(this.repository).findByRegistrationId("registration-id");
+	}
+
+	@Test
+	public void doFilterWhenCustomAuthenticationRequestResolverThenUses() throws Exception {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration().build();
+		Saml2RedirectAuthenticationRequest authenticationRequest = redirectAuthenticationRequest(registration).build();
+		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(
+				this.authenticationRequestResolver);
+		given(this.authenticationRequestResolver.resolve(any())).willReturn(authenticationRequest);
+		filter.doFilterInternal(this.request, this.response, this.filterChain);
+		verify(this.authenticationRequestResolver).resolve(any());
 	}
 
 }
