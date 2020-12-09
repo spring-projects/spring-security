@@ -2,7 +2,7 @@ apply plugin: 'war'
 apply plugin: 'jetty'
 apply plugin: 'appengine'
 
-def gaeVersion="1.9.79"
+def gaeVersion="1.9.83"
 
 buildscript {
 	repositories {
