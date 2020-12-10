@@ -140,7 +140,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		defaultAuthoritiesPopulator.setGroupSearchFilter(this.groupSearchFilter);
 		defaultAuthoritiesPopulator.setSearchSubtree(this.groupSearchSubtree);
 		defaultAuthoritiesPopulator.setRolePrefix(this.rolePrefix);
-		this.ldapAuthoritiesPopulator = defaultAuthoritiesPopulator;
+		this.ldapAuthoritiesPopulator = postProcess(defaultAuthoritiesPopulator);
 		return defaultAuthoritiesPopulator;
 	}
 
