@@ -81,7 +81,8 @@ public final class RegexRequestMatcher implements RequestMatcher {
 	 */
 	@Override
 	public boolean matches(HttpServletRequest request) {
-		if (this.httpMethod != null && request.getMethod() != null && this.httpMethod != valueOf(request.getMethod())) {
+		if (this.httpMethod != null && request.getMethod() != null
+				&& this.httpMethod != HttpMethod.resolve(request.getMethod())) {
 			return false;
 		}
 		String url = request.getServletPath();
@@ -99,21 +100,6 @@ public final class RegexRequestMatcher implements RequestMatcher {
 		}
 		logger.debug(LogMessage.format("Checking match of request : '%s'; against '%s'", url, this.pattern));
 		return this.pattern.matcher(url).matches();
-	}
-
-	/**
-	 * Provides a save way of obtaining the HttpMethod from a String. If the method is
-	 * invalid, returns null.
-	 * @param method the HTTP method to use.
-	 * @return the HttpMethod or null if method is invalid.
-	 */
-	private static HttpMethod valueOf(String method) {
-		try {
-			return HttpMethod.valueOf(method);
-		}
-		catch (IllegalArgumentException ex) {
-			return null;
-		}
 	}
 
 	@Override

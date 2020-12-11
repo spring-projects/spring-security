@@ -87,7 +87,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C antMatchers(HttpMethod method) {
-		return antMatchers(method, new String[] { "/**" });
+		return antMatchers(method, "/**");
 	}
 
 	/**
