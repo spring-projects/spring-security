@@ -20,14 +20,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.servlet.DispatcherType;
+
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
+import org.springframework.lang.Nullable;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -204,6 +208,36 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	public C regexMatchers(String... regexPatterns) {
 		Assert.state(!this.anyRequestConfigured, "Can't configure regexMatchers after anyRequest");
 		return chainRequestMatchers(RequestMatchers.regexMatchers(regexPatterns));
+	}
+
+	/**
+	 * Maps a {@link List} of
+	 * {@link org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher}
+	 * instances.
+	 * @param method the {@link HttpMethod} to use or {@code null} for any
+	 * {@link HttpMethod}.
+	 * @param dispatcherTypes the dispatcher types to match against
+	 * @return the object that is chained after creating the {@link RequestMatcher}
+	 */
+	public C dispatcherTypeMatchers(@Nullable HttpMethod method, DispatcherType... dispatcherTypes) {
+		Assert.state(!this.anyRequestConfigured, "Can't configure dispatcherTypeMatchers after anyRequest");
+		List<RequestMatcher> matchers = new ArrayList<>();
+		for (DispatcherType dispatcherType : dispatcherTypes) {
+			matchers.add(new DispatcherTypeRequestMatcher(dispatcherType, method));
+		}
+		return chainRequestMatchers(matchers);
+	}
+
+	/**
+	 * Create a {@link List} of
+	 * {@link org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher}
+	 * instances that do not specify an {@link HttpMethod}.
+	 * @param dispatcherTypes the dispatcher types to match against
+	 * @return the object that is chained after creating the {@link RequestMatcher}
+	 */
+	public C dispatcherTypeMatchers(DispatcherType... dispatcherTypes) {
+		Assert.state(!this.anyRequestConfigured, "Can't configure dispatcherTypeMatchers after anyRequest");
+		return dispatcherTypeMatchers(null, dispatcherTypes);
 	}
 
 	/**

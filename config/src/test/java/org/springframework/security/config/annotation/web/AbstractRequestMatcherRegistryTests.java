@@ -18,11 +18,14 @@ package org.springframework.security.config.annotation.web;
 
 import java.util.List;
 
+import javax.servlet.DispatcherType;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -72,6 +75,23 @@ public class AbstractRequestMatcherRegistryTests {
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers.size()).isEqualTo(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
+	}
+
+	@Test
+	public void dispatcherTypeMatchersWhenHttpMethodAndPatternParamsThenReturnAntPathRequestMatcherType() {
+		List<RequestMatcher> requestMatchers = this.matcherRegistry.dispatcherTypeMatchers(HttpMethod.GET,
+				DispatcherType.ASYNC);
+		assertThat(requestMatchers).isNotEmpty();
+		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(DispatcherTypeRequestMatcher.class);
+	}
+
+	@Test
+	public void dispatcherMatchersWhenPatternParamThenReturnAntPathRequestMatcherType() {
+		List<RequestMatcher> requestMatchers = this.matcherRegistry.dispatcherTypeMatchers(DispatcherType.INCLUDE);
+		assertThat(requestMatchers).isNotEmpty();
+		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(DispatcherTypeRequestMatcher.class);
 	}
 
 	private static class TestRequestMatcherRegistry extends AbstractRequestMatcherRegistry<List<RequestMatcher>> {
