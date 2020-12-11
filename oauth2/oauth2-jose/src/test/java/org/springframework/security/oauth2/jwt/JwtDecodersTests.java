@@ -141,7 +141,8 @@ public class JwtDecodersTests {
 	public void issuerWhenContainsTrailingSlashThenSuccess() {
 		this.issuer += "/";
 		prepareConfigurationResponse();
-		assertThat(JwtDecoders.fromOidcIssuerLocation(this.issuer)).isNotNull();
+		JwtDecoder jwtDecoder = JwtDecoders.fromOidcIssuerLocation(this.issuer);
+		assertThat(jwtDecoder).isNotNull();
 		assertThat(this.issuer).endsWith("/");
 	}
 
@@ -149,7 +150,8 @@ public class JwtDecodersTests {
 	public void issuerWhenOidcFallbackContainsTrailingSlashThenSuccess() {
 		this.issuer += "/";
 		prepareConfigurationResponseOidc();
-		assertThat(JwtDecoders.fromIssuerLocation(this.issuer)).isNotNull();
+		JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(this.issuer);
+		assertThat(jwtDecoder).isNotNull();
 		assertThat(this.issuer).endsWith("/");
 	}
 
@@ -157,7 +159,8 @@ public class JwtDecodersTests {
 	public void issuerWhenOAuth2ContainsTrailingSlashThenSuccess() {
 		this.issuer += "/";
 		prepareConfigurationResponseOAuth2();
-		assertThat(JwtDecoders.fromIssuerLocation(this.issuer)).isNotNull();
+		JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(this.issuer);
+		assertThat(jwtDecoder).isNotNull();
 		assertThat(this.issuer).endsWith("/");
 	}
 

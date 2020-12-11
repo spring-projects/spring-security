@@ -58,11 +58,12 @@ public final class JwtDecoders {
 	 * @return a {@link JwtDecoder} that was initialized by the OpenID Provider
 	 * Configuration.
 	 */
-	public static JwtDecoder fromOidcIssuerLocation(String oidcIssuerLocation) {
+	@SuppressWarnings("unchecked")
+	public static <T extends JwtDecoder> T fromOidcIssuerLocation(String oidcIssuerLocation) {
 		Assert.hasText(oidcIssuerLocation, "oidcIssuerLocation cannot be empty");
 		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
 				.getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
-		return withProviderConfiguration(configuration, oidcIssuerLocation);
+		return (T) withProviderConfiguration(configuration, oidcIssuerLocation);
 	}
 
 	/**
@@ -93,11 +94,12 @@ public final class JwtDecoders {
 	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
 	 * @return a {@link JwtDecoder} that was initialized by one of the described endpoints
 	 */
-	public static JwtDecoder fromIssuerLocation(String issuer) {
+	@SuppressWarnings("unchecked")
+	public static <T extends JwtDecoder> T fromIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
 		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
 				.getConfigurationForIssuerLocation(issuer);
-		return withProviderConfiguration(configuration, issuer);
+		return (T) withProviderConfiguration(configuration, issuer);
 	}
 
 	/**
