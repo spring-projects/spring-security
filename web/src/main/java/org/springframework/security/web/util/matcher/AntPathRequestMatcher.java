@@ -141,7 +141,7 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 	@Override
 	public boolean matches(HttpServletRequest request) {
 		if (this.httpMethod != null && StringUtils.hasText(request.getMethod())
-				&& this.httpMethod != valueOf(request.getMethod())) {
+				&& this.httpMethod != HttpMethod.resolve(request.getMethod())) {
 			return false;
 		}
 		if (this.pattern.equals(MATCH_ALL)) {
@@ -209,21 +209,6 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 		}
 		sb.append("]");
 		return sb.toString();
-	}
-
-	/**
-	 * Provides a save way of obtaining the HttpMethod from a String. If the method is
-	 * invalid, returns null.
-	 * @param method the HTTP method to use.
-	 * @return the HttpMethod or null if method is invalid.
-	 */
-	private static HttpMethod valueOf(String method) {
-		try {
-			return HttpMethod.valueOf(method);
-		}
-		catch (IllegalArgumentException ex) {
-			return null;
-		}
 	}
 
 	private interface Matcher {
