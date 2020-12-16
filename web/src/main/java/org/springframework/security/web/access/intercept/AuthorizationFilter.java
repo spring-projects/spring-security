@@ -35,6 +35,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * {@link AuthorizationManager}.
  *
  * @author Evgeniy Cheban
+ * @since 5.5
  */
 public class AuthorizationFilter extends OncePerRequestFilter {
 

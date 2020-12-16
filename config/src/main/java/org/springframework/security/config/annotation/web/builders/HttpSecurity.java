@@ -1329,6 +1329,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * options for the {@link AuthorizationManagerRequestMatcherRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @since 5.5
 	 * @see #requestMatcher(RequestMatcher)
 	 */
 	public HttpSecurity authorizeHttpRequests(

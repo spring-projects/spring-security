@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  *
  * @param <T> the type of object being authorized.
  * @author Evgeniy Cheban
+ * @since 5.5
  */
 public final class AuthorityAuthorizationManager<T> implements AuthorizationManager<T> {
 

@@ -38,6 +38,7 @@ import org.springframework.util.Assert;
  * {@link AuthorizationManager} based on a {@link RequestMatcher} evaluation.
  *
  * @author Evgeniy Cheban
+ * @since 5.5
  */
 public final class DelegatingAuthorizationManager implements AuthorizationManager<HttpServletRequest> {
 

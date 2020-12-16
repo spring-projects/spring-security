@@ -41,6 +41,7 @@ import org.springframework.util.Assert;
  *
  * @param <H> the type of {@link HttpSecurityBuilder} that is being configured.
  * @author Evgeniy Cheban
+ * @since 5.5
  */
 public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<AuthorizeHttpRequestsConfigurer<H>, H> {

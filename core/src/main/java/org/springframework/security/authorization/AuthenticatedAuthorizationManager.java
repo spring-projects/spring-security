@@ -27,6 +27,7 @@ import org.springframework.security.core.Authentication;
  *
  * @param <T> the type of object authorization is being performed against. This does not.
  * @author Evgeniy Cheban
+ * @since 5.5
  */
 public final class AuthenticatedAuthorizationManager<T> implements AuthorizationManager<T> {
 

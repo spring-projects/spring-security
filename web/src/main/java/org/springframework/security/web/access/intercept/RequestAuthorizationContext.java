@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
  * An {@link HttpServletRequest} authorization context.
  *
  * @author Evgeniy Cheban
+ * @since 5.5
  */
 public final class RequestAuthorizationContext {
 
