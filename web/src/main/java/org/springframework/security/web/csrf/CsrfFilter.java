@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.csrf;
 
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -28,14 +30,15 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import static java.lang.Boolean.TRUE;
 
 /**
  * <p>
@@ -58,6 +61,7 @@ import static java.lang.Boolean.TRUE;
  * @since 3.2
  */
 public final class CsrfFilter extends OncePerRequestFilter {
+
 	/**
 	 * The default {@link RequestMatcher} that indicates if CSRF protection is required or
 	 * not. The default is to ignore GET, HEAD, TRACE, OPTIONS and process all other
@@ -66,18 +70,21 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	public static final RequestMatcher DEFAULT_CSRF_MATCHER = new DefaultRequiresCsrfMatcher();
 
 	/**
-	 * The attribute name to use when marking a given request as one that should not be filtered.
+	 * The attribute name to use when marking a given request as one that should not be
+	 * filtered.
 	 *
-	 * To use, set the attribute on your {@link HttpServletRequest}:
-	 * <pre>
+	 * To use, set the attribute on your {@link HttpServletRequest}: <pre>
 	 * 	CsrfFilter.skipRequest(request);
 	 * </pre>
 	 */
 	private static final String SHOULD_NOT_FILTER = "SHOULD_NOT_FILTER" + CsrfFilter.class.getName();
 
 	private final Log logger = LogFactory.getLog(getClass());
+
 	private final CsrfTokenRepository tokenRepository;
+
 	private RequestMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
+
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
 	public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
@@ -87,62 +94,46 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-		return TRUE.equals(request.getAttribute(SHOULD_NOT_FILTER));
+		return Boolean.TRUE.equals(request.getAttribute(SHOULD_NOT_FILTER));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.web.filter.OncePerRequestFilter#doFilterInternal(javax.servlet
-	 * .http.HttpServletRequest, javax.servlet.http.HttpServletResponse,
-	 * javax.servlet.FilterChain)
-	 */
 	@Override
-	protected void doFilterInternal(HttpServletRequest request,
-			HttpServletResponse response, FilterChain filterChain)
-					throws ServletException, IOException {
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 		request.setAttribute(HttpServletResponse.class.getName(), response);
-
 		CsrfToken csrfToken = this.tokenRepository.loadToken(request);
-		final boolean missingToken = csrfToken == null;
+		boolean missingToken = (csrfToken == null);
 		if (missingToken) {
 			csrfToken = this.tokenRepository.generateToken(request);
 			this.tokenRepository.saveToken(csrfToken, request, response);
 		}
 		request.setAttribute(CsrfToken.class.getName(), csrfToken);
 		request.setAttribute(csrfToken.getParameterName(), csrfToken);
-
 		if (!this.requireCsrfProtectionMatcher.matches(request)) {
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace("Did not protect against CSRF since request did not match "
+						+ this.requireCsrfProtectionMatcher);
+			}
 			filterChain.doFilter(request, response);
 			return;
 		}
-
 		String actualToken = request.getHeader(csrfToken.getHeaderName());
 		if (actualToken == null) {
 			actualToken = request.getParameter(csrfToken.getParameterName());
 		}
-		if (!csrfToken.getToken().equals(actualToken)) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Invalid CSRF token found for "
-						+ UrlUtils.buildFullRequestUrl(request));
-			}
-			if (missingToken) {
-				this.accessDeniedHandler.handle(request, response,
-						new MissingCsrfTokenException(actualToken));
-			}
-			else {
-				this.accessDeniedHandler.handle(request, response,
-						new InvalidCsrfTokenException(csrfToken, actualToken));
-			}
+		if (!equalsConstantTime(csrfToken.getToken(), actualToken)) {
+			this.logger.debug(
+					LogMessage.of(() -> "Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request)));
+			AccessDeniedException exception = (!missingToken) ? new InvalidCsrfTokenException(csrfToken, actualToken)
+					: new MissingCsrfTokenException(actualToken);
+			this.accessDeniedHandler.handle(request, response, exception);
 			return;
 		}
-
 		filterChain.doFilter(request, response);
 	}
 
 	public static void skipRequest(HttpServletRequest request) {
-		request.setAttribute(SHOULD_NOT_FILTER, TRUE);
+		request.setAttribute(SHOULD_NOT_FILTER, Boolean.TRUE);
 	}
 
 	/**
@@ -154,14 +145,11 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	 * The default is to apply CSRF protection for any HTTP method other than GET, HEAD,
 	 * TRACE, OPTIONS.
 	 * </p>
-	 *
 	 * @param requireCsrfProtectionMatcher the {@link RequestMatcher} used to determine if
 	 * CSRF protection should be applied.
 	 */
-	public void setRequireCsrfProtectionMatcher(
-			RequestMatcher requireCsrfProtectionMatcher) {
-		Assert.notNull(requireCsrfProtectionMatcher,
-				"requireCsrfProtectionMatcher cannot be null");
+	public void setRequireCsrfProtectionMatcher(RequestMatcher requireCsrfProtectionMatcher) {
+		Assert.notNull(requireCsrfProtectionMatcher, "requireCsrfProtectionMatcher cannot be null");
 		this.requireCsrfProtectionMatcher = requireCsrfProtectionMatcher;
 	}
 
@@ -172,7 +160,6 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	 * <p>
 	 * The default is to use AccessDeniedHandlerImpl with no arguments.
 	 * </p>
-	 *
 	 * @param accessDeniedHandler the {@link AccessDeniedHandler} to use
 	 */
 	public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
@@ -180,20 +167,38 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		this.accessDeniedHandler = accessDeniedHandler;
 	}
 
-	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {
-		private final HashSet<String> allowedMethods = new HashSet<>(
-				Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
+	/**
+	 * Constant time comparison to prevent against timing attacks.
+	 * @param expected
+	 * @param actual
+	 * @return
+	 */
+	private static boolean equalsConstantTime(String expected, String actual) {
+		byte[] expectedBytes = bytesUtf8(expected);
+		byte[] actualBytes = bytesUtf8(actual);
+		return MessageDigest.isEqual(expectedBytes, actualBytes);
+	}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see
-		 * org.springframework.security.web.util.matcher.RequestMatcher#matches(javax.
-		 * servlet.http.HttpServletRequest)
-		 */
+	private static byte[] bytesUtf8(String s) {
+		// need to check if Utf8.encode() runs in constant time (probably not).
+		// This may leak length of string.
+		return (s != null) ? Utf8.encode(s) : null;
+	}
+
+	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {
+
+		private final HashSet<String> allowedMethods = new HashSet<>(Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
+
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			return !this.allowedMethods.contains(request.getMethod());
 		}
+
+		@Override
+		public String toString() {
+			return "CsrfNotRequired " + this.allowedMethods;
+		}
+
 	}
+
 }
