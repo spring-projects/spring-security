@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 /**
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Evgeniy Cheban
  */
 @RunWith(MockitoJUnitRunner.class)
 public class MvcRequestMatcherTests {
@@ -218,6 +219,30 @@ public class MvcRequestMatcherTests {
 	@Test
 	public void toStringWhenOnlyPattern() {
 		assertThat(this.matcher.toString()).isEqualTo("Mvc [pattern='/path']");
+	}
+
+	@Test
+	public void matcherWhenMethodNotMatchesThenNotMatchResult() {
+		this.matcher.setMethod(HttpMethod.POST);
+		assertThat(this.matcher.matcher(this.request).isMatch()).isFalse();
+	}
+
+	@Test
+	public void matcherWhenMethodMatchesThenMatchResult() {
+		this.matcher.setMethod(HttpMethod.GET);
+		assertThat(this.matcher.matcher(this.request).isMatch()).isTrue();
+	}
+
+	@Test
+	public void matcherWhenServletPathNotMatchesThenNotMatchResult() {
+		this.matcher.setServletPath("/spring");
+		assertThat(this.matcher.matcher(this.request).isMatch()).isFalse();
+	}
+
+	@Test
+	public void matcherWhenServletPathMatchesThenMatchResult() {
+		this.matcher.setServletPath("/path");
+		assertThat(this.matcher.matcher(this.request).isMatch()).isTrue();
 	}
 
 }

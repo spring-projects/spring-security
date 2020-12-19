@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import org.springframework.web.util.UrlPathHelper;
  *
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Evgeniy Cheban
  * @since 4.1.1
  */
 public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
@@ -64,10 +65,7 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 
 	@Override
 	public boolean matches(HttpServletRequest request) {
-		if (this.method != null && !this.method.name().equals(request.getMethod())) {
-			return false;
-		}
-		if (this.servletPath != null && !this.servletPath.equals(request.getServletPath())) {
+		if (notMatchMethodOrServletPath(request)) {
 			return false;
 		}
 		MatchableHandlerMapping mapping = getMapping(request);
@@ -95,12 +93,20 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 
 	@Override
 	public MatchResult matcher(HttpServletRequest request) {
+		if (notMatchMethodOrServletPath(request)) {
+			return MatchResult.notMatch();
+		}
 		MatchableHandlerMapping mapping = getMapping(request);
 		if (mapping == null) {
 			return this.defaultMatcher.matcher(request);
 		}
 		RequestMatchResult result = mapping.match(request, this.pattern);
 		return (result != null) ? MatchResult.match(result.extractUriTemplateVariables()) : MatchResult.notMatch();
+	}
+
+	private boolean notMatchMethodOrServletPath(HttpServletRequest request) {
+		return this.method != null && !this.method.name().equals(request.getMethod())
+				|| this.servletPath != null && !this.servletPath.equals(request.getServletPath());
 	}
 
 	/**
