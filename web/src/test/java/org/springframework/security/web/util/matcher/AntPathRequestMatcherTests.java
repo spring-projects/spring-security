@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import static org.mockito.BDDMockito.given;
 /**
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Evgeniy Cheban
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AntPathRequestMatcherTests {
@@ -194,6 +195,14 @@ public class AntPathRequestMatcherTests {
 		MockHttpServletRequest request = createRequest("/blah");
 		request.setMethod("INVALID");
 		assertThat(matcher.matches(request)).isFalse();
+	}
+
+	// gh-9285
+	@Test
+	public void matcherWhenMatchAllPatternThenMatchResult() {
+		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/**");
+		MockHttpServletRequest request = createRequest("/blah");
+		assertThat(matcher.matcher(request).isMatch()).isTrue();
 	}
 
 	private HttpServletRequest createRequestWithNullMethod(String path) {
