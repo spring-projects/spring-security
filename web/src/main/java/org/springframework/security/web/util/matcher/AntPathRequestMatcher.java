@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import org.springframework.web.util.UrlPathHelper;
  * @author Luke Taylor
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Evgeniy Cheban
  * @since 3.1
  * @see org.springframework.util.AntPathMatcher
  */
@@ -159,8 +160,11 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 
 	@Override
 	public MatchResult matcher(HttpServletRequest request) {
-		if (this.matcher == null || !matches(request)) {
+		if (!matches(request)) {
 			return MatchResult.notMatch();
+		}
+		if (this.matcher == null) {
+			return MatchResult.match();
 		}
 		String url = getRequestPath(request);
 		return MatchResult.match(this.matcher.extractUriTemplateVariables(url));
