@@ -58,4 +58,13 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 				.withMessage("[insufficient_scope] The access token expired");
 	}
 
+	@Test
+	public void handleErrorWhenErrorResponseWithInvalidWwwAuthenticateHeaderThenHandled() {
+		String invalidWwwAuthenticateHeader = "Unauthorized";
+		MockClientHttpResponse response = new MockClientHttpResponse(new byte[0], HttpStatus.BAD_REQUEST);
+		response.getHeaders().add(HttpHeaders.WWW_AUTHENTICATE, invalidWwwAuthenticateHeader);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.errorHandler.handleError(response)).withMessage("[server_error] ");
+	}
+
 }
