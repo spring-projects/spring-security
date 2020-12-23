@@ -29,4 +29,9 @@
 			<concurrency-control max-sessions="${sessionManagement.maxSessions}" error-if-maximum-exceeded="true"/>
 		</session-management>
 	</http>
+	
+		<b:bean name="basicController"
+			class="org.springframework.security.config.http.SessionManagementConfigTests.BasicController"/>
+
+	<b:import resource="userservice.xml"/>
 </b:beans>

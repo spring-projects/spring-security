@@ -345,18 +345,6 @@ public class SessionManagementConfigTests {
 	}
 
 	@Test
-	public void requestWhenMaxSessionsIsSetWithPlaceHolderThenErrorsWhenExceeded() throws Exception {
-		System.setProperty("sessionManagement.maxSessions", "1");
-		this.spring.configLocations(xml("ConcurrencyControlMaxSessionsPlaceHolder")).autowire();
-		// @formatter:off
-		this.mvc.perform(get("/auth").with(httpBasic("user", "password")))
-		.andExpect(status().isOk());
-		this.mvc.perform(get("/auth").with(httpBasic("user", "password")))
-		.andExpect(redirectedUrl("/max-exceeded"));
-		// @formatter:on
-	}
-
-	@Test
 	public void requestWhenMaxSessionsIsSetThenErrorsWhenExceeded() throws Exception {
 		this.spring.configLocations(xml("ConcurrencyControlMaxSessions")).autowire();
 		// @formatter:off
@@ -369,6 +357,18 @@ public class SessionManagementConfigTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void requestWhenMaxSessionsIsSetWithPlaceHolderThenErrorsWhenExceeded() throws Exception {
+		System.setProperty("sessionManagement.maxSessions", "1");
+		this.spring.configLocations(xml("ConcurrencyControlMaxSessionsPlaceHolder")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/auth").with(httpBasic("user", "password")))
+				.andExpect(status().isOk());
+		this.mvc.perform(get("/auth").with(httpBasic("user", "password")))
+				.andExpect(redirectedUrl("/max-exceeded"));
+		// @formatter:on
+	}
+	
 	@Test
 	public void autowireWhenSessionFixationProtectionIsNoneAndCsrfDisabledThenSessionManagementFilterIsNotWired() {
 		this.spring.configLocations(xml("NoSessionManagementFilter")).autowire();
