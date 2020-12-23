@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Rob Winch
  * @author Josh Cummings
  * @author Onur Kagan Ozcan
+ * @author Mazen Aissa
  */
 public class SessionManagementConfigTests {
 
@@ -343,6 +344,18 @@ public class SessionManagementConfigTests {
 		this.sessionRegistryIsValid();
 	}
 
+	@Test
+	public void requestWhenMaxSessionsIsSetWithPlaceHolderThenErrorsWhenExceeded() throws Exception {
+		System.setProperty("sessionManagement.maxSessions", "1");
+		this.spring.configLocations(xml("ConcurrencyControlMaxSessionsPlaceHolder")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/auth").with(httpBasic("user", "password")))
+		.andExpect(status().isOk());
+		this.mvc.perform(get("/auth").with(httpBasic("user", "password")))
+		.andExpect(redirectedUrl("/max-exceeded"));
+		// @formatter:on
+	}
+	
 	@Test
 	public void requestWhenMaxSessionsIsSetThenErrorsWhenExceeded() throws Exception {
 		this.spring.configLocations(xml("ConcurrencyControlMaxSessions")).autowire();
