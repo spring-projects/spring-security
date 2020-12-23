@@ -355,7 +355,7 @@ public class SessionManagementConfigTests {
 		.andExpect(redirectedUrl("/max-exceeded"));
 		// @formatter:on
 	}
-	
+
 	@Test
 	public void requestWhenMaxSessionsIsSetThenErrorsWhenExceeded() throws Exception {
 		this.spring.configLocations(xml("ConcurrencyControlMaxSessions")).autowire();
