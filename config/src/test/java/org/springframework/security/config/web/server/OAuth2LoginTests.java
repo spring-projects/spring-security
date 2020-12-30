@@ -23,6 +23,7 @@ import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import reactor.core.publisher.Mono;
 
@@ -33,14 +34,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
@@ -174,6 +178,25 @@ public class OAuth2LoginTests {
 		// @formatter:on
 		driver.get("http://localhost/");
 		assertThat(driver.getCurrentUrl()).startsWith("https://github.com/login/oauth/authorize");
+	}
+
+	@Test
+	public void formLoginWithSingleClientRegistrationThenRedirect() {
+		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginWithFormLogin.class).autowire();
+		// @formatter:off
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(new GitHubWebFilter(), this.springSecurity)
+				.build();
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+		// @formatter:on
+		driver.get("http://localhost/");
+		assertThat(driver.getCurrentUrl()).isEqualTo("http://localhost/login");
+		assertThat(driver.findElement(By.xpath("//form[contains(@action,'/login')]/h2")).getText())
+				.isEqualTo("Please sign in");
+		assertThat(driver.findElement(By.xpath("//div[contains(@class, 'container')]/h2")).getText())
+				.isEqualTo("Login with OAuth 2.0");
 	}
 
 	// gh-8118
@@ -582,6 +605,26 @@ public class OAuth2LoginTests {
 			return "home";
 		}
 
+	}
+	@Configuration
+	static class OAuth2LoginWithFormLogin {
+		@Bean
+		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+			ReactiveUserDetailsService reactiveUserDetailsService = ReactiveAuthenticationTestConfiguration
+					.userDetailsService();
+			ReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
+					reactiveUserDetailsService);
+			http.authenticationManager(authenticationManager);
+			// @formatter:off
+			http
+				.authorizeExchange()
+					.anyExchange().authenticated()
+					.and()
+				.oauth2Login()
+					.and()
+				.formLogin();
+			return http.build();
+		}
 	}
 
 	@Configuration
