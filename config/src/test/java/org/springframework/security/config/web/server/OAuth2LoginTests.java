@@ -628,6 +628,7 @@ public class OAuth2LoginTests {
 			// @formatter:on
 			return http.build();
 		}
+
 	}
 
 	@Configuration
