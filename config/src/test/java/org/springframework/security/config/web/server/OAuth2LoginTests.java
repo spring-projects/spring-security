@@ -606,8 +606,10 @@ public class OAuth2LoginTests {
 		}
 
 	}
+
 	@Configuration
 	static class OAuth2LoginWithFormLogin {
+
 		@Bean
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			ReactiveUserDetailsService reactiveUserDetailsService = ReactiveAuthenticationTestConfiguration
@@ -623,6 +625,7 @@ public class OAuth2LoginTests {
 				.oauth2Login()
 					.and()
 				.formLogin();
+			// @formatter:on
 			return http.build();
 		}
 	}
