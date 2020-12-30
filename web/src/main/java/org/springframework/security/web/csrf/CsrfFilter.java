@@ -17,6 +17,7 @@
 package org.springframework.security.web.csrf;
 
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -31,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.util.UrlUtils;
@@ -119,7 +121,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		if (actualToken == null) {
 			actualToken = request.getParameter(csrfToken.getParameterName());
 		}
-		if (!csrfToken.getToken().equals(actualToken)) {
+		if (!equalsConstantTime(csrfToken.getToken(), actualToken)) {
 			this.logger.debug(
 					LogMessage.of(() -> "Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request)));
 			AccessDeniedException exception = (!missingToken) ? new InvalidCsrfTokenException(csrfToken, actualToken)
@@ -163,6 +165,24 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
 		Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
 		this.accessDeniedHandler = accessDeniedHandler;
+	}
+
+	/**
+	 * Constant time comparison to prevent against timing attacks.
+	 * @param expected
+	 * @param actual
+	 * @return
+	 */
+	private static boolean equalsConstantTime(String expected, String actual) {
+		byte[] expectedBytes = bytesUtf8(expected);
+		byte[] actualBytes = bytesUtf8(actual);
+		return MessageDigest.isEqual(expectedBytes, actualBytes);
+	}
+
+	private static byte[] bytesUtf8(String s) {
+		// need to check if Utf8.encode() runs in constant time (probably not).
+		// This may leak length of string.
+		return (s != null) ? Utf8.encode(s) : null;
 	}
 
 	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {
