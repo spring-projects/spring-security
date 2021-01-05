@@ -2,6 +2,8 @@ image::https://badges.gitter.im/Join%20Chat.svg[Gitter,link=https://gitter.im/sp
 
 image:https://github.com/spring-projects/spring-security/workflows/CI/badge.svg?branch=master["Build Status", link="https://github.com/spring-projects/spring-security/actions?query=workflow%3ACI"]
 
+image:https://img.shields.io/badge/Revved%20up%20by-Gradle%20Enterprise-06A0CE?logo=Gradle&labelColor=02303A["Revved up by Gradle Enterprise", link="https://ge.spring.io/scans?search.rootProjectNames=spring-security"]
+
 = Spring Security
 
 Spring Security provides security services for the https://docs.spring.io[Spring IO Platform]. Spring Security 5.0 requires Spring 5.0 as
