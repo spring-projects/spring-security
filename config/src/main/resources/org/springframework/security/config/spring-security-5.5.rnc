@@ -714,7 +714,7 @@ concurrency-control =
 
 concurrency-control.attlist &=
 	## The maximum number of sessions a single authenticated user can have open at the same time. Defaults to "1". A negative value denotes unlimited sessions.
-	attribute max-sessions {xsd:integer}?
+	attribute max-sessions {xsd:token}?
 concurrency-control.attlist &=
 	## The URL a user will be redirected to if they attempt to use a session which has been "expired" because they have logged in again.
 	attribute expired-url {xsd:token}?

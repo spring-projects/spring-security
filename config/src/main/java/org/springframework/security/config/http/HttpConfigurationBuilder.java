@@ -387,7 +387,8 @@ class HttpConfigurationBuilder {
 			concurrentSessionStrategy = BeanDefinitionBuilder
 					.rootBeanDefinition(ConcurrentSessionControlAuthenticationStrategy.class);
 			concurrentSessionStrategy.addConstructorArgValue(this.sessionRegistryRef);
-			String maxSessions = sessionCtrlElt.getAttribute("max-sessions");
+			String maxSessions = this.pc.getReaderContext().getEnvironment()
+					.resolvePlaceholders(sessionCtrlElt.getAttribute("max-sessions"));
 			if (StringUtils.hasText(maxSessions)) {
 				concurrentSessionStrategy.addPropertyValue("maximumSessions", maxSessions);
 			}
