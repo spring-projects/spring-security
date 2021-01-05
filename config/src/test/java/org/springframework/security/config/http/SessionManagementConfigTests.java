@@ -368,7 +368,7 @@ public class SessionManagementConfigTests {
 				.andExpect(redirectedUrl("/max-exceeded"));
 		// @formatter:on
 	}
-	
+
 	@Test
 	public void autowireWhenSessionFixationProtectionIsNoneAndCsrfDisabledThenSessionManagementFilterIsNotWired() {
 		this.spring.configLocations(xml("NoSessionManagementFilter")).autowire();
