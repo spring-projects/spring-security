@@ -22,11 +22,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.MethodParameter;
+import org.springframework.expression.AccessException;
+import org.springframework.expression.BeanResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -40,12 +43,21 @@ import org.springframework.util.ReflectionUtils;
  *
  */
 public class AuthenticationPrincipalArgumentResolverTests {
+
+	private final BeanResolver beanResolver = ((context, beanName) -> {
+		if (!"test".equals(beanName)) {
+			throw new AccessException("Could not resolve bean reference against BeanFactory");
+		}
+		return (Function<CustomUserPrincipal, String>) (principal) -> principal.property;
+	});
+
 	private Object expectedPrincipal;
 	private AuthenticationPrincipalArgumentResolver resolver;
 
 	@Before
 	public void setup() {
 		resolver = new AuthenticationPrincipalArgumentResolver();
+		resolver.setBeanResolver(this.beanResolver);
 	}
 
 	@After
@@ -129,6 +141,14 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
+	public void resolveArgumentSpelBean() throws Exception {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		setAuthenticationPrincipal(principal);
+		this.expectedPrincipal = principal.property;
+		assertThat(this.resolver.resolveArgument(showUserSpelBean(), null, null, null)).isEqualTo(this.expectedPrincipal);
+	}
+
+	@Test
 	public void resolveArgumentSpelCopy() throws Exception {
 		CopyUserPrincipal principal = new CopyUserPrincipal("property");
 		setAuthenticationPrincipal(principal);
@@ -198,6 +218,10 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		return getMethodParameter("showUserSpel", String.class);
 	}
 
+	private MethodParameter showUserSpelBean() {
+		return getMethodParameter("showUserSpelBean", String.class);
+	}
+
 	private MethodParameter showUserSpelCopy() {
 		return getMethodParameter("showUserSpelCopy", CopyUserPrincipal.class);
 	}
@@ -253,6 +277,10 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 		public void showUserSpel(
 				@AuthenticationPrincipal(expression = "property") String user) {
+		}
+
+		public void showUserSpelBean(@AuthenticationPrincipal(
+				expression = "@test.apply(#this)") String user) {
 		}
 
 		public void showUserSpelCopy(
