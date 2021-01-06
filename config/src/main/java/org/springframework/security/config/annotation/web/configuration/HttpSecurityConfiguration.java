@@ -60,7 +60,6 @@ class HttpSecurityConfiguration {
 		this.objectPostProcessor = objectPostProcessor;
 	}
 
-	@Autowired(required = false)
 	void setAuthenticationManager(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
