@@ -108,7 +108,7 @@ public final class CurrentSecurityContextArgumentResolver
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(securityContext);
 			context.setVariable("this", securityContext);
-
+			context.setBeanResolver(this.beanResolver);
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			securityContextResult = expression.getValue(context);
 		}
