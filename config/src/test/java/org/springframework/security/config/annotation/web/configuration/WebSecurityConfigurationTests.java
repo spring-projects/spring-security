@@ -41,7 +41,11 @@ import org.springframework.security.access.expression.AbstractSecurityExpression
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -49,6 +53,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
@@ -253,7 +258,6 @@ public class WebSecurityConfigurationTests {
 				.isThrownBy(() -> this.spring.register(AdapterAndFilterChainConfig.class).autowire())
 				.withRootCauseExactlyInstanceOf(IllegalStateException.class)
 				.withMessageContaining("Found WebSecurityConfigurerAdapter as well as SecurityFilterChain.");
-
 	}
 
 	@Test
@@ -339,6 +343,19 @@ public class WebSecurityConfigurationTests {
 		request.setServletPath("/ignore2");
 		assertThat(filterChains.get(1).matches(request)).isTrue();
 		assertThat(filterChains.get(1).getFilters()).isEmpty();
+	}
+
+	@Test
+	public void loadConfigWhenMultipleAuthenticationManagersAndWebSecurityConfigurerAdapterThenConfigurationApplied() {
+		this.spring.register(MultipleAuthenticationManagersConfig.class).autowire();
+		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
+		assertThat(filterChains).hasSize(2);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setServletPath("/role1");
+		assertThat(filterChains.get(0).matches(request)).isTrue();
+		request.setServletPath("/role2");
+		assertThat(filterChains.get(1).matches(request)).isTrue();
 	}
 
 	@EnableWebSecurity
@@ -863,6 +880,74 @@ public class WebSecurityConfigurationTests {
 		@Bean
 		public WebSecurityCustomizer webSecurityCustomizer2() {
 			return (web) -> web.ignoring().antMatchers("/ignore2");
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class MultipleAuthenticationManagersConfig {
+
+		@Bean("authManager1")
+		static AuthenticationManager authenticationManager1() {
+			return new ProviderManager(new AuthenticationProvider() {
+				@Override
+				public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+					return new UsernamePasswordAuthenticationToken("user", "credentials");
+				}
+
+				@Override
+				public boolean supports(Class<?> authentication) {
+					return false;
+				}
+			});
+		}
+
+		@Bean("authManager2")
+		static AuthenticationManager authenticationManager2() {
+			return new ProviderManager(new AuthenticationProvider() {
+				@Override
+				public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+					return new UsernamePasswordAuthenticationToken("subuser", "credentials");
+				}
+
+				@Override
+				public boolean supports(Class<?> authentication) {
+					return false;
+				}
+			});
+		}
+
+		@Configuration
+		@Order(1)
+		public static class SecurityConfig1 extends WebSecurityConfigurerAdapter {
+
+			@Override
+			protected AuthenticationManager authenticationManager() {
+				return authenticationManager1();
+			}
+
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
+				http
+						.antMatcher("/role1/**")
+						.authorizeRequests((authorize) -> authorize
+								.anyRequest().hasRole("1")
+						);
+				// @formatter:on
+			}
+
+		}
+
+		@Configuration
+		@Order(2)
+		public static class SecurityConfig2 extends WebSecurityConfigurerAdapter {
+
+			@Override
+			protected AuthenticationManager authenticationManager() {
+				return authenticationManager2();
+			}
+
 		}
 
 	}
