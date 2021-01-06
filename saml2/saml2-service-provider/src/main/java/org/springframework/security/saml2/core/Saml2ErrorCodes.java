@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,13 @@ public interface Saml2ErrorCodes {
 	 * and XML unmarshalling failed.
 	 */
 	String MALFORMED_RESPONSE_DATA = "malformed_response_data";
+
+	/**
+	 * Response is invalid in a general way.
+	 *
+	 * @since 5.5
+	 */
+	String INVALID_RESPONSE = "invalid_response";
 
 	/**
 	 * Response destination does not match the request URL. A SAML 2 response object was

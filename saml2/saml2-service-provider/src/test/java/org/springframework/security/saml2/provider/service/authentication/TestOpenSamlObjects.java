@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -59,11 +60,15 @@ import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.Status;
+import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.saml.saml2.core.impl.AttributeBuilder;
 import org.opensaml.saml.saml2.core.impl.AttributeStatementBuilder;
+import org.opensaml.saml.saml2.core.impl.StatusBuilder;
+import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
 import org.opensaml.saml.saml2.encryption.Encrypter;
 import org.opensaml.security.SecurityException;
 import org.opensaml.security.credential.BasicCredential;
@@ -118,8 +123,14 @@ public final class TestOpenSamlObjects {
 	}
 
 	static Response signedResponseWithOneAssertion() {
+		return signedResponseWithOneAssertion((response) -> {
+		});
+	}
+
+	static Response signedResponseWithOneAssertion(Consumer<Response> responseConsumer) {
 		Response response = response();
 		response.getAssertions().add(assertion());
+		responseConsumer.accept(response);
 		return signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(), RELYING_PARTY_ENTITY_ID);
 	}
 
@@ -336,6 +347,18 @@ public final class TestOpenSamlObjects {
 		attrStmt2.getAttributes().add(registeredDateAttr);
 		attributeStatements.add(attrStmt2);
 		return attributeStatements;
+	}
+
+	static Status successStatus() {
+		return status(StatusCode.SUCCESS);
+	}
+
+	static Status status(String code) {
+		Status status = new StatusBuilder().buildObject();
+		StatusCode statusCode = new StatusCodeBuilder().buildObject();
+		statusCode.setValue(code);
+		status.setStatusCode(statusCode);
+		return status;
 	}
 
 	static <T extends XMLObject> T build(QName qName) {

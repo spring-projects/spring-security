@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.OneTimeUse;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.impl.EncryptedAssertionBuilder;
 import org.opensaml.saml.saml2.core.impl.EncryptedIDBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
@@ -555,6 +556,25 @@ public class OpenSamlAuthenticationProviderTests {
 		});
 		Authentication authentication = this.provider.authenticate(token);
 		assertThat(authentication.getName()).isEqualTo("decrypted name");
+	}
+
+	@Test
+	public void authenticateWhenResponseStatusIsNotSuccessThenFails() {
+		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion(
+				(r) -> r.setStatus(TestOpenSamlObjects.status(StatusCode.AUTHN_FAILED)));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.INVALID_RESPONSE));
+	}
+
+	@Test
+	public void authenticateWhenResponseStatusIsSuccessThenSucceeds() {
+		Response response = TestOpenSamlObjects
+				.signedResponseWithOneAssertion((r) -> r.setStatus(TestOpenSamlObjects.successStatus()));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		Authentication authentication = this.provider.authenticate(token);
+		assertThat(authentication.getName()).isEqualTo("test@saml.user");
 	}
 
 	private <T extends XMLObject> T build(QName qName) {
