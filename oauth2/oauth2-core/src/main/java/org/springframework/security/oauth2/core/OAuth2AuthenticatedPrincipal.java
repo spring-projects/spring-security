@@ -39,6 +39,7 @@ public interface OAuth2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 	 * @return the attribute or {@code null} otherwise
 	 */
 	@Nullable
+	@SuppressWarnings("unchecked")
 	default <A> A getAttribute(String name) {
 		return (A) getAttributes().get(name);
 	}
