@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,19 @@ package org.springframework.security.config.web.servlet
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer
+import org.springframework.web.cors.CorsConfigurationSource
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] CORS using idiomatic Kotlin code.
  *
  * @author Eleftheria Stein
  * @since 5.3
+ * @property configurationSource the [CorsConfigurationSource] to use.
  */
 @SecurityMarker
 class CorsDsl {
+    var configurationSource: CorsConfigurationSource? = null
+
     private var disabled = false
 
     /**
@@ -38,6 +42,7 @@ class CorsDsl {
 
     internal fun get(): (CorsConfigurer<HttpSecurity>) -> Unit {
         return { cors ->
+            configurationSource?.also { cors.configurationSource(configurationSource) }
             if (disabled) {
                 cors.disable()
             }

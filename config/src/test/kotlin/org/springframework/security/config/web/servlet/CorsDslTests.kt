@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ class CorsDslTests {
 
     @Test
     fun `CORS when CORS configuration source bean then responds with CORS header`() {
-        this.spring.register(CorsCrossOriginConfig::class.java).autowire()
+        this.spring.register(CorsCrossOriginBeanConfig::class.java).autowire()
 
         this.mockMvc.get("/")
         {
@@ -79,7 +79,7 @@ class CorsDslTests {
 
     @EnableWebMvc
     @EnableWebSecurity
-    open class CorsCrossOriginConfig : WebSecurityConfigurerAdapter() {
+    open class CorsCrossOriginBeanConfig : WebSecurityConfigurerAdapter() {
         override fun configure(http: HttpSecurity) {
             http {
                 cors { }
@@ -133,6 +133,37 @@ class CorsDslTests {
                     RequestMethod.POST.name)
             source.registerCorsConfiguration("/**", corsConfiguration)
             return source
+        }
+    }
+
+    @Test
+    fun `CORS when CORS configuration source dsl then responds with CORS header`() {
+        this.spring.register(CorsCrossOriginBeanConfig::class.java).autowire()
+
+        this.mockMvc.get("/")
+        {
+            header(HttpHeaders.ORIGIN, "https://example.com")
+        }.andExpect {
+            header { exists("Access-Control-Allow-Origin") }
+        }
+    }
+
+    @EnableWebMvc
+    @EnableWebSecurity
+    open class CorsCrossOriginSourceConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            val source = UrlBasedCorsConfigurationSource()
+            val corsConfiguration = CorsConfiguration()
+            corsConfiguration.allowedOrigins = listOf("*")
+            corsConfiguration.allowedMethods = listOf(
+                    RequestMethod.GET.name,
+                    RequestMethod.POST.name)
+            source.registerCorsConfiguration("/**", corsConfiguration)
+            http {
+                cors {
+                    configurationSource = source
+                }
+            }
         }
     }
 }
