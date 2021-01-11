@@ -76,15 +76,6 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		return matchResult != null;
 	}
 
-	private MatchableHandlerMapping getMapping(HttpServletRequest request) {
-		try {
-			return this.introspector.getMatchableHandlerMapping(request);
-		}
-		catch (Throwable ex) {
-			return null;
-		}
-	}
-
 	@Override
 	@Deprecated
 	public Map<String, String> extractUriTemplateVariables(HttpServletRequest request) {
@@ -107,6 +98,15 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 	private boolean notMatchMethodOrServletPath(HttpServletRequest request) {
 		return this.method != null && !this.method.name().equals(request.getMethod())
 				|| this.servletPath != null && !this.servletPath.equals(request.getServletPath());
+	}
+
+	private MatchableHandlerMapping getMapping(HttpServletRequest request) {
+		try {
+			return this.introspector.getMatchableHandlerMapping(request);
+		}
+		catch (Throwable ex) {
+			return null;
+		}
 	}
 
 	/**
