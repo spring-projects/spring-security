@@ -6,8 +6,8 @@ pluginManagement {
 }
 
 plugins {
-	id "com.gradle.enterprise" version "3.2"
-	id "io.spring.ge.conventions" version "0.0.6"
+	id "com.gradle.enterprise" version "3.5.1"
+	id "io.spring.ge.conventions" version "0.0.7"
 }
 
 enableFeaturePreview("VERSION_ORDERING_V2")
