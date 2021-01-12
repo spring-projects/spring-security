@@ -65,8 +65,7 @@ public class CsrfWebFilterTests {
 	private MockServerWebExchange get = from(
 		MockServerHttpRequest.get("/"));
 
-	private ServerWebExchange post = from(
-		MockServerHttpRequest.post("/"));
+	private MockServerWebExchange post = MockServerWebExchange.from(MockServerHttpRequest.post("/"));
 
 	@Test
 	public void filterWhenGetThenSessionNotCreatedAndChainContinues() {
@@ -110,6 +109,8 @@ public class CsrfWebFilterTests {
 			.verifyComplete();
 
 		assertThat(this.post.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+		StepVerifier.create(this.post.getResponse().getBodyAsString())
+				.assertNext(b -> assertThat(b).contains("An expected CSRF token cannot be found"));
 	}
 
 	@Test
