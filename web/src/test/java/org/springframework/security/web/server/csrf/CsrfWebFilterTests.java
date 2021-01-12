@@ -34,7 +34,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
 
@@ -92,7 +91,7 @@ public class CsrfWebFilterTests {
 		StepVerifier.create(result).verifyComplete();
 		assertThat(this.post.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 		StepVerifier.create(this.post.getResponse().getBodyAsString())
-				.assertNext(b -> assertThat(b).contains("An expected CSRF token cannot be found"));
+				.assertNext((body) -> assertThat(body).contains("An expected CSRF token cannot be found"));
 	}
 
 	@Test
