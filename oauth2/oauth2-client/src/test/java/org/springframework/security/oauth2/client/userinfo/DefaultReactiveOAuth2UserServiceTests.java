@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.oauth2.client.userinfo;
 
 import java.time.Duration;
@@ -50,6 +49,7 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -150,6 +150,24 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) user.getAuthorities().iterator().next();
 		assertThat(userAuthority.getAuthority()).isEqualTo("ROLE_USER");
 		assertThat(userAuthority.getAttributes()).isEqualTo(user.getAttributes());
+	}
+
+	// gh-9336
+	@Test
+	public void loadUserWhenUserInfo201CreatedResponseThenReturnUser() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+				+ "   \"id\": \"user1\",\n"
+				+ "   \"first-name\": \"first\",\n"
+				+ "   \"last-name\": \"last\",\n"
+				+ "   \"middle-name\": \"middle\",\n"
+				+ "   \"address\": \"address\",\n"
+				+ "   \"email\": \"user1@example.com\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(new MockResponse().setResponseCode(201)
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(userInfoResponse));
+		assertThatCode(() -> this.userService.loadUser(oauth2UserRequest()).block()).doesNotThrowAnyException();
 	}
 
 	// gh-5500
