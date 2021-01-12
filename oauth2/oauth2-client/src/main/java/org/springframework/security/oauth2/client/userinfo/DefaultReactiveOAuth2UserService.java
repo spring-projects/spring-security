@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.oauth2.client.userinfo;
 
 
@@ -21,6 +20,11 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.nimbusds.oauth2.sdk.ErrorObject;
+import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
+import net.minidev.json.JSONObject;
+import reactor.core.publisher.Mono;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
@@ -40,12 +44,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.nimbusds.oauth2.sdk.ErrorObject;
-import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
-
-import net.minidev.json.JSONObject;
-import reactor.core.publisher.Mono;
 
 /**
  * An implementation of an {@link ReactiveOAuth2UserService} that supports standard OAuth 2.0 Provider's.
@@ -119,7 +117,7 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 			}
 			Mono<Map<String, Object>> userAttributes = requestHeadersSpec
 					.retrieve()
-					.onStatus(s -> s != HttpStatus.OK, response -> parse(response).map(userInfoErrorResponse -> {
+					.onStatus(HttpStatus::isError, response -> parse(response).map(userInfoErrorResponse -> {
 						String description = userInfoErrorResponse.getErrorObject().getDescription();
 						OAuth2Error oauth2Error = new OAuth2Error(
 								INVALID_USER_INFO_RESPONSE_ERROR_CODE, description,
