@@ -434,6 +434,11 @@ public class FormLoginTests {
 			return this;
 		}
 
+		public DefaultLoginPage assertLoginFormPresent() {
+			loginForm().username("");
+			return this;
+		}
+
 		public LoginForm loginForm() {
 			if (this.loginForm == null) {
 				this.loginForm = PageFactory.initElements(this.driver, LoginForm.class);
