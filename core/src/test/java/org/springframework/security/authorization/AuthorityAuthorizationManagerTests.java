@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,13 @@ public class AuthorityAuthorizationManagerTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole("ADMIN", null, "USER"))
 				.withMessage("roles cannot contain null values");
+	}
+
+	@Test
+	public void hasAnyRoleWhenCustomRolePrefixNullThenException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole(null, new String[] { "ADMIN", "USER" }))
+				.withMessage("rolePrefix cannot be null");
 	}
 
 	@Test
@@ -145,6 +152,17 @@ public class AuthorityAuthorizationManagerTests {
 		Object object = new Object();
 
 		assertThat(manager.check(authentication, object).isGranted()).isFalse();
+	}
+
+	@Test
+	public void hasAnyRoleWhenCustomRolePrefixProvidedThenUseCustomRolePrefix() {
+		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasAnyRole("CUSTOM_",
+				new String[] { "USER" });
+		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
+				"CUSTOM_USER");
+		Object object = new Object();
+
+		assertThat(manager.check(authentication, object).isGranted()).isTrue();
 	}
 
 	@Test
