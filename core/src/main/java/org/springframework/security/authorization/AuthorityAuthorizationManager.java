@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,9 +75,22 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	 * @return the new instance
 	 */
 	public static <T> AuthorityAuthorizationManager<T> hasAnyRole(String... roles) {
+		return hasAnyRole(ROLE_PREFIX, roles);
+	}
+
+	/**
+	 * Creates an instance of {@link AuthorityAuthorizationManager} with the provided
+	 * authorities.
+	 * @param rolePrefix the role prefix for <code>roles</code>
+	 * @param roles the authorities to check for prefixed with <code>rolePrefix</code>
+	 * @param <T> the type of object being authorized
+	 * @return the new instance
+	 */
+	public static <T> AuthorityAuthorizationManager<T> hasAnyRole(String rolePrefix, String[] roles) {
+		Assert.notNull(rolePrefix, "rolePrefix cannot be null");
 		Assert.notEmpty(roles, "roles cannot be empty");
 		Assert.noNullElements(roles, "roles cannot contain null values");
-		return hasAnyAuthority(toNamedRolesArray(roles));
+		return hasAnyAuthority(toNamedRolesArray(rolePrefix, roles));
 	}
 
 	/**
@@ -93,10 +106,10 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 		return new AuthorityAuthorizationManager<>(authorities);
 	}
 
-	private static String[] toNamedRolesArray(String... roles) {
+	private static String[] toNamedRolesArray(String rolePrefix, String[] roles) {
 		String[] result = new String[roles.length];
 		for (int i = 0; i < roles.length; i++) {
-			result[i] = ROLE_PREFIX + roles[i];
+			result[i] = rolePrefix + roles[i];
 		}
 		return result;
 	}

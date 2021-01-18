@@ -37,6 +37,7 @@ dependencies {
 	optional'org.springframework:spring-websocket'
 	optional 'org.jetbrains.kotlin:kotlin-reflect'
 	optional 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+	optional 'javax.annotation:jsr250-api'
 
 	provided 'javax.servlet:javax.servlet-api'
 
