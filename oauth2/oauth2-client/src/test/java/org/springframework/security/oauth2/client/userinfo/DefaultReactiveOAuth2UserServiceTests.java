@@ -51,6 +51,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -142,6 +143,24 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) user.getAuthorities().iterator().next();
 		assertThat(userAuthority.getAuthority()).isEqualTo("ROLE_USER");
 		assertThat(userAuthority.getAttributes()).isEqualTo(user.getAttributes());
+	}
+
+	@Test
+	public void loadUserWhenUserInfo201CreatedResponseThenReturnUser() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+				+ "   \"id\": \"user1\",\n"
+				+ "   \"first-name\": \"first\",\n"
+				+ "   \"last-name\": \"last\",\n"
+				+ "   \"middle-name\": \"middle\",\n"
+				+ "   \"address\": \"address\",\n"
+				+ "   \"email\": \"user1@example.com\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(
+				new MockResponse().setResponseCode(201).setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(userInfoResponse));
+		assertThatNoException()
+				.isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block());
 	}
 
 	// gh-5500

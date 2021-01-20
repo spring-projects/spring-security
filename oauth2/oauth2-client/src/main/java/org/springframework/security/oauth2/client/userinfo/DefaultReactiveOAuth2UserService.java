@@ -108,7 +108,7 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 					authenticationMethod);
 			// @formatter:off
 			Mono<Map<String, Object>> userAttributes = requestHeadersSpec.retrieve()
-					.onStatus((s) -> !s.is2xxSuccessful(), (response) ->
+					.onStatus(HttpStatus::isError, (response) ->
 						parse(response)
 							.map((userInfoErrorResponse) -> {
 								String description = userInfoErrorResponse.getErrorObject().getDescription();
