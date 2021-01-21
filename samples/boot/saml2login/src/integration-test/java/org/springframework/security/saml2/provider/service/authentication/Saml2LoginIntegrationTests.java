@@ -124,7 +124,7 @@ public class Saml2LoginIntegrationTests {
 	public void authenticateRequestWhenUnauthenticatedThenRespondsWithRedirectAuthNRequestXML() throws Exception {
 		mockMvc.perform(get("http://localhost:8080/saml2/authenticate/simplesamlphp"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(header().string("Location", startsWith("https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php?SAMLRequest=")));
+				.andExpect(header().string("Location", startsWith("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php?SAMLRequest=")));
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class Saml2LoginIntegrationTests {
 						.param("OtherParam2", "OtherParamValue2")
 		)
 				.andExpect(status().is3xxRedirection())
-				.andExpect(header().string("Location", startsWith("https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php?SAMLRequest=")))
+				.andExpect(header().string("Location", startsWith("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php?SAMLRequest=")))
 				.andExpect(header().string("Location", containsString("RelayState=relay%20state%20value%20with%20spaces")))
 				//check order of parameters
 				.andExpect(header().string("Location", matchesRegex(".*\\?SAMLRequest\\=.*\\&RelayState\\=.*\\&SigAlg\\=.*\\&Signature\\=.*")));
@@ -160,7 +160,7 @@ public class Saml2LoginIntegrationTests {
 		String destination = authnRequest.getDestination();
 		assertEquals(
 				"Destination must match",
-				"https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php",
+				"https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php",
 				destination
 		);
 		String acsURL = authnRequest.getAssertionConsumerServiceURL();
@@ -322,14 +322,14 @@ public class Saml2LoginIntegrationTests {
 		Response response = OpenSamlActionTestingSupport.buildResponse();
 		response.setID("_" + UUID.randomUUID().toString());
 		response.setDestination("http://localhost:8080/login/saml2/sso/simplesamlphp");
-		response.setIssuer(buildIssuer("https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php"));
+		response.setIssuer(buildIssuer("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php"));
 		return response;
 	}
 
 	private Assertion buildAssertion(String username) {
 		Assertion assertion = OpenSamlActionTestingSupport.buildAssertion();
 		assertion.setIssueInstant(DateTime.now());
-		assertion.setIssuer(buildIssuer("https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php"));
+		assertion.setIssuer(buildIssuer("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php"));
 		assertion.setSubject(buildSubject(username));
 		assertion.setConditions(buildConditions());
 
@@ -351,7 +351,7 @@ public class Saml2LoginIntegrationTests {
 		final PrivateKey privateKey = KeySupport.decodePrivateKey(key.getBytes(UTF_8), new char[0]);
 		BasicCredential cred = CredentialSupport.getSimpleCredential(publicKey, privateKey);
 		cred.setUsageType(usageType);
-		cred.setEntityId("https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php");
+		cred.setEntityId("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php");
 		return cred;
 	}
 
