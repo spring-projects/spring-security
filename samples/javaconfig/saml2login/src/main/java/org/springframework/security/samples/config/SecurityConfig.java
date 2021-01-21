@@ -37,9 +37,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
 		RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("one")
 				.assertingPartyDetails((party) -> party
-					.entityId("https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php")
+					.entityId("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php")
 					.verificationX509Credentials((c) -> c.add(assertingPartyVerifyingCredential()))
-					.singleSignOnServiceLocation("https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php")
+					.singleSignOnServiceLocation("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php")
 					.wantAuthnRequestsSigned(false)
 				)
 				.build();
