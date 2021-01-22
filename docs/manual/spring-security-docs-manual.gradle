@@ -43,3 +43,7 @@ def resolvedVersions(Configuration configuration) {
 			.collectEntries { [(it.name + "-version"): it.moduleVersion.id.version] }
 	}
 }
+
+repositories {
+	maven { url "https://repo.spring.io/release" }
+}
