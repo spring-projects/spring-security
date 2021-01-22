@@ -46,7 +46,7 @@ public class SecurityConfigTests {
 	public void filterWhenLoginProcessingUrlIsSetInJavaConfigThenTheFilterHasIt() {
 		FilterChainProxy filterChain = context.getBean(FilterChainProxy.class);
 		Assert.assertNotNull(filterChain);
-		final List<Filter> filters = filterChain.getFilters("/sample/jc/saml2/sso/test-id");
+		final List<Filter> filters = filterChain.getFilters("/login/saml2/sso/one");
 		Assert.assertNotNull(filters);
 		Saml2WebSsoAuthenticationFilter filter = (Saml2WebSsoAuthenticationFilter) filters
 				.stream()
@@ -58,7 +58,7 @@ public class SecurityConfigTests {
 		for (String field : Arrays.asList("requiresAuthenticationRequestMatcher", "matcher")) {
 			final Object matcher = ReflectionTestUtils.getField(filter, field);
 			final Object pattern = ReflectionTestUtils.getField(matcher, "pattern");
-			Assert.assertEquals("loginProcessingUrl mismatch", "/sample/jc/saml2/sso/{registrationId}", pattern);
+			Assert.assertEquals("loginProcessingUrl mismatch", "/login/saml2/sso/{registrationId}", pattern);
 		}
 	}
 }
