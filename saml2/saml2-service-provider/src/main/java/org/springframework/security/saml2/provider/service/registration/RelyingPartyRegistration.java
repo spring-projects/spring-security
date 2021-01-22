@@ -51,8 +51,8 @@ import org.springframework.util.Assert;
  *	String assertionConsumerServiceLocation = "{baseUrl}/login/saml2/sso/{registrationId}";
  *	Saml2X509Credential relyingPartySigningCredential = ...;
  *
- *	String assertingPartyEntityId = "https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php";
- *	String singleSignOnServiceLocation = "https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php";
+ *	String assertingPartyEntityId = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php";
+ *	String singleSignOnServiceLocation = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php";
  * 	Saml2X509Credential assertingPartyVerificationCredential = ...;
  *
  *
