@@ -5,6 +5,7 @@ dependencies {
 	compile project(':spring-security-config')
 	compile "org.bouncycastle:bcprov-jdk15on"
 	compile "org.bouncycastle:bcpkix-jdk15on"
+	compile slf4jDependencies
 
 	testCompile project(':spring-security-test')
 }
