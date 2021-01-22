@@ -136,12 +136,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 				SaveContextOnUpdateOrErrorResponseWrapper.class);
 		Assert.state(responseWrapper != null, () -> "Cannot invoke saveContext on response " + response
 				+ ". You must use the HttpRequestResponseHolder.response after invoking loadContext");
-		// saveContext() might already be called by the response wrapper if something in
-		// the chain called sendError() or sendRedirect(). This ensures we only call it
-		// once per request.
-		if (!responseWrapper.isContextSaved()) {
-			responseWrapper.saveContext(context);
-		}
+		responseWrapper.saveContext(context);
 	}
 
 	@Override
@@ -296,6 +291,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
 		private final Authentication authBeforeExecution;
 
+		private boolean isSaveContextInvoked;
+
 		/**
 		 * Takes the parameters required to call <code>saveContext()</code> successfully
 		 * in addition to the request and the response object we are wrapping.
@@ -339,6 +336,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 					// SEC-1587 A non-anonymous context may still be in the session
 					// SEC-1735 remove if the contextBeforeExecution was not anonymous
 					httpSession.removeAttribute(springSecurityContextKey);
+					this.isSaveContextInvoked = true;
 				}
 				if (this.logger.isDebugEnabled()) {
 					if (authentication == null) {
@@ -358,6 +356,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 				// is set SEC-1561
 				if (contextChanged(context) || httpSession.getAttribute(springSecurityContextKey) == null) {
 					httpSession.setAttribute(springSecurityContextKey, context);
+					this.isSaveContextInvoked = true;
 					if (this.logger.isDebugEnabled()) {
 						this.logger.debug(LogMessage.format("Stored %s to HttpSession [%s]", context, httpSession));
 					}
@@ -366,7 +365,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		}
 
 		private boolean contextChanged(SecurityContext context) {
-			return context != this.contextBeforeExecution || context.getAuthentication() != this.authBeforeExecution;
+			return this.isSaveContextInvoked || context != this.contextBeforeExecution
+					|| context.getAuthentication() != this.authBeforeExecution;
 		}
 
 		private HttpSession createNewSessionIfAllowed(SecurityContext context) {
