@@ -21,6 +21,7 @@ import java.security.cert.X509Certificate;
 import org.opensaml.security.x509.X509Support;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -52,9 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.authorizeRequests((authz) -> authz
 				.anyRequest().authenticated()
 			)
-			.saml2Login((saml2) -> saml2
-				.loginProcessingUrl("/sample/jc/saml2/sso/{registrationId}")
-			);
+			.saml2Login(Customizer.withDefaults());
 		// @formatter:on
 	}
 
