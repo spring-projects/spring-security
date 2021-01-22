@@ -15,6 +15,8 @@
  */
 package org.springframework.security.samples.config;
 
+
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,6 +25,7 @@ import org.springframework.security.converter.RsaKeyConverters;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 
 import java.io.ByteArrayInputStream;
@@ -39,7 +42,8 @@ import static org.springframework.security.saml2.credentials.Saml2X509Credential
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-	RelyingPartyRegistration getSaml2AuthenticationConfiguration() throws Exception {
+	@Bean
+	RelyingPartyRegistrationRepository getSaml2AuthenticationConfiguration() throws Exception {
 		//remote IDP entity ID
 		String idpEntityId = "https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php";
 		//remote WebSSO Endpoint - Where to Send AuthNRequests to
@@ -53,14 +57,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		//IDP certificate for verification of incoming messages
 		Saml2X509Credential idpVerificationCertificate = getVerificationCertificate();
 		String acsUrlTemplate = "{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
-		return RelyingPartyRegistration.withRegistrationId(registrationId)
+		return new InMemoryRelyingPartyRegistrationRepository(RelyingPartyRegistration.withRegistrationId(registrationId)
 				.providerDetails(config -> config.entityId(idpEntityId))
 				.providerDetails(config -> config.webSsoUrl(webSsoEndpoint))
 				.credentials(c -> c.add(signingCredential))
 				.credentials(c -> c.add(idpVerificationCertificate))
 				.localEntityIdTemplate(localEntityIdTemplate)
 				.assertionConsumerServiceUrlTemplate(acsUrlTemplate)
-				.build();
+				.build());
 	}
 
 	@Override
@@ -70,14 +74,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.authorizeRequests()
 				.anyRequest().authenticated()
 				.and()
-			.saml2Login()
-				.relyingPartyRegistrationRepository(
-						new InMemoryRelyingPartyRegistrationRepository(
-							getSaml2AuthenticationConfiguration()
-					)
-				)
-				.loginProcessingUrl("/sample/jc/saml2/sso/{registrationId}")
-		;
+			.saml2Login();
 		// @formatter:on
 	}
 
