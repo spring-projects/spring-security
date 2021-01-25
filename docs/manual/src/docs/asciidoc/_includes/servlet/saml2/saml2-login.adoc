@@ -270,9 +270,9 @@ spring:
     saml2:
       login:
         relying-parties:
-          - entity-id: &idp-entity-id https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php
+          - entity-id: &idp-entity-id https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php
             registration-id: simplesamlphp
-            web-sso-url: &idp-sso-url https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php
+            web-sso-url: &idp-sso-url https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php
             signing-credentials: &service-provider-credentials
               - private-key: |
                   -----BEGIN PRIVATE KEY-----
