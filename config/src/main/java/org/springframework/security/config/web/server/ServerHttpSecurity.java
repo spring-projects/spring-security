@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,6 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -107,7 +106,6 @@ import org.springframework.security.web.server.DelegatingServerAuthenticationEnt
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.AuthenticationConverterServerWebExchangeMatcher;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
@@ -3780,30 +3778,6 @@ public class ServerHttpSecurity {
 			return ServerHttpSecurity.this;
 		}
 
-		private class BearerTokenAuthenticationWebFilter extends AuthenticationWebFilter {
-
-			private ServerAuthenticationFailureHandler authenticationFailureHandler;
-
-			BearerTokenAuthenticationWebFilter(ReactiveAuthenticationManager authenticationManager) {
-				super(authenticationManager);
-			}
-
-			@Override
-			public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
-				return super.filter(exchange, chain).onErrorResume(AuthenticationException.class,
-						(e) -> this.authenticationFailureHandler.onAuthenticationFailure(webFilterExchange, e));
-			}
-
-			@Override
-			public void setAuthenticationFailureHandler(
-					ServerAuthenticationFailureHandler authenticationFailureHandler) {
-				super.setAuthenticationFailureHandler(authenticationFailureHandler);
-				this.authenticationFailureHandler = authenticationFailureHandler;
-			}
-
-		}
-
 		/**
 		 * Configures JWT Resource Server Support
 		 */
@@ -3880,7 +3854,7 @@ public class ServerHttpSecurity {
 
 			protected void configure(ServerHttpSecurity http) {
 				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
-				AuthenticationWebFilter oauth2 = new BearerTokenAuthenticationWebFilter(authenticationManager);
+				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
 				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(
 						new ServerAuthenticationEntryPointFailureHandler(OAuth2ResourceServerSpec.this.entryPoint));
@@ -3985,7 +3959,7 @@ public class ServerHttpSecurity {
 
 			protected void configure(ServerHttpSecurity http) {
 				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
-				AuthenticationWebFilter oauth2 = new BearerTokenAuthenticationWebFilter(authenticationManager);
+				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
 				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(
 						new ServerAuthenticationEntryPointFailureHandler(OAuth2ResourceServerSpec.this.entryPoint));
