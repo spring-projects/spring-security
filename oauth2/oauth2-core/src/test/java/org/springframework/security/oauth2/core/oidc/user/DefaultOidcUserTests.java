@@ -25,6 +25,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -67,11 +68,6 @@ public class DefaultOidcUserTests {
 	private static final OidcUserInfo USER_INFO = new OidcUserInfo(USER_INFO_CLAIMS);
 
 	@Test
-	public void constructorWhenAuthoritiesIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultOidcUser(null, ID_TOKEN));
-	}
-
-	@Test
 	public void constructorWhenIdTokenIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultOidcUser(AUTHORITIES, null));
 	}
@@ -79,6 +75,26 @@ public class DefaultOidcUserTests {
 	@Test
 	public void constructorWhenNameAttributeKeyInvalidThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultOidcUser(AUTHORITIES, ID_TOKEN, "invalid"));
+	}
+
+	@Test
+	public void constructorWhenAuthoritiesIsNullThenCreatedWithNoAuthorities() {
+		DefaultOidcUser user = new DefaultOidcUser(null, ID_TOKEN);
+		assertThat(user.getClaims()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
+		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
+		assertThat(user.getName()).isEqualTo(SUBJECT);
+		assertThat(user.getAuthorities()).isNotNull().isEmpty();
+		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
+	}
+
+	@Test
+	public void constructorWhenAuthoritiesIsEmptyThenCreatedWithNoAuthorities() {
+		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.NO_AUTHORITIES, ID_TOKEN);
+		assertThat(user.getClaims()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
+		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
+		assertThat(user.getName()).isEqualTo(SUBJECT);
+		assertThat(user.getAuthorities()).isNotNull().isEmpty();
+		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
 	}
 
 	@Test

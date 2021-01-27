@@ -29,6 +29,7 @@ import java.util.TreeSet;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -65,13 +66,14 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	 */
 	public DefaultOAuth2User(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes,
 			String nameAttributeKey) {
-		Assert.notEmpty(authorities, "authorities cannot be empty");
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
 		if (!attributes.containsKey(nameAttributeKey)) {
 			throw new IllegalArgumentException("Missing attribute '" + nameAttributeKey + "' in attributes");
 		}
-		this.authorities = Collections.unmodifiableSet(new LinkedHashSet<>(this.sortAuthorities(authorities)));
+		this.authorities = (authorities != null)
+				? Collections.unmodifiableSet(new LinkedHashSet<>(this.sortAuthorities(authorities)))
+				: Collections.unmodifiableSet(new LinkedHashSet<>(AuthorityUtils.NO_AUTHORITIES));
 		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
 		this.nameAttributeKey = nameAttributeKey;
 	}

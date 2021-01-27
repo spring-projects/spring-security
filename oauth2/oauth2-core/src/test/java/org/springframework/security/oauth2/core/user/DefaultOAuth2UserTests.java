@@ -48,18 +48,6 @@ public class DefaultOAuth2UserTests {
 	private static final Map<String, Object> ATTRIBUTES = Collections.singletonMap(ATTRIBUTE_NAME_KEY, USERNAME);
 
 	@Test
-	public void constructorWhenAuthoritiesIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DefaultOAuth2User(null, ATTRIBUTES, ATTRIBUTE_NAME_KEY));
-	}
-
-	@Test
-	public void constructorWhenAuthoritiesIsEmptyThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DefaultOAuth2User(Collections.emptySet(), ATTRIBUTES, ATTRIBUTE_NAME_KEY));
-	}
-
-	@Test
 	public void constructorWhenAttributesIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new DefaultOAuth2User(AUTHORITIES, null, ATTRIBUTE_NAME_KEY));
@@ -83,6 +71,22 @@ public class DefaultOAuth2UserTests {
 	}
 
 	@Test
+	public void constructorWhenAuthoritiesIsNullThenCreatedWithNoAuthorities() {
+		DefaultOAuth2User user = new DefaultOAuth2User(null, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
+		assertThat(user.getName()).isEqualTo(USERNAME);
+		assertThat(user.getAuthorities()).isNotNull().isEmpty();
+		assertThat(user.getAttributes()).containsOnlyKeys(ATTRIBUTE_NAME_KEY);
+	}
+
+	@Test
+	public void constructorWhenAuthoritiesIsEmptyThenCreatedWithNoAuthorities() {
+		DefaultOAuth2User user = new DefaultOAuth2User(Collections.emptySet(), ATTRIBUTES, ATTRIBUTE_NAME_KEY);
+		assertThat(user.getName()).isEqualTo(USERNAME);
+		assertThat(user.getAuthorities()).isNotNull().isEmpty();
+		assertThat(user.getAttributes()).containsOnlyKeys(ATTRIBUTE_NAME_KEY);
+	}
+
+	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		DefaultOAuth2User user = new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
 		assertThat(user.getName()).isEqualTo(USERNAME);
@@ -92,6 +96,7 @@ public class DefaultOAuth2UserTests {
 	}
 
 	// gh-4917
+
 	@Test
 	public void constructorWhenCreatedThenIsSerializable() {
 		DefaultOAuth2User user = new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
