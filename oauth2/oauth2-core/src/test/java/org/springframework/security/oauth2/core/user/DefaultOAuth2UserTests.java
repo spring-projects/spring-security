@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,18 +48,6 @@ public class DefaultOAuth2UserTests {
 	private static final Map<String, Object> ATTRIBUTES = Collections.singletonMap(ATTRIBUTE_NAME_KEY, USERNAME);
 
 	@Test
-	public void constructorWhenAuthoritiesIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DefaultOAuth2User(null, ATTRIBUTES, ATTRIBUTE_NAME_KEY));
-	}
-
-	@Test
-	public void constructorWhenAuthoritiesIsEmptyThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DefaultOAuth2User(Collections.emptySet(), ATTRIBUTES, ATTRIBUTE_NAME_KEY));
-	}
-
-	@Test
 	public void constructorWhenAttributesIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new DefaultOAuth2User(AUTHORITIES, null, ATTRIBUTE_NAME_KEY));
@@ -80,6 +68,22 @@ public class DefaultOAuth2UserTests {
 	public void constructorWhenNameAttributeKeyIsInvalidThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, "invalid"));
+	}
+
+	@Test
+	public void constructorWhenAuthoritiesIsNullThenCreatedWithEmptyAuthorities() {
+		DefaultOAuth2User user = new DefaultOAuth2User(null, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
+		assertThat(user.getName()).isEqualTo(USERNAME);
+		assertThat(user.getAuthorities()).isEmpty();
+		assertThat(user.getAttributes()).containsOnlyKeys(ATTRIBUTE_NAME_KEY);
+	}
+
+	@Test
+	public void constructorWhenAuthoritiesIsEmptyThenCreated() {
+		DefaultOAuth2User user = new DefaultOAuth2User(Collections.emptySet(), ATTRIBUTES, ATTRIBUTE_NAME_KEY);
+		assertThat(user.getName()).isEqualTo(USERNAME);
+		assertThat(user.getAuthorities()).isEmpty();
+		assertThat(user.getAttributes()).containsOnlyKeys(ATTRIBUTE_NAME_KEY);
 	}
 
 	@Test
