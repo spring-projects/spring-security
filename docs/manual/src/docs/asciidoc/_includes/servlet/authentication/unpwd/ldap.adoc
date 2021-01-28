@@ -489,7 +489,7 @@ fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthentication
 
 Spring Security's `LdapAuthoritiesPopulator` is used to determine what authorites are returned for the user.
 
-.Minimal Password Compare Configuration
+.LdapAuthoritiesPopulator Configuration
 ====
 .Java
 [source,java,role="primary",attrs="-attributes"]
