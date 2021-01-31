@@ -2257,6 +2257,19 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="hashing-algorithm">
+         <xs:annotation>
+            <xs:documentation>The algorithm of cookie which store the token for remember-me authentication.
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="UNSET"/>
+               <xs:enumeration value="MD5"/>
+               <xs:enumeration value="SHA256"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
       <xs:attribute name="authentication-success-handler-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to an AuthenticationSuccessHandler bean which should be used to handle a

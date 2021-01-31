@@ -22,7 +22,16 @@ In essence a cookie is sent to the browser upon successful interactive authentic
 ----
 base64(username + ":" + expirationTime + ":" +
 md5Hex(username + ":" + expirationTime + ":" password + ":" + key))
-
+----
+or, if a specific hashing algorithm is specified:
+[source,txt]
+----
+base64(username + ":" + expirationTime + ":" + algorithmName +
+":" + hashingAlgorithm(username + ":" + expirationTime + ":" password + ":" + key))
+----
+where:
+[source,txt]
+----
 username:          As identifiable to the UserDetailsService
 password:          That matches the one in the retrieved UserDetails
 expirationTime:    The date and time when the remember-me token expires, expressed in milliseconds
@@ -42,7 +51,7 @@ If you are familiar with the topics discussed in the chapter on <<ns-config,name
 ----
 <http>
 ...
-<remember-me key="myAppKey"/>
+<remember-me key="myAppKey" hashing-algorithm="SHA256"/>
 </http>
 ----
 

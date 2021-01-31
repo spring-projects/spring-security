@@ -1708,6 +1708,11 @@ Specifies the period in seconds for which the remember-me cookie should be valid
 By default it will be valid for 14 days.
 
 
+[[nsa-remember-me-hashing-algorithm]]
+* **hashing-algorithm**
+Maps to the `hashingAlgorithm` property of `TokenBasedRememberMeServices`.
+Specifies the algorithm used for the digital signature within generated cookies. The supported algorithms are *SHA256* or *MD5*.
+
 [[nsa-remember-me-use-secure-cookie]]
 * **use-secure-cookie**
 It is recommended that remember-me cookies are only submitted over HTTPS and thus should be flagged as "secure".

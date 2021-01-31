@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.Collections;
 
 import javax.servlet.http.Cookie;
 
+import org.apache.commons.codec.binary.Base64;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -33,6 +34,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.RememberMeHashingAlgorithm;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -155,6 +157,16 @@ public class RememberMeConfigTests {
 		this.mvc.perform(post("/logout").cookie(cookie).with(csrf()))
 				.andExpect(cookie().maxAge(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 0));
 		// @formatter:on
+	}
+
+	@Test
+	public void configureWithHashingAlgorithm() throws Exception {
+		this.spring.configLocations(xml("Sha256Config")).autowire();
+		MvcResult result = rememberAuthentication("user", "password").andReturn();
+		Cookie cookie = rememberMeCookie(result);
+		assertThat(cookie).isNotNull();
+		assertThat(new String(Base64.decodeBase64(cookie.getValue())))
+				.contains(RememberMeHashingAlgorithm.SHA256.getIdentifier());
 	}
 
 	@Test
@@ -302,7 +314,7 @@ public class RememberMeConfigTests {
 				.withMessageContaining(
 						"Configuration problem: services-ref can't be used in combination with attributes "
 								+ "token-repository-ref,data-source-ref, user-service-ref, token-validity-seconds, "
-								+ "use-secure-cookie, remember-me-parameter or remember-me-cookie");
+								+ "use-secure-cookie, remember-me-parameter, hashing-algorithm or remember-me-cookie");
 	}
 
 	private ResultActions rememberAuthentication(String username, String password) throws Exception {
