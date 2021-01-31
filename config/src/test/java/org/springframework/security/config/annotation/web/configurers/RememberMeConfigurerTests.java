@@ -44,6 +44,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.RememberMeHashingAlgorithm;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -128,6 +129,23 @@ public class RememberMeConfigurerTests {
 				.param("remember-me", "true");
 		// @formatter:on
 		this.mvc.perform(request).andExpect(cookie().exists("remember-me"));
+	}
+
+	@Test
+	public void loginWithSha256HashingAlgorithmThenRespondsWithSha256RememberMeCookie() throws Exception {
+		this.spring.register(RememberMeWithSha256Config.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true");
+		// @formatter:on
+		MvcResult result = this.mvc.perform(request).andReturn();
+		Cookie rememberMe = result.getResponse().getCookie("remember-me");
+		assertThat(rememberMe).isNotNull();
+		assertThat(new String(Base64.decodeBase64(rememberMe.getValue())))
+				.contains(RememberMeHashingAlgorithm.SHA256.getIdentifier());
 	}
 
 	@Test
@@ -383,6 +401,34 @@ public class RememberMeConfigurerTests {
 				.formLogin()
 					.and()
 				.rememberMe();
+			// @formatter:on
+		}
+
+		@Autowired
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RememberMeWithSha256Config extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeRequests()
+						.anyRequest().hasRole("USER")
+						.and()
+					.formLogin()
+						.and()
+					.rememberMe()
+						.hashingAlgorithm(RememberMeHashingAlgorithm.SHA256);
 			// @formatter:on
 		}
 

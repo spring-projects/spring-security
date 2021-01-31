@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004-2021 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,11 +52,18 @@ import org.springframework.util.StringUtils;
  * This is also necessary so that the user's password is available and can be checked as
  * part of the encoded cookie.
  * <p>
- * The cookie encoded by this implementation adopts the following form:
+ * The cookie encoded by this implementation adopts either the following form:
  *
  * <pre>
  * username + &quot;:&quot; + expiryTime + &quot;:&quot;
  * 		+ Md5Hex(username + &quot;:&quot; + expiryTime + &quot;:&quot; + password + &quot;:&quot; + key)
+ * </pre>
+ *
+ * or, if a hashing algorithm is configured, the form:
+ *
+ * <pre>
+ * username + &quot;:&quot; + expiryTime + &quot;:&quot; + algorithmName + &quot;:&quot;
+ * 		+ hashingAlgorithm(username + &quot;:&quot; + expiryTime + &quot;:&quot; + password + &quot;:&quot; + key)
  * </pre>
  *
  * <p>
@@ -68,6 +76,11 @@ import org.springframework.util.StringUtils;
  * this implementation (as we do not want to rely on a database for remember-me services).
  * High security applications should be aware of this occasionally undesired disclosure of
  * a valid username.
+ * <p>
+ * The hashing algorithm used, if unspecified, is the MD5 message-digest algorithm in this
+ * implementation. If the configured hashing algorithm is changed, existing cookies will
+ * still be honored if the key or password are unchanged, but the users' cookies will use
+ * the new hashing algorithm the next time they interactively login.
  * <p>
  * This is a basic remember-me implementation which is suitable for many applications.
  * However, we recommend a database-based implementation if you require a more secure
@@ -83,22 +96,34 @@ import org.springframework.util.StringUtils;
  */
 public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
+	private RememberMeHashingAlgorithm hashingAlgorithm;
+
 	public TokenBasedRememberMeServices(String key, UserDetailsService userDetailsService) {
+		this(key, userDetailsService, RememberMeHashingAlgorithm.UNSET);
+	}
+
+	/**
+	 * @since 5.5
+	 */
+	public TokenBasedRememberMeServices(String key, UserDetailsService userDetailsService,
+			RememberMeHashingAlgorithm hashingAlgorithm) {
 		super(key, userDetailsService);
+		this.hashingAlgorithm = hashingAlgorithm;
 	}
 
 	@Override
 	protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (cookieTokens.length != 3) {
+		if (!(cookieTokens.length == 3 || cookieTokens.length == 4)) {
 			throw new InvalidCookieException(
-					"Cookie token did not contain 3" + " tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
+					"Cookie token did not contain 3 or 4 tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
 		}
 		long tokenExpiryTime = getTokenExpiryTime(cookieTokens);
 		if (isTokenExpired(tokenExpiryTime)) {
 			throw new InvalidCookieException("Cookie token[1] has expired (expired on '" + new Date(tokenExpiryTime)
 					+ "'; current time is '" + new Date() + "')");
 		}
+		RememberMeHashingAlgorithm algorithm = getTokenHashingAlgorithm(cookieTokens);
 		// Check the user exists. Defer lookup until after expiry time checked, to
 		// possibly avoid expensive database call.
 		UserDetails userDetails = getUserDetailsService().loadUserByUsername(cookieTokens[0]);
@@ -111,9 +136,10 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		// SecurityContextHolder population, whilst if invalid, will cause the cookie to
 		// be cancelled.
 		String expectedTokenSignature = makeTokenSignature(tokenExpiryTime, userDetails.getUsername(),
-				userDetails.getPassword());
-		if (!equals(expectedTokenSignature, cookieTokens[2])) {
-			throw new InvalidCookieException("Cookie token[2] contained signature '" + cookieTokens[2]
+				userDetails.getPassword(), algorithm);
+		String tokenSignature = (cookieTokens.length == 4) ? cookieTokens[3] : cookieTokens[2];
+		if (!equals(expectedTokenSignature, tokenSignature)) {
+			throw new InvalidCookieException("Last Cookie token contained signature '" + tokenSignature
 					+ "' but expected '" + expectedTokenSignature + "'");
 		}
 		return userDetails;
@@ -129,14 +155,39 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		}
 	}
 
+	private RememberMeHashingAlgorithm getTokenHashingAlgorithm(String[] cookieTokens) {
+		if (cookieTokens.length == 3) {
+			return RememberMeHashingAlgorithm.UNSET;
+		}
+		return RememberMeHashingAlgorithm.findByIdentifier(cookieTokens[2]).orElseThrow(IllegalArgumentException::new);
+	}
+
 	/**
-	 * Calculates the digital signature to be put in the cookie. Default value is MD5
-	 * ("username:tokenExpiryTime:password:key")
+	 * Calculates the digital signature expected in the cookie if no algorithm is declared
+	 * or configured.
+	 *
+	 * Default value is MD5("username:tokenExpiryTime:password:key")
 	 */
 	protected String makeTokenSignature(long tokenExpiryTime, String username, String password) {
+		return makeTokenSignature(tokenExpiryTime, username, password, RememberMeHashingAlgorithm.MD5);
+	}
+
+	/**
+	 * Calculates the digital signature expected in the cookie when a hashing algorithm is
+	 * declared or configured.
+	 *
+	 * Default value is the hashing algorithm applied to
+	 * "username:tokenExpiryTime:password:key"
+	 * @since 5.5
+	 */
+	protected String makeTokenSignature(long tokenExpiryTime, String username, String password,
+			RememberMeHashingAlgorithm algorithm) {
+		if (algorithm == RememberMeHashingAlgorithm.UNSET) {
+			return makeTokenSignature(tokenExpiryTime, username, password);
+		}
 		String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
 		try {
-			MessageDigest digest = MessageDigest.getInstance("MD5");
+			MessageDigest digest = MessageDigest.getInstance(algorithm.getDigestAlgorithm());
 			return new String(Hex.encode(digest.digest(data.getBytes())));
 		}
 		catch (NoSuchAlgorithmException ex) {
@@ -172,9 +223,11 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		long expiryTime = System.currentTimeMillis();
 		// SEC-949
 		expiryTime += 1000L * ((tokenLifetime < 0) ? TWO_WEEKS_S : tokenLifetime);
-		String signatureValue = makeTokenSignature(expiryTime, username, password);
-		setCookie(new String[] { username, Long.toString(expiryTime), signatureValue }, tokenLifetime, request,
-				response);
+		String signatureValue = makeTokenSignature(expiryTime, username, password, this.hashingAlgorithm);
+		String[] cookieTokens = (this.hashingAlgorithm == RememberMeHashingAlgorithm.UNSET)
+				? new String[] { username, Long.toString(expiryTime), signatureValue } : new String[] { username,
+						Long.toString(expiryTime), this.hashingAlgorithm.getIdentifier(), signatureValue };
+		setCookie(cookieTokens, tokenLifetime, request, response);
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(
 					"Added remember-me cookie for user '" + username + "', expiry: '" + new Date(expiryTime) + "'");
@@ -232,6 +285,22 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
 	private static byte[] bytesUtf8(String s) {
 		return (s != null) ? Utf8.encode(s) : null;
+	}
+
+	/**
+	 * @since 5.5
+	 */
+	public RememberMeHashingAlgorithm getHashAlgorithm() {
+		return this.hashingAlgorithm;
+	}
+
+	/**
+	 * Sets the hashing algorithm used in new cookies
+	 * @throws NullPointerException when the algorithm is null
+	 * @since 5.5
+	 */
+	public void setHashAlgorithm(RememberMeHashingAlgorithm hashingAlgorithm) {
+		this.hashingAlgorithm = Objects.requireNonNull(hashingAlgorithm);
 	}
 
 }

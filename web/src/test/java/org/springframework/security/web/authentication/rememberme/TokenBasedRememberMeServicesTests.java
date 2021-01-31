@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004-2021 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ public class TokenBasedRememberMeServicesTests {
 	private long determineExpiryTimeFromBased64EncodedToken(String validToken) {
 		String cookieAsPlainText = new String(Base64.decodeBase64(validToken.getBytes()));
 		String[] cookieTokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, ":");
-		if (cookieTokens.length == 3) {
+		if (cookieTokens.length == 3 || cookieTokens.length == 4) {
 			try {
 				return Long.parseLong(cookieTokens[1]);
 			}
@@ -89,12 +89,30 @@ public class TokenBasedRememberMeServicesTests {
 		return -1;
 	}
 
+	private String determineHashingAlgorithmFromBase64EncodedToken(String validToken) {
+		String cookieAsPlainText = new String(Base64.decodeBase64(validToken.getBytes()));
+		String[] cookieTokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, ":");
+		return cookieTokens[2];
+	}
+
 	private String generateCorrectCookieContentForToken(long expiryTime, String username, String password, String key) {
 		// format is:
 		// username + ":" + expiryTime + ":" + Md5Hex(username + ":" + expiryTime + ":" +
 		// password + ":" + key)
 		String signatureValue = DigestUtils.md5Hex(username + ":" + expiryTime + ":" + password + ":" + key);
 		String tokenValue = username + ":" + expiryTime + ":" + signatureValue;
+		return new String(Base64.encodeBase64(tokenValue.getBytes()));
+	}
+
+	private String generateCorrectCookieContentForTokenWithExplicitAlgorithm(long expiryTime, String username,
+			String password, String key, RememberMeHashingAlgorithm algorithm) {
+		// format is:
+		// username + ":" + expiryTime + ":" + algorithmName + ":" + hash(username + ":" +
+		// expiryTime + ":" +
+		// password + ":" + key)
+		String signatureValue = new DigestUtils(algorithm.getDigestAlgorithm())
+				.digestAsHex(username + ":" + expiryTime + ":" + password + ":" + key);
+		String tokenValue = username + ":" + expiryTime + ":" + algorithm.getIdentifier() + ":" + signatureValue;
 		return new String(Base64.encodeBase64(tokenValue.getBytes()));
 	}
 
@@ -228,14 +246,31 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
+	public void autoLoginWithValidTokenAndUserWithSha256Succeeds() {
+		udsWillReturnUser();
+		Cookie cookie = new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
+				generateCorrectCookieContentForTokenWithExplicitAlgorithm(System.currentTimeMillis() + 1000000,
+						"someone", "password", "key", RememberMeHashingAlgorithm.SHA256));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setCookies(cookie);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		Authentication result = this.services.autoLogin(request, response);
+		assertThat(result).isNotNull();
+		assertThat(result.getPrincipal()).isEqualTo(this.user);
+	}
+
+	@Test
 	public void testGettersSetters() {
 		assertThat(this.services.getUserDetailsService()).isEqualTo(this.uds);
 		assertThat(this.services.getKey()).isEqualTo("key");
 		assertThat(this.services.getParameter()).isEqualTo(AbstractRememberMeServices.DEFAULT_PARAMETER);
+		assertThat(this.services.getHashAlgorithm()).isEqualTo(RememberMeHashingAlgorithm.UNSET);
 		this.services.setParameter("some_param");
 		assertThat(this.services.getParameter()).isEqualTo("some_param");
 		this.services.setTokenValiditySeconds(12);
 		assertThat(this.services.getTokenValiditySeconds()).isEqualTo(12);
+		this.services.setHashAlgorithm(RememberMeHashingAlgorithm.SHA256);
+		assertThat(this.services.getHashAlgorithm()).isEqualTo(RememberMeHashingAlgorithm.SHA256);
 	}
 
 	@Test
@@ -292,6 +327,23 @@ public class TokenBasedRememberMeServicesTests {
 		assertThat(cookie.getMaxAge()).isEqualTo(this.services.getTokenValiditySeconds());
 		assertThat(Base64.isArrayByteBase64(cookie.getValue().getBytes())).isTrue();
 		assertThat(new Date().before(new Date(determineExpiryTimeFromBased64EncodedToken(cookie.getValue())))).isTrue();
+	}
+
+	@Test
+	public void loginSuccessNormalWithSha256AlgorithmSetsExpectedCookie() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "true");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		this.services.setHashAlgorithm(RememberMeHashingAlgorithm.SHA256);
+		this.services.loginSuccess(request, response,
+				new TestingAuthenticationToken("someone", "password", "ROLE_ABC"));
+		Cookie cookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		assertThat(cookie).isNotNull();
+		assertThat(cookie.getMaxAge()).isEqualTo(this.services.getTokenValiditySeconds());
+		assertThat(Base64.isBase64(cookie.getValue().getBytes())).isTrue();
+		assertThat(new Date().before(new Date(determineExpiryTimeFromBased64EncodedToken(cookie.getValue())))).isTrue();
+		assertThat(determineHashingAlgorithmFromBase64EncodedToken(cookie.getValue()))
+				.isEqualTo(RememberMeHashingAlgorithm.SHA256.getIdentifier());
 	}
 
 	// SEC-933

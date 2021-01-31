@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.security.web.authentication.rememberme.AbstractRememb
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.RememberMeHashingAlgorithm;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.util.Assert;
@@ -90,6 +91,8 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	private AuthenticationSuccessHandler authenticationSuccessHandler;
 
 	private String key;
+
+	private RememberMeHashingAlgorithm hashingAlgorithm = RememberMeHashingAlgorithm.UNSET;
 
 	private RememberMeServices rememberMeServices;
 
@@ -183,6 +186,23 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public RememberMeConfigurer<H> key(String key) {
 		this.key = key;
+		return this;
+	}
+
+	/**
+	 * The algorithm to use with {@link TokenBasedRememberMeServices} for hashing the
+	 * digital signature containing the key from {@link #key(String)} and the user's
+	 * password. If unset, the MD5 message digest algorithm will be used.
+	 * <p>
+	 * This configuration is ignored if
+	 * {@link #tokenRepository(PersistentTokenRepository)} or
+	 * {@link #rememberMeServices(RememberMeServices)} are used.
+	 * @param hashingAlgorithm the algorithm used when creating new cookies
+	 * @return the {@link RememberMeConfigurer} for further customization
+	 * @since 5.5
+	 */
+	public RememberMeConfigurer<H> hashingAlgorithm(RememberMeHashingAlgorithm hashingAlgorithm) {
+		this.hashingAlgorithm = hashingAlgorithm;
 		return this;
 	}
 
@@ -380,7 +400,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	private AbstractRememberMeServices createTokenBasedRememberMeServices(H http, String key) {
 		UserDetailsService userDetailsService = getUserDetailsService(http);
-		return new TokenBasedRememberMeServices(key, userDetailsService);
+		return new TokenBasedRememberMeServices(key, userDetailsService, this.hashingAlgorithm);
 	}
 
 	/**

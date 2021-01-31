@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,8 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
 	static final String ATT_TOKEN_VALIDITY = "token-validity-seconds";
 
+	static final String ATT_HASHING_ALGORITHM = "hashing-algorithm";
+
 	static final String ATT_SECURE_COOKIE = "use-secure-cookie";
 
 	static final String ATT_FORM_REMEMBERME_PARAMETER = "remember-me-parameter";
@@ -88,6 +90,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 		String successHandlerRef = element.getAttribute(ATT_SUCCESS_HANDLER_REF);
 		String rememberMeServicesRef = element.getAttribute(ATT_SERVICES_REF);
 		String tokenValiditySeconds = element.getAttribute(ATT_TOKEN_VALIDITY);
+		String hashingAlgorithm = element.getAttribute(ATT_HASHING_ALGORITHM);
 		String useSecureCookie = element.getAttribute(ATT_SECURE_COOKIE);
 		String remembermeParameter = element.getAttribute(ATT_FORM_REMEMBERME_PARAMETER);
 		String remembermeCookie = element.getAttribute(ATT_REMEMBERME_COOKIE);
@@ -99,15 +102,16 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 		boolean userServiceSet = StringUtils.hasText(userServiceRef);
 		boolean useSecureCookieSet = StringUtils.hasText(useSecureCookie);
 		boolean tokenValiditySet = StringUtils.hasText(tokenValiditySeconds);
+		boolean hashingAlgorithmSet = StringUtils.hasText(hashingAlgorithm);
 		boolean remembermeParameterSet = StringUtils.hasText(remembermeParameter);
 		boolean remembermeCookieSet = StringUtils.hasText(remembermeCookie);
 		if (servicesRefSet && (dataSourceSet || tokenRepoSet || userServiceSet || tokenValiditySet || useSecureCookieSet
-				|| remembermeParameterSet || remembermeCookieSet)) {
+				|| remembermeParameterSet || remembermeCookieSet || hashingAlgorithmSet)) {
 			pc.getReaderContext()
 					.error(ATT_SERVICES_REF + " can't be used in combination with attributes " + ATT_TOKEN_REPOSITORY
 							+ "," + ATT_DATA_SOURCE + ", " + ATT_USER_SERVICE_REF + ", " + ATT_TOKEN_VALIDITY + ", "
-							+ ATT_SECURE_COOKIE + ", " + ATT_FORM_REMEMBERME_PARAMETER + " or " + ATT_REMEMBERME_COOKIE,
-							source);
+							+ ATT_SECURE_COOKIE + ", " + ATT_FORM_REMEMBERME_PARAMETER + ", " + ATT_HASHING_ALGORITHM
+							+ " or " + ATT_REMEMBERME_COOKIE, source);
 		}
 		if (dataSourceSet && tokenRepoSet) {
 			pc.getReaderContext().error("Specify " + ATT_TOKEN_REPOSITORY + " or " + ATT_DATA_SOURCE + " but not both",
@@ -129,6 +133,9 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		else if (!servicesRefSet) {
 			services = new RootBeanDefinition(TokenBasedRememberMeServices.class);
+			if (hashingAlgorithmSet) {
+				services.getConstructorArgumentValues().addIndexedArgumentValue(2, hashingAlgorithm);
+			}
 		}
 		String servicesName;
 		if (services != null) {

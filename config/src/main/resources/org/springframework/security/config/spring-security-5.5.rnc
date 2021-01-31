@@ -758,6 +758,10 @@ remember-me.attlist &=
 	attribute token-validity-seconds {xsd:string}?
 
 remember-me.attlist &=
+	## The algorithm of cookie which store the token for remember-me authentication.
+	attribute hashing-algorithm {"UNSET" | "MD5" | "SHA256"}?
+
+remember-me.attlist &=
 	## Reference to an AuthenticationSuccessHandler bean which should be used to handle a successful remember-me authentication.
 	attribute authentication-success-handler-ref {xsd:token}?
 remember-me.attlist &=
@@ -776,6 +780,7 @@ remember-me-services-ref =
 remember-me-data-source-ref =
 	## DataSource bean for the database that contains the token repository schema.
 	data-source-ref
+
 
 anonymous =
 	## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
