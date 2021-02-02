@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import java.util.SortedSet;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 
+import org.springframework.security.core.authority.AuthorityUtils;
+
 /**
  * The default implementation of an {@link OAuth2User}.
  *
@@ -59,14 +61,16 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	 * @param attributes       the attributes about the user
 	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from {@link #getAttributes()}
 	 */
-	public DefaultOAuth2User(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey) {
-		Assert.notEmpty(authorities, "authorities cannot be empty");
+	public DefaultOAuth2User(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes,
+			String nameAttributeKey) {
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
 		if (!attributes.containsKey(nameAttributeKey)) {
 			throw new IllegalArgumentException("Missing attribute '" + nameAttributeKey + "' in attributes");
 		}
-		this.authorities = Collections.unmodifiableSet(new LinkedHashSet<>(this.sortAuthorities(authorities)));
+		this.authorities = (authorities != null)
+				? Collections.unmodifiableSet(new LinkedHashSet<>(this.sortAuthorities(authorities)))
+				: Collections.unmodifiableSet(new LinkedHashSet<>(AuthorityUtils.NO_AUTHORITIES));
 		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
 		this.nameAttributeKey = nameAttributeKey;
 	}
