@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.core.oidc.user;
 
 import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -58,11 +59,6 @@ public class DefaultOidcUserTests {
 	private static final OidcUserInfo USER_INFO = new OidcUserInfo(USER_INFO_CLAIMS);
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenAuthoritiesIsNullThenThrowIllegalArgumentException() {
-		new DefaultOidcUser(null, ID_TOKEN);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenIdTokenIsNullThenThrowIllegalArgumentException() {
 		new DefaultOidcUser(AUTHORITIES, null);
 	}
@@ -70,6 +66,26 @@ public class DefaultOidcUserTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenNameAttributeKeyInvalidThenThrowIllegalArgumentException() {
 		new DefaultOidcUser(AUTHORITIES, ID_TOKEN, "invalid");
+	}
+
+	@Test
+	public void constructorWhenAuthoritiesIsNullThenCreatedWithEmptyAuthorities() {
+		DefaultOidcUser user = new DefaultOidcUser(null, ID_TOKEN);
+		assertThat(user.getClaims()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
+		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
+		assertThat(user.getName()).isEqualTo(SUBJECT);
+		assertThat(user.getAuthorities()).isEmpty();
+		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
+	}
+
+	@Test
+	public void constructorWhenAuthoritiesIsEmptyThenCreated() {
+		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.NO_AUTHORITIES, ID_TOKEN);
+		assertThat(user.getClaims()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
+		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
+		assertThat(user.getName()).isEqualTo(SUBJECT);
+		assertThat(user.getAuthorities()).isEmpty();
+		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
 	}
 
 	@Test

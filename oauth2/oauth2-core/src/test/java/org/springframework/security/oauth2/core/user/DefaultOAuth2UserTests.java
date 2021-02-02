@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,16 +42,6 @@ public class DefaultOAuth2UserTests {
 		ATTRIBUTE_NAME_KEY, USERNAME);
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenAuthoritiesIsNullThenThrowIllegalArgumentException() {
-		new DefaultOAuth2User(null, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenAuthoritiesIsEmptyThenThrowIllegalArgumentException() {
-		new DefaultOAuth2User(Collections.emptySet(), ATTRIBUTES, ATTRIBUTE_NAME_KEY);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenAttributesIsNullThenThrowIllegalArgumentException() {
 		new DefaultOAuth2User(AUTHORITIES, null, ATTRIBUTE_NAME_KEY);
 	}
@@ -69,6 +59,22 @@ public class DefaultOAuth2UserTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenNameAttributeKeyIsInvalidThenThrowIllegalArgumentException() {
 		new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, "invalid");
+	}
+
+	@Test
+	public void constructorWhenAuthoritiesIsNullThenCreatedWithEmptyAuthorities() {
+		DefaultOAuth2User user = new DefaultOAuth2User(null, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
+		assertThat(user.getName()).isEqualTo(USERNAME);
+		assertThat(user.getAuthorities()).isEmpty();
+		assertThat(user.getAttributes()).containsOnlyKeys(ATTRIBUTE_NAME_KEY);
+	}
+
+	@Test
+	public void constructorWhenAuthoritiesIsEmptyThenCreated() {
+		DefaultOAuth2User user = new DefaultOAuth2User(Collections.emptySet(), ATTRIBUTES, ATTRIBUTE_NAME_KEY);
+		assertThat(user.getName()).isEqualTo(USERNAME);
+		assertThat(user.getAuthorities()).isEmpty();
+		assertThat(user.getAttributes()).containsOnlyKeys(ATTRIBUTE_NAME_KEY);
 	}
 
 	@Test
