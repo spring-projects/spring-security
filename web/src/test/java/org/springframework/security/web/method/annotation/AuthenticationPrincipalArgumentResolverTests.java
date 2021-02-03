@@ -22,13 +22,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.function.Function;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.MethodParameter;
-import org.springframework.expression.AccessException;
 import org.springframework.expression.BeanResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,24 +36,26 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.ReflectionUtils;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.mock;
+import static org.mockito.BDDMockito.verify;
+import static org.mockito.BDDMockito.when;
+
 /**
  * @author Rob Winch
  *
  */
 public class AuthenticationPrincipalArgumentResolverTests {
 
-	private final BeanResolver beanResolver = ((context, beanName) -> {
-		if (!"test".equals(beanName)) {
-			throw new AccessException("Could not resolve bean reference against BeanFactory");
-		}
-		return (Function<CustomUserPrincipal, String>) (principal) -> principal.property;
-	});
+	private BeanResolver beanResolver;
 
 	private Object expectedPrincipal;
 	private AuthenticationPrincipalArgumentResolver resolver;
 
 	@Before
 	public void setup() {
+		beanResolver = mock(BeanResolver.class);
 		resolver = new AuthenticationPrincipalArgumentResolver();
 		resolver.setBeanResolver(this.beanResolver);
 	}
@@ -144,8 +144,11 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	public void resolveArgumentSpelBean() throws Exception {
 		CustomUserPrincipal principal = new CustomUserPrincipal();
 		setAuthenticationPrincipal(principal);
+		when(this.beanResolver.resolve(any(), eq("test"))).thenReturn(principal.property);
 		this.expectedPrincipal = principal.property;
-		assertThat(this.resolver.resolveArgument(showUserSpelBean(), null, null, null)).isEqualTo(this.expectedPrincipal);
+		assertThat(this.resolver.resolveArgument(showUserSpelBean(), null, null, null))
+				.isEqualTo(this.expectedPrincipal);
+		verify(this.beanResolver).resolve(any(), eq("test"));
 	}
 
 	@Test
@@ -279,8 +282,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 				@AuthenticationPrincipal(expression = "property") String user) {
 		}
 
-		public void showUserSpelBean(@AuthenticationPrincipal(
-				expression = "@test.apply(#this)") String user) {
+		public void showUserSpelBean(@AuthenticationPrincipal(expression = "@test") String user) {
 		}
 
 		public void showUserSpelCopy(
