@@ -21,6 +21,7 @@ if (!project.hasProperty("locksDisabled")) {
 	}
 }
 ext.openSamlVersion = "3.4.+"
+ext.nimbusJoseJwtVersion = '8.+'
 
 dependencies {
 	management platform("org.springframework:spring-framework-bom:$springVersion")
@@ -38,7 +39,7 @@ dependencies {
 		management "com.google.appengine:appengine:$gaeVersion"
 		management "com.google.inject:guice:3.0"
 		management "com.nimbusds:nimbus-jose-jwt:9.+"
-		management "com.nimbusds:oauth2-oidc-sdk:8.+"
+		management "com.nimbusds:oauth2-oidc-sdk:$nimbusJoseJwtVersion"
 		management "com.squareup.okhttp3:mockwebserver:3.14.+"
 		management "com.squareup.okhttp3:okhttp:3.14.+"
 		management "com.sun.xml.bind:jaxb-core:2.3.+"
