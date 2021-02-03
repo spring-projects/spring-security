@@ -20,14 +20,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.function.Function;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.core.MethodParameter;
-import org.springframework.expression.AccessException;
 import org.springframework.expression.BeanResolver;
 import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -41,6 +39,11 @@ import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.mock;
+import static org.mockito.BDDMockito.verify;
+import static org.mockito.BDDMockito.when;
 
 /**
  * @author Dan Zheng
@@ -49,17 +52,13 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class CurrentSecurityContextArgumentResolverTests {
 
-	private final BeanResolver beanResolver = ((context, beanName) -> {
-		if (!"test".equals(beanName)) {
-			throw new AccessException("Could not resolve bean reference against BeanFactory");
-		}
-		return (Function<SecurityContext, Authentication>) SecurityContext::getAuthentication;
-	});
+	private BeanResolver beanResolver;
 
 	private CurrentSecurityContextArgumentResolver resolver;
 
 	@Before
 	public void setup() {
+		this.beanResolver = mock(BeanResolver.class);
 		this.resolver = new CurrentSecurityContextArgumentResolver();
 		this.resolver.setBeanResolver(this.beanResolver);
 	}
@@ -117,12 +116,12 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWithAuthenticationWithBean() {
+	public void resolveArgumentWithAuthenticationWithBean() throws Exception {
 		String principal = "john";
-		setAuthenticationPrincipal(principal);
-		Authentication auth1 = (Authentication) this.resolver
-				.resolveArgument(showSecurityContextAuthenticationWithBean(), null, null, null);
-		assertThat(auth1.getPrincipal()).isEqualTo(principal);
+		when(this.beanResolver.resolve(any(), eq("test"))).thenReturn(principal);
+		assertThat(this.resolver.resolveArgument(showSecurityContextAuthenticationWithBean(), null, null, null))
+				.isEqualTo(principal);
+		verify(this.beanResolver).resolve(any(), eq("test"));
 	}
 
 	@Test
@@ -239,7 +238,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	public MethodParameter showSecurityContextAuthenticationWithBean() {
-		return getMethodParameter("showSecurityContextAuthenticationWithBean", Authentication.class);
+		return getMethodParameter("showSecurityContextAuthenticationWithBean", String.class);
 	}
 
 	private MethodParameter showSecurityContextAuthenticationWithOptionalPrincipal() {
@@ -305,7 +304,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 		}
 
 		public void showSecurityContextAuthenticationWithBean(
-				@CurrentSecurityContext(expression = "@test.apply(#this)") Authentication authentication) {
+				@CurrentSecurityContext(expression = "@test") String name) {
 		}
 
 		public void showSecurityContextAuthenticationWithOptionalPrincipal(@CurrentSecurityContext(expression = "authentication?.principal") Object principal) {
