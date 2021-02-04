@@ -223,13 +223,15 @@ static {
 
             public Element marshall(XMLObject object, Document document) throws MarshallingException {
 				configureAuthnRequest((AuthnRequest) object);
-				return super.marshall(object, element);
+				return super.marshall(object, document);
             }
 
             private void configureAuthnRequest(AuthnRequest authnRequest) {
 				authnRequest.setForceAuthN(true);
             }
 		}
+		
+	    factory.getMarshallerFactory().registerMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME, marshaller);
 	});
 }
 ----
