@@ -645,6 +645,33 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     }
 
     /**
+     * Configures Remember Me authentication.
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebSecurity
+     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     *
+     *  override fun configure(http: HttpSecurity) {
+     *      http {
+     *          rememberMe {
+     *              tokenValiditySeconds = 604800
+     *          }
+     *      }
+     *  }
+     * }
+     * ```
+     *
+     * @param rememberMeConfiguration custom configuration to configure remember me
+     * @see [RememberMeDsl]
+     */
+    fun rememberMe(rememberMeConfiguration: RememberMeDsl.() -> Unit) {
+        val rememberMeCustomizer = RememberMeDsl().apply(rememberMeConfiguration).get()
+        this.http.rememberMe(rememberMeCustomizer)
+    }
+
+    /**
      * Adds the [Filter] at the location of the specified [Filter] class.
      *
      * Example:
