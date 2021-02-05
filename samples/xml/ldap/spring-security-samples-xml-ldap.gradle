@@ -22,7 +22,7 @@ dependencies {
 	runtime project(':spring-security-web')
 	runtime project(':spring-security-config')
 	runtime project(':spring-security-ldap')
-	runtime apachedsDependencies
+	runtime 'com.unboundid:unboundid-ldapsdk'
 	runtime slf4jDependencies
 
 	providedCompile 'javax.servlet:javax.servlet-api'

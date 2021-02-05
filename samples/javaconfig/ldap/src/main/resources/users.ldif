@@ -30,13 +30,13 @@ userPassword: password
 
 dn: cn=user,ou=groups,dc=springframework,dc=org
 objectclass: top
-objectclass: groupOfNames
+objectclass: groupOfUniqueNames
 cn: user
 uniqueMember: uid=admin,ou=people,dc=springframework,dc=org
 uniqueMember: uid=user,ou=people,dc=springframework,dc=org
 
 dn: cn=admin,ou=groups,dc=springframework,dc=org
 objectclass: top
-objectclass: groupOfNames
+objectclass: groupOfUniqueNames
 cn: admin
 uniqueMember: uid=admin,ou=people,dc=springframework,dc=org

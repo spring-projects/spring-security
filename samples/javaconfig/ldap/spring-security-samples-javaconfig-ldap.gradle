@@ -27,7 +27,7 @@ dependencies {
 	compile 'javax.xml.bind:jaxb-api'
 	compile 'org.hibernate:hibernate-validator'
 	compile 'org.springframework:spring-webmvc'
-	compile apachedsDependencies
+	compile 'com.unboundid:unboundid-ldapsdk'
 	compile slf4jDependencies
 
 	providedCompile 'javax.servlet:javax.servlet-api'
