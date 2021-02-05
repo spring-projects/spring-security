@@ -12,7 +12,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: '8'
+          java-version: '11'
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:

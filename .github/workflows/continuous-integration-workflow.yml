@@ -33,15 +33,15 @@ jobs:
         with:
           name: errors
           path: job-initiate-error-tracking.txt
-  build_jdk_8:
-    name: Build JDK 8
+  build_jdk_11:
+    name: Build JDK 11
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 8
+      - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: '8'
+          java-version: '11'
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
@@ -65,11 +65,11 @@ jobs:
           name: errors
           path: job-${{ github.job }}.txt
   test_alternate_jdks:
-    name: Test JDK 11 and 12
+    name: Test JDK 12
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jdk: [11, 12]
+        jdk: [12]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -107,7 +107,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: '8'
+          java-version: '11'
       - name: Snapshot Tests
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -136,7 +136,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: '8'
+          java-version: '11'
       - name: Run Sonar on given (non-master) branch
         if: ${{ github.ref != 'refs/heads/master' }}
         run: |
@@ -165,14 +165,14 @@ jobs:
           path: job-${{ github.job }}.txt
   deploy_artifacts:
     name: Deploy Artifacts
-    needs: [build_jdk_8, test_alternate_jdks, snapshot_tests, sonar_analysis]
+    needs: [build_jdk_11, test_alternate_jdks, snapshot_tests, sonar_analysis]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: '8'
+          java-version: '11'
       - name: Deploy artifacts
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -203,14 +203,14 @@ jobs:
           path: job-${{ github.job }}.txt
   deploy_docs:
     name: Deploy Docs
-    needs: [build_jdk_8, test_alternate_jdks, snapshot_tests, sonar_analysis]
+    needs: [build_jdk_11, test_alternate_jdks, snapshot_tests, sonar_analysis]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: '8'
+          java-version: '11'
       - name: Deploy Docs
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -234,14 +234,14 @@ jobs:
           path: job-${{ github.job }}.txt
   deploy_schema:
     name: Deploy Schema
-    needs: [build_jdk_8, test_alternate_jdks, snapshot_tests, sonar_analysis]
+    needs: [build_jdk_11, test_alternate_jdks, snapshot_tests, sonar_analysis]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: '8'
+          java-version: '11'
       - name: Deploy Schema
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -265,7 +265,7 @@ jobs:
           path: job-${{ github.job }}.txt
   notify_result:
     name: Check for failures
-    needs: [build_jdk_8, test_alternate_jdks, snapshot_tests, sonar_analysis, deploy_artifacts, deploy_docs, deploy_schema]
+    needs: [build_jdk_11, test_alternate_jdks, snapshot_tests, sonar_analysis, deploy_artifacts, deploy_docs, deploy_schema]
     if: always()
     runs-on: ubuntu-latest
     steps:
