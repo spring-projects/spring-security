@@ -16,11 +16,10 @@
 
 package org.springframework.security.ldap.server;
 
-import javax.annotation.PreDestroy;
-
 import org.junit.After;
 import org.junit.Test;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -92,7 +91,7 @@ public class UnboundIdContainerLdifTests {
 	}
 
 	@Configuration
-	static class CustomLdifConfig {
+	static class CustomLdifConfig implements DisposableBean {
 
 		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath:test-server.ldif");
@@ -109,15 +108,15 @@ public class UnboundIdContainerLdifTests {
 					"ldap://127.0.0.1:" + container.getPort() + "/dc=springframework,dc=org");
 		}
 
-		@PreDestroy
-		void shutdown() {
+		@Override
+		public void destroy() throws Exception {
 			this.container.stop();
 		}
 
 	}
 
 	@Configuration
-	static class WildcardLdifConfig {
+	static class WildcardLdifConfig implements DisposableBean {
 
 		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath*:test-server.ldif");
@@ -134,15 +133,15 @@ public class UnboundIdContainerLdifTests {
 					"ldap://127.0.0.1:" + container.getPort() + "/dc=springframework,dc=org");
 		}
 
-		@PreDestroy
-		void shutdown() {
+		@Override
+		public void destroy() throws Exception {
 			this.container.stop();
 		}
 
 	}
 
 	@Configuration
-	static class MalformedLdifConfig {
+	static class MalformedLdifConfig implements DisposableBean {
 
 		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath:test-server-malformed.txt");
@@ -153,15 +152,15 @@ public class UnboundIdContainerLdifTests {
 			return this.container;
 		}
 
-		@PreDestroy
-		void shutdown() {
+		@Override
+		public void destroy() throws Exception {
 			this.container.stop();
 		}
 
 	}
 
 	@Configuration
-	static class MissingLdifConfig {
+	static class MissingLdifConfig implements DisposableBean {
 
 		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath:does-not-exist.ldif");
@@ -172,15 +171,15 @@ public class UnboundIdContainerLdifTests {
 			return this.container;
 		}
 
-		@PreDestroy
-		void shutdown() {
+		@Override
+		public void destroy() throws Exception {
 			this.container.stop();
 		}
 
 	}
 
 	@Configuration
-	static class WildcardNoLdifConfig {
+	static class WildcardNoLdifConfig implements DisposableBean {
 
 		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath*:*.test.ldif");
@@ -191,8 +190,8 @@ public class UnboundIdContainerLdifTests {
 			return this.container;
 		}
 
-		@PreDestroy
-		void shutdown() {
+		@Override
+		public void destroy() throws Exception {
 			this.container.stop();
 		}
 

@@ -16,12 +16,11 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import javax.annotation.PreDestroy;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -81,7 +80,7 @@ public class LdapUserDetailsManagerModifyPasswordTests {
 	}
 
 	@Configuration
-	static class UnboundIdContainerConfiguration {
+	static class UnboundIdContainerConfiguration implements DisposableBean {
 
 		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath:test-server.ldif");
@@ -98,8 +97,8 @@ public class LdapUserDetailsManagerModifyPasswordTests {
 					"ldap://127.0.0.1:" + container.getPort() + "/dc=springframework,dc=org");
 		}
 
-		@PreDestroy
-		void shutdown() {
+		@Override
+		public void destroy() throws Exception {
 			this.container.stop();
 		}
 

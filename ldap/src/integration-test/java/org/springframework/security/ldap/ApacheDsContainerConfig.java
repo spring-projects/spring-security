@@ -16,8 +16,7 @@
 
 package org.springframework.security.ldap;
 
-import javax.annotation.PreDestroy;
-
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.ContextSource;
@@ -27,7 +26,7 @@ import org.springframework.security.ldap.server.ApacheDSContainer;
  * @author Eddú Meléndez
  */
 @Configuration
-public class ApacheDsContainerConfig {
+public class ApacheDsContainerConfig implements DisposableBean {
 
 	private ApacheDSContainer container;
 
@@ -44,8 +43,8 @@ public class ApacheDsContainerConfig {
 				"ldap://127.0.0.1:" + ldapContainer.getLocalPort() + "/dc=springframework,dc=org");
 	}
 
-	@PreDestroy
-	void shutdown() {
+	@Override
+	public void destroy() throws Exception {
 		this.container.stop();
 	}
 
