@@ -519,7 +519,7 @@ public class OAuth2ResourceServerSpecTests {
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class PlaceholderConfig {
-		@Value("${classpath:org/springframework/security/config/web/server/OAuth2ResourceServerSpecTests-simple.pub}")
+		@Value("classpath:org/springframework/security/config/web/server/OAuth2ResourceServerSpecTests-simple.pub")
 		RSAPublicKey key;
 
 		@Bean
