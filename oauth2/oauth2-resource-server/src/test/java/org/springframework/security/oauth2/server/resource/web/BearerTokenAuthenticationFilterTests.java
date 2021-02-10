@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
@@ -42,6 +43,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -152,6 +154,17 @@ public class BearerTokenAuthenticationFilterTests {
 		filter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
 		filter.doFilter(this.request, this.response, this.filterChain);
 		verify(this.authenticationFailureHandler).onAuthenticationFailure(this.request, this.response, exception);
+	}
+
+	@Test
+	public void doFilterWhenAuthenticationServiceExceptionThenRethrows() {
+		AuthenticationServiceException exception = new AuthenticationServiceException("message");
+		given(this.bearerTokenResolver.resolve(this.request)).willReturn("token");
+		given(this.authenticationManager.authenticate(any())).willThrow(exception);
+		BearerTokenAuthenticationFilter filter = addMocks(
+				new BearerTokenAuthenticationFilter(this.authenticationManager));
+		assertThatExceptionOfType(AuthenticationServiceException.class)
+				.isThrownBy(() -> filter.doFilter(this.request, this.response, this.filterChain));
 	}
 
 	@Test

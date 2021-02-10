@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
@@ -66,8 +67,12 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 
 	private AuthenticationEntryPoint authenticationEntryPoint = new BearerTokenAuthenticationEntryPoint();
 
-	private AuthenticationFailureHandler authenticationFailureHandler = (request, response,
-			exception) -> this.authenticationEntryPoint.commence(request, response, exception);
+	private AuthenticationFailureHandler authenticationFailureHandler = (request, response, exception) -> {
+		if (exception instanceof AuthenticationServiceException) {
+			throw exception;
+		}
+		this.authenticationEntryPoint.commence(request, response, exception);
+	};
 
 	/**
 	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided parameter(s)

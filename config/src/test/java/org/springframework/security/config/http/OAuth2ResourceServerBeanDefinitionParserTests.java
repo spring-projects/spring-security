@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,6 +69,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.http.OAuth2ResourceServerBeanDefinitionParser.JwtBeanDefinitionParser;
 import org.springframework.security.config.http.OAuth2ResourceServerBeanDefinitionParser.OpaqueTokenBeanDefinitionParser;
 import org.springframework.security.config.test.SpringTestRule;
@@ -76,10 +77,10 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -168,26 +169,24 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void getWhenBadJwkEndpointThenInvalidToken() throws Exception {
+	public void getWhenBadJwkEndpointThen500() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
 		mockRestOperations("malformed");
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
-		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
-				.andExpect(status().isUnauthorized())
-				.andExpect(header().string("WWW-Authenticate", "Bearer"));
+		assertThatExceptionOfType(AuthenticationServiceException.class)
+				.isThrownBy(() -> this.mvc.perform(get("/").header("Authorization", "Bearer " + token)));
 		// @formatter:on
 	}
 
 	@Test
-	public void getWhenUnavailableJwkEndpointThenInvalidToken() throws Exception {
+	public void getWhenUnavailableJwkEndpointThen500() throws Exception {
 		this.spring.configLocations(xml("WebServer"), xml("JwkSetUri")).autowire();
 		this.web.shutdown();
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
-		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
-				.andExpect(status().isUnauthorized())
-				.andExpect(header().string("WWW-Authenticate", "Bearer"));
+		assertThatExceptionOfType(AuthenticationServiceException.class)
+				.isThrownBy(() -> this.mvc.perform(get("/").header("Authorization", "Bearer " + token)));
 		// @formatter:on
 	}
 
@@ -529,7 +528,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	public void requestWhenRealmNameConfiguredThenUsesOnUnauthenticated() throws Exception {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("AuthenticationEntryPoint")).autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
-		Mockito.when(decoder.decode(anyString())).thenThrow(JwtException.class);
+		Mockito.when(decoder.decode(anyString())).thenThrow(BadJwtException.class);
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer invalid_token"))
 				.andExpect(status().isUnauthorized())
@@ -736,7 +735,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		// different from DSL
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("BasicAndResourceServer")).autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
-		given(decoder.decode(anyString())).willThrow(JwtException.class);
+		given(decoder.decode(anyString())).willThrow(BadJwtException.class);
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").with(httpBasic("some", "user")))
 				.andExpect(status().isUnauthorized())
@@ -755,7 +754,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		// different from DSL
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("FormAndResourceServer")).autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
-		given(decoder.decode(anyString())).willThrow(JwtException.class);
+		given(decoder.decode(anyString())).willThrow(BadJwtException.class);
 		MvcResult result = this.mvc.perform(get("/authenticated")).andExpect(status().isUnauthorized()).andReturn();
 		assertThat(result.getRequest().getSession(false)).isNotNull();
 		// @formatter:off
