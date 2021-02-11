@@ -1,0 +1,18 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+io.projectreactor:reactor-bom:Dysprosium-SR16
+junit:junit:4.13.1
+net.bytebuddy:byte-buddy-agent:1.10.19
+net.bytebuddy:byte-buddy:1.10.19
+org.assertj:assertj-core:3.18.1
+org.hamcrest:hamcrest-core:2.2
+org.hamcrest:hamcrest:2.2
+org.jetbrains.kotlin:kotlin-bom:1.4.30
+org.mockito:mockito-core:3.6.28
+org.objenesis:objenesis:3.1
+org.springframework.data:spring-data-releasetrain:Neumann-SR6
+org.springframework:spring-core:5.3.3
+org.springframework:spring-framework-bom:5.2.13.BUILD-SNAPSHOT
+org.springframework:spring-jcl:5.3.3
+org.springframework:spring-test:5.3.3
