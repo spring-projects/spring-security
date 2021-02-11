@@ -1,0 +1,8 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+io.projectreactor:reactor-bom:2020.0.3
+org.jetbrains.kotlin:kotlin-bom:1.4.30
+org.springframework.data:spring-data-releasetrain:Neumann-SR6
+org.springframework:spring-framework-bom:5.3.3
+org.springframework:springloaded:1.2.8.RELEASE

@@ -1,0 +1,31 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+ch.qos.logback:logback-classic:1.2.3
+ch.qos.logback:logback-core:1.2.3
+commons-cli:commons-cli:1.4
+commons-configuration:commons-configuration:1.10
+commons-io:commons-io:2.4
+commons-lang:commons-lang:2.6
+commons-logging:commons-logging:1.2
+io.projectreactor:reactor-bom:2020.0.3
+org.apache.commons:commons-lang3:3.3.2
+org.bouncycastle:bcprov-jdk15on:1.68
+org.codehaus.groovy:groovy-cli-commons:2.5.8
+org.codehaus.groovy:groovy-json:2.5.8
+org.codehaus.groovy:groovy:2.5.8
+org.gretty:gretty-core:3.0.1
+org.gretty:gretty-starter:3.0.1
+org.jetbrains.kotlin:kotlin-bom:1.4.30
+org.slf4j:slf4j-api:1.7.30
+org.springframework.boot:spring-boot-autoconfigure:2.0.2.RELEASE
+org.springframework.boot:spring-boot-devtools:2.0.2.RELEASE
+org.springframework.boot:spring-boot:2.0.2.RELEASE
+org.springframework.data:spring-data-releasetrain:Neumann-SR6
+org.springframework:spring-aop:5.3.3
+org.springframework:spring-beans:5.3.3
+org.springframework:spring-context:5.3.3
+org.springframework:spring-core:5.3.3
+org.springframework:spring-expression:5.3.3
+org.springframework:spring-framework-bom:5.3.3
+org.springframework:spring-jcl:5.3.3

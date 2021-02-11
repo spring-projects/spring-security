@@ -1,0 +1,31 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+ch.qos.logback:logback-classic:1.2.3
+ch.qos.logback:logback-core:1.2.3
+io.projectreactor:reactor-bom:2020.0.3
+javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2
+javax.servlet:javax.servlet-api:4.0.1
+org.apache.taglibs:taglibs-standard-impl:1.2.5
+org.apache.taglibs:taglibs-standard-jstlel:1.2.5
+org.apache.taglibs:taglibs-standard-spec:1.2.5
+org.jetbrains.kotlin:kotlin-bom:1.4.30
+org.jetbrains.kotlin:kotlin-stdlib-common:1.4.30
+org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.30
+org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.30
+org.jetbrains.kotlin:kotlin-stdlib:1.4.30
+org.jetbrains:annotations:13.0
+org.slf4j:jcl-over-slf4j:1.7.30
+org.slf4j:log4j-over-slf4j:1.7.30
+org.slf4j:slf4j-api:1.7.30
+org.springframework.data:spring-data-releasetrain:Neumann-SR6
+org.springframework:spring-aop:5.3.3
+org.springframework:spring-beans:5.3.3
+org.springframework:spring-context:5.3.3
+org.springframework:spring-core:5.3.3
+org.springframework:spring-expression:5.3.3
+org.springframework:spring-framework-bom:5.3.3
+org.springframework:spring-jcl:5.3.3
+org.springframework:spring-jdbc:5.3.3
+org.springframework:spring-tx:5.3.3
+org.springframework:spring-web:5.3.3
