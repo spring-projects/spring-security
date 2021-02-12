@@ -17,11 +17,12 @@
 package org.springframework.security.acls.domain;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.mockito.Mockito.when;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -41,15 +42,12 @@ public class AclAuthorizationStrategyImplTests {
 	@Mock
 	Acl acl;
 
-	GrantedAuthority authority;
+	GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_SYSTEM_ADMIN");;
 
 	AclAuthorizationStrategyImpl strategy;
 
-	@Before
-	public void setup() {
-		this.authority = new SimpleGrantedAuthority("ROLE_AUTH");
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("foo", "bar",
-				Arrays.asList(this.authority));
+	private void withUserRoles(List<GrantedAuthority> roles) {
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("foo", "bar", roles);
 		authentication.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
@@ -62,10 +60,20 @@ public class AclAuthorizationStrategyImplTests {
 	// gh-4085
 	@Test
 	public void securityCheckWhenCustomAuthorityThenNameIsUsed() {
+	    withUserRoles(Arrays.asList(this.authority));
 		this.strategy = new AclAuthorizationStrategyImpl(new CustomAuthority());
 		this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL);
 	}
 
+	// gh-9425
+    @Test
+    public void securityCheckWhenAclOwnedByGrantedAuthority() {
+        withUserRoles(Arrays.asList(new SimpleGrantedAuthority("ROLE_ACL_OWNER")));      
+        when(this.acl.getOwner()).thenReturn(new GrantedAuthoritySid("ROLE_ACL_OWNER"));
+        this.strategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_SYSTEM_ADMIN"));
+        this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL);
+    }
+	
 	@SuppressWarnings("serial")
 	class CustomAuthority implements GrantedAuthority {
 
