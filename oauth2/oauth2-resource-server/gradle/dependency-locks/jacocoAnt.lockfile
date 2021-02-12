@@ -1,0 +1,15 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+io.projectreactor:reactor-bom:Dysprosium-SR16
+org.jacoco:org.jacoco.agent:0.8.2
+org.jacoco:org.jacoco.ant:0.8.2
+org.jacoco:org.jacoco.core:0.8.2
+org.jacoco:org.jacoco.report:0.8.2
+org.jetbrains.kotlin:kotlin-bom:1.4.30
+org.ow2.asm:asm-analysis:6.2.1
+org.ow2.asm:asm-commons:6.2.1
+org.ow2.asm:asm-tree:6.2.1
+org.ow2.asm:asm:6.2.1
+org.springframework.data:spring-data-releasetrain:Neumann-SR6
+org.springframework:spring-framework-bom:5.2.12.RELEASE
