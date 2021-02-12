@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.DecimalUtils;
 import org.junit.Before;
@@ -64,6 +65,9 @@ public class OAuth2AuthenticationTokenMixinTests {
 		ClassLoader loader = getClass().getClassLoader();
 		this.mapper = new ObjectMapper();
 		this.mapper.registerModules(SecurityJackson2Modules.getModules(loader));
+
+		// see https://github.com/FasterXML/jackson-databind/issues/3052 for details
+		this.mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
 	}
 
 	@Test
