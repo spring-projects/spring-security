@@ -16,6 +16,11 @@
 
 package org.springframework.security.oauth2.client;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashSet;
+
 import io.r2dbc.h2.H2ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Result;
@@ -38,8 +43,6 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
-import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
-import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -364,16 +367,19 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 
 	private static OAuth2AuthorizedClient createAuthorizedClient(Authentication principal,
 			ClientRegistration clientRegistration, boolean requiredAttributesOnly) {
+		Instant issuedAt = Instant.ofEpochSecond(1234567890, 123456000);
 		OAuth2AccessToken accessToken;
 		if (!requiredAttributesOnly) {
-			accessToken = TestOAuth2AccessTokens.scopes("read", "write");
+			accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "scopes", issuedAt,
+					issuedAt.plus(Duration.ofDays(1)), new HashSet<>(Arrays.asList("read", "write")));
 		}
 		else {
-			accessToken = TestOAuth2AccessTokens.noScopes();
+			accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "no-scopes", issuedAt,
+					issuedAt.plus(Duration.ofDays(1)));
 		}
 		OAuth2RefreshToken refreshToken = null;
 		if (!requiredAttributesOnly) {
-			refreshToken = TestOAuth2RefreshTokens.refreshToken();
+			refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt);
 		}
 		return new OAuth2AuthorizedClient(clientRegistration, principal.getName(), accessToken, refreshToken);
 	}
