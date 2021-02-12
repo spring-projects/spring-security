@@ -93,11 +93,17 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 				&& ((changeType == CHANGE_GENERAL) || (changeType == CHANGE_OWNERSHIP))) {
 			return;
 		}
-		// Not authorized by ACL ownership; try via adminstrative permissions
-		GrantedAuthority requiredAuthority = getRequiredAuthority(changeType);
 
 		// Iterate this principal's authorities to determine right
 		Set<String> authorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+		if (acl.getOwner() instanceof GrantedAuthoritySid
+				&& authorities.contains(((GrantedAuthoritySid) acl.getOwner()).getGrantedAuthority())) {
+			return;
+		}
+
+		// Not authorized by ACL ownership; try via adminstrative permissions
+		GrantedAuthority requiredAuthority = getRequiredAuthority(changeType);
+
 		if (authorities.contains(requiredAuthority.getAuthority())) {
 			return;
 		}

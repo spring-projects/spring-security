@@ -31,6 +31,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import static org.mockito.BDDMockito.given;
+
 /**
  * @author Rob Winch
  *
@@ -63,6 +65,14 @@ public class AclAuthorizationStrategyImplTests {
 	@Test
 	public void securityCheckWhenCustomAuthorityThenNameIsUsed() {
 		this.strategy = new AclAuthorizationStrategyImpl(new CustomAuthority());
+		this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL);
+	}
+
+	// gh-9425
+	@Test
+	public void securityCheckWhenAclOwnedByGrantedAuthority() {
+		given(this.acl.getOwner()).willReturn(new GrantedAuthoritySid("ROLE_AUTH"));
+		this.strategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_SYSTEM_ADMIN"));
 		this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL);
 	}
 
