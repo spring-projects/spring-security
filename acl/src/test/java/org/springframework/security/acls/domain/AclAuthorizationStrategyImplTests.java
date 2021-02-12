@@ -60,19 +60,19 @@ public class AclAuthorizationStrategyImplTests {
 	// gh-4085
 	@Test
 	public void securityCheckWhenCustomAuthorityThenNameIsUsed() {
-	    withUserRoles(Arrays.asList(this.authority));
+		withUserRoles(Arrays.asList(this.authority));
 		this.strategy = new AclAuthorizationStrategyImpl(new CustomAuthority());
 		this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL);
 	}
 
 	// gh-9425
-    @Test
-    public void securityCheckWhenAclOwnedByGrantedAuthority() {
-        withUserRoles(Arrays.asList(new SimpleGrantedAuthority("ROLE_ACL_OWNER")));      
-        when(this.acl.getOwner()).thenReturn(new GrantedAuthoritySid("ROLE_ACL_OWNER"));
-        this.strategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_SYSTEM_ADMIN"));
-        this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL);
-    }
+	@Test
+	public void securityCheckWhenAclOwnedByGrantedAuthority() {
+		withUserRoles(Arrays.asList(new SimpleGrantedAuthority("ROLE_ACL_OWNER")));      
+		when(this.acl.getOwner()).thenReturn(new GrantedAuthoritySid("ROLE_ACL_OWNER"));
+		this.strategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_SYSTEM_ADMIN"));
+		this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL);
+	}
 	
 	@SuppressWarnings("serial")
 	class CustomAuthority implements GrantedAuthority {

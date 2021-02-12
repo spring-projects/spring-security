@@ -94,12 +94,12 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 			return;
 		}
 
-        // Iterate this principal's authorities to determine right
-        Set<String> authorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
-	    if (acl.getOwner() instanceof GrantedAuthoritySid
-	        && authorities.contains(((GrantedAuthoritySid) acl.getOwner()).getGrantedAuthority())) {
-	      return;
-	    }
+		// Iterate this principal's authorities to determine right
+		Set<String> authorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+		if (acl.getOwner() instanceof GrantedAuthoritySid
+				&& authorities.contains(((GrantedAuthoritySid) acl.getOwner()).getGrantedAuthority())) {
+			return;
+		}
 
 		// Not authorized by ACL ownership; try via adminstrative permissions
 		GrantedAuthority requiredAuthority = getRequiredAuthority(changeType);
