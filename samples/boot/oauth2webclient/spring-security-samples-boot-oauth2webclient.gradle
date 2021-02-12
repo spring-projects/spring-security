@@ -1,5 +1,7 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
+ext['nimbus-jose-jwt.version'] = nimbusJoseJwtVersion
+
 dependencies {
 	compile project(':spring-security-config')
 	compile project(':spring-security-oauth2-client')

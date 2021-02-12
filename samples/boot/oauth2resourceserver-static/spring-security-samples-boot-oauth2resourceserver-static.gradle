@@ -1,10 +1,8 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
-dependencies {
-	constraints {
-		management "com.nimbusds:nimbus-jose-jwt:$nimbusJoseJwtVersion"
-	}
+ext['nimbus-jose-jwt.version'] = nimbusJoseJwtVersion
 
+dependencies {
 	compile project(':spring-security-config')
 	compile project(':spring-security-oauth2-jose')
 	compile project(':spring-security-oauth2-resource-server')

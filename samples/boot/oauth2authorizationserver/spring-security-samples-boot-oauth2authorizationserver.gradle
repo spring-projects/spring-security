@@ -1,5 +1,7 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
+ext['nimbus-jose-jwt.version'] = nimbusJoseJwtVersion
+
 dependencies {
 	compile 'org.springframework.boot:spring-boot-starter-web'
 	compile 'org.springframework.boot:spring-boot-starter-security'
