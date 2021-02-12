@@ -16,13 +16,13 @@
 
 package org.springframework.security.acls.domain;
 
+
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.when;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -31,6 +31,8 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -69,7 +71,7 @@ public class AclAuthorizationStrategyImplTests {
 	@Test
 	public void securityCheckWhenAclOwnedByGrantedAuthority() {
 		withUserRoles(Arrays.asList(new SimpleGrantedAuthority("ROLE_ACL_OWNER")));
-		when(this.acl.getOwner()).thenReturn(new GrantedAuthoritySid("ROLE_ACL_OWNER"));
+		given(this.acl.getOwner()).willReturn(new GrantedAuthoritySid("ROLE_ACL_OWNER"));
 		this.strategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_SYSTEM_ADMIN"));
 		this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL);
 	}
