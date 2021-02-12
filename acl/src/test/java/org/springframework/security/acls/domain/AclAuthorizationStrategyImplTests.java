@@ -16,7 +16,6 @@
 
 package org.springframework.security.acls.domain;
 
-
 import java.util.Arrays;
 import java.util.List;
 
