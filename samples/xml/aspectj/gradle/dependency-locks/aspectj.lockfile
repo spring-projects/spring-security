@@ -1,8 +1,0 @@
-# This is a Gradle generated file for dependency locking.
-# Manual edits can break the build and are not advised.
-# This file is expected to be part of source control.
-io.projectreactor:reactor-bom:Dysprosium-SR17
-org.aspectj:aspectjtools:1.9.6
-org.jetbrains.kotlin:kotlin-bom:1.4.30
-org.springframework.data:spring-data-releasetrain:Neumann-SR7
-org.springframework:spring-framework-bom:5.2.13.RELEASE
