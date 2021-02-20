@@ -17,6 +17,8 @@
 package org.springframework.security.saml2.provider.service.web;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -83,8 +85,9 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 			throws IOException {
 		response.setContentType(MediaType.APPLICATION_XML_VALUE);
 		String fileName = this.metadataFilename.replace("{registrationId}", registrationId);
-		String format = "attachment; filename=\"%s\"";
-		response.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format(format, fileName));
+		String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name());
+		String format = "attachment; filename=\"%s\"; filename*=UTF-8''%s";
+		response.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format(format, fileName, encodedFileName));
 		response.setContentLength(metadata.length());
 		response.getWriter().write(metadata);
 	}
