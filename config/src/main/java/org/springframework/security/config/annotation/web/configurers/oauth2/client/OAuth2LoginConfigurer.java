@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -485,8 +486,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				? this.authorizationEndpointConfig.authorizationRequestBaseUri
 				: OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 		Map<String, String> loginUrlToClientName = new HashMap<>();
-		clientRegistrations.forEach((registration) -> loginUrlToClientName.put(
-				authorizationRequestBaseUri + "/" + registration.getRegistrationId(), registration.getClientName()));
+		clientRegistrations.forEach((registration) -> {
+			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(registration.getAuthorizationGrantType())) {
+				String authorizationRequestUri = authorizationRequestBaseUri + "/" + registration.getRegistrationId();
+				loginUrlToClientName.put(authorizationRequestUri, registration.getClientName());
+			}
+		});
 		return loginUrlToClientName;
 	}
 
