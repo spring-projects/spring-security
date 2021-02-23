@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,6 +136,11 @@ public class OAuth2LoginTests {
 			.clientSecret("secret")
 			.build();
 
+	// @formatter:off
+	private static ClientRegistration clientCredentials = TestClientRegistrations.clientCredentials()
+			.build();
+	// @formatter:on
+
 	@Autowired
 	public void setApplicationContext(ApplicationContext context) {
 		if (context.getBeanNamesForType(WebHandler.class).length > 0) {
@@ -212,6 +217,32 @@ public class OAuth2LoginTests {
 		InMemoryReactiveClientRegistrationRepository clientRegistrationRepository() {
 			return new InMemoryReactiveClientRegistrationRepository(github);
 		}
+	}
+
+	// gh-9457
+	@Test
+	public void defaultLoginPageWithAuthorizationCodeAndClientCredentialsClientRegistrationThenRedirect() {
+		this.spring.register(OAuth2LoginWithAuthorizationCodeAndClientCredentialsClientRegistration.class).autowire();
+		// @formatter:off
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(new GitHubWebFilter(), this.springSecurity)
+				.build();
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+		// @formatter:on
+		driver.get("http://localhost/");
+		assertThat(driver.getCurrentUrl()).startsWith("https://github.com/login/oauth/authorize");
+	}
+
+	@EnableWebFluxSecurity
+	static class OAuth2LoginWithAuthorizationCodeAndClientCredentialsClientRegistration {
+
+		@Bean
+		InMemoryReactiveClientRegistrationRepository clientRegistrationRepository() {
+			return new InMemoryReactiveClientRegistrationRepository(github, clientCredentials);
+		}
+
 	}
 
 	@Test

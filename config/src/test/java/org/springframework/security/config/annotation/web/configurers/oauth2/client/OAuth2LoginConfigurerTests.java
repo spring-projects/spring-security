@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,6 +115,11 @@ public class OAuth2LoginConfigurerTests {
 	private static final ClientRegistration GITHUB_CLIENT_REGISTRATION = CommonOAuth2Provider.GITHUB
 			.getBuilder("github").clientId("clientId").clientSecret("clientSecret")
 			.build();
+
+	// @formatter:off
+	private static final ClientRegistration CLIENT_CREDENTIALS_REGISTRATION = TestClientRegistrations.clientCredentials()
+			.build();
+	// @formatter:on
 
 	private ConfigurableApplicationContext context;
 
@@ -429,6 +434,18 @@ public class OAuth2LoginConfigurerTests {
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 
 		assertThat(this.response.getRedirectedUrl()).doesNotMatch("http://localhost/oauth2/authorization/google");
+	}
+
+	// gh-9457
+	@Test
+	public void oauth2LoginWithOneAuthorizationCodeClientAndOtherClientsConfiguredThenRedirectForAuthorization()
+			throws Exception {
+		loadConfig(OAuth2LoginConfigAuthorizationCodeClientAndOtherClients.class);
+		String requestUri = "/";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/oauth2/authorization/google");
 	}
 
 	@Test
@@ -799,6 +816,23 @@ public class OAuth2LoginConfigurerTests {
 									GOOGLE_CLIENT_REGISTRATION, GITHUB_CLIENT_REGISTRATION));
 			super.configure(http);
 		}
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginConfigAuthorizationCodeClientAndOtherClients extends CommonWebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.oauth2Login()
+					.clientRegistrationRepository(
+							new InMemoryClientRegistrationRepository(
+									GOOGLE_CLIENT_REGISTRATION, CLIENT_CREDENTIALS_REGISTRATION));
+			// @formatter:on
+			super.configure(http);
+		}
+
 	}
 
 	@EnableWebSecurity
