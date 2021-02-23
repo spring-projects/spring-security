@@ -80,6 +80,7 @@ import org.springframework.security.oauth2.client.web.server.ServerOAuth2Authori
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.WebSessionOAuth2ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.server.authentication.OAuth2LoginAuthenticationWebFilter;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -3356,8 +3357,11 @@ public class ServerHttpSecurity {
 				return Collections.emptyMap();
 			}
 			Map<String, String> result = new HashMap<>();
-			registrations.iterator().forEachRemaining(
-					(r) -> result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName()));
+			registrations.iterator().forEachRemaining((r) -> {
+				if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(r.getAuthorizationGrantType())) {
+					result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName());
+				}
+			});
 			return result;
 		}
 
