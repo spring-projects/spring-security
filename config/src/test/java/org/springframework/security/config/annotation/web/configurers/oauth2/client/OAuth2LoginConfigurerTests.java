@@ -65,6 +65,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -123,6 +124,17 @@ public class OAuth2LoginConfigurerTests {
 			.getBuilder("github")
 			.clientId("clientId")
 			.clientSecret("clientSecret")
+			.build();
+	// @formatter:on
+
+	// @formatter:off
+	private static final ClientRegistration CLIENT_CREDENTIALS_REGISTRATION = ClientRegistration
+			.withRegistrationId("clientCredentials")
+			.issuerUri("https://outh2.example.com")
+			.tokenUri("https://oauth2.example.com/token")
+			.clientId("client")
+			.clientSecret("secret")
+			.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
 			.build();
 	// @formatter:on
 
@@ -394,6 +406,18 @@ public class OAuth2LoginConfigurerTests {
 		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).doesNotMatch("http://localhost/oauth2/authorization/google");
+	}
+
+	// gh-9472
+	@Test
+	public void oauth2LoginWithOneAuthorizationCodeClientAndOtherClientsConfiguredThenRedirectDefaultLoginPage()
+			throws Exception {
+		loadConfig(OAuth2LoginConfigAuthorizationCodeClientAndOtherClients.class);
+		String requestUri = "/";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/oauth2/authorization/google");
 	}
 
 	@Test
@@ -793,6 +817,23 @@ public class OAuth2LoginConfigurerTests {
 					.clientRegistrationRepository(
 							new InMemoryClientRegistrationRepository(
 									GOOGLE_CLIENT_REGISTRATION, GITHUB_CLIENT_REGISTRATION));
+			// @formatter:on
+			super.configure(http);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginConfigAuthorizationCodeClientAndOtherClients extends CommonWebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.oauth2Login()
+					.clientRegistrationRepository(
+							new InMemoryClientRegistrationRepository(
+									GOOGLE_CLIENT_REGISTRATION, CLIENT_CREDENTIALS_REGISTRATION));
 			// @formatter:on
 			super.configure(http);
 		}
