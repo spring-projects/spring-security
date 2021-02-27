@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,24 @@
 
 package org.springframework.security.config.annotation.web.configurers.saml2;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterOutputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 
@@ -61,11 +59,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.Saml2ErrorCodes;
+import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
@@ -78,6 +78,7 @@ import org.springframework.security.saml2.provider.service.servlet.filter.Saml2W
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -188,7 +189,7 @@ public class Saml2LoginConfigurerTests {
 		UriComponents components = UriComponentsBuilder.fromHttpUrl(result.getResponse().getRedirectedUrl()).build();
 		String samlRequest = components.getQueryParams().getFirst("SAMLRequest");
 		String decoded = URLDecoder.decode(samlRequest, "UTF-8");
-		String inflated = samlInflate(samlDecode(decoded));
+		String inflated = Saml2Utils.samlInflate(Saml2Utils.samlDecode(decoded));
 		assertThat(inflated).contains("ForceAuthn=\"true\"");
 	}
 
@@ -199,7 +200,7 @@ public class Saml2LoginConfigurerTests {
 				.assertingPartyDetails((party) -> party.verificationX509Credentials(
 						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 				.build();
-		String response = new String(samlDecode(SIGNED_RESPONSE));
+		String response = new String(Saml2Utils.samlDecode(SIGNED_RESPONSE));
 		given(CustomAuthenticationConverter.authenticationConverter.convert(any(HttpServletRequest.class)))
 				.willReturn(new Saml2AuthenticationToken(relyingPartyRegistration, response));
 		// @formatter:off
@@ -208,6 +209,24 @@ public class Saml2LoginConfigurerTests {
 		// @formatter:on
 		this.mvc.perform(request).andExpect(redirectedUrl("/"));
 		verify(CustomAuthenticationConverter.authenticationConverter).convert(any(HttpServletRequest.class));
+	}
+
+	@Test
+	public void authenticateWithInvalidDeflatedSAMLResponseThenFailureHandlerUses() throws Exception {
+		this.spring.register(CustomAuthenticationFailureHandler.class).autowire();
+		byte[] invalidDeflated = Saml2Utils.invalidSamlDeflate("response");
+		String encoded = Saml2Utils.samlEncode(invalidDeflated);
+		MockHttpServletRequestBuilder request = get("/login/saml2/sso/registration-id").queryParam("SAMLResponse",
+				encoded);
+		this.mvc.perform(request);
+		ArgumentCaptor<Saml2AuthenticationException> captor = ArgumentCaptor
+				.forClass(Saml2AuthenticationException.class);
+		verify(CustomAuthenticationFailureHandler.authenticationFailureHandler).onAuthenticationFailure(
+				any(HttpServletRequest.class), any(HttpServletResponse.class), captor.capture());
+		Saml2AuthenticationException exception = captor.getValue();
+		assertThat(exception.getSaml2Error().getErrorCode()).isEqualTo(Saml2ErrorCodes.INVALID_RESPONSE);
+		assertThat(exception.getSaml2Error().getDescription()).isEqualTo("Unable to inflate string");
+		assertThat(exception.getCause()).isInstanceOf(IOException.class);
 	}
 
 	private void validateSaml2WebSsoAuthenticationFilterConfiguration() {
@@ -242,26 +261,6 @@ public class Saml2LoginConfigurerTests {
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first().isInstanceOf(SimpleGrantedAuthority.class)
 				.hasToString(expected);
-	}
-
-	private static org.apache.commons.codec.binary.Base64 BASE64 = new org.apache.commons.codec.binary.Base64(0,
-			new byte[] { '\n' });
-
-	private static byte[] samlDecode(String s) {
-		return BASE64.decode(s);
-	}
-
-	private static String samlInflate(byte[] b) {
-		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			InflaterOutputStream iout = new InflaterOutputStream(out, new Inflater(true));
-			iout.write(b);
-			iout.finish();
-			return new String(out.toByteArray(), StandardCharsets.UTF_8);
-		}
-		catch (IOException ex) {
-			throw new Saml2Exception("Unable to inflate string", ex);
-		}
 	}
 
 	private static AuthenticationManager getAuthenticationManagerMock(String role) {
@@ -310,6 +309,21 @@ public class Saml2LoginConfigurerTests {
 			};
 			http.saml2Login().addObjectPostProcessor(processor);
 			super.configure(http);
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
+	static class CustomAuthenticationFailureHandler extends WebSecurityConfigurerAdapter {
+
+		static final AuthenticationFailureHandler authenticationFailureHandler = mock(
+				AuthenticationFailureHandler.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+					.saml2Login((saml2) -> saml2.failureHandler(authenticationFailureHandler));
 		}
 
 	}

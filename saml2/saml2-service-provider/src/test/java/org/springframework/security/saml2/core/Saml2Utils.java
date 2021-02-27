@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.security.saml2.Saml2Exception;
 
 public final class Saml2Utils {
+
+	public static final String INVALID_BASE64 = "cmVzcG9 \n\t\r uc2U9+/";
 
 	private static Base64 BASE64 = new Base64(0, new byte[] { '\n' });
 
@@ -67,6 +69,20 @@ public final class Saml2Utils {
 		}
 		catch (IOException ex) {
 			throw new Saml2Exception("Unable to inflate string", ex);
+		}
+	}
+
+	public static byte[] invalidSamlDeflate(String s) {
+		try {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(out,
+					new Deflater(Deflater.DEFLATED, false));
+			deflaterOutputStream.write(s.getBytes(StandardCharsets.UTF_8));
+			deflaterOutputStream.finish();
+			return out.toByteArray();
+		}
+		catch (IOException ex) {
+			throw new Saml2Exception("Unable to deflate string", ex);
 		}
 	}
 
