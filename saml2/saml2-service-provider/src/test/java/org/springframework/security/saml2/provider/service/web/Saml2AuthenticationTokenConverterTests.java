@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2Utils;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
@@ -37,6 +39,7 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.util.UriUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -62,6 +65,22 @@ public class Saml2AuthenticationTokenConverterTests {
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
 				.isEqualTo(this.relyingPartyRegistration.getRegistrationId());
+	}
+
+	@Test
+	public void convertWhenSamlResponseInvalidBase64ThenSaml2AuthenticationException() {
+		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
+				this.relyingPartyRegistrationResolver);
+		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+				.willReturn(this.relyingPartyRegistration);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter("SAMLResponse", "invalid");
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> converter.convert(request))
+				.withCauseInstanceOf(IllegalArgumentException.class)
+				.satisfies((ex) -> assertThat(ex.getSaml2Error().getErrorCode())
+						.isEqualTo(Saml2ErrorCodes.INVALID_RESPONSE))
+				.satisfies((ex) -> assertThat(ex.getSaml2Error().getDescription())
+						.isEqualTo("Failed to decode SAMLResponse"));
 	}
 
 	@Test
@@ -98,6 +117,25 @@ public class Saml2AuthenticationTokenConverterTests {
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
 				.isEqualTo(this.relyingPartyRegistration.getRegistrationId());
+	}
+
+	@Test
+	public void convertWhenGetRequestInvalidDeflatedThenSaml2AuthenticationException() {
+		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
+				this.relyingPartyRegistrationResolver);
+		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+				.willReturn(this.relyingPartyRegistration);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("GET");
+		byte[] invalidDeflated = "invalid".getBytes();
+		String encoded = Saml2Utils.samlEncode(invalidDeflated);
+		request.setParameter("SAMLResponse", encoded);
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> converter.convert(request))
+				.withCauseInstanceOf(IOException.class)
+				.satisfies((ex) -> assertThat(ex.getSaml2Error().getErrorCode())
+						.isEqualTo(Saml2ErrorCodes.INVALID_RESPONSE))
+				.satisfies(
+						(ex) -> assertThat(ex.getSaml2Error().getDescription()).isEqualTo("Unable to inflate string"));
 	}
 
 	@Test
