@@ -65,7 +65,7 @@ public final class Saml2Utils {
 			InflaterOutputStream inflaterOutputStream = new InflaterOutputStream(out, new Inflater(true));
 			inflaterOutputStream.write(b);
 			inflaterOutputStream.finish();
-			return new String(out.toByteArray(), StandardCharsets.UTF_8);
+			return out.toString(StandardCharsets.UTF_8.name());
 		}
 		catch (IOException ex) {
 			throw new Saml2Exception("Unable to inflate string", ex);

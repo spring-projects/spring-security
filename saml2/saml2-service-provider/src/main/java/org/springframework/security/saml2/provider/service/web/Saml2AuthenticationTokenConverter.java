@@ -100,7 +100,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 			InflaterOutputStream inflaterOutputStream = new InflaterOutputStream(out, new Inflater(true));
 			inflaterOutputStream.write(b);
 			inflaterOutputStream.finish();
-			return new String(out.toByteArray(), StandardCharsets.UTF_8);
+			return out.toString(StandardCharsets.UTF_8.name());
 		}
 		catch (IOException ex) {
 			throw new Saml2AuthenticationException(

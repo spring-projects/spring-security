@@ -19,7 +19,6 @@ package org.springframework.security.config.annotation.web.configurers.saml2;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -107,10 +106,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class Saml2LoginConfigurerTests {
 
 	private static final Converter<Assertion, Collection<? extends GrantedAuthority>> AUTHORITIES_EXTRACTOR = (
-			a) -> Arrays.asList(new SimpleGrantedAuthority("TEST"));
+			a) -> Collections.singletonList(new SimpleGrantedAuthority("TEST"));
 
-	private static final GrantedAuthoritiesMapper AUTHORITIES_MAPPER = (authorities) -> Arrays
-			.asList(new SimpleGrantedAuthority("TEST CONVERTED"));
+	private static final GrantedAuthoritiesMapper AUTHORITIES_MAPPER = (authorities) -> Collections
+			.singletonList(new SimpleGrantedAuthority("TEST CONVERTED"));
 
 	private static final Duration RESPONSE_TIME_VALIDATION_SKEW = Duration.ZERO;
 
