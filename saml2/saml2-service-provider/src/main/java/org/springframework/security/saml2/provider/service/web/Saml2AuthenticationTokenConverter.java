@@ -17,7 +17,6 @@
 package org.springframework.security.saml2.provider.service.web;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
@@ -84,9 +83,9 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 		return new String(b, StandardCharsets.UTF_8);
 	}
 
-	private byte[] samlDecode(String s) {
+	private byte[] samlDecode(String base64EncodedPayload) {
 		try {
-			return BASE64.decode(s);
+			return BASE64.decode(base64EncodedPayload);
 		}
 		catch (Exception ex) {
 			throw new Saml2AuthenticationException(
@@ -100,7 +99,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 			InflaterOutputStream inflaterOutputStream = new InflaterOutputStream(out, new Inflater(true));
 			inflaterOutputStream.write(b);
 			inflaterOutputStream.finish();
-			return new String(out.toByteArray(), StandardCharsets.UTF_8);
+			return out.toString(StandardCharsets.UTF_8.name());
 		}
 		catch (Exception ex) {
 			throw new Saml2AuthenticationException(

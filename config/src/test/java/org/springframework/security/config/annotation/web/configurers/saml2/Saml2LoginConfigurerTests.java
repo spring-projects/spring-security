@@ -16,17 +16,12 @@
 
 package org.springframework.security.config.annotation.web.configurers.saml2;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterOutputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -63,7 +58,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
@@ -112,10 +106,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class Saml2LoginConfigurerTests {
 
 	private static final Converter<Assertion, Collection<? extends GrantedAuthority>> AUTHORITIES_EXTRACTOR = (
-			a) -> Arrays.asList(new SimpleGrantedAuthority("TEST"));
+			a) -> Collections.singletonList(new SimpleGrantedAuthority("TEST"));
 
-	private static final GrantedAuthoritiesMapper AUTHORITIES_MAPPER = (authorities) -> Arrays
-			.asList(new SimpleGrantedAuthority("TEST CONVERTED"));
+	private static final GrantedAuthoritiesMapper AUTHORITIES_MAPPER = (authorities) -> Collections
+			.singletonList(new SimpleGrantedAuthority("TEST CONVERTED"));
 
 	private static final Duration RESPONSE_TIME_VALIDATION_SKEW = Duration.ZERO;
 
@@ -194,7 +188,7 @@ public class Saml2LoginConfigurerTests {
 		UriComponents components = UriComponentsBuilder.fromHttpUrl(result.getResponse().getRedirectedUrl()).build();
 		String samlRequest = components.getQueryParams().getFirst("SAMLRequest");
 		String decoded = URLDecoder.decode(samlRequest, "UTF-8");
-		String inflated = samlInflate(samlDecode(decoded));
+		String inflated = Saml2Utils.samlInflate(Saml2Utils.samlDecode(decoded));
 		assertThat(inflated).contains("ForceAuthn=\"true\"");
 	}
 
@@ -205,7 +199,7 @@ public class Saml2LoginConfigurerTests {
 				.assertingPartyDetails((party) -> party.verificationX509Credentials(
 						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 				.build();
-		String response = new String(samlDecode(SIGNED_RESPONSE));
+		String response = new String(Saml2Utils.samlDecode(SIGNED_RESPONSE));
 		given(CustomAuthenticationConverter.authenticationConverter.convert(any(HttpServletRequest.class)))
 				.willReturn(new Saml2AuthenticationToken(relyingPartyRegistration, response));
 		// @formatter:off
@@ -266,26 +260,6 @@ public class Saml2LoginConfigurerTests {
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first().isInstanceOf(SimpleGrantedAuthority.class)
 				.hasToString(expected);
-	}
-
-	private static org.apache.commons.codec.binary.Base64 BASE64 = new org.apache.commons.codec.binary.Base64(0,
-			new byte[] { '\n' });
-
-	private static byte[] samlDecode(String s) {
-		return BASE64.decode(s);
-	}
-
-	private static String samlInflate(byte[] b) {
-		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			InflaterOutputStream iout = new InflaterOutputStream(out, new Inflater(true));
-			iout.write(b);
-			iout.finish();
-			return new String(out.toByteArray(), StandardCharsets.UTF_8);
-		}
-		catch (IOException ex) {
-			throw new Saml2Exception("Unable to inflate string", ex);
-		}
 	}
 
 	private static AuthenticationManager getAuthenticationManagerMock(String role) {

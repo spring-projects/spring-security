@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public final class Saml2Utils {
 			InflaterOutputStream inflaterOutputStream = new InflaterOutputStream(out, new Inflater(true));
 			inflaterOutputStream.write(b);
 			inflaterOutputStream.finish();
-			return new String(out.toByteArray(), StandardCharsets.UTF_8);
+			return out.toString(StandardCharsets.UTF_8.name());
 		}
 		catch (IOException ex) {
 			throw new Saml2Exception("Unable to inflate string", ex);
