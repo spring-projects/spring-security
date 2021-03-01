@@ -193,11 +193,12 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			// check if we are switched - if so we only need to authenticate now
 			// if the current basic auth username is different from the one we
 			// switched from
-			for(GrantedAuthority ga : existingAuth.getAuthorities()) {
-				if(ga instanceof SwitchUserGrantedAuthority) {
+			for (GrantedAuthority ga : existingAuth.getAuthorities()) {
+				if (ga instanceof SwitchUserGrantedAuthority) {
 					Authentication origAuth = ((SwitchUserGrantedAuthority) ga).getSource();
-					return origAuth == null || !origAuth.isAuthenticated() ||
-						(origAuth instanceof UsernamePasswordAuthenticationToken && !origAuth.getName().equals(username));
+					return origAuth == null || !origAuth.isAuthenticated()
+							|| (origAuth instanceof UsernamePasswordAuthenticationToken
+									&& !origAuth.getName().equals(username));
 				}
 			}
 
