@@ -31,10 +31,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -187,8 +189,22 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		}
 		// Limit username comparison to providers which use usernames (ie
 		// UsernamePasswordAuthenticationToken) (see SEC-348)
-		if (existingAuth instanceof UsernamePasswordAuthenticationToken && !existingAuth.getName().equals(username)) {
-			return true;
+		if (existingAuth instanceof UsernamePasswordAuthenticationToken) {
+			// check if we are switched - if so we only need to authenticate now
+			// if the current basic auth username is different from the one we
+			// switched from
+			for(GrantedAuthority ga : existingAuth.getAuthorities()) {
+				if(ga instanceof SwitchUserGrantedAuthority) {
+					Authentication origAuth = ((SwitchUserGrantedAuthority) ga).getSource();
+					return origAuth == null || !origAuth.isAuthenticated() ||
+						(origAuth instanceof UsernamePasswordAuthenticationToken && !origAuth.getName().equals(username));
+				}
+			}
+
+			// not switched, so check current username against the supplied one
+			if (!existingAuth.getName().equals(username)) {
+				return true;
+			}
 		}
 		// Handle unusual condition where an AnonymousAuthenticationToken is already
 		// present. This shouldn't happen very often, as BasicProcessingFitler is meant to
