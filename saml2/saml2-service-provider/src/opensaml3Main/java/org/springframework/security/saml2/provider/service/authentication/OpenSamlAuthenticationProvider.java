@@ -424,8 +424,11 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			Assertion assertion = CollectionUtils.firstElement(response.getAssertions());
 			String username = assertion.getSubject().getNameID().getValue();
 			Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
-			return new Saml2Authentication(new DefaultSaml2AuthenticatedPrincipal(username, attributes),
-					token.getSaml2Response(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+			DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal(username, attributes);
+			String registrationId = responseToken.token.getRelyingPartyRegistration().getRegistrationId();
+			principal.setRelyingPartyRegistrationId(registrationId);
+			return new Saml2Authentication(principal, token.getSaml2Response(),
+					Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
 		};
 	}
 
@@ -626,8 +629,10 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			Assertion assertion = CollectionUtils.firstElement(response.getAssertions());
 			String username = assertion.getSubject().getNameID().getValue();
 			Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
-			return new Saml2Authentication(new DefaultSaml2AuthenticatedPrincipal(username, attributes),
-					token.getSaml2Response(),
+			DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal(username, attributes);
+			String registrationId = responseToken.token.getRelyingPartyRegistration().getRegistrationId();
+			principal.setRelyingPartyRegistrationId(registrationId);
+			return new Saml2Authentication(principal, token.getSaml2Response(),
 					this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion)));
 		};
 	}

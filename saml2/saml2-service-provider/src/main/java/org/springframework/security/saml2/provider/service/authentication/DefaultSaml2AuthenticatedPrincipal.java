@@ -34,11 +34,14 @@ public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPri
 
 	private final Map<String, List<Object>> attributes;
 
+	private String registrationId;
+
 	public DefaultSaml2AuthenticatedPrincipal(String name, Map<String, List<Object>> attributes) {
 		Assert.notNull(name, "name cannot be null");
 		Assert.notNull(attributes, "attributes cannot be null");
 		this.name = name;
 		this.attributes = attributes;
+		this.registrationId = null;
 	}
 
 	@Override
@@ -49,6 +52,16 @@ public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPri
 	@Override
 	public Map<String, List<Object>> getAttributes() {
 		return this.attributes;
+	}
+
+	@Override
+	public String getRelyingPartyRegistrationId() {
+		return this.registrationId;
+	}
+
+	public void setRelyingPartyRegistrationId(String registrationId) {
+		Assert.notNull(registrationId, "relyingPartyRegistrationId cannot be null");
+		this.registrationId = registrationId;
 	}
 
 }
