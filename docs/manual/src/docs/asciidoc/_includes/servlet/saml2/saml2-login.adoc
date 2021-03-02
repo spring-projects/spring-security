@@ -107,6 +107,7 @@ where
 * `https://idp.example.com/issuer` is the value contained in the `Issuer` attribute of the SAML responses that the identity provider will issue
 * `classpath:idp.crt` is the location on the classpath for the identity provider's certificate for verifying SAML responses, and
 * `https://idp.example.com/issuer/sso` is the endpoint where the identity provider is expecting `AuthnRequest` s.
+* `adfs` is <<servlet-saml2login-relyingpartyregistrationid, an arbitrary identifier you choose>>
 
 And that's it!
 
@@ -190,6 +191,7 @@ image:{icondir}/number_10.png[] And finally, it takes the `NameID` from the firs
 Then, it places that principal and the authorities into a `Saml2Authentication`.
 
 The resulting `Authentication#getPrincipal` is a Spring Security `Saml2AuthenticatedPrincipal` object, and `Authentication#getName` maps to the first assertion's `NameID` element.
+`Saml2Authentication#getRelyingPartyRegistrationId` holds the <<servlet-saml2login-relyingpartyregistrationid,identifier to the associated `RelyingPartyRegistration`>>.
 
 [[servlet-saml2login-opensaml-customization]]
 ==== Customizing OpenSAML Configuration
@@ -230,7 +232,7 @@ static {
 				authnRequest.setForceAuthN(true);
             }
 		}
-		
+
 	    factory.getMarshallerFactory().registerMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME, marshaller);
 	});
 }
@@ -341,6 +343,10 @@ public RelyingPartyRegistrationRepository relyingPartyRegistrations() {
 }
 ----
 ====
+
+[[servlet-saml2login-relyingpartyregistrationid]]
+[NOTE]
+The `registrationId` is an arbitrary value that you choose for differentiating between registrations.
 
 Or you can provide each detail manually, as you can see below:
 
