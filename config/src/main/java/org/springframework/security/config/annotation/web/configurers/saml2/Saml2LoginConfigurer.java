@@ -47,6 +47,7 @@ import org.springframework.security.saml2.provider.service.servlet.filter.Saml2W
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationRequestFilter;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.DefaultSaml2AuthenticationRequestContextResolver;
+import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
@@ -264,7 +265,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	private AuthenticationConverter getAuthenticationConverter(B http) {
 		if (this.authenticationConverter == null) {
 			return new Saml2AuthenticationTokenConverter(
-					new DefaultRelyingPartyRegistrationResolver(this.relyingPartyRegistrationRepository));
+					(RelyingPartyRegistrationResolver) new DefaultRelyingPartyRegistrationResolver(
+							this.relyingPartyRegistrationRepository));
 		}
 		return this.authenticationConverter;
 	}
@@ -390,8 +392,9 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			Saml2AuthenticationRequestContextResolver resolver = getBeanOrNull(http,
 					Saml2AuthenticationRequestContextResolver.class);
 			if (resolver == null) {
-				return new DefaultSaml2AuthenticationRequestContextResolver(new DefaultRelyingPartyRegistrationResolver(
-						Saml2LoginConfigurer.this.relyingPartyRegistrationRepository));
+				RelyingPartyRegistrationResolver relyingPartyRegistrationResolver = new DefaultRelyingPartyRegistrationResolver(
+						Saml2LoginConfigurer.this.relyingPartyRegistrationRepository);
+				return new DefaultSaml2AuthenticationRequestContextResolver(relyingPartyRegistrationResolver);
 			}
 			return resolver;
 		}

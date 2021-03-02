@@ -22,15 +22,25 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationTokens;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.saml2.provider.service.servlet.Saml2AuthenticationRequestRepository;
+import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
+import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -48,6 +58,8 @@ public class Saml2WebSsoAuthenticationFilterTests {
 	private MockHttpServletRequest request = new MockHttpServletRequest();
 
 	private HttpServletResponse response = new MockHttpServletResponse();
+
+	private AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 
 	@BeforeEach
 	public void setup() {
@@ -130,6 +142,28 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		this.filter = new Saml2WebSsoAuthenticationFilter(authenticationConverter, "/some/other/path/{registrationId}");
 		this.filter.setAuthenticationRequestRepository(authenticationRequestRepository);
 		verifyNoInteractions(authenticationConverter);
+	}
+
+	@Test
+	public void doFilterWhenPathStartsWithRegistrationIdThenAuthenticates() throws Exception {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
+		Authentication authentication = new TestingAuthenticationToken("user", "password");
+		given(this.repository.findByRegistrationId("registration-id")).willReturn(registration);
+		given(this.authenticationManager.authenticate(authentication)).willReturn(authentication);
+		String loginProcessingUrl = "/{registrationId}/login/saml2/sso";
+		RequestMatcher matcher = new AntPathRequestMatcher(loginProcessingUrl);
+		DefaultRelyingPartyRegistrationResolver delegate = new DefaultRelyingPartyRegistrationResolver(this.repository);
+		RelyingPartyRegistrationResolver resolver = (request, id) -> {
+			String registrationId = matcher.matcher(request).getVariables().get("registrationId");
+			return delegate.resolve(request, registrationId);
+		};
+		Saml2AuthenticationTokenConverter authenticationConverter = new Saml2AuthenticationTokenConverter(resolver);
+		this.filter = new Saml2WebSsoAuthenticationFilter(authenticationConverter, loginProcessingUrl);
+		this.filter.setAuthenticationManager(this.authenticationManager);
+		this.request.setPathInfo("/registration-id/login/saml2/sso");
+		this.request.setParameter("SAMLResponse", "response");
+		this.filter.doFilter(this.request, this.response, new MockFilterChain());
+		verify(this.repository).findByRegistrationId("registration-id");
 	}
 
 }

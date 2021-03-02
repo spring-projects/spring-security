@@ -176,7 +176,8 @@ public class Saml2AuthenticationTokenConverterTests {
 
 	@Test
 	public void constructorWhenResolverIsNullThenIllegalArgument() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new Saml2AuthenticationTokenConverter(null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new Saml2AuthenticationTokenConverter((RelyingPartyRegistrationResolver) null));
 	}
 
 	@Test

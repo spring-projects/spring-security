@@ -61,12 +61,26 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 	 * resolving {@link RelyingPartyRegistration}s
 	 * @param relyingPartyRegistrationResolver the strategy for resolving
 	 * {@link RelyingPartyRegistration}s
+	 * @deprecated Use
+	 * {@link Saml2AuthenticationTokenConverter#Saml2AuthenticationTokenConverter(RelyingPartyRegistrationResolver)}
+	 * instead
 	 */
+	@Deprecated
 	public Saml2AuthenticationTokenConverter(
 			Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver) {
 		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 		this.loader = new HttpSessionSaml2AuthenticationRequestRepository()::loadAuthenticationRequest;
+	}
+
+	public Saml2AuthenticationTokenConverter(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+		this(adaptToConverter(relyingPartyRegistrationResolver));
+	}
+
+	private static Converter<HttpServletRequest, RelyingPartyRegistration> adaptToConverter(
+			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
+		return (request) -> relyingPartyRegistrationResolver.resolve(request, null);
 	}
 
 	@Override

@@ -727,7 +727,7 @@ There are a number of reasons you may want to customize. Among them:
 * You may know that you will never be a multi-tenant application and so want to have a simpler URL scheme
 * You may identify tenants in a way other than by the URI path
 
-To customize the way that a `RelyingPartyRegistration` is resolved, you can configure a custom `Converter<HttpServletRequest, RelyingPartyRegistration>`.
+To customize the way that a `RelyingPartyRegistration` is resolved, you can configure a custom `RelyingPartyRegistrationResolver`.
 The default looks up the registration id from the URI's last path element and looks it up in your `RelyingPartyRegistrationRepository`.
 
 You can provide a simpler resolver that, for example, always returns the same relying party:
@@ -736,12 +736,17 @@ You can provide a simpler resolver that, for example, always returns the same re
 .Java
 [source,java,role="primary"]
 ----
-public class SingleRelyingPartyRegistrationResolver
-        implements Converter<HttpServletRequest, RelyingPartyRegistration> {
+public class SingleRelyingPartyRegistrationResolver implements RelyingPartyRegistrationResolver {
+
+    private final RelyingPartyRegistrationResolver delegate;
+
+    public SingleRelyingPartyRegistrationResolver(RelyingPartyRegistrationRepository registrations) {
+        this.delegate = new DefaultRelyingPartyRegistrationResolver(registrations);
+    }
 
     @Override
-    public RelyingPartyRegistration convert(HttpServletRequest request) {
-        return this.relyingParty;
+    public RelyingPartyRegistration resolve(HttpServletRequest request, String registrationId) {
+        return this.delegate.resolve(request, "single");
     }
 }
 ----
@@ -749,9 +754,9 @@ public class SingleRelyingPartyRegistrationResolver
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-class SingleRelyingPartyRegistrationResolver : Converter<HttpServletRequest?, RelyingPartyRegistration?> {
-    override fun convert(request: HttpServletRequest?): RelyingPartyRegistration? {
-        return this.relyingParty
+class SingleRelyingPartyRegistrationResolver(delegate: RelyingPartyRegistrationResolver) : RelyingPartyRegistrationResolver {
+    override fun resolve(request: HttpServletRequest?, registrationId: String?): RelyingPartyRegistration? {
+        return this.delegate.resolve(request, "single")
     }
 }
 ----
@@ -1544,7 +1549,7 @@ You can publish a metadata endpoint by adding the `Saml2MetadataFilter` to the f
 .Java
 [source,java,role="primary"]
 ----
-Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver =
+DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
         new DefaultRelyingPartyRegistrationResolver(this.relyingPartyRegistrationRepository);
 Saml2MetadataFilter filter = new Saml2MetadataFilter(
         relyingPartyRegistrationResolver,
@@ -1593,8 +1598,6 @@ filter.setRequestMatcher(new AntPathRequestMatcher("/saml2/metadata/{registratio
 filter.setRequestMatcher(AntPathRequestMatcher("/saml2/metadata/{registrationId}", "GET"))
 ----
 ====
-
-ensuring that the `registrationId` hint is at the end of the path.
 
 Or, if you have registered a custom relying party registration resolver in the constructor, then you can specify a path without a `registrationId` hint, like so:
 
