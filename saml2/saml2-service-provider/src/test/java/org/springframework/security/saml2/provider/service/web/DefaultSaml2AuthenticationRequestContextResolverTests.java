@@ -49,8 +49,11 @@ public class DefaultSaml2AuthenticationRequestContextResolverTests {
 
 	private RelyingPartyRegistration.Builder relyingPartyBuilder;
 
+	private RelyingPartyRegistrationResolver relyingPartyRegistrationResolver = new DefaultRelyingPartyRegistrationResolver(
+			(id) -> this.relyingPartyBuilder.build());
+
 	private Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver = new DefaultSaml2AuthenticationRequestContextResolver(
-			new DefaultRelyingPartyRegistrationResolver((id) -> this.relyingPartyBuilder.build()));
+			this.relyingPartyRegistrationResolver);
 
 	@BeforeEach
 	public void setup() {

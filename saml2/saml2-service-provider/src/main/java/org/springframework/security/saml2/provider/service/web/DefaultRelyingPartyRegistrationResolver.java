@@ -22,6 +22,9 @@ import java.util.function.Function;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -42,13 +45,15 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @since 5.4
  */
 public final class DefaultRelyingPartyRegistrationResolver
-		implements Converter<HttpServletRequest, RelyingPartyRegistration> {
+		implements RelyingPartyRegistrationResolver, Converter<HttpServletRequest, RelyingPartyRegistration> {
+
+	private Log logger = LogFactory.getLog(getClass());
 
 	private static final char PATH_DELIMITER = '/';
 
 	private final RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
-	private final Converter<HttpServletRequest, String> registrationIdResolver = new RegistrationIdResolver();
+	private final RequestMatcher registrationRequestMatcher = new AntPathRequestMatcher("/**/{registrationId}");
 
 	public DefaultRelyingPartyRegistrationResolver(
 			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
@@ -56,14 +61,35 @@ public final class DefaultRelyingPartyRegistrationResolver
 		this.relyingPartyRegistrationRepository = relyingPartyRegistrationRepository;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public RelyingPartyRegistration convert(HttpServletRequest request) {
-		String registrationId = this.registrationIdResolver.convert(request);
-		if (registrationId == null) {
+		return resolve(request, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RelyingPartyRegistration resolve(HttpServletRequest request, String relyingPartyRegistrationId) {
+		if (relyingPartyRegistrationId == null) {
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace("Attempting to resolve from " + this.registrationRequestMatcher
+						+ " since registrationId is null");
+			}
+			relyingPartyRegistrationId = this.registrationRequestMatcher.matcher(request).getVariables()
+					.get("registrationId");
+		}
+		if (relyingPartyRegistrationId == null) {
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace("Returning null registration since registrationId is null");
+			}
 			return null;
 		}
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationRepository
-				.findByRegistrationId(registrationId);
+				.findByRegistrationId(relyingPartyRegistrationId);
 		if (relyingPartyRegistration == null) {
 			return null;
 		}
@@ -109,18 +135,6 @@ public final class DefaultRelyingPartyRegistrationResolver
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
 				.replacePath(request.getContextPath()).replaceQuery(null).fragment(null).build();
 		return uriComponents.toUriString();
-	}
-
-	private static class RegistrationIdResolver implements Converter<HttpServletRequest, String> {
-
-		private final RequestMatcher requestMatcher = new AntPathRequestMatcher("/**/{registrationId}");
-
-		@Override
-		public String convert(HttpServletRequest request) {
-			RequestMatcher.MatchResult result = this.requestMatcher.matcher(request);
-			return result.getVariables().get("registrationId");
-		}
-
 	}
 
 }

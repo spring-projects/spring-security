@@ -29,6 +29,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.servlet.HttpSessionSaml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.servlet.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
+import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
@@ -67,7 +68,9 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	public Saml2WebSsoAuthenticationFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
 			String filterProcessesUrl) {
 		this(new Saml2AuthenticationTokenConverter(
-				new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository)), filterProcessesUrl);
+				(RelyingPartyRegistrationResolver) new DefaultRelyingPartyRegistrationResolver(
+						relyingPartyRegistrationRepository)),
+				filterProcessesUrl);
 	}
 
 	/**

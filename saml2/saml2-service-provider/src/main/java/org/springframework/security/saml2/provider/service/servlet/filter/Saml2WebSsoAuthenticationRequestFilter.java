@@ -39,6 +39,7 @@ import org.springframework.security.saml2.provider.service.servlet.HttpSessionSa
 import org.springframework.security.saml2.provider.service.servlet.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.DefaultSaml2AuthenticationRequestContextResolver;
+import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -96,7 +97,9 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 	public Saml2WebSsoAuthenticationRequestFilter(
 			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
 		this(new DefaultSaml2AuthenticationRequestContextResolver(
-				new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository)), requestFactory());
+				(RelyingPartyRegistrationResolver) new DefaultRelyingPartyRegistrationResolver(
+						relyingPartyRegistrationRepository)),
+				requestFactory());
 	}
 
 	private static Saml2AuthenticationRequestFactory requestFactory() {

@@ -42,9 +42,22 @@ public final class DefaultSaml2AuthenticationRequestContextResolver
 
 	private final Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver;
 
+	/**
+	 * Construct a {@link DefaultSaml2AuthenticationRequestContextResolver}
+	 * @param relyingPartyRegistrationResolver
+	 * @deprecated Use
+	 * {@link DefaultSaml2AuthenticationRequestContextResolver#DefaultSaml2AuthenticationRequestContextResolver(RelyingPartyRegistrationResolver)}
+	 * instead
+	 */
+	@Deprecated
 	public DefaultSaml2AuthenticationRequestContextResolver(
 			Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver) {
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
+	}
+
+	public DefaultSaml2AuthenticationRequestContextResolver(
+			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+		this.relyingPartyRegistrationResolver = (request) -> relyingPartyRegistrationResolver.resolve(request, null);
 	}
 
 	@Override
