@@ -425,7 +425,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			String username = assertion.getSubject().getNameID().getValue();
 			Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
 			return new Saml2Authentication(new DefaultSaml2AuthenticatedPrincipal(username, attributes),
-					token.getSaml2Response(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+					token.getSaml2Response(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
+					responseToken.token.getRelyingPartyRegistration().getRegistrationId());
 		};
 	}
 
@@ -627,8 +628,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			String username = assertion.getSubject().getNameID().getValue();
 			Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
 			return new Saml2Authentication(new DefaultSaml2AuthenticatedPrincipal(username, attributes),
-					token.getSaml2Response(),
-					this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion)));
+					token.getSaml2Response(), this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion)),
+					responseToken.token.getRelyingPartyRegistration().getRegistrationId());
 		};
 	}
 
