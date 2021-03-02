@@ -171,6 +171,7 @@ UserDetailsManager users(DataSource dataSource) {
 	JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
 	users.createUser(user);
 	users.createUser(admin);
+	return users; 
 }
 ----
 
