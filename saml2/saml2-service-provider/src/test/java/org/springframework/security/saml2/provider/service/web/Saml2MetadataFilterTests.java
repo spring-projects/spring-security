@@ -121,6 +121,22 @@ public class Saml2MetadataFilterTests {
 	}
 
 	@Test
+	public void doFilterWhenSetMetadataFilenameThenUses() throws Exception {
+		RelyingPartyRegistration validRegistration = TestRelyingPartyRegistrations.full().build();
+		String testMetadataFilename = "test-{registrationId}-metadata.xml";
+		String fileName = testMetadataFilename.replace("{registrationId}", validRegistration.getRegistrationId());
+		String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name());
+		String generatedMetadata = "<xml>test</xml>";
+		this.request.setPathInfo("/saml2/service-provider-metadata/validRegistration");
+		given(this.resolver.resolve(validRegistration)).willReturn(generatedMetadata);
+		this.filter = new Saml2MetadataFilter((request) -> validRegistration, this.resolver);
+		this.filter.setMetadataFilename(testMetadataFilename);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getHeaderValue(HttpHeaders.CONTENT_DISPOSITION)).asString()
+				.isEqualTo("attachment; filename=\"%s\"; filename*=UTF-8''%s", fileName, encodedFileName);
+	}
+
+	@Test
 	public void setRequestMatcherWhenNullThenIllegalArgument() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRequestMatcher(null));
 	}
@@ -136,32 +152,6 @@ public class Saml2MetadataFilterTests {
 		assertThatExceptionOfType(IllegalArgumentException.class)
 				.isThrownBy(() -> this.filter.setMetadataFilename("metadata-filename.xml"))
 				.withMessage("metadataFilename must contain a {registrationId} match variable");
-	}
-
-	@Test
-	public void doFilterWhenSetMetadataFilenameThenUses() throws Exception {
-		String testMetadataFilename = "test-{registrationId}-metadata.xml";
-		this.request.setPathInfo("/saml2/service-provider-metadata/validRegistration");
-		RelyingPartyRegistration validRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails((party) -> party.verificationX509Credentials(
-						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
-				.build();
-		String generatedMetadata = "<xml>test</xml>";
-		given(this.resolver.resolve(validRegistration)).willReturn(generatedMetadata);
-
-		this.filter = new Saml2MetadataFilter((request) -> validRegistration, this.resolver);
-		this.filter.setMetadataFilename(testMetadataFilename);
-		this.filter.doFilter(this.request, this.response, this.chain);
-
-		verifyNoInteractions(this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(200);
-		assertThat(this.response.getContentAsString()).isEqualTo(generatedMetadata);
-
-		String fileName = testMetadataFilename.replace("{registrationId}", validRegistration.getRegistrationId());
-		String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name());
-		assertThat(this.response.getHeaderValue(HttpHeaders.CONTENT_DISPOSITION)).asString()
-				.isEqualTo("attachment; filename=\"%s\"; filename*=UTF-8''%s", fileName, encodedFileName);
-		verify(this.resolver).resolve(validRegistration);
 	}
 
 }
