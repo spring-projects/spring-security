@@ -42,13 +42,13 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @since 5.4
  */
 public final class DefaultRelyingPartyRegistrationResolver
-		implements Converter<HttpServletRequest, RelyingPartyRegistration> {
+		implements Converter<HttpServletRequest, RelyingPartyRegistration>, RelyingPartyRegistrationResolver {
 
 	private static final char PATH_DELIMITER = '/';
 
 	private final RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
-	private final Converter<HttpServletRequest, String> registrationIdResolver = new RegistrationIdResolver();
+	private final RequestMatcher registrationRequestMatcher = new AntPathRequestMatcher("/**/{registrationId}");
 
 	public DefaultRelyingPartyRegistrationResolver(
 			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
@@ -56,14 +56,28 @@ public final class DefaultRelyingPartyRegistrationResolver
 		this.relyingPartyRegistrationRepository = relyingPartyRegistrationRepository;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public RelyingPartyRegistration convert(HttpServletRequest request) {
-		String registrationId = this.registrationIdResolver.convert(request);
-		if (registrationId == null) {
+		return resolve(request, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RelyingPartyRegistration resolve(HttpServletRequest request, String relyingPartyRegistrationId) {
+		if (relyingPartyRegistrationId == null) {
+			relyingPartyRegistrationId = this.registrationRequestMatcher.matcher(request).getVariables()
+					.get("registrationId");
+		}
+		if (relyingPartyRegistrationId == null) {
 			return null;
 		}
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationRepository
-				.findByRegistrationId(registrationId);
+				.findByRegistrationId(relyingPartyRegistrationId);
 		if (relyingPartyRegistration == null) {
 			return null;
 		}
@@ -109,18 +123,6 @@ public final class DefaultRelyingPartyRegistrationResolver
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
 				.replacePath(request.getContextPath()).replaceQuery(null).fragment(null).build();
 		return uriComponents.toUriString();
-	}
-
-	private static class RegistrationIdResolver implements Converter<HttpServletRequest, String> {
-
-		private final RequestMatcher requestMatcher = new AntPathRequestMatcher("/**/{registrationId}");
-
-		@Override
-		public String convert(HttpServletRequest request) {
-			RequestMatcher.MatchResult result = this.requestMatcher.matcher(request);
-			return result.getVariables().get("registrationId");
-		}
-
 	}
 
 }

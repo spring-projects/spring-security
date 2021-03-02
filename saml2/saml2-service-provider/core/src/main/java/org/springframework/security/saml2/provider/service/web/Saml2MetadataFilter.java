@@ -46,7 +46,7 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 
 	public static final String DEFAULT_METADATA_FILE_NAME = "saml-{registrationId}-metadata.xml";
 
-	private final Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationConverter;
+	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
 	private final Saml2MetadataResolver saml2MetadataResolver;
 
@@ -55,11 +55,15 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 	private RequestMatcher requestMatcher = new AntPathRequestMatcher(
 			"/saml2/service-provider-metadata/{registrationId}");
 
-	public Saml2MetadataFilter(
-			Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationConverter,
+	public Saml2MetadataFilter(Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver,
 			Saml2MetadataResolver saml2MetadataResolver) {
 
-		this.relyingPartyRegistrationConverter = relyingPartyRegistrationConverter;
+		if (relyingPartyRegistrationResolver instanceof RelyingPartyRegistrationResolver) {
+			this.relyingPartyRegistrationResolver = (RelyingPartyRegistrationResolver) relyingPartyRegistrationResolver;
+		}
+		else {
+			this.relyingPartyRegistrationResolver = (request, id) -> relyingPartyRegistrationResolver.convert(request);
+		}
 		this.saml2MetadataResolver = saml2MetadataResolver;
 	}
 
@@ -71,14 +75,15 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 			chain.doFilter(request, response);
 			return;
 		}
-		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationConverter.convert(request);
+		String registrationId = matcher.getVariables().get("registrationId");
+		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationResolver.resolve(request,
+				registrationId);
 		if (relyingPartyRegistration == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 		String metadata = this.saml2MetadataResolver.resolve(relyingPartyRegistration);
-		String registrationId = relyingPartyRegistration.getRegistrationId();
-		writeMetadataToResponse(response, registrationId, metadata);
+		writeMetadataToResponse(response, relyingPartyRegistration.getRegistrationId(), metadata);
 	}
 
 	private void writeMetadataToResponse(HttpServletResponse response, String registrationId, String metadata)

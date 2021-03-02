@@ -36,7 +36,13 @@ import org.springframework.security.saml2.provider.service.authentication.TestSa
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
+import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
+import org.springframework.security.saml2.provider.service.web.DefaultSaml2AuthenticationRequestContextResolver;
+import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriUtils;
 
@@ -214,6 +220,31 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 				this.factory);
 		filter.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getStatus()).isEqualTo(401);
+	}
+
+	@Test
+	public void doFilterWhenPathStartsWithRegistrationIdThenPosts() throws Exception {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
+				.assertingPartyDetails((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST)).build();
+		RequestMatcher matcher = new AntPathRequestMatcher("/{registrationId}/saml2/authenticate");
+		DefaultRelyingPartyRegistrationResolver delegate = new DefaultRelyingPartyRegistrationResolver(this.repository);
+		RelyingPartyRegistrationResolver resolver = (request, id) -> {
+			String registrationId = matcher.matcher(request).getVariables().get("registrationId");
+			return delegate.resolve(request, registrationId);
+		};
+		Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver = new DefaultSaml2AuthenticationRequestContextResolver(
+				resolver);
+		Saml2PostAuthenticationRequest authenticationRequest = mock(Saml2PostAuthenticationRequest.class);
+		given(authenticationRequest.getAuthenticationRequestUri()).willReturn("uri");
+		given(authenticationRequest.getRelayState()).willReturn("relay");
+		given(authenticationRequest.getSamlRequest()).willReturn("saml");
+		given(this.repository.findByRegistrationId("registration-id")).willReturn(registration);
+		given(this.factory.createPostAuthenticationRequest(any())).willReturn(authenticationRequest);
+		this.filter = new Saml2WebSsoAuthenticationRequestFilter(authenticationRequestContextResolver, this.factory);
+		this.filter.setRedirectMatcher(matcher);
+		this.request.setPathInfo("/registration-id/saml2/authenticate");
+		this.filter.doFilter(this.request, this.response, new MockFilterChain());
+		verify(this.repository).findByRegistrationId("registration-id");
 	}
 
 }
