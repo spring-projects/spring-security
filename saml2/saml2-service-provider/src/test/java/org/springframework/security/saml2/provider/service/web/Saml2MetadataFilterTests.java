@@ -127,7 +127,7 @@ public class Saml2MetadataFilterTests {
 		String fileName = testMetadataFilename.replace("{registrationId}", validRegistration.getRegistrationId());
 		String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name());
 		String generatedMetadata = "<xml>test</xml>";
-		this.request.setPathInfo("/saml2/service-provider-metadata/validRegistration");
+		this.request.setPathInfo("/saml2/service-provider-metadata/registration-id");
 		given(this.resolver.resolve(validRegistration)).willReturn(generatedMetadata);
 		this.filter = new Saml2MetadataFilter((request) -> validRegistration, this.resolver);
 		this.filter.setMetadataFilename(testMetadataFilename);
