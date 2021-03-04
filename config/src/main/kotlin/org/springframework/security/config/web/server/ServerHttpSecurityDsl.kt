@@ -35,8 +35,8 @@ import org.springframework.web.server.WebFilter
  *  fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
  *      return http {
  *          authorizeExchange {
- *              exchange("/public", permitAll)
- *              exchange(anyExchange, authenticated)
+ *              authorize("/public", permitAll)
+ *              authorize(anyExchange, authenticated)
  *          }
  *       }
  *   }
@@ -207,8 +207,8 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      *  fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
      *      return http {
      *          authorizeExchange {
-     *              exchange("/public", permitAll)
-     *              exchange(anyExchange, authenticated)
+     *              authorize("/public", permitAll)
+     *              authorize(anyExchange, authenticated)
      *          }
      *       }
      *   }
