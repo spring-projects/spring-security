@@ -1530,7 +1530,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	/**
-	 * Adds CSRF support. This is activated by default when using
+	 * Enables CSRF protection. This is activated by default when using
 	 * {@link WebSecurityConfigurerAdapter}'s default constructor. You can disable it
 	 * using:
 	 *
@@ -1556,7 +1556,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	/**
-	 * Adds CSRF support. This is activated by default when using
+	 * Enables CSRF protection. This is activated by default when using
 	 * {@link WebSecurityConfigurerAdapter}'s default constructor. You can disable it
 	 * using:
 	 *
