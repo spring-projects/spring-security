@@ -76,7 +76,6 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 		}
 		String username = obtainUsername(request);
 		username = (username != null) ? username : "";
-		username = username.trim();
 		String password = obtainPassword(request);
 		password = (password != null) ? password : "";
 		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
