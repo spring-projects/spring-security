@@ -80,8 +80,8 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * authentication failures are handled
  * <li>{@link #bearerTokenResolver(BearerTokenResolver)} - customizes how to resolve a
  * bearer token from the request</li>
- * <li>{@link #bearerTokenAuthenticationConverter(AuthenticationConverter)}</li> -
- * customizes how to convert a bear token authentication from the request
+ * <li>{@link #authenticationConverter(AuthenticationConverter)}</li> - customizes how to
+ * convert a bearer token authentication from the request
  * <li>{@link #jwt(Customizer)} - enables Jwt-encoded bearer token support</li>
  * <li>{@link #opaqueToken(Customizer)} - enables opaque bearer token support</li>
  * </ul>
@@ -195,8 +195,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return this;
 	}
 
-	public OAuth2ResourceServerConfigurer<H> bearerTokenAuthenticationConverter(
-			AuthenticationConverter authenticationConverter) {
+	public OAuth2ResourceServerConfigurer<H> authenticationConverter(AuthenticationConverter authenticationConverter) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 		this.authenticationConverter = authenticationConverter;
 		return this;
@@ -266,7 +265,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			resolver = (request) -> authenticationManager;
 		}
 
-		this.authenticationConverter = getBearerTokenAuthenticationConverter();
+		this.authenticationConverter = getAuthenticationConverter();
 
 		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(resolver);
 		filter.setAuthenticationConverter(this.authenticationConverter);
@@ -363,7 +362,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return this.bearerTokenResolver;
 	}
 
-	AuthenticationConverter getBearerTokenAuthenticationConverter() {
+	AuthenticationConverter getAuthenticationConverter() {
 		if (this.authenticationConverter == null) {
 			if (this.context.getBeanNamesForType(BearerTokenAuthenticationConverter.class).length > 0) {
 				this.authenticationConverter = this.context.getBean(BearerTokenAuthenticationConverter.class);

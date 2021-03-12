@@ -36,13 +36,9 @@ import org.springframework.util.Assert;
  */
 public final class BearerTokenAuthenticationConverter implements AuthenticationConverter {
 
+	private BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
+
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
-
-	private BearerTokenResolver bearerTokenResolver;
-
-	public BearerTokenAuthenticationConverter() {
-		this.bearerTokenResolver = new DefaultBearerTokenResolver();
-	}
 
 	@Override
 	public BearerTokenAuthenticationToken convert(HttpServletRequest request) {

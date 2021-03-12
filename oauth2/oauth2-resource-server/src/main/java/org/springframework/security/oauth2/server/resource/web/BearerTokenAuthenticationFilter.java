@@ -154,6 +154,17 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	}
 
 	/**
+	 * Set the {@link AuthenticationConverter} to use. Defaults to
+	 * {@link BearerTokenAuthenticationConverter}.
+	 * @param authenticationConverter the {@code AuthenticationConverter} to use
+	 * @since 5.5
+	 */
+	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		this.authenticationConverter = authenticationConverter;
+	}
+
+	/**
 	 * Set the {@link AuthenticationEntryPoint} to use. Defaults to
 	 * {@link BearerTokenAuthenticationEntryPoint}.
 	 * @param authenticationEntryPoint the {@code AuthenticationEntryPoint} to use
@@ -172,17 +183,6 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	public void setAuthenticationFailureHandler(final AuthenticationFailureHandler authenticationFailureHandler) {
 		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
 		this.authenticationFailureHandler = authenticationFailureHandler;
-	}
-
-	/**
-	 * Set the {@link AuthenticationConverter} to use. Defaults to
-	 * {@link BearerTokenAuthenticationConverter}.
-	 * @param authenticationConverter the {@code AuthenticationConverter} to use
-	 * @since 5.5
-	 */
-	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
-		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
-		this.authenticationConverter = authenticationConverter;
 	}
 
 }

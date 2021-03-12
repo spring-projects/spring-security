@@ -732,8 +732,8 @@ public class OAuth2ResourceServerConfigurerTests {
 		context.registerBean("converterTwo", BearerTokenAuthenticationConverter.class, () -> converterBean);
 		this.spring.context(context).autowire();
 		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
-		oauth2.bearerTokenAuthenticationConverter(converter);
-		assertThat(oauth2.getBearerTokenAuthenticationConverter()).isEqualTo(converter);
+		oauth2.authenticationConverter(converter);
+		assertThat(oauth2.getAuthenticationConverter()).isEqualTo(converter);
 	}
 
 	@Test
@@ -751,16 +751,15 @@ public class OAuth2ResourceServerConfigurerTests {
 		context.registerBean(BearerTokenAuthenticationConverter.class, () -> converterBean);
 		this.spring.context(context).autowire();
 		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
-		oauth2.bearerTokenAuthenticationConverter(converter);
-		assertThat(oauth2.getBearerTokenAuthenticationConverter()).isEqualTo(converter);
+		oauth2.authenticationConverter(converter);
+		assertThat(oauth2.getAuthenticationConverter()).isEqualTo(converter);
 	}
 
 	@Test
 	public void getBearerTokenAuthenticationConverterWhenNoConverterSpecifiedThenTheDefaultIsUsed() {
 		ApplicationContext context = this.spring.context(new GenericWebApplicationContext()).getContext();
 		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
-		assertThat(oauth2.getBearerTokenAuthenticationConverter())
-				.isInstanceOf(BearerTokenAuthenticationConverter.class);
+		assertThat(oauth2.getAuthenticationConverter()).isInstanceOf(BearerTokenAuthenticationConverter.class);
 	}
 
 	@Test
@@ -770,7 +769,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		context.registerBean(BearerTokenAuthenticationConverter.class, () -> converterBean);
 		this.spring.context(context).autowire();
 		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
-		assertThat(oauth2.getBearerTokenAuthenticationConverter()).isEqualTo(converterBean);
+		assertThat(oauth2.getAuthenticationConverter()).isEqualTo(converterBean);
 
 	}
 
@@ -783,7 +782,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.context(context).autowire();
 		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
 		BearerTokenAuthenticationToken bearerTokenAuthenticationToken = (BearerTokenAuthenticationToken) oauth2
-				.getBearerTokenAuthenticationConverter().convert(servletRequest);
+				.getAuthenticationConverter().convert(servletRequest);
 		String token = bearerTokenAuthenticationToken.getToken();
 		assertThat(token).isEqualTo("bearer customToken");
 
