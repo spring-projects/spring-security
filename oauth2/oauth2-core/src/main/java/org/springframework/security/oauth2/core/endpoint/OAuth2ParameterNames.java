@@ -112,6 +112,11 @@ public interface OAuth2ParameterNames {
 	String PASSWORD = "password";
 
 	/**
+	 * {@code assertion} - used in Access Token Request.
+	 */
+	String ASSERTION = "assertion";
+
+	/**
 	 * {@code error} - used in Authorization Response and Access Token Response.
 	 */
 	String ERROR = "error";
