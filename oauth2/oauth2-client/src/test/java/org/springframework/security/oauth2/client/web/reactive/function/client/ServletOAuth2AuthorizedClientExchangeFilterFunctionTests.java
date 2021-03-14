@@ -77,6 +77,7 @@ import org.springframework.security.oauth2.client.endpoint.DefaultClientCredenti
 import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.OAuth2JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -140,6 +141,9 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	private OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordTokenResponseClient;
 
 	@Mock
+	private OAuth2AccessTokenResponseClient<OAuth2JwtBearerGrantRequest> jwtBearerTokenResponseClient;
+
+	@Mock
 	private OAuth2AuthorizationFailureHandler authorizationFailureHandler;
 
 	@Captor
@@ -188,6 +192,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.clientCredentials(
 						(configurer) -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
 				.password((configurer) -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
+				.jwtBearer((configurer) -> configurer.accessTokenResponseClient(this.jwtBearerTokenResponseClient))
 				.build();
 		this.authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(this.clientRegistrationRepository,
 				this.authorizedClientRepository);
