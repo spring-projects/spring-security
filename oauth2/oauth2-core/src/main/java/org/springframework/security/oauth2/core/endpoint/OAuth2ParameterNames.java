@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,6 +98,11 @@ public interface OAuth2ParameterNames {
 	 * {@code password} - used in Access Token Request.
 	 */
 	String PASSWORD = "password";
+
+	/**
+	 * {@code assertion} - used in Access Token Request.
+	 */
+	String ASSERTION = "assertion";
 
 	/**
 	 * {@code error} - used in Authorization Response and Access Token Response.

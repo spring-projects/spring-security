@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.endpoint;
+
+import java.util.Arrays;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.RequestEntity;
@@ -32,38 +35,38 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-
 /**
- * The default implementation of an {@link OAuth2AccessTokenResponseClient}
- * for the {@link JwtBearerGrantRequest#JWT_BEARER_GRANT_TYPE jwt-bearer} grant.
- * This implementation uses a {@link RestOperations} when requesting
- * an access token credential at the Authorization Server's Token Endpoint.
+ * The default implementation of an {@link OAuth2AccessTokenResponseClient} for the
+ * {@link OAuth2JwtBearerGrantRequest#JWT_BEARER_GRANT_TYPE jwt-bearer} grant. This
+ * implementation uses a {@link RestOperations} when requesting an access token credential
+ * at the Authorization Server's Token Endpoint.
  *
  * @author Joe Grandja
- * @since 5.2
+ * @since 5.5
  * @see OAuth2AccessTokenResponseClient
- * @see JwtBearerGrantRequest
+ * @see OAuth2JwtBearerGrantRequest
  * @see OAuth2AccessTokenResponse
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7523#section-2.1">Section 2.1 JWTs as Authorization Grants</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7523#section-2.1">Section
+ * 2.1 JWTs as Authorization Grants</a>
  */
-public final class DefaultJwtBearerTokenResponseClient implements OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> {
+public final class DefaultJwtBearerTokenResponseClient
+		implements OAuth2AccessTokenResponseClient<OAuth2JwtBearerGrantRequest> {
+
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
-	private Converter<JwtBearerGrantRequest, RequestEntity<?>> requestEntityConverter =
-			new JwtBearerGrantRequestEntityConverter();
+	private Converter<OAuth2JwtBearerGrantRequest, RequestEntity<?>> requestEntityConverter = new OAuth2JwtBearerGrantRequestEntityConverter();
 
 	private RestOperations restOperations;
 
 	public DefaultJwtBearerTokenResponseClient() {
-		RestTemplate restTemplate = new RestTemplate(Arrays.asList(
-				new FormHttpMessageConverter(), new OAuth2AccessTokenResponseHttpMessageConverter()));
+		RestTemplate restTemplate = new RestTemplate(
+				Arrays.asList(new FormHttpMessageConverter(), new OAuth2AccessTokenResponseHttpMessageConverter()));
 		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 		this.restOperations = restTemplate;
 	}
 
 	@Override
-	public OAuth2AccessTokenResponse getTokenResponse(JwtBearerGrantRequest jwtBearerGrantRequest) {
+	public OAuth2AccessTokenResponse getTokenResponse(OAuth2JwtBearerGrantRequest jwtBearerGrantRequest) {
 		Assert.notNull(jwtBearerGrantRequest, "jwtBearerGrantRequest cannot be null");
 
 		RequestEntity<?> request = this.requestEntityConverter.convert(jwtBearerGrantRequest);
@@ -71,9 +74,12 @@ public final class DefaultJwtBearerTokenResponseClient implements OAuth2AccessTo
 		ResponseEntity<OAuth2AccessTokenResponse> response;
 		try {
 			response = this.restOperations.exchange(request, OAuth2AccessTokenResponse.class);
-		} catch (RestClientException ex) {
+		}
+		catch (RestClientException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
-					"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: " + ex.getMessage(), null);
+					"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: "
+							+ ex.getMessage(),
+					null);
 			throw new OAuth2AuthorizationException(oauth2Error, ex);
 		}
 
@@ -85,38 +91,43 @@ public final class DefaultJwtBearerTokenResponseClient implements OAuth2AccessTo
 			// If AccessTokenResponse.scope is empty, then default to the scope
 			// originally requested by the client in the Token Request
 			tokenResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
-					.scopes(jwtBearerGrantRequest.getClientRegistration().getScopes())
-					.build();
+					.scopes(jwtBearerGrantRequest.getClientRegistration().getScopes()).build();
 		}
 
 		return tokenResponse;
 	}
 
 	/**
-	 * Sets the {@link Converter} used for converting the {@link JwtBearerGrantRequest}
-	 * to a {@link RequestEntity} representation of the OAuth 2.0 Access Token Request.
-	 *
-	 * @param requestEntityConverter the {@link Converter} used for converting to a {@link RequestEntity} representation of the Access Token Request
+	 * Sets the {@link Converter} used for converting the
+	 * {@link OAuth2JwtBearerGrantRequest} to a {@link RequestEntity} representation of
+	 * the OAuth 2.0 Access Token Request.
+	 * @param requestEntityConverter the {@link Converter} used for converting to a
+	 * {@link RequestEntity} representation of the Access Token Request
 	 */
-	public void setRequestEntityConverter(Converter<JwtBearerGrantRequest, RequestEntity<?>> requestEntityConverter) {
+	public void setRequestEntityConverter(
+			Converter<OAuth2JwtBearerGrantRequest, RequestEntity<?>> requestEntityConverter) {
 		Assert.notNull(requestEntityConverter, "requestEntityConverter cannot be null");
 		this.requestEntityConverter = requestEntityConverter;
 	}
 
 	/**
-	 * Sets the {@link RestOperations} used when requesting the OAuth 2.0 Access Token Response.
+	 * Sets the {@link RestOperations} used when requesting the OAuth 2.0 Access Token
+	 * Response.
 	 *
 	 * <p>
-	 * <b>NOTE:</b> At a minimum, the supplied {@code restOperations} must be configured with the following:
+	 * <b>NOTE:</b> At a minimum, the supplied {@code restOperations} must be configured
+	 * with the following:
 	 * <ol>
-	 *  <li>{@link HttpMessageConverter}'s - {@link FormHttpMessageConverter} and {@link OAuth2AccessTokenResponseHttpMessageConverter}</li>
-	 *  <li>{@link ResponseErrorHandler} - {@link OAuth2ErrorResponseErrorHandler}</li>
+	 * <li>{@link HttpMessageConverter}'s - {@link FormHttpMessageConverter} and
+	 * {@link OAuth2AccessTokenResponseHttpMessageConverter}</li>
+	 * <li>{@link ResponseErrorHandler} - {@link OAuth2ErrorResponseErrorHandler}</li>
 	 * </ol>
-	 *
-	 * @param restOperations the {@link RestOperations} used when requesting the Access Token Response
+	 * @param restOperations the {@link RestOperations} used when requesting the Access
+	 * Token Response
 	 */
 	public void setRestOperations(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations cannot be null");
 		this.restOperations = restOperations;
 	}
+
 }
