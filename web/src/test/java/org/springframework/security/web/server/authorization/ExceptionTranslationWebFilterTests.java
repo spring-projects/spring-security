@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import reactor.test.publisher.PublisherProbe;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
@@ -41,6 +42,7 @@ import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
+ * @author César Revert
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -48,6 +50,9 @@ public class ExceptionTranslationWebFilterTests {
 
 	@Mock
 	private Principal principal;
+
+	@Mock
+	private AnonymousAuthenticationToken anonymousPrincipal;
 
 	@Mock
 	private ServerWebExchange exchange;
@@ -130,6 +135,15 @@ public class ExceptionTranslationWebFilterTests {
 	}
 
 	@Test
+	public void filterWhenAccessDeniedExceptionAndAnonymousAuthenticatedThenHandled() {
+		given(this.exchange.getPrincipal()).willReturn(Mono.just(this.anonymousPrincipal));
+		given(this.chain.filter(this.exchange)).willReturn(Mono.error(new AccessDeniedException("Not Authorized")));
+		StepVerifier.create(this.filter.filter(this.exchange, this.chain)).expectComplete().verify();
+		this.deniedPublisher.assertWasNotSubscribed();
+		this.entryPointPublisher.assertWasSubscribed();
+	}
+
+	@Test
 	public void setAccessDeniedHandlerWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAccessDeniedHandler(null));
 	}
@@ -137,6 +151,16 @@ public class ExceptionTranslationWebFilterTests {
 	@Test
 	public void setAuthenticationEntryPointWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthenticationEntryPoint(null));
+	}
+
+	@Test
+	public void setAuthenticationTrustResolver() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthenticationTrustResolver(null));
+	}
+
+	@Test
+	public void setMessageSource() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setMessageSource(null));
 	}
 
 }
