@@ -212,7 +212,7 @@ public class PasswordOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenPasswordAndAuthorizedAndTokenNotExpiredButClockSkewForcesExpiryThenReauthorize() {
 		Instant now = Instant.now();
 		Instant issuedAt = now.minus(Duration.ofMinutes(60));
-		Instant expiresAt = now.minus(Duration.ofMinutes(1));
+		Instant expiresAt = now.plus(Duration.ofMinutes(1));
 		OAuth2AccessToken expiresInOneMinAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				"access-token-1234", issuedAt, expiresAt);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
