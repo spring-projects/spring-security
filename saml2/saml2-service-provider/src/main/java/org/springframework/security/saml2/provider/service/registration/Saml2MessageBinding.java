@@ -43,4 +43,18 @@ public enum Saml2MessageBinding {
 		return this.urn;
 	}
 
+	/**
+	 * Attempt to resolve the provided algorithm name to a {@code Saml2MessageBinding}.
+	 * @param name the algorithm name
+	 * @return the resolved {@code Saml2MessageBinding}, or {@code null} if not found
+	 * @since 5.5
+	 */
+	public static Saml2MessageBinding from(String name) {
+		for (Saml2MessageBinding value : values()) {
+			if (value.getUrn().equals(name)) {
+				return value;
+			}
+		}
+		return null;
+	}
 }
