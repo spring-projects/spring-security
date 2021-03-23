@@ -16,6 +16,10 @@
 
 package org.springframework.security.oauth2.client.web;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link HttpSessionOAuth2AuthorizationRequestRepository}.
  *
  * @author Joe Grandja
+ * @author Craig Andrews
  */
 @RunWith(MockitoJUnitRunner.class)
 public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
@@ -235,6 +240,32 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 		OAuth2AuthorizationRequest removedAuthorizationRequest = this.authorizationRequestRepository
 				.removeAuthorizationRequest(request, response);
 		assertThat(removedAuthorizationRequest).isNull();
+	}
+
+	@Test
+	public void testExpiredAuthorizationRequestsRemoved() {
+		final Duration expiresIn = Duration.ofMinutes(2);
+		this.authorizationRequestRepository.setOAuth2AuthorizationRequestExpiresIn(expiresIn);
+		this.authorizationRequestRepository.setClock(Clock.fixed(Instant.ofEpochMilli(0), ZoneId.systemDefault()));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		String state1 = "state-1122";
+		OAuth2AuthorizationRequest authorizationRequest1 = createAuthorizationRequest().state(state1).build();
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest1, request, response);
+		String state2 = "state-3344";
+		this.authorizationRequestRepository
+				.setClock(Clock.fixed(Instant.ofEpochMilli(1).plus(expiresIn), ZoneId.systemDefault()));
+		OAuth2AuthorizationRequest authorizationRequest2 = createAuthorizationRequest().state(state2).build();
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest2, request, response);
+		request.addParameter(OAuth2ParameterNames.STATE, state1);
+		OAuth2AuthorizationRequest loadedAuthorizationRequest1 = this.authorizationRequestRepository
+				.loadAuthorizationRequest(request);
+		assertThat(loadedAuthorizationRequest1).isNull();
+		request.removeParameter(OAuth2ParameterNames.STATE);
+		request.addParameter(OAuth2ParameterNames.STATE, state2);
+		OAuth2AuthorizationRequest loadedAuthorizationRequest2 = this.authorizationRequestRepository
+				.loadAuthorizationRequest(request);
+		assertThat(loadedAuthorizationRequest2).isEqualTo(authorizationRequest2);
 	}
 
 	private OAuth2AuthorizationRequest.Builder createAuthorizationRequest() {
