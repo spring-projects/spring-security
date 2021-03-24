@@ -176,13 +176,11 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 
 	@Autowired(required = false)
 	void setFilterChains(List<SecurityFilterChain> securityFilterChains) {
-		securityFilterChains.sort(AnnotationAwareOrderComparator.INSTANCE);
 		this.securityFilterChains = securityFilterChains;
 	}
 
 	@Autowired(required = false)
 	void setWebSecurityCustomizers(List<WebSecurityCustomizer> webSecurityCustomizers) {
-		webSecurityCustomizers.sort(AnnotationAwareOrderComparator.INSTANCE);
 		this.webSecurityCustomizers = webSecurityCustomizers;
 	}
 

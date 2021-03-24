@@ -19,7 +19,11 @@ package org.springframework.security.config.annotation.web.configuration;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.Filter;
+import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -129,6 +133,19 @@ public class WebSecurityConfigurationTests {
 		assertThat(filterChains.get(2).matches(request)).isTrue();
 		request.setServletPath("/**");
 		assertThat(filterChains.get(3).matches(request)).isTrue();
+	}
+
+	@Test
+	public void loadConfigWhenSecurityFilterChainsHaveOrderOnBeanDefinitionsThenFilterChainsOrdered() {
+		this.spring.register(OrderOnBeanDefinitionsSecurityFilterChainConfig.class).autowire();
+		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
+		assertThat(filterChains).hasSize(2);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setServletPath("/role1/**");
+		assertThat(filterChains.get(0).matches(request)).isTrue();
+		request.setServletPath("/role2/**");
+		assertThat(filterChains.get(1).matches(request)).isTrue();
 	}
 
 	@Test
@@ -468,6 +485,45 @@ public class WebSecurityConfigurationTests {
 					)
 					.build();
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(AuthenticationTestConfiguration.class)
+	static class OrderOnBeanDefinitionsSecurityFilterChainConfig {
+
+		@Bean
+		@Order(1)
+		SecurityFilterChain securityFilterChain1(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.antMatcher("/role1/**")
+					.authorizeRequests((authorize) -> authorize
+							.anyRequest().hasRole("1")
+					)
+					.build();
+			// @formatter:on
+		}
+
+		@Bean
+		TestSecurityFilterChain securityFilterChain2(HttpSecurity http) throws Exception {
+			return new TestSecurityFilterChain();
+		}
+
+		@Order(2)
+		static class TestSecurityFilterChain implements SecurityFilterChain {
+
+			@Override
+			public boolean matches(HttpServletRequest request) {
+				return true;
+			}
+
+			@Override
+			public List<Filter> getFilters() {
+				return new ArrayList<>();
+			}
+
 		}
 
 	}
