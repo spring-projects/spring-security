@@ -214,7 +214,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	}
 
 	/**
-	 * A custom verision of the Spring provided AnnotationAwareOrderComparator that uses
+	 * A custom version of the Spring provided AnnotationAwareOrderComparator that uses
 	 * {@link AnnotationUtils#findAnnotation(Class, Class)} to look on super class
 	 * instances for the {@link Order} annotation.
 	 *
