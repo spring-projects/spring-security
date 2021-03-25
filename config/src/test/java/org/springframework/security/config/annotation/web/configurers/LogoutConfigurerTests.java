@@ -97,7 +97,9 @@ public class LogoutConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnLogoutFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(LogoutFilter.class));
+		ObjectPostProcessor<LogoutFilter> objectPostProcessor = this.spring.getContext()
+				.getBean(ObjectPostProcessor.class);
+		verify(objectPostProcessor).postProcess(any(LogoutFilter.class));
 	}
 
 	@Test
@@ -361,7 +363,7 @@ public class LogoutConfigurerTests {
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
-		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+		ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -372,8 +374,8 @@ public class LogoutConfigurerTests {
 		}
 
 		@Bean
-		static ObjectPostProcessor<Object> objectPostProcessor() {
-			return objectPostProcessor;
+		ObjectPostProcessor<Object> objectPostProcessor() {
+			return this.objectPostProcessor;
 		}
 
 	}

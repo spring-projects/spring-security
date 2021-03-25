@@ -250,10 +250,11 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@link SimpleUrlLogoutSuccessHandler} using the {@link #logoutSuccessUrl(String)}.
 	 * @return the {@link LogoutSuccessHandler} to use
 	 */
-	private LogoutSuccessHandler getLogoutSuccessHandler() {
+	public LogoutSuccessHandler getLogoutSuccessHandler() {
 		LogoutSuccessHandler handler = this.logoutSuccessHandler;
 		if (handler == null) {
 			handler = createDefaultSuccessHandler();
+			this.logoutSuccessHandler = handler;
 		}
 		return handler;
 	}
@@ -312,7 +313,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * Gets the {@link LogoutHandler} instances that will be used.
 	 * @return the {@link LogoutHandler} instances. Cannot be null.
 	 */
-	List<LogoutHandler> getLogoutHandlers() {
+	public List<LogoutHandler> getLogoutHandlers() {
 		return this.logoutHandlers;
 	}
 
