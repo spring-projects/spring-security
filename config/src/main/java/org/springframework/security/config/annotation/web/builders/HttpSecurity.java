@@ -64,6 +64,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.annotation.web.configurers.openid.OpenIDLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LoginConfigurer;
+import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LogoutConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -2119,6 +2120,142 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			throws Exception {
 		saml2LoginCustomizer.customize(getOrApply(new Saml2LoginConfigurer<>()));
 		return HttpSecurity.this;
+	}
+
+	/**
+	 * Configures logout support for an SAML 2.0 Relying Party. <br>
+	 * <br>
+	 *
+	 * Implements the <b>Single Logout Profile, using POST and REDIRECT bindings</b>, as
+	 * documented in the
+	 * <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0
+	 * Core,Profiles and Bindings</a> specifications. <br>
+	 * <br>
+	 *
+	 * As a prerequisite to using this feature, is that you have a SAML v2.0 Asserting
+	 * Party to sent a logout request to. The representation of the relying party and the
+	 * asserting party is contained within {@link RelyingPartyRegistration}. <br>
+	 * <br>
+	 *
+	 * {@link RelyingPartyRegistration}(s) are composed within a
+	 * {@link RelyingPartyRegistrationRepository}, which is <b>required</b> and must be
+	 * registered with the {@link ApplicationContext} or configured via
+	 * <code>saml2Logout().relyingPartyRegistrationRepository(..)</code>. <br>
+	 * <br>
+	 *
+	 * The default configuration provides an auto-generated logout endpoint at
+	 * <code>&quot;/saml2/logout&quot;</code> and redirects to <code>/login?logout</code>
+	 * when logout completes. <br>
+	 * <br>
+	 *
+	 * <p>
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following example shows the minimal configuration required, using SimpleSamlPhp
+	 * as the asserting party.
+	 *
+	 * <pre>
+	 *	&#064;EnableWebSecurity
+	 *	&#064;Configuration
+	 *	public class Saml2LogoutSecurityConfig {
+	 *		&#064;Bean
+	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
+	 *			http
+	 *				.authorizeRequests((authorize) -> authorize
+	 *					.anyRequest().authenticated()
+	 *				)
+	 *				.saml2Login(withDefaults())
+	 *				.saml2Logout(withDefaults());
+	 *			return http.build();
+	 *		}
+	 *
+	 *		&#064;Bean
+	 *		public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
+	 *			RelyingPartyRegistration registration = RelyingPartyRegistrations
+	 *					.withMetadataLocation("https://ap.example.org/metadata")
+	 *					.registrationId("simple")
+	 *					.build();
+	 *			return new InMemoryRelyingPartyRegistrationRepository(registration);
+	 *		}
+	 *	}
+	 * </pre>
+	 *
+	 * <p>
+	 * @return the {@link Saml2LoginConfigurer} for further customizations
+	 * @throws Exception
+	 * @since 5.5
+	 */
+	public HttpSecurity saml2Logout(Customizer<Saml2LogoutConfigurer<HttpSecurity>> saml2LogoutCustomizer)
+			throws Exception {
+		saml2LogoutCustomizer.customize(getOrApply(new Saml2LogoutConfigurer<>(getContext())));
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Configures logout support for an SAML 2.0 Relying Party. <br>
+	 * <br>
+	 *
+	 * Implements the <b>Single Logout Profile, using POST and REDIRECT bindings</b>, as
+	 * documented in the
+	 * <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0
+	 * Core,Profiles and Bindings</a> specifications. <br>
+	 * <br>
+	 *
+	 * As a prerequisite to using this feature, is that you have a SAML v2.0 Asserting
+	 * Party to sent a logout request to. The representation of the relying party and the
+	 * asserting party is contained within {@link RelyingPartyRegistration}. <br>
+	 * <br>
+	 *
+	 * {@link RelyingPartyRegistration}(s) are composed within a
+	 * {@link RelyingPartyRegistrationRepository}, which is <b>required</b> and must be
+	 * registered with the {@link ApplicationContext} or configured via
+	 * <code>saml2Logout().relyingPartyRegistrationRepository(..)</code>. <br>
+	 * <br>
+	 *
+	 * The default configuration provides an auto-generated logout endpoint at
+	 * <code>&quot;/saml2/logout&quot;</code> and redirects to <code>/login?logout</code>
+	 * when logout completes. <br>
+	 * <br>
+	 *
+	 * <p>
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following example shows the minimal configuration required, using SimpleSamlPhp
+	 * as the asserting party.
+	 *
+	 * <pre>
+	 *	&#064;EnableWebSecurity
+	 *	&#064;Configuration
+	 *	public class Saml2LogoutSecurityConfig {
+	 *		&#064;Bean
+	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
+	 *			http
+	 *				.authorizeRequests((authorize) -> authorize
+	 *					.anyRequest().authenticated()
+	 *				)
+	 *				.saml2Login(withDefaults())
+	 *				.saml2Logout(withDefaults());
+	 *			return http.build();
+	 *		}
+	 *
+	 *		&#064;Bean
+	 *		public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
+	 *			RelyingPartyRegistration registration = RelyingPartyRegistrations
+	 *					.withMetadataLocation("https://ap.example.org/metadata")
+	 *					.registrationId("simple")
+	 *					.build();
+	 *			return new InMemoryRelyingPartyRegistrationRepository(registration);
+	 *		}
+	 *	}
+	 * </pre>
+	 *
+	 * <p>
+	 * @return the {@link Saml2LoginConfigurer} for further customizations
+	 * @throws Exception
+	 * @since 5.5
+	 */
+	public Saml2LogoutConfigurer<HttpSecurity> saml2Logout() throws Exception {
+		return getOrApply(new Saml2LogoutConfigurer<>(getContext()));
 	}
 
 	/**
