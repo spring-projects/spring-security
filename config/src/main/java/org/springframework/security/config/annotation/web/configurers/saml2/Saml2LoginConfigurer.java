@@ -205,9 +205,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	@Override
 	public void init(B http) throws Exception {
 		registerDefaultCsrfOverride(http);
-		if (this.relyingPartyRegistrationRepository == null) {
-			this.relyingPartyRegistrationRepository = getSharedOrBean(http, RelyingPartyRegistrationRepository.class);
-		}
+		relyingPartyRegistrationRepository(http);
 		this.saml2WebSsoAuthenticationFilter = new Saml2WebSsoAuthenticationFilter(getAuthenticationConverter(http),
 				this.loginProcessingUrl);
 		setAuthenticationRequestRepository(http, this.saml2WebSsoAuthenticationFilter);
@@ -255,6 +253,13 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		else {
 			this.saml2WebSsoAuthenticationFilter.setAuthenticationManager(this.authenticationManager);
 		}
+	}
+
+	RelyingPartyRegistrationRepository relyingPartyRegistrationRepository(B http) {
+		if (this.relyingPartyRegistrationRepository == null) {
+			this.relyingPartyRegistrationRepository = getSharedOrBean(http, RelyingPartyRegistrationRepository.class);
+		}
+		return this.relyingPartyRegistrationRepository;
 	}
 
 	private void setAuthenticationRequestRepository(B http,
