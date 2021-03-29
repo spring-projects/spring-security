@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,21 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link RequestMatcherDelegatingAuthorizationManager}.
  *
  * @author Evgeniy Cheban
+ * @author Parikshit Dutta
  */
 public class RequestMatcherDelegatingAuthorizationManagerTests {
 
@@ -98,6 +102,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 
 		AuthorizationDecision grant = manager.check(authentication, new MockHttpServletRequest(null, "/grant"));
+
 		assertThat(grant).isNotNull();
 		assertThat(grant.isGranted()).isTrue();
 
@@ -119,6 +124,42 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder().mappings(null).build())
 				.withMessage("mappingsConsumer cannot be null");
+	}
+
+	@Test
+	public void testAuthorizationEventPublisherIsNotNull() {
+		RequestMatcherDelegatingAuthorizationManager manager = RequestMatcherDelegatingAuthorizationManager.builder()
+				.add(new MvcRequestMatcher(null, "/grant"), (a, o) -> new AuthorizationDecision(true)).build();
+		assertThatIllegalArgumentException().isThrownBy(() -> manager.setAuthorizationEventPublisher(null))
+				.withMessage("AuthorizationEventPublisher cannot be null");
+	}
+
+	@Test
+	public void testAuthorizationSuccessEventWhenAuthorizationGranted() {
+		RequestMatcherDelegatingAuthorizationManager manager = RequestMatcherDelegatingAuthorizationManager.builder()
+				.add(new MvcRequestMatcher(null, "/grant"), (a, o) -> new AuthorizationDecision(true)).build();
+
+		AuthorizationEventPublisher authorizationEventPublisher = mock(AuthorizationEventPublisher.class);
+		manager.setAuthorizationEventPublisher(authorizationEventPublisher);
+
+		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
+
+		AuthorizationDecision grant = manager.check(authentication, new MockHttpServletRequest(null, "/grant"));
+		verify(authorizationEventPublisher).publishAuthorizationSuccess(grant);
+	}
+
+	@Test
+	public void testAuthorizationFailureEventWhenAuthorizationNotGranted() {
+		RequestMatcherDelegatingAuthorizationManager manager = RequestMatcherDelegatingAuthorizationManager.builder()
+				.add(new MvcRequestMatcher(null, "/deny"), (a, o) -> new AuthorizationDecision(false)).build();
+
+		AuthorizationEventPublisher authorizationEventPublisher = mock(AuthorizationEventPublisher.class);
+		manager.setAuthorizationEventPublisher(authorizationEventPublisher);
+
+		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
+
+		AuthorizationDecision grant = manager.check(authentication, new MockHttpServletRequest(null, "/deny"));
+		verify(authorizationEventPublisher).publishAuthorizationFailure(grant);
 	}
 
 }
