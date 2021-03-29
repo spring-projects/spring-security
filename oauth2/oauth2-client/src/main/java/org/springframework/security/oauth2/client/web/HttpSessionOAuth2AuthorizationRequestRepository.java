@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,7 @@ import org.springframework.util.Assert;
  * {@link OAuth2AuthorizationRequest} in the {@code HttpSession}.
  * <p>
  * <b>NOTE:</b> {@link OAuth2AuthorizationRequest}s expire after two minutes, the default
- * duration can be configured via
- * {@link #setOAuth2AuthorizationRequestExpiresIn(Duration)}.
+ * duration can be configured via {@link #setAuthorizationRequestTimeToLive(Duration)}.
  *
  * @author Joe Grandja
  * @author Rob Winch
@@ -57,7 +56,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 
 	private Clock clock = Clock.systemUTC();
 
-	private Duration oAuth2AuthorizationRequestExpiresIn = Duration.ofSeconds(120);
+	private Duration authorizationRequestTimeToLive = Duration.ofSeconds(120);
 
 	@Override
 	public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
@@ -66,9 +65,8 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 		if (stateParameter == null) {
 			return null;
 		}
-		Map<String, WrappedWithCreated<OAuth2AuthorizationRequest>> authorizationRequests = this
-				.getAuthorizationRequests(request);
-		WrappedWithCreated<OAuth2AuthorizationRequest> wrappedWithCreated = authorizationRequests.get(stateParameter);
+		Map<String, OAuth2AuthorizationRequestReference> authorizationRequests = this.getAuthorizationRequests(request);
+		OAuth2AuthorizationRequestReference wrappedWithCreated = authorizationRequests.get(stateParameter);
 		return (wrappedWithCreated != null) ? wrappedWithCreated.wrapped : null;
 	}
 
@@ -83,9 +81,9 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 		}
 		String state = authorizationRequest.getState();
 		Assert.hasText(state, "authorizationRequest.state cannot be empty");
-		Map<String, WrappedWithCreated<OAuth2AuthorizationRequest>> authorizationRequests = this
-				.getAuthorizationRequests(request);
-		authorizationRequests.put(state, new WrappedWithCreated<>(this.clock.instant(), authorizationRequest));
+		Map<String, OAuth2AuthorizationRequestReference> authorizationRequests = this.getAuthorizationRequests(request);
+		authorizationRequests.put(state, new OAuth2AuthorizationRequestReference(authorizationRequest,
+				this.clock.instant().plus(this.authorizationRequestTimeToLive)));
 		request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
 	}
 
@@ -96,9 +94,8 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 		if (stateParameter == null) {
 			return null;
 		}
-		Map<String, WrappedWithCreated<OAuth2AuthorizationRequest>> authorizationRequests = this
-				.getAuthorizationRequests(request);
-		WrappedWithCreated<OAuth2AuthorizationRequest> wrappedWithCreatedOriginalRequest = authorizationRequests
+		Map<String, OAuth2AuthorizationRequestReference> authorizationRequests = this.getAuthorizationRequests(request);
+		OAuth2AuthorizationRequestReference wrappedWithCreatedOriginalRequest = authorizationRequests
 				.remove(stateParameter);
 		if (!authorizationRequests.isEmpty()) {
 			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
@@ -132,19 +129,16 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	 * @return a non-null and mutable map of {@link OAuth2AuthorizationRequest#getState()}
 	 * to an {@link OAuth2AuthorizationRequest}.
 	 */
-	private Map<String, WrappedWithCreated<OAuth2AuthorizationRequest>> getAuthorizationRequests(
-			HttpServletRequest request) {
+	private Map<String, OAuth2AuthorizationRequestReference> getAuthorizationRequests(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
-		Map<String, WrappedWithCreated<OAuth2AuthorizationRequest>> authorizationRequests = (session != null)
-				? (Map<String, WrappedWithCreated<OAuth2AuthorizationRequest>>) session
-						.getAttribute(this.sessionAttributeName)
+		Map<String, OAuth2AuthorizationRequestReference> authorizationRequests = (session != null)
+				? (Map<String, OAuth2AuthorizationRequestReference>) session.getAttribute(this.sessionAttributeName)
 				: null;
 		if (authorizationRequests == null) {
 			return new HashMap<>();
 		}
 		// remove expired entries
-		authorizationRequests.entrySet().removeIf((entry) -> entry.getValue().created
-				.isBefore(this.clock.instant().minus(this.oAuth2AuthorizationRequestExpiresIn)));
+		authorizationRequests.entrySet().removeIf((entry) -> entry.getValue().expiresAt.isBefore(this.clock.instant()));
 		return authorizationRequests;
 	}
 
@@ -154,7 +148,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	 * @param clock the clock
 	 * @since 5.5
 	 */
-	public void setClock(Clock clock) {
+	void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");
 		this.clock = clock;
 	}
@@ -162,29 +156,28 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	/**
 	 * Sets the {@link Duration} for which {@link OAuth2AuthorizationRequest} should
 	 * expire.
-	 * @param oAuth2AuthorizationRequestExpiresIn the {@link Duration} a
+	 * @param authorizationRequestTimeToLive the {@link Duration} a
 	 * {@link OAuth2AuthorizationRequest} is considered not expired. Must not be negative.
 	 * @since 5.5
 	 */
-	public void setOAuth2AuthorizationRequestExpiresIn(Duration oAuth2AuthorizationRequestExpiresIn) {
-		Assert.notNull(oAuth2AuthorizationRequestExpiresIn, "oAuth2AuthorizationRequestExpiresIn cannot be null");
-		Assert.state(!oAuth2AuthorizationRequestExpiresIn.isNegative(),
+	public void setAuthorizationRequestTimeToLive(Duration authorizationRequestTimeToLive) {
+		Assert.notNull(authorizationRequestTimeToLive, "oAuth2AuthorizationRequestExpiresIn cannot be null");
+		Assert.state(!authorizationRequestTimeToLive.isNegative(),
 				"oAuth2AuthorizationRequestExpiresIn cannot be negative");
-		this.oAuth2AuthorizationRequestExpiresIn = oAuth2AuthorizationRequestExpiresIn;
+		this.authorizationRequestTimeToLive = authorizationRequestTimeToLive;
 	}
 
-	private static final class WrappedWithCreated<T extends Serializable> implements Serializable {
+	private static final class OAuth2AuthorizationRequestReference implements Serializable {
 
 		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-		private final Instant created;
+		private final Instant expiresAt;
 
-		private final T wrapped;
+		private final OAuth2AuthorizationRequest wrapped;
 
-		private WrappedWithCreated(Instant created, T wrapped) {
-			super();
-			this.created = created;
+		private OAuth2AuthorizationRequestReference(OAuth2AuthorizationRequest wrapped, Instant created) {
 			Assert.notNull(wrapped, "wrapped cannot be null");
+			this.expiresAt = created;
 			this.wrapped = wrapped;
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -243,9 +243,9 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 	}
 
 	@Test
-	public void testExpiredAuthorizationRequestsRemoved() {
+	public void removeAuthorizationRequestWhenExpired() {
 		final Duration expiresIn = Duration.ofMinutes(2);
-		this.authorizationRequestRepository.setOAuth2AuthorizationRequestExpiresIn(expiresIn);
+		this.authorizationRequestRepository.setAuthorizationRequestTimeToLive(expiresIn);
 		this.authorizationRequestRepository.setClock(Clock.fixed(Instant.ofEpochMilli(0), ZoneId.systemDefault()));
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
