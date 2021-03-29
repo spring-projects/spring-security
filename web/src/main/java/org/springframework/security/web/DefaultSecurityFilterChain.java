@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
+import org.springframework.security.web.server.restriction.IgnoreRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
@@ -48,7 +49,18 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 	}
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
-		logger.info(LogMessage.format("Will secure %s with %s", requestMatcher, filters));
+		if (requestMatcher instanceof IgnoreRequestMatcher) {
+			IgnoreRequestMatcher ignoreRequestMatcher = (IgnoreRequestMatcher) requestMatcher;
+			if (ignoreRequestMatcher.isIgnore()) {
+				logger.info(LogMessage.format("Will not secure %s with %s", requestMatcher, filters));
+			}
+			else {
+				logger.info(LogMessage.format("Will secure %s with %s", requestMatcher, filters));
+			}
+		}
+		else {
+			logger.info(LogMessage.format("Will secure %s with %s", requestMatcher, filters));
+		}
 		this.requestMatcher = requestMatcher;
 		this.filters = new ArrayList<>(filters);
 	}
