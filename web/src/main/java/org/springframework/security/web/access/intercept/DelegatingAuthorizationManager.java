@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -38,6 +39,7 @@ import org.springframework.util.Assert;
  * {@link AuthorizationManager} based on a {@link RequestMatcher} evaluation.
  *
  * @author Evgeniy Cheban
+ * @author Parikshit Dutta
  * @since 5.5
  */
 public final class DelegatingAuthorizationManager implements AuthorizationManager<HttpServletRequest> {
@@ -45,6 +47,8 @@ public final class DelegatingAuthorizationManager implements AuthorizationManage
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final Map<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> mappings;
+
+	private AuthorizationEventPublisher authorizationEventPublisher;
 
 	private DelegatingAuthorizationManager(
 			Map<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> mappings) {
@@ -76,12 +80,34 @@ public final class DelegatingAuthorizationManager implements AuthorizationManage
 				if (this.logger.isTraceEnabled()) {
 					this.logger.trace(LogMessage.format("Checking authorization on %s using %s", request, manager));
 				}
-				return manager.check(authentication,
+				AuthorizationDecision authorizationDecision = manager.check(authentication,
 						new RequestAuthorizationContext(request, matchResult.getVariables()));
+				publishAuthorizationEvent(authorizationDecision);
+				return authorizationDecision;
 			}
 		}
 		this.logger.trace("Abstaining since did not find matching RequestMatcher");
 		return null;
+	}
+
+	private void publishAuthorizationEvent(AuthorizationDecision authorizationDecision) {
+		if (this.authorizationEventPublisher != null) {
+			if (authorizationDecision.isGranted()) {
+				this.authorizationEventPublisher.publishAuthorizationSuccess(authorizationDecision);
+			}
+			else {
+				this.authorizationEventPublisher.publishAuthorizationFailure(authorizationDecision);
+			}
+		}
+	}
+
+	/**
+	 * Set implementation of an {@link AuthorizationEventPublisher}
+	 * @param authorizationEventPublisher
+	 */
+	public void setAuthorizationEventPublisher(AuthorizationEventPublisher authorizationEventPublisher) {
+		Assert.notNull(authorizationEventPublisher, "AuthorizationEventPublisher cannot be null");
+		this.authorizationEventPublisher = authorizationEventPublisher;
 	}
 
 	/**
