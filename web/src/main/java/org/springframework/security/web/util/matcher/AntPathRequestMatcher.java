@@ -22,6 +22,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.server.restriction.IgnoreRequestMatcher;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -49,10 +50,11 @@ import org.springframework.web.util.UrlPathHelper;
  * @author Rob Winch
  * @author Eddú Meléndez
  * @author Evgeniy Cheban
+ * @author Manuel Jordan
  * @since 3.1
  * @see org.springframework.util.AntPathMatcher
  */
-public final class AntPathRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
+public final class AntPathRequestMatcher implements RequestMatcher, RequestVariablesExtractor, IgnoreRequestMatcher {
 
 	private static final String MATCH_ALL = "/**";
 
@@ -65,6 +67,8 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 	private final boolean caseSensitive;
 
 	private final UrlPathHelper urlPathHelper;
+
+	private boolean ignore;
 
 	/**
 	 * Creates a matcher with the specific pattern which will match all HTTP methods in a
@@ -131,6 +135,7 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 		this.pattern = pattern;
 		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod) : null;
 		this.urlPathHelper = urlPathHelper;
+		this.ignore = false;
 	}
 
 	/**
@@ -168,6 +173,16 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 		}
 		String url = getRequestPath(request);
 		return MatchResult.match(this.matcher.extractUriTemplateVariables(url));
+	}
+
+	@Override
+	public void ignore() {
+		this.ignore = true;
+	}
+
+	@Override
+	public boolean isIgnore() {
+		return this.ignore;
 	}
 
 	private String getRequestPath(HttpServletRequest request) {

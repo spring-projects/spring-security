@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.server.restriction.IgnoreRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.AntPathMatcher;
@@ -44,9 +45,10 @@ import org.springframework.web.util.UrlPathHelper;
  * @author Rob Winch
  * @author Eddú Meléndez
  * @author Evgeniy Cheban
+ * @author Manuel Jordan
  * @since 4.1.1
  */
-public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
+public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtractor, IgnoreRequestMatcher {
 
 	private final DefaultMatcher defaultMatcher = new DefaultMatcher();
 
@@ -58,9 +60,12 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 
 	private String servletPath;
 
+	private boolean ignore;
+
 	public MvcRequestMatcher(HandlerMappingIntrospector introspector, String pattern) {
 		this.introspector = introspector;
 		this.pattern = pattern;
+		this.ignore = false;
 	}
 
 	@Override
@@ -127,6 +132,16 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 
 	protected final String getServletPath() {
 		return this.servletPath;
+	}
+
+	@Override
+	public void ignore() {
+		this.ignore = true;
+	}
+
+	@Override
+	public boolean isIgnore() {
+		return this.ignore;
 	}
 
 	@Override
