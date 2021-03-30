@@ -45,7 +45,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @since 5.4
  */
 public final class DefaultRelyingPartyRegistrationResolver
-		implements RelyingPartyRegistrationResolver, Converter<HttpServletRequest, RelyingPartyRegistration> {
+		implements Converter<HttpServletRequest, RelyingPartyRegistration>, RelyingPartyRegistrationResolver {
 
 	private Log logger = LogFactory.getLog(getClass());
 
@@ -98,9 +98,14 @@ public final class DefaultRelyingPartyRegistrationResolver
 		String relyingPartyEntityId = templateResolver.apply(relyingPartyRegistration.getEntityId());
 		String assertionConsumerServiceLocation = templateResolver
 				.apply(relyingPartyRegistration.getAssertionConsumerServiceLocation());
+		String singleLogoutServiceLocation = templateResolver
+				.apply(relyingPartyRegistration.getSingleLogoutServiceLocation());
+		String singleLogoutServiceResponseLocation = templateResolver
+				.apply(relyingPartyRegistration.getSingleLogoutServiceResponseLocation());
 		return RelyingPartyRegistration.withRelyingPartyRegistration(relyingPartyRegistration)
 				.entityId(relyingPartyEntityId).assertionConsumerServiceLocation(assertionConsumerServiceLocation)
-				.build();
+				.singleLogoutServiceLocation(singleLogoutServiceLocation)
+				.singleLogoutServiceResponseLocation(singleLogoutServiceResponseLocation).build();
 	}
 
 	private Function<String, String> templateResolver(String applicationUri, RelyingPartyRegistration relyingParty) {
@@ -108,6 +113,9 @@ public final class DefaultRelyingPartyRegistrationResolver
 	}
 
 	private static String resolveUrlTemplate(String template, String baseUrl, RelyingPartyRegistration relyingParty) {
+		if (template == null) {
+			return null;
+		}
 		String entityId = relyingParty.getAssertingPartyDetails().getEntityId();
 		String registrationId = relyingParty.getRegistrationId();
 		Map<String, String> uriVariables = new HashMap<>();
