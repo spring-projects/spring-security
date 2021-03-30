@@ -52,6 +52,9 @@ public class DefaultRelyingPartyRegistrationResolverTests {
 				.isEqualTo("http://localhost/saml2/service-provider-metadata/" + this.registration.getRegistrationId());
 		assertThat(registration.getAssertionConsumerServiceLocation())
 				.isEqualTo("http://localhost/login/saml2/sso/" + this.registration.getRegistrationId());
+		assertThat(registration.getSingleLogoutServiceLocation()).isEqualTo("http://localhost/logout/saml2/slo");
+		assertThat(registration.getSingleLogoutServiceResponseLocation())
+				.isEqualTo("http://localhost/logout/saml2/slo");
 	}
 
 	@Test
