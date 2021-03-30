@@ -41,7 +41,8 @@ public class OpenSamlMetadataResolverTests {
 				.contains("<md:KeyDescriptor use=\"encryption\">")
 				.contains("<ds:X509Certificate>MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBh")
 				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\"")
-				.contains("Location=\"https://rp.example.org/acs\" index=\"1\"");
+				.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
+				.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"");
 	}
 
 	@Test
@@ -56,7 +57,8 @@ public class OpenSamlMetadataResolverTests {
 				.contains("WantAssertionsSigned=\"true\"").doesNotContain("<md:KeyDescriptor use=\"signing\">")
 				.doesNotContain("<md:KeyDescriptor use=\"encryption\">")
 				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\"")
-				.contains("Location=\"https://rp.example.org/acs\" index=\"1\"");
+				.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
+				.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"");
 	}
 
 }

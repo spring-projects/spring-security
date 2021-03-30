@@ -54,6 +54,8 @@ import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedAttribute;
 import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.Issuer;
+import org.opensaml.saml.saml2.core.LogoutRequest;
+import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
@@ -63,6 +65,10 @@ import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.saml.saml2.core.impl.AttributeBuilder;
 import org.opensaml.saml.saml2.core.impl.AttributeStatementBuilder;
+import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
+import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder;
+import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder;
+import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
 import org.opensaml.saml.saml2.core.impl.StatusBuilder;
 import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
 import org.opensaml.saml.saml2.encryption.Encrypter;
@@ -83,6 +89,7 @@ import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 
 public final class TestOpenSamlObjects {
 
@@ -93,7 +100,7 @@ public final class TestOpenSamlObjects {
 
 	private static String DESTINATION = "https://localhost/login/saml2/sso/idp-alias";
 
-	private static String RELYING_PARTY_ENTITY_ID = "https://localhost/saml2/service-provider-metadata/idp-alias";
+	public static String RELYING_PARTY_ENTITY_ID = "https://localhost/saml2/service-provider-metadata/idp-alias";
 
 	private static String ASSERTING_PARTY_ENTITY_ID = "https://some.idp.test/saml2/idp";
 
@@ -221,7 +228,7 @@ public final class TestOpenSamlObjects {
 		return signable;
 	}
 
-	static <T extends SignableSAMLObject> T signed(T signable, Saml2X509Credential credential, String entityId) {
+	public static <T extends SignableSAMLObject> T signed(T signable, Saml2X509Credential credential, String entityId) {
 		return signed(signable, credential, entityId, SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
 	}
 
@@ -340,6 +347,41 @@ public final class TestOpenSamlObjects {
 		statusCode.setValue(code);
 		status.setStatusCode(statusCode);
 		return status;
+	}
+
+	public static LogoutRequest assertingPartyLogoutRequest(RelyingPartyRegistration registration) {
+		LogoutRequestBuilder logoutRequestBuilder = new LogoutRequestBuilder();
+		LogoutRequest logoutRequest = logoutRequestBuilder.buildObject();
+		logoutRequest.setID("id");
+		NameIDBuilder nameIdBuilder = new NameIDBuilder();
+		NameID nameId = nameIdBuilder.buildObject();
+		nameId.setValue("user");
+		logoutRequest.setNameID(nameId);
+		IssuerBuilder issuerBuilder = new IssuerBuilder();
+		Issuer issuer = issuerBuilder.buildObject();
+		issuer.setValue(registration.getAssertingPartyDetails().getEntityId());
+		logoutRequest.setIssuer(issuer);
+		logoutRequest.setDestination(registration.getSingleLogoutServiceLocation());
+		return logoutRequest;
+	}
+
+	public static LogoutResponse assertingPartyLogoutResponse(RelyingPartyRegistration registration) {
+		LogoutResponseBuilder logoutResponseBuilder = new LogoutResponseBuilder();
+		LogoutResponse logoutResponse = logoutResponseBuilder.buildObject();
+		logoutResponse.setID("id");
+		StatusBuilder statusBuilder = new StatusBuilder();
+		StatusCodeBuilder statusCodeBuilder = new StatusCodeBuilder();
+		StatusCode code = statusCodeBuilder.buildObject();
+		code.setValue(StatusCode.SUCCESS);
+		Status status = statusBuilder.buildObject();
+		status.setStatusCode(code);
+		logoutResponse.setStatus(status);
+		IssuerBuilder issuerBuilder = new IssuerBuilder();
+		Issuer issuer = issuerBuilder.buildObject();
+		issuer.setValue(registration.getAssertingPartyDetails().getEntityId());
+		logoutResponse.setIssuer(issuer);
+		logoutResponse.setDestination(registration.getSingleLogoutServiceResponseLocation());
+		return logoutResponse;
 	}
 
 	static <T extends XMLObject> T build(QName qName) {
