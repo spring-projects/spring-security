@@ -47,7 +47,7 @@ import org.springframework.util.StringUtils;
  * @author Josh Cummings
  * @since 5.2
  * @deprecated Because OpenSAML 3 has reached End-of-Life, please update to
- * {@link OpenSaml4AuthenticationRequestFactory}
+ * {@code OpenSaml4AuthenticationRequestFactory}
  */
 public class OpenSamlAuthenticationRequestFactory implements Saml2AuthenticationRequestFactory {
 
@@ -162,7 +162,8 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 
 	/**
 	 * Set the {@link AuthnRequest} post-processor resolver
-	 * @param authenticationRequestContextConverter
+	 * @param authenticationRequestContextConverter a strategy for creating an
+	 * {@link AuthnRequest}
 	 * @since 5.4
 	 */
 	public void setAuthenticationRequestContextConverter(
@@ -173,7 +174,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 
 	/**
 	 * ' Use this {@link Clock} with {@link Instant#now()} for generating timestamps
-	 * @param clock
+	 * @param clock the {@link Clock} to use
 	 */
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");

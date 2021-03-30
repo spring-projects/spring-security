@@ -59,11 +59,11 @@ import org.springframework.util.Assert;
  *	RelyingPartyRegistration rp = RelyingPartyRegistration.withRegistrationId(registrationId)
  * 			.entityId(relyingPartyEntityId)
  * 			.assertionConsumerServiceLocation(assertingConsumerServiceLocation)
- * 		 	.signingX509Credentials((c) -> c.add(relyingPartySigningCredential))
- * 			.assertingPartyDetails((details) -> details
+ * 		 	.signingX509Credentials((c) -&gt; c.add(relyingPartySigningCredential))
+ * 			.assertingPartyDetails((details) -&gt; details
  * 				.entityId(assertingPartyEntityId));
  * 				.singleSignOnServiceLocation(singleSignOnServiceLocation))
- * 				.verifyingX509Credentials((c) -> c.add(assertingPartyVerificationCredential))
+ * 				.verifyingX509Credentials((c) -&gt; c.add(assertingPartyVerificationCredential))
  * 			.build();
  * </pre>
  *
@@ -857,6 +857,7 @@ public final class RelyingPartyRegistration {
 		 * This value may contain a number of placeholders. They are {@code baseUrl},
 		 * {@code registrationId}, {@code baseScheme}, {@code baseHost}, and
 		 * {@code basePort}.
+		 * @param entityId the relying party's EntityID
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.4
 		 */
@@ -906,7 +907,7 @@ public final class RelyingPartyRegistration {
 		 * This value may contain a number of placeholders. They are {@code baseUrl},
 		 * {@code registrationId}, {@code baseScheme}, {@code baseHost}, and
 		 * {@code basePort}.
-		 * @param assertionConsumerServiceLocation
+		 * @param assertionConsumerServiceLocation the AssertionConsumerService location
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.4
 		 */
@@ -923,7 +924,7 @@ public final class RelyingPartyRegistration {
 		 * <p>
 		 * Equivalent to the value found in &lt;AssertionConsumerService
 		 * Binding="..."/&gt; in the relying party's &lt;SPSSODescriptor&gt;
-		 * @param assertionConsumerServiceBinding
+		 * @param assertionConsumerServiceBinding the AssertionConsumerService binding
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.4
 		 */
@@ -948,7 +949,7 @@ public final class RelyingPartyRegistration {
 		 * communication between IDP and SP For example: <code>
 		 *     Saml2X509Credential credential = ...;
 		 *     return RelyingPartyRegistration.withRegistrationId("id")
-		 *             .credentials((c) -> c.add(credential))
+		 *             .credentials((c) -&gt; c.add(credential))
 		 *             ...
 		 *             .build();
 		 * </code>
@@ -1018,6 +1019,7 @@ public final class RelyingPartyRegistration {
 		 * {@code registrationId}, {@code baseScheme}, {@code baseHost}, and
 		 * {@code basePort}, for example
 		 * {@code {baseUrl}/saml2/service-provider-metadata/{registrationId}}
+		 * @param template the entity id
 		 * @return a string containing the entity ID or entity ID template
 		 * @deprecated Use {@link #entityId} instead
 		 */
