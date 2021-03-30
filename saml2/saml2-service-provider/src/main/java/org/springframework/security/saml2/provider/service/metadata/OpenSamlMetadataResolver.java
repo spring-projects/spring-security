@@ -32,6 +32,7 @@ import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
+import org.opensaml.saml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorMarshaller;
 import org.opensaml.security.credential.UsageType;
 import org.opensaml.xmlsec.signature.KeyInfo;
@@ -85,6 +86,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		spSsoDescriptor.getKeyDescriptors()
 				.addAll(buildKeys(registration.getDecryptionX509Credentials(), UsageType.ENCRYPTION));
 		spSsoDescriptor.getAssertionConsumerServices().add(buildAssertionConsumerService(registration));
+		spSsoDescriptor.getSingleLogoutServices().add(buildSingleLogoutService(registration));
 		return spSsoDescriptor;
 	}
 
@@ -121,6 +123,14 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		assertionConsumerService.setBinding(registration.getAssertionConsumerServiceBinding().getUrn());
 		assertionConsumerService.setIndex(1);
 		return assertionConsumerService;
+	}
+
+	private SingleLogoutService buildSingleLogoutService(RelyingPartyRegistration registration) {
+		SingleLogoutService singleLogoutService = build(SingleLogoutService.DEFAULT_ELEMENT_NAME);
+		singleLogoutService.setLocation(registration.getSingleLogoutServiceLocation());
+		singleLogoutService.setResponseLocation(registration.getSingleLogoutServiceResponseLocation());
+		singleLogoutService.setBinding(registration.getSingleLogoutServiceBinding().getUrn());
+		return singleLogoutService;
 	}
 
 	@SuppressWarnings("unchecked")
