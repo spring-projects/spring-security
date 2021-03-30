@@ -334,8 +334,8 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 
 		return createAssertionValidator(Saml2ErrorCodes.INVALID_ASSERTION,
 				(assertionToken) -> SAML20AssertionValidators.attributeValidator,
-				(assertionToken) -> createValidationContext(assertionToken, (params) -> params
-						.put(SAML2AssertionValidationParameters.CLOCK_SKEW, Duration.ofMinutes(5).toMillis())));
+				(assertionToken) -> createValidationContext(assertionToken,
+						(params) -> params.put(SAML2AssertionValidationParameters.CLOCK_SKEW, Duration.ofMinutes(5))));
 	}
 
 	/**
