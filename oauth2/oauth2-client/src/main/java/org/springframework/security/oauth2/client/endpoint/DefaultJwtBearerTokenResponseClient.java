@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -37,24 +38,26 @@ import org.springframework.web.client.RestTemplate;
 
 /**
  * The default implementation of an {@link OAuth2AccessTokenResponseClient} for the
- * {@link OAuth2JwtBearerGrantRequest#JWT_BEARER_GRANT_TYPE jwt-bearer} grant. This
- * implementation uses a {@link RestOperations} when requesting an access token credential
- * at the Authorization Server's Token Endpoint.
+ * {@link AuthorizationGrantType#JWT_BEARER jwt-bearer} grant. This implementation uses a
+ * {@link RestOperations} when requesting an access token credential at the Authorization
+ * Server's Token Endpoint.
  *
  * @author Joe Grandja
  * @since 5.5
  * @see OAuth2AccessTokenResponseClient
- * @see OAuth2JwtBearerGrantRequest
+ * @see JwtBearerGrantRequest
  * @see OAuth2AccessTokenResponse
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7523#section-2.1">Section
- * 2.1 JWTs as Authorization Grants</a>
+ * 2.1 Using JWTs as Authorization Grants</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7521#section-4.1">Section
+ * 4.1 Using Assertions as Authorization Grants</a>
  */
 public final class DefaultJwtBearerTokenResponseClient
-		implements OAuth2AccessTokenResponseClient<OAuth2JwtBearerGrantRequest> {
+		implements OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> {
 
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
-	private Converter<OAuth2JwtBearerGrantRequest, RequestEntity<?>> requestEntityConverter = new OAuth2JwtBearerGrantRequestEntityConverter();
+	private Converter<JwtBearerGrantRequest, RequestEntity<?>> requestEntityConverter = new JwtBearerGrantRequestEntityConverter();
 
 	private RestOperations restOperations;
 
@@ -66,14 +69,28 @@ public final class DefaultJwtBearerTokenResponseClient
 	}
 
 	@Override
-	public OAuth2AccessTokenResponse getTokenResponse(OAuth2JwtBearerGrantRequest jwtBearerGrantRequest) {
+	public OAuth2AccessTokenResponse getTokenResponse(JwtBearerGrantRequest jwtBearerGrantRequest) {
 		Assert.notNull(jwtBearerGrantRequest, "jwtBearerGrantRequest cannot be null");
-
 		RequestEntity<?> request = this.requestEntityConverter.convert(jwtBearerGrantRequest);
+		ResponseEntity<OAuth2AccessTokenResponse> response = getResponse(request);
+		OAuth2AccessTokenResponse tokenResponse = response.getBody();
+		if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
+			// As per spec, in Section 5.1 Successful Access Token Response
+			// https://tools.ietf.org/html/rfc6749#section-5.1
+			// If AccessTokenResponse.scope is empty, then default to the scope
+			// originally requested by the client in the Token Request
+			// @formatter:off
+			tokenResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
+					.scopes(jwtBearerGrantRequest.getClientRegistration().getScopes())
+					.build();
+			// @formatter:on
+		}
+		return tokenResponse;
+	}
 
-		ResponseEntity<OAuth2AccessTokenResponse> response;
+	private ResponseEntity<OAuth2AccessTokenResponse> getResponse(RequestEntity<?> request) {
 		try {
-			response = this.restOperations.exchange(request, OAuth2AccessTokenResponse.class);
+			return this.restOperations.exchange(request, OAuth2AccessTokenResponse.class);
 		}
 		catch (RestClientException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
@@ -82,30 +99,15 @@ public final class DefaultJwtBearerTokenResponseClient
 					null);
 			throw new OAuth2AuthorizationException(oauth2Error, ex);
 		}
-
-		OAuth2AccessTokenResponse tokenResponse = response.getBody();
-
-		if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
-			// As per spec, in Section 5.1 Successful Access Token Response
-			// https://tools.ietf.org/html/rfc6749#section-5.1
-			// If AccessTokenResponse.scope is empty, then default to the scope
-			// originally requested by the client in the Token Request
-			tokenResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
-					.scopes(jwtBearerGrantRequest.getClientRegistration().getScopes()).build();
-		}
-
-		return tokenResponse;
 	}
 
 	/**
-	 * Sets the {@link Converter} used for converting the
-	 * {@link OAuth2JwtBearerGrantRequest} to a {@link RequestEntity} representation of
-	 * the OAuth 2.0 Access Token Request.
+	 * Sets the {@link Converter} used for converting the {@link JwtBearerGrantRequest} to
+	 * a {@link RequestEntity} representation of the OAuth 2.0 Access Token Request.
 	 * @param requestEntityConverter the {@link Converter} used for converting to a
 	 * {@link RequestEntity} representation of the Access Token Request
 	 */
-	public void setRequestEntityConverter(
-			Converter<OAuth2JwtBearerGrantRequest, RequestEntity<?>> requestEntityConverter) {
+	public void setRequestEntityConverter(Converter<JwtBearerGrantRequest, RequestEntity<?>> requestEntityConverter) {
 		Assert.notNull(requestEntityConverter, "requestEntityConverter cannot be null");
 		this.requestEntityConverter = requestEntityConverter;
 	}

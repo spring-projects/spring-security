@@ -16,23 +16,20 @@
 
 package org.springframework.security.oauth2.client;
 
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.client.endpoint.DefaultJwtBearerTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
-import org.springframework.security.oauth2.client.endpoint.OAuth2JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AbstractOAuth2Token;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 
 /**
  * An implementation of an {@link OAuth2AuthorizedClientProvider} for the
- * {@link OAuth2JwtBearerGrantRequest#JWT_BEARER_GRANT_TYPE jwt-bearer} grant.
+ * {@link AuthorizationGrantType#JWT_BEARER jwt-bearer} grant.
  *
  * @author Joe Grandja
  * @since 5.5
@@ -41,18 +38,14 @@ import org.springframework.util.Assert;
  */
 public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
 
-	private OAuth2AccessTokenResponseClient<OAuth2JwtBearerGrantRequest> accessTokenResponseClient = new DefaultJwtBearerTokenResponseClient();
-
-	private Duration clockSkew = Duration.ofSeconds(60);
-
-	private Clock clock = Clock.systemUTC();
+	private OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> accessTokenResponseClient = new DefaultJwtBearerTokenResponseClient();
 
 	/**
 	 * Attempt to authorize the {@link OAuth2AuthorizationContext#getClientRegistration()
 	 * client} in the provided {@code context}. Returns {@code null} if authorization is
 	 * not supported, e.g. the client's
 	 * {@link ClientRegistration#getAuthorizationGrantType() authorization grant type} is
-	 * not {@link OAuth2JwtBearerGrantRequest#JWT_BEARER_GRANT_TYPE jwt-bearer}.
+	 * not {@link AuthorizationGrantType#JWT_BEARER jwt-bearer}.
 	 * @param context the context that holds authorization-specific state for the client
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization is not
 	 * supported
@@ -61,34 +54,45 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 	@Nullable
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
-
 		ClientRegistration clientRegistration = context.getClientRegistration();
-		if (!OAuth2JwtBearerGrantRequest.JWT_BEARER_GRANT_TYPE.equals(clientRegistration.getAuthorizationGrantType())) {
+		if (!AuthorizationGrantType.JWT_BEARER.equals(clientRegistration.getAuthorizationGrantType())) {
 			return null;
 		}
-
-		Jwt jwt = context.getAttribute(OAuth2AuthorizationContext.JWT_ATTRIBUTE_NAME);
-		if (jwt == null) {
-			return null;
-		}
-
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
-		if (authorizedClient != null && !hasTokenExpired(authorizedClient.getAccessToken())) {
-			// If client is already authorized but access token is NOT expired than no
-			// need for re-authorization
+		if (authorizedClient != null) {
+			// Client is already authorized
 			return null;
 		}
-
-		OAuth2JwtBearerGrantRequest jwtBearerGrantRequest = new OAuth2JwtBearerGrantRequest(clientRegistration, jwt);
-		OAuth2AccessTokenResponse tokenResponse = this.accessTokenResponseClient
-				.getTokenResponse(jwtBearerGrantRequest);
-
+		if (!(context.getPrincipal().getPrincipal() instanceof Jwt)) {
+			return null;
+		}
+		Jwt jwt = (Jwt) context.getPrincipal().getPrincipal();
+		// As per spec, in section 4.1 Using Assertions as Authorization Grants
+		// https://tools.ietf.org/html/rfc7521#section-4.1
+		//
+		// An assertion used in this context is generally a short-lived
+		// representation of the authorization grant, and authorization servers
+		// SHOULD NOT issue access tokens with a lifetime that exceeds the
+		// validity period of the assertion by a significant period. In
+		// practice, that will usually mean that refresh tokens are not issued
+		// in response to assertion grant requests, and access tokens will be
+		// issued with a reasonably short lifetime. Clients can refresh an
+		// expired access token by requesting a new one using the same
+		// assertion, if it is still valid, or with a new assertion.
+		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(clientRegistration, jwt);
+		OAuth2AccessTokenResponse tokenResponse = getTokenResponse(clientRegistration, jwtBearerGrantRequest);
 		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
 				tokenResponse.getAccessToken());
 	}
 
-	private boolean hasTokenExpired(AbstractOAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+	private OAuth2AccessTokenResponse getTokenResponse(ClientRegistration clientRegistration,
+			JwtBearerGrantRequest jwtBearerGrantRequest) {
+		try {
+			return this.accessTokenResponseClient.getTokenResponse(jwtBearerGrantRequest);
+		}
+		catch (OAuth2AuthorizationException ex) {
+			throw new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(), ex);
+		}
 	}
 
 	/**
@@ -98,32 +102,9 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 	 * credential at the Token Endpoint for the {@code jwt-bearer} grant
 	 */
 	public void setAccessTokenResponseClient(
-			OAuth2AccessTokenResponseClient<OAuth2JwtBearerGrantRequest> accessTokenResponseClient) {
+			OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> accessTokenResponseClient) {
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
-	}
-
-	/**
-	 * Sets the maximum acceptable clock skew, which is used when checking the
-	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} expiry. The default is
-	 * 60 seconds. An access token is considered expired if it's before
-	 * {@code Instant.now(this.clock) - clockSkew}.
-	 * @param clockSkew the maximum acceptable clock skew
-	 */
-	public void setClockSkew(Duration clockSkew) {
-		Assert.notNull(clockSkew, "clockSkew cannot be null");
-		Assert.isTrue(clockSkew.getSeconds() >= 0, "clockSkew must be >= 0");
-		this.clockSkew = clockSkew;
-	}
-
-	/**
-	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access
-	 * token expiry.
-	 * @param clock the clock
-	 */
-	public void setClock(Clock clock) {
-		Assert.notNull(clock, "clock cannot be null");
-		this.clock = clock;
 	}
 
 }

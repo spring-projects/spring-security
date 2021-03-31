@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.ClientAuthorizationException;
+import org.springframework.security.oauth2.client.JwtBearerOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -75,9 +76,9 @@ import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedCl
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
-import org.springframework.security.oauth2.client.endpoint.OAuth2JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -85,6 +86,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -94,6 +97,8 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -141,7 +146,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	private OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordTokenResponseClient;
 
 	@Mock
-	private OAuth2AccessTokenResponseClient<OAuth2JwtBearerGrantRequest> jwtBearerTokenResponseClient;
+	private OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerTokenResponseClient;
 
 	@Mock
 	private OAuth2AuthorizationFailureHandler authorizationFailureHandler;
@@ -185,6 +190,9 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Before
 	public void setup() {
 		this.authentication = new TestingAuthenticationToken("test", "this");
+		JwtBearerOAuth2AuthorizedClientProvider jwtBearerAuthorizedClientProvider = new JwtBearerOAuth2AuthorizedClientProvider();
+		jwtBearerAuthorizedClientProvider.setAccessTokenResponseClient(this.jwtBearerTokenResponseClient);
+		// @formatter:off
 		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
 				.authorizationCode()
 				.refreshToken(
@@ -192,8 +200,9 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.clientCredentials(
 						(configurer) -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
 				.password((configurer) -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
-				.jwtBearer((configurer) -> configurer.accessTokenResponseClient(this.jwtBearerTokenResponseClient))
+				.provider(jwtBearerAuthorizedClientProvider)
 				.build();
+		// @formatter:on
 		this.authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(this.clientRegistrationRepository,
 				this.authorizedClientRepository);
 		this.authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
@@ -492,7 +501,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		servletRequest.setParameter(OAuth2ParameterNames.PASSWORD, "password");
 		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
-				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction
+				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
 						.clientRegistrationId(registration.getRegistrationId()))
 				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction.authentication(this.authentication))
 				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction.httpServletRequest(servletRequest))
@@ -505,6 +514,46 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(requests).hasSize(1);
 		ClientRequest request1 = requests.get(0);
 		assertThat(request1.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer new-token");
+		assertThat(request1.url().toASCIIString()).isEqualTo("https://example.com");
+		assertThat(request1.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request1)).isEmpty();
+	}
+
+	@Test
+	public void filterWhenJwtBearerClientNotAuthorizedThenExchangeToken() {
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("exchanged-token")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(360).build();
+		given(this.jwtBearerTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
+		// @formatter:off
+		ClientRegistration registration = ClientRegistration.withRegistrationId("jwt-bearer")
+				.clientId("client-id")
+				.clientSecret("client-secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+				.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+				.scope("read", "write")
+				.tokenUri("https://example.com/oauth/token")
+				.build();
+		// @formatter:on
+		given(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId())))
+				.willReturn(registration);
+		Jwt jwtAssertion = TestJwts.jwt().build();
+		Authentication jwtAuthentication = new TestingAuthenticationToken(jwtAssertion, jwtAssertion);
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
+						.clientRegistrationId(registration.getRegistrationId()))
+				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction.authentication(jwtAuthentication))
+				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction.httpServletRequest(servletRequest))
+				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction.httpServletResponse(servletResponse))
+				.build();
+		this.function.filter(request, this.exchange).block();
+		verify(this.jwtBearerTokenResponseClient).getTokenResponse(any());
+		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(jwtAuthentication), any(), any());
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(1);
+		ClientRequest request1 = requests.get(0);
+		assertThat(request1.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer exchanged-token");
 		assertThat(request1.url().toASCIIString()).isEqualTo("https://example.com");
 		assertThat(request1.method()).isEqualTo(HttpMethod.GET);
 		assertThat(getBody(request1)).isEmpty();

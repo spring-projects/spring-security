@@ -28,28 +28,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- * Tests for {@link OAuth2JwtBearerGrantRequest}.
+ * Tests for {@link JwtBearerGrantRequest}.
  *
  * @author Hassene Laaribi
  */
-public class OAuth2JwtBearerGrantRequestTests {
+public class JwtBearerGrantRequestTests {
 
 	private final ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
 			.authorizationGrantType(AuthorizationGrantType.JWT_BEARER).build();
 
-	private final Jwt jwtBearerToken = TestJwts.jwt().build();
+	private final Jwt jwtAssertion = TestJwts.jwt().build();
 
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2JwtBearerGrantRequest(null, this.jwtBearerToken))
+		assertThatIllegalArgumentException().isThrownBy(() -> new JwtBearerGrantRequest(null, this.jwtAssertion))
 				.withMessage("clientRegistration cannot be null");
 	}
 
 	@Test
 	public void constructorWhenJwtIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2JwtBearerGrantRequest(this.clientRegistration, null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new JwtBearerGrantRequest(this.clientRegistration, null))
 				.withMessage("jwt cannot be null");
 	}
 
@@ -57,17 +55,17 @@ public class OAuth2JwtBearerGrantRequestTests {
 	public void constructorWhenClientRegistrationInvalidGrantTypeThenThrowIllegalArgumentException() {
 		ClientRegistration registration = TestClientRegistrations.clientCredentials().build();
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2JwtBearerGrantRequest(registration, this.jwtBearerToken))
+				.isThrownBy(() -> new JwtBearerGrantRequest(registration, this.jwtAssertion))
 				.withMessage("clientRegistration.authorizationGrantType must be AuthorizationGrantType.JWT_BEARER");
 	}
 
 	@Test
 	public void constructorWhenValidParametersProvidedThenCreated() {
-		OAuth2JwtBearerGrantRequest jwtBearerGrantRequest = new OAuth2JwtBearerGrantRequest(this.clientRegistration,
-				this.jwtBearerToken);
+		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(this.clientRegistration,
+				this.jwtAssertion);
 		assertThat(jwtBearerGrantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.JWT_BEARER);
 		assertThat(jwtBearerGrantRequest.getClientRegistration()).isSameAs(this.clientRegistration);
-		assertThat(jwtBearerGrantRequest.getJwt()).isEqualTo(this.jwtBearerToken);
+		assertThat(jwtBearerGrantRequest.getJwt()).isSameAs(this.jwtAssertion);
 	}
 
 }

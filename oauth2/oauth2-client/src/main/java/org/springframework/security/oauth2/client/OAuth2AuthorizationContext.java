@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,12 +59,6 @@ public final class OAuth2AuthorizationContext {
 	 * to the value for the resource owner's password.
 	 */
 	public static final String PASSWORD_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".PASSWORD");
-
-	/**
-	 * The name of the {@link #getAttribute(String) attribute} in the context associated
-	 * to the value for the JWT Bearer token.
-	 */
-	public static final String JWT_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".JWT");
 
 	private ClientRegistration clientRegistration;
 
