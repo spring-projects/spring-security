@@ -61,6 +61,12 @@ public interface OAuth2ParameterNames {
 	String CLIENT_ASSERTION = "client_assertion";
 
 	/**
+	 * {@code assertion} - used in Access Token Request.
+	 * @since 5.5
+	 */
+	String ASSERTION = "assertion";
+
+	/**
 	 * {@code redirect_uri} - used in Authorization Request and Access Token Request.
 	 */
 	String REDIRECT_URI = "redirect_uri";
@@ -110,11 +116,6 @@ public interface OAuth2ParameterNames {
 	 * {@code password} - used in Access Token Request.
 	 */
 	String PASSWORD = "password";
-
-	/**
-	 * {@code assertion} - used in Access Token Request.
-	 */
-	String ASSERTION = "assertion";
 
 	/**
 	 * {@code error} - used in Authorization Response and Access Token Response.

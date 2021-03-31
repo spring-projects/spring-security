@@ -22,53 +22,36 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 
 /**
- * A JWT Bearer Authorization Grant request that holds a trusted {@link #getJwt() JWT}
- * credential, which was granted by the Resource Owner to the
- * {@link #getClientRegistration() Client}.
+ * A JWT Bearer Grant request that holds a {@link Jwt} assertion.
  *
  * @author Joe Grandja
  * @since 5.5
  * @see AbstractOAuth2AuthorizationGrantRequest
  * @see ClientRegistration
  * @see Jwt
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7523#section-2.1"> Section
- * 2.1 JWTs as Authorization Grants</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7523#section-2.1">Section
+ * 2.1 Using JWTs as Authorization Grants</a>
  */
-public class OAuth2JwtBearerGrantRequest extends AbstractOAuth2AuthorizationGrantRequest {
-
-	public static final AuthorizationGrantType JWT_BEARER_GRANT_TYPE = new AuthorizationGrantType(
-			"urn:ietf:params:oauth:grant-type:jwt-bearer");
-
-	private final ClientRegistration clientRegistration;
+public class JwtBearerGrantRequest extends AbstractOAuth2AuthorizationGrantRequest {
 
 	private final Jwt jwt;
 
 	/**
-	 * Constructs an {@code OAuth2JwtBearerGrantRequest} using the provided parameters.
+	 * Constructs a {@code JwtBearerGrantRequest} using the provided parameters.
 	 * @param clientRegistration the client registration
-	 * @param jwt the JWT Bearer token
+	 * @param jwt the JWT assertion
 	 */
-	public OAuth2JwtBearerGrantRequest(ClientRegistration clientRegistration, Jwt jwt) {
-		super(JWT_BEARER_GRANT_TYPE);
-		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		Assert.notNull(jwt, "jwt cannot be null");
+	public JwtBearerGrantRequest(ClientRegistration clientRegistration, Jwt jwt) {
+		super(AuthorizationGrantType.JWT_BEARER, clientRegistration);
 		Assert.isTrue(AuthorizationGrantType.JWT_BEARER.equals(clientRegistration.getAuthorizationGrantType()),
 				"clientRegistration.authorizationGrantType must be AuthorizationGrantType.JWT_BEARER");
-		this.clientRegistration = clientRegistration;
+		Assert.notNull(jwt, "jwt cannot be null");
 		this.jwt = jwt;
 	}
 
 	/**
-	 * Returns the {@link ClientRegistration client registration}.
-	 * @return the {@link ClientRegistration}
-	 */
-	public ClientRegistration getClientRegistration() {
-		return this.clientRegistration;
-	}
-
-	/**
-	 * Returns the {@link Jwt JWT Bearer token}.
-	 * @return the {@link Jwt}
+	 * Returns the {@link Jwt JWT} assertion.
+	 * @return the {@link Jwt} assertion
 	 */
 	public Jwt getJwt() {
 		return this.jwt;

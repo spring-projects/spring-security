@@ -59,6 +59,9 @@ public final class AuthorizationGrantType implements Serializable {
 
 	public static final AuthorizationGrantType PASSWORD = new AuthorizationGrantType("password");
 
+	/**
+	 * @since 5.5
+	 */
 	public static final AuthorizationGrantType JWT_BEARER = new AuthorizationGrantType(
 			"urn:ietf:params:oauth:grant-type:jwt-bearer");
 

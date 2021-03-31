@@ -86,17 +86,4 @@ public final class TestClientRegistrations {
 		// @formatter:on
 	}
 
-	public static ClientRegistration.Builder jwtBearer() {
-		// @formatter:off
-		return ClientRegistration.withRegistrationId("jwt-bearer")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-				.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
-				.scope("read", "write")
-				.tokenUri("https://example.com/login/oauth/access_token")
-				.clientName("Client Name")
-				.clientId("client-id")
-				.clientSecret("client-secret");
-		// @formatter:on
-	}
-
 }
