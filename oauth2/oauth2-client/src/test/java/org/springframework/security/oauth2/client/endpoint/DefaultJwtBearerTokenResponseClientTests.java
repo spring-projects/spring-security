@@ -32,6 +32,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -46,26 +47,33 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link DefaultJwtBearerTokenResponseClient}.
  *
  * @author Hassene Laaribi
+ * @author Joe Grandja
  */
 public class DefaultJwtBearerTokenResponseClientTests {
 
-	private static final String UTF_8_CHARSET = ";charset=UTF-8";
+	private DefaultJwtBearerTokenResponseClient tokenResponseClient;
 
-	private final DefaultJwtBearerTokenResponseClient tokenResponseClient = new DefaultJwtBearerTokenResponseClient();
+	private ClientRegistration.Builder clientRegistration;
 
-	private ClientRegistration.Builder clientRegistrationBuilder;
-
-	private final Jwt jwtBearerToken = TestJwts.jwt().build();
+	private Jwt jwtAssertion;
 
 	private MockWebServer server;
 
 	@Before
 	public void setup() throws Exception {
+		this.tokenResponseClient = new DefaultJwtBearerTokenResponseClient();
 		this.server = new MockWebServer();
 		this.server.start();
 		String tokenUri = this.server.url("/oauth2/token").toString();
-		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration()
-				.authorizationGrantType(AuthorizationGrantType.JWT_BEARER).scope("read", "write").tokenUri(tokenUri);
+		// @formatter:off
+		this.clientRegistration = TestClientRegistrations.clientCredentials()
+				.clientId("client-1")
+				.clientSecret("secret")
+				.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+				.tokenUri(tokenUri)
+				.scope("read", "write");
+		// @formatter:on
+		this.jwtAssertion = TestJwts.jwt().build();
 	}
 
 	@After
@@ -99,18 +107,16 @@ public class DefaultJwtBearerTokenResponseClientTests {
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
-		OAuth2JwtBearerGrantRequest jwtBearerGrantRequest = new OAuth2JwtBearerGrantRequest(clientRegistration,
-				this.jwtBearerToken);
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
 				.getTokenResponse(jwtBearerGrantRequest);
 		Instant expiresAtAfter = Instant.now().plusSeconds(3600);
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		assertThat(recordedRequest.getMethod()).isEqualTo(HttpMethod.POST.toString());
-		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT))
-				.isEqualTo(MediaType.APPLICATION_JSON_VALUE + UTF_8_CHARSET);
+		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
 		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE))
-				.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + UTF_8_CHARSET);
+				.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 		String formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters)
 				.contains("grant_type=" + URLEncoder.encode(AuthorizationGrantType.JWT_BEARER.getValue(), "UTF-8"));
@@ -118,9 +124,46 @@ public class DefaultJwtBearerTokenResponseClientTests {
 		assertThat(accessTokenResponse.getAccessToken().getTokenValue()).isEqualTo("access-token-1234");
 		assertThat(accessTokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBetween(expiresAtBefore, expiresAtAfter);
-		assertThat(accessTokenResponse.getAccessToken().getScopes())
-				.containsExactly(clientRegistration.getScopes().toArray(new String[0]));
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactlyInAnyOrder("read", "write");
 		assertThat(accessTokenResponse.getRefreshToken()).isNull();
+	}
+
+	@Test
+	public void getTokenResponseWhenAuthenticationClientSecretBasicThenAuthorizationHeaderIsSent() throws Exception {
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+				+ "   \"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n"
+				+ "   \"expires_in\": \"3600\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(this.clientRegistration.build(),
+				this.jwtAssertion);
+		this.tokenResponseClient.getTokenResponse(jwtBearerGrantRequest);
+		RecordedRequest recordedRequest = this.server.takeRequest();
+		assertThat(recordedRequest.getHeader(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
+	}
+
+	@Test
+	public void getTokenResponseWhenAuthenticationClientSecretPostThenFormParametersAreSent() throws Exception {
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+				+ "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n"
+				+ "   \"expires_in\": \"3600\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST).build();
+		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
+		this.tokenResponseClient.getTokenResponse(jwtBearerGrantRequest);
+		RecordedRequest recordedRequest = this.server.takeRequest();
+		assertThat(recordedRequest.getHeader(HttpHeaders.AUTHORIZATION)).isNull();
+		String formParameters = recordedRequest.getBody().readUtf8();
+		assertThat(formParameters).contains("client_id=client-1");
+		assertThat(formParameters).contains("client_secret=secret");
 	}
 
 	@Test
@@ -133,9 +176,8 @@ public class DefaultJwtBearerTokenResponseClientTests {
 				+ "}\n";
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
-		OAuth2JwtBearerGrantRequest jwtBearerGrantRequest = new OAuth2JwtBearerGrantRequest(clientRegistration,
-				this.jwtBearerToken);
+		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(this.clientRegistration.build(),
+				this.jwtAssertion);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(jwtBearerGrantRequest))
 				.withMessageContaining(
@@ -154,35 +196,46 @@ public class DefaultJwtBearerTokenResponseClientTests {
 				+ "}\n";
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
-		OAuth2JwtBearerGrantRequest jwtBearerGrantRequest = new OAuth2JwtBearerGrantRequest(clientRegistration,
-				this.jwtBearerToken);
+		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(this.clientRegistration.build(),
+				this.jwtAssertion);
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
 				.getTokenResponse(jwtBearerGrantRequest);
-		RecordedRequest recordedRequest = this.server.takeRequest();
-		String formParameters = recordedRequest.getBody().readUtf8();
-		assertThat(formParameters).contains("scope=read");
 		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("read");
 	}
 
 	@Test
+	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenAccessTokenHasDefaultScope() {
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+				+ "   \"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n"
+				+ "   \"expires_in\": \"3600\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(this.clientRegistration.build(),
+				this.jwtAssertion);
+		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
+				.getTokenResponse(jwtBearerGrantRequest);
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("read", "write");
+	}
+
+	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenErrorResponse = "{\n" + "   \"error\": \"unauthorized_client\"\n" + "}\n";
+		String accessTokenErrorResponse = "{\n" + "   \"error\": \"invalid_grant\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(400));
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
-		OAuth2JwtBearerGrantRequest jwtBearerGrantRequest = new OAuth2JwtBearerGrantRequest(clientRegistration,
-				this.jwtBearerToken);
+		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(this.clientRegistration.build(),
+				this.jwtAssertion);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(jwtBearerGrantRequest))
-				.withMessageContaining("[unauthorized_client]");
+				.withMessageContaining("[invalid_grant]");
 	}
 
 	@Test
 	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() {
 		this.server.enqueue(new MockResponse().setResponseCode(500));
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
-		OAuth2JwtBearerGrantRequest jwtBearerGrantRequest = new OAuth2JwtBearerGrantRequest(clientRegistration,
-				this.jwtBearerToken);
+		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(this.clientRegistration.build(),
+				this.jwtAssertion);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(jwtBearerGrantRequest))
 				.withMessageContaining("[invalid_token_response] An error occurred while attempting to "

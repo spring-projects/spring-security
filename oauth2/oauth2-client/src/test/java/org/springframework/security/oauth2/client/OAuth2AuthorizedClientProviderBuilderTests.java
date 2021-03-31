@@ -28,7 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient;
-import org.springframework.security.oauth2.client.endpoint.DefaultJwtBearerTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.DefaultPasswordTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -37,7 +36,6 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
-import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,8 +63,6 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 
 	private DefaultPasswordTokenResponseClient passwordTokenResponseClient;
 
-	private DefaultJwtBearerTokenResponseClient jwtBearerTokenResponseClient;
-
 	private Authentication principal;
 
 	@SuppressWarnings("unchecked")
@@ -82,8 +78,6 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 		this.clientCredentialsTokenResponseClient.setRestOperations(this.accessTokenClient);
 		this.passwordTokenResponseClient = new DefaultPasswordTokenResponseClient();
 		this.passwordTokenResponseClient.setRestOperations(this.accessTokenClient);
-		this.jwtBearerTokenResponseClient = new DefaultJwtBearerTokenResponseClient();
-		this.jwtBearerTokenResponseClient.setRestOperations(this.accessTokenClient);
 		this.principal = new TestingAuthenticationToken("principal", "password");
 	}
 
@@ -164,23 +158,6 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	}
 
 	@Test
-	public void buildWhenJwtBearerProviderThenProviderAuthorizes() {
-		// @formatter:off
-		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
-				.jwtBearer((configurer) -> configurer.accessTokenResponseClient(this.jwtBearerTokenResponseClient))
-				.build();
-		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withClientRegistration(TestClientRegistrations.jwtBearer().build())
-				.principal(this.principal)
-				.attribute(OAuth2AuthorizationContext.JWT_ATTRIBUTE_NAME, TestJwts.jwt().build())
-				.build();
-		// @formatter:on
-		OAuth2AuthorizedClient authorizedClient = authorizedClientProvider.authorize(authorizationContext);
-		assertThat(authorizedClient).isNotNull();
-		verify(this.accessTokenClient).exchange(any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class));
-	}
-
-	@Test
 	public void buildWhenAllProvidersThenProvidersAuthorize() {
 		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
 				.authorizationCode()
@@ -189,7 +166,6 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 				.clientCredentials(
 						(configurer) -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
 				.password((configurer) -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
-				.jwtBearer((configurer) -> configurer.accessTokenResponseClient(this.jwtBearerTokenResponseClient))
 				.build();
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		// authorization_code

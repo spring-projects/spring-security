@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
-import org.springframework.security.oauth2.client.endpoint.OAuth2JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.util.Assert;
@@ -158,29 +157,6 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	}
 
 	/**
-	 * Configures support for the {@code jwt_bearer} grant.
-	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
-	 */
-	public OAuth2AuthorizedClientProviderBuilder jwtBearer() {
-		this.builders.computeIfAbsent(JwtBearerOAuth2AuthorizedClientProvider.class,
-				(k) -> new JwtBearerGrantBuilder());
-		return OAuth2AuthorizedClientProviderBuilder.this;
-	}
-
-	/**
-	 * Configures support for the {@code jwt_bearer} grant.
-	 * @param builderConsumer a {@code Consumer} of {@link JwtBearerGrantBuilder} used for
-	 * further configuration
-	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
-	 */
-	public OAuth2AuthorizedClientProviderBuilder jwtBearer(Consumer<JwtBearerGrantBuilder> builderConsumer) {
-		JwtBearerGrantBuilder builder = (JwtBearerGrantBuilder) this.builders
-				.computeIfAbsent(JwtBearerOAuth2AuthorizedClientProvider.class, (k) -> new JwtBearerGrantBuilder());
-		builderConsumer.accept(builder);
-		return OAuth2AuthorizedClientProviderBuilder.this;
-	}
-
-	/**
 	 * Builds an instance of {@link DelegatingOAuth2AuthorizedClientProvider} composed of
 	 * one or more {@link OAuth2AuthorizedClientProvider}(s).
 	 * @return the {@link DelegatingOAuth2AuthorizedClientProvider}
@@ -229,7 +205,7 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 		/**
 		 * Sets the maximum acceptable clock skew, which is used when checking the access
 		 * token expiry. An access token is considered expired if it's before
-		 * {@code Instant.now(this.clock) + clockSkew}.
+		 * {@code Instant.now(this.clock) - clockSkew}.
 		 * @param clockSkew the maximum acceptable clock skew
 		 * @return the {@link PasswordGrantBuilder}
 		 */
@@ -256,77 +232,6 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 		@Override
 		public OAuth2AuthorizedClientProvider build() {
 			PasswordOAuth2AuthorizedClientProvider authorizedClientProvider = new PasswordOAuth2AuthorizedClientProvider();
-			if (this.accessTokenResponseClient != null) {
-				authorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
-			}
-			if (this.clockSkew != null) {
-				authorizedClientProvider.setClockSkew(this.clockSkew);
-			}
-			if (this.clock != null) {
-				authorizedClientProvider.setClock(this.clock);
-			}
-			return authorizedClientProvider;
-		}
-
-	}
-
-	/**
-	 * A builder for the {@code jwt_bearer} grant.
-	 */
-	public final class JwtBearerGrantBuilder implements Builder {
-
-		private OAuth2AccessTokenResponseClient<OAuth2JwtBearerGrantRequest> accessTokenResponseClient;
-
-		private Duration clockSkew;
-
-		private Clock clock;
-
-		private JwtBearerGrantBuilder() {
-		}
-
-		/**
-		 * Sets the client used when requesting an access token credential at the Token
-		 * Endpoint.
-		 * @param accessTokenResponseClient the client used when requesting an access
-		 * token credential at the Token Endpoint
-		 * @return the {@link JwtBearerGrantBuilder}
-		 */
-		public JwtBearerGrantBuilder accessTokenResponseClient(
-				OAuth2AccessTokenResponseClient<OAuth2JwtBearerGrantRequest> accessTokenResponseClient) {
-			this.accessTokenResponseClient = accessTokenResponseClient;
-			return this;
-		}
-
-		/**
-		 * Sets the maximum acceptable clock skew, which is used when checking the access
-		 * token expiry. An access token is considered expired if it's before
-		 * {@code Instant.now(this.clock) + clockSkew}.
-		 * @param clockSkew the maximum acceptable clock skew
-		 * @return the {@link JwtBearerGrantBuilder}
-		 */
-		public JwtBearerGrantBuilder clockSkew(Duration clockSkew) {
-			this.clockSkew = clockSkew;
-			return this;
-		}
-
-		/**
-		 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the
-		 * access token expiry.
-		 * @param clock the clock
-		 * @return the {@link JwtBearerGrantBuilder}
-		 */
-		public JwtBearerGrantBuilder clock(Clock clock) {
-			this.clock = clock;
-			return this;
-		}
-
-		/**
-		 * Builds an instance of {@link JwtBearerOAuth2AuthorizedClientProvider}.
-		 * @return the {@link JwtBearerOAuth2AuthorizedClientProvider}
-		 */
-		@Override
-		public OAuth2AuthorizedClientProvider build() {
-			JwtBearerOAuth2AuthorizedClientProvider authorizedClientProvider = new JwtBearerOAuth2AuthorizedClientProvider();
 			if (this.accessTokenResponseClient != null) {
 				authorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
 			}
