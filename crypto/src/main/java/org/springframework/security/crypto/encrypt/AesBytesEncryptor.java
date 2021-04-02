@@ -55,7 +55,13 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 	/**
 	 * Constructs an encryptor that uses AES encryption. Example: <code>
 	 * AesBytesEncryptor encryptor = new AesBytesEncryptor(yourPassword, 5c0744940b5c369b);
-	 * </code>
+	 * </code> Constructed encryptor uses a 16-byte IV and CBC mode encryption. To specify
+	 * a custom length IV, use
+	 * {@link AesBytesEncryptor#AesBytesEncryptor(String, CharSequence, BytesKeyGenerator)
+	 * AesBytesEncryptor(String, CharSequence, BytesKeyGenerator)}. To specify both, a
+	 * custom length IV and a different encryption mode, use
+	 * {@link AesBytesEncryptor#AesBytesEncryptor(String, CharSequence, BytesKeyGenerator, CipherAlgorithm)
+	 * AesBytesEncryptor(String, CharSequence, BytesKeyGenerator, CipherAlgorithm)}.
 	 * @param password the password value
 	 * @param salt the hex-encoded salt value
 	 */
@@ -67,7 +73,10 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 	 * Constructs an encryptor that uses AES encryption. Example: <code>
 	 * AesBytesEncryptor encryptor =
 	 * 		new AesBytesEncryptor(yourPassword, 5c0744940b5c369b, KeyGenerators.secureRandom(16));
-	 * </code>
+	 * </code> Constructed encryptor uses CBC mode encryption. To specify a different
+	 * encryption mode, use
+	 * {@link AesBytesEncryptor#AesBytesEncryptor(String, CharSequence, BytesKeyGenerator, CipherAlgorithm)
+	 * AesBytesEncryptor(String, CharSequence, BytesKeyGenerator, CipherAlgorithm)}.
 	 * @param password the password value
 	 * @param salt the hex-encoded salt value
 	 * @param ivGenerator the generator used to generate the initialization vector
