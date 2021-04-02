@@ -1,8 +1,0 @@
-server:
-  port: 8443
-  ssl:
-    key-store: 'classpath:./certs/server.p12'
-    key-store-password: 'password'
-    client-auth: need
-    trust-store: 'classpath:./certs/server.p12'
-    trust-store-password: 'password'
