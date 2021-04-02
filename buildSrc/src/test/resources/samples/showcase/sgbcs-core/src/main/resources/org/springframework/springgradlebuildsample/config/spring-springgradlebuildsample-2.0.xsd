@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ldap="http://www.springframework.org/schema/ldap"
+           xmlns:repository="http://www.springframework.org/schema/data/repository"
+           elementFormDefault="qualified"
+           targetNamespace="http://www.springframework.org/schema/springgradlebuildsample">
+
+    <xs:import namespace="http://www.springframework.org/schema/data/repository"
+                schemaLocation="https://www.springframework.org/schema/data/repository/spring-repository.xsd" />
+
+    <xs:attributeGroup name="context-source.attlist">
+        <xs:attribute name="id" type="xs:token">
+            <xs:annotation>
+                <xs:documentation>
+                    A bean identifier, used for referring to the bean elsewhere in the context.
+                    &quot;contextSource&quot;.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="anonymous-read-only" type="xs:boolean">
+            <xs:annotation>
+                <xs:documentation>
+                    Defines whether read-only operations will be performed using an anonymous (unauthenticated) context.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="authentication-source-ref" type="xs:token">
+            <xs:annotation>
+                <xs:documentation>
+                    Id of the AuthenticationSource instance to use. If not specified, a SimpleAuthenticationSource will
+                    be used.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="authentication-strategy-ref" type="xs:token">
+            <xs:annotation>
+                <xs:documentation>
+                    Id of the DirContextAuthenticationStrategy instance to use. If not specified, a SimpleDirContextAuthenticationStrategy
+                    will be used.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="base" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    The base DN. If configured, all LDAP operations on contexts retrieved from this ContextSource will
+                    be relative to this DN. Default is an empty distinguished name (i.e. all operations will be
+                    relative to the directory root).
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="password" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    The password to use for authentication.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="native-pooling" type="xs:boolean">
+            <xs:annotation>
+                <xs:documentation>
+                    Specify whether native Java LDAP connection pooling should be used. Default is false.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="referral">
+            <xs:annotation>
+                <xs:documentation>
+                    Defines the strategy to handle referrals, as described on https://docs.oracle.com/javase/jndi/tutorial/ldap/referral/jndi.html.
+                    Default is null.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:token">
+                    <xs:enumeration value="ignore" />
+                    <xs:enumeration value="follow" />
+                    <xs:enumeration value="throw" />
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="url" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    URL of the LDAP server to use. If fail-over functionality is desired, more than one URL can
+                    be specified, separated using comma (,).
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="username" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    The username (principal) to use for authentication. This will normally be the distinguished name
+                    of an admin user.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="base-env-props-ref" type="xs:token">
+            <xs:annotation>
+                <xs:documentation>
+                    Reference to a Map of custom environment properties that should supplied with the environment
+                    sent to the DirContext on construction.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:attributeGroup>
+
+    <xs:attributeGroup name="pooling.attlist">
+        <xs:attribute name="max-active" type="xs:integer">
+            <xs:annotation>
+                <xs:documentation>
+                    The maximum number of active connections of each type (read-only|read-write)
+                    that can be allocated from the pool at the same time, or non-positive for no limit.
+                    Default is 8.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="max-total" type="xs:integer">
+            <xs:annotation>
+                <xs:documentation>
+                    The overall maximum number of active connections (for all types) that can be allocated from
+                    this pool at the same time, or non-positive for no limit. Default is -1 (no limit).
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="max-idle" type="xs:integer">
+            <xs:annotation>
+                <xs:documentation>
+                    The maximum number of active connections of each type (read-only|read-write) that can remain idle in the pool,
+                    without extra ones being released, or non-positive for no limit. Default is 8.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="min-idle" type="xs:integer">
+            <xs:annotation>
+                <xs:documentation>
+                    The minimum number of active connections of each type (read-only|read-write) that can remain
+                    idle in the pool, without extra ones being created, or zero to create none. Default is 0.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="max-wait" type="xs:integer">
+            <xs:annotation>
+                <xs:documentation>
+                    The maximum number of milliseconds that the pool will wait (when there are no available connections)
+                    for a connection to be returned before throwing an exception, or non-positive to wait indefinitely.
+                    Default is -1.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="when-exhausted">
+            <xs:annotation>
+                <xs:documentation>
+                    Specifies the behaviour when the pool is exhausted.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:token">
+                    <xs:enumeration value="FAIL">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Throw a NoSuchElementException when the pool is exhausted
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BLOCK">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Wait until a new object is available. If max-wait is positive a NoSuchElementException
+                                is thrown if no new object is available after the maxWait time expires.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="GROW">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Create and return a new object (essentially making maxActive meaningless).
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="test-on-borrow" type="xs:boolean">
+            <xs:annotation>
+                <xs:documentation>
+                    The indication of whether objects will be validated before being borrowed from the pool.
+                    If the object fails to validate, it will be dropped from the pool, and an attempt to borrow another will be made.
+                    Default is false.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="test-on-return" type="xs:boolean">
+            <xs:annotation>
+                <xs:documentation>
+                    The indication of whether objects will be validated before being returned to the pool.
+                    Default is false.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="test-while-idle" type="xs:boolean">
+            <xs:annotation>
+                <xs:documentation>
+                    The indication of whether objects will be validated by the idle object evictor (if any).
+                    If an object fails to validate, it will be dropped from the pool.
+                    Default is false.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="eviction-run-interval-millis" type="xs:int">
+            <xs:annotation>
+                <xs:documentation>
+                    The number of milliseconds to sleep between runs of the idle object evictor thread. When non-positive,
+                    no idle object evictor thread will be run. Default is -1.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="tests-per-eviction-run" type="xs:int">
+            <xs:annotation>
+                <xs:documentation>
+                    The number of objects to examine during each run of the idle object evictor thread (if any).
+                    Default is 3.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="min-evictable-time-millis" type="xs:int">
+            <xs:annotation>
+                <xs:documentation>
+                    The minimum amount of time an object may sit idle in the pool before it is eligible
+                    for eviction by the idle object evictor (if any). Default is 1000 * 60 * 30.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="validation-query-base" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    The base dn to use for validation searches. Default is LdapUtils.emptyPath().
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="validation-query-filter" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    The filter to use for validation queries. Default is (objectclass=*).
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="validation-query-search-controls-ref" type="xs:token">
+            <xs:annotation>
+                <xs:documentation>
+                    Id of the SearchControls instance to use for searches. Default is searchScope=OBJECT_SCOPE;
+                    countLimit: 1; timeLimit: 500; returningAttributes: [objectclass].
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="non-transient-exceptions" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    Id of the SearchControls instance to use for searches. Default is searchScope=OBJECT_SCOPE;
+                    countLimit: 1; timeLimit: 500; returningAttributes: [objectclass].
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:attributeGroup>
+
+    <xs:element name="context-source">
+        <xs:annotation>
+            <xs:documentation>
+                Creates a ContextSource instance to be used to get LdapContexts for communicating with an LDAP server.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence minOccurs="0" maxOccurs="1">
+                <xs:element name="pooling">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Defines the settings to use for the Spring LDAP connection pooling support.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:attributeGroup ref="ldap:pooling.attlist" />
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attributeGroup ref="ldap:context-source.attlist" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:attributeGroup name="ldap-template.attlist">
+        <xs:attribute name="id" type="xs:token">
+            <xs:annotation>
+                <xs:documentation>
+                    A bean identifier, used for referring to the bean elsewhere in the context.
+                    Default is &quot;ldapTemplate&quot;.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="context-source-ref" type="xs:token">
+            <xs:annotation>
+                <xs:documentation>
+                    Id of the ContextSource instance to use. Default is &quot;contextSource&quot;.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="count-limit" type="xs:integer">
+            <xs:annotation>
+                <xs:documentation>
+                    The default count limit for searches. Default is 0 (no limit).
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="time-limit" type="xs:integer">
+            <xs:annotation>
+                <xs:documentation>
+                    The default time limit for searches. Default is 0 (no limit).
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="search-scope">
+            <xs:annotation>
+                <xs:documentation>
+                    The default search scope for searches. Default is SUBTREE.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:token">
+                    <xs:enumeration value="OBJECT" />
+                    <xs:enumeration value="ONELEVEL" />
+                    <xs:enumeration value="SUBTREE" />
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="ignore-name-not-found" type="xs:boolean">
+            <xs:annotation>
+                <xs:documentation>
+                    Specifies whether NameNotFoundException should be ignored in searches. Setting this
+                    attribute to true will cause errors caused by invalid search base to be silently swallowed.
+                    Default is false.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="ignore-partial-result" type="xs:boolean">
+            <xs:annotation>
+                <xs:documentation>
+                    Specifies whether PartialResultException should be ignored in searches. Some LDAP servers
+                    have problems with referrals; these should normally be followed automatically, but if this
+                    doesn't work it will manifest itself with a PartialResultException. Setting this attribute
+                    to true presents a work-around to this problem. Default is false.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="odm-ref" type="xs:token">
+            <xs:annotation>
+                <xs:documentation>
+                    Id of the ObjectDirectoryMapper instance to use. Default is a default-configured DefaultObjectDirectoryMapper.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:attributeGroup>
+
+    <xs:element name="ldap-template">
+        <xs:annotation>
+            <xs:documentation>
+                Creates an LdapTemplate instance.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attributeGroup ref="ldap:ldap-template.attlist" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:attributeGroup name="transaction-manager.attlist">
+        <xs:attribute name="id" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    Id of this instance. Default is &quot;transactionManager&quot;.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="context-source-ref" type="xs:token">
+            <xs:annotation>
+                <xs:documentation>
+                    Id of the ContextSource instance to use. &quot;contextSource&quot;.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="data-source-ref" type="xs:token">
+            <xs:annotation>
+                <xs:documentation>
+                    Id of the DataSource instance to use.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="session-factory-ref" type="xs:token">
+            <xs:annotation>
+                <xs:documentation>
+                    Id of the Hibernate SessionFactory instance to use.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:attributeGroup>
+
+    <xs:element name="transaction-manager">
+        <xs:annotation>
+            <xs:documentation>
+                Creates an ContextSourceTransactionManager. If data-source-ref or session-factory-ref is specified,
+                a DataSourceAndContextSourceTransactionManager/HibernateAndContextSourceTransactionManager will be
+                created.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:choice minOccurs="1" maxOccurs="1">
+                <xs:element name="default-renaming-strategy">
+                    <xs:annotation>
+                        <xs:documentation>
+                            The default (simplistic) TempEntryRenamingStrategy. Please note that this
+                            strategy will not work for more advanced scenarios. See reference documentation
+                            for details.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:attribute name="temp-suffix" type="xs:string">
+                            <xs:annotation>
+                                <xs:documentation>
+                                    The default suffix that will be added to modified entries.
+                                    Default is &quot;_temp&quot;.
+                                </xs:documentation>
+                            </xs:annotation>
+                        </xs:attribute>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="different-subtree-renaming-strategy">
+                    <xs:annotation>
+                        <xs:documentation>
+                            TempEntryRenamingStrategy that moves the entry to a different subtree than
+                            the original entry.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:attribute name="subtree-node" type="xs:string" use="required">
+                            <xs:annotation>
+                                <xs:documentation>
+                                    The subtree base where changed entries should be moved.
+                                </xs:documentation>
+                            </xs:annotation>
+                        </xs:attribute>
+                    </xs:complexType>
+                </xs:element>
+            </xs:choice>
+            <xs:attributeGroup ref="ldap:transaction-manager.attlist" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="repositories">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="repository:repositories">
+                    <xs:attribute name="ldap-template-ref">
+                        <xs:annotation>
+                            <xs:documentation>
+                                The reference to an LdapTemplate. Will default to 'ldapTemplate'.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

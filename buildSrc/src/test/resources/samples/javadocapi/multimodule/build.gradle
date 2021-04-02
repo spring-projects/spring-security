@@ -1,0 +1,5 @@
+plugins {
+	id 'io.spring.convention.javadoc-api'
+	id 'io.spring.convention.spring-module' apply false
+	id 'io.spring.convention.spring-sample' apply false
+}

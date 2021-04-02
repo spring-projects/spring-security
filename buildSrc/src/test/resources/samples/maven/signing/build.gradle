@@ -1,0 +1,17 @@
+plugins {
+	id 'io.spring.convention.root'
+}
+
+version = "1.0.0.RELEASE"
+
+apply plugin: 'propdeps-maven'
+apply plugin: 'io.spring.convention.maven'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	testCompile 'junit:junit:4.12'
+	optional 'aopalliance:aopalliance:1.0'
+}

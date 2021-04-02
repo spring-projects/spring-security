@@ -1,0 +1,21 @@
+plugins {
+	id 'io.spring.convention.dependency-set'
+}
+
+apply plugin: 'java'
+apply from: "$rootDir/gradle/dependency-management.gradle"
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	testCompile spockDependencies
+	testCompile gebDependencies
+	testCompile powerMockDependencies
+	testCompile seleniumDependencies
+	testCompile slf4jDependencies
+	testCompile springCoreDependency
+	testCompile jstlDependencies
+	testCompile apachedsDependencies
+}

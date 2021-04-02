@@ -1,0 +1,3 @@
+= Example Manual
+
+This will fail due to <<missing>> cross reference
