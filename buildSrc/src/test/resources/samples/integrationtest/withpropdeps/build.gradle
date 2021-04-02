@@ -1,0 +1,15 @@
+plugins {
+	id 'io.spring.convention.integration-test'
+}
+
+apply plugin: 'java'
+apply plugin: 'propdeps'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	optional 'javax.servlet:javax.servlet-api:3.1.0'
+	testCompile 'junit:junit:4.12'
+}

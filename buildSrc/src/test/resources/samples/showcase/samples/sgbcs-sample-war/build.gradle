@@ -1,0 +1,7 @@
+apply plugin: 'io.spring.convention.spring-sample-war'
+
+dependencies {
+	provided 'javax.servlet:javax.servlet-api'
+	testCompile 'commons-io:commons-io'
+	testCompile 'junit:junit'
+}

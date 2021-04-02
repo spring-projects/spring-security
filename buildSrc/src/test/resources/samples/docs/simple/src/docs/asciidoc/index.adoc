@@ -1,0 +1,60 @@
+= Example Manual
+Doc Writer <doc.writer@example.org>
+2014-09-09
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../java]
+
+This is a user manual for an example project.
+
+== Introduction
+
+This project does something.
+We just haven't decided what that is yet.
+
+== Source Code
+
+[source,java]
+.Java code from project
+----
+include::{sourcedir}/example/StringUtils.java[tags=contains,indent=0]
+----
+
+This page was built by the following command:
+
+ $ ./gradlew asciidoctor
+
+== Images
+
+[.thumb]
+image::sunset.jpg[scaledwidth=75%]
+
+== Attributes
+
+.Built-in
+asciidoctor-version:: {asciidoctor-version}
+safe-mode-name:: {safe-mode-name}
+docdir:: {docdir}
+docfile:: {docfile}
+imagesdir:: {imagesdir}
+revnumber:: {revnumber}
+
+.Custom
+sourcedir:: {sourcedir}
+endpoint-url:: {endpoint-url}
+
+== Includes
+
+.include::subdir/_b.adoc[]
+====
+include::subdir/_b.adoc[]
+====
+
+WARNING: Includes can be tricky!
+
+== build.gradle
+
+[source,groovy]
+----
+include::{build-gradle}[]
+----

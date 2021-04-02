@@ -1,0 +1,5 @@
+= Example Manual
+
+This will fail due to missing include
+
+include::missing.adoc[]
