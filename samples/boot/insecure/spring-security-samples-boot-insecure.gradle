@@ -1,8 +1,0 @@
-apply plugin: 'io.spring.convention.spring-sample-boot'
-
-dependencies {
-	compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	compile 'org.springframework.boot:spring-boot-starter-web'
-
-	testCompile 'org.springframework.boot:spring-boot-starter-test'
-}

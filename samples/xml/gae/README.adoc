@@ -1,5 +1,0 @@
-A sample using Google App Engine. To run it use:
-
-----
-$ ../../gradlew appengineRun
-----

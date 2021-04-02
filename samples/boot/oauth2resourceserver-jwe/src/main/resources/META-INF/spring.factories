@@ -1,1 +1,0 @@
-org.springframework.boot.env.EnvironmentPostProcessor=org.springframework.boot.env.MockWebServerEnvironmentPostProcessor

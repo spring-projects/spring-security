@@ -1,8 +1,0 @@
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        opaque:
-          introspection-uri: ${mockwebserver.url}/introspect
-          introspection-client-id: client
-          introspection-client-secret: secret

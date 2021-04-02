@@ -1,3 +1,0 @@
-server.port: 8081
-
-# security.oauth2.authorizationserver.jwt.enabled: false
