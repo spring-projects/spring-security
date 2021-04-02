@@ -63,7 +63,7 @@ public final class Encryptors {
 	 * @param salt a hex-encoded, random, site-global salt value to use to generate the
 	 * key
 	 *
-	 * @see #stronger(CharSequence, CharSequence)
+	 * @see Encryptors#stronger(CharSequence, CharSequence)
 	 */
 	public static BytesEncryptor standard(CharSequence password, CharSequence salt) {
 		return new AesBytesEncryptor(password.toString(), salt, KeyGenerators.secureRandom(16));
