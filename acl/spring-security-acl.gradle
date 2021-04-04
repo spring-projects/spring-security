@@ -1,18 +1,18 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-	compile project(':spring-security-core')
-	compile 'org.springframework:spring-aop'
-	compile 'org.springframework:spring-context'
-	compile 'org.springframework:spring-core'
-	compile 'org.springframework:spring-jdbc'
-	compile 'org.springframework:spring-tx'
+	api project(':spring-security-core')
+	api 'org.springframework:spring-aop'
+	api 'org.springframework:spring-context'
+	api 'org.springframework:spring-core'
+	api 'org.springframework:spring-jdbc'
+	api 'org.springframework:spring-tx'
 
 	optional 'net.sf.ehcache:ehcache'
 
-	testCompile 'org.springframework:spring-beans'
-	testCompile 'org.springframework:spring-context-support'
-	testCompile 'org.springframework:spring-test'
+	testImplementation 'org.springframework:spring-beans'
+	testImplementation 'org.springframework:spring-context-support'
+	testImplementation 'org.springframework:spring-test'
 
-	testRuntime 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.hsqldb:hsqldb'
 }

@@ -1,11 +1,11 @@
 apply plugin: 'io.spring.convention.spring-test'
 
 dependencies {
-    compile project(':spring-security-core')
-    compile 'org.springframework:spring-beans'
-    compile 'org.springframework:spring-context'
-    compile 'org.springframework:spring-core'
-    compile 'org.springframework:spring-tx'
-    compile project(':spring-security-config')
-    compile project(':spring-security-ldap')
+    implementation project(':spring-security-core')
+    implementation 'org.springframework:spring-beans'
+    implementation 'org.springframework:spring-context'
+    implementation 'org.springframework:spring-core'
+    implementation 'org.springframework:spring-tx'
+    implementation project(':spring-security-config')
+    implementation project(':spring-security-ldap')
 }

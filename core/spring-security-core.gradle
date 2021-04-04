@@ -6,15 +6,15 @@ def includeProject = project(':spring-security-crypto')
 
 configurations {
 	included
-	compile.extendsFrom included
+	api.extendsFrom included
 }
 
 dependencies {
-	compile 'org.springframework:spring-aop'
-	compile 'org.springframework:spring-beans'
-	compile 'org.springframework:spring-context'
-	compile 'org.springframework:spring-core'
-	compile 'org.springframework:spring-expression'
+	api 'org.springframework:spring-aop'
+	api 'org.springframework:spring-beans'
+	api 'org.springframework:spring-context'
+	api 'org.springframework:spring-core'
+	api 'org.springframework:spring-expression'
 
 	included includeProject
 
@@ -26,14 +26,14 @@ dependencies {
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
 
-	testCompile powerMock2Dependencies
-	testCompile 'commons-collections:commons-collections'
-	testCompile 'io.projectreactor:reactor-test'
-	testCompile 'org.skyscreamer:jsonassert'
-	testCompile 'org.slf4j:jcl-over-slf4j'
-	testCompile 'org.springframework:spring-test'
+	testImplementation powerMock2Dependencies
+	testImplementation 'commons-collections:commons-collections'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.skyscreamer:jsonassert'
+	testImplementation 'org.slf4j:jcl-over-slf4j'
+	testImplementation 'org.springframework:spring-test'
 
-	testRuntime 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
 
 task springVersion(type: org.gradle.api.tasks.WriteProperties) {

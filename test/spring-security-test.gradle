@@ -1,10 +1,10 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-	compile project(':spring-security-core')
-	compile project(':spring-security-web')
-	compile 'org.springframework:spring-core'
-	compile 'org.springframework:spring-test'
+	api project(':spring-security-core')
+	api project(':spring-security-web')
+	api 'org.springframework:spring-core'
+	api 'org.springframework:spring-test'
 
 	optional project(':spring-security-config')
 	optional project(':spring-security-oauth2-client')
@@ -16,13 +16,13 @@ dependencies {
 
 	provided 'javax.servlet:javax.servlet-api'
 
-	testCompile project(path : ':spring-security-config', configuration : 'tests')
-	testCompile 'com.fasterxml.jackson.core:jackson-databind'
-	testCompile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-	testCompile 'io.projectreactor:reactor-test'
-	testCompile 'javax.xml.bind:jaxb-api'
-	testCompile 'org.skyscreamer:jsonassert'
-	testCompile 'org.springframework:spring-webmvc'
-	testCompile 'org.springframework:spring-tx'
-	testCompile powerMock2Dependencies
+	testImplementation project(path : ':spring-security-config', configuration : 'tests')
+	testImplementation 'com.fasterxml.jackson.core:jackson-databind'
+	testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'javax.xml.bind:jaxb-api'
+	testImplementation 'org.skyscreamer:jsonassert'
+	testImplementation 'org.springframework:spring-webmvc'
+	testImplementation 'org.springframework:spring-tx'
+	testImplementation powerMock2Dependencies
 }

@@ -2,13 +2,13 @@ apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'io.freefair.aspectj'
 
 dependencies {
-	compile "org.aspectj:aspectjrt"
-	compile project(':spring-security-core')
-	compile 'org.springframework:spring-beans'
-	compile 'org.springframework:spring-context'
-	compile 'org.springframework:spring-core'
+	api "org.aspectj:aspectjrt"
+	api project(':spring-security-core')
+	api 'org.springframework:spring-beans'
+	api 'org.springframework:spring-context'
+	api 'org.springframework:spring-core'
 
-	testCompile 'org.springframework:spring-aop'
+	testImplementation 'org.springframework:spring-aop'
 	testAspect sourceSets.main.output
 }
 

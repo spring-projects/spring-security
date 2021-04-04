@@ -1,13 +1,13 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-	compile project(':spring-security-core')
-	compile springCoreDependency
-	compile 'org.springframework:spring-aop'
-	compile 'org.springframework:spring-beans'
-	compile 'org.springframework:spring-context'
-	compile 'org.springframework:spring-expression'
-	compile 'org.springframework:spring-web'
+	api project(':spring-security-core')
+	api springCoreDependency
+	api 'org.springframework:spring-aop'
+	api 'org.springframework:spring-beans'
+	api 'org.springframework:spring-context'
+	api 'org.springframework:spring-expression'
+	api 'org.springframework:spring-web'
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'io.projectreactor:reactor-core'
@@ -18,14 +18,14 @@ dependencies {
 
 	provided 'javax.servlet:javax.servlet-api'
 
-	testCompile project(path: ':spring-security-core', configuration: 'tests')
-	testCompile 'commons-codec:commons-codec'
-	testCompile 'io.projectreactor:reactor-test'
-	testCompile 'javax.xml.bind:jaxb-api'
-	testCompile 'org.skyscreamer:jsonassert'
-	testCompile 'org.springframework:spring-webflux'
-	testCompile 'org.synchronoss.cloud:nio-multipart-parser'
-	testCompile powerMock2Dependencies
+	testImplementation project(path: ':spring-security-core', configuration: 'tests')
+	testImplementation 'commons-codec:commons-codec'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'javax.xml.bind:jaxb-api'
+	testImplementation 'org.skyscreamer:jsonassert'
+	testImplementation 'org.springframework:spring-webflux'
+	testImplementation 'org.synchronoss.cloud:nio-multipart-parser'
+	testImplementation powerMock2Dependencies
 
-	testRuntime 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.hsqldb:hsqldb'
 }

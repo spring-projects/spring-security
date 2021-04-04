@@ -40,8 +40,8 @@ dependencies {
 		management("org.opensaml:opensaml-saml-impl:3.+")
 	}
 
-	compile project(':spring-security-core')
-	compile project(':spring-security-web')
+	api project(':spring-security-core')
+	api project(':spring-security-web')
 
 	provided("org.opensaml:opensaml-core")
 	provided("org.opensaml:opensaml-saml-api")
@@ -49,5 +49,5 @@ dependencies {
 
 	provided 'javax.servlet:javax.servlet-api'
 
-	testCompile 'com.squareup.okhttp3:mockwebserver'
+	testImplementation 'com.squareup.okhttp3:mockwebserver'
 }

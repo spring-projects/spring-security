@@ -1,12 +1,12 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-	compile project(':spring-security-core')
-	compile 'org.springframework:spring-aop'
-	compile 'org.springframework:spring-beans'
-	compile 'org.springframework:spring-context'
-	compile 'org.springframework:spring-core'
-	compile 'org.springframework:spring-web'
+	api project(':spring-security-core')
+	api 'org.springframework:spring-aop'
+	api 'org.springframework:spring-beans'
+	api 'org.springframework:spring-context'
+	api 'org.springframework:spring-core'
+	api 'org.springframework:spring-web'
 
-	testCompile project(path: ':spring-security-core', configuration: 'tests')
+	testImplementation project(path: ':spring-security-core', configuration: 'tests')
 }

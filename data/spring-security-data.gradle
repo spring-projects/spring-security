@@ -1,9 +1,9 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-	compile project(':spring-security-core')
-	compile 'javax.xml.bind:jaxb-api'
-	compile 'org.springframework.data:spring-data-commons'
-	compile 'org.springframework:spring-core'
+	api project(':spring-security-core')
+	api 'javax.xml.bind:jaxb-api'
+	api 'org.springframework.data:spring-data-commons'
+	api 'org.springframework:spring-core'
 
 }

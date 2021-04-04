@@ -119,7 +119,7 @@ public class DependencySetPlugin implements Plugin<Project> {
 
 		project.plugins.withType(JavaPlugin) {
 			project.dependencies {
-				testCompile project.testDependencies
+				testImplementation project.testDependencies
 			}
 		}
 	}
