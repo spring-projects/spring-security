@@ -1,0 +1,229 @@
+import com.github.benmanes.gradle.versions.reporter.result.DependencyOutdated
+import com.github.benmanes.gradle.versions.reporter.result.Result
+import org.gradle.wrapper.BootstrapMainStarter
+import org.gradle.wrapper.Download
+import org.gradle.wrapper.Install
+import org.gradle.wrapper.Logger
+import org.gradle.wrapper.PathAssembler
+import org.gradle.wrapper.WrapperExecutor
+
+plugins {
+	id 'java-platform'
+}
+
+javaPlatform {
+	allowDependencies()
+}
+
+dependencies {
+	api platform("org.springframework:spring-framework-bom:5.3.5")
+	api platform("io.projectreactor:reactor-bom:2020.0.5")
+	api platform("io.rsocket:rsocket-bom:1.1.0")
+	api platform("org.springframework.data:spring-data-releasetrain:Neumann-SR+")
+	api platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion")
+	api platform("com.fasterxml.jackson:jackson-bom:2.12.2")
+	constraints {
+		api "ch.qos.logback:logback-classic:1.2.3"
+		api "com.google.appengine:appengine-api-1.0-sdk:$gaeVersion"
+		api "com.google.appengine:appengine-api-labs:$gaeVersion"
+		api "com.google.appengine:appengine-api-stubs:$gaeVersion"
+		api "com.google.appengine:appengine-testing:$gaeVersion"
+		api "com.google.appengine:appengine:$gaeVersion"
+		api "com.google.inject:guice:3.0"
+		api "com.nimbusds:nimbus-jose-jwt:9.7"
+		api "com.nimbusds:oauth2-oidc-sdk:9.3"
+		api "com.squareup.okhttp3:mockwebserver:3.14.9"
+		api "com.squareup.okhttp3:okhttp:3.14.9"
+		api "com.sun.xml.bind:jaxb-core:2.3.0.1"
+		api "com.sun.xml.bind:jaxb-impl:2.3.3"
+		api "com.unboundid:unboundid-ldapsdk:4.0.14"
+		api "commons-codec:commons-codec:1.14"
+		api "commons-collections:commons-collections:3.2.2"
+		api "commons-httpclient:commons-httpclient:3.1"
+		api "commons-logging:commons-logging:1.2"
+		api "io.projectreactor.tools:blockhound:1.0.5.RELEASE"
+		api "javax.annotation:jsr250-api:1.0"
+		api "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2"
+		api "javax.servlet.jsp:javax.servlet.jsp-api:2.3.3"
+		api "javax.servlet:javax.servlet-api:4.0.1"
+		api "javax.validation:validation-api:2.0.1.Final"
+		api "javax.xml.bind:jaxb-api:2.3.1"
+		api "junit:junit:4.13.2"
+		api "ldapsdk:ldapsdk:4.1"
+		api "net.sf.ehcache:ehcache:2.10.6"
+		api "net.sourceforge.htmlunit:htmlunit:2.48.0"
+		api "net.sourceforge.nekohtml:nekohtml:1.9.22"
+		api "org.apache.directory.server:apacheds-core-entry:1.5.5"
+		api "org.apache.directory.server:apacheds-core:1.5.5"
+		api "org.apache.directory.server:apacheds-protocol-ldap:1.5.5"
+		api "org.apache.directory.server:apacheds-protocol-shared:1.5.5"
+		api "org.apache.directory.server:apacheds-server-jndi:1.5.5"
+		api "org.apache.directory.shared:shared-ldap:0.9.15"
+		api "org.apache.httpcomponents:httpclient:4.5.13"
+		api "org.aspectj:aspectjrt:$aspectjVersion"
+		api "org.aspectj:aspectjtools:$aspectjVersion"
+		api "org.aspectj:aspectjweaver:$aspectjVersion"
+		api "org.assertj:assertj-core:3.19.0"
+		api "org.bouncycastle:bcpkix-jdk15on:1.68"
+		api "org.bouncycastle:bcprov-jdk15on:1.68"
+		api "org.eclipse.jetty:jetty-server:9.4.39.v20210325"
+		api "org.eclipse.jetty:jetty-servlet:9.4.39.v20210325"
+		api "org.eclipse.persistence:javax.persistence:2.2.1"
+		api "org.hibernate:hibernate-entitymanager:5.4.30.Final"
+		api "org.hibernate:hibernate-validator:6.2.0.Final"
+		api "org.hsqldb:hsqldb:2.5.1"
+		api "org.jasig.cas.client:cas-client-core:3.6.2"
+		api "org.jasig.cas:cas-server-webapp:4.2.7@war"
+		api "org.mockito:mockito-core:3.8.0"
+		api "org.openid4java:openid4java-nodeps:0.9.6"
+		api "org.opensaml:opensaml-core:$openSamlVersion"
+		api "org.opensaml:opensaml-saml-api:$openSamlVersion"
+		api "org.opensaml:opensaml-saml-impl:$openSamlVersion"
+		api "org.powermock:powermock-api-mockito2:2.0.9"
+		api "org.powermock:powermock-api-support:2.0.9"
+		api "org.powermock:powermock-core:2.0.9"
+		api "org.powermock:powermock-module-junit4-common:2.0.9"
+		api "org.powermock:powermock-module-junit4:2.0.9"
+		api "org.powermock:powermock-reflect:2.0.9"
+		api "org.python:jython:2.5.3"
+		api "org.seleniumhq.selenium:htmlunit-driver:2.48.0"
+		api "org.seleniumhq.selenium:selenium-java:3.141.59"
+		api "org.seleniumhq.selenium:selenium-support:3.141.59"
+		api "org.skyscreamer:jsonassert:1.5.0"
+		api "org.slf4j:jcl-over-slf4j:1.7.30"
+		api "org.slf4j:log4j-over-slf4j:1.7.30"
+		api "org.slf4j:slf4j-api:1.7.30"
+		api "org.springframework.ldap:spring-ldap-core:2.3.3.RELEASE"
+		api "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
+	}
+}
+
+//def updateDepencencyInlineVersion(Project project, DependencyOutdated dependency) {
+//	def originalDependency = "${dependency.group}:${dependency.name}:${dependency.version}"
+//	def replacementDependency = "${dependency.group}:${dependency.name}:${dependency.available.release ?: dependency.available.milestone}"
+//	def buildFileText = project.buildFile.text
+//	project.buildFile.text = buildFileText.replace(originalDependency, replacementDependency)
+//}
+//
+//def updateDepencencyWithVersionVariable(Project project, DependencyOutdated dependency) {
+//	java.io.File gradleProperties = project.getRootProject().file(Project.GRADLE_PROPERTIES)
+//	def gradlePropertiesText = gradleProperties.text
+//	if (!gradleProperties.exists()) {
+//		return
+//	}
+//	def originalDependency = "\"${dependency.group}:${dependency.name}:\\\$\\{?([^'\"]+?)\\}?\""
+//	java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(originalDependency);
+//	def buildFileText = project.buildFile.text
+//	java.util.regex.Matcher matcher = pattern.matcher(buildFileText)
+//	while (matcher.find()) {
+//		def versionVariable =  matcher.group(1)
+//		gradlePropertiesText = gradlePropertiesText.replace("$versionVariable=${dependency.version}","$versionVariable=${dependency.available.release ?: dependency.available.milestone}")
+//	}
+//	gradleProperties.text = gradlePropertiesText
+//}
+//
+//tasks.dependencyUpdates.configure {
+//	checkConstraints = true
+//	outputFormatter = { Result result ->
+//		def updatable = result.outdated.dependencies
+//		if (!updatable.isEmpty()){
+//			def groups = [:]
+//			updatable.each { DependencyOutdated dependency ->
+//				groups.get(dependency.group, []).add(dependency)
+//			}
+//			println groups.keySet()
+//			groups.forEach { group, dependencies ->
+//				dependencies.forEach { dependency ->
+//					def originalDependency = "${dependency.group}:${dependency.name}:${dependency.version}"
+//					def updatedDependency = "${dependency.group}:${dependency.name}:${dependency.available.release ?: dependency.available.milestone}"
+//					println "Updating $originalDependency to $updatedDependency"
+//					updateDepencencyInlineVersion(project, dependency)
+//					updateDepencencyWithVersionVariable(project, dependency)
+//				}
+//				def version = dependencies[0].available.release ?: dependencies[0].available.milestone
+//				def title = dependencies.size() == 1 ? "Update ${dependencies[0].name} to $version" : "Update $group to $version"
+//				if (new ProcessBuilder().directory(project.rootDir).command("git", "checkout", "-b", "bot-"+title.replace(' ', '-').toLowerCase()).start()
+//						.waitFor() != 0) {
+//					throw new IllegalStateException("git branch failed");
+//				}
+//				if (new ProcessBuilder().directory(project.rootDir).command("git", "commit", "-am", title).start()
+//						.waitFor() != 0) {
+//					throw new IllegalStateException("git commit failed");
+//				}
+//				if (new ProcessBuilder().directory(project.rootDir).command("git", "checkout", "-").start()
+//						.waitFor() != 0) {
+//					throw new IllegalStateException("git checkout previous failed");
+//				}
+//			}
+//		}
+//		def currentGradleVersion = result.gradle.current
+//		def runningGradleVersion = result.gradle.running
+//		if (currentGradleVersion > runningGradleVersion) {
+//			def title = "Upgrade Gradle to $currentGradleVersion.version"
+//			println title
+//			GradleRunner.create()
+//					.withGradleInstallation(project.getGradle().getGradleHomeDir())
+//					.withProjectDir(project.rootDir)
+//					.withArguments("wrapper", "--gradle-version", currentGradleVersion.version)
+//					.forwardOutput()
+//					.build()
+//			if (new ProcessBuilder().directory(project.rootDir).command("git", "commit", "-am", title).start()
+//					.waitFor() != 0) {
+//				throw new IllegalStateException("git commit failed");
+//			}
+//		}
+//	}
+//	resolutionStrategy {
+//		componentSelection {
+//			all { ComponentSelection selection ->
+//				def candidateVersion = selection.candidate.version
+//				if (candidateVersion ==~ /(?i).*?(alpha|beta|m\d+|rc\d+).*/) {
+//					reject("$candidateVersion is not allowed because it is an alpha or beta version")
+//				}
+//			}
+//			all { ComponentSelection selection ->
+//				def candidateVersion = selection.candidate.version
+//				if (candidateVersion ==~ /(?i).*?m\d+.*/) {
+//					reject("$candidateVersion is not allowed because it is a milestone version")
+//				}
+//			}
+//			all { ComponentSelection selection ->
+//				def candidateVersion = selection.candidate.version
+//				if (candidateVersion ==~ /(?i).*?rc\d+.*/) {
+//					reject("$candidateVersion is not allowed because it is a release candidate version")
+//				}
+//			}
+//			all { ComponentSelection selection ->
+//				def currentVersion = selection.currentVersion
+//				def separator = currentVersion.indexOf(".")
+//				def major = separator > 0 ? currentVersion.substring(0,separator) : currentVersion
+//				def candidateVersion = selection.candidate.version
+//				if (candidateVersion !=~ /\d\d\d\d.*/ && !candidateVersion.startsWith(major)) {
+//					reject("Cannot Upgrade to new Major Version")
+//				}
+//			}
+//			all { ComponentSelection selection ->
+//				def candidate = selection.candidate
+//				if (candidate.group == "org.apache.directory.server" && candidate.version != selection.currentVersion) {
+//					reject("org.apache.directory.server has breaking changes in newer versions")
+//				}
+//			}
+//			withModule("javax.xml.bind:jaxb-api") { ComponentSelection selection ->
+//				if (selection.candidate.version ==~ /.*?b\d+.*/) {
+//					reject("Reject jaxb-api beta versions")
+//				}
+//			}
+//			withModule("com.sun.xml.bind:jaxb-impl") { ComponentSelection selection ->
+//				if (selection.candidate.version ==~ /.*?b\d+.*/) {
+//					reject("Reject jaxb-api beta versions")
+//				}
+//			}
+//			withModule("org.springframework.data:spring-data-releasetrain") { ComponentSelection selection ->
+//				if (selection.candidate.version !=~ /\d\d\d\d.*/) {
+//					reject("calver is latest version scheme")
+//				}
+//			}
+//		}
+//	}
+//}
+
