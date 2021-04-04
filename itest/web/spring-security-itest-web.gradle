@@ -1,20 +1,20 @@
 apply plugin: 'io.spring.convention.spring-test'
 
 dependencies {
-	compile 'org.springframework:spring-context'
-	compile 'org.springframework:spring-web'
+	implementation 'org.springframework:spring-context'
+	implementation 'org.springframework:spring-web'
 
 	provided 'javax.servlet:javax.servlet-api'
 
-	testCompile project(':spring-security-core')
-	testCompile project(':spring-security-test')
-	testCompile project(':spring-security-web')
-	testCompile 'org.springframework:spring-beans'
-	testCompile 'org.springframework:spring-test'
-	testCompile 'org.springframework:spring-webmvc'
+	testImplementation project(':spring-security-core')
+	testImplementation project(':spring-security-test')
+	testImplementation project(':spring-security-web')
+	testImplementation 'org.springframework:spring-beans'
+	testImplementation 'org.springframework:spring-test'
+	testImplementation 'org.springframework:spring-webmvc'
 
-	testRuntime project(':spring-security-config')
-	testRuntime project(':spring-security-ldap')
+	testRuntimeOnly project(':spring-security-config')
+	testRuntimeOnly project(':spring-security-ldap')
 }
 
 integrationTest {

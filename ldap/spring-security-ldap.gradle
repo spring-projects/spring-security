@@ -1,18 +1,18 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-	compile project(':spring-security-core')
-	compile 'org.springframework:spring-beans'
-	compile 'org.springframework:spring-context'
-	compile 'org.springframework:spring-core'
-	compile 'org.springframework:spring-tx'
+	api project(':spring-security-core')
+	api 'org.springframework:spring-beans'
+	api 'org.springframework:spring-context'
+	api 'org.springframework:spring-core'
+	api 'org.springframework:spring-tx'
 
 	optional apachedsDependencies
 	optional 'ldapsdk:ldapsdk'
 	optional "com.unboundid:unboundid-ldapsdk"
 	optional 'org.apache.directory.shared:shared-ldap'
 
-	compile ('org.springframework.ldap:spring-ldap-core') {
+	api ('org.springframework.ldap:spring-ldap-core') {
 		exclude(group: 'commons-logging', module: 'commons-logging')
 		exclude(group: 'org.springframework', module: 'spring-beans')
 		exclude(group: 'org.springframework', module: 'spring-core')
@@ -20,9 +20,9 @@ dependencies {
 		exclude(group: 'org.springframework.data', module: 'spring-data-commons')
 	}
 
-	testCompile project(':spring-security-test')
-	testCompile 'org.slf4j:jcl-over-slf4j'
-	testCompile 'org.slf4j:slf4j-api'
+	testImplementation project(':spring-security-test')
+	testImplementation 'org.slf4j:jcl-over-slf4j'
+	testImplementation 'org.slf4j:slf4j-api'
 }
 
 integrationTest {

@@ -5,25 +5,25 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-	compile project(':spring-security-core')
-	compile project(':spring-security-web')
-	compile('com.google.inject:guice') {
+	api project(':spring-security-core')
+	api project(':spring-security-web')
+	api('com.google.inject:guice') {
 		exclude group: 'aopalliance', module: 'aopalliance'
 	}
 	// openid4java has a compile time dep on guice with a group
 	// name which is different from the maven central one.
 	// We use the maven central version here instead.
-	compile('org.openid4java:openid4java-nodeps') {
+	api('org.openid4java:openid4java-nodeps') {
 		exclude group: 'com.google.code.guice', module: 'guice'
 	}
-	compile 'org.springframework:spring-aop'
-	compile 'org.springframework:spring-beans'
-	compile 'org.springframework:spring-context'
-	compile 'org.springframework:spring-core'
-	compile 'org.springframework:spring-web'
+	api 'org.springframework:spring-aop'
+	api 'org.springframework:spring-beans'
+	api 'org.springframework:spring-context'
+	api 'org.springframework:spring-core'
+	api 'org.springframework:spring-web'
 
 	provided 'javax.servlet:javax.servlet-api'
 
-	runtime 'net.sourceforge.nekohtml:nekohtml'
-	runtime 'org.apache.httpcomponents:httpclient'
+	runtimeOnly 'net.sourceforge.nekohtml:nekohtml'
+	runtimeOnly 'org.apache.httpcomponents:httpclient'
 }

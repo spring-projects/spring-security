@@ -1,20 +1,20 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-	compile project(':spring-security-acl')
-	compile project(':spring-security-core')
-	compile project(':spring-security-web')
-	compile 'org.springframework:spring-aop'
-	compile 'org.springframework:spring-beans'
-	compile 'org.springframework:spring-context'
-	compile 'org.springframework:spring-core'
-	compile 'org.springframework:spring-expression'
-	compile 'org.springframework:spring-web'
+	api project(':spring-security-acl')
+	api project(':spring-security-core')
+	api project(':spring-security-web')
+	api 'org.springframework:spring-aop'
+	api 'org.springframework:spring-beans'
+	api 'org.springframework:spring-context'
+	api 'org.springframework:spring-core'
+	api 'org.springframework:spring-expression'
+	api 'org.springframework:spring-web'
 
 	provided 'javax.servlet.jsp:javax.servlet.jsp-api'
 	provided 'javax.servlet:javax.servlet-api'
 
-	testRuntime 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api'
+	testRuntimeOnly 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api'
 }
 
 configure(project.tasks.withType(Test)) {
