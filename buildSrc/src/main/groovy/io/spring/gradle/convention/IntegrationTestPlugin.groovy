@@ -54,10 +54,10 @@ public class IntegrationTestPlugin implements Plugin<Project> {
 		}
 		project.configurations {
 			integrationTestCompile {
-				extendsFrom testCompile
+				extendsFrom testCompile, testImplementation
 			}
 			integrationTestRuntime {
-				extendsFrom integrationTestCompile, testRuntime
+				extendsFrom integrationTestCompile, testRuntime, testRuntimeOnly
 			}
 		}
 
