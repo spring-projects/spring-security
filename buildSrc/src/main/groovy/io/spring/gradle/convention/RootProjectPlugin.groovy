@@ -57,8 +57,6 @@ class RootProjectPlugin implements Plugin<Project> {
 			}
 		}
 
-		project.tasks.create("dependencyManagementExport", DependencyManagementExportTask)
-
 		def finalizeDeployArtifacts = project.task("finalizeDeployArtifacts")
 		if (Utils.isRelease(project) && project.hasProperty("ossrhUsername")) {
 			project.ext.nexusUsername = project.ossrhUsername
