@@ -58,6 +58,12 @@ updateDependenciesSettings {
 					selection.reject("jython updates break integration tests");
 				}
 			}
+			components.withModule("com.nimbusds:nimbus-jose-jwt") { selection ->
+				ModuleComponentIdentifier candidate = selection.getCandidate();
+				if (!candidate.getVersion().equals(selection.getCurrentVersion())) {
+					selection.reject("nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency");
+				}
+			}
 		}
 	}
 }
