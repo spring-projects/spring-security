@@ -1,5 +1,22 @@
+/*
+ * Copyright 2019-2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.security.convention.versions;
 
+import com.github.benmanes.gradle.versions.reporter.result.Dependency;
 import com.github.benmanes.gradle.versions.reporter.result.DependencyOutdated;
 import com.github.benmanes.gradle.versions.reporter.result.Result;
 import com.github.benmanes.gradle.versions.reporter.result.VersionAvailable;
@@ -15,7 +32,10 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import reactor.core.publisher.Mono;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.util.*;
@@ -23,6 +43,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.springframework.security.convention.versions.TransitiveDependencyLookupUtils.NIMBUS_JOSE_JWT_NAME;
+import static org.springframework.security.convention.versions.TransitiveDependencyLookupUtils.OIDC_SDK_NAME;
 
 public class UpdateDependenciesPlugin implements Plugin<Project> {
 	private GitHubApi gitHubApi;
@@ -98,6 +121,22 @@ public class UpdateDependenciesPlugin implements Plugin<Project> {
 		dependencies.forEach(outdated -> {
 			groups.computeIfAbsent(outdated.getGroup(), (key) -> new ArrayList<>()).add(outdated);
 		});
+		List<DependencyOutdated> nimbusds = groups.getOrDefault("com.nimbusds", new ArrayList<>());
+		DependencyOutdated oidcSdc = nimbusds.stream().filter(d -> d.getName().equals(OIDC_SDK_NAME)).findFirst().orElseGet(() -> null);
+		if(oidcSdc != null) {
+			String oidcVersion = updatedVersion(oidcSdc);
+			String jwtVersion = TransitiveDependencyLookupUtils.lookupJwtVersion(oidcVersion);
+
+			Dependency nimbusJoseJwtDependency = result.getCurrent().getDependencies().stream().filter(d -> d.getName().equals(NIMBUS_JOSE_JWT_NAME)).findFirst().get();
+			DependencyOutdated outdatedJwt = new DependencyOutdated();
+			outdatedJwt.setVersion(nimbusJoseJwtDependency.getVersion());
+			outdatedJwt.setGroup(oidcSdc.getGroup());
+			outdatedJwt.setName(NIMBUS_JOSE_JWT_NAME);
+			VersionAvailable available = new VersionAvailable();
+			available.setRelease(jwtVersion);
+			outdatedJwt.setAvailable(available);
+			nimbusds.add(outdatedJwt);
+		}
 		File gradlePropertiesFile = project.getRootProject().file(Project.GRADLE_PROPERTIES);
 		Mono<GitHubApi.FindCreateIssueResult> createIssueResult = createIssueResultMono(updateDependenciesSettings);
 		List<File> filesWithDependencies = updateDependenciesSettings.getFiles().get();
