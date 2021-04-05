@@ -1,6 +1,7 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
+	management platform(project(":spring-security-dependencies"))
 	api project(':spring-security-acl')
 	api project(':spring-security-core')
 	api project(':spring-security-web')

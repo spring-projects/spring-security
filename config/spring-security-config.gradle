@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+	management platform(project(":spring-security-dependencies"))
 	// NB: Don't add other compile time dependencies to the config module as this breaks tooling
 	api project(':spring-security-core')
 	api 'org.springframework:spring-aop'
