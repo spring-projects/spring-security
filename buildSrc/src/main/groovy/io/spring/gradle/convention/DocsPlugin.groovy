@@ -42,8 +42,8 @@ public class DocsPlugin implements Plugin<Project> {
 		Task docsZip = project.tasks.create('docsZip', Zip) {
 			dependsOn 'api', 'asciidoctor'
 			group = 'Distribution'
-			baseName = project.rootProject.name
-			classifier = 'docs'
+			archiveBaseName = project.rootProject.name
+			archiveClassifier = 'docs'
 			description = "Builds -${classifier} archive containing all " +
 				"Docs for deployment at docs.spring.io"
 
