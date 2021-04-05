@@ -16,6 +16,7 @@ apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'org.springframework.security.update-dependencies'
 
 group = 'org.springframework.security'
 description = 'Spring Security'
@@ -28,6 +29,26 @@ repositories {
 	mavenCentral()
 }
 
+updateDependenciesSettings {
+	gitHub {
+		organization = "rwinch"
+		repository = "spring-security"
+	}
+	addFiles({
+		return [
+				project.file("buildSrc/src/main/java/io/spring/gradle/convention/AsciidoctorConventionPlugin.java"),
+				project.file("buildSrc/src/main/groovy/io/spring/gradle/convention/CheckstylePlugin.groovy")
+		]
+	})
+	dependencyExcludes {
+		majorVersionBump()
+		alphaBetaVersions()
+		releaseCandidatesVersions()
+		milestoneVersions()
+		snapshotVersions()
+	}
+}
+
 subprojects {
 	plugins.withType(JavaPlugin) {
 		project.sourceCompatibility='1.8'
@@ -36,6 +57,7 @@ subprojects {
 		options.encoding = "UTF-8"
 	}
 }
+
 
 allprojects {
 	if (!['spring-security-bom', 'spring-security-docs'].contains(project.name)) {
@@ -73,5 +95,5 @@ if (hasProperty('buildScan')) {
 nohttp {
 	allowlistFile = project.file("etc/nohttp/allowlist.lines")
 	source.exclude "buildSrc/build/**"
-	
+
 }

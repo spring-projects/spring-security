@@ -1,6 +1,10 @@
-apply plugin: "java-gradle-plugin"
-apply plugin: 'java'
-apply plugin: 'groovy'
+plugins {
+	id "java-gradle-plugin"
+	id "java"
+	id "groovy"
+	id 'com.apollographql.apollo' version '2.4.5'
+}
+
 
 sourceCompatibility = 1.8
 
@@ -25,6 +29,10 @@ gradlePlugin {
 			id = "io.spring.convention.management-configuration"
 			implementationClass = "io.spring.gradle.convention.ManagementConfigurationPlugin"
 		}
+		updateDependencies {
+			id = "org.springframework.security.update-dependencies"
+			implementationClass = "org.springframework.security.convention.versions.UpdateDependenciesPlugin"
+		}
 	}
 }
 
@@ -39,7 +47,10 @@ dependencies {
 	implementation 'net.sourceforge.saxon:saxon:9.1.0.8'
 	implementation localGroovy()
 
-	implementation 'com.github.ben-manes:gradle-versions-plugin:0.25.0'
+	implementation 'io.projectreactor:reactor-core:3.4.4'
+	implementation 'gradle.plugin.org.gretty:gretty:3.0.1'
+	implementation 'com.apollographql.apollo:apollo-runtime:2.4.5'
+	implementation 'com.github.ben-manes:gradle-versions-plugin:0.38.0'
 	implementation 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.1'
 	implementation 'io.spring.gradle:docbook-reference-plugin:0.3.1'
 	implementation 'io.spring.gradle:propdeps-plugin:0.0.10.RELEASE'
