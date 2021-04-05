@@ -12,6 +12,12 @@ plugins {
 
 enableFeaturePreview("VERSION_ORDERING_V2")
 
+dependencyResolutionManagement {
+	repositories {
+		mavenCentral()
+	}
+}
+
 rootProject.name = 'spring-security'
 
 FileTree buildFiles = fileTree(rootDir) {
