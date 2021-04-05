@@ -52,7 +52,6 @@ dependencies {
 		api "org.apache.directory.shared:shared-ldap:0.9.15"
 		api "org.apache.httpcomponents:httpclient:4.5.13"
 		api "org.aspectj:aspectjrt:$aspectjVersion"
-		api "org.aspectj:aspectjtools:$aspectjVersion"
 		api "org.aspectj:aspectjweaver:$aspectjVersion"
 		api "org.assertj:assertj-core:3.19.0"
 		api "org.bouncycastle:bcpkix-jdk15on:1.68"
