@@ -38,7 +38,6 @@ dependencies {
 		api "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2"
 		api "javax.servlet.jsp:javax.servlet.jsp-api:2.3.3"
 		api "javax.servlet:javax.servlet-api:4.0.1"
-		api "javax.validation:validation-api:2.0.1.Final"
 		api "javax.xml.bind:jaxb-api:2.3.1"
 		api "junit:junit:4.13.2"
 		api "ldapsdk:ldapsdk:4.1"
