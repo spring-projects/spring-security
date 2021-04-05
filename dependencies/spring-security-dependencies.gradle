@@ -60,7 +60,6 @@ dependencies {
 		api "org.eclipse.jetty:jetty-servlet:9.4.39.v20210325"
 		api "org.eclipse.persistence:javax.persistence:2.2.1"
 		api "org.hibernate:hibernate-entitymanager:5.4.30.Final"
-		api "org.hibernate:hibernate-validator:6.2.0.Final"
 		api "org.hsqldb:hsqldb:2.5.1"
 		api "org.jasig.cas.client:cas-client-core:3.6.2"
 		api "org.jasig.cas:cas-server-webapp:4.2.7@war"
