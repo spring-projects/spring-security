@@ -1,6 +1,8 @@
 package org.springframework.security.convention.versions;
 
+import com.github.benmanes.gradle.versions.updates.resolutionstrategy.ComponentSelectionRulesWithCurrent;
 import com.github.benmanes.gradle.versions.updates.resolutionstrategy.ComponentSelectionWithCurrent;
+import com.github.benmanes.gradle.versions.updates.resolutionstrategy.ResolutionStrategyWithCurrent;
 import org.gradle.api.Action;
 
 import java.io.File;
@@ -115,9 +117,14 @@ public class UpdateDependenciesExtension {
 	 */
 	public class DependencyExcludes {
 		private List<Action<ComponentSelectionWithCurrent>> actions = new ArrayList<>();
+		private List<Action<ComponentSelectionRulesWithCurrent>> components = new ArrayList<>();
 
 		List<Action<ComponentSelectionWithCurrent>> getActions() {
 			return actions;
+		}
+
+		public List<Action<ComponentSelectionRulesWithCurrent>> getComponents() {
+			return components;
 		}
 
 		public DependencyExcludes alphaBetaVersions() {
@@ -152,6 +159,11 @@ public class UpdateDependenciesExtension {
 
 		public DependencyExcludes snapshotVersions() {
 			this.actions.add(excludeVersionWithRegex(".*?-SNAPSHOT.*", "a SNAPSHOT version"));
+			return this;
+		}
+
+		public DependencyExcludes addRule(Action<ComponentSelectionRulesWithCurrent> rule) {
+			this.components.add(rule);
 			return this;
 		}
 
