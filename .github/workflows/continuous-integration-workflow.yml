@@ -64,41 +64,6 @@ jobs:
         with:
           name: errors
           path: job-${{ github.job }}.txt
-  test_alternate_jdks:
-    name: Test JDK 12
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        jdk: [12]
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK ${{ matrix.jdk }}
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.jdk }}
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-      - name: Test with Gradle
-        run: |
-          export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
-          export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
-          export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          ./gradlew test -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD" --stacktrace
-      - name: Track error step
-        uses: spring-projects/track-build-errors-action@v1
-        if: ${{ failure() }}
-        with:
-          job-name: ${{ github.job }}-${{ matrix.jdk }}
-      - name: Export errors file
-        uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
-        with:
-          name: errors
-          path: job-${{ github.job }}-${{ matrix.jdk }}.txt
   snapshot_tests:
     name: Test against snapshots
     runs-on: ubuntu-latest
@@ -165,7 +130,7 @@ jobs:
           path: job-${{ github.job }}.txt
   deploy_artifacts:
     name: Deploy Artifacts
-    needs: [build_jdk_11, test_alternate_jdks, snapshot_tests, sonar_analysis]
+    needs: [build_jdk_11, snapshot_tests, sonar_analysis]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -203,7 +168,7 @@ jobs:
           path: job-${{ github.job }}.txt
   deploy_docs:
     name: Deploy Docs
-    needs: [build_jdk_11, test_alternate_jdks, snapshot_tests, sonar_analysis]
+    needs: [build_jdk_11, snapshot_tests, sonar_analysis]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -234,7 +199,7 @@ jobs:
           path: job-${{ github.job }}.txt
   deploy_schema:
     name: Deploy Schema
-    needs: [build_jdk_11, test_alternate_jdks, snapshot_tests, sonar_analysis]
+    needs: [build_jdk_11, snapshot_tests, sonar_analysis]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -265,7 +230,7 @@ jobs:
           path: job-${{ github.job }}.txt
   notify_result:
     name: Check for failures
-    needs: [build_jdk_11, test_alternate_jdks, snapshot_tests, sonar_analysis, deploy_artifacts, deploy_docs, deploy_schema]
+    needs: [build_jdk_11, snapshot_tests, sonar_analysis, deploy_artifacts, deploy_docs, deploy_schema]
     if: always()
     runs-on: ubuntu-latest
     steps:
