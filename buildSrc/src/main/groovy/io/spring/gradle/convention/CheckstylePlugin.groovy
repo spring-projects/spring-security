@@ -39,7 +39,7 @@ class CheckstylePlugin implements Plugin<Project> {
 				project.dependencies.add('checkstyle', 'io.spring.nohttp:nohttp-checkstyle:0.0.3.RELEASE')
 
 				project.checkstyle {
-					configDir = checkstyleDir
+					configDirectory = checkstyleDir
 					toolVersion = '8.21'
 				}
 			}
