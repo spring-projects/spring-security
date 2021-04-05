@@ -52,6 +52,12 @@ updateDependenciesSettings {
 					selection.reject("commons-codec updates break saml tests");
 				}
 			}
+			components.withModule("org.python:jython") { selection ->
+				ModuleComponentIdentifier candidate = selection.getCandidate();
+				if (!candidate.getVersion().equals(selection.getCurrentVersion())) {
+					selection.reject("jython updates break integration tests");
+				}
+			}
 		}
 	}
 }
