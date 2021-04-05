@@ -24,11 +24,6 @@ dependencies {
 	api platform("com.fasterxml.jackson:jackson-bom:2.12.2")
 	constraints {
 		api "ch.qos.logback:logback-classic:1.2.3"
-		api "com.google.appengine:appengine-api-1.0-sdk:$gaeVersion"
-		api "com.google.appengine:appengine-api-labs:$gaeVersion"
-		api "com.google.appengine:appengine-api-stubs:$gaeVersion"
-		api "com.google.appengine:appengine-testing:$gaeVersion"
-		api "com.google.appengine:appengine:$gaeVersion"
 		api "com.google.inject:guice:3.0"
 		api "com.nimbusds:nimbus-jose-jwt:9.7"
 		api "com.nimbusds:oauth2-oidc-sdk:9.3"
