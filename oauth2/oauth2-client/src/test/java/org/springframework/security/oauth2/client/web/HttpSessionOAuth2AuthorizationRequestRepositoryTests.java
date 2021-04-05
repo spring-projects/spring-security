@@ -268,6 +268,36 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 		assertThat(loadedAuthorizationRequest2).isEqualTo(authorizationRequest2);
 	}
 
+	@Test
+	public void removeOldestAuthorizationRequestWhenMoreThanMax() {
+		this.authorizationRequestRepository.setMaxActiveAuthorizationRequestsPerSession(2);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		String state1 = "state-1122";
+		OAuth2AuthorizationRequest authorizationRequest1 = createAuthorizationRequest().state(state1).build();
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest1, request, response);
+		String state2 = "state-3344";
+		OAuth2AuthorizationRequest authorizationRequest2 = createAuthorizationRequest().state(state2).build();
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest2, request, response);
+		String state3 = "state-4455";
+		OAuth2AuthorizationRequest authorizationRequest3 = createAuthorizationRequest().state(state3).build();
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest3, request, response);
+		request.addParameter(OAuth2ParameterNames.STATE, state1);
+		OAuth2AuthorizationRequest loadedAuthorizationRequest1 = this.authorizationRequestRepository
+				.loadAuthorizationRequest(request);
+		assertThat(loadedAuthorizationRequest1).isNull();
+		request.removeParameter(OAuth2ParameterNames.STATE);
+		request.addParameter(OAuth2ParameterNames.STATE, state2);
+		OAuth2AuthorizationRequest loadedAuthorizationRequest2 = this.authorizationRequestRepository
+				.loadAuthorizationRequest(request);
+		assertThat(loadedAuthorizationRequest2).isEqualTo(authorizationRequest2);
+		request.removeParameter(OAuth2ParameterNames.STATE);
+		request.addParameter(OAuth2ParameterNames.STATE, state3);
+		OAuth2AuthorizationRequest loadedAuthorizationRequest3 = this.authorizationRequestRepository
+				.loadAuthorizationRequest(request);
+		assertThat(loadedAuthorizationRequest3).isEqualTo(authorizationRequest3);
+	}
+
 	private OAuth2AuthorizationRequest.Builder createAuthorizationRequest() {
 		return OAuth2AuthorizationRequest.authorizationCode().authorizationUri("https://example.com/oauth2/authorize")
 				.clientId("client-id-1234").state("state-1234");

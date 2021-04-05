@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,6 +59,8 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 
 	private Duration authorizationRequestTimeToLive = Duration.ofSeconds(120);
 
+	private int maxActiveAuthorizationRequestsPerSession = 10;
+
 	@Override
 	public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
 		Assert.notNull(request, "request cannot be null");
@@ -84,6 +87,11 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 		Map<String, OAuth2AuthorizationRequestReference> authorizationRequests = this.getAuthorizationRequests(request);
 		authorizationRequests.put(state, new OAuth2AuthorizationRequestReference(authorizationRequest,
 				this.clock.instant().plus(this.authorizationRequestTimeToLive)));
+		if (authorizationRequests.size() > this.maxActiveAuthorizationRequestsPerSession) {
+			authorizationRequests.entrySet().stream()
+					.sorted((e, f) -> e.getValue().expiresAt.compareTo(f.getValue().expiresAt)).findFirst()
+					.map(Entry::getKey).ifPresent(authorizationRequests::remove);
+		}
 		request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
 	}
 
@@ -165,6 +173,18 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 		Assert.state(!authorizationRequestTimeToLive.isNegative(),
 				"oAuth2AuthorizationRequestExpiresIn cannot be negative");
 		this.authorizationRequestTimeToLive = authorizationRequestTimeToLive;
+	}
+
+	/**
+	 * Sets the maximum number of {@link OAuth2AuthorizationRequest} that can be
+	 * stored/active for a session. If the maximum number are present in a session when an
+	 * attempt is made to save another one, then the oldest will be removed.
+	 * @param maxActiveAuthorizationRequests must not be negative.
+	 */
+	public void setMaxActiveAuthorizationRequestsPerSession(int maxActiveAuthorizationRequestsPerSession) {
+		Assert.state(maxActiveAuthorizationRequestsPerSession > 0,
+				"maxActiveAuthorizationRequestsPerSession must be greater than zero");
+		this.maxActiveAuthorizationRequestsPerSession = maxActiveAuthorizationRequestsPerSession;
 	}
 
 	private static final class OAuth2AuthorizationRequestReference implements Serializable {
