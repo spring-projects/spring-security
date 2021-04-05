@@ -36,7 +36,6 @@ dependencies {
 	implementation localGroovy()
 
 	implementation 'com.github.ben-manes:gradle-versions-plugin:0.25.0'
-	implementation 'gradle.plugin.org.gretty:gretty:3.0.1'
 	implementation 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.1'
 	implementation 'io.spring.gradle:dependency-management-plugin:1.0.9.RELEASE'
 	implementation 'io.spring.gradle:docbook-reference-plugin:0.3.1'
