@@ -32,7 +32,6 @@ dependencies {
 		api "com.unboundid:unboundid-ldapsdk:4.0.14"
 		api "commons-codec:commons-codec:1.14"
 		api "commons-collections:commons-collections:3.2.2"
-		api "commons-httpclient:commons-httpclient:3.1"
 		api "commons-logging:commons-logging:1.2"
 		api "io.projectreactor.tools:blockhound:1.0.5.RELEASE"
 		api "javax.annotation:jsr250-api:1.0"
