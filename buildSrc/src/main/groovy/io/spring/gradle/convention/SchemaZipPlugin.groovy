@@ -11,9 +11,9 @@ public class SchemaZipPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		Zip schemaZip = project.tasks.create('schemaZip', Zip)
 		schemaZip.group = 'Distribution'
-		schemaZip.baseName = project.rootProject.name
-		schemaZip.classifier = 'schema'
-		schemaZip.description = "Builds -${schemaZip.classifier} archive containing all " +
+		schemaZip.archiveBaseName = project.rootProject.name
+		schemaZip.archiveClassifier = 'schema'
+		schemaZip.description = "Builds -${schemaZip.archiveClassifier} archive containing all " +
 			"XSDs for deployment at static.springframework.org/schema."
 
 		project.rootProject.subprojects.each { module ->
