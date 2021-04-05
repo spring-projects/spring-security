@@ -1,0 +1,20 @@
+query FindCreateIssueInput($owner: String!, $name: String!, $labelQuery: String, $milestoneName: String) {
+  repository(owner: $owner, name: $name) {
+      id
+      labels(query: $labelQuery, first: 1) {
+          nodes {
+              id
+              name
+          }
+      }
+      milestones(query: $milestoneName, states: [OPEN], first: 1) {
+          nodes {
+              id
+              title
+          }
+      }
+  }
+  viewer {
+      id
+  }
+}
