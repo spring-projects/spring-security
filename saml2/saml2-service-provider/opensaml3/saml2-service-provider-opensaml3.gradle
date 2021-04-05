@@ -34,12 +34,7 @@ repositories {
 }
 
 dependencies {
-	constraints {
-		management("org.opensaml:opensaml-core:3.+")
-		management("org.opensaml:opensaml-saml-api:3.+")
-		management("org.opensaml:opensaml-saml-impl:3.+")
-	}
-
+	management platform(project(":spring-security-dependencies"))
 	api project(':saml2-service-provider-core')
 
 	api("org.opensaml:opensaml-core")

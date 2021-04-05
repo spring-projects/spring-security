@@ -1,6 +1,7 @@
 apply plugin: 'io.spring.convention.spring-test'
 
 dependencies {
+	management platform(project(":spring-security-dependencies"))
     implementation project(':spring-security-core')
     implementation 'org.springframework:spring-beans'
     implementation 'org.springframework:spring-context'

@@ -36,6 +36,7 @@ configurations {
 }
 
 dependencies {
+	management platform(project(":spring-security-dependencies"))
 	core(project(path: ":saml2-service-provider-core", configuration: 'classesOnlyElements'))
 	opensaml3(project(path: ":saml2-service-provider-opensaml3", configuration: 'classesOnlyElements'))
 	opensaml4(project(path: ":saml2-service-provider-opensaml4", configuration: 'classesOnlyElements'))
