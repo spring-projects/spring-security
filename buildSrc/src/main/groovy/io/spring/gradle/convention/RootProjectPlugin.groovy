@@ -34,15 +34,6 @@ class RootProjectPlugin implements Plugin<Project> {
 
 		project.repositories.mavenCentral()
 
-		project.allprojects {
-			configurations.all {
-				resolutionStrategy {
-					cacheChangingModulesFor 0, "seconds"
-					cacheDynamicVersionsFor 0, "seconds"
-				}
-			}
-		}
-
 		String projectName = Utils.getProjectName(project)
 		project.sonarqube {
 			properties {
