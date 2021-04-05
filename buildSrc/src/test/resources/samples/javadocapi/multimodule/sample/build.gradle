@@ -1,1 +1,1 @@
-apply plugin: 'io.spring.convention.spring-sample'
+apply plugin: 'java'
