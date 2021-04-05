@@ -1,3 +1,0 @@
-dependencies {
-	management platform('io.spring.platform:platform-bom:Brussels-RELEASE')
-}

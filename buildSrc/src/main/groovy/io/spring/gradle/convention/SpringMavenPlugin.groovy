@@ -1,9 +1,5 @@
 package io.spring.gradle.convention
 
-import io.spring.gradle.dependencymanagement.DependencyManagementPlugin
-import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
-import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
@@ -57,9 +53,7 @@ public class SpringMavenPlugin implements Plugin<Project> {
 			}
 		}
 
-		project.plugins.withType(DependencyManagementPlugin) {
-			inlineDependencyManagement(project);
-		}
+		inlineDependencyManagement(project);
 
 		def hasSigningKey = project.hasProperty("signing.keyId") || project.findProperty("signingKey")
 		if(hasSigningKey && Utils.isRelease(project)) {
@@ -70,9 +64,6 @@ public class SpringMavenPlugin implements Plugin<Project> {
 	}
 
 	private void inlineDependencyManagement(Project project) {
-		final DependencyManagementExtension dependencyManagement = project.getExtensions().findByType(DependencyManagementExtension.class);
-		dependencyManagement.generatedPomCustomization( { handler -> handler.setEnabled(false) });
-
 		project.install {
 			repositories.mavenInstaller {
 				configurePomForInlineDependencies(project, pom)
@@ -89,7 +80,7 @@ public class SpringMavenPlugin implements Plugin<Project> {
 		pom.withXml { XmlProvider xml ->
 			project.plugins.withType(JavaBasePlugin) {
 				def dependencies = xml.asNode()?.dependencies?.dependency
-				def configuredDependencies = project.configurations.findAll{ it.canBeResolved }*.incoming*.resolutionResult*.allDependencies.flatten()
+				def configuredDependencies = project.configurations.findAll{ it.canBeResolved && it.canBeConsumed }*.incoming*.resolutionResult*.allDependencies.flatten()
 				dependencies?.each { Node dep ->
 					def group = dep.groupId.text()
 					def name = dep.artifactId.text()

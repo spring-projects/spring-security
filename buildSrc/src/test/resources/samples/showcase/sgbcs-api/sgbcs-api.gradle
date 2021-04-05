@@ -1,6 +1,7 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
+	management platform('io.spring.platform:platform-bom:Brussels-RELEASE')
 	compile 'org.springframework:spring-web'
 	compile 'org.springframework:spring-core'
 	testCompile 'junit:junit'

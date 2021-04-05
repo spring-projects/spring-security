@@ -1,6 +1,7 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
+	management platform('io.spring.platform:platform-bom:Brussels-RELEASE')
 	optional 'ch.qos.logback:logback-classic'
 	testCompile 'junit:junit'
 }

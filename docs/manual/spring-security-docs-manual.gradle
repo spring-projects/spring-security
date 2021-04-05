@@ -1,5 +1,5 @@
 apply plugin: 'io.spring.convention.docs'
-apply plugin: 'io.spring.convention.springdependencymangement'
+apply plugin: 'io.spring.convention.management-configuration'
 apply plugin: 'io.spring.convention.dependency-set'
 apply plugin: 'io.spring.convention.repository'
 apply plugin: 'java'
