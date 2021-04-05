@@ -27,6 +27,7 @@ import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -67,14 +68,13 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -492,17 +492,14 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private AuthenticationEntryPoint getLoginEntryPoint(B http, String providerLoginPage) {
 		RequestMatcher loginPageMatcher = new AntPathRequestMatcher(this.getLoginPage());
-		RequestMatcher faviconMatcher = new AntPathRequestMatcher("/favicon.ico");
 		RequestMatcher defaultEntryPointMatcher = this.getAuthenticationEntryPointMatcher(http);
-		RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(
-				new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
-		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
-				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
+		RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(loginPageMatcher, defaultEntryPointMatcher);
 		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
-		entryPoints.put(new AndRequestMatcher(notXRequestedWith, new NegatedRequestMatcher(defaultLoginPageMatcher)),
+		entryPoints.put(
+				new AndRequestMatcher(defaultEntryPointMatcher, new NegatedRequestMatcher(defaultLoginPageMatcher)),
 				new LoginUrlAuthenticationEntryPoint(providerLoginPage));
 		DelegatingAuthenticationEntryPoint loginEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
-		loginEntryPoint.setDefaultEntryPoint(this.getAuthenticationEntryPoint());
+		loginEntryPoint.setDefaultEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 		return loginEntryPoint;
 	}
 

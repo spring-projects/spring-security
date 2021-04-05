@@ -355,7 +355,9 @@ public class OAuth2LoginConfigurerTests {
 		String requestUri = "/";
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
+		this.request.addHeader("Accept", MediaType.TEXT_HTML);
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getStatus()).isEqualTo(302);
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/oauth2/authorization/google");
 	}
 
@@ -369,7 +371,8 @@ public class OAuth2LoginConfigurerTests {
 		this.request.setServletPath(requestUri);
 		this.request.addHeader(HttpHeaders.ACCEPT, new MediaType("image", "*").toString());
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
+		assertThat(this.response.getStatus()).isEqualTo(302);
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/oauth2/authorization/google");
 	}
 
 	// gh-5347
@@ -393,7 +396,19 @@ public class OAuth2LoginConfigurerTests {
 		this.request.setServletPath(requestUri);
 		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-		assertThat(this.response.getRedirectedUrl()).doesNotMatch("http://localhost/oauth2/authorization/google");
+		assertThat(this.response.getStatus()).isEqualTo(401);
+	}
+
+	@Test
+	public void oauth2LoginWithOneClientConfiguredAndRequestAcceptJSONNotAuthenticatedThenDoesNotRedirectForAuthorization()
+			throws Exception {
+		loadConfig(OAuth2LoginConfig.class);
+		String requestUri = "/";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.request.addHeader("Accept", MediaType.APPLICATION_JSON);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
