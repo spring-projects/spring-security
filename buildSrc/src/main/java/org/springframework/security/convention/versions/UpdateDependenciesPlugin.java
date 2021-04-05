@@ -68,6 +68,9 @@ public class UpdateDependenciesPlugin implements Plugin<Project> {
 								updateDependenciesSettings.getExcludes().getActions().forEach((action) -> {
 									components.all(action);
 								});
+								updateDependenciesSettings.getExcludes().getComponents().forEach((action) -> {
+									action.execute(components);
+								});
 								components.all((selection) -> {
 									ModuleComponentIdentifier candidate = selection.getCandidate();
 									if (candidate.getGroup().startsWith("org.apache.directory.") && !candidate.getVersion().equals(selection.getCurrentVersion())) {
