@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.security.web.csrf;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import javax.servlet.FilterChain;
@@ -87,6 +88,18 @@ public class CsrfFilterTests {
 	private void resetRequestResponse() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
+	}
+
+	@Test
+	public void nullConstantTimeEquals() throws Exception {
+		Method method = CsrfFilter.class.getDeclaredMethod("equalsConstantTime", String.class, String.class);
+		method.setAccessible(true);
+		assertThat(method.invoke(CsrfFilter.class, null, null)).isEqualTo(true);
+		String expectedToken = "Hello—World";
+		String actualToken = new String("Hello—World");
+		assertThat(method.invoke(CsrfFilter.class, expectedToken, null)).isEqualTo(false);
+		assertThat(method.invoke(CsrfFilter.class, expectedToken, "hello-world")).isEqualTo(false);
+		assertThat(method.invoke(CsrfFilter.class, expectedToken, actualToken)).isEqualTo(true);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
