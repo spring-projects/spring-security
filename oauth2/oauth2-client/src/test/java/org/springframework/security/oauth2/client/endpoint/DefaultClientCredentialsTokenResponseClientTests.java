@@ -194,12 +194,12 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 				.build();
 		// @formatter:on
 
-		// Configure Jwt client authentication customizer
+		// Configure Jwt client authentication converter
 		SecretKeySpec secretKey = new SecretKeySpec(
 				clientRegistration.getClientSecret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
 		JWK jwk = TestJwks.jwk(secretKey).build();
 		Function<ClientRegistration, JWK> jwkResolver = (registration) -> jwk;
-		configureJwtClientAuthenticationCustomizer(jwkResolver);
+		configureJwtClientAuthenticationConverter(jwkResolver);
 
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
 				clientRegistration);
@@ -229,10 +229,10 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 				.build();
 		// @formatter:on
 
-		// Configure Jwt client authentication customizer
+		// Configure Jwt client authentication converter
 		JWK jwk = TestJwks.DEFAULT_RSA_JWK;
 		Function<ClientRegistration, JWK> jwkResolver = (registration) -> jwk;
-		configureJwtClientAuthenticationCustomizer(jwkResolver);
+		configureJwtClientAuthenticationConverter(jwkResolver);
 
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
 				clientRegistration);
@@ -245,11 +245,11 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 		assertThat(formParameters).contains("client_assertion=");
 	}
 
-	private void configureJwtClientAuthenticationCustomizer(Function<ClientRegistration, JWK> jwkResolver) {
-		NimbusJwtClientAuthenticationCustomizer<OAuth2ClientCredentialsGrantRequest> jwtClientAuthenticationCustomizer = new NimbusJwtClientAuthenticationCustomizer<>(
+	private void configureJwtClientAuthenticationConverter(Function<ClientRegistration, JWK> jwkResolver) {
+		NimbusJwtClientAuthenticationParametersConverter<OAuth2ClientCredentialsGrantRequest> jwtClientAuthenticationConverter = new NimbusJwtClientAuthenticationParametersConverter<>(
 				jwkResolver);
 		OAuth2ClientCredentialsGrantRequestEntityConverter requestEntityConverter = new OAuth2ClientCredentialsGrantRequestEntityConverter();
-		requestEntityConverter.setCustomizer(jwtClientAuthenticationCustomizer);
+		requestEntityConverter.addParametersConverter(jwtClientAuthenticationConverter);
 		this.tokenResponseClient.setRequestEntityConverter(requestEntityConverter);
 	}
 

@@ -31,7 +31,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
-import org.springframework.http.HttpHeaders;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
@@ -42,15 +42,15 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 /**
- * An implementation of an
- * {@link OAuth2AuthorizationGrantRequestEntityConverter.Customizer} that customizes the
- * OAuth 2.0 Access Token Request by adding a signed JSON Web Token (JWS) to be used for
- * client authentication at the Authorization Server's Token Endpoint. The private/secret
- * key used for signing the JWS is supplied by the {@code com.nimbusds.jose.jwk.JWK}
- * resolver provided via the constructor.
+ * A {@link Converter} that customizes the OAuth 2.0 Access Token Request parameters by
+ * adding a signed JSON Web Token (JWS) to be used for client authentication at the
+ * Authorization Server's Token Endpoint. The private/secret key used for signing the JWS
+ * is supplied by the {@code com.nimbusds.jose.jwk.JWK} resolver provided via the
+ * constructor.
  *
  * <p>
  * <b>NOTE:</b> This implementation uses the Nimbus JOSE + JWT SDK.
@@ -58,7 +58,7 @@ import org.springframework.util.MultiValueMap;
  * @param <T> the type of {@link AbstractOAuth2AuthorizationGrantRequest}
  * @author Joe Grandja
  * @since 5.5
- * @see OAuth2AuthorizationGrantRequestEntityConverter.Customizer
+ * @see Converter
  * @see com.nimbusds.jose.jwk.JWK
  * @see JwtCustomizer
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7523#section-2.2">2.2
@@ -68,8 +68,8 @@ import org.springframework.util.MultiValueMap;
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus
  * JOSE + JWT SDK</a>
  */
-public final class NimbusJwtClientAuthenticationCustomizer<T extends AbstractOAuth2AuthorizationGrantRequest>
-		implements OAuth2AuthorizationGrantRequestEntityConverter.Customizer<T> {
+public final class NimbusJwtClientAuthenticationParametersConverter<T extends AbstractOAuth2AuthorizationGrantRequest>
+		implements Converter<T, MultiValueMap<String, String>> {
 
 	private static final String INVALID_KEY_ERROR_CODE = "invalid_key";
 
@@ -90,22 +90,20 @@ public final class NimbusJwtClientAuthenticationCustomizer<T extends AbstractOAu
 	 * @param jwkResolver the resolver that provides the {@code com.nimbusds.jose.jwk.JWK}
 	 * associated to the {@link ClientRegistration client}
 	 */
-	public NimbusJwtClientAuthenticationCustomizer(Function<ClientRegistration, JWK> jwkResolver) {
+	public NimbusJwtClientAuthenticationParametersConverter(Function<ClientRegistration, JWK> jwkResolver) {
 		Assert.notNull(jwkResolver, "jwkResolver cannot be null");
 		this.jwkResolver = jwkResolver;
 	}
 
 	@Override
-	public void customize(T authorizationGrantRequest, HttpHeaders headers, MultiValueMap<String, String> parameters) {
+	public MultiValueMap<String, String> convert(T authorizationGrantRequest) {
 		Assert.notNull(authorizationGrantRequest, "authorizationGrantRequest cannot be null");
-		Assert.notNull(headers, "headers cannot be null");
-		Assert.notNull(parameters, "parameters cannot be null");
 
 		ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 		if (!ClientAuthenticationMethod.PRIVATE_KEY_JWT.equals(clientRegistration.getClientAuthenticationMethod())
 				&& !ClientAuthenticationMethod.CLIENT_SECRET_JWT
 						.equals(clientRegistration.getClientAuthenticationMethod())) {
-			return;
+			return null;
 		}
 
 		JWK jwk = this.jwkResolver.apply(clientRegistration);
@@ -154,8 +152,11 @@ public final class NimbusJwtClientAuthenticationCustomizer<T extends AbstractOAu
 
 		Jwt jws = jwsEncoder.encode(joseHeader, jwtClaimsSet);
 
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.set(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE, CLIENT_ASSERTION_TYPE_VALUE);
 		parameters.set(OAuth2ParameterNames.CLIENT_ASSERTION, jws.getTokenValue());
+
+		return parameters;
 	}
 
 	/**

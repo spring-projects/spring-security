@@ -20,7 +20,9 @@ import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -38,8 +40,8 @@ import org.springframework.util.MultiValueMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link OAuth2RefreshTokenGrantRequestEntityConverter}.
@@ -56,24 +58,63 @@ public class OAuth2RefreshTokenGrantRequestEntityConverterTests {
 	}
 
 	@Test
-	public void setCustomizerWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setCustomizer(null))
-				.withMessage("customizer cannot be null");
+	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setHeadersConverter(null))
+				.withMessage("headersConverter cannot be null");
 	}
 
 	@Test
-	public void convertWhenCustomizerSetThenCalled() {
-		OAuth2AuthorizationGrantRequestEntityConverter.Customizer<OAuth2RefreshTokenGrantRequest> customizer = mock(
-				OAuth2AuthorizationGrantRequestEntityConverter.Customizer.class);
-		this.converter.setCustomizer(customizer);
+	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.addHeadersConverter(null))
+				.withMessage("headersConverter cannot be null");
+	}
+
+	@Test
+	public void setParametersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setParametersConverter(null))
+				.withMessage("parametersConverter cannot be null");
+	}
+
+	@Test
+	public void addParametersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.addParametersConverter(null))
+				.withMessage("parametersConverter cannot be null");
+	}
+
+	@Test
+	public void convertWhenHeadersConverterSetThenCalled() {
+		Converter<OAuth2RefreshTokenGrantRequest, HttpHeaders> headersConverter1 = mock(Converter.class);
+		this.converter.setHeadersConverter(headersConverter1);
+		Converter<OAuth2RefreshTokenGrantRequest, HttpHeaders> headersConverter2 = mock(Converter.class);
+		this.converter.addHeadersConverter(headersConverter2);
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.scopes("read", "write");
 		OAuth2RefreshToken refreshToken = TestOAuth2RefreshTokens.refreshToken();
 		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				accessToken, refreshToken);
 		this.converter.convert(refreshTokenGrantRequest);
-		verify(customizer).customize(any(OAuth2RefreshTokenGrantRequest.class), any(HttpHeaders.class),
-				any(MultiValueMap.class));
+		InOrder inOrder = inOrder(headersConverter1, headersConverter2);
+		inOrder.verify(headersConverter1).convert(any(OAuth2RefreshTokenGrantRequest.class));
+		inOrder.verify(headersConverter2).convert(any(OAuth2RefreshTokenGrantRequest.class));
+	}
+
+	@Test
+	public void convertWhenParametersConverterSetThenCalled() {
+		Converter<OAuth2RefreshTokenGrantRequest, MultiValueMap<String, String>> parametersConverter1 = mock(
+				Converter.class);
+		this.converter.setParametersConverter(parametersConverter1);
+		Converter<OAuth2RefreshTokenGrantRequest, MultiValueMap<String, String>> parametersConverter2 = mock(
+				Converter.class);
+		this.converter.addParametersConverter(parametersConverter2);
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.scopes("read", "write");
+		OAuth2RefreshToken refreshToken = TestOAuth2RefreshTokens.refreshToken();
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
+				accessToken, refreshToken);
+		this.converter.convert(refreshTokenGrantRequest);
+		InOrder inOrder = inOrder(parametersConverter1, parametersConverter2);
+		inOrder.verify(parametersConverter1).convert(any(OAuth2RefreshTokenGrantRequest.class));
+		inOrder.verify(parametersConverter2).convert(any(OAuth2RefreshTokenGrantRequest.class));
 	}
 
 	@SuppressWarnings("unchecked")

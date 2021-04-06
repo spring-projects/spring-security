@@ -16,76 +16,32 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import java.net.URI;
-
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * A {@link Converter} that converts the provided {@link OAuth2PasswordGrantRequest} to a
+ * An implementation of an {@link AbstractOAuth2AuthorizationGrantRequestEntityConverter}
+ * that converts the provided {@link OAuth2PasswordGrantRequest} to a
  * {@link RequestEntity} representation of an OAuth 2.0 Access Token Request for the
  * Resource Owner Password Credentials Grant.
  *
  * @author Joe Grandja
  * @since 5.2
- * @see OAuth2AuthorizationGrantRequestEntityConverter
+ * @see AbstractOAuth2AuthorizationGrantRequestEntityConverter
  * @see OAuth2PasswordGrantRequest
  * @see RequestEntity
  */
 public class OAuth2PasswordGrantRequestEntityConverter
-		implements OAuth2AuthorizationGrantRequestEntityConverter<OAuth2PasswordGrantRequest> {
+		extends AbstractOAuth2AuthorizationGrantRequestEntityConverter<OAuth2PasswordGrantRequest> {
 
-	private Customizer<OAuth2PasswordGrantRequest> customizer = (request, headers, parameters) -> {
-	};
-
-	/**
-	 * Returns the {@link RequestEntity} used for the Access Token Request.
-	 * @param passwordGrantRequest the password grant request
-	 * @return the {@link RequestEntity} used for the Access Token Request
-	 */
 	@Override
-	public RequestEntity<?> convert(OAuth2PasswordGrantRequest passwordGrantRequest) {
-		ClientRegistration clientRegistration = passwordGrantRequest.getClientRegistration();
-		HttpHeaders headers = OAuth2AuthorizationGrantRequestEntityUtils.getTokenRequestHeaders(clientRegistration);
-		MultiValueMap<String, String> parameters = createParameters(passwordGrantRequest);
-		this.customizer.customize(passwordGrantRequest, headers, parameters);
-		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri()).build()
-				.toUri();
-		return new RequestEntity<>(parameters, headers, HttpMethod.POST, uri);
-	}
-
-	/**
-	 * Sets the {@link Customizer} to be provided the opportunity to customize the
-	 * {@link HttpHeaders headers} and/or {@link MultiValueMap parameters} of the OAuth
-	 * 2.0 Access Token Request.
-	 * @param customizer the {@link Customizer} to be provided the opportunity to
-	 * customize the OAuth 2.0 Access Token Request
-	 * @since 5.5
-	 */
-	public final void setCustomizer(Customizer<OAuth2PasswordGrantRequest> customizer) {
-		Assert.notNull(customizer, "customizer cannot be null");
-		this.customizer = customizer;
-	}
-
-	/**
-	 * Returns a {@link MultiValueMap} of the form parameters used for the Access Token
-	 * Request body.
-	 * @param passwordGrantRequest the password grant request
-	 * @return a {@link MultiValueMap} of the form parameters used for the Access Token
-	 * Request body
-	 */
-	private MultiValueMap<String, String> createParameters(OAuth2PasswordGrantRequest passwordGrantRequest) {
+	protected MultiValueMap<String, String> createParameters(OAuth2PasswordGrantRequest passwordGrantRequest) {
 		ClientRegistration clientRegistration = passwordGrantRequest.getClientRegistration();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add(OAuth2ParameterNames.GRANT_TYPE, passwordGrantRequest.getGrantType().getValue());

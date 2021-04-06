@@ -25,7 +25,6 @@ import com.nimbusds.jose.jwk.RSAKey;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -37,7 +36,6 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,61 +47,43 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
- * Tests for {@link NimbusJwtClientAuthenticationCustomizer}.
+ * Tests for {@link NimbusJwtClientAuthenticationParametersConverter}.
  *
  * @author Joe Grandja
  */
-public class NimbusJwtClientAuthenticationCustomizerTests {
+public class NimbusJwtClientAuthenticationParametersConverterTests {
 
 	private Function<ClientRegistration, JWK> jwkResolver;
 
-	private NimbusJwtClientAuthenticationCustomizer<OAuth2ClientCredentialsGrantRequest> customizer;
+	private NimbusJwtClientAuthenticationParametersConverter<OAuth2ClientCredentialsGrantRequest> converter;
 
 	@Before
 	public void setup() {
 		this.jwkResolver = mock(Function.class);
-		this.customizer = new NimbusJwtClientAuthenticationCustomizer<>(this.jwkResolver);
+		this.converter = new NimbusJwtClientAuthenticationParametersConverter<>(this.jwkResolver);
 	}
 
 	@Test
 	public void constructorWhenJwkResolverNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new NimbusJwtClientAuthenticationCustomizer<>(null))
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new NimbusJwtClientAuthenticationParametersConverter<>(null))
 				.withMessage("jwkResolver cannot be null");
 	}
 
 	@Test
 	public void setJwtCustomizerWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.customizer.setJwtCustomizer(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setJwtCustomizer(null))
 				.withMessage("jwtCustomizer cannot be null");
 	}
 
 	@Test
-	public void customizeWhenAuthorizationGrantRequestNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.customizer.customize(null, new HttpHeaders(), new LinkedMultiValueMap<>()))
+	public void convertWhenAuthorizationGrantRequestNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.convert(null))
 				.withMessage("authorizationGrantRequest cannot be null");
 	}
 
 	@Test
-	public void customizeWhenHeadersNullThenThrowIllegalArgumentException() {
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
-				TestClientRegistrations.clientCredentials().build());
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> this.customizer.customize(clientCredentialsGrantRequest, null, new LinkedMultiValueMap<>()))
-				.withMessage("headers cannot be null");
-	}
-
-	@Test
-	public void customizeWhenParametersNullThenThrowIllegalArgumentException() {
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
-				TestClientRegistrations.clientCredentials().build());
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.customizer.customize(clientCredentialsGrantRequest, new HttpHeaders(), null))
-				.withMessage("parameters cannot be null");
-	}
-
-	@Test
-	public void customizeWhenOtherClientAuthenticationMethodThenNotCustomized() {
+	public void convertWhenOtherClientAuthenticationMethodThenNotCustomized() {
 		// @formatter:off
 		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials()
 				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
@@ -111,12 +91,12 @@ public class NimbusJwtClientAuthenticationCustomizerTests {
 		// @formatter:on
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
 				clientRegistration);
-		this.customizer.customize(clientCredentialsGrantRequest, new HttpHeaders(), new LinkedMultiValueMap<>());
+		assertThat(this.converter.convert(clientCredentialsGrantRequest)).isNull();
 		verifyNoInteractions(this.jwkResolver);
 	}
 
 	@Test
-	public void customizeWhenJwkNotResolvedThenThrowOAuth2AuthorizationException() {
+	public void convertWhenJwkNotResolvedThenThrowOAuth2AuthorizationException() {
 		// @formatter:off
 		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials()
 				.clientAuthenticationMethod(ClientAuthenticationMethod.PRIVATE_KEY_JWT)
@@ -125,19 +105,18 @@ public class NimbusJwtClientAuthenticationCustomizerTests {
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
 				clientRegistration);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.customizer.customize(clientCredentialsGrantRequest, new HttpHeaders(),
-						new LinkedMultiValueMap<>()))
+				.isThrownBy(() -> this.converter.convert(clientCredentialsGrantRequest))
 				.withMessage("[invalid_key] Failed to resolve JWK signing key for client registration '"
 						+ clientRegistration.getRegistrationId() + "'.");
 	}
 
 	@Test
-	public void customizeWhenPrivateKeyJwtClientAuthenticationMethodThenCustomized() throws Exception {
+	public void convertWhenPrivateKeyJwtClientAuthenticationMethodThenCustomized() throws Exception {
 		RSAKey rsaJwk = TestJwks.DEFAULT_RSA_JWK;
 		given(this.jwkResolver.apply(any())).willReturn(rsaJwk);
 
 		// Add custom claim
-		this.customizer.setJwtCustomizer(
+		this.converter.setJwtCustomizer(
 				(authorizationGrantRequest, headers, claims) -> claims.put("custom-claim", "custom-value"));
 
 		// @formatter:off
@@ -148,9 +127,7 @@ public class NimbusJwtClientAuthenticationCustomizerTests {
 
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
 				clientRegistration);
-		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-
-		this.customizer.customize(clientCredentialsGrantRequest, new HttpHeaders(), parameters);
+		MultiValueMap<String, String> parameters = this.converter.convert(clientCredentialsGrantRequest);
 
 		assertThat(parameters.getFirst(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE))
 				.isEqualTo("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
@@ -173,12 +150,12 @@ public class NimbusJwtClientAuthenticationCustomizerTests {
 	}
 
 	@Test
-	public void customizeWhenClientSecretJwtClientAuthenticationMethodThenCustomized() {
+	public void convertWhenClientSecretJwtClientAuthenticationMethodThenCustomized() {
 		OctetSequenceKey secretJwk = TestJwks.DEFAULT_SECRET_JWK;
 		given(this.jwkResolver.apply(any())).willReturn(secretJwk);
 
 		// Add custom claim
-		this.customizer.setJwtCustomizer(
+		this.converter.setJwtCustomizer(
 				(authorizationGrantRequest, headers, claims) -> claims.put("custom-claim", "custom-value"));
 
 		// @formatter:off
@@ -189,9 +166,7 @@ public class NimbusJwtClientAuthenticationCustomizerTests {
 
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
 				clientRegistration);
-		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-
-		this.customizer.customize(clientCredentialsGrantRequest, new HttpHeaders(), parameters);
+		MultiValueMap<String, String> parameters = this.converter.convert(clientCredentialsGrantRequest);
 
 		assertThat(parameters.getFirst(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE))
 				.isEqualTo("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
