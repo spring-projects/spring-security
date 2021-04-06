@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -177,15 +177,16 @@ public class CsrfWebFilter implements WebFilter {
 	 * @return
 	 */
 	private static boolean equalsConstantTime(String expected, String actual) {
-		byte[] expectedBytes = bytesUtf8(expected);
-		byte[] actualBytes = bytesUtf8(actual);
+		if (expected == actual) {
+			return true;
+		}
+		if (expected == null || actual == null) {
+			return false;
+		}
+		// Encode after ensure that the string is not null
+		byte[] expectedBytes = Utf8.encode(expected);
+		byte[] actualBytes = Utf8.encode(actual);
 		return MessageDigest.isEqual(expectedBytes, actualBytes);
-	}
-
-	private static byte[] bytesUtf8(String s) {
-		// need to check if Utf8.encode() runs in constant time (probably not).
-		// This may leak length of string.
-		return (s != null) ? Utf8.encode(s) : null;
 	}
 
 	private Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
