@@ -30,7 +30,7 @@ repositories {
 
 updateDependenciesSettings {
 	gitHub {
-		organization = "rwinch"
+		organization = "spring-projects"
 		repository = "spring-security"
 	}
 	addFiles({
