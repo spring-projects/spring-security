@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.gradle.api.Action;
+import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -49,6 +50,16 @@ public class JavadocApiPlugin implements Plugin<Project> {
 
 		api.setGroup("Documentation");
 		api.setDescription("Generates aggregated Javadoc API documentation.");
+		api.doLast {
+			if (JavaVersion.current().isJava11Compatible()) {
+				project.copy({ copy -> copy
+					.from(api.destinationDir)
+					.into(api.destinationDir)
+					.include("element-list")
+					.rename("element-list", "package-list")
+				});
+			}
+		}
 
 		Set<Project> subprojects = rootProject.getSubprojects();
 		for (Project subproject : subprojects) {
