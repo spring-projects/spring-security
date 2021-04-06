@@ -38,8 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
-import static org.mockito.BDDMockito.when;
 
 public class JwtDecoderProviderConfigurationUtilsTests {
 
@@ -48,7 +48,7 @@ public class JwtDecoderProviderConfigurationUtilsTests {
 		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
 		RSAKey key = new RSAKey.Builder(TestKeys.DEFAULT_PUBLIC_KEY).keyUse(KeyUse.SIGNATURE)
 				.algorithm(JWSAlgorithm.RS384).build();
-		when(jwkSource.get(any(JWKSelector.class), isNull())).thenReturn(Collections.singletonList(key));
+		given(jwkSource.get(any(JWKSelector.class), isNull())).willReturn(Collections.singletonList(key));
 		Set<SignatureAlgorithm> algorithms = JwtDecoderProviderConfigurationUtils.getSignatureAlgorithms(jwkSource);
 		assertThat(algorithms).containsOnly(SignatureAlgorithm.RS384);
 	}
@@ -56,7 +56,7 @@ public class JwtDecoderProviderConfigurationUtilsTests {
 	@Test
 	public void getSignatureAlgorithmsWhenJwkSetIsEmptyThenIllegalArgumentException() throws Exception {
 		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
-		when(jwkSource.get(any(JWKSelector.class), isNull())).thenReturn(Collections.emptyList());
+		given(jwkSource.get(any(JWKSelector.class), isNull())).willReturn(Collections.emptyList());
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> JwtDecoderProviderConfigurationUtils.getSignatureAlgorithms(jwkSource));
 	}
@@ -68,7 +68,7 @@ public class JwtDecoderProviderConfigurationUtilsTests {
 		ECKey ecKey = new ECKey.Builder(Curve.P_256, new Base64URL("3l2Da_flYc-AuUTm2QzxgyvJxYM_2TeB9DMlwz7j1PE"),
 				new Base64URL("-kjT7Wrfhwsi9SG6H4UXiyUiVE9GHCLauslksZ3-_t0")).keyUse(KeyUse.SIGNATURE).build();
 		RSAKey rsaKey = new RSAKey.Builder(TestKeys.DEFAULT_PUBLIC_KEY).keyUse(KeyUse.ENCRYPTION).build();
-		when(jwkSource.get(any(JWKSelector.class), isNull())).thenReturn(Arrays.asList(ecKey, rsaKey));
+		given(jwkSource.get(any(JWKSelector.class), isNull())).willReturn(Arrays.asList(ecKey, rsaKey));
 		Set<SignatureAlgorithm> algorithms = JwtDecoderProviderConfigurationUtils.getSignatureAlgorithms(jwkSource);
 		assertThat(algorithms).contains(SignatureAlgorithm.ES256, SignatureAlgorithm.ES384, SignatureAlgorithm.ES512);
 	}

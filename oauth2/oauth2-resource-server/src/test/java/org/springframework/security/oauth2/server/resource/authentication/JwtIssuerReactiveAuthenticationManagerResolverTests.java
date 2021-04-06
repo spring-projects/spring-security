@@ -47,9 +47,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
-import static org.mockito.BDDMockito.when;
 
 /**
  * Tests for {@link JwtIssuerReactiveAuthenticationManagerResolver}
@@ -129,7 +129,7 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 	public void resolveWhenUsingCustomIssuerAuthenticationManagerResolverThenUses() {
 		Authentication token = withBearerToken(this.jwt);
 		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
-		when(authenticationManager.authenticate(token)).thenReturn(Mono.empty());
+		given(authenticationManager.authenticate(token)).willReturn(Mono.empty());
 		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
 				(issuer) -> Mono.just(authenticationManager));
 		authenticationManagerResolver.resolve(null).flatMap((manager) -> manager.authenticate(token)).block();
@@ -147,7 +147,7 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 						.flatMap((manager) -> manager.authenticate(token)).block())
 				.withMessageContaining("Invalid issuer");
 		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
-		when(authenticationManager.authenticate(token)).thenReturn(Mono.empty());
+		given(authenticationManager.authenticate(token)).willReturn(Mono.empty());
 		authenticationManagers.put("trusted", authenticationManager);
 		authenticationManagerResolver.resolve(null).flatMap((manager) -> manager.authenticate(token)).block();
 		verify(authenticationManager).authenticate(token);

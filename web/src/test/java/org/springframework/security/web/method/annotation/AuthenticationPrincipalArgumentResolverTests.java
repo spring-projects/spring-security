@@ -40,9 +40,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
-import static org.mockito.BDDMockito.when;
 
 /**
  * @author Rob Winch
@@ -141,7 +141,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	public void resolveArgumentSpelBean() throws Exception {
 		CustomUserPrincipal principal = new CustomUserPrincipal();
 		setAuthenticationPrincipal(principal);
-		when(this.beanResolver.resolve(any(), eq("test"))).thenReturn(principal.property);
+		given(this.beanResolver.resolve(any(), eq("test"))).willReturn(principal.property);
 		this.expectedPrincipal = principal.property;
 		assertThat(this.resolver.resolveArgument(showUserSpelBean(), null, null, null))
 				.isEqualTo(this.expectedPrincipal);
