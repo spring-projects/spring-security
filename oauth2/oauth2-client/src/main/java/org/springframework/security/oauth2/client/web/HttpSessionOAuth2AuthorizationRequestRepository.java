@@ -69,8 +69,8 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 			return null;
 		}
 		Map<String, OAuth2AuthorizationRequestReference> authorizationRequests = this.getAuthorizationRequests(request);
-		OAuth2AuthorizationRequestReference wrappedWithCreated = authorizationRequests.get(stateParameter);
-		return (wrappedWithCreated != null) ? wrappedWithCreated.wrapped : null;
+		OAuth2AuthorizationRequestReference authorizationRequestReference = authorizationRequests.get(stateParameter);
+		return (authorizationRequestReference != null) ? authorizationRequestReference.authorizationRequest : null;
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 			return null;
 		}
 		Map<String, OAuth2AuthorizationRequestReference> authorizationRequests = this.getAuthorizationRequests(request);
-		OAuth2AuthorizationRequestReference wrappedWithCreatedOriginalRequest = authorizationRequests
+		OAuth2AuthorizationRequestReference authorizationRequestReference = authorizationRequests
 				.remove(stateParameter);
 		if (!authorizationRequests.isEmpty()) {
 			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
@@ -111,7 +111,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 		else {
 			request.getSession().removeAttribute(this.sessionAttributeName);
 		}
-		return (wrappedWithCreatedOriginalRequest != null) ? wrappedWithCreatedOriginalRequest.wrapped : null;
+		return (authorizationRequestReference != null) ? authorizationRequestReference.authorizationRequest : null;
 	}
 
 	@Override
@@ -193,12 +193,13 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 
 		private final Instant expiresAt;
 
-		private final OAuth2AuthorizationRequest wrapped;
+		private final OAuth2AuthorizationRequest authorizationRequest;
 
-		private OAuth2AuthorizationRequestReference(OAuth2AuthorizationRequest wrapped, Instant created) {
-			Assert.notNull(wrapped, "wrapped cannot be null");
-			this.expiresAt = created;
-			this.wrapped = wrapped;
+		private OAuth2AuthorizationRequestReference(OAuth2AuthorizationRequest authorizationRequest,
+				Instant expiresAt) {
+			Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
+			this.expiresAt = expiresAt;
+			this.authorizationRequest = authorizationRequest;
 		}
 
 	}
