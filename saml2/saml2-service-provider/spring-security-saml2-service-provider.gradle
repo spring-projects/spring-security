@@ -53,6 +53,9 @@ configurations {
 
 dependencies {
 	management platform(project(":spring-security-dependencies"))
+	api("org.opensaml:opensaml-core")
+	api("org.opensaml:opensaml-saml-api")
+	api("org.opensaml:opensaml-saml-impl")
 	coreSource(project(path: ":saml2-service-provider-core", configuration: 'sourceElements'))
 	opensaml3Source(project(path: ":saml2-service-provider-opensaml3", configuration: 'sourceElements'))
 	opensaml4Source(project(path: ":saml2-service-provider-opensaml4", configuration: 'sourceElements'))
