@@ -25,7 +25,7 @@ dependencies {
 	testImplementation 'io.projectreactor.tools:blockhound'
 	testImplementation 'org.skyscreamer:jsonassert'
 	testImplementation 'io.r2dbc:r2dbc-h2:0.8.4.RELEASE'
-	testImplementation 'io.r2dbc:r2dbc-spi-test:0.8.3.RELEASE'
+	testImplementation 'io.r2dbc:r2dbc-spi-test:0.8.4.RELEASE'
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 
