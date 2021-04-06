@@ -8,6 +8,7 @@ buildscript {
 }
 
 plugins {
+	id 'java'
 	id 'java-library'
 	id 'io.spring.convention.repository'
 	id 'io.spring.convention.management-configuration'
@@ -26,10 +27,22 @@ configurations {
 			attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 11)
 		}
 	}
+	sourceElements {
+		canBeConsumed = true
+		canBeResolved = false
+	}
+	javadocElements {
+		canBeConsumed = true
+		canBeResolved = false
+	}
 }
 
 artifacts {
 	classesOnlyElements(compileJava.destinationDir)
+	sourceSets.main.allSource.srcDirs.forEach({ dir ->
+		sourceElements(dir)
+	})
+	javadocElements(javadoc.destinationDir)
 }
 
 sourceCompatibility = '11'

@@ -1,35 +1,51 @@
 apply plugin: 'io.spring.convention.spring-module'
 
-build.dependsOn(project(":saml2-service-provider-core").tasks["build"])
-build.dependsOn(project(":saml2-service-provider-opensaml3").tasks["build"])
-build.dependsOn(project(":saml2-service-provider-opensaml4").tasks["build"])
-
-check.dependsOn(project(":saml2-service-provider-core").tasks["check"])
-check.dependsOn(project(":saml2-service-provider-opensaml3").tasks["check"])
-check.dependsOn(project(":saml2-service-provider-opensaml4").tasks["check"])
-
-test.dependsOn(project(":saml2-service-provider-core").tasks["test"])
-test.dependsOn(project(":saml2-service-provider-opensaml3").tasks["test"])
-test.dependsOn(project(":saml2-service-provider-opensaml4").tasks["test"])
-
-clean.dependsOn(project(":saml2-service-provider-core").tasks["clean"])
-clean.dependsOn(project(":saml2-service-provider-opensaml3").tasks["clean"])
-clean.dependsOn(project(":saml2-service-provider-opensaml4").tasks["clean"])
-
-format.dependsOn(project(":saml2-service-provider-core").tasks["format"])
-format.dependsOn(project(":saml2-service-provider-opensaml3").tasks["format"])
-format.dependsOn(project(":saml2-service-provider-opensaml4").tasks["format"])
+tasks.forEach({ task ->
+	if (project(":saml2-service-provider-core").tasks.findByName(task.name)) {
+		task.dependsOn(project(":saml2-service-provider-core").tasks[task.name])
+	}
+	if (project(":saml2-service-provider-opensaml3").tasks.findByName(task.name)) {
+		task.dependsOn(project(":saml2-service-provider-opensaml3").tasks[task.name])
+	}
+	if (project(":saml2-service-provider-opensaml4").tasks.findByName(task.name)) {
+		task.dependsOn(project(":saml2-service-provider-opensaml4").tasks[task.name])
+	}
+})
 
 configurations {
-	core {
+	coreSource {
 		canBeConsumed = false
 		canBeResolved = true
 	}
-	opensaml3 {
+	opensaml3Source {
 		canBeConsumed = false
 		canBeResolved = true
 	}
-	opensaml4 {
+	opensaml4Source {
+		canBeConsumed = false
+		canBeResolved = true
+	}
+	coreClasses {
+		canBeConsumed = false
+		canBeResolved = true
+	}
+	opensaml3Classes {
+		canBeConsumed = false
+		canBeResolved = true
+	}
+	opensaml4Classes {
+		canBeConsumed = false
+		canBeResolved = true
+	}
+	coreJavadoc {
+		canBeConsumed = false
+		canBeResolved = true
+	}
+	opensaml3Javadoc {
+		canBeConsumed = false
+		canBeResolved = true
+	}
+	opensaml4Javadoc {
 		canBeConsumed = false
 		canBeResolved = true
 	}
@@ -37,13 +53,32 @@ configurations {
 
 dependencies {
 	management platform(project(":spring-security-dependencies"))
-	core(project(path: ":saml2-service-provider-core", configuration: 'classesOnlyElements'))
-	opensaml3(project(path: ":saml2-service-provider-opensaml3", configuration: 'classesOnlyElements'))
-	opensaml4(project(path: ":saml2-service-provider-opensaml4", configuration: 'classesOnlyElements'))
+	coreSource(project(path: ":saml2-service-provider-core", configuration: 'sourceElements'))
+	opensaml3Source(project(path: ":saml2-service-provider-opensaml3", configuration: 'sourceElements'))
+	opensaml4Source(project(path: ":saml2-service-provider-opensaml4", configuration: 'sourceElements'))
+	coreClasses(project(path: ":saml2-service-provider-core", configuration: 'classesOnlyElements'))
+	opensaml3Classes(project(path: ":saml2-service-provider-opensaml3", configuration: 'classesOnlyElements'))
+	opensaml4Classes(project(path: ":saml2-service-provider-opensaml4", configuration: 'classesOnlyElements'))
+	coreJavadoc(project(path: ":saml2-service-provider-core", configuration: 'javadocElements'))
+	opensaml3Javadoc(project(path: ":saml2-service-provider-opensaml3", configuration: 'javadocElements'))
+	opensaml4Javadoc(project(path: ":saml2-service-provider-opensaml4", configuration: 'javadocElements'))
 }
 
 jar {
-	from configurations.core
-	from configurations.opensaml3
-	from configurations.opensaml4
+	from configurations.coreClasses
+	from configurations.opensaml3Classes
+	from configurations.opensaml4Classes
+}
+
+javadocJar {
+	from configurations.coreJavadoc
+	from configurations.opensaml3Javadoc
+	from configurations.opensaml4Javadoc
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+sourcesJar {
+	from configurations.coreSource
+	from configurations.opensaml3Source
+	from configurations.opensaml4Source
 }
