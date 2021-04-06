@@ -64,6 +64,14 @@ updateDependenciesSettings {
 					selection.reject("nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency");
 				}
 			}
+			components.all { selection ->
+				ModuleComponentIdentifier candidate = selection.getCandidate();
+				// Do not compare version due to multiple versions existing
+				// will cause opensaml 3.x to be updated to 4.x
+				if (candidate.getGroup().equals("org.opensaml")) {
+					selection.reject("org.opensaml maintains two different versions, so it must be updated manually");
+				}
+			}
 		}
 	}
 }
