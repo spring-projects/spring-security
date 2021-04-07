@@ -759,6 +759,7 @@ A default implementation (with no ACL support) will be used if not supplied.
 
 * <<nsa-global-method-security,global-method-security>>
 * <<nsa-http,http>>
+* <<nsa-method-security,method-security>>
 * <<nsa-websocket-message-broker,websocket-message-broker>>
 
 
@@ -2374,9 +2375,41 @@ If omitted, the namespace will generate a random value, preventing its accidenta
 Cannot be empty.
 
 
-[[nsa-method-security]]
+
 === Method Security
 
+[[nsa-method-security]]
+==== <method-security>
+This element is the primary means of adding support for securing methods on Spring Security beans.
+Methods can be secured by the use of annotations (defined at the interface or class level) or by defining a set of pointcuts.
+
+[[nsa-method-security-attributes]]
+===== <method-security> attributes
+
+[[nsa-method-security-pre-post-enabled]]
+* **pre-post-enabled**
+Enables Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) for this application context.
+Defaults to "true".
+
+[[nsa-method-security-secured-enabled]]
+* **secured-enabled**
+Enables Spring Security's @Secured annotation for this application context.
+Defaults to "false".
+
+[[nsa-method-security-jsr250-enabled]]
+* **jsr250-enabled**
+Enables JSR-250 authorization annotations (@RolesAllowed, @PermitAll, @DenyAll) for this application context.
+Defaults to "false".
+
+[[nsa-method-security-proxy-target-class]]
+* **proxy-target-class**
+If true, class based proxying will be used instead of interface based proxying.
+Defaults to "false".
+
+[[nsa-method-security-children]]
+===== Child Elements of <method-security>
+
+* <<nsa-expression-handler,expression-handler>>
 
 [[nsa-global-method-security]]
 ==== <global-method-security>

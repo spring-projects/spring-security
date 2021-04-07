@@ -25,13 +25,17 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.Ordered;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreFilter;
 
 /**
  * Enables Spring Security Method Security.
  * @author Evgeniy Cheban
- * @since 5.5
+ * @author Josh Cummings
+ * @since 5.6
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -39,6 +43,14 @@ import org.springframework.security.access.annotation.Secured;
 @Import(MethodSecuritySelector.class)
 @Configuration
 public @interface EnableMethodSecurity {
+
+	/**
+	 * Determines if Spring Security's {@link PreAuthorize}, {@link PostAuthorize},
+	 * {@link PreFilter}, and {@link PostFilter} annotations should be enabled. Default is
+	 * true.
+	 * @return true if pre/post annotations should be enabled false otherwise
+	 */
+	boolean prePostEnabled() default true;
 
 	/**
 	 * Determines if Spring Security's {@link Secured} annotation should be enabled.
@@ -75,13 +87,5 @@ public @interface EnableMethodSecurity {
 	 * @return the {@link AdviceMode} to use
 	 */
 	AdviceMode mode() default AdviceMode.PROXY;
-
-	/**
-	 * Indicate the ordering of the execution of the security advisor when multiple
-	 * advices are applied at a specific joinpoint. The default is
-	 * {@link Ordered#LOWEST_PRECEDENCE}.
-	 * @return the order the security advisor should be applied
-	 */
-	int order() default Ordered.LOWEST_PRECEDENCE;
 
 }

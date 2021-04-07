@@ -19,48 +19,65 @@ package org.springframework.security.authorization.method;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.aop.MethodMatcher;
+import org.springframework.aop.Pointcut;
+import org.springframework.aop.PointcutAdvisor;
+import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.aop.support.StaticMethodMatcher;
-import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.Ordered;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.access.method.AuthorizationMethodBeforeAdvice;
-import org.springframework.security.access.method.MethodAuthorizationContext;
 import org.springframework.security.access.prepost.PreFilter;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * An {@link AuthorizationMethodBeforeAdvice} which filters a method argument by
- * evaluating an expression from the {@link PreFilter} annotation.
+ * A {@link MethodInterceptor} which filters a method argument by evaluating an expression
+ * from the {@link PreFilter} annotation.
  *
  * @author Evgeniy Cheban
- * @since 5.5
+ * @author Josh Cummings
+ * @since 5.6
  */
-public final class PreFilterAuthorizationMethodBeforeAdvice
-		implements AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> {
+public final class PreFilterAuthorizationMethodInterceptor
+		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
+
+	private static final Supplier<Authentication> AUTHENTICATION_SUPPLIER = () -> {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null) {
+			throw new AuthenticationCredentialsNotFoundException(
+					"An Authentication object was not found in the SecurityContext");
+		}
+		return authentication;
+	};
 
 	private final PreFilterExpressionAttributeRegistry registry = new PreFilterExpressionAttributeRegistry();
 
-	private final MethodMatcher methodMatcher = new StaticMethodMatcher() {
-		@Override
-		public boolean matches(Method method, Class<?> targetClass) {
-			return PreFilterAuthorizationMethodBeforeAdvice.this.registry.getAttribute(method,
-					targetClass) != PreFilterExpressionAttribute.NULL_ATTRIBUTE;
-		}
-	};
+	private int order = AuthorizationInterceptorsOrder.PRE_FILTER.getOrder();
+
+	private final Pointcut pointcut;
 
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
 	/**
-	 * Sets the {@link MethodSecurityExpressionHandler}.
+	 * Creates a {@link PreFilterAuthorizationMethodInterceptor} using the provided
+	 * parameters
+	 */
+	public PreFilterAuthorizationMethodInterceptor() {
+		this.pointcut = AuthorizationMethodPointcuts.forAnnotations(PreFilter.class);
+	}
+
+	/**
+	 * Use this {@link MethodSecurityExpressionHandler}
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
@@ -68,27 +85,51 @@ public final class PreFilterAuthorizationMethodBeforeAdvice
 		this.expressionHandler = expressionHandler;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public MethodMatcher getMethodMatcher() {
-		return this.methodMatcher;
+	public int getOrder() {
+		return this.order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
 	}
 
 	/**
-	 * Filters a method argument by evaluating an expression from the {@link PreFilter}
-	 * annotation.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
+	 * {@inheritDoc}
 	 */
 	@Override
-	public void before(Supplier<Authentication> authentication, MethodAuthorizationContext methodAuthorizationContext) {
-		PreFilterExpressionAttribute attribute = this.registry.getAttribute(methodAuthorizationContext);
+	public Pointcut getPointcut() {
+		return this.pointcut;
+	}
+
+	@Override
+	public Advice getAdvice() {
+		return this;
+	}
+
+	@Override
+	public boolean isPerInstance() {
+		return true;
+	}
+
+	/**
+	 * Filter the method argument specified in the {@link PreFilter} annotation that
+	 * {@link MethodInvocation} specifies.
+	 * @param mi the {@link MethodInvocation} to check
+	 */
+	@Override
+	public Object invoke(MethodInvocation mi) throws Throwable {
+		PreFilterExpressionAttribute attribute = this.registry.getAttribute(mi);
 		if (attribute == PreFilterExpressionAttribute.NULL_ATTRIBUTE) {
-			return;
+			return mi.proceed();
 		}
-		MethodInvocation mi = methodAuthorizationContext.getMethodInvocation();
-		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(), mi);
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(AUTHENTICATION_SUPPLIER.get(), mi);
 		Object filterTarget = findFilterTarget(attribute.filterTarget, ctx, mi);
 		this.expressionHandler.filter(filterTarget, attribute.getExpression(), ctx);
+		return mi.proceed();
 	}
 
 	private Object findFilterTarget(String filterTargetName, EvaluationContext ctx, MethodInvocation methodInvocation) {
@@ -122,15 +163,15 @@ public final class PreFilterAuthorizationMethodBeforeAdvice
 			if (preFilter == null) {
 				return PreFilterExpressionAttribute.NULL_ATTRIBUTE;
 			}
-			Expression preFilterExpression = PreFilterAuthorizationMethodBeforeAdvice.this.expressionHandler
+			Expression preFilterExpression = PreFilterAuthorizationMethodInterceptor.this.expressionHandler
 					.getExpressionParser().parseExpression(preFilter.value());
 			return new PreFilterExpressionAttribute(preFilterExpression, preFilter.filterTarget());
 		}
 
 		private PreFilter findPreFilterAnnotation(Method method) {
-			PreFilter preFilter = AnnotationUtils.findAnnotation(method, PreFilter.class);
+			PreFilter preFilter = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PreFilter.class);
 			return (preFilter != null) ? preFilter
-					: AnnotationUtils.findAnnotation(method.getDeclaringClass(), PreFilter.class);
+					: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), PreFilter.class);
 		}
 
 	}

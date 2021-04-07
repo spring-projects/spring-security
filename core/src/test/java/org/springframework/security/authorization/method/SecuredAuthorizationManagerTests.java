@@ -23,10 +23,8 @@ import java.util.function.Supplier;
 import org.junit.Test;
 
 import org.springframework.core.annotation.AnnotationConfigurationException;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -34,55 +32,51 @@ import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- * Tests for {@link PreAuthorizeAuthorizationManager}.
+ * Tests for {@link SecuredAuthorizationManager}.
  *
  * @author Evgeniy Cheban
  */
-public class PreAuthorizeAuthorizationManagerTests {
+public class SecuredAuthorizationManagerTests {
 
 	@Test
-	public void setExpressionHandlerWhenNotNullThenSetsExpressionHandler() {
-		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		manager.setExpressionHandler(expressionHandler);
-		assertThat(manager).extracting("expressionHandler").isEqualTo(expressionHandler);
-	}
-
-	@Test
-	public void setExpressionHandlerWhenNullThenException() {
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		assertThatIllegalArgumentException().isThrownBy(() -> manager.setExpressionHandler(null))
-				.withMessage("expressionHandler cannot be null");
-	}
-
-	@Test
-	public void checkDoSomethingWhenNoPostAuthorizeAnnotationThenNullDecision() throws Exception {
+	public void checkDoSomethingWhenNoSecuredAnnotationThenNullDecision() throws Exception {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"doSomething", new Class[] {}, new Object[] {});
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+				"doSomething");
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNull();
 	}
 
 	@Test
-	public void checkDoSomethingStringWhenArgIsGrantThenGrantedDecision() throws Exception {
+	public void checkSecuredUserOrAdminWhenRoleUserThenGrantedDecision() throws Exception {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"doSomethingString", new Class[] { String.class }, new Object[] { "grant" });
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+				"securedUserOrAdmin");
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
 
 	@Test
-	public void checkDoSomethingStringWhenArgIsNotGrantThenDeniedDecision() throws Exception {
+	public void checkSecuredUserOrAdminWhenRoleAdminThenGrantedDecision() throws Exception {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"doSomethingString", new Class[] { String.class }, new Object[] { "deny" });
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+				"securedUserOrAdmin");
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isTrue();
+	}
+
+	@Test
+	public void checkSecuredUserOrAdminWhenRoleAnonymousThenDeniedDecision() throws Exception {
+		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
+				"ROLE_ANONYMOUS");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"securedUserOrAdmin");
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
+		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -92,7 +86,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "securedAdmin");
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
 		assertThat(decision.isGranted()).isFalse();
 		authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_ADMIN");
@@ -105,7 +99,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "securedUser");
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
 		assertThat(decision.isGranted()).isTrue();
 		authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_ADMIN");
@@ -118,7 +112,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"inheritedAnnotations");
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 				.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
@@ -128,7 +122,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "inheritedAnnotations");
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 				.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
@@ -139,9 +133,9 @@ public class PreAuthorizeAuthorizationManagerTests {
 
 		}
 
-		@PreAuthorize("#s == 'grant'")
-		public String doSomethingString(String s) {
-			return s;
+		@Secured({ "ROLE_USER", "ROLE_ADMIN" })
+		public void securedUserOrAdmin() {
+
 		}
 
 		@Override
@@ -151,10 +145,10 @@ public class PreAuthorizeAuthorizationManagerTests {
 
 	}
 
-	@PreAuthorize("hasRole('USER')")
+	@Secured("ROLE_USER")
 	public static class ClassLevelAnnotations implements InterfaceAnnotationsThree {
 
-		@PreAuthorize("hasRole('ADMIN')")
+		@Secured("ROLE_ADMIN")
 		public void securedAdmin() {
 
 		}
@@ -164,7 +158,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 		}
 
 		@Override
-		@PreAuthorize("hasRole('ADMIN')")
+		@Secured("ROLE_ADMIN")
 		public void inheritedAnnotations() {
 
 		}
@@ -173,28 +167,28 @@ public class PreAuthorizeAuthorizationManagerTests {
 
 	public interface InterfaceAnnotationsOne {
 
-		@PreAuthorize("hasRole('ADMIN')")
+		@Secured("ROLE_ADMIN")
 		void inheritedAnnotations();
 
 	}
 
 	public interface InterfaceAnnotationsTwo {
 
-		@PreAuthorize("hasRole('USER')")
+		@Secured("ROLE_USER")
 		void inheritedAnnotations();
 
 	}
 
 	public interface InterfaceAnnotationsThree {
 
-		@MyPreAuthorize
+		@MySecured
 		void inheritedAnnotations();
 
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
-	@PreAuthorize("hasRole('USER')")
-	public @interface MyPreAuthorize {
+	@Secured("ROLE_USER")
+	public @interface MySecured {
 
 	}
 
