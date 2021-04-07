@@ -595,6 +595,63 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="method-security">
+      <xs:annotation>
+         <xs:documentation>Provides method security for all beans registered in the Spring application context.
+                Specifically, beans will be scanned for matches with Spring Security annotations. Where
+                there is a match, the beans will automatically be proxied and security authorization
+                applied to the methods accordingly. Interceptors are invoked in the order specified in
+                AuthorizationInterceptorsOrder. Use can create your own interceptors using Spring AOP.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element minOccurs="0" name="expression-handler">
+               <xs:annotation>
+                  <xs:documentation>Defines the SecurityExpressionHandler instance which will be used if expression-based
+                access-control is enabled. A default implementation (with no ACL support) will be used if
+                not supplied.
+                </xs:documentation>
+               </xs:annotation>
+               <xs:complexType>
+                  <xs:attributeGroup ref="security:ref"/>
+               </xs:complexType>
+            </xs:element>
+         </xs:sequence>
+         <xs:attributeGroup ref="security:method-security.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="method-security.attlist">
+      <xs:attribute name="pre-post-enabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Specifies whether the use of Spring Security's pre and post invocation annotations
+                (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this
+                application context. Defaults to "true".
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="secured-enabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Specifies whether the use of Spring Security's @Secured annotations should be enabled for
+                this application context. Defaults to "false".
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="jsr250-enabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Specifies whether JSR-250 style attributes are to be used (for example "RolesAllowed").
+                This will require the javax.annotation.security classes on the classpath. Defaults to
+                "false".
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="proxy-target-class" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>If true, class-based proxying will be used instead of interface-based proxying.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="global-method-security">
       <xs:annotation>
          <xs:documentation>Provides method security for all beans registered in the Spring application context.

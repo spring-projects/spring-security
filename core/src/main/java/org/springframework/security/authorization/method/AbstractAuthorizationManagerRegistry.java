@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.annotation;
+package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -22,34 +22,31 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import org.springframework.aop.support.AopUtils;
 import org.springframework.core.MethodClassKey;
 import org.springframework.lang.NonNull;
-import org.springframework.security.access.method.MethodAuthorizationContext;
 import org.springframework.security.authorization.AuthorizationManager;
 
 /**
- * An abstract registry which provides an {@link AuthorizationManager} for the
- * {@link MethodInvocation}.
+ * For internal use only, as this contract is likely to change
  *
  * @author Evgeniy Cheban
- * @since 5.5
  */
 abstract class AbstractAuthorizationManagerRegistry {
 
-	static final AuthorizationManager<MethodAuthorizationContext> NULL_MANAGER = (a, o) -> null;
+	static final AuthorizationManager<MethodInvocation> NULL_MANAGER = (a, o) -> null;
 
-	private final Map<MethodClassKey, AuthorizationManager<MethodAuthorizationContext>> cachedManagers = new ConcurrentHashMap<>();
+	private final Map<MethodClassKey, AuthorizationManager<MethodInvocation>> cachedManagers = new ConcurrentHashMap<>();
 
 	/**
-	 * Returns an {@link AuthorizationManager} for the {@link MethodAuthorizationContext}.
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to use
+	 * Returns an {@link AuthorizationManager} for the {@link MethodInvocation}.
+	 * @param methodInvocation the {@link MethodInvocation} to use
 	 * @return an {@link AuthorizationManager} to use
 	 */
-	final AuthorizationManager<MethodAuthorizationContext> getManager(
-			MethodAuthorizationContext methodAuthorizationContext) {
-		MethodInvocation methodInvocation = methodAuthorizationContext.getMethodInvocation();
+	final AuthorizationManager<MethodInvocation> getManager(MethodInvocation methodInvocation) {
 		Method method = methodInvocation.getMethod();
-		Class<?> targetClass = methodAuthorizationContext.getTargetClass();
+		Object target = methodInvocation.getThis();
+		Class<?> targetClass = (target != null) ? AopUtils.getTargetClass(target) : null;
 		MethodClassKey cacheKey = new MethodClassKey(method, targetClass);
 		return this.cachedManagers.computeIfAbsent(cacheKey, (k) -> resolveManager(method, targetClass));
 	}
@@ -62,6 +59,6 @@ abstract class AbstractAuthorizationManagerRegistry {
 	 * @return the non-null {@link AuthorizationManager}
 	 */
 	@NonNull
-	abstract AuthorizationManager<MethodAuthorizationContext> resolveManager(Method method, Class<?> targetClass);
+	abstract AuthorizationManager<MethodInvocation> resolveManager(Method method, Class<?> targetClass);
 
 }

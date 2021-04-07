@@ -17,34 +17,59 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.AdviceModeImportSelector;
 import org.springframework.context.annotation.AutoProxyRegistrar;
+import org.springframework.context.annotation.ImportSelector;
+import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.lang.NonNull;
 
 /**
  * Dynamically determines which imports to include using the {@link EnableMethodSecurity}
  * annotation.
  *
  * @author Evgeniy Cheban
- * @since 5.5
+ * @author Josh Cummings
+ * @since 5.6
  */
-final class MethodSecuritySelector extends AdviceModeImportSelector<EnableMethodSecurity> {
+final class MethodSecuritySelector implements ImportSelector {
+
+	private final ImportSelector autoProxy = new AutoProxyRegistrarSelector();
 
 	@Override
-	protected String[] selectImports(AdviceMode adviceMode) {
-		if (adviceMode == AdviceMode.PROXY) {
-			return getProxyImports();
+	public String[] selectImports(@NonNull AnnotationMetadata importMetadata) {
+		if (!importMetadata.hasAnnotation(EnableMethodSecurity.class.getName())) {
+			return new String[0];
 		}
-		throw new IllegalStateException("AdviceMode '" + adviceMode + "' is not supported");
+		EnableMethodSecurity annotation = importMetadata.getAnnotations().get(EnableMethodSecurity.class).synthesize();
+		List<String> imports = new ArrayList<>(Arrays.asList(this.autoProxy.selectImports(importMetadata)));
+		if (annotation.prePostEnabled()) {
+			imports.add(PrePostMethodSecurityConfiguration.class.getName());
+		}
+		if (annotation.securedEnabled()) {
+			imports.add(SecuredMethodSecurityConfiguration.class.getName());
+		}
+		if (annotation.jsr250Enabled()) {
+			imports.add(Jsr250MethodSecurityConfiguration.class.getName());
+		}
+		return imports.toArray(new String[0]);
 	}
 
-	private String[] getProxyImports() {
-		List<String> result = new ArrayList<>();
-		result.add(AutoProxyRegistrar.class.getName());
-		result.add(MethodSecurityConfiguration.class.getName());
-		return result.toArray(new String[0]);
+	private static final class AutoProxyRegistrarSelector extends AdviceModeImportSelector<EnableMethodSecurity> {
+
+		private static final String[] IMPORTS = new String[] { AutoProxyRegistrar.class.getName() };
+
+		@Override
+		protected String[] selectImports(@NonNull AdviceMode adviceMode) {
+			if (adviceMode == AdviceMode.PROXY) {
+				return IMPORTS;
+			}
+			throw new IllegalStateException("AdviceMode '" + adviceMode + "' is not supported");
+		}
+
 	}
 
 }

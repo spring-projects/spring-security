@@ -60,4 +60,10 @@ public interface BusinessService extends Serializable {
 
 	List<?> methodReturningAList(String userName, String extraParam);
 
+	@RequireAdminRole
+	@RequireUserRole
+	default void repeatedAnnotations() {
+
+	}
+
 }

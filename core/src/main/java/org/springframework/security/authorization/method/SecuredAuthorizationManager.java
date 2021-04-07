@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.annotation;
+package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
@@ -22,57 +22,53 @@ import java.util.function.Supplier;
 import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.aop.support.AopUtils;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.NonNull;
-import org.springframework.security.access.method.MethodAuthorizationContext;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 
 /**
- * An {@link AuthorizationManager} which can determine if an {@link Authentication} has
- * access to the {@link MethodInvocation} by evaluating if the {@link Authentication}
+ * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
+ * invoke the {@link MethodInvocation} by evaluating if the {@link Authentication}
  * contains a specified authority from the Spring Security's {@link Secured} annotation.
  *
  * @author Evgeniy Cheban
- * @since 5.5
+ * @since 5.6
  */
-public final class SecuredAuthorizationManager implements AuthorizationManager<MethodAuthorizationContext> {
+public final class SecuredAuthorizationManager implements AuthorizationManager<MethodInvocation> {
 
 	private final SecuredAuthorizationManagerRegistry registry = new SecuredAuthorizationManagerRegistry();
 
 	/**
-	 * Determines if an {@link Authentication} has access to the {@link MethodInvocation}
-	 * by evaluating if the {@link Authentication} contains a specified authority from the
-	 * Spring Security's {@link Secured} annotation.
+	 * Determine if an {@link Authentication} has access to a method by evaluating the
+	 * {@link Secured} annotation that {@link MethodInvocation} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
+	 * @param mi the {@link MethodInvocation} to check
 	 * @return an {@link AuthorizationDecision} or null if the {@link Secured} annotation
 	 * is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication,
-			MethodAuthorizationContext methodAuthorizationContext) {
-		AuthorizationManager<MethodAuthorizationContext> delegate = this.registry
-				.getManager(methodAuthorizationContext);
-		return delegate.check(authentication, methodAuthorizationContext);
+	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
+		AuthorizationManager<MethodInvocation> delegate = this.registry.getManager(mi);
+		return delegate.check(authentication, mi);
 	}
 
 	private static final class SecuredAuthorizationManagerRegistry extends AbstractAuthorizationManagerRegistry {
 
 		@NonNull
 		@Override
-		AuthorizationManager<MethodAuthorizationContext> resolveManager(Method method, Class<?> targetClass) {
+		AuthorizationManager<MethodInvocation> resolveManager(Method method, Class<?> targetClass) {
 			Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 			Secured secured = findSecuredAnnotation(specificMethod);
 			return (secured != null) ? AuthorityAuthorizationManager.hasAnyAuthority(secured.value()) : NULL_MANAGER;
 		}
 
 		private Secured findSecuredAnnotation(Method method) {
-			Secured secured = AnnotationUtils.findAnnotation(method, Secured.class);
+			Secured secured = AuthorizationAnnotationUtils.findUniqueAnnotation(method, Secured.class);
 			return (secured != null) ? secured
-					: AnnotationUtils.findAnnotation(method.getDeclaringClass(), Secured.class);
+					: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), Secured.class);
 		}
 
 	}

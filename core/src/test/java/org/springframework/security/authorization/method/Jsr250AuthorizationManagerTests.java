@@ -20,13 +20,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.function.Supplier;
 
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+
 import org.junit.Test;
 
 import org.springframework.core.annotation.AnnotationConfigurationException;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -37,62 +38,108 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- * Tests for {@link PreAuthorizeAuthorizationManager}.
+ * Tests for {@link Jsr250AuthorizationManager}.
  *
  * @author Evgeniy Cheban
  */
-public class PreAuthorizeAuthorizationManagerTests {
+public class Jsr250AuthorizationManagerTests {
 
 	@Test
-	public void setExpressionHandlerWhenNotNullThenSetsExpressionHandler() {
-		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		manager.setExpressionHandler(expressionHandler);
-		assertThat(manager).extracting("expressionHandler").isEqualTo(expressionHandler);
+	public void rolePrefixWhenNotSetThenDefaultsToRole() {
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
+		assertThat(manager).extracting("rolePrefix").isEqualTo("ROLE_");
 	}
 
 	@Test
-	public void setExpressionHandlerWhenNullThenException() {
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		assertThatIllegalArgumentException().isThrownBy(() -> manager.setExpressionHandler(null))
-				.withMessage("expressionHandler cannot be null");
+	public void setRolePrefixWhenNullThenException() {
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
+		assertThatIllegalArgumentException().isThrownBy(() -> manager.setRolePrefix(null))
+				.withMessage("rolePrefix cannot be null");
 	}
 
 	@Test
-	public void checkDoSomethingWhenNoPostAuthorizeAnnotationThenNullDecision() throws Exception {
+	public void setRolePrefixWhenNotNullThenSets() {
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
+		manager.setRolePrefix("CUSTOM_");
+		assertThat(manager).extracting("rolePrefix").isEqualTo("CUSTOM_");
+	}
+
+	@Test
+	public void checkDoSomethingWhenNoJsr250AnnotationsThenNullDecision() throws Exception {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"doSomething", new Class[] {}, new Object[] {});
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+				"doSomething");
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNull();
 	}
 
 	@Test
-	public void checkDoSomethingStringWhenArgIsGrantThenGrantedDecision() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"doSomethingString", new Class[] { String.class }, new Object[] { "grant" });
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+	public void checkPermitAllWhenRoleUserThenGrantedDecision() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class, "permitAll");
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
 
 	@Test
-	public void checkDoSomethingStringWhenArgIsNotGrantThenDeniedDecision() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"doSomethingString", new Class[] { String.class }, new Object[] { "deny" });
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+	public void checkDenyAllWhenRoleAdminThenDeniedDecision() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class, "denyAll");
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
+	}
+
+	@Test
+	public void checkRolesAllowedUserOrAdminWhenRoleUserThenGrantedDecision() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"rolesAllowedUserOrAdmin");
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isTrue();
+	}
+
+	@Test
+	public void checkRolesAllowedUserOrAdminWhenRoleAdminThenGrantedDecision() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"rolesAllowedUserOrAdmin");
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isTrue();
+	}
+
+	@Test
+	public void checkRolesAllowedUserOrAdminWhenRoleAnonymousThenDeniedDecision() throws Exception {
+		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
+				"ROLE_ANONYMOUS");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"rolesAllowedUserOrAdmin");
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
+		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isFalse();
+	}
+
+	@Test
+	public void checkMultipleAnnotationsWhenInvokedThenAnnotationConfigurationException() throws Exception {
+		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
+				"ROLE_ANONYMOUS");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"multipleAnnotations");
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
+		assertThatExceptionOfType(AnnotationConfigurationException.class)
+				.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
 
 	@Test
 	public void checkRequiresAdminWhenClassAnnotationsThenMethodAnnotationsTakePrecedence() throws Exception {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
-				ClassLevelAnnotations.class, "securedAdmin");
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+				ClassLevelAnnotations.class, "rolesAllowedAdmin");
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
 		assertThat(decision.isGranted()).isFalse();
 		authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_ADMIN");
@@ -101,11 +148,21 @@ public class PreAuthorizeAuthorizationManagerTests {
 	}
 
 	@Test
+	public void checkDeniedWhenClassAnnotationsThenMethodAnnotationsTakePrecedence() throws Exception {
+		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
+				ClassLevelAnnotations.class, "denyAll");
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
+		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
+		assertThat(decision.isGranted()).isFalse();
+	}
+
+	@Test
 	public void checkRequiresUserWhenClassAnnotationsThenApplies() throws Exception {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
-				ClassLevelAnnotations.class, "securedUser");
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+				ClassLevelAnnotations.class, "rolesAllowedUser");
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
 		assertThat(decision.isGranted()).isTrue();
 		authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_ADMIN");
@@ -118,7 +175,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"inheritedAnnotations");
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 				.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
@@ -128,7 +185,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "inheritedAnnotations");
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 				.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
@@ -139,32 +196,52 @@ public class PreAuthorizeAuthorizationManagerTests {
 
 		}
 
-		@PreAuthorize("#s == 'grant'")
-		public String doSomethingString(String s) {
-			return s;
+		@DenyAll
+		public void denyAll() {
+
 		}
 
-		@Override
+		@PermitAll
+		public void permitAll() {
+
+		}
+
+		@RolesAllowed({ "USER", "ADMIN" })
+		public void rolesAllowedUserOrAdmin() {
+
+		}
+
+		@RolesAllowed("USER")
+		@DenyAll
+		public void multipleAnnotations() {
+
+		}
+
 		public void inheritedAnnotations() {
 
 		}
 
 	}
 
-	@PreAuthorize("hasRole('USER')")
+	@RolesAllowed("USER")
 	public static class ClassLevelAnnotations implements InterfaceAnnotationsThree {
 
-		@PreAuthorize("hasRole('ADMIN')")
-		public void securedAdmin() {
+		@RolesAllowed("ADMIN")
+		public void rolesAllowedAdmin() {
 
 		}
 
-		public void securedUser() {
+		@DenyAll
+		public void denyAll() {
+
+		}
+
+		public void rolesAllowedUser() {
 
 		}
 
 		@Override
-		@PreAuthorize("hasRole('ADMIN')")
+		@PermitAll
 		public void inheritedAnnotations() {
 
 		}
@@ -173,28 +250,28 @@ public class PreAuthorizeAuthorizationManagerTests {
 
 	public interface InterfaceAnnotationsOne {
 
-		@PreAuthorize("hasRole('ADMIN')")
+		@RolesAllowed("ADMIN")
 		void inheritedAnnotations();
 
 	}
 
 	public interface InterfaceAnnotationsTwo {
 
-		@PreAuthorize("hasRole('USER')")
+		@MyRolesAllowed
 		void inheritedAnnotations();
 
 	}
 
 	public interface InterfaceAnnotationsThree {
 
-		@MyPreAuthorize
+		@DenyAll
 		void inheritedAnnotations();
 
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
-	@PreAuthorize("hasRole('USER')")
-	public @interface MyPreAuthorize {
+	@RolesAllowed("USER")
+	public @interface MyRolesAllowed {
 
 	}
 
