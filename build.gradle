@@ -16,6 +16,7 @@ apply plugin: 'locks'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.update-dependencies'
+apply plugin: 'org.springframework.security.sagan'
 
 group = 'org.springframework.security'
 description = 'Spring Security'
@@ -26,6 +27,11 @@ ext.milestoneBuild = !(snapshotBuild || releaseBuild)
 
 repositories {
 	mavenCentral()
+}
+
+tasks.named("saganCreateRelease") {
+	referenceDocUrl = "https://docs.spring.io/spring-security/site/docs/{version}/reference/html5/"
+	apiDocUrl = "https://docs.spring.io/spring-security/site/docs/{version}/api/"
 }
 
 updateDependenciesSettings {
