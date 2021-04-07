@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.method;
+package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

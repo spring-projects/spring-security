@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.intercept.aopalliance;
+package org.springframework.security.authorization.method;
 
 import java.util.function.Supplier;
 
@@ -23,9 +23,6 @@ import org.junit.Test;
 
 import org.springframework.aop.MethodMatcher;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
-import org.springframework.security.access.method.AuthorizationMethodAfterAdvice;
-import org.springframework.security.access.method.AuthorizationMethodBeforeAdvice;
-import org.springframework.security.access.method.MethodAuthorizationContext;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.core.Authentication;

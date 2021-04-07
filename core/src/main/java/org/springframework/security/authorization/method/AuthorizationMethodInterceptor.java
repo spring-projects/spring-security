@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.intercept.aopalliance;
+package org.springframework.security.authorization.method;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.lang.NonNull;
-import org.springframework.security.access.method.AuthorizationMethodAfterAdvice;
-import org.springframework.security.access.method.AuthorizationMethodBeforeAdvice;
-import org.springframework.security.access.method.MethodAuthorizationContext;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
