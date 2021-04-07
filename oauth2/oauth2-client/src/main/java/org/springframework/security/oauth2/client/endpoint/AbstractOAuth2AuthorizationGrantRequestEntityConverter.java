@@ -39,27 +39,21 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @see AbstractOAuth2AuthorizationGrantRequest
  * @see RequestEntity
  */
-public abstract class AbstractOAuth2AuthorizationGrantRequestEntityConverter<T extends AbstractOAuth2AuthorizationGrantRequest>
+abstract class AbstractOAuth2AuthorizationGrantRequestEntityConverter<T extends AbstractOAuth2AuthorizationGrantRequest>
 		implements Converter<T, RequestEntity<?>> {
 
 	// @formatter:off
-	protected Converter<T, HttpHeaders> headersConverter =
+	private Converter<T, HttpHeaders> headersConverter =
 			(authorizationGrantRequest) -> OAuth2AuthorizationGrantRequestEntityUtils
 					.getTokenRequestHeaders(authorizationGrantRequest.getClientRegistration());
 	// @formatter:on
 
-	protected Converter<T, MultiValueMap<String, String>> parametersConverter = this::createParameters;
-
-	/**
-	 * Sub-class constructor.
-	 */
-	protected AbstractOAuth2AuthorizationGrantRequestEntityConverter() {
-	}
+	private Converter<T, MultiValueMap<String, String>> parametersConverter = this::createParameters;
 
 	@Override
 	public RequestEntity<?> convert(T authorizationGrantRequest) {
-		HttpHeaders headers = this.headersConverter.convert(authorizationGrantRequest);
-		MultiValueMap<String, String> parameters = this.parametersConverter.convert(authorizationGrantRequest);
+		HttpHeaders headers = getHeadersConverter().convert(authorizationGrantRequest);
+		MultiValueMap<String, String> parameters = getParametersConverter().convert(authorizationGrantRequest);
 		URI uri = UriComponentsBuilder
 				.fromUriString(authorizationGrantRequest.getClientRegistration().getProviderDetails().getTokenUri())
 				.build().toUri();
@@ -73,7 +67,18 @@ public abstract class AbstractOAuth2AuthorizationGrantRequestEntityConverter<T e
 	 * @return a {@link MultiValueMap} of the parameters used in the OAuth 2.0 Access
 	 * Token Request body
 	 */
-	protected abstract MultiValueMap<String, String> createParameters(T authorizationGrantRequest);
+	abstract MultiValueMap<String, String> createParameters(T authorizationGrantRequest);
+
+	/**
+	 * Returns the {@link Converter} used for converting the
+	 * {@link AbstractOAuth2AuthorizationGrantRequest} instance to a {@link HttpHeaders}
+	 * used in the OAuth 2.0 Access Token Request headers.
+	 * @return the {@link Converter} used for converting the
+	 * {@link OAuth2AuthorizationCodeGrantRequest} to {@link HttpHeaders}
+	 */
+	final Converter<T, HttpHeaders> getHeadersConverter() {
+		return this.headersConverter;
+	}
 
 	/**
 	 * Sets the {@link Converter} used for converting the
@@ -111,6 +116,18 @@ public abstract class AbstractOAuth2AuthorizationGrantRequestEntityConverter<T e
 			}
 			return headers;
 		};
+	}
+
+	/**
+	 * Returns the {@link Converter} used for converting the
+	 * {@link AbstractOAuth2AuthorizationGrantRequest} instance to a {@link MultiValueMap}
+	 * of the parameters used in the OAuth 2.0 Access Token Request body.
+	 * @return the {@link Converter} used for converting the
+	 * {@link OAuth2AuthorizationCodeGrantRequest} to a {@link MultiValueMap} of the
+	 * parameters
+	 */
+	final Converter<T, MultiValueMap<String, String>> getParametersConverter() {
+		return this.parametersConverter;
 	}
 
 	/**

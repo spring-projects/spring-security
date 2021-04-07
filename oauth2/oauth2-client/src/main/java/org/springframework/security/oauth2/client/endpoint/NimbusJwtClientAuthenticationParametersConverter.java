@@ -79,7 +79,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 
 	private final Function<ClientRegistration, JWK> jwkResolver;
 
-	private final Map<String, JwtEncoder> jwtEncoders = new ConcurrentHashMap<>();
+	private final Map<String, NimbusJwsEncoder> jwtEncoders = new ConcurrentHashMap<>();
 
 	private JwtCustomizer<T> jwtCustomizer = (request, headers, claims) -> {
 	};
@@ -127,7 +127,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 		JoseHeader.Builder headersBuilder = JoseHeader.withAlgorithm(jwsAlgorithm);
 
 		Instant issuedAt = Instant.now();
-		Instant expiresAt = issuedAt.plus(Duration.ofSeconds(30));
+		Instant expiresAt = issuedAt.plus(Duration.ofSeconds(60));
 
 		// @formatter:off
 		JwtClaimsSet.Builder claimsBuilder = JwtClaimsSet.builder()
@@ -144,7 +144,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 		JoseHeader joseHeader = headersBuilder.build();
 		JwtClaimsSet jwtClaimsSet = claimsBuilder.build();
 
-		JwtEncoder jwsEncoder = this.jwtEncoders.computeIfAbsent(clientRegistration.getRegistrationId(),
+		NimbusJwsEncoder jwsEncoder = this.jwtEncoders.computeIfAbsent(clientRegistration.getRegistrationId(),
 				(clientRegistrationId) -> {
 					JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
 					return new NimbusJwsEncoder(jwkSource);
@@ -202,7 +202,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 	 * @param <T> the type of {@link AbstractOAuth2AuthorizationGrantRequest}
 	 */
 	@FunctionalInterface
-	interface JwtCustomizer<T> {
+	interface JwtCustomizer<T extends AbstractOAuth2AuthorizationGrantRequest> {
 
 		/**
 		 * Customize the {@link Jwt} headers and/or claims.

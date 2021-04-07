@@ -119,7 +119,9 @@ final class JoseHeader {
 	/**
 	 * Returns the X.509 certificate chain that contains the X.509 public key certificate
 	 * or certificate chain corresponding to the key used to digitally sign the JWS or
-	 * encrypt the JWE.
+	 * encrypt the JWE. The certificate or certificate chain is represented as a
+	 * {@code List} of certificate value {@code String}s. Each {@code String} in the
+	 * {@code List} is a Base64-encoded DER PKIX certificate value.
 	 * @return the X.509 certificate chain
 	 */
 	List<String> getX509CertificateChain() {
@@ -245,7 +247,7 @@ final class JoseHeader {
 		 * @return the {@link Builder}
 		 */
 		Builder jwkSetUri(String jwkSetUri) {
-			return header(JoseHeaderNames.JKU, jwkSetUri);
+			return header(JoseHeaderNames.JKU, convertAsURL(JoseHeaderNames.JKU, jwkSetUri));
 		}
 
 		/**
@@ -276,13 +278,15 @@ final class JoseHeader {
 		 * @return the {@link Builder}
 		 */
 		Builder x509Uri(String x509Uri) {
-			return header(JoseHeaderNames.X5U, x509Uri);
+			return header(JoseHeaderNames.X5U, convertAsURL(JoseHeaderNames.X5U, x509Uri));
 		}
 
 		/**
 		 * Sets the X.509 certificate chain that contains the X.509 public key certificate
 		 * or certificate chain corresponding to the key used to digitally sign the JWS or
-		 * encrypt the JWE.
+		 * encrypt the JWE. The certificate or certificate chain is represented as a
+		 * {@code List} of certificate value {@code String}s. Each {@code String} in the
+		 * {@code List} is a Base64-encoded DER PKIX certificate value.
 		 * @param x509CertificateChain the X.509 certificate chain
 		 * @return the {@link Builder}
 		 */
@@ -371,19 +375,14 @@ final class JoseHeader {
 		 */
 		JoseHeader build() {
 			Assert.notEmpty(this.headers, "headers cannot be empty");
-			convertAsURL(JoseHeaderNames.JKU);
-			convertAsURL(JoseHeaderNames.X5U);
 			return new JoseHeader(this.headers);
 		}
 
-		private void convertAsURL(String header) {
-			Object value = this.headers.get(header);
-			if (value != null) {
-				URL convertedValue = ClaimConversionService.getSharedInstance().convert(value, URL.class);
-				Assert.isTrue(convertedValue != null,
-						() -> "Unable to convert header '" + header + "' of type '" + value.getClass() + "' to URL.");
-				this.headers.put(header, convertedValue);
-			}
+		private static URL convertAsURL(String header, String value) {
+			URL convertedValue = ClaimConversionService.getSharedInstance().convert(value, URL.class);
+			Assert.isTrue(convertedValue != null,
+					() -> "Unable to convert header '" + header + "' of type '" + value.getClass() + "' to URL.");
+			return convertedValue;
 		}
 
 	}
