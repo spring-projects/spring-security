@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.method;
+package org.springframework.security.authorization.method;
 
 import java.util.function.Supplier;
 
@@ -25,7 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthorizationMethodBeforeAdvice} which can determine if an
+ * An {@link AuthorizationMethodAfterAdvice} which can determine if an
  * {@link Authentication} has access to the {@link T} object using an
  * {@link AuthorizationManager} if a {@link MethodMatcher} matches.
  *
@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
  * @author Evgeniy Cheban
  * @since 5.5
  */
-public final class AuthorizationManagerMethodBeforeAdvice<T> implements AuthorizationMethodBeforeAdvice<T> {
+public final class AuthorizationManagerMethodAfterAdvice<T> implements AuthorizationMethodAfterAdvice<T> {
 
 	private final MethodMatcher methodMatcher;
 
@@ -44,7 +44,7 @@ public final class AuthorizationManagerMethodBeforeAdvice<T> implements Authoriz
 	 * @param methodMatcher the {@link MethodMatcher} to use
 	 * @param authorizationManager the {@link AuthorizationManager} to use
 	 */
-	public AuthorizationManagerMethodBeforeAdvice(MethodMatcher methodMatcher,
+	public AuthorizationManagerMethodAfterAdvice(MethodMatcher methodMatcher,
 			AuthorizationManager<T> authorizationManager) {
 		Assert.notNull(methodMatcher, "methodMatcher cannot be null");
 		Assert.notNull(authorizationManager, "authorizationManager cannot be null");
@@ -60,8 +60,9 @@ public final class AuthorizationManagerMethodBeforeAdvice<T> implements Authoriz
 	 * @throws AccessDeniedException if access is not granted
 	 */
 	@Override
-	public void before(Supplier<Authentication> authentication, T object) {
+	public Object after(Supplier<Authentication> authentication, T object, Object returnedObject) {
 		this.authorizationManager.verify(authentication, object);
+		return returnedObject;
 	}
 
 	@Override

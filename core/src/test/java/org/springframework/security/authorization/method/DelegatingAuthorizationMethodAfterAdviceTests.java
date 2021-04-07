@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.method;
+package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -27,6 +27,9 @@ import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.support.StaticMethodMatcher;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.authorization.method.AuthorizationMethodAfterAdvice;
+import org.springframework.security.authorization.method.DelegatingAuthorizationMethodAfterAdvice;
+import org.springframework.security.authorization.method.MethodAuthorizationContext;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;

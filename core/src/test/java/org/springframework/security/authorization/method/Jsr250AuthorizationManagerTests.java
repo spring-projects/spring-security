@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.annotation;
+package org.springframework.security.authorization.method;
 
 import java.util.function.Supplier;
 
@@ -25,7 +25,6 @@ import javax.annotation.security.RolesAllowed;
 import org.junit.Test;
 
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
-import org.springframework.security.access.method.MethodAuthorizationContext;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;

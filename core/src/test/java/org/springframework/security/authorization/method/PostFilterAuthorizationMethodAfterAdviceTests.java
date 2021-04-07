@@ -23,7 +23,6 @@ import org.springframework.aop.MethodMatcher;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
-import org.springframework.security.access.method.MethodAuthorizationContext;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.authentication.TestAuthentication;
 

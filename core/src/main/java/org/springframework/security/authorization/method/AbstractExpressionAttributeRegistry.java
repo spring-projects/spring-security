@@ -24,7 +24,6 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.core.MethodClassKey;
 import org.springframework.lang.NonNull;
-import org.springframework.security.access.method.MethodAuthorizationContext;
 
 /**
  * An abstract registry which provides an {@link ExpressionAttribute} for the

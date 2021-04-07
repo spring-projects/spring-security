@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.method;
+package org.springframework.security.authorization.method;
 
 import java.util.function.Supplier;
 
@@ -24,44 +24,42 @@ import org.junit.Test;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.method.AuthorizationManagerMethodBeforeAdvice;
 import org.springframework.security.core.Authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests for {@link AuthorizationManagerMethodAfterAdvice}.
+ * Tests for {@link AuthorizationManagerMethodBeforeAdvice}.
  *
  * @author Evgeniy Cheban
  */
-public class AuthorizationManagerMethodAfterAdviceTests {
+public class AuthorizationManagerMethodBeforeAdviceTests {
 
 	@Test
 	public void instantiateWhenMethodMatcherNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthorizationManagerMethodAfterAdvice<>(null, mock(AuthorizationManager.class)))
+				.isThrownBy(() -> new AuthorizationManagerMethodBeforeAdvice<>(null, mock(AuthorizationManager.class)))
 				.withMessage("methodMatcher cannot be null");
 	}
 
 	@Test
 	public void instantiateWhenAuthorizationManagerNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthorizationManagerMethodAfterAdvice<>(mock(MethodMatcher.class), null))
+				.isThrownBy(() -> new AuthorizationManagerMethodBeforeAdvice<>(mock(MethodMatcher.class), null))
 				.withMessage("authorizationManager cannot be null");
 	}
 
 	@Test
-	public void beforeWhenMockAuthorizationManagerThenVerifyAndReturnedObject() {
+	public void beforeWhenMockAuthorizationManagerThenVerify() {
 		Supplier<Authentication> authentication = TestAuthentication::authenticatedUser;
 		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
-		Object returnedObject = new Object();
 		AuthorizationManager<MethodInvocation> mockAuthorizationManager = mock(AuthorizationManager.class);
-		AuthorizationManagerMethodAfterAdvice<MethodInvocation> advice = new AuthorizationManagerMethodAfterAdvice<>(
+		AuthorizationManagerMethodBeforeAdvice<MethodInvocation> advice = new AuthorizationManagerMethodBeforeAdvice<>(
 				mock(MethodMatcher.class), mockAuthorizationManager);
-		Object result = advice.after(authentication, mockMethodInvocation, returnedObject);
-		assertThat(result).isEqualTo(returnedObject);
+		advice.before(authentication, mockMethodInvocation);
 		verify(mockAuthorizationManager).verify(authentication, mockMethodInvocation);
 	}
 

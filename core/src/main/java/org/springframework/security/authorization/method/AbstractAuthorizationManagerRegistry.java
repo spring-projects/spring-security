@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.annotation;
+package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -24,7 +24,6 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.core.MethodClassKey;
 import org.springframework.lang.NonNull;
-import org.springframework.security.access.method.MethodAuthorizationContext;
 import org.springframework.security.authorization.AuthorizationManager;
 
 /**
