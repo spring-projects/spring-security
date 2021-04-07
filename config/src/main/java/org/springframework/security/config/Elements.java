@@ -87,6 +87,8 @@ public abstract class Elements {
 
 	public static final String GLOBAL_METHOD_SECURITY = "global-method-security";
 
+	public static final String METHOD_SECURITY = "method-security";
+
 	public static final String PASSWORD_ENCODER = "password-encoder";
 
 	public static final String PORT_MAPPINGS = "port-mappings";

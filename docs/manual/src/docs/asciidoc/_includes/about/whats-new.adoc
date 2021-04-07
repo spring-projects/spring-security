@@ -1,51 +1,11 @@
 [[new]]
-== What's New in Spring Security 5.5
+== What's New in Spring Security 5.6
 
-Spring Security 5.5 provides a number of new features.
+Spring Security 5.6 provides a number of new features.
 Below are the highlights of the release.
 
 [[whats-new-servlet]]
 === Servlet
-* OAuth 2.0 Client
-
-** Added support for https://github.com/spring-projects/spring-security/pull/9520[Jwt Client Authentication] `private_key_jwt` and `client_secret_jwt`
-** Added https://github.com/spring-projects/spring-security/pull/9535[Jwt Bearer Authorization Grant] support
-** Added https://github.com/spring-projects/spring-security/pull/8765[R2DBC implementation] of `ReactiveOAuth2AuthorizedClientService`
-
-* OAuth 2.0 Resource Server
-
-** Enhanced JWT decoders https://github.com/spring-projects/spring-security/issues/7160[derivation of signature algorithms]
-** Improved https://github.com/spring-projects/spring-security/issues/9100[content negotation]
-** Improved https://github.com/spring-projects/spring-security/issues/9186[multi-tenancy support]
-
-* SAML 2.0 Service Provider
-
-** Added https://github.com/spring-projects/spring-security/issues/9095[OpenSAML 4 support]
-** Enhanced SAML 2.0 https://github.com/spring-projects/spring-security/issues/9131[Assertion] https://github.com/spring-projects/spring-security/issues/9044[decryption]
-** Added https://github.com/spring-projects/spring-security/issues/9028[file-based configuration] for asserting party metadata
-** Improved https://github.com/spring-projects/spring-security/issues/9486[`RelyingPartyRegistration` resolution] support
-** Enhanced relying party metadata https://github.com/spring-projects/spring-security/issues/9317[support]
-** Added support for https://github.com/spring-projects/spring-security/issues/9177[AP-specified signing methods]
-
 * Configuration
 
-** Introduced https://github.com/spring-projects/spring-security/issues/9205[DispatcherType request matcher]
-** Introduced https://github.com/spring-projects/spring-security/issues/8900[`AuthorizationManager`] for filter security
-
-* Kotlin DSL
-
-** Added https://github.com/spring-projects/spring-security/issues/9319[rememberMe support]
-
-[[whats-new-webflux]]
-=== WebFlux
-
-** Added https://github.com/spring-projects/spring-security/issues/8143[Kotlin coroutine support] for `EnableReactiveMethodSecurity`
-
-[[whats-new-build]]
-=== Build
-
-The build has been modernized in a number of different ways.
-Here are a couple of highlights:
-
-* All sample applications have been moved to https://github.com/spring-projects/spring-security-samples[a separate project]
-* The full build now https://github.com/spring-projects/spring-security/issues/9419[works with JDK 11]
+** Introduced https://github.com/spring-projects/spring-security/pull/9630[`AuthorizationManager`] for method security

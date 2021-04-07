@@ -52,7 +52,6 @@ public class XsdDocumentedTests {
 			"nsa-authentication",
 			"nsa-websocket-security",
 			"nsa-ldap",
-			"nsa-method-security",
 			"nsa-web",
 			// deprecated and for removal
 			"nsa-frame-options-strategy",

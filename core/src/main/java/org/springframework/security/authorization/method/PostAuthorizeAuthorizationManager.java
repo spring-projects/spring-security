@@ -23,13 +23,11 @@ import org.aopalliance.intercept.MethodInvocation;
 import reactor.util.annotation.NonNull;
 
 import org.springframework.aop.support.AopUtils;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.access.method.MethodAuthorizationContext;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -37,21 +35,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthorizationManager} which can determine if an {@link Authentication} has
- * access to the {@link MethodInvocation} by evaluating an expression from the
- * {@link PostAuthorize} annotation.
+ * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
+ * return the result from an invoked {@link MethodInvocation} by evaluating an expression
+ * from the {@link PostAuthorize} annotation.
  *
  * @author Evgeniy Cheban
- * @since 5.5
+ * @since 5.6
  */
-public final class PostAuthorizeAuthorizationManager implements AuthorizationManager<MethodAuthorizationContext> {
+public final class PostAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocationResult> {
 
 	private final PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
 	/**
-	 * Sets the {@link MethodSecurityExpressionHandler}.
+	 * Use this the {@link MethodSecurityExpressionHandler}.
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
@@ -60,23 +58,23 @@ public final class PostAuthorizeAuthorizationManager implements AuthorizationMan
 	}
 
 	/**
-	 * Determines if an {@link Authentication} has access to the {@link MethodInvocation}
-	 * by evaluating an expression from the {@link PostAuthorize} annotation.
+	 * Determine if an {@link Authentication} has access to the returned object by
+	 * evaluating the {@link PostAuthorize} annotation that the {@link MethodInvocation}
+	 * specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
-	 * @return an {@link AuthorizationDecision} or null if the {@link PostAuthorize}
-	 * annotation is not present
+	 * @param mi the {@link MethodInvocationResult} to check
+	 * @return an {@link AuthorizationDecision} or {@code null} if the
+	 * {@link PostAuthorize} annotation is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication,
-			MethodAuthorizationContext methodAuthorizationContext) {
-		ExpressionAttribute attribute = this.registry.getAttribute(methodAuthorizationContext);
+	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocationResult mi) {
+		ExpressionAttribute attribute = this.registry.getAttribute(mi.getMethodInvocation());
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return null;
 		}
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(),
-				methodAuthorizationContext.getMethodInvocation());
-		this.expressionHandler.setReturnObject(methodAuthorizationContext.getReturnObject(), ctx);
+				mi.getMethodInvocation());
+		this.expressionHandler.setReturnObject(mi.getResult(), ctx);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
 		return new AuthorizationDecision(granted);
 	}
@@ -98,9 +96,10 @@ public final class PostAuthorizeAuthorizationManager implements AuthorizationMan
 		}
 
 		private PostAuthorize findPostAuthorizeAnnotation(Method method) {
-			PostAuthorize postAuthorize = AnnotationUtils.findAnnotation(method, PostAuthorize.class);
-			return (postAuthorize != null) ? postAuthorize
-					: AnnotationUtils.findAnnotation(method.getDeclaringClass(), PostAuthorize.class);
+			PostAuthorize postAuthorize = AuthorizationAnnotationUtils.findUniqueAnnotation(method,
+					PostAuthorize.class);
+			return (postAuthorize != null) ? postAuthorize : AuthorizationAnnotationUtils
+					.findUniqueAnnotation(method.getDeclaringClass(), PostAuthorize.class);
 		}
 
 	}

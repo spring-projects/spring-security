@@ -6,6 +6,598 @@ It provides support for JSR-250 annotation security as well as the framework's o
 From 3.0 you can also make use of new <<el-access,expression-based annotations>>.
 You can apply security to a single bean, using the `intercept-methods` element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
 
+=== EnableMethodSecurity
+
+In Spring Security 5.6, we can enable annotation-based security using the `@EnableMethodSecurity` annotation on any `@Configuration` instance.
+
+This improves upon `@EnableGlobalMethodSecurity` in a number of ways. `@EnableMethodSecurity`:
+
+1. Uses the simplified `AuthorizationManager` API instead of metadata sources, config attributes, decision managers, and voters.
+This simplifies reuse and customization.
+2. Favors direct bean-based configuration, instead of requiring extending `GlobalMethodSecurityConfiguration` to customize beans
+3. Is built using native Spring AOP, removing abstractions and allowing you to use Spring AOP building blocks to customize
+4. Checks for conflicting annotations to ensure an unambiguous security configuration
+5. Complies with JSR-250
+6. Enables `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter` by default
+
+[NOTE]
+====
+For earlier versions, please read about similar support with <<jc-enable-global-method-security, @EnableGlobalMethodSecurity>>.
+====
+
+For example, the following would enable Spring Security's `@PreAuthorize` annotation:
+
+.Method Security Configuration
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableMethodSecurity
+public class MethodSecurityConfig {
+	// ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity
+class MethodSecurityConfig {
+	// ...
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<sec:method-security/>
+----
+====
+
+Adding an annotation to a method (on a class or interface) would then limit the access to that method accordingly.
+Spring Security's native annotation support defines a set of attributes for the method.
+These will be passed to the `DefaultAuthorizationMethodInterceptorChain` for it to make the actual decision:
+
+.Method Security Annotation Usage
+====
+.Java
+[source,java,role="primary"]
+----
+public interface BankService {
+	@PreAuthorize("hasRole('USER')")
+	Account readAccount(Long id);
+
+	@PreAuthorize("hasRole('USER')")
+	List<Account> findAccounts();
+
+	@PreAuthorize("hasRole('TELLER')")
+	Account post(Account account, Double amount);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+interface BankService {
+	@PreAuthorize("hasRole('USER')")
+	fun readAccount(id : Long) : Account
+
+	@PreAuthorize("hasRole('USER')")
+	fun findAccounts() : List<Account>
+
+	@PreAuthorize("hasRole('TELLER')")
+	fun post(account : Account, amount : Double) : Account
+}
+----
+====
+
+You can enable support for Spring Security's `@Secured` annotation using:
+
+.@Secured Configuration
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableMethodSecurity(securedEnabled = true)
+public class MethodSecurityConfig {
+	// ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity(securedEnabled = true)
+class MethodSecurityConfig {
+	// ...
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<sec:method-security secured-enabled="true"/>
+----
+====
+
+or JSR-250 using:
+
+.JSR-250 Configuration
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableMethodSecurity(jsr250Enabled = true)
+public class MethodSecurityConfig {
+	// ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity(jsr250Enabled = true)
+class MethodSecurityConfig {
+	// ...
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<sec:method-security jsr250-enabled="true"/>
+----
+====
+
+==== Customizing Authorization
+
+Spring Security's `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter` ship with rich expression-based support.
+
+[[jc-method-security-custom-expression-handler]]
+If you need to customize the way that expressions are handled, you can expose a custom `MethodSecurityExpressionHandler`, like so:
+
+.Custom MethodSecurityExpressionHandler
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+static MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+	DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+	handler.setTrustResolver(myCustomTrustResolver);
+	return handler;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+companion object {
+	@Bean
+	fun methodSecurityExpressionHandler() : MethodSecurityExpressionHandler {
+		val handler = DefaultMethodSecurityExpressionHandler();
+		handler.setTrustResolver(myCustomTrustResolver);
+		return handler;
+	}
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<sec:method-security>
+	<sec:expression-handler ref="myExpressionHandler"/>
+</sec:method-security>
+
+<bean id="myExpressionHandler"
+		class="org.springframework.security.messaging.access.expression.DefaultMessageSecurityExpressionHandler">
+	<property name="trustResolver" ref="myCustomTrustResolver"/>
+</bean>
+----
+====
+
+[TIP]
+====
+We expose `MethodSecurityExpressionHandler` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes
+====
+
+Also, for role-based authorization, Spring Security adds a default `ROLE_` prefix, which is uses when evaluating expressions like `hasRole`.
+
+[[jc-method-security-custom-granted-authority-defaults]]
+You can configure the authorization rules to use a different prefix by exposing a `GrantedAuthorityDefaults` bean, like so:
+
+.Custom MethodSecurityExpressionHandler
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+static GrantedAuthorityDefaults grantedAuthorityDefaults() {
+	return new GrantedAuthorityDefaults("MYPREFIX_");
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+companion object {
+	@Bean
+	fun grantedAuthorityDefaults() : GrantedAuthorityDefaults {
+		return GrantedAuthorityDefaults("MYPREFIX_");
+	}
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<sec:method-security/>
+
+<bean id="grantedAuthorityDefaults" class="org.springframework.security.config.core.GrantedAuthorityDefaults">
+	<constructor-arg value="MYPREFIX_"/>
+</bean>
+----
+====
+
+[TIP]
+====
+We expose `GrantedAuthorityDefaults` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes
+====
+
+[[jc-method-security-custom-authorization-manager]]
+==== Custom Authorization Managers
+
+Method authorization is a combination of before- and after-method authorization.
+
+[NOTE]
+====
+Before-method authorization is performed before the method is invoked.
+If that authorization denies access, the method is not invoked, and an `AccessDeniedException` is thrown
+After-method authorization is performed after the method is invoked, but before the method returns to the caller.
+If that authorization denies access, the value is not returned, and an `AccessDeniedException` is thrown
+====
+
+To recreate what adding `@EnableMethodSecurity` does by default, you would publish the following configuration:
+
+.Full Pre-post Method Security Configuration
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableMethodSecurity(prePostEnabled = false)
+class MethodSecurityConfig {
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	Advisor preFilterAuthorizationMethodInterceptor() {
+		return new PreFilterAuthorizationMethodInterceptor();
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	Advisor preAuthorizeAuthorizationMethodInterceptor() {
+		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize();
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	Advisor postAuthorizeAuthorizationMethodInterceptor() {
+		return AuthorizationManagerAfterMethodInterceptor.postAuthorize();
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	Advisor postFilterAuthorizationMethodInterceptor() {
+		return new PostFilterAuthorizationMethodInterceptor();
+	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity(prePostEnabled = false)
+class MethodSecurityConfig {
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	fun preFilterAuthorizationMethodInterceptor() : Advisor {
+		return PreFilterAuthorizationMethodInterceptor();
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	fun preAuthorizeAuthorizationMethodInterceptor() : Advisor {
+		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize();
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	fun postAuthorizeAuthorizationMethodInterceptor() : Advisor {
+		return AuthorizationManagerAfterMethodInterceptor.postAuthorize();
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	fun postFilterAuthorizationMethodInterceptor() : Advisor {
+		return PostFilterAuthorizationMethodInterceptor();
+	}
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<sec:method-security pre-post-enabled="false"/>
+
+<aop:config/>
+
+<bean id="preFilterAuthorizationMethodInterceptor"
+		class="org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor"/>
+<bean id="preAuthorizeAuthorizationMethodInterceptor"
+		class="org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor"
+		factory-method="preAuthorize"/>
+<bean id="postAuthorizeAuthorizationMethodInterceptor"
+		class="org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor"
+		factory-method="postAuthorize"/>
+<bean id="postFilterAuthorizationMethodInterceptor"
+		class="org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor"/>
+----
+====
+
+Notice that Spring Security's method security is built using Spring AOP.
+So, interceptors are invoked based on the order specified.
+This can be customized by calling `setOrder` on the interceptor instances like so:
+
+.Publish Custom Advisor
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+Advisor postFilterAuthorizationMethodInterceptor() {
+	PostFilterAuthorizationMethodInterceptor interceptor = new PostFilterAuthorizationMethodInterceptor();
+	interceptor.setOrder(AuthorizationInterceptorOrders.POST_AUTHORIZE.getOrder() - 1);
+	return interceptor;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+fun postFilterAuthorizationMethodInterceptor() : Advisor {
+	val interceptor = PostFilterAuthorizationMethodInterceptor();
+	interceptor.setOrder(AuthorizationInterceptorOrders.POST_AUTHORIZE.getOrder() - 1);
+	return interceptor;
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="postFilterAuthorizationMethodInterceptor"
+		class="org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor">
+	<property name="order"
+			value="#{T(org.springframework.security.authorization.method.AuthorizationInterceptorsOrder).POST_AUTHORIZE.getOrder() -1}"/>
+</bean>
+----
+====
+
+You may want to only support `@PreAuthorize` in your application, in which case you can do the following:
+
+
+.Only @PreAuthorize Configuration
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableMethodSecurity(prePostEnabled = false)
+class MethodSecurityConfig {
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	Advisor preAuthorize() {
+		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize();
+	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity(prePostEnabled = false)
+class MethodSecurityConfig {
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	fun preAuthorize() : Advisor {
+		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize()
+	}
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<sec:method-security pre-post-enabled="false"/>
+
+<aop:config/>
+
+<bean id="preAuthorizeAuthorizationMethodInterceptor"
+	class="org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor"
+	factory-method="preAuthorize"/>
+----
+====
+
+Or, you may have a custom before-method `AuthorizationManager` that you want to add to the list.
+
+In this case, you will need to tell Spring Security both the `AuthorizationManager` and to which methods and classes your authorization manager applies.
+
+Thus, you can configure Spring Security to invoke your `AuthorizationManager` in between `@PreAuthorize` and `@PostAuthorize` like so:
+
+.Custom Before Advisor
+====
+
+.Java
+[source,java,role="primary"]
+----
+@EnableMethodSecurity
+class MethodSecurityConfig {
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	public Advisor customAuthorize() {
+		JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
+		pattern.setPattern("org.mycompany.myapp.service.*");
+		AuthorizationManager<MethodInvocation> rule = AuthorityAuthorizationManager.isAuthenticated();
+		AuthorizationManagerBeforeMethodInterceptor interceptor = new AuthorizationManagerBeforeMethodInterceptor(pattern, rule);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.PRE_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1);
+		return interceptor;
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity
+class MethodSecurityConfig {
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	fun customAuthorize() : Advisor {
+		val pattern = JdkRegexpMethodPointcut();
+		pattern.setPattern("org.mycompany.myapp.service.*");
+		val rule = AuthorityAuthorizationManager.isAuthenticated();
+		val interceptor = AuthorizationManagerBeforeMethodInterceptor(pattern, rule);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.PRE_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1);
+		return interceptor;
+	}
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<sec:method-security/>
+
+<aop:config/>
+
+<bean id="customAuthorize"
+		class="org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor">
+	<constructor-arg>
+		<bean class="org.springframework.aop.support.JdkRegexpMethodPointcut">
+			<property name="pattern" value="org.mycompany.myapp.service.*"/>
+		</bean>
+	</constructor-arg>
+	<constructor-arg>
+		<bean class="org.springframework.security.authorization.AuthorityAuthorizationManager"
+				factory-method="isAuthenticated"/>
+	</constructor-arg>
+	<property name="order"
+			value="#{T(org.springframework.security.authorization.method.AuthorizationInterceptorsOrder).PRE_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1}"/>
+</bean>
+----
+====
+
+[TIP]
+====
+You can place your interceptor in between Spring Security method interceptors using the order constants specified in `AuthorizationInterceptorsOrder`.
+====
+
+The same can be done for after-method authorization.
+After-method authorization is generally concerned with analysing the return value to verify access.
+
+For example, you might have a method that confirms that the account requested actually belongs to the logged-in user like so:
+
+.@PostAuthorize example
+====
+.Java
+[source,java,role="primary"]
+----
+public interface BankService {
+
+	@PreAuthorize("hasRole('USER')")
+	@PostAuthorize("returnObject.owner == authentication.name")
+	Account readAccount(Long id);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+interface BankService {
+
+	@PreAuthorize("hasRole('USER')")
+	@PostAuthorize("returnObject.owner == authentication.name")
+	fun readAccount(id : Long) : Account
+}
+----
+====
+
+You can supply your own `AuthorizationMethodInterceptor` to customize how access to the return value is evaluated.
+
+For example, if you have your own custom annotation, you can configure it like so:
+
+
+.Custom After Advisor
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableMethodSecurity
+class MethodSecurityConfig {
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	public Advisor customAuthorize(AuthorizationManager<MethodInvocationResult> rules) {
+		AnnotationMethodMatcher pattern = new AnnotationMethodMatcher(MySecurityAnnotation.class);
+		AuthorizationManagerAfterMethodInterceptor interceptor = new AuthorizationManagerAfterMethodInterceptor(pattern, rules);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.POST_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1);
+		return interceptor;
+	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity
+class MethodSecurityConfig {
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	fun customAuthorize(rules : AuthorizationManager<MethodInvocationResult>) : Advisor {
+		val pattern = AnnotationMethodMatcher(MySecurityAnnotation::class.java);
+		val interceptor = AuthorizationManagerAfterMethodInterceptor(pattern, rules);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.POST_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1);
+		return interceptor;
+	}
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<sec:method-security/>
+
+<aop:config/>
+
+<bean id="customAuthorize"
+		class="org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor">
+	<constructor-arg>
+		<bean class="org.springframework.aop.support.annotation.AnnotationMethodMatcher">
+			<constructor-arg value="#{T(org.mycompany.MySecurityAnnotation)}"/>
+		</bean>
+	</constructor-arg>
+	<constructor-arg>
+		<bean class="org.springframework.security.authorization.AuthorityAuthorizationManager"
+				factory-method="isAuthenticated"/>
+	</constructor-arg>
+	<property name="order"
+		value="#{T(org.springframework.security.authorization.method.AuthorizationInterceptorsOrder).PRE_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1}"/>
+</bean>
+----
+====
+
+and it will be invoked after the `@PostAuthorize` interceptor.
+
+[[jc-enable-global-method-security]]
 === EnableGlobalMethodSecurity
 
 We can enable annotation-based security using the `@EnableGlobalMethodSecurity` annotation on any `@Configuration` instance.

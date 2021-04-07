@@ -23,13 +23,11 @@ import org.aopalliance.intercept.MethodInvocation;
 import reactor.util.annotation.NonNull;
 
 import org.springframework.aop.support.AopUtils;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.access.method.MethodAuthorizationContext;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -37,14 +35,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthorizationManager} which can determine if an {@link Authentication} has
- * access to the {@link MethodInvocation} by evaluating an expression from the
+ * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
+ * invoke the {@link MethodInvocation} by evaluating an expression from the
  * {@link PreAuthorize} annotation.
  *
  * @author Evgeniy Cheban
- * @since 5.5
+ * @since 5.6
  */
-public final class PreAuthorizeAuthorizationManager implements AuthorizationManager<MethodAuthorizationContext> {
+public final class PreAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocation> {
 
 	private final PreAuthorizeExpressionAttributeRegistry registry = new PreAuthorizeExpressionAttributeRegistry();
 
@@ -60,22 +58,21 @@ public final class PreAuthorizeAuthorizationManager implements AuthorizationMana
 	}
 
 	/**
-	 * Determines if an {@link Authentication} has access to the {@link MethodInvocation}
-	 * by evaluating an expression from the {@link PreAuthorize} annotation.
+	 * Determine if an {@link Authentication} has access to a method by evaluating an
+	 * expression from the {@link PreAuthorize} annotation that the
+	 * {@link MethodInvocation} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
-	 * @return an {@link AuthorizationDecision} or null if the {@link PreAuthorize}
-	 * annotation is not present
+	 * @param mi the {@link MethodInvocation} to check
+	 * @return an {@link AuthorizationDecision} or {@code null} if the
+	 * {@link PreAuthorize} annotation is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication,
-			MethodAuthorizationContext methodAuthorizationContext) {
-		ExpressionAttribute attribute = this.registry.getAttribute(methodAuthorizationContext);
+	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
+		ExpressionAttribute attribute = this.registry.getAttribute(mi);
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return null;
 		}
-		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(),
-				methodAuthorizationContext.getMethodInvocation());
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(), mi);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
 		return new AuthorizationDecision(granted);
 	}
@@ -97,9 +94,9 @@ public final class PreAuthorizeAuthorizationManager implements AuthorizationMana
 		}
 
 		private PreAuthorize findPreAuthorizeAnnotation(Method method) {
-			PreAuthorize preAuthorize = AnnotationUtils.findAnnotation(method, PreAuthorize.class);
+			PreAuthorize preAuthorize = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PreAuthorize.class);
 			return (preAuthorize != null) ? preAuthorize
-					: AnnotationUtils.findAnnotation(method.getDeclaringClass(), PreAuthorize.class);
+					: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), PreAuthorize.class);
 		}
 
 	}
