@@ -19,6 +19,7 @@ package org.springframework.security.authorization.method;
 import java.util.function.Supplier;
 
 import org.springframework.aop.MethodMatcher;
+import org.springframework.aop.Pointcut;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -31,24 +32,24 @@ import org.springframework.util.Assert;
  *
  * @param <T> the type of object that the authorization check is being done one.
  * @author Evgeniy Cheban
+ * @author Josh Cummings
  * @since 5.5
  */
 public final class AuthorizationManagerMethodBeforeAdvice<T> implements AuthorizationMethodBeforeAdvice<T> {
 
-	private final MethodMatcher methodMatcher;
+	private final Pointcut pointcut;
 
 	private final AuthorizationManager<T> authorizationManager;
 
 	/**
 	 * Creates an instance.
-	 * @param methodMatcher the {@link MethodMatcher} to use
+	 * @param pointcut the {@link Pointcut} to use
 	 * @param authorizationManager the {@link AuthorizationManager} to use
 	 */
-	public AuthorizationManagerMethodBeforeAdvice(MethodMatcher methodMatcher,
-			AuthorizationManager<T> authorizationManager) {
-		Assert.notNull(methodMatcher, "methodMatcher cannot be null");
+	public AuthorizationManagerMethodBeforeAdvice(Pointcut pointcut, AuthorizationManager<T> authorizationManager) {
+		Assert.notNull(pointcut, "pointcut cannot be null");
 		Assert.notNull(authorizationManager, "authorizationManager cannot be null");
-		this.methodMatcher = methodMatcher;
+		this.pointcut = pointcut;
 		this.authorizationManager = authorizationManager;
 	}
 
@@ -64,9 +65,12 @@ public final class AuthorizationManagerMethodBeforeAdvice<T> implements Authoriz
 		this.authorizationManager.verify(authentication, object);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public MethodMatcher getMethodMatcher() {
-		return this.methodMatcher;
+	public Pointcut getPointcut() {
+		return this.pointcut;
 	}
 
 }

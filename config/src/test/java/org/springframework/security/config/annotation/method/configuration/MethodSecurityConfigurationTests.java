@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.springframework.aop.MethodMatcher;
+import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -353,12 +353,12 @@ public class MethodSecurityConfigurationTests {
 
 		@Bean
 		AuthorizationMethodAfterAdvice<MethodAuthorizationContext> customAfterAdvice() {
-			JdkRegexpMethodPointcut methodMatcher = new JdkRegexpMethodPointcut();
-			methodMatcher.setPattern(".*MethodSecurityServiceImpl.*securedUser");
+			JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
+			pointcut.setPattern(".*MethodSecurityServiceImpl.*securedUser");
 			return new AuthorizationMethodAfterAdvice<MethodAuthorizationContext>() {
 				@Override
-				public MethodMatcher getMethodMatcher() {
-					return methodMatcher;
+				public Pointcut getPointcut() {
+					return pointcut;
 				}
 
 				@Override

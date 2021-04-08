@@ -16,12 +16,15 @@
 
 package org.springframework.security.authorization.method;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
 import org.springframework.aop.MethodMatcher;
+import org.springframework.aop.Pointcut;
+import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
@@ -42,29 +45,35 @@ public class PreFilterAuthorizationMethodBeforeAdviceTests {
 	@Test
 	public void setExpressionHandlerWhenNotNullThenSetsExpressionHandler() {
 		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice();
+		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice(Pointcut.TRUE);
 		advice.setExpressionHandler(expressionHandler);
 		assertThat(advice).extracting("expressionHandler").isEqualTo(expressionHandler);
 	}
 
 	@Test
 	public void setExpressionHandlerWhenNullThenException() {
-		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice();
+		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice(Pointcut.TRUE);
 		assertThatIllegalArgumentException().isThrownBy(() -> advice.setExpressionHandler(null))
 				.withMessage("expressionHandler cannot be null");
 	}
 
 	@Test
 	public void methodMatcherWhenMethodHasNotPreFilterAnnotationThenNotMatches() throws Exception {
-		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice();
-		MethodMatcher methodMatcher = advice.getMethodMatcher();
+		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice(
+				new StaticMethodMatcherPointcut() {
+					@Override
+					public boolean matches(Method method, Class<?> targetClass) {
+						return false;
+					}
+				});
+		MethodMatcher methodMatcher = advice.getPointcut().getMethodMatcher();
 		assertThat(methodMatcher.matches(TestClass.class.getMethod("doSomething"), TestClass.class)).isFalse();
 	}
 
 	@Test
 	public void methodMatcherWhenMethodHasPreFilterAnnotationThenMatches() throws Exception {
-		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice();
-		MethodMatcher methodMatcher = advice.getMethodMatcher();
+		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice(Pointcut.TRUE);
+		MethodMatcher methodMatcher = advice.getPointcut().getMethodMatcher();
 		assertThat(methodMatcher.matches(TestClass.class.getMethod("doSomethingListFilterTargetMatch", List.class),
 				TestClass.class)).isTrue();
 	}
@@ -75,7 +84,7 @@ public class PreFilterAuthorizationMethodBeforeAdviceTests {
 				"doSomethingListFilterTargetNotMatch", new Class[] { List.class }, new Object[] { new ArrayList<>() });
 		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
 				TestClass.class);
-		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice();
+		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice(Pointcut.TRUE);
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> advice.before(TestAuthentication::authenticatedUser, methodAuthorizationContext))
 				.withMessage(
@@ -88,7 +97,7 @@ public class PreFilterAuthorizationMethodBeforeAdviceTests {
 				"doSomethingListFilterTargetMatch", new Class[] { List.class }, new Object[] { null });
 		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
 				TestClass.class);
-		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice();
+		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice(Pointcut.TRUE);
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> advice.before(TestAuthentication::authenticatedUser, methodAuthorizationContext))
 				.withMessage("Filter target was null, or no argument with name 'list' found in method.");
@@ -103,7 +112,7 @@ public class PreFilterAuthorizationMethodBeforeAdviceTests {
 				"doSomethingListFilterTargetMatch", new Class[] { List.class }, new Object[] { list });
 		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
 				TestClass.class);
-		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice();
+		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice(Pointcut.TRUE);
 		advice.before(TestAuthentication::authenticatedUser, methodAuthorizationContext);
 		assertThat(list).hasSize(1);
 		assertThat(list.get(0)).isEqualTo("john");
@@ -115,7 +124,7 @@ public class PreFilterAuthorizationMethodBeforeAdviceTests {
 				"doSomethingListFilterTargetNotProvided", new Class[] { List.class }, new Object[] { null });
 		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
 				TestClass.class);
-		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice();
+		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice(Pointcut.TRUE);
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> advice.before(TestAuthentication::authenticatedUser, methodAuthorizationContext))
 				.withMessage("Filter target was null. Make sure you passing the correct value in the method argument.");
@@ -130,7 +139,7 @@ public class PreFilterAuthorizationMethodBeforeAdviceTests {
 				"doSomethingListFilterTargetNotProvided", new Class[] { List.class }, new Object[] { list });
 		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
 				TestClass.class);
-		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice();
+		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice(Pointcut.TRUE);
 		advice.before(TestAuthentication::authenticatedUser, methodAuthorizationContext);
 		assertThat(list).hasSize(1);
 		assertThat(list.get(0)).isEqualTo("john");
@@ -143,7 +152,7 @@ public class PreFilterAuthorizationMethodBeforeAdviceTests {
 				new Object[] { new String[] {} });
 		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
 				TestClass.class);
-		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice();
+		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice(Pointcut.TRUE);
 		assertThatIllegalStateException()
 				.isThrownBy(() -> advice.before(TestAuthentication::authenticatedUser, methodAuthorizationContext))
 				.withMessage(
@@ -157,12 +166,13 @@ public class PreFilterAuthorizationMethodBeforeAdviceTests {
 				new Object[] { "", new ArrayList<>() });
 		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
 				TestClass.class);
-		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice();
+		PreFilterAuthorizationMethodBeforeAdvice advice = new PreFilterAuthorizationMethodBeforeAdvice(Pointcut.TRUE);
 		assertThatIllegalStateException()
 				.isThrownBy(() -> advice.before(TestAuthentication::authenticatedUser, methodAuthorizationContext))
 				.withMessage("Unable to determine the method argument for filtering. Specify the filter target.");
 	}
 
+	@PreFilter("filterObject == 'john'")
 	public static class TestClass {
 
 		public void doSomething() {
@@ -189,7 +199,6 @@ public class PreFilterAuthorizationMethodBeforeAdviceTests {
 			return array;
 		}
 
-		@PreFilter("filterObject == 'john'")
 		public List<String> doSomethingTwoArgsFilterTargetNotProvided(String s, List<String> list) {
 			return list;
 		}

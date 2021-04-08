@@ -16,10 +16,14 @@
 
 package org.springframework.security.authorization.method;
 
+import java.lang.reflect.Method;
+
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.Test;
 
 import org.springframework.aop.MethodMatcher;
+import org.springframework.aop.Pointcut;
+import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
@@ -39,29 +43,35 @@ public class PostFilterAuthorizationMethodAfterAdviceTests {
 	@Test
 	public void setExpressionHandlerWhenNotNullThenSetsExpressionHandler() {
 		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice();
+		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice(Pointcut.TRUE);
 		advice.setExpressionHandler(expressionHandler);
 		assertThat(advice).extracting("expressionHandler").isEqualTo(expressionHandler);
 	}
 
 	@Test
 	public void setExpressionHandlerWhenNullThenException() {
-		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice();
+		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice(Pointcut.TRUE);
 		assertThatIllegalArgumentException().isThrownBy(() -> advice.setExpressionHandler(null))
 				.withMessage("expressionHandler cannot be null");
 	}
 
 	@Test
 	public void methodMatcherWhenMethodHasNotPostFilterAnnotationThenNotMatches() throws Exception {
-		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice();
-		MethodMatcher methodMatcher = advice.getMethodMatcher();
+		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice(
+				new StaticMethodMatcherPointcut() {
+					@Override
+					public boolean matches(Method method, Class<?> targetClass) {
+						return false;
+					}
+				});
+		MethodMatcher methodMatcher = advice.getPointcut().getMethodMatcher();
 		assertThat(methodMatcher.matches(TestClass.class.getMethod("doSomething"), TestClass.class)).isFalse();
 	}
 
 	@Test
 	public void methodMatcherWhenMethodHasPostFilterAnnotationThenMatches() throws Exception {
-		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice();
-		MethodMatcher methodMatcher = advice.getMethodMatcher();
+		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice(Pointcut.TRUE);
+		MethodMatcher methodMatcher = advice.getPointcut().getMethodMatcher();
 		assertThat(
 				methodMatcher.matches(TestClass.class.getMethod("doSomethingArray", String[].class), TestClass.class))
 						.isTrue();
@@ -71,14 +81,15 @@ public class PostFilterAuthorizationMethodAfterAdviceTests {
 	public void afterWhenArrayNotNullThenFilteredArray() throws Exception {
 		String[] array = { "john", "bob" };
 		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"doSomethingArray", new Class[] { String[].class }, new Object[] { array });
+				"doSomethingArrayClassLevel", new Class[] { String[].class }, new Object[] { array });
 		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
 				TestClass.class);
-		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice();
+		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice(Pointcut.TRUE);
 		Object result = advice.after(TestAuthentication::authenticatedUser, methodAuthorizationContext, array);
 		assertThat(result).asInstanceOf(InstanceOfAssertFactories.array(String[].class)).containsOnly("john");
 	}
 
+	@PostFilter("filterObject == 'john'")
 	public static class TestClass {
 
 		public void doSomething() {
@@ -87,6 +98,10 @@ public class PostFilterAuthorizationMethodAfterAdviceTests {
 
 		@PostFilter("filterObject == 'john'")
 		public String[] doSomethingArray(String[] array) {
+			return array;
+		}
+
+		public String[] doSomethingArrayClassLevel(String[] array) {
 			return array;
 		}
 

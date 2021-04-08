@@ -21,9 +21,8 @@ import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.aop.MethodMatcher;
+import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.aop.support.StaticMethodMatcher;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -40,6 +39,7 @@ import org.springframework.util.Assert;
  * {@link PostFilter} annotation.
  *
  * @author Evgeniy Cheban
+ * @author Josh Cummings
  * @since 5.5
  */
 public final class PostFilterAuthorizationMethodAfterAdvice
@@ -47,15 +47,18 @@ public final class PostFilterAuthorizationMethodAfterAdvice
 
 	private final PostFilterExpressionAttributeRegistry registry = new PostFilterExpressionAttributeRegistry();
 
-	private final MethodMatcher methodMatcher = new StaticMethodMatcher() {
-		@Override
-		public boolean matches(Method method, Class<?> targetClass) {
-			return PostFilterAuthorizationMethodAfterAdvice.this.registry.getAttribute(method,
-					targetClass) != ExpressionAttribute.NULL_ATTRIBUTE;
-		}
-	};
+	private final Pointcut pointcut;
 
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+
+	/**
+	 * Create a {@link PostFilterAuthorizationMethodAfterAdvice} using the provided
+	 * parameters
+	 * @param pointcut the {@link Pointcut} for when this advice applies
+	 */
+	public PostFilterAuthorizationMethodAfterAdvice(Pointcut pointcut) {
+		this.pointcut = pointcut;
+	}
 
 	/**
 	 * Sets the {@link MethodSecurityExpressionHandler}.
@@ -66,9 +69,12 @@ public final class PostFilterAuthorizationMethodAfterAdvice
 		this.expressionHandler = expressionHandler;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public MethodMatcher getMethodMatcher() {
-		return this.methodMatcher;
+	public Pointcut getPointcut() {
+		return this.pointcut;
 	}
 
 	/**
