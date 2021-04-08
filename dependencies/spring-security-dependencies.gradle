@@ -53,7 +53,7 @@ dependencies {
 		api "org.hibernate:hibernate-entitymanager:5.4.30.Final"
 		api "org.hsqldb:hsqldb:2.6.0"
 		api "org.jasig.cas.client:cas-client-core:3.6.2"
-		api "org.mockito:mockito-core:3.8.0"
+		api "org.mockito:mockito-core:3.9.0"
 		api "org.openid4java:openid4java-nodeps:0.9.6"
 		api "org.opensaml:opensaml-core:$openSamlVersion"
 		api "org.opensaml:opensaml-saml-api:$openSamlVersion"
