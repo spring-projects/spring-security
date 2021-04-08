@@ -49,8 +49,8 @@ $ git checkout -
 
 The following command will update the dependencies again but this time creating a ticket for each update and placing `Closes gh-<number>` in the commit. Replacing the following values:
 
-<github-personal-access-token> - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `public_repo`
-<next-version> - Replace with the title of the milestone you are releasing now (i.e. 5.5.0-RC1)
+* <github-personal-access-token> - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `public_repo`
+* <next-version> - Replace with the title of the milestone you are releasing now (i.e. 5.5.0-RC1)
 
 [source,bash]
 ----
@@ -61,7 +61,18 @@ Apply any fixes from your previous branch that were necessary.
 
 = Check All Issues are Closed
 
-Check that all issues are closed for the milestone https://github.com/spring-projects/spring-security/milestones
+The following command will check if there are any open issues for the ticket.
+Before running the command, replace the following values:
+
+* <github-personal-access-token> - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `public_repo`. This is optional since you are unlikely to reach the rate limit for such a simple check.
+* <next-version> - Replace with the title of the milestone you are releasing now (i.e. 5.5.0-RC1)
+
+[source,bash]
+----
+$ ./gradlew gitHubCheckMilestoneHasNoOpenIssues -PgitHubAccessToken=<github-personal-access-token> -PnextVersion=<next-version>
+----
+
+Alternatively, you can manually check using https://github.com/spring-projects/spring-security/milestones
 
 = Update Release Version
 

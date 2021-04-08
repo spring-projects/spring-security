@@ -48,6 +48,10 @@ gradlePlugin {
 			id = "org.springframework.security.sagan"
 			implementationClass = "org.springframework.gradle.sagan.SaganPlugin"
 		}
+		githubMilestone {
+			id = "org.springframework.github.milestone"
+			implementationClass = "org.springframework.gradle.github.milestones.GitHubMilestonePlugin"
+		}
 	}
 }
 

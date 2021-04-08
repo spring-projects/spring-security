@@ -17,6 +17,7 @@ apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.update-dependencies'
 apply plugin: 'org.springframework.security.sagan'
+apply plugin: 'org.springframework.github.milestone'
 
 group = 'org.springframework.security'
 description = 'Spring Security'
@@ -32,6 +33,13 @@ repositories {
 tasks.named("saganCreateRelease") {
 	referenceDocUrl = "https://docs.spring.io/spring-security/site/docs/{version}/reference/html5/"
 	apiDocUrl = "https://docs.spring.io/spring-security/site/docs/{version}/api/"
+}
+
+tasks.named("gitHubCheckMilestoneHasNoOpenIssues") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
 }
 
 updateDependenciesSettings {
