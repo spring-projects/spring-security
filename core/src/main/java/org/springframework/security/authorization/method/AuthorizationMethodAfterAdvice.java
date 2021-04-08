@@ -55,16 +55,15 @@ public interface AuthorizationMethodAfterAdvice<T> extends AfterAdvice, Pointcut
 	}
 
 	/**
-	 * Determines if an {@link Authentication} has access to the returned object from the
-	 * {@link MethodInvocation}.
+	 * Determine if an {@link Authentication} has access to a method invocation's return
+	 * object.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param object the {@link T} object to check
-	 * @param returnedObject the returned object from the {@link MethodInvocation} to
-	 * check
-	 * @return the <code>Object</code> that will ultimately be returned to the caller (if
-	 * an implementation does not wish to modify the object to be returned to the caller,
-	 * the implementation should simply return the same object it was passed by the
-	 * <code>returnedObject</code> method argument)
+	 * @param returnedObject the returned object from the method invocation to check
+	 * @return the {@code Object} that will ultimately be returned to the caller (if an
+	 * implementation does not wish to modify the object to be returned to the caller, the
+	 * implementation should simply return the same object it was passed by the
+	 * {@code returnedObject} method argument)
 	 */
 	Object after(Supplier<Authentication> authentication, T object, Object returnedObject);
 

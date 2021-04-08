@@ -74,14 +74,18 @@ public final class DelegatingAuthorizationMethodAfterAdvice<T> implements Author
 	}
 
 	/**
-	 * Delegates to specific {@link AuthorizationMethodAfterAdvice}s and returns the
-	 * <code>returnedObject</code> (possibly modified) from the method argument.
+	 * Delegate to a series of {@link AuthorizationMethodAfterAdvice}s, each of which may
+	 * replace the {@code returnedObject} with its own
+	 *
+	 * Advices may be of type {@link AuthorizationManagerMethodAfterAdvice} in which case,
+	 * they will throw an
+	 * {@link org.springframework.security.access.AccessDeniedException} in the event that
+	 * they deny access to the {@code returnedObject}.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param object the {@link MethodAuthorizationContext} to check
-	 * @param returnedObject the returned object from the {@link MethodInvocation} to
-	 * check
-	 * @return the <code>returnedObject</code> (possibly modified) from the method
-	 * argument
+	 * @param returnedObject the returned object from the original method invocation
+	 * @throws org.springframework.security.access.AccessDeniedException if any delegate
+	 * advices deny access
 	 */
 	@Override
 	public Object after(Supplier<Authentication> authentication, T object, Object returnedObject) {

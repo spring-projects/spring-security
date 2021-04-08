@@ -54,8 +54,8 @@ public final class AuthorizationManagerMethodBeforeAdvice<T> implements Authoriz
 	}
 
 	/**
-	 * Determines if an {@link Authentication} has access to the {@link T} object using
-	 * the {@link AuthorizationManager}.
+	 * Determine if an {@link Authentication} has access to the {@link T} object using the
+	 * configured {@link AuthorizationManager}.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param object the {@link T} object to check
 	 * @throws AccessDeniedException if access is not granted

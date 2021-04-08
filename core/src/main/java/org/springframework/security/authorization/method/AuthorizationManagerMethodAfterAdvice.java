@@ -55,11 +55,10 @@ public final class AuthorizationManagerMethodAfterAdvice<T> implements Authoriza
 	}
 
 	/**
-	 * Determines if an {@link Authentication} has access to the {@link T} object using
-	 * the {@link AuthorizationManager}.
+	 * Determine if an {@link Authentication} has access to the {@link T} object using the
+	 * {@link AuthorizationManager}.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param object the {@link T} object to check - note that {@code T} should contain
-	 * the returned object
+	 * @param object the {@link T} object to check
 	 * @throws AccessDeniedException if access is not granted
 	 */
 	@Override
