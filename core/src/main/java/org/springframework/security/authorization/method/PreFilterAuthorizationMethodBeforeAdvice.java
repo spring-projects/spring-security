@@ -21,9 +21,8 @@ import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.aop.MethodMatcher;
+import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.aop.support.StaticMethodMatcher;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -40,6 +39,7 @@ import org.springframework.util.StringUtils;
  * evaluating an expression from the {@link PreFilter} annotation.
  *
  * @author Evgeniy Cheban
+ * @author Josh Cummings
  * @since 5.5
  */
 public final class PreFilterAuthorizationMethodBeforeAdvice
@@ -47,15 +47,18 @@ public final class PreFilterAuthorizationMethodBeforeAdvice
 
 	private final PreFilterExpressionAttributeRegistry registry = new PreFilterExpressionAttributeRegistry();
 
-	private final MethodMatcher methodMatcher = new StaticMethodMatcher() {
-		@Override
-		public boolean matches(Method method, Class<?> targetClass) {
-			return PreFilterAuthorizationMethodBeforeAdvice.this.registry.getAttribute(method,
-					targetClass) != PreFilterExpressionAttribute.NULL_ATTRIBUTE;
-		}
-	};
+	private final Pointcut pointcut;
 
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+
+	/**
+	 * Create a {@link PreFilterAuthorizationMethodBeforeAdvice} using the provided
+	 * parameters
+	 * @param pointcut the {@link Pointcut} for when this advice applies
+	 */
+	public PreFilterAuthorizationMethodBeforeAdvice(Pointcut pointcut) {
+		this.pointcut = pointcut;
+	}
 
 	/**
 	 * Sets the {@link MethodSecurityExpressionHandler}.
@@ -66,9 +69,12 @@ public final class PreFilterAuthorizationMethodBeforeAdvice
 		this.expressionHandler = expressionHandler;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public MethodMatcher getMethodMatcher() {
-		return this.methodMatcher;
+	public Pointcut getPointcut() {
+		return this.pointcut;
 	}
 
 	/**

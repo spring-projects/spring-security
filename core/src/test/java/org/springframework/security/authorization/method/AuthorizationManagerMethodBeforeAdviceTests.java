@@ -21,10 +21,9 @@ import java.util.function.Supplier;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
 
-import org.springframework.aop.MethodMatcher;
+import org.springframework.aop.Pointcut;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.method.AuthorizationManagerMethodBeforeAdvice;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -42,13 +41,13 @@ public class AuthorizationManagerMethodBeforeAdviceTests {
 	public void instantiateWhenMethodMatcherNullThenException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new AuthorizationManagerMethodBeforeAdvice<>(null, mock(AuthorizationManager.class)))
-				.withMessage("methodMatcher cannot be null");
+				.withMessage("pointcut cannot be null");
 	}
 
 	@Test
 	public void instantiateWhenAuthorizationManagerNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthorizationManagerMethodBeforeAdvice<>(mock(MethodMatcher.class), null))
+				.isThrownBy(() -> new AuthorizationManagerMethodBeforeAdvice<>(mock(Pointcut.class), null))
 				.withMessage("authorizationManager cannot be null");
 	}
 
@@ -58,7 +57,7 @@ public class AuthorizationManagerMethodBeforeAdviceTests {
 		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
 		AuthorizationManager<MethodInvocation> mockAuthorizationManager = mock(AuthorizationManager.class);
 		AuthorizationManagerMethodBeforeAdvice<MethodInvocation> advice = new AuthorizationManagerMethodBeforeAdvice<>(
-				mock(MethodMatcher.class), mockAuthorizationManager);
+				mock(Pointcut.class), mockAuthorizationManager);
 		advice.before(authentication, mockMethodInvocation);
 		verify(mockAuthorizationManager).verify(authentication, mockMethodInvocation);
 	}

@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 import org.junit.After;
 import org.junit.Test;
 
-import org.springframework.aop.MethodMatcher;
+import org.springframework.aop.Pointcut;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.TestAuthentication;
@@ -74,8 +74,8 @@ public class AuthorizationMethodInterceptorTests {
 				"doSomethingString");
 		AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> beforeAdvice = new AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>() {
 			@Override
-			public MethodMatcher getMethodMatcher() {
-				return MethodMatcher.TRUE;
+			public Pointcut getPointcut() {
+				return Pointcut.TRUE;
 			}
 
 			@Override

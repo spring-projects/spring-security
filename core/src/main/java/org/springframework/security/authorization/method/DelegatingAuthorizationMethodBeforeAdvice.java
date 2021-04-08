@@ -16,17 +16,17 @@
 
 package org.springframework.security.authorization.method;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.Supplier;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.aop.MethodMatcher;
-import org.springframework.aop.support.StaticMethodMatcher;
+import org.springframework.aop.Pointcut;
+import org.springframework.aop.support.ComposablePointcut;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * An {@link AuthorizationMethodBeforeAdvice} which delegates to a specific
@@ -35,6 +35,7 @@ import org.springframework.security.core.Authentication;
  * one of the {@link AuthorizationMethodBeforeAdvice}s denied.
  *
  * @author Evgeniy Cheban
+ * @author Josh Cummings
  * @since 5.5
  */
 public final class DelegatingAuthorizationMethodBeforeAdvice
@@ -42,18 +43,7 @@ public final class DelegatingAuthorizationMethodBeforeAdvice
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final MethodMatcher methodMatcher = new StaticMethodMatcher() {
-		@Override
-		public boolean matches(Method method, Class<?> targetClass) {
-			for (AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> delegate : DelegatingAuthorizationMethodBeforeAdvice.this.delegates) {
-				MethodMatcher methodMatcher = delegate.getMethodMatcher();
-				if (methodMatcher.matches(method, targetClass)) {
-					return true;
-				}
-			}
-			return false;
-		}
-	};
+	private final Pointcut pointcut;
 
 	private final List<AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>> delegates;
 
@@ -63,12 +53,26 @@ public final class DelegatingAuthorizationMethodBeforeAdvice
 	 */
 	public DelegatingAuthorizationMethodBeforeAdvice(
 			List<AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>> delegates) {
+		Assert.notEmpty(delegates, "delegates cannot be empty");
 		this.delegates = delegates;
+		ComposablePointcut pointcut = null;
+		for (AuthorizationMethodBeforeAdvice<?> advice : delegates) {
+			if (pointcut == null) {
+				pointcut = new ComposablePointcut(advice.getPointcut());
+			}
+			else {
+				pointcut.union(advice.getPointcut());
+			}
+		}
+		this.pointcut = pointcut;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public MethodMatcher getMethodMatcher() {
-		return this.methodMatcher;
+	public Pointcut getPointcut() {
+		return this.pointcut;
 	}
 
 	/**

@@ -18,28 +18,38 @@ package org.springframework.security.authorization.method;
 
 import java.util.function.Supplier;
 
-import org.springframework.aop.ClassFilter;
-import org.springframework.aop.Pointcut;
+import org.aopalliance.aop.Advice;
+
+import org.springframework.aop.BeforeAdvice;
+import org.springframework.aop.PointcutAdvisor;
+import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.core.Authentication;
 
 /**
- * An advice which can determine if an {@link Authentication} has access to the {@link T}
- * object. The {@link #getMethodMatcher()} describes when the advice applies for the
- * method.
+ * An {@link Advice} which can determine if an {@link Authentication} has access to the
+ * {@link T} object. {@link #getPointcut()} describes when the advice applies.
  *
  * @param <T> the type of object that the authorization check is being done one.
  * @author Evgeniy Cheban
+ * @author Josh Cummings
  * @since 5.5
  */
-public interface AuthorizationMethodBeforeAdvice<T> extends Pointcut {
+public interface AuthorizationMethodBeforeAdvice<T> extends BeforeAdvice, PointcutAdvisor, AopInfrastructureBean {
 
 	/**
-	 * Returns the default {@link ClassFilter}.
-	 * @return the {@link ClassFilter#TRUE} to use
+	 * {@inheritDoc}
 	 */
 	@Override
-	default ClassFilter getClassFilter() {
-		return ClassFilter.TRUE;
+	default boolean isPerInstance() {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	default Advice getAdvice() {
+		return this;
 	}
 
 	/**

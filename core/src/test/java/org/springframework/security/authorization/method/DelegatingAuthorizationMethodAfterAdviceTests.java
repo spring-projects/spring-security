@@ -24,12 +24,10 @@ import java.util.function.Supplier;
 import org.junit.Test;
 
 import org.springframework.aop.MethodMatcher;
-import org.springframework.aop.support.StaticMethodMatcher;
+import org.springframework.aop.Pointcut;
+import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.authentication.TestAuthentication;
-import org.springframework.security.authorization.method.AuthorizationMethodAfterAdvice;
-import org.springframework.security.authorization.method.DelegatingAuthorizationMethodAfterAdvice;
-import org.springframework.security.authorization.method.MethodAuthorizationContext;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,8 +50,8 @@ public class DelegatingAuthorizationMethodAfterAdviceTests {
 			}
 
 			@Override
-			public MethodMatcher getMethodMatcher() {
-				return new StaticMethodMatcher() {
+			public Pointcut getPointcut() {
+				return new StaticMethodMatcherPointcut() {
 					@Override
 					public boolean matches(Method method, Class<?> targetClass) {
 						return false;
@@ -69,8 +67,8 @@ public class DelegatingAuthorizationMethodAfterAdviceTests {
 			}
 
 			@Override
-			public MethodMatcher getMethodMatcher() {
-				return new StaticMethodMatcher() {
+			public Pointcut getPointcut() {
+				return new StaticMethodMatcherPointcut() {
 					@Override
 					public boolean matches(Method method, Class<?> targetClass) {
 						return false;
@@ -79,7 +77,7 @@ public class DelegatingAuthorizationMethodAfterAdviceTests {
 			}
 		});
 		DelegatingAuthorizationMethodAfterAdvice advice = new DelegatingAuthorizationMethodAfterAdvice(delegates);
-		MethodMatcher methodMatcher = advice.getMethodMatcher();
+		MethodMatcher methodMatcher = advice.getPointcut().getMethodMatcher();
 		assertThat(methodMatcher.matches(TestClass.class.getMethod("doSomething"), TestClass.class)).isFalse();
 	}
 
@@ -94,8 +92,8 @@ public class DelegatingAuthorizationMethodAfterAdviceTests {
 			}
 
 			@Override
-			public MethodMatcher getMethodMatcher() {
-				return new StaticMethodMatcher() {
+			public Pointcut getPointcut() {
+				return new StaticMethodMatcherPointcut() {
 					@Override
 					public boolean matches(Method method, Class<?> targetClass) {
 						return false;
@@ -111,12 +109,12 @@ public class DelegatingAuthorizationMethodAfterAdviceTests {
 			}
 
 			@Override
-			public MethodMatcher getMethodMatcher() {
-				return MethodMatcher.TRUE;
+			public Pointcut getPointcut() {
+				return Pointcut.TRUE;
 			}
 		});
 		DelegatingAuthorizationMethodAfterAdvice advice = new DelegatingAuthorizationMethodAfterAdvice(delegates);
-		MethodMatcher methodMatcher = advice.getMethodMatcher();
+		MethodMatcher methodMatcher = advice.getPointcut().getMethodMatcher();
 		assertThat(methodMatcher.matches(TestClass.class.getMethod("doSomething"), TestClass.class)).isTrue();
 	}
 
@@ -131,8 +129,8 @@ public class DelegatingAuthorizationMethodAfterAdviceTests {
 			}
 
 			@Override
-			public MethodMatcher getMethodMatcher() {
-				return MethodMatcher.TRUE;
+			public Pointcut getPointcut() {
+				return Pointcut.TRUE;
 			}
 		});
 		delegates.add(new AuthorizationMethodAfterAdvice<MethodAuthorizationContext>() {
@@ -143,8 +141,8 @@ public class DelegatingAuthorizationMethodAfterAdviceTests {
 			}
 
 			@Override
-			public MethodMatcher getMethodMatcher() {
-				return MethodMatcher.TRUE;
+			public Pointcut getPointcut() {
+				return Pointcut.TRUE;
 			}
 		});
 		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,

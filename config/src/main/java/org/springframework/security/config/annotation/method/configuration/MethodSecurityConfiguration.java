@@ -17,25 +17,19 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 
-import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
-import org.springframework.aop.support.AopUtils;
+import org.springframework.aop.support.ComposablePointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.Pointcuts;
-import org.springframework.aop.support.StaticMethodMatcher;
+import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -43,14 +37,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.context.annotation.Role;
-import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.method.AuthorizationManagerMethodAfterAdvice;
 import org.springframework.security.authorization.method.AuthorizationManagerMethodBeforeAdvice;
 import org.springframework.security.authorization.method.AuthorizationMethodAfterAdvice;
@@ -72,6 +67,7 @@ import org.springframework.util.Assert;
  * Base {@link Configuration} for enabling Spring Security Method Security.
  *
  * @author Evgeniy Cheban
+ * @author Josh Cummings
  * @see EnableMethodSecurity
  * @since 5.5
  */
@@ -92,7 +88,9 @@ final class MethodSecurityConfiguration implements ImportAware, InitializingBean
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	DefaultPointcutAdvisor methodSecurityAdvisor(AuthorizationMethodInterceptor interceptor) {
-		Pointcut pointcut = Pointcuts.union(getAuthorizationMethodBeforeAdvice(), getAuthorizationMethodAfterAdvice());
+		AuthorizationMethodBeforeAdvice<?> beforeAdvice = getAuthorizationMethodBeforeAdvice();
+		AuthorizationMethodAfterAdvice<?> afterAdvice = getAuthorizationMethodAfterAdvice();
+		Pointcut pointcut = Pointcuts.union(beforeAdvice.getPointcut(), afterAdvice.getPointcut());
 		DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, interceptor);
 		advisor.setOrder(order());
 		return advisor;
@@ -147,32 +145,34 @@ final class MethodSecurityConfiguration implements ImportAware, InitializingBean
 	}
 
 	private PreFilterAuthorizationMethodBeforeAdvice getPreFilterAuthorizationMethodBeforeAdvice() {
-		PreFilterAuthorizationMethodBeforeAdvice preFilterBeforeAdvice = new PreFilterAuthorizationMethodBeforeAdvice();
+		Pointcut pointcut = forAnnotation(PreFilter.class);
+		PreFilterAuthorizationMethodBeforeAdvice preFilterBeforeAdvice = new PreFilterAuthorizationMethodBeforeAdvice(
+				pointcut);
 		preFilterBeforeAdvice.setExpressionHandler(getMethodSecurityExpressionHandler());
 		return preFilterBeforeAdvice;
 	}
 
 	private AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> getPreAuthorizeAuthorizationMethodBeforeAdvice() {
-		MethodMatcher methodMatcher = new SecurityAnnotationsStaticMethodMatcher(PreAuthorize.class);
+		Pointcut pointcut = forAnnotation(PreAuthorize.class);
 		PreAuthorizeAuthorizationManager authorizationManager = new PreAuthorizeAuthorizationManager();
 		authorizationManager.setExpressionHandler(getMethodSecurityExpressionHandler());
-		return new AuthorizationManagerMethodBeforeAdvice<>(methodMatcher, authorizationManager);
+		return new AuthorizationManagerMethodBeforeAdvice<>(pointcut, authorizationManager);
 	}
 
 	private AuthorizationManagerMethodBeforeAdvice<MethodAuthorizationContext> getSecuredAuthorizationMethodBeforeAdvice() {
-		MethodMatcher methodMatcher = new SecurityAnnotationsStaticMethodMatcher(Secured.class);
+		Pointcut pointcut = forAnnotation(Secured.class);
 		SecuredAuthorizationManager authorizationManager = new SecuredAuthorizationManager();
-		return new AuthorizationManagerMethodBeforeAdvice<>(methodMatcher, authorizationManager);
+		return new AuthorizationManagerMethodBeforeAdvice<>(pointcut, authorizationManager);
 	}
 
 	private AuthorizationManagerMethodBeforeAdvice<MethodAuthorizationContext> getJsr250AuthorizationMethodBeforeAdvice() {
-		MethodMatcher methodMatcher = new SecurityAnnotationsStaticMethodMatcher(DenyAll.class, PermitAll.class,
-				RolesAllowed.class);
+		Pointcut pointcut = new ComposablePointcut(forAnnotation(DenyAll.class)).union(forAnnotation(PermitAll.class))
+				.union(forAnnotation(RolesAllowed.class));
 		Jsr250AuthorizationManager authorizationManager = new Jsr250AuthorizationManager();
 		if (this.grantedAuthorityDefaults != null) {
 			authorizationManager.setRolePrefix(this.grantedAuthorityDefaults.getRolePrefix());
 		}
-		return new AuthorizationManagerMethodBeforeAdvice<>(methodMatcher, authorizationManager);
+		return new AuthorizationManagerMethodBeforeAdvice<>(pointcut, authorizationManager);
 	}
 
 	@Autowired(required = false)
@@ -196,16 +196,18 @@ final class MethodSecurityConfiguration implements ImportAware, InitializingBean
 	}
 
 	private PostFilterAuthorizationMethodAfterAdvice getPostFilterAuthorizationMethodAfterAdvice() {
-		PostFilterAuthorizationMethodAfterAdvice postFilterAfterAdvice = new PostFilterAuthorizationMethodAfterAdvice();
+		Pointcut pointcut = forAnnotation(PostFilter.class);
+		PostFilterAuthorizationMethodAfterAdvice postFilterAfterAdvice = new PostFilterAuthorizationMethodAfterAdvice(
+				pointcut);
 		postFilterAfterAdvice.setExpressionHandler(getMethodSecurityExpressionHandler());
 		return postFilterAfterAdvice;
 	}
 
 	private AuthorizationManagerMethodAfterAdvice<MethodAuthorizationContext> getPostAuthorizeAuthorizationMethodAfterAdvice() {
-		MethodMatcher methodMatcher = new SecurityAnnotationsStaticMethodMatcher(PostAuthorize.class);
+		Pointcut pointcut = forAnnotation(PostAuthorize.class);
 		PostAuthorizeAuthorizationManager authorizationManager = new PostAuthorizeAuthorizationManager();
 		authorizationManager.setExpressionHandler(getMethodSecurityExpressionHandler());
-		return new AuthorizationManagerMethodAfterAdvice<>(methodMatcher, authorizationManager);
+		return new AuthorizationManagerMethodAfterAdvice<>(pointcut, authorizationManager);
 	}
 
 	@Autowired(required = false)
@@ -241,27 +243,9 @@ final class MethodSecurityConfiguration implements ImportAware, InitializingBean
 		return this.enableMethodSecurity.getNumber("order");
 	}
 
-	private static final class SecurityAnnotationsStaticMethodMatcher extends StaticMethodMatcher {
-
-		private final Set<Class<? extends Annotation>> annotationClasses;
-
-		@SafeVarargs
-		private SecurityAnnotationsStaticMethodMatcher(Class<? extends Annotation>... annotationClasses) {
-			this.annotationClasses = new HashSet<>(Arrays.asList(annotationClasses));
-		}
-
-		@Override
-		public boolean matches(Method method, Class<?> targetClass) {
-			Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-			return hasAnnotations(specificMethod) || hasAnnotations(specificMethod.getDeclaringClass());
-		}
-
-		private boolean hasAnnotations(AnnotatedElement annotatedElement) {
-			Set<Annotation> annotations = AnnotatedElementUtils.findAllMergedAnnotations(annotatedElement,
-					this.annotationClasses);
-			return !annotations.isEmpty();
-		}
-
+	private Pointcut forAnnotation(Class<? extends Annotation> annotationClass) {
+		return Pointcuts.union(new AnnotationMatchingPointcut(annotationClass, true),
+				new AnnotationMatchingPointcut(null, annotationClass, true));
 	}
 
 }

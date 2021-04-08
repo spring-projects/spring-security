@@ -25,7 +25,8 @@ import java.util.function.Supplier;
 import org.junit.Test;
 
 import org.springframework.aop.MethodMatcher;
-import org.springframework.aop.support.StaticMethodMatcher;
+import org.springframework.aop.Pointcut;
+import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.authentication.TestAuthentication;
@@ -47,8 +48,8 @@ public class DelegatingAuthorizationMethodBeforeAdviceTests {
 		List<AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>> delegates = new ArrayList<>();
 		delegates.add(new AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>() {
 			@Override
-			public MethodMatcher getMethodMatcher() {
-				return new StaticMethodMatcher() {
+			public Pointcut getPointcut() {
+				return new StaticMethodMatcherPointcut() {
 					@Override
 					public boolean matches(Method method, Class<?> targetClass) {
 						return false;
@@ -62,8 +63,8 @@ public class DelegatingAuthorizationMethodBeforeAdviceTests {
 		});
 		delegates.add(new AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>() {
 			@Override
-			public MethodMatcher getMethodMatcher() {
-				return new StaticMethodMatcher() {
+			public Pointcut getPointcut() {
+				return new StaticMethodMatcherPointcut() {
 					@Override
 					public boolean matches(Method method, Class<?> targetClass) {
 						return false;
@@ -76,7 +77,7 @@ public class DelegatingAuthorizationMethodBeforeAdviceTests {
 			}
 		});
 		DelegatingAuthorizationMethodBeforeAdvice advice = new DelegatingAuthorizationMethodBeforeAdvice(delegates);
-		MethodMatcher methodMatcher = advice.getMethodMatcher();
+		MethodMatcher methodMatcher = advice.getPointcut().getMethodMatcher();
 		assertThat(methodMatcher.matches(TestClass.class.getMethod("doSomething"), TestClass.class)).isFalse();
 	}
 
@@ -85,8 +86,8 @@ public class DelegatingAuthorizationMethodBeforeAdviceTests {
 		List<AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>> delegates = new ArrayList<>();
 		delegates.add(new AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>() {
 			@Override
-			public MethodMatcher getMethodMatcher() {
-				return new StaticMethodMatcher() {
+			public Pointcut getPointcut() {
+				return new StaticMethodMatcherPointcut() {
 					@Override
 					public boolean matches(Method method, Class<?> targetClass) {
 						return false;
@@ -100,8 +101,8 @@ public class DelegatingAuthorizationMethodBeforeAdviceTests {
 		});
 		delegates.add(new AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>() {
 			@Override
-			public MethodMatcher getMethodMatcher() {
-				return MethodMatcher.TRUE;
+			public Pointcut getPointcut() {
+				return Pointcut.TRUE;
 			}
 
 			@Override
@@ -109,17 +110,17 @@ public class DelegatingAuthorizationMethodBeforeAdviceTests {
 			}
 		});
 		DelegatingAuthorizationMethodBeforeAdvice advice = new DelegatingAuthorizationMethodBeforeAdvice(delegates);
-		MethodMatcher methodMatcher = advice.getMethodMatcher();
+		MethodMatcher methodMatcher = advice.getPointcut().getMethodMatcher();
 		assertThat(methodMatcher.matches(TestClass.class.getMethod("doSomething"), TestClass.class)).isTrue();
 	}
 
 	@Test
 	public void checkWhenAllGrantsOrAbstainsThenPasses() throws Exception {
 		List<AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>> delegates = new ArrayList<>();
-		delegates.add(new AuthorizationManagerMethodBeforeAdvice<>(MethodMatcher.TRUE, (a, o) -> null));
-		delegates.add(new AuthorizationManagerMethodBeforeAdvice<>(MethodMatcher.TRUE,
-				(a, o) -> new AuthorizationDecision(true)));
-		delegates.add(new AuthorizationManagerMethodBeforeAdvice<>(MethodMatcher.TRUE, (a, o) -> null));
+		delegates.add(new AuthorizationManagerMethodBeforeAdvice<>(Pointcut.TRUE, (a, o) -> null));
+		delegates.add(
+				new AuthorizationManagerMethodBeforeAdvice<>(Pointcut.TRUE, (a, o) -> new AuthorizationDecision(true)));
+		delegates.add(new AuthorizationManagerMethodBeforeAdvice<>(Pointcut.TRUE, (a, o) -> null));
 		DelegatingAuthorizationMethodBeforeAdvice advice = new DelegatingAuthorizationMethodBeforeAdvice(delegates);
 		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomething");
@@ -131,10 +132,10 @@ public class DelegatingAuthorizationMethodBeforeAdviceTests {
 	@Test
 	public void checkWhenAnyDeniesThenAccessDeniedException() throws Exception {
 		List<AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>> delegates = new ArrayList<>();
-		delegates.add(new AuthorizationManagerMethodBeforeAdvice<>(MethodMatcher.TRUE, (a, o) -> null));
-		delegates.add(new AuthorizationManagerMethodBeforeAdvice<>(MethodMatcher.TRUE,
-				(a, o) -> new AuthorizationDecision(true)));
-		delegates.add(new AuthorizationManagerMethodBeforeAdvice<>(MethodMatcher.TRUE,
+		delegates.add(new AuthorizationManagerMethodBeforeAdvice<>(Pointcut.TRUE, (a, o) -> null));
+		delegates.add(
+				new AuthorizationManagerMethodBeforeAdvice<>(Pointcut.TRUE, (a, o) -> new AuthorizationDecision(true)));
+		delegates.add(new AuthorizationManagerMethodBeforeAdvice<>(Pointcut.TRUE,
 				(a, o) -> new AuthorizationDecision(false)));
 		DelegatingAuthorizationMethodBeforeAdvice advice = new DelegatingAuthorizationMethodBeforeAdvice(delegates);
 		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
@@ -147,14 +148,9 @@ public class DelegatingAuthorizationMethodBeforeAdviceTests {
 	}
 
 	@Test
-	public void checkWhenDelegatesEmptyThenPasses() throws Exception {
-		DelegatingAuthorizationMethodBeforeAdvice advice = new DelegatingAuthorizationMethodBeforeAdvice(
-				Collections.emptyList());
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"doSomething");
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
-				TestClass.class);
-		advice.before(TestAuthentication::authenticatedUser, methodAuthorizationContext);
+	public void checkWhenDelegatesEmptyThenFails() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> new DelegatingAuthorizationMethodBeforeAdvice(Collections.emptyList()));
 	}
 
 	public static class TestClass {
