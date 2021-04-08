@@ -25,7 +25,7 @@ public class MethodSecurityConfig {
 
 Adding an annotation to a method (on a class or interface) would then limit the access to that method accordingly.
 Spring Security's native annotatino support defines a set of attributes for the method.
-These will be passed to the `AuthorizationMethodInterceptor` for it to make the actual decision:
+These will be passed to the `DefaultAuthorizationMethodInterceptorChain` for it to make the actual decision:
 
 [source,java]
 ----
@@ -100,41 +100,59 @@ If that authorization denies access, the method is not invoked and an `AccessDen
 After-method authorization is performed after the method is invoked, but before the method returns to the caller.
 If that authorization denies access, the value is not returned and an `AccessDeniedException` is thrown
 
-You can customize before-method authorization by publishing your own `AuthorizationMethodBeforeAdvice` bean, which includes your custom authorization manager as well as the `Pointcut` that describes when your manager should be used.
-
-For example, you may want to apply a default authorization rule to all methods in your service layer.
-To do this, you'll supply the pointcut as well as the rule, like so:
+To recreate what Spring Security does by default, you would publish the following bean:
 
 [source,java]
 ----
 @Bean
-public AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> authorizationMethodBeforeAdvice() {
-	JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
-	pattern.setPattern("org.mycompany.myapp.service.*");
-	AuthorizationManager<MethodAuthorizationContext> rule = AuthorityAuthorizationManager.isAuthenticated();
-	return new AuthorizationManagerMethodBeforeAdvice(pattern, rule);
+public List<AuthorizationMethodInterceptor> methodSecurity() {
+	return new DelegatingAuthorizationMethodInterceptor(
+			new PreFilterAuthorizationMethodInterceptor(), // before-method
+            AuthorizationMethodInterceptors.preAuthorize(), // before-method
+            new PostFilterAuthorizationMethodInterceptor(), // after-method
+            AuthorizationMethodInterceptors.postAuthorize() // after-method
+	);
 }
 ----
 
-This will replace any default before advice that Spring Security provides.
-To use your custom rule as well as Spring Security's `@PreAuthorize` authorization support, you can do:
+[NOTE]
+Keep in mind that publishing a list of `AuthorizationMethodInterceptor`s will completely replace any Spring Security defaults.
+
+Interceptors are invoked in the order that they are declared.
+
+You may want to only support `@PreAuthorize` in your application, in which case you can do the following:
 
 [source,java]
 ----
 @Bean
-public AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> authorizationMethodBeforeAdvice() {
-	JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
-	pattern.setPattern("org.mycompany.myapp.service.*");
-	AuthorizationManager rule = AuthorityAuthorizationManager.isAuthenticated();
-	AuthorizationMethodBeforeAdvice custom = new AuthorizationManagerMethodBeforeAdvice(pattern, rule);
-	AuthorizationMethodBeforeAdvice pre = new AuthorizationMethodBeforeAdvice(
-			AuthorizationMethodPointcuts.forAnnotations(PreAuthorize.class),
-			new PreAuthorizeAuthorizationManager());
-	return new DelegatingAuthorizationManagerBeforeAdvice(custom, pre);
+public AuthorizationMethodInterceptor methodSecurity() {
+	return AuthorizationMethodInterceptors.preAuthorize();
 }
 ----
 
-The same can be done for after-method authorization.
+Or, you may have a custom before-method `AuthorizationManager` that you want to add to the list.
+
+In this case, you will need to tell Spring Security both the `AuthorizationManager` and to which methods and classes your authorization manager applies.
+
+Spring Security integrates with Spring AOP to achieve this.
+Thus, you can configure Spring Security to support `@PreAuthorize`, `@PostAuthorize`, and your own `AuthorizationManager` like so:
+
+[source,java]
+----
+@Bean
+public AuthorizationMethodInterceptor methodSecurity() {
+	JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
+	pattern.setPattern("org.mycompany.myapp.service.*");
+	AuthorizationManager<MethodInvocation> rule = AuthorityAuthorizationManager.isAuthenticated();
+	return new DelegatingAuthorizationMethodInterceptor(
+			AuthorizationMethodInterceptors.preAuthorize(),
+            new AuthorizationManagerBeforeMethodInterceptor(pattern, rule),
+            AuthorizationMethodInterceptors.postAuthorize()
+	);
+}
+----
+
+The same can be done for after-method authorization and `AfterMethodAuthorizationManager`.
 After-method authorization is generally concerned with analysing the return value to verify access.
 
 For example, you might have a method that confirms that the account requested actually belongs to the logged-in user like so:
@@ -149,22 +167,20 @@ public interface BankService {
 }
 ----
 
-You can supply your own `AuthorizationMethodAfterAdvice` to customize how access to the return value is evaluated.
+You can supply your own `AuthorizationMethodInterceptor` to customize how access to the return value is evaluated.
 
-For example, you can give special access to a given role in your system, like so:
+For example, instead of embedding a great deal of logic into the `@PostAuthorize` SpEL expression, you may want to wire your own `@Bean`.
+In that case, you can configure it like so:
 
 [source,java]
 ----
 @Bean
-public AuthorizationMethodAfterAdvice<MethodAuthorizationContext> authorizationMethodAfterAdvice() {
-	JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
-	pattern.setPattern("org.mycompany.myapp.service.*");
-	AuthorizationManager<MethodAuthorizationContext> rule = AuthorityAuthorizationManager.hasRole("TELLER");
-	AuthorizationMethodBeforeAdvice custom = new AuthorizationManagerMethodBeforeAdvice(pattern, rule);
-	AuthorizationMethodBeforeAdvice post = new AuthorizationManagerMethodBeforeAdvice(
-			AuthorizationMethodPointcuts.forAnnotations(PostAuthorize.class),
-			new PostAuthorizeAuthorizationManager());
-	return new DelegatingAuthorizationManagerBeforeAdvice(custom, post);
+public AuthorizationMethodInterceptor methodSecurity
+		(AfterMethodAuthorizationManager<MethodInvocation> rules) {
+	AnnotationMethodMatcher pattern = new AnnotationMethodMatcher(MySecurityAnnotation.class);
+	return new DelegatingAuthorizationMethodInterceptor(
+			AuthorizationMethodInterceptors.preAuthorize(),
+			new AuthorizationManagerAfterMethodInterceptor(pattern, rules));
 }
 ----
 

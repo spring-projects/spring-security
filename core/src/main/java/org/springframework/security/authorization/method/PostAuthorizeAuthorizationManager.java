@@ -36,22 +36,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthorizationManager} which can determine if an {@link Authentication} has
- * access to the {@link MethodInvocation} by evaluating an expression from the
- * {@link PostAuthorize} annotation.
+ * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
+ * return the result from an invoked {@link MethodInvocation} by evaluating an expression
+ * from the {@link PostAuthorize} annotation.
  *
  * @author Evgeniy Cheban
  * @since 5.5
  */
-public final class PostAuthorizeAuthorizationManager
-		implements AfterMethodAuthorizationManager<MethodAuthorizationContext> {
+public final class PostAuthorizeAuthorizationManager implements AfterMethodAuthorizationManager<MethodInvocation> {
 
 	private final PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
 	/**
-	 * Sets the {@link MethodSecurityExpressionHandler}.
+	 * Use this the {@link MethodSecurityExpressionHandler}.
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
@@ -62,22 +61,21 @@ public final class PostAuthorizeAuthorizationManager
 	/**
 	 * Determine if an {@link Authentication} has access to the returned object by
 	 * evaluating the {@link PostAuthorize} annotation that the
-	 * {@link MethodAuthorizationContext} specifies.
+	 * {@link AuthorizationMethodInvocation} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
+	 * @param mi the {@link AuthorizationMethodInvocation} to check
 	 * @param returnedObject the returned object to check
 	 * @return an {@link AuthorizationDecision} or {@code null} if the
 	 * {@link PostAuthorize} annotation is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication,
-			MethodAuthorizationContext methodAuthorizationContext, Object returnedObject) {
-		ExpressionAttribute attribute = this.registry.getAttribute(methodAuthorizationContext);
+	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi,
+			Object returnedObject) {
+		ExpressionAttribute attribute = this.registry.getAttribute((AuthorizationMethodInvocation) mi);
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return null;
 		}
-		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(),
-				methodAuthorizationContext.getMethodInvocation());
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(), mi);
 		this.expressionHandler.setReturnObject(returnedObject, ctx);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
 		return new AuthorizationDecision(granted);

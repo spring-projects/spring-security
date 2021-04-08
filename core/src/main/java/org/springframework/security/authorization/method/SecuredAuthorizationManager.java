@@ -31,38 +31,36 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 
 /**
- * An {@link AuthorizationManager} which can determine if an {@link Authentication} has
- * access to the {@link MethodInvocation} by evaluating if the {@link Authentication}
+ * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
+ * invoke the {@link MethodInvocation} by evaluating if the {@link Authentication}
  * contains a specified authority from the Spring Security's {@link Secured} annotation.
  *
  * @author Evgeniy Cheban
  * @since 5.5
  */
-public final class SecuredAuthorizationManager implements AuthorizationManager<MethodAuthorizationContext> {
+public final class SecuredAuthorizationManager implements AuthorizationManager<MethodInvocation> {
 
 	private final SecuredAuthorizationManagerRegistry registry = new SecuredAuthorizationManagerRegistry();
 
 	/**
 	 * Determine if an {@link Authentication} has access to a method by evaluating the
-	 * {@link Secured} annotation that {@link MethodAuthorizationContext} specifies.
+	 * {@link Secured} annotation that {@link AuthorizationMethodInvocation} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
+	 * @param mi the {@link AuthorizationMethodInvocation} to check
 	 * @return an {@link AuthorizationDecision} or null if the {@link Secured} annotation
 	 * is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication,
-			MethodAuthorizationContext methodAuthorizationContext) {
-		AuthorizationManager<MethodAuthorizationContext> delegate = this.registry
-				.getManager(methodAuthorizationContext);
-		return delegate.check(authentication, methodAuthorizationContext);
+	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
+		AuthorizationManager<MethodInvocation> delegate = this.registry.getManager((AuthorizationMethodInvocation) mi);
+		return delegate.check(authentication, mi);
 	}
 
 	private static final class SecuredAuthorizationManagerRegistry extends AbstractAuthorizationManagerRegistry {
 
 		@NonNull
 		@Override
-		AuthorizationManager<MethodAuthorizationContext> resolveManager(Method method, Class<?> targetClass) {
+		AuthorizationManager<MethodInvocation> resolveManager(Method method, Class<?> targetClass) {
 			Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 			Secured secured = findSecuredAnnotation(specificMethod);
 			return (secured != null) ? AuthorityAuthorizationManager.hasAnyAuthority(secured.value()) : NULL_MANAGER;

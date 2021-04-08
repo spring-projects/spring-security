@@ -36,14 +36,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthorizationManager} which can determine if an {@link Authentication} has
- * access to the {@link MethodInvocation} by evaluating an expression from the
+ * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
+ * invoke the {@link MethodInvocation} by evaluating an expression from the
  * {@link PreAuthorize} annotation.
  *
  * @author Evgeniy Cheban
  * @since 5.5
  */
-public final class PreAuthorizeAuthorizationManager implements AuthorizationManager<MethodAuthorizationContext> {
+public final class PreAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocation> {
 
 	private final PreAuthorizeExpressionAttributeRegistry registry = new PreAuthorizeExpressionAttributeRegistry();
 
@@ -61,21 +61,19 @@ public final class PreAuthorizeAuthorizationManager implements AuthorizationMana
 	/**
 	 * Determine if an {@link Authentication} has access to a method by evaluating an
 	 * expression from the {@link PreAuthorize} annotation that the
-	 * {@link MethodAuthorizationContext} specifies.
+	 * {@link AuthorizationMethodInvocation} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
+	 * @param mi the {@link AuthorizationMethodInvocation} to check
 	 * @return an {@link AuthorizationDecision} or {@code null} if the
 	 * {@link PreAuthorize} annotation is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication,
-			MethodAuthorizationContext methodAuthorizationContext) {
-		ExpressionAttribute attribute = this.registry.getAttribute(methodAuthorizationContext);
+	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
+		ExpressionAttribute attribute = this.registry.getAttribute((AuthorizationMethodInvocation) mi);
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return null;
 		}
-		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(),
-				methodAuthorizationContext.getMethodInvocation());
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(), mi);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
 		return new AuthorizationDecision(granted);
 	}

@@ -16,12 +16,16 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.util.List;
+
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.parameters.P;
 
@@ -68,5 +72,12 @@ public interface MethodSecurityService {
 
 	@PostAuthorize("#o?.contains('grant')")
 	String postAnnotation(@P("o") String object);
+
+	@PreFilter("filterObject.length > 3")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Secured("ROLE_USER")
+	@PostFilter("filterObject.length > 5")
+	@PostAuthorize("returnObject.size > 1")
+	List<String> manyAnnotations(List<String> array);
 
 }

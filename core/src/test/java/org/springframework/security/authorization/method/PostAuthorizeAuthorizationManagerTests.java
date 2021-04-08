@@ -58,11 +58,10 @@ public class PostAuthorizeAuthorizationManagerTests {
 	public void checkDoSomethingWhenNoPostAuthorizeAnnotationThenNullDecision() throws Exception {
 		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomething", new Class[] {}, new Object[] {});
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
-				TestClass.class);
+		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
+				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser,
-				methodAuthorizationContext, null);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation, null);
 		assertThat(decision).isNull();
 	}
 
@@ -70,11 +69,10 @@ public class PostAuthorizeAuthorizationManagerTests {
 	public void checkDoSomethingStringWhenArgIsGrantThenGrantedDecision() throws Exception {
 		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingString", new Class[] { String.class }, new Object[] { "grant" });
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
-				TestClass.class);
+		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
+				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser,
-				methodAuthorizationContext, null);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -83,11 +81,10 @@ public class PostAuthorizeAuthorizationManagerTests {
 	public void checkDoSomethingStringWhenArgIsNotGrantThenDeniedDecision() throws Exception {
 		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingString", new Class[] { String.class }, new Object[] { "deny" });
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
-				TestClass.class);
+		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
+				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser,
-				methodAuthorizationContext, null);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -97,11 +94,10 @@ public class PostAuthorizeAuthorizationManagerTests {
 		List<String> list = Arrays.asList("grant", "deny");
 		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingList", new Class[] { List.class }, new Object[] { list });
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
-				TestClass.class);
+		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
+				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser,
-				methodAuthorizationContext, list);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation, list);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -111,11 +107,10 @@ public class PostAuthorizeAuthorizationManagerTests {
 		List<String> list = Collections.singletonList("deny");
 		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingList", new Class[] { List.class }, new Object[] { list });
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
-				TestClass.class);
+		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
+				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser,
-				methodAuthorizationContext, list);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation, list);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}

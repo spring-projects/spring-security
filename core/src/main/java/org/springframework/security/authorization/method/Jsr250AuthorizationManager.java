@@ -39,14 +39,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthorizationManager} which can determine if an {@link Authentication} has
- * access to the {@link MethodInvocation} by evaluating if the {@link Authentication}
+ * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
+ * invoke the {@link MethodInvocation} by evaluating if the {@link Authentication}
  * contains a specified authority from the JSR-250 security annotations.
  *
  * @author Evgeniy Cheban
  * @since 5.5
  */
-public final class Jsr250AuthorizationManager implements AuthorizationManager<MethodAuthorizationContext> {
+public final class Jsr250AuthorizationManager implements AuthorizationManager<MethodInvocation> {
 
 	private static final Set<Class<? extends Annotation>> JSR250_ANNOTATIONS = new HashSet<>();
 
@@ -72,25 +72,24 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 	/**
 	 * Determine if an {@link Authentication} has access to a method by evaluating the
 	 * {@link DenyAll}, {@link PermitAll}, and {@link RolesAllowed} annotations that
-	 * {@link MethodAuthorizationContext} specifies.
+	 * {@link AuthorizationMethodInvocation} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
+	 * @param methodInvocation the {@link AuthorizationMethodInvocation} to check
 	 * @return an {@link AuthorizationDecision} or null if the JSR-250 security
 	 * annotations is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication,
-			MethodAuthorizationContext methodAuthorizationContext) {
-		AuthorizationManager<MethodAuthorizationContext> delegate = this.registry
-				.getManager(methodAuthorizationContext);
-		return delegate.check(authentication, methodAuthorizationContext);
+	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation methodInvocation) {
+		AuthorizationManager<MethodInvocation> delegate = this.registry
+				.getManager((AuthorizationMethodInvocation) methodInvocation);
+		return delegate.check(authentication, methodInvocation);
 	}
 
 	private final class Jsr250AuthorizationManagerRegistry extends AbstractAuthorizationManagerRegistry {
 
 		@NonNull
 		@Override
-		AuthorizationManager<MethodAuthorizationContext> resolveManager(Method method, Class<?> targetClass) {
+		AuthorizationManager<MethodInvocation> resolveManager(Method method, Class<?> targetClass) {
 			for (Annotation annotation : findJsr250Annotations(method, targetClass)) {
 				if (annotation instanceof DenyAll) {
 					return (a, o) -> new AuthorizationDecision(false);

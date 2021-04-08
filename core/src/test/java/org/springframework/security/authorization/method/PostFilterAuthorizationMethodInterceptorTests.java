@@ -16,14 +16,12 @@
 
 package org.springframework.security.authorization.method;
 
-import java.lang.reflect.Method;
+import java.util.Collections;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.Test;
 
 import org.springframework.aop.MethodMatcher;
-import org.springframework.aop.Pointcut;
-import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
@@ -34,43 +32,38 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- * Tests for {@link PostFilterAuthorizationMethodAfterAdvice}.
+ * Tests for {@link PostFilterAuthorizationMethodInterceptor}.
  *
  * @author Evgeniy Cheban
  */
-public class PostFilterAuthorizationMethodAfterAdviceTests {
+public class PostFilterAuthorizationMethodInterceptorTests {
 
 	@Test
 	public void setExpressionHandlerWhenNotNullThenSetsExpressionHandler() {
 		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice(Pointcut.TRUE);
+		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
 		advice.setExpressionHandler(expressionHandler);
 		assertThat(advice).extracting("expressionHandler").isEqualTo(expressionHandler);
 	}
 
 	@Test
 	public void setExpressionHandlerWhenNullThenException() {
-		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice(Pointcut.TRUE);
+		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
 		assertThatIllegalArgumentException().isThrownBy(() -> advice.setExpressionHandler(null))
 				.withMessage("expressionHandler cannot be null");
 	}
 
 	@Test
 	public void methodMatcherWhenMethodHasNotPostFilterAnnotationThenNotMatches() throws Exception {
-		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice(
-				new StaticMethodMatcherPointcut() {
-					@Override
-					public boolean matches(Method method, Class<?> targetClass) {
-						return false;
-					}
-				});
+		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
 		MethodMatcher methodMatcher = advice.getPointcut().getMethodMatcher();
-		assertThat(methodMatcher.matches(TestClass.class.getMethod("doSomething"), TestClass.class)).isFalse();
+		assertThat(methodMatcher.matches(NoPostFilterClass.class.getMethod("doSomething"), NoPostFilterClass.class))
+				.isFalse();
 	}
 
 	@Test
 	public void methodMatcherWhenMethodHasPostFilterAnnotationThenMatches() throws Exception {
-		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice(Pointcut.TRUE);
+		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
 		MethodMatcher methodMatcher = advice.getPointcut().getMethodMatcher();
 		assertThat(
 				methodMatcher.matches(TestClass.class.getMethod("doSomethingArray", String[].class), TestClass.class))
@@ -78,23 +71,24 @@ public class PostFilterAuthorizationMethodAfterAdviceTests {
 	}
 
 	@Test
-	public void afterWhenArrayNotNullThenFilteredArray() throws Exception {
+	public void afterWhenArrayNotNullThenFilteredArray() throws Throwable {
 		String[] array = { "john", "bob" };
 		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"doSomethingArrayClassLevel", new Class[] { String[].class }, new Object[] { array });
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(mockMethodInvocation,
-				TestClass.class);
-		PostFilterAuthorizationMethodAfterAdvice advice = new PostFilterAuthorizationMethodAfterAdvice(Pointcut.TRUE);
-		Object result = advice.after(TestAuthentication::authenticatedUser, methodAuthorizationContext, array);
+				"doSomethingArrayClassLevel", new Class[] { String[].class }, new Object[] { array }) {
+			@Override
+			public Object proceed() {
+				return array;
+			}
+		};
+		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
+		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
+				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
+		Object result = advice.invoke(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(result).asInstanceOf(InstanceOfAssertFactories.array(String[].class)).containsOnly("john");
 	}
 
 	@PostFilter("filterObject == 'john'")
 	public static class TestClass {
-
-		public void doSomething() {
-
-		}
 
 		@PostFilter("filterObject == 'john'")
 		public String[] doSomethingArray(String[] array) {
@@ -103,6 +97,14 @@ public class PostFilterAuthorizationMethodAfterAdviceTests {
 
 		public String[] doSomethingArrayClassLevel(String[] array) {
 			return array;
+		}
+
+	}
+
+	public static class NoPostFilterClass {
+
+		public void doSomething() {
+
 		}
 
 	}
