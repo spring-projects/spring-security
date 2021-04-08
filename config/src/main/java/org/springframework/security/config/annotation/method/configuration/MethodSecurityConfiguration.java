@@ -36,6 +36,7 @@ import org.springframework.aop.support.AopUtils;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.Pointcuts;
 import org.springframework.aop.support.StaticMethodMatcher;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
@@ -45,26 +46,27 @@ import org.springframework.context.annotation.Role;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.security.authorization.method.Jsr250AuthorizationManager;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.authorization.method.SecuredAuthorizationManager;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.authorization.method.AuthorizationMethodInterceptor;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.method.AuthorizationManagerMethodAfterAdvice;
 import org.springframework.security.authorization.method.AuthorizationManagerMethodBeforeAdvice;
 import org.springframework.security.authorization.method.AuthorizationMethodAfterAdvice;
 import org.springframework.security.authorization.method.AuthorizationMethodBeforeAdvice;
+import org.springframework.security.authorization.method.AuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.DelegatingAuthorizationMethodAfterAdvice;
 import org.springframework.security.authorization.method.DelegatingAuthorizationMethodBeforeAdvice;
+import org.springframework.security.authorization.method.Jsr250AuthorizationManager;
 import org.springframework.security.authorization.method.MethodAuthorizationContext;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PostFilterAuthorizationMethodAfterAdvice;
 import org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationMethodBeforeAdvice;
+import org.springframework.security.authorization.method.SecuredAuthorizationManager;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.util.Assert;
 
 /**
  * Base {@link Configuration} for enabling Spring Security Method Security.
@@ -75,7 +77,7 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
  */
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-final class MethodSecurityConfiguration implements ImportAware {
+final class MethodSecurityConfiguration implements ImportAware, InitializingBean {
 
 	private MethodSecurityExpressionHandler methodSecurityExpressionHandler;
 
@@ -212,6 +214,15 @@ final class MethodSecurityConfiguration implements ImportAware {
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> attributes = importMetadata.getAnnotationAttributes(EnableMethodSecurity.class.getName());
 		this.enableMethodSecurity = AnnotationAttributes.fromMap(attributes);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (!securedEnabled() && !jsr250Enabled()) {
+			return;
+		}
+		Assert.isNull(this.authorizationMethodBeforeAdvice,
+				"You have specified your own advice, meaning that the annotation attributes securedEnabled and jsr250Enabled will be ignored. Please choose one or the other.");
 	}
 
 	private boolean securedEnabled() {

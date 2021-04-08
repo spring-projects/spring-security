@@ -27,6 +27,7 @@ import org.junit.runner.RunWith;
 
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDeniedException;
@@ -35,12 +36,12 @@ import org.springframework.security.access.annotation.BusinessService;
 import org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerMethodBeforeAdvice;
 import org.springframework.security.authorization.method.AuthorizationMethodAfterAdvice;
 import org.springframework.security.authorization.method.AuthorizationMethodBeforeAdvice;
 import org.springframework.security.authorization.method.MethodAuthorizationContext;
-import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
@@ -103,7 +104,7 @@ public class MethodSecurityConfigurationTests {
 	@WithMockUser
 	@Test
 	public void securedWhenRoleUserThenAccessDeniedException() {
-		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		this.spring.register(MethodSecurityServiceEnabledConfig.class).autowire();
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::secured)
 				.withMessage("Access Denied");
 	}
@@ -119,7 +120,7 @@ public class MethodSecurityConfigurationTests {
 	@WithMockUser(roles = "ADMIN")
 	@Test
 	public void securedUserWhenRoleAdminThenAccessDeniedException() {
-		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		this.spring.register(MethodSecurityServiceEnabledConfig.class).autowire();
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::securedUser)
 				.withMessage("Access Denied");
 	}
@@ -244,7 +245,7 @@ public class MethodSecurityConfigurationTests {
 	@WithMockUser(roles = "ADMIN")
 	@Test
 	public void jsr250WhenRoleAdminThenAccessDeniedException() {
-		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		this.spring.register(MethodSecurityServiceEnabledConfig.class).autowire();
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::jsr250)
 				.withMessage("Access Denied");
 	}
@@ -252,7 +253,7 @@ public class MethodSecurityConfigurationTests {
 	@WithAnonymousUser
 	@Test
 	public void jsr250PermitAllWhenRoleAnonymousThenPasses() {
-		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		this.spring.register(MethodSecurityServiceEnabledConfig.class).autowire();
 		String result = this.methodSecurityService.jsr250PermitAll();
 		assertThat(result).isNull();
 	}
@@ -272,7 +273,14 @@ public class MethodSecurityConfigurationTests {
 		this.businessService.rolesAllowedUser();
 	}
 
-	@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+	@Test
+	public void configureWhenCustomAdviceAndSecureEnabledThenException() {
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> this.spring
+				.register(CustomAuthorizationManagerBeforeAdviceConfig.class, MethodSecurityServiceEnabledConfig.class)
+				.autowire());
+	}
+
+	@EnableMethodSecurity
 	static class MethodSecurityServiceConfig {
 
 		@Bean
@@ -288,6 +296,16 @@ public class MethodSecurityConfigurationTests {
 		@Bean
 		BusinessService businessService() {
 			return new ExpressionProtectedBusinessServiceImpl();
+		}
+
+	}
+
+	@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+	static class MethodSecurityServiceEnabledConfig {
+
+		@Bean
+		MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl();
 		}
 
 	}
