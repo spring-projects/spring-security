@@ -15,6 +15,17 @@ repositories {
 	maven { url 'https://repo.spring.io/plugins-release/' }
 }
 
+sourceSets {
+	main {
+		java {
+			srcDirs = []
+		}
+		groovy {
+			srcDirs += ["src/main/java"]
+		}
+	}
+}
+
 gradlePlugin {
 	plugins {
 		trang {
