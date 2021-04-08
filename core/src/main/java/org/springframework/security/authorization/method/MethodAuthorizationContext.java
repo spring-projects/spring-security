@@ -19,8 +19,8 @@ package org.springframework.security.authorization.method;
 import org.aopalliance.intercept.MethodInvocation;
 
 /**
- * An authorization context which is holds the {@link MethodInvocation}, the target class
- * and the returned object.
+ * An authorization context which is holds the {@link MethodInvocation} and the target
+ * class
  *
  * @author Evgeniy Cheban
  * @since 5.5
@@ -42,16 +42,16 @@ public final class MethodAuthorizationContext {
 	}
 
 	/**
-	 * Returns the {@link MethodInvocation}.
-	 * @return the {@link MethodInvocation} to use
+	 * Return the {@link MethodInvocation}.
+	 * @return the {@link MethodInvocation}
 	 */
 	public MethodInvocation getMethodInvocation() {
 		return this.methodInvocation;
 	}
 
 	/**
-	 * Returns the target class.
-	 * @return the target class to use
+	 * Return the target class.
+	 * @return the target class
 	 */
 	public Class<?> getTargetClass() {
 		return this.targetClass;

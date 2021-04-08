@@ -49,9 +49,10 @@ public final class AuthorizationMethodInterceptor implements MethodInterceptor {
 	}
 
 	/**
-	 * This method should be used to enforce security on a {@link MethodInvocation}.
+	 * Enforce security on this {@link MethodInvocation}.
 	 * @param mi the method being invoked which requires a security decision
-	 * @return the returned value from the {@link MethodInvocation}
+	 * @return the returned value from the {@link MethodInvocation}, possibly altered by
+	 * the configured {@link AuthorizationMethodAfterAdvice}
 	 */
 	@Override
 	public Object invoke(@NonNull MethodInvocation mi) throws Throwable {

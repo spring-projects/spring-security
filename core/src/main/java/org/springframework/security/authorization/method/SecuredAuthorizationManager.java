@@ -43,9 +43,8 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	private final SecuredAuthorizationManagerRegistry registry = new SecuredAuthorizationManagerRegistry();
 
 	/**
-	 * Determines if an {@link Authentication} has access to the {@link MethodInvocation}
-	 * by evaluating if the {@link Authentication} contains a specified authority from the
-	 * Spring Security's {@link Secured} annotation.
+	 * Determine if an {@link Authentication} has access to a method by evaluating the
+	 * {@link Secured} annotation that {@link MethodAuthorizationContext} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
 	 * @return an {@link AuthorizationDecision} or null if the {@link Secured} annotation

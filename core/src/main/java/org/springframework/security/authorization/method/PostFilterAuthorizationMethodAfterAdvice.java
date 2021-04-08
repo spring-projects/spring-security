@@ -78,12 +78,12 @@ public final class PostFilterAuthorizationMethodAfterAdvice
 	}
 
 	/**
-	 * Filters a <code>returnedObject</code> from the {@link MethodInvocation} by
-	 * evaluating an expression from the {@link PostFilter} annotation.
+	 * Filter a {@code returnedObject} using the {@link PostFilter} annotation that the
+	 * {@link MethodAuthorizationContext} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
 	 * check
-	 * @return filtered <code>returnedObject</code> from the {@link MethodInvocation}
+	 * @return filtered {@code returnedObject}
 	 */
 	@Override
 	public Object after(Supplier<Authentication> authentication, MethodAuthorizationContext methodAuthorizationContext,

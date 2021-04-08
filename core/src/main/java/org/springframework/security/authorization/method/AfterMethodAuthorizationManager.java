@@ -38,7 +38,7 @@ import org.springframework.security.core.Authentication;
 public interface AfterMethodAuthorizationManager<T> {
 
 	/**
-	 * Determines if access should be granted for a specific authentication and
+	 * Determine if access should be granted for a specific authentication, object and
 	 * returnedObject.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param object the {@code T} object to check, typically a {@link MethodInvocation}
@@ -53,7 +53,8 @@ public interface AfterMethodAuthorizationManager<T> {
 	}
 
 	/**
-	 * Determines if access is granted for a specific authentication and returnedObject.
+	 * Determine if access is granted for a specific authentication, object, and
+	 * returnedObject.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param object the {@code T} object to check, typically a {@link MethodInvocation}
 	 * @param returnedObject the returned object from the method invocation to check

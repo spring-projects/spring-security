@@ -60,12 +60,14 @@ public final class PostAuthorizeAuthorizationManager
 	}
 
 	/**
-	 * Determines if an {@link Authentication} has access to the {@link MethodInvocation}
-	 * by evaluating an expression from the {@link PostAuthorize} annotation.
+	 * Determine if an {@link Authentication} has access to the returned object by
+	 * evaluating the {@link PostAuthorize} annotation that the
+	 * {@link MethodAuthorizationContext} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
-	 * @return an {@link AuthorizationDecision} or null if the {@link PostAuthorize}
-	 * annotation is not present
+	 * @param returnedObject the returned object to check
+	 * @return an {@link AuthorizationDecision} or {@code null} if the
+	 * {@link PostAuthorize} annotation is not present
 	 */
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication,

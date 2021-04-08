@@ -53,7 +53,7 @@ public interface AuthorizationMethodBeforeAdvice<T> extends BeforeAdvice, Pointc
 	}
 
 	/**
-	 * Determines if an {@link Authentication} has access to the {@link T} object.
+	 * Determine if an {@link Authentication} has access to the {@link T} object.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param object the {@link T} object to check
 	 */

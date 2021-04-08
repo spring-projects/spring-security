@@ -74,11 +74,16 @@ public final class DelegatingAuthorizationMethodBeforeAdvice<T> implements Autho
 	}
 
 	/**
-	 * Delegates to a specific {@link AuthorizationMethodBeforeAdvice} and grants access
-	 * if all {@link AuthorizationMethodBeforeAdvice}s granted or abstained. Denies only
-	 * if one of the {@link AuthorizationMethodBeforeAdvice}s denied.
+	 * Delegate to a series of {@link AuthorizationMethodBeforeAdvice}s
+	 *
+	 * Advices may be of type {@link AuthorizationManagerMethodBeforeAdvice} in which
+	 * case, they will throw an
+	 * {@link org.springframework.security.access.AccessDeniedException} in the event that
+	 * they deny access.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param object the {@link MethodAuthorizationContext} to check
+	 * @throws org.springframework.security.access.AccessDeniedException if any delegate
+	 * advices deny access
 	 */
 	@Override
 	public void before(Supplier<Authentication> authentication, T object) {

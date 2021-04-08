@@ -52,7 +52,7 @@ public final class PreFilterAuthorizationMethodBeforeAdvice
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
 	/**
-	 * Create a {@link PreFilterAuthorizationMethodBeforeAdvice} using the provided
+	 * Creates a {@link PreFilterAuthorizationMethodBeforeAdvice} using the provided
 	 * parameters
 	 * @param pointcut the {@link Pointcut} for when this advice applies
 	 */
@@ -61,7 +61,7 @@ public final class PreFilterAuthorizationMethodBeforeAdvice
 	}
 
 	/**
-	 * Sets the {@link MethodSecurityExpressionHandler}.
+	 * Use this {@link MethodSecurityExpressionHandler}
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
@@ -78,8 +78,8 @@ public final class PreFilterAuthorizationMethodBeforeAdvice
 	}
 
 	/**
-	 * Filters a method argument by evaluating an expression from the {@link PreFilter}
-	 * annotation.
+	 * Filter the method argument specified in the {@link PreFilter} annotation that
+	 * {@link MethodAuthorizationContext} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
 	 */
