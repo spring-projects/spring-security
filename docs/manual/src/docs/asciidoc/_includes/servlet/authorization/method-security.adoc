@@ -6,6 +6,169 @@ It provides support for JSR-250 annotation security as well as the framework's o
 From 3.0 you can also make use of new <<el-access,expression-based annotations>>.
 You can apply security to a single bean, using the `intercept-methods` element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
 
+=== EnableMethodSecurity
+
+In 5.5, we can enable annotation-based security using the `@EnableMethodSecurity` annotation on any `@Configuration` instance.
+
+[NOTE]
+For earlier versions, please read about similar support with <<jc-enable-global-method-security, @EnableGlobalMethodSecurity>>.
+
+For example, the following would enable Spring Security's `@PreAuthorize` annotation:
+
+[source,java]
+----
+@EnableMethodSecurity
+public class MethodSecurityConfig {
+	// ...
+}
+----
+
+Adding an annotation to a method (on a class or interface) would then limit the access to that method accordingly.
+Spring Security's native annotatino support defines a set of attributes for the method.
+These will be passed to the `AuthorizationMethodInterceptor` for it to make the actual decision:
+
+[source,java]
+----
+public interface BankService {
+
+	@PreAuthorize("hasRole('USER')")
+    Account readAccount(Long id);
+
+	@PreAuthorize("hasRole('USER')")
+    Account[] findAccounts();
+
+	@PreAuthorize("hasRole('TELLER')")
+    Account post(Account account, double amount);
+}
+----
+
+You can enable support for Spring Security's `@Secured` annotation using:
+
+[source,java]
+----
+@EnableMethodSecurity(secureEnabled = true)
+public class MethodSecurityConfig {
+	// ...
+}
+----
+
+or JSR-250 using:
+
+[source,java]
+----
+@EnableMethodSecurity(jsr250Enabled = true)
+public class MethodSecurityConfig {
+	// ...
+}
+----
+
+==== Customizing Authorization
+
+Spring Security's `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter` ship with rich expression-based support.
+
+If you need to customize the way that expressions are handled, you can expose a custom `MethodSecurityExpressionHandler`, like so:
+
+[source,java]
+----
+@Bean
+MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+    DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+    handler.setTrustResolver(myCustomTrustResolver);
+    return handler;
+}
+----
+
+Also, for role-based authorization, Spring Security adds a default `ROLE_` prefix, which is uses when evaluating expressions like `hasRole`.
+
+You can configure the authorization rules to use a different prefix by exposing a `GrantedAuthorityDefaults` bean, like so:
+
+[source,java]
+----
+@Bean
+GrantedAuthorityDefaults grantedAuthorityDefaults() {
+	return new GrantedAuthorityDefaults("MYPREFIX_");
+}
+----
+
+==== Custom Authorization Managers
+
+Method authorization is a combination of before- and after-method authorization.
+
+[NOTE]
+Before-method authorization is performed before the method is invoked.
+If that authorization denies access, the method is not invoked and an `AccessDeniedException` is thrown
+After-method authorization is performed after the method is invoked, but before the method returns to the caller.
+If that authorization denies access, the value is not returned and an `AccessDeniedException` is thrown
+
+You can customize before-method authorization by publishing your own `AuthorizationMethodBeforeAdvice` bean, which includes your custom authorization manager as well as the `Pointcut` that describes when your manager should be used.
+
+For example, you may want to apply a default authorization rule to all methods in your service layer.
+To do this, you'll supply the pointcut as well as the rule, like so:
+
+[source,java]
+----
+@Bean
+public AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> authorizationMethodBeforeAdvice() {
+	JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
+	pattern.setPattern("org.mycompany.myapp.service.*");
+	AuthorizationManager<MethodAuthorizationContext> rule = AuthorityAuthorizationManager.isAuthenticated();
+	return new AuthorizationManagerMethodBeforeAdvice(pattern, rule);
+}
+----
+
+This will replace any default before advice that Spring Security provides.
+To use your custom rule as well as Spring Security's `@PreAuthorize` authorization support, you can do:
+
+[source,java]
+----
+@Bean
+public AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> authorizationMethodBeforeAdvice() {
+	JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
+	pattern.setPattern("org.mycompany.myapp.service.*");
+	AuthorizationManager rule = AuthorityAuthorizationManager.isAuthenticated();
+	AuthorizationMethodBeforeAdvice custom = new AuthorizationManagerMethodBeforeAdvice(pattern, rule);
+	AuthorizationMethodBeforeAdvice pre = new AuthorizationMethodBeforeAdvice(
+			AuthorizationMethodPointcuts.forAnnotations(PreAuthorize.class),
+			new PreAuthorizeAuthorizationManager());
+	return new DelegatingAuthorizationManagerBeforeAdvice(custom, pre);
+}
+----
+
+The same can be done for after-method authorization.
+After-method authorization is generally concerned with analysing the return value to verify access.
+
+For example, you might have a method that confirms that the account requested actually belongs to the logged-in user like so:
+
+[source,java]
+----
+public interface BankService {
+
+	@PreAuthorize("hasRole('USER')")
+	@PostAuthorize("returnObject.owner == authentication.name")
+	Account readAccount(Long id);
+}
+----
+
+You can supply your own `AuthorizationMethodAfterAdvice` to customize how access to the return value is evaluated.
+
+For example, you can give special access to a given role in your system, like so:
+
+[source,java]
+----
+@Bean
+public AuthorizationMethodAfterAdvice<MethodAuthorizationContext> authorizationMethodAfterAdvice() {
+	JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
+	pattern.setPattern("org.mycompany.myapp.service.*");
+	AuthorizationManager<MethodAuthorizationContext> rule = AuthorityAuthorizationManager.hasRole("TELLER");
+	AuthorizationMethodBeforeAdvice custom = new AuthorizationManagerMethodBeforeAdvice(pattern, rule);
+	AuthorizationMethodBeforeAdvice post = new AuthorizationManagerMethodBeforeAdvice(
+			AuthorizationMethodPointcuts.forAnnotations(PostAuthorize.class),
+			new PostAuthorizeAuthorizationManager());
+	return new DelegatingAuthorizationManagerBeforeAdvice(custom, post);
+}
+----
+
+[[jc-enable-global-method-security]]
 === EnableGlobalMethodSecurity
 
 We can enable annotation-based security using the `@EnableGlobalMethodSecurity` annotation on any `@Configuration` instance.
