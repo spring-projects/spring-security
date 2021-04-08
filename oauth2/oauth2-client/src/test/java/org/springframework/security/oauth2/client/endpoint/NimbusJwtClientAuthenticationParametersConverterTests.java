@@ -116,8 +116,7 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		given(this.jwkResolver.apply(any())).willReturn(rsaJwk);
 
 		// Add custom claim
-		this.converter.setJwtCustomizer(
-				(authorizationGrantRequest, headers, claims) -> claims.put("custom-claim", "custom-value"));
+		this.converter.setJwtCustomizer((context) -> context.getClaims().put("custom-claim", "custom-value"));
 
 		// @formatter:off
 		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials()
@@ -155,8 +154,7 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		given(this.jwkResolver.apply(any())).willReturn(secretJwk);
 
 		// Add custom claim
-		this.converter.setJwtCustomizer(
-				(authorizationGrantRequest, headers, claims) -> claims.put("custom-claim", "custom-value"));
+		this.converter.setJwtCustomizer((context) -> context.getClaims().put("custom-claim", "custom-value"));
 
 		// @formatter:off
 		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials()

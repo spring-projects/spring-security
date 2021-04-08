@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.nimbusds.jose.jwk.JWK;
@@ -60,7 +61,7 @@ import org.springframework.util.MultiValueMap;
  * @since 5.5
  * @see Converter
  * @see com.nimbusds.jose.jwk.JWK
- * @see JwtCustomizer
+ * @see JwtClientAuthenticationContext
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7523#section-2.2">2.2
  * Using JWTs for Client Authentication</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7521#section-4.2">4.2
@@ -79,14 +80,14 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 
 	private final Function<ClientRegistration, JWK> jwkResolver;
 
-	private final Map<String, NimbusJwsEncoder> jwtEncoders = new ConcurrentHashMap<>();
+	private final Map<String, NimbusJwsEncoder> jwsEncoders = new ConcurrentHashMap<>();
 
-	private JwtCustomizer<T> jwtCustomizer = (request, headers, claims) -> {
+	private Consumer<JwtClientAuthenticationContext<T>> jwtCustomizer = (context) -> {
 	};
 
 	/**
-	 * Constructs a {@code NimbusJwtClientAuthenticationCustomizer} using the provided
-	 * parameters.
+	 * Constructs a {@code NimbusJwtClientAuthenticationParametersConverter} using the
+	 * provided parameters.
 	 * @param jwkResolver the resolver that provides the {@code com.nimbusds.jose.jwk.JWK}
 	 * associated to the {@link ClientRegistration client}
 	 */
@@ -139,12 +140,14 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 				.expiresAt(expiresAt);
 		// @formatter:on
 
-		this.jwtCustomizer.customize(authorizationGrantRequest, headersBuilder.headers, claimsBuilder.claims);
+		JwtClientAuthenticationContext<T> context = new JwtClientAuthenticationContext<>(authorizationGrantRequest,
+				headersBuilder.headers, claimsBuilder.claims);
+		this.jwtCustomizer.accept(context);
 
 		JoseHeader joseHeader = headersBuilder.build();
 		JwtClaimsSet jwtClaimsSet = claimsBuilder.build();
 
-		NimbusJwsEncoder jwsEncoder = this.jwtEncoders.computeIfAbsent(clientRegistration.getRegistrationId(),
+		NimbusJwsEncoder jwsEncoder = this.jwsEncoders.computeIfAbsent(clientRegistration.getRegistrationId(),
 				(clientRegistrationId) -> {
 					JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
 					return new NimbusJwsEncoder(jwkSource);
@@ -160,12 +163,12 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 	}
 
 	/**
-	 * Sets the {@link JwtCustomizer} to be provided the opportunity to customize the
+	 * Sets the {@link Consumer} to be provided the opportunity to customize the
 	 * {@link Jwt} headers and/or claims.
-	 * @param jwtCustomizer the {@link JwtCustomizer} to be provided the opportunity to
+	 * @param jwtCustomizer the {@link Consumer} to be provided the opportunity to
 	 * customize the {@link Jwt} headers and/or claims
 	 */
-	public void setJwtCustomizer(JwtCustomizer<T> jwtCustomizer) {
+	public void setJwtCustomizer(Consumer<JwtClientAuthenticationContext<T>> jwtCustomizer) {
 		Assert.notNull(jwtCustomizer, "jwtCustomizer cannot be null");
 		this.jwtCustomizer = jwtCustomizer;
 	}
@@ -196,21 +199,49 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 	}
 
 	/**
-	 * Implementations of this interface are provided the opportunity to customize the
-	 * {@link Jwt} headers and/or claims.
+	 * A context that provides access to the {@link Jwt} headers and/or claims allowing
+	 * for customization.
 	 *
 	 * @param <T> the type of {@link AbstractOAuth2AuthorizationGrantRequest}
 	 */
-	@FunctionalInterface
-	interface JwtCustomizer<T extends AbstractOAuth2AuthorizationGrantRequest> {
+	public static final class JwtClientAuthenticationContext<T extends AbstractOAuth2AuthorizationGrantRequest> {
+
+		private final T authorizationGrantRequest;
+
+		private final Map<String, Object> headers;
+
+		private final Map<String, Object> claims;
+
+		private JwtClientAuthenticationContext(T authorizationGrantRequest, Map<String, Object> headers,
+				Map<String, Object> claims) {
+			this.authorizationGrantRequest = authorizationGrantRequest;
+			this.headers = headers;
+			this.claims = claims;
+		}
 
 		/**
-		 * Customize the {@link Jwt} headers and/or claims.
-		 * @param authorizationGrantRequest the authorization grant request
-		 * @param headers the headers
-		 * @param claims the claims
+		 * Returns the authorization grant request.
+		 * @return the authorization grant request
 		 */
-		void customize(T authorizationGrantRequest, Map<String, Object> headers, Map<String, Object> claims);
+		public T getAuthorizationGrantRequest() {
+			return this.authorizationGrantRequest;
+		}
+
+		/**
+		 * Returns the JOSE header(s).
+		 * @return a {@code Map} of the JOSE header(s)
+		 */
+		public Map<String, Object> getHeaders() {
+			return this.headers;
+		}
+
+		/**
+		 * Returns the JWT Claims Set.
+		 * @return a {@code Map} of the JWT Claims Set
+		 */
+		public Map<String, Object> getClaims() {
+			return this.claims;
+		}
 
 	}
 
