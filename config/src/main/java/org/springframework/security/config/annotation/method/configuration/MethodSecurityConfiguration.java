@@ -107,7 +107,11 @@ final class MethodSecurityConfiguration implements ImportAware, InitializingBean
 
 	private MethodSecurityExpressionHandler getMethodSecurityExpressionHandler() {
 		if (this.methodSecurityExpressionHandler == null) {
-			this.methodSecurityExpressionHandler = new DefaultMethodSecurityExpressionHandler();
+			DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler = new DefaultMethodSecurityExpressionHandler();
+			if (this.grantedAuthorityDefaults != null) {
+				methodSecurityExpressionHandler.setDefaultRolePrefix(this.grantedAuthorityDefaults.getRolePrefix());
+			}
+			this.methodSecurityExpressionHandler = methodSecurityExpressionHandler;
 		}
 		return this.methodSecurityExpressionHandler;
 	}
