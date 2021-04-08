@@ -43,7 +43,8 @@ import org.springframework.util.Assert;
  * @author Evgeniy Cheban
  * @since 5.5
  */
-public final class PostAuthorizeAuthorizationManager implements AuthorizationManager<MethodAuthorizationContext> {
+public final class PostAuthorizeAuthorizationManager
+		implements AfterMethodAuthorizationManager<MethodAuthorizationContext> {
 
 	private final PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
@@ -68,14 +69,14 @@ public final class PostAuthorizeAuthorizationManager implements AuthorizationMan
 	 */
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication,
-			MethodAuthorizationContext methodAuthorizationContext) {
+			MethodAuthorizationContext methodAuthorizationContext, Object returnedObject) {
 		ExpressionAttribute attribute = this.registry.getAttribute(methodAuthorizationContext);
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return null;
 		}
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(),
 				methodAuthorizationContext.getMethodInvocation());
-		this.expressionHandler.setReturnObject(methodAuthorizationContext.getReturnObject(), ctx);
+		this.expressionHandler.setReturnObject(returnedObject, ctx);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
 		return new AuthorizationDecision(granted);
 	}

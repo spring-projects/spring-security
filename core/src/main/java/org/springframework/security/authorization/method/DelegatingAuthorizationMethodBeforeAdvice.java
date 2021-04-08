@@ -38,21 +38,19 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 5.5
  */
-public final class DelegatingAuthorizationMethodBeforeAdvice
-		implements AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> {
+public final class DelegatingAuthorizationMethodBeforeAdvice<T> implements AuthorizationMethodBeforeAdvice<T> {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final Pointcut pointcut;
 
-	private final List<AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>> delegates;
+	private final List<AuthorizationMethodBeforeAdvice<T>> delegates;
 
 	/**
 	 * Creates an instance.
 	 * @param delegates the {@link AuthorizationMethodBeforeAdvice}s to use
 	 */
-	public DelegatingAuthorizationMethodBeforeAdvice(
-			List<AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>> delegates) {
+	public DelegatingAuthorizationMethodBeforeAdvice(List<AuthorizationMethodBeforeAdvice<T>> delegates) {
 		Assert.notEmpty(delegates, "delegates cannot be empty");
 		this.delegates = delegates;
 		ComposablePointcut pointcut = null;
@@ -80,19 +78,18 @@ public final class DelegatingAuthorizationMethodBeforeAdvice
 	 * if all {@link AuthorizationMethodBeforeAdvice}s granted or abstained. Denies only
 	 * if one of the {@link AuthorizationMethodBeforeAdvice}s denied.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
+	 * @param object the {@link MethodAuthorizationContext} to check
 	 */
 	@Override
-	public void before(Supplier<Authentication> authentication, MethodAuthorizationContext methodAuthorizationContext) {
+	public void before(Supplier<Authentication> authentication, T object) {
 		if (this.logger.isTraceEnabled()) {
-			this.logger.trace(LogMessage.format("Pre Authorizing %s", methodAuthorizationContext));
+			this.logger.trace(LogMessage.format("Pre Authorizing %s", object));
 		}
-		for (AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> delegate : this.delegates) {
+		for (AuthorizationMethodBeforeAdvice<T> delegate : this.delegates) {
 			if (this.logger.isTraceEnabled()) {
-				this.logger.trace(LogMessage.format("Checking authorization on %s using %s", methodAuthorizationContext,
-						delegate));
+				this.logger.trace(LogMessage.format("Checking authorization on %s using %s", object, delegate));
 			}
-			delegate.before(authentication, methodAuthorizationContext);
+			delegate.before(authentication, object);
 		}
 	}
 

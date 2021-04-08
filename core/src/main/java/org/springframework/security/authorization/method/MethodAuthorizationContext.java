@@ -31,8 +31,6 @@ public final class MethodAuthorizationContext {
 
 	private final Class<?> targetClass;
 
-	private Object returnObject;
-
 	/**
 	 * Creates an instance.
 	 * @param methodInvocation the {@link MethodInvocation} to use
@@ -59,26 +57,10 @@ public final class MethodAuthorizationContext {
 		return this.targetClass;
 	}
 
-	/**
-	 * Returns the returned object from the {@link MethodInvocation}.
-	 * @return the returned object from the {@link MethodInvocation} to use
-	 */
-	public Object getReturnObject() {
-		return this.returnObject;
-	}
-
-	/**
-	 * Sets the returned object from the {@link MethodInvocation}.
-	 * @param returnObject the returned object from the {@link MethodInvocation} to use
-	 */
-	public void setReturnObject(Object returnObject) {
-		this.returnObject = returnObject;
-	}
-
 	@Override
 	public String toString() {
 		return "MethodAuthorizationContext[methodInvocation=" + this.methodInvocation + ", targetClass="
-				+ this.targetClass + ", returnObject=" + this.returnObject + ']';
+				+ this.targetClass + ']';
 	}
 
 }

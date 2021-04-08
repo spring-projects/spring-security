@@ -141,7 +141,7 @@ final class MethodSecurityConfiguration implements ImportAware, InitializingBean
 		if (jsr250Enabled()) {
 			beforeAdvices.add(getJsr250AuthorizationMethodBeforeAdvice());
 		}
-		return new DelegatingAuthorizationMethodBeforeAdvice(beforeAdvices);
+		return new DelegatingAuthorizationMethodBeforeAdvice<>(beforeAdvices);
 	}
 
 	private PreFilterAuthorizationMethodBeforeAdvice getPreFilterAuthorizationMethodBeforeAdvice() {
@@ -192,7 +192,7 @@ final class MethodSecurityConfiguration implements ImportAware, InitializingBean
 		List<AuthorizationMethodAfterAdvice<MethodAuthorizationContext>> afterAdvices = new ArrayList<>();
 		afterAdvices.add(getPostFilterAuthorizationMethodAfterAdvice());
 		afterAdvices.add(getPostAuthorizeAuthorizationMethodAfterAdvice());
-		return new DelegatingAuthorizationMethodAfterAdvice(afterAdvices);
+		return new DelegatingAuthorizationMethodAfterAdvice<>(afterAdvices);
 	}
 
 	private PostFilterAuthorizationMethodAfterAdvice getPostFilterAuthorizationMethodAfterAdvice() {

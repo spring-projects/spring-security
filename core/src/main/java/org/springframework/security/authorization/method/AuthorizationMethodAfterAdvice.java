@@ -27,9 +27,9 @@ import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.core.Authentication;
 
 /**
- * An {@link Advice} which can determine if an {@link Authentication} has
- * access to the returned object from the {@link MethodInvocation}. {@link #getPointcut()}
- * describes when the advice applies for the method.
+ * An {@link Advice} which can determine if an {@link Authentication} has access to the
+ * returned object from the {@link MethodInvocation}. {@link #getPointcut()} describes
+ * when the advice applies for the method.
  *
  * @param <T> the type of object that the authorization check is being done one.
  * @author Evgeniy Cheban

@@ -38,21 +38,19 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 5.5
  */
-public final class DelegatingAuthorizationMethodAfterAdvice
-		implements AuthorizationMethodAfterAdvice<MethodAuthorizationContext> {
+public final class DelegatingAuthorizationMethodAfterAdvice<T> implements AuthorizationMethodAfterAdvice<T> {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final Pointcut pointcut;
 
-	private final List<AuthorizationMethodAfterAdvice<MethodAuthorizationContext>> delegates;
+	private final List<AuthorizationMethodAfterAdvice<T>> delegates;
 
 	/**
 	 * Creates an instance.
 	 * @param delegates the {@link AuthorizationMethodAfterAdvice}s to use
 	 */
-	public DelegatingAuthorizationMethodAfterAdvice(
-			List<AuthorizationMethodAfterAdvice<MethodAuthorizationContext>> delegates) {
+	public DelegatingAuthorizationMethodAfterAdvice(List<AuthorizationMethodAfterAdvice<T>> delegates) {
 		Assert.notEmpty(delegates, "delegates cannot be empty");
 		this.delegates = delegates;
 		ComposablePointcut pointcut = null;
@@ -79,26 +77,24 @@ public final class DelegatingAuthorizationMethodAfterAdvice
 	 * Delegates to specific {@link AuthorizationMethodAfterAdvice}s and returns the
 	 * <code>returnedObject</code> (possibly modified) from the method argument.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
+	 * @param object the {@link MethodAuthorizationContext} to check
 	 * @param returnedObject the returned object from the {@link MethodInvocation} to
 	 * check
 	 * @return the <code>returnedObject</code> (possibly modified) from the method
 	 * argument
 	 */
 	@Override
-	public Object after(Supplier<Authentication> authentication, MethodAuthorizationContext methodAuthorizationContext,
-			Object returnedObject) {
+	public Object after(Supplier<Authentication> authentication, T object, Object returnedObject) {
 		if (this.logger.isTraceEnabled()) {
-			this.logger.trace(
-					LogMessage.format("Post Authorizing %s from %s", returnedObject, methodAuthorizationContext));
+			this.logger.trace(LogMessage.format("Post Authorizing %s from %s", returnedObject, object));
 		}
 		Object result = returnedObject;
-		for (AuthorizationMethodAfterAdvice<MethodAuthorizationContext> delegate : this.delegates) {
+		for (AuthorizationMethodAfterAdvice<T> delegate : this.delegates) {
 			if (this.logger.isTraceEnabled()) {
-				this.logger.trace(LogMessage.format("Checking authorization on %s from %s using %s", result,
-						methodAuthorizationContext, delegate));
+				this.logger.trace(
+						LogMessage.format("Checking authorization on %s from %s using %s", result, object, delegate));
 			}
-			result = delegate.after(authentication, methodAuthorizationContext, result);
+			result = delegate.after(authentication, object, result);
 		}
 		return result;
 	}

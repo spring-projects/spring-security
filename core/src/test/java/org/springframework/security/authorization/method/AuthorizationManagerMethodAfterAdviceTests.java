@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.security.authentication.TestAuthentication;
-import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,8 +39,10 @@ public class AuthorizationManagerMethodAfterAdviceTests {
 
 	@Test
 	public void instantiateWhenMethodMatcherNullThenException() {
+		AfterMethodAuthorizationManager<MethodInvocation> mockAuthorizationManager = mock(
+				AfterMethodAuthorizationManager.class);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthorizationManagerMethodAfterAdvice<>(null, mock(AuthorizationManager.class)))
+				.isThrownBy(() -> new AuthorizationManagerMethodAfterAdvice<>(null, mockAuthorizationManager))
 				.withMessage("pointcut cannot be null");
 	}
 
@@ -57,12 +58,13 @@ public class AuthorizationManagerMethodAfterAdviceTests {
 		Supplier<Authentication> authentication = TestAuthentication::authenticatedUser;
 		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
 		Object returnedObject = new Object();
-		AuthorizationManager<MethodInvocation> mockAuthorizationManager = mock(AuthorizationManager.class);
+		AfterMethodAuthorizationManager<MethodInvocation> mockAuthorizationManager = mock(
+				AfterMethodAuthorizationManager.class);
 		AuthorizationManagerMethodAfterAdvice<MethodInvocation> advice = new AuthorizationManagerMethodAfterAdvice<>(
 				mock(Pointcut.class), mockAuthorizationManager);
 		Object result = advice.after(authentication, mockMethodInvocation, returnedObject);
 		assertThat(result).isEqualTo(returnedObject);
-		verify(mockAuthorizationManager).verify(authentication, mockMethodInvocation);
+		verify(mockAuthorizationManager).verify(authentication, mockMethodInvocation, returnedObject);
 	}
 
 }
