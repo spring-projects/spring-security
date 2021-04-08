@@ -32,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -72,6 +73,9 @@ public class BearerTokenAuthenticationFilterTests {
 
 	@Mock
 	BearerTokenResolver bearerTokenResolver;
+
+	@Mock
+	AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
 	MockHttpServletRequest request;
 
@@ -168,6 +172,15 @@ public class BearerTokenAuthenticationFilterTests {
 	}
 
 	@Test
+	public void doFilterWhenCustomAuthenticationDetailsSourceThenUses() throws ServletException, IOException {
+		given(this.bearerTokenResolver.resolve(this.request)).willReturn("token");
+		BearerTokenAuthenticationFilter filter = addMocks(
+				new BearerTokenAuthenticationFilter(this.authenticationManager));
+		filter.doFilter(this.request, this.response, this.filterChain);
+		verify(this.authenticationDetailsSource).buildDetails(this.request);
+	}
+
+	@Test
 	public void setAuthenticationEntryPointWhenNullThenThrowsException() {
 		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager);
 		// @formatter:off
@@ -192,8 +205,8 @@ public class BearerTokenAuthenticationFilterTests {
 		// @formatter:off
 		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> filter.setAuthenticationConverter(null))
-				.withMessageContaining("authenticationConverter cannot be null");
+				.isThrownBy(() -> filter.setAuthenticationDetailsSource(null))
+				.withMessageContaining("authenticationDetailsSource cannot be null");
 		// @formatter:on
 	}
 
@@ -218,6 +231,7 @@ public class BearerTokenAuthenticationFilterTests {
 	private BearerTokenAuthenticationFilter addMocks(BearerTokenAuthenticationFilter filter) {
 		filter.setAuthenticationEntryPoint(this.authenticationEntryPoint);
 		filter.setBearerTokenResolver(this.bearerTokenResolver);
+		filter.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 		return filter;
 	}
 
