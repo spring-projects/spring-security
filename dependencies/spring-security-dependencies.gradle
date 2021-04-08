@@ -24,7 +24,7 @@ dependencies {
 		api "commons-codec:commons-codec:1.14"
 		api "commons-collections:commons-collections:3.2.2"
 		api "commons-logging:commons-logging:1.2"
-		api "io.projectreactor.tools:blockhound:1.0.5.RELEASE"
+		api "io.projectreactor.tools:blockhound:1.0.6.RELEASE"
 		api "javax.annotation:jsr250-api:1.0"
 		api "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2"
 		api "javax.servlet.jsp:javax.servlet.jsp-api:2.3.3"
