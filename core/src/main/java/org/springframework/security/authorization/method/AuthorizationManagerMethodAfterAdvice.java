@@ -39,14 +39,15 @@ public final class AuthorizationManagerMethodAfterAdvice<T> implements Authoriza
 
 	private final Pointcut pointcut;
 
-	private final AuthorizationManager<T> authorizationManager;
+	private final AfterMethodAuthorizationManager<T> authorizationManager;
 
 	/**
 	 * Creates an instance.
 	 * @param pointcut the {@link Pointcut} to use
 	 * @param authorizationManager the {@link AuthorizationManager} to use
 	 */
-	public AuthorizationManagerMethodAfterAdvice(Pointcut pointcut, AuthorizationManager<T> authorizationManager) {
+	public AuthorizationManagerMethodAfterAdvice(Pointcut pointcut,
+			AfterMethodAuthorizationManager<T> authorizationManager) {
 		Assert.notNull(pointcut, "pointcut cannot be null");
 		Assert.notNull(authorizationManager, "authorizationManager cannot be null");
 		this.pointcut = pointcut;
@@ -57,13 +58,14 @@ public final class AuthorizationManagerMethodAfterAdvice<T> implements Authoriza
 	 * Determines if an {@link Authentication} has access to the {@link T} object using
 	 * the {@link AuthorizationManager}.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param object the {@link T} object to check
+	 * @param object the {@link T} object to check - note that {@code T} should contain
+	 * the returned object
 	 * @throws AccessDeniedException if access is not granted
 	 */
 	@Override
-	public Object after(Supplier<Authentication> authentication, T object, Object returnedObject) {
-		this.authorizationManager.verify(authentication, object);
-		return returnedObject;
+	public Object after(Supplier<Authentication> authentication, T context, Object object) {
+		this.authorizationManager.verify(authentication, context, object);
+		return object;
 	}
 
 	/**

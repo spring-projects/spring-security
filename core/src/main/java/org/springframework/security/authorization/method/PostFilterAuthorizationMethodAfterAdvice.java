@@ -82,7 +82,6 @@ public final class PostFilterAuthorizationMethodAfterAdvice
 	 * evaluating an expression from the {@link PostFilter} annotation.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
-	 * @param returnedObject the returned object from the {@link MethodInvocation} to
 	 * check
 	 * @return filtered <code>returnedObject</code> from the {@link MethodInvocation}
 	 */
@@ -98,9 +97,7 @@ public final class PostFilterAuthorizationMethodAfterAdvice
 		}
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(),
 				methodAuthorizationContext.getMethodInvocation());
-		Object result = this.expressionHandler.filter(returnedObject, attribute.getExpression(), ctx);
-		methodAuthorizationContext.setReturnObject(result);
-		return result;
+		return this.expressionHandler.filter(returnedObject, attribute.getExpression(), ctx);
 	}
 
 	private final class PostFilterExpressionAttributeRegistry
