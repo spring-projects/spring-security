@@ -18,9 +18,11 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,10 +40,8 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.method.AuthorizationManagerMethodBeforeAdvice;
-import org.springframework.security.authorization.method.AuthorizationMethodAfterAdvice;
-import org.springframework.security.authorization.method.AuthorizationMethodBeforeAdvice;
-import org.springframework.security.authorization.method.MethodAuthorizationContext;
+import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
+import org.springframework.security.authorization.method.AuthorizationMethodInterceptor;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
@@ -273,6 +273,43 @@ public class MethodSecurityConfigurationTests {
 		this.businessService.rolesAllowedUser();
 	}
 
+	@WithMockUser(roles = { "ADMIN", "USER" })
+	@Test
+	public void manyAnnotationsWhenMeetsConditionsThenReturnsFilteredList() throws Exception {
+		List<String> names = Arrays.asList("harold", "jonathan", "pete", "bo");
+		this.spring.register(MethodSecurityServiceEnabledConfig.class).autowire();
+		List<String> filtered = this.methodSecurityService.manyAnnotations(new ArrayList<>(names));
+		assertThat(filtered).hasSize(2);
+		assertThat(filtered).containsExactly("harold", "jonathan");
+	}
+
+	@WithMockUser
+	@Test
+	public void manyAnnotationsWhenUserThenFails() {
+		List<String> names = Arrays.asList("harold", "jonathan", "pete", "bo");
+		this.spring.register(MethodSecurityServiceEnabledConfig.class).autowire();
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.methodSecurityService.manyAnnotations(new ArrayList<>(names)));
+	}
+
+	@WithMockUser
+	@Test
+	public void manyAnnotationsWhenShortListThenFails() {
+		List<String> names = Arrays.asList("harold", "jonathan", "pete");
+		this.spring.register(MethodSecurityServiceEnabledConfig.class).autowire();
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.methodSecurityService.manyAnnotations(new ArrayList<>(names)));
+	}
+
+	@WithMockUser(roles = "ADMIN")
+	@Test
+	public void manyAnnotationsWhenAdminThenFails() {
+		List<String> names = Arrays.asList("harold", "jonathan", "pete", "bo");
+		this.spring.register(MethodSecurityServiceEnabledConfig.class).autowire();
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.methodSecurityService.manyAnnotations(new ArrayList<>(names)));
+	}
+
 	@Test
 	public void configureWhenCustomAdviceAndSecureEnabledThenException() {
 		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> this.spring
@@ -338,12 +375,12 @@ public class MethodSecurityConfigurationTests {
 	static class CustomAuthorizationManagerBeforeAdviceConfig {
 
 		@Bean
-		AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> customBeforeAdvice() {
-			JdkRegexpMethodPointcut methodMatcher = new JdkRegexpMethodPointcut();
-			methodMatcher.setPattern(".*MethodSecurityServiceImpl.*securedUser");
-			AuthorizationManager<MethodAuthorizationContext> authorizationManager = (a,
+		AuthorizationMethodInterceptor customBeforeAdvice() {
+			JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
+			pointcut.setPattern(".*MethodSecurityServiceImpl.*securedUser");
+			AuthorizationManager<MethodInvocation> authorizationManager = (a,
 					o) -> new AuthorizationDecision("bob".equals(a.get().getName()));
-			return new AuthorizationManagerMethodBeforeAdvice<>(methodMatcher, authorizationManager);
+			return new AuthorizationManagerBeforeMethodInterceptor(pointcut, authorizationManager);
 		}
 
 	}
@@ -352,18 +389,18 @@ public class MethodSecurityConfigurationTests {
 	static class CustomAuthorizationManagerAfterAdviceConfig {
 
 		@Bean
-		AuthorizationMethodAfterAdvice<MethodAuthorizationContext> customAfterAdvice() {
+
+		AuthorizationMethodInterceptor customAfterAdvice() {
 			JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
 			pointcut.setPattern(".*MethodSecurityServiceImpl.*securedUser");
-			return new AuthorizationMethodAfterAdvice<MethodAuthorizationContext>() {
+			AuthorizationMethodInterceptor interceptor = new AuthorizationMethodInterceptor() {
 				@Override
 				public Pointcut getPointcut() {
 					return pointcut;
 				}
 
 				@Override
-				public Object after(Supplier<Authentication> authentication,
-						MethodAuthorizationContext methodAuthorizationContext, Object returnedObject) {
+				public Object invoke(Supplier<Authentication> authentication, MethodInvocation mi) {
 					Authentication auth = authentication.get();
 					if ("bob".equals(auth.getName())) {
 						return "granted";
@@ -371,6 +408,7 @@ public class MethodSecurityConfigurationTests {
 					throw new AccessDeniedException("Access Denied for User '" + auth.getName() + "'");
 				}
 			};
+			return interceptor;
 		}
 
 	}

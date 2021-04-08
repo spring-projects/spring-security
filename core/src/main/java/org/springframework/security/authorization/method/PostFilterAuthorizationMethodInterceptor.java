@@ -34,16 +34,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthorizationMethodAfterAdvice} which filters a <code>returnedObject</code>
- * from the {@link MethodInvocation} by evaluating an expression from the
- * {@link PostFilter} annotation.
+ * An {@link AuthorizationMethodInterceptor} which filters a {@code returnedObject} from
+ * the {@link MethodInvocation} by evaluating an expression from the {@link PostFilter}
+ * annotation.
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
  * @since 5.5
  */
-public final class PostFilterAuthorizationMethodAfterAdvice
-		implements AuthorizationMethodAfterAdvice<MethodAuthorizationContext> {
+public final class PostFilterAuthorizationMethodInterceptor implements AuthorizationMethodInterceptor {
 
 	private final PostFilterExpressionAttributeRegistry registry = new PostFilterExpressionAttributeRegistry();
 
@@ -52,16 +51,15 @@ public final class PostFilterAuthorizationMethodAfterAdvice
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
 	/**
-	 * Create a {@link PostFilterAuthorizationMethodAfterAdvice} using the provided
+	 * Creates a {@link PostFilterAuthorizationMethodInterceptor} using the provided
 	 * parameters
-	 * @param pointcut the {@link Pointcut} for when this advice applies
 	 */
-	public PostFilterAuthorizationMethodAfterAdvice(Pointcut pointcut) {
-		this.pointcut = pointcut;
+	public PostFilterAuthorizationMethodInterceptor() {
+		this.pointcut = AuthorizationMethodPointcuts.forAnnotations(PostFilter.class);
 	}
 
 	/**
-	 * Sets the {@link MethodSecurityExpressionHandler}.
+	 * Use this {@link MethodSecurityExpressionHandler}.
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
@@ -79,24 +77,19 @@ public final class PostFilterAuthorizationMethodAfterAdvice
 
 	/**
 	 * Filter a {@code returnedObject} using the {@link PostFilter} annotation that the
-	 * {@link MethodAuthorizationContext} specifies.
+	 * {@link AuthorizationMethodInvocation} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
-	 * check
+	 * @param mi the {@link AuthorizationMethodInvocation} to check check
 	 * @return filtered {@code returnedObject}
 	 */
 	@Override
-	public Object after(Supplier<Authentication> authentication, MethodAuthorizationContext methodAuthorizationContext,
-			Object returnedObject) {
-		if (returnedObject == null) {
-			return null;
-		}
-		ExpressionAttribute attribute = this.registry.getAttribute(methodAuthorizationContext);
+	public Object invoke(Supplier<Authentication> authentication, MethodInvocation mi) throws Throwable {
+		Object returnedObject = mi.proceed();
+		ExpressionAttribute attribute = this.registry.getAttribute((AuthorizationMethodInvocation) mi);
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return returnedObject;
 		}
-		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(),
-				methodAuthorizationContext.getMethodInvocation());
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(), mi);
 		return this.expressionHandler.filter(returnedObject, attribute.getExpression(), ctx);
 	}
 
@@ -111,7 +104,7 @@ public final class PostFilterAuthorizationMethodAfterAdvice
 			if (postFilter == null) {
 				return ExpressionAttribute.NULL_ATTRIBUTE;
 			}
-			Expression postFilterExpression = PostFilterAuthorizationMethodAfterAdvice.this.expressionHandler
+			Expression postFilterExpression = PostFilterAuthorizationMethodInterceptor.this.expressionHandler
 					.getExpressionParser().parseExpression(postFilter.value());
 			return new ExpressionAttribute(postFilterExpression);
 		}

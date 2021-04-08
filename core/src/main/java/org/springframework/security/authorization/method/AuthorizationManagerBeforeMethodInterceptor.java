@@ -18,7 +18,8 @@ package org.springframework.security.authorization.method;
 
 import java.util.function.Supplier;
 
-import org.springframework.aop.MethodMatcher;
+import org.aopalliance.intercept.MethodInvocation;
+
 import org.springframework.aop.Pointcut;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -26,28 +27,26 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthorizationMethodAfterAdvice} which can determine if an
- * {@link Authentication} has access to the {@link T} object using an
- * {@link AuthorizationManager} if a {@link MethodMatcher} matches.
+ * An {@link AuthorizationMethodInterceptor} which uses a {@link AuthorizationManager} to
+ * determine if an {@link Authentication} may invoke the given {@link MethodInvocation}
  *
- * @param <T> the type of object that the authorization check is being done one.
  * @author Evgeniy Cheban
  * @author Josh Cummings
  * @since 5.5
  */
-public final class AuthorizationManagerMethodAfterAdvice<T> implements AuthorizationMethodAfterAdvice<T> {
+public final class AuthorizationManagerBeforeMethodInterceptor implements AuthorizationMethodInterceptor {
 
 	private final Pointcut pointcut;
 
-	private final AfterMethodAuthorizationManager<T> authorizationManager;
+	private final AuthorizationManager<MethodInvocation> authorizationManager;
 
 	/**
 	 * Creates an instance.
 	 * @param pointcut the {@link Pointcut} to use
 	 * @param authorizationManager the {@link AuthorizationManager} to use
 	 */
-	public AuthorizationManagerMethodAfterAdvice(Pointcut pointcut,
-			AfterMethodAuthorizationManager<T> authorizationManager) {
+	public AuthorizationManagerBeforeMethodInterceptor(Pointcut pointcut,
+			AuthorizationManager<MethodInvocation> authorizationManager) {
 		Assert.notNull(pointcut, "pointcut cannot be null");
 		Assert.notNull(authorizationManager, "authorizationManager cannot be null");
 		this.pointcut = pointcut;
@@ -55,16 +54,16 @@ public final class AuthorizationManagerMethodAfterAdvice<T> implements Authoriza
 	}
 
 	/**
-	 * Determine if an {@link Authentication} has access to the {@link T} object using the
-	 * {@link AuthorizationManager}.
+	 * Determine if an {@link Authentication} has access to the {@link MethodInvocation}
+	 * using the configured {@link AuthorizationManager}.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param object the {@link T} object to check
+	 * @param mi the {@link MethodInvocation} to check
 	 * @throws AccessDeniedException if access is not granted
 	 */
 	@Override
-	public Object after(Supplier<Authentication> authentication, T context, Object object) {
-		this.authorizationManager.verify(authentication, context, object);
-		return object;
+	public Object invoke(Supplier<Authentication> authentication, MethodInvocation mi) throws Throwable {
+		this.authorizationManager.verify(authentication, mi);
+		return mi.proceed();
 	}
 
 	/**

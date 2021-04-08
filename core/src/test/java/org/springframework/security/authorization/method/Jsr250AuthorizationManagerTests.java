@@ -16,6 +16,7 @@
 
 package org.springframework.security.authorization.method;
 
+import java.util.Collections;
 import java.util.function.Supplier;
 
 import javax.annotation.security.DenyAll;
@@ -62,64 +63,59 @@ public class Jsr250AuthorizationManagerTests {
 
 	@Test
 	public void checkDoSomethingWhenNoJsr250AnnotationsThenNullDecision() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomething");
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(methodInvocation,
-				TestClass.class);
+		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
+				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser,
-				methodAuthorizationContext);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNull();
 	}
 
 	@Test
 	public void checkPermitAllRolesAllowedAdminWhenRoleUserThenGrantedDecision() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"permitAllRolesAllowedAdmin");
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(methodInvocation,
-				TestClass.class);
+		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
+				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser,
-				methodAuthorizationContext);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
 
 	@Test
 	public void checkDenyAllRolesAllowedAdminWhenRoleAdminThenDeniedDecision() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"denyAllRolesAllowedAdmin");
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(methodInvocation,
-				TestClass.class);
+		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
+				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin,
-				methodAuthorizationContext);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
 
 	@Test
 	public void checkRolesAllowedUserOrAdminWhenRoleUserThenGrantedDecision() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"rolesAllowedUserOrAdmin");
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(methodInvocation,
-				TestClass.class);
+		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
+				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser,
-				methodAuthorizationContext);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
 
 	@Test
 	public void checkRolesAllowedUserOrAdminWhenRoleAdminThenGrantedDecision() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"rolesAllowedUserOrAdmin");
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(methodInvocation,
-				TestClass.class);
+		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
+				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin,
-				methodAuthorizationContext);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -128,12 +124,12 @@ public class Jsr250AuthorizationManagerTests {
 	public void checkRolesAllowedUserOrAdminWhenRoleAnonymousThenDeniedDecision() throws Exception {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
 				"ROLE_ANONYMOUS");
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"rolesAllowedUserOrAdmin");
-		MethodAuthorizationContext methodAuthorizationContext = new MethodAuthorizationContext(methodInvocation,
-				TestClass.class);
+		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
+				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		AuthorizationDecision decision = manager.check(authentication, methodAuthorizationContext);
+		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}

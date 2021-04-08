@@ -16,65 +16,70 @@
 
 package org.springframework.security.authorization.method;
 
+import java.util.function.Supplier;
+
+import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.aop.support.AopUtils;
-import org.springframework.lang.NonNull;
+import org.springframework.aop.PointcutAdvisor;
+import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Provides security interception of AOP Alliance based method invocations.
+ * A {@link MethodInterceptor} which can determine if an {@link Authentication} has access
+ * to the {@link MethodInvocation}. {@link #getPointcut()} describes when the interceptor
+ * applies.
  *
  * @author Evgeniy Cheban
+ * @author Josh Cummings
  * @since 5.5
  */
-public final class AuthorizationMethodInterceptor implements MethodInterceptor {
-
-	private final AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> beforeAdvice;
-
-	private final AuthorizationMethodAfterAdvice<MethodAuthorizationContext> afterAdvice;
+public interface AuthorizationMethodInterceptor extends MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
 
 	/**
-	 * Creates an instance.
-	 * @param beforeAdvice the {@link AuthorizationMethodBeforeAdvice} to use
-	 * @param afterAdvice the {@link AuthorizationMethodAfterAdvice} to use
-	 */
-	public AuthorizationMethodInterceptor(AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> beforeAdvice,
-			AuthorizationMethodAfterAdvice<MethodAuthorizationContext> afterAdvice) {
-		this.beforeAdvice = beforeAdvice;
-		this.afterAdvice = afterAdvice;
-	}
-
-	/**
-	 * Enforce security on this {@link MethodInvocation}.
-	 * @param mi the method being invoked which requires a security decision
-	 * @return the returned value from the {@link MethodInvocation}, possibly altered by
-	 * the configured {@link AuthorizationMethodAfterAdvice}
+	 * {@inheritDoc}
 	 */
 	@Override
-	public Object invoke(@NonNull MethodInvocation mi) throws Throwable {
-		MethodAuthorizationContext methodAuthorizationContext = getMethodAuthorizationContext(mi);
-		this.beforeAdvice.before(this::getAuthentication, methodAuthorizationContext);
-		Object returnedObject = mi.proceed();
-		return this.afterAdvice.after(this::getAuthentication, methodAuthorizationContext, returnedObject);
+	default Advice getAdvice() {
+		return this;
 	}
 
-	private MethodAuthorizationContext getMethodAuthorizationContext(MethodInvocation mi) {
-		Object target = mi.getThis();
-		Class<?> targetClass = (target != null) ? AopUtils.getTargetClass(target) : null;
-		return new MethodAuthorizationContext(mi, targetClass);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	default boolean isPerInstance() {
+		return true;
 	}
 
-	private Authentication getAuthentication() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null) {
-			throw new AuthenticationCredentialsNotFoundException(
-					"An Authentication object was not found in the SecurityContext");
-		}
-		return authentication;
+	/**
+	 * Determine if an {@link Authentication} has access to the {@link MethodInvocation}
+	 * @param mi the {@link MethodInvocation} to intercept and potentially invoke
+	 * @return the result of the method invocation
+	 * @throws Throwable if the interceptor or the target object throws an exception
+	 */
+	default Object invoke(MethodInvocation mi) throws Throwable {
+		Supplier<Authentication> supplier = () -> {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			if (authentication == null) {
+				throw new AuthenticationCredentialsNotFoundException(
+						"An Authentication object was not found in the SecurityContext");
+			}
+			return authentication;
+		};
+		return invoke(supplier, new AuthorizationMethodInvocation(supplier, mi));
 	}
+
+	/**
+	 * Determine if an {@link Authentication} has access to the {@link MethodInvocation}
+	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
+	 * @param mi the {@link MethodInvocation} to intercept and potentially invoke
+	 * @return the result of the method invocation
+	 * @throws Throwable if the interceptor or the target object throws an exception
+	 */
+	Object invoke(Supplier<Authentication> authentication, MethodInvocation mi) throws Throwable;
 
 }

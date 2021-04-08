@@ -16,8 +16,10 @@
 
 package org.springframework.security.authorization.method;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.After;
 import org.junit.Test;
 
@@ -32,18 +34,17 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
- * Tests for {@link AuthorizationMethodInterceptor}.
+ * Tests for {@link DelegatingAuthorizationMethodInterceptor}.
  *
  * @author Evgeniy Cheban
  */
-public class AuthorizationMethodInterceptorTests {
+public class DelegatingAuthorizationMethodInterceptorTests {
 
 	@After
 	public void tearDown() {
@@ -56,41 +57,39 @@ public class AuthorizationMethodInterceptorTests {
 		SecurityContextHolder.setContext(new SecurityContextImpl(authentication));
 		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingString");
-		AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> mockBeforeAdvice = mock(
-				AuthorizationMethodBeforeAdvice.class);
-		AuthorizationMethodAfterAdvice<MethodAuthorizationContext> mockAfterAdvice = mock(
-				AuthorizationMethodAfterAdvice.class);
-		given(mockAfterAdvice.after(any(), any(MethodAuthorizationContext.class), eq(null))).willReturn("abc");
-		AuthorizationMethodInterceptor interceptor = new AuthorizationMethodInterceptor(mockBeforeAdvice,
-				mockAfterAdvice);
-		Object result = interceptor.invoke(mockMethodInvocation);
+		AuthorizationMethodInterceptor interceptor = mock(AuthorizationMethodInterceptor.class);
+		given(interceptor.getPointcut()).willReturn(Pointcut.TRUE);
+		given(interceptor.invoke(any(), any(AuthorizationMethodInvocation.class))).willReturn("abc");
+		DelegatingAuthorizationMethodInterceptor chain = new DelegatingAuthorizationMethodInterceptor(
+				Arrays.asList(interceptor));
+		Object result = chain.invoke(mockMethodInvocation);
 		assertThat(result).isEqualTo("abc");
-		verify(mockAfterAdvice).after(any(), any(MethodAuthorizationContext.class), eq(null));
+		verify(interceptor).invoke(any(), any(AuthorizationMethodInvocation.class));
 	}
 
 	@Test
-	public void invokeWhenNotAuthenticatedThenAuthenticationCredentialsNotFoundException() throws Exception {
+	public void invokeWhenNotAuthenticatedThenAuthenticationCredentialsNotFoundException() throws Throwable {
 		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingString");
-		AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> beforeAdvice = new AuthorizationMethodBeforeAdvice<MethodAuthorizationContext>() {
+		AuthorizationMethodInterceptor first = new AuthorizationMethodInterceptor() {
 			@Override
 			public Pointcut getPointcut() {
 				return Pointcut.TRUE;
 			}
 
 			@Override
-			public void before(Supplier<Authentication> authentication,
-					MethodAuthorizationContext methodAuthorizationContext) {
-				authentication.get();
+			public Object invoke(Supplier<Authentication> authentication, MethodInvocation mi) {
+				return authentication.get();
 			}
 		};
-		AuthorizationMethodAfterAdvice<MethodAuthorizationContext> mockAfterAdvice = mock(
-				AuthorizationMethodAfterAdvice.class);
-		AuthorizationMethodInterceptor interceptor = new AuthorizationMethodInterceptor(beforeAdvice, mockAfterAdvice);
+		AuthorizationMethodInterceptor second = mock(AuthorizationMethodInterceptor.class);
+		given(second.getPointcut()).willReturn(Pointcut.TRUE);
+		DelegatingAuthorizationMethodInterceptor interceptor = new DelegatingAuthorizationMethodInterceptor(
+				Arrays.asList(first, second));
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
 				.isThrownBy(() -> interceptor.invoke(mockMethodInvocation))
 				.withMessage("An Authentication object was not found in the SecurityContext");
-		verifyNoInteractions(mockAfterAdvice);
+		verify(second, times(0)).invoke(any(), any());
 	}
 
 	public static class TestClass {

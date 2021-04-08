@@ -35,15 +35,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * An {@link AuthorizationMethodBeforeAdvice} which filters a method argument by
- * evaluating an expression from the {@link PreFilter} annotation.
+ * An {@link AuthorizationMethodInterceptor} which filters a method argument by evaluating
+ * an expression from the {@link PreFilter} annotation.
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
  * @since 5.5
  */
-public final class PreFilterAuthorizationMethodBeforeAdvice
-		implements AuthorizationMethodBeforeAdvice<MethodAuthorizationContext> {
+public final class PreFilterAuthorizationMethodInterceptor implements AuthorizationMethodInterceptor {
 
 	private final PreFilterExpressionAttributeRegistry registry = new PreFilterExpressionAttributeRegistry();
 
@@ -52,12 +51,11 @@ public final class PreFilterAuthorizationMethodBeforeAdvice
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
 	/**
-	 * Creates a {@link PreFilterAuthorizationMethodBeforeAdvice} using the provided
+	 * Creates a {@link PreFilterAuthorizationMethodInterceptor} using the provided
 	 * parameters
-	 * @param pointcut the {@link Pointcut} for when this advice applies
 	 */
-	public PreFilterAuthorizationMethodBeforeAdvice(Pointcut pointcut) {
-		this.pointcut = pointcut;
+	public PreFilterAuthorizationMethodInterceptor() {
+		this.pointcut = AuthorizationMethodPointcuts.forAnnotations(PreFilter.class);
 	}
 
 	/**
@@ -79,20 +77,20 @@ public final class PreFilterAuthorizationMethodBeforeAdvice
 
 	/**
 	 * Filter the method argument specified in the {@link PreFilter} annotation that
-	 * {@link MethodAuthorizationContext} specifies.
+	 * {@link AuthorizationMethodInvocation} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodAuthorizationContext the {@link MethodAuthorizationContext} to check
+	 * @param mi the {@link AuthorizationMethodInvocation} to check
 	 */
 	@Override
-	public void before(Supplier<Authentication> authentication, MethodAuthorizationContext methodAuthorizationContext) {
-		PreFilterExpressionAttribute attribute = this.registry.getAttribute(methodAuthorizationContext);
+	public Object invoke(Supplier<Authentication> authentication, MethodInvocation mi) throws Throwable {
+		PreFilterExpressionAttribute attribute = this.registry.getAttribute((AuthorizationMethodInvocation) mi);
 		if (attribute == PreFilterExpressionAttribute.NULL_ATTRIBUTE) {
-			return;
+			return mi.proceed();
 		}
-		MethodInvocation mi = methodAuthorizationContext.getMethodInvocation();
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(), mi);
 		Object filterTarget = findFilterTarget(attribute.filterTarget, ctx, mi);
 		this.expressionHandler.filter(filterTarget, attribute.getExpression(), ctx);
+		return mi.proceed();
 	}
 
 	private Object findFilterTarget(String filterTargetName, EvaluationContext ctx, MethodInvocation methodInvocation) {
@@ -126,7 +124,7 @@ public final class PreFilterAuthorizationMethodBeforeAdvice
 			if (preFilter == null) {
 				return PreFilterExpressionAttribute.NULL_ATTRIBUTE;
 			}
-			Expression preFilterExpression = PreFilterAuthorizationMethodBeforeAdvice.this.expressionHandler
+			Expression preFilterExpression = PreFilterAuthorizationMethodInterceptor.this.expressionHandler
 					.getExpressionParser().parseExpression(preFilter.value());
 			return new PreFilterExpressionAttribute(preFilterExpression, preFilter.filterTarget());
 		}
