@@ -85,6 +85,8 @@ dependencies {
 	testImplementation ('org.springframework.data:spring-data-jpa') {
 		exclude group: 'org.aspectj', module: 'aspectjrt'
 	}
+	testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core'
+	testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
