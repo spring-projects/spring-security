@@ -11,3 +11,7 @@ Below are the highlights of the release.
 ** Added support for https://github.com/spring-projects/spring-security/pull/9520[Jwt Client Authentication] `private_key_jwt` and `client_secret_jwt`
 ** Added https://github.com/spring-projects/spring-security/pull/9535[Jwt Bearer Authorization Grant] support
 ** Added https://github.com/spring-projects/spring-security/pull/8765[R2DBC implementation] of `ReactiveOAuth2AuthorizedClientService`
+
+* Configuration
+
+** Introduced https://github.com/spring-projects/spring-security/issues/9205[DispatcherType request matcher]
