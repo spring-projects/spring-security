@@ -56,7 +56,7 @@ public final class OAuth2AuthorizationResponseType implements Serializable {
 
 	private final String value;
 
-	private OAuth2AuthorizationResponseType(String value) {
+	public OAuth2AuthorizationResponseType(String value) {
 		Assert.hasText(value, "value cannot be empty");
 		this.value = value;
 	}
