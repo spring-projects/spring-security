@@ -19,3 +19,8 @@ Below are the highlights of the release.
 * Kotlin DSL
 
 ** Added https://github.com/spring-projects/spring-security/issues/9319[rememberMe support]
+
+[[whats-new-webflux]]
+=== WebFlux
+
+** Added https://github.com/spring-projects/spring-security/issues/8143[Kotlin coroutine support] for `EnableReactiveMethodSecurity`
