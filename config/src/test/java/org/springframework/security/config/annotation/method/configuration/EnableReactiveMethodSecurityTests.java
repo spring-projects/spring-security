@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,8 @@ public class EnableReactiveMethodSecurityTests {
 				.withMessage("The returnType class java.lang.String on public abstract java.lang.String "
 						+ "org.springframework.security.config.annotation.method.configuration.ReactiveMessageService"
 						+ ".notPublisherPreAuthorizeFindById(long) must return an instance of org.reactivestreams"
-						+ ".Publisher (i.e. Mono / Flux) in order to support Reactor Context");
+						+ ".Publisher (i.e. Mono / Flux) or the function must be a Kotlin coroutine "
+						+ "function in order to support Reactor Context");
 	}
 
 	@Test

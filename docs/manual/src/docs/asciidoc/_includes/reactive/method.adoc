@@ -6,11 +6,13 @@ For example, this demonstrates how to retrieve the currently logged in user's me
 
 [NOTE]
 ====
-For this to work the return type of the method must be a `org.reactivestreams.Publisher` (i.e. `Mono`/`Flux`).
+For this to work the return type of the method must be a `org.reactivestreams.Publisher` (i.e. `Mono`/`Flux`) or the function must be a Kotlin coroutine function.
 This is necessary to integrate with Reactor's `Context`.
 ====
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 Authentication authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 
@@ -26,18 +28,48 @@ StepVerifier.create(messageByUsername)
 	.verifyComplete();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val authentication: Authentication = TestingAuthenticationToken("user", "password", "ROLE_USER")
+
+val messageByUsername: Mono<String> = ReactiveSecurityContextHolder.getContext()
+	.map(SecurityContext::getAuthentication)
+	.map(Authentication::getName)
+	.flatMap(this::findMessageByUsername) // In a WebFlux application the `subscriberContext` is automatically setup using `ReactorContextWebFilter`
+	.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+
+StepVerifier.create(messageByUsername)
+	.expectNext("Hi user")
+	.verifyComplete()
+----
+====
+
 with `this::findMessageByUsername` defined as:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 Mono<String> findMessageByUsername(String username) {
 	return Mono.just("Hi " + username);
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+fun findMessageByUsername(username: String): Mono<String> {
+	return Mono.just("Hi $username")
+}
+----
+====
+
 Below is a minimal method security configuration when using method security in reactive applications.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableReactiveMethodSecurity
 public class SecurityConfig {
@@ -57,9 +89,33 @@ public class SecurityConfig {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableReactiveMethodSecurity
+class SecurityConfig {
+	@Bean
+	fun userDetailsService(): MapReactiveUserDetailsService {
+		val userBuilder: User.UserBuilder = User.withDefaultPasswordEncoder()
+		val rob = userBuilder.username("rob")
+			.password("rob")
+			.roles("USER")
+			.build()
+		val admin = userBuilder.username("admin")
+			.password("admin")
+			.roles("USER", "ADMIN")
+			.build()
+		return MapReactiveUserDetailsService(rob, admin)
+	}
+}
+----
+====
+
 Consider the following class:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Component
 public class HelloWorldMessageService {
@@ -70,6 +126,37 @@ public class HelloWorldMessageService {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Component
+class HelloWorldMessageService {
+	@PreAuthorize("hasRole('ADMIN')")
+	fun findMessage(): Mono<String> {
+		return Mono.just("Hello World!")
+	}
+}
+----
+====
+
+Or, the following class using Kotlin coroutines:
+
+====
+.Kotlin
+[source,kotlin,role="primary"]
+----
+@Component
+class HelloWorldMessageService {
+    @PreAuthorize("hasRole('ADMIN')")
+    suspend fun findMessage(): String {
+        delay(10)
+        return "Hello World!"
+    }
+}
+----
+====
+
+
 Combined with our configuration above, `@PreAuthorize("hasRole('ADMIN')")` will ensure that `findByMessage` is only invoked by a user with the role `ADMIN`.
 It is important to note that any of the expressions in standard method security work for `@EnableReactiveMethodSecurity`.
 However, at this time we only support return type of `Boolean` or `boolean` of the expression.
@@ -77,7 +164,9 @@ This means that the expression must not block.
 
 When integrating with <<jc-webflux>>, the Reactor Context is automatically established by Spring Security according to the authenticated user.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
@@ -111,5 +200,38 @@ public class SecurityConfig {
 }
 
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
+class SecurityConfig {
+	@Bean
+	open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+		return http {
+			authorizeExchange {
+				authorize(anyExchange, permitAll)
+			}
+			httpBasic { }
+		}
+	}
+
+	@Bean
+	fun userDetailsService(): MapReactiveUserDetailsService {
+		val userBuilder: User.UserBuilder = User.withDefaultPasswordEncoder()
+		val rob = userBuilder.username("rob")
+			.password("rob")
+			.roles("USER")
+			.build()
+		val admin = userBuilder.username("admin")
+			.password("admin")
+			.roles("USER", "ADMIN")
+			.build()
+		return MapReactiveUserDetailsService(rob, admin)
+	}
+}
+----
+====
 
 You can find a complete sample in {gh-samples-url}/javaconfig/hellowebflux-method[hellowebflux-method]
