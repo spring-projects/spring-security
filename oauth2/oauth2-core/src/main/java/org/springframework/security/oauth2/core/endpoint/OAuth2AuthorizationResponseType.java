@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,15 @@ public final class OAuth2AuthorizationResponseType implements Serializable {
 
 	public static final OAuth2AuthorizationResponseType CODE = new OAuth2AuthorizationResponseType("code");
 
+	/**
+	 * It is not recommended to use the implicit flow due to the inherent risks of
+	 * returning access tokens in an HTTP redirect without any confirmation that it has
+	 * been received by the client.
+	 *
+	 * @see <a target="_blank" href="https://oauth.net/2/grant-types/implicit/">OAuth 2.0
+	 * Implicit Grant</a>
+	 */
+	@Deprecated
 	public static final OAuth2AuthorizationResponseType TOKEN = new OAuth2AuthorizationResponseType("token");
 
 	private final String value;
