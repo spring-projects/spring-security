@@ -15,3 +15,7 @@ Below are the highlights of the release.
 * Configuration
 
 ** Introduced https://github.com/spring-projects/spring-security/issues/9205[DispatcherType request matcher]
+
+* Kotlin DSL
+
+** Added https://github.com/spring-projects/spring-security/issues/9319[rememberMe support]
