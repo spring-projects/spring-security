@@ -23,6 +23,7 @@ import java.util.zip.InflaterOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.codec.CodecPolicy;
 import org.apache.commons.codec.binary.Base64;
 
 import org.springframework.core.convert.converter.Converter;
@@ -45,7 +46,7 @@ import org.springframework.util.Assert;
  */
 public final class Saml2AuthenticationTokenConverter implements AuthenticationConverter {
 
-	private static Base64 BASE64 = new Base64(0, new byte[] { '\n' });
+	private static Base64 BASE64 = new Base64(0, new byte[] { '\n' }, false, CodecPolicy.STRICT);
 
 	private final Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver;
 
