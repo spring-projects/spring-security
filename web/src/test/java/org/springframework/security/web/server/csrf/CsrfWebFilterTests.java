@@ -16,8 +16,6 @@
 
 package org.springframework.security.web.server.csrf;
 
-import java.lang.reflect.Method;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -66,18 +64,6 @@ public class CsrfWebFilterTests {
 	private MockServerWebExchange get = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
 
 	private MockServerWebExchange post = MockServerWebExchange.from(MockServerHttpRequest.post("/"));
-
-	@Test
-	public void nullConstantTimeEquals() throws Exception {
-		Method method = CsrfWebFilter.class.getDeclaredMethod("equalsConstantTime", String.class, String.class);
-		method.setAccessible(true);
-		assertThat(method.invoke(CsrfWebFilter.class, null, null)).isEqualTo(true);
-		String expectedToken = "Hello—World";
-		String actualToken = new String("Hello—World");
-		assertThat(method.invoke(CsrfWebFilter.class, expectedToken, null)).isEqualTo(false);
-		assertThat(method.invoke(CsrfWebFilter.class, expectedToken, "hello-world")).isEqualTo(false);
-		assertThat(method.invoke(CsrfWebFilter.class, expectedToken, actualToken)).isEqualTo(true);
-	}
 
 	@Test
 	public void filterWhenGetThenSessionNotCreatedAndChainContinues() {
@@ -222,6 +208,21 @@ public class CsrfWebFilterTests {
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
 		client.post().uri("/").contentType(MediaType.MULTIPART_MIXED)
+				.bodyValue(this.token.getParameterName() + "=" + this.token.getToken()).exchange().expectStatus()
+				.isForbidden();
+	}
+
+	// gh-9561
+	@Test
+	public void doFilterWhenTokenIsNullThenNoNullPointer() {
+		this.csrfFilter.setCsrfTokenRepository(this.repository);
+		CsrfToken token = mock(CsrfToken.class);
+		given(token.getToken()).willReturn(null);
+		given(token.getHeaderName()).willReturn(this.token.getHeaderName());
+		given(token.getParameterName()).willReturn(this.token.getParameterName());
+		given(this.repository.loadToken(any())).willReturn(Mono.just(token));
+		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
+		client.post().uri("/").contentType(MediaType.APPLICATION_FORM_URLENCODED)
 				.bodyValue(this.token.getParameterName() + "=" + this.token.getToken()).exchange().expectStatus()
 				.isForbidden();
 	}
