@@ -17,7 +17,6 @@
 package org.springframework.security.web.csrf;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import javax.servlet.FilterChain;
@@ -95,18 +94,6 @@ public class CsrfFilterTests {
 	private void resetRequestResponse() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
-	}
-
-	@Test
-	public void nullConstantTimeEquals() throws Exception {
-		Method method = CsrfFilter.class.getDeclaredMethod("equalsConstantTime", String.class, String.class);
-		method.setAccessible(true);
-		assertThat(method.invoke(CsrfFilter.class, null, null)).isEqualTo(true);
-		String expectedToken = "Hello—World";
-		String actualToken = new String("Hello—World");
-		assertThat(method.invoke(CsrfFilter.class, expectedToken, null)).isEqualTo(false);
-		assertThat(method.invoke(CsrfFilter.class, expectedToken, "hello-world")).isEqualTo(false);
-		assertThat(method.invoke(CsrfFilter.class, expectedToken, actualToken)).isEqualTo(true);
 	}
 
 	@Test
@@ -331,6 +318,20 @@ public class CsrfFilterTests {
 		CsrfFilter.skipRequest(request);
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
 		verifyZeroInteractions(repository);
+	}
+
+	// gh-9561
+	@Test
+	public void doFilterWhenTokenIsNullThenNoNullPointer() throws Exception {
+		CsrfFilter filter = createCsrfFilter(this.tokenRepository);
+		CsrfToken token = mock(CsrfToken.class);
+		given(token.getToken()).willReturn(null);
+		given(token.getHeaderName()).willReturn(this.token.getHeaderName());
+		given(token.getParameterName()).willReturn(this.token.getParameterName());
+		given(this.tokenRepository.loadToken(this.request)).willReturn(token);
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		filter.doFilterInternal(this.request, this.response, this.filterChain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
 	@Test
