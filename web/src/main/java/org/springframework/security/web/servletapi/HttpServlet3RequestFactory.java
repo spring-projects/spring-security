@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -42,6 +43,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -78,6 +80,8 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	private final String rolePrefix;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+
+	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
 	private AuthenticationEntryPoint authenticationEntryPoint;
 
@@ -158,6 +162,18 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 		this.trustResolver = trustResolver;
 	}
 
+	/**
+	 * Sets the {@link AuthenticationDetailsSource} to be used. The default is
+	 * {@link WebAuthenticationDetailsSource}.
+	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} to use. Cannot be
+	 * null.
+	 */
+	void setAuthenticationDetailsSource(
+			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
+		Assert.notNull(authenticationDetailsSource, "authenticationDetailsSource cannot be null");
+		this.authenticationDetailsSource = authenticationDetailsSource;
+	}
+
 	@Override
 	public HttpServletRequest create(HttpServletRequest request, HttpServletResponse response) {
 		return new Servlet3SecurityContextHolderAwareRequestWrapper(request, this.rolePrefix, response);
@@ -231,7 +247,9 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 		private Authentication getAuthentication(AuthenticationManager authManager, String username, String password)
 				throws ServletException {
 			try {
-				return authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, password);
+				authentication.setDetails(authenticationDetailsSource.buildDetails(this));
+				return authManager.authenticate(authentication);
 			}
 			catch (AuthenticationException ex) {
 				SecurityContextHolder.clearContext();

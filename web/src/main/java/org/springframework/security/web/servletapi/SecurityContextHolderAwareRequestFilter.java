@@ -27,12 +27,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -79,6 +81,8 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	private List<LogoutHandler> logoutHandlers;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+
+	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
 	public void setRolePrefix(String rolePrefix) {
 		Assert.notNull(rolePrefix, "Role prefix must not be null");
@@ -172,9 +176,23 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 		updateFactory();
 	}
 
+	/**
+	 * Sets the {@link AuthenticationDetailsSource} to be used. The default is
+	 * {@link WebAuthenticationDetailsSource}.
+	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} to use. Cannot be
+	 * null.
+	 */
+	public void setAuthenticationDetailsSource(
+			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
+		Assert.notNull(authenticationDetailsSource, "authenticationDetailsSource cannot be null");
+		this.authenticationDetailsSource = authenticationDetailsSource;
+		updateFactory();
+	}
+
 	private HttpServletRequestFactory createServlet3Factory(String rolePrefix) {
 		HttpServlet3RequestFactory factory = new HttpServlet3RequestFactory(rolePrefix);
 		factory.setTrustResolver(this.trustResolver);
+		factory.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 		factory.setAuthenticationEntryPoint(this.authenticationEntryPoint);
 		factory.setAuthenticationManager(this.authenticationManager);
 		factory.setLogoutHandlers(this.logoutHandlers);
