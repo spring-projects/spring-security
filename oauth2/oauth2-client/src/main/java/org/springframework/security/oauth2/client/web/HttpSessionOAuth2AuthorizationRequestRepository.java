@@ -179,7 +179,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	 * Sets the maximum number of {@link OAuth2AuthorizationRequest} that can be
 	 * stored/active for a session. If the maximum number are present in a session when an
 	 * attempt is made to save another one, then the oldest will be removed.
-	 * @param maxActiveAuthorizationRequests must not be negative.
+	 * @param maxActiveAuthorizationRequestsPerSession must not be negative.
 	 */
 	void setMaxActiveAuthorizationRequestsPerSession(int maxActiveAuthorizationRequestsPerSession) {
 		Assert.state(maxActiveAuthorizationRequestsPerSession > 0,
