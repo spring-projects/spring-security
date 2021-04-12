@@ -34,7 +34,7 @@ dependencies {
 		api "junit:junit:4.13.2"
 		api "ldapsdk:ldapsdk:4.1"
 		api "net.sf.ehcache:ehcache:2.10.6"
-		api "net.sourceforge.htmlunit:htmlunit:2.48.0"
+		api "net.sourceforge.htmlunit:htmlunit:2.49.1"
 		api "net.sourceforge.nekohtml:nekohtml:1.9.22"
 		api "org.apache.directory.server:apacheds-core-entry:1.5.5"
 		api "org.apache.directory.server:apacheds-core:1.5.5"
