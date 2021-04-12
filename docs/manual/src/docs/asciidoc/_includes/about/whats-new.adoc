@@ -30,7 +30,7 @@ Below are the highlights of the release.
 * Configuration
 
 ** Introduced https://github.com/spring-projects/spring-security/issues/9205[DispatcherType request matcher]
-** Introduced https://github.com/spring-projects/spring-security/issues/8900[`AuthorizationManager`] and applied it to filter and https://github.com/spring-projects/spring-security/issues/9289[method security]
+** Introduced https://github.com/spring-projects/spring-security/issues/8900[`AuthorizationManager`] for filter security
 
 * Kotlin DSL
 
