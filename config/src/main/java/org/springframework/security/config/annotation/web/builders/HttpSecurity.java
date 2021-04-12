@@ -1343,6 +1343,21 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	/**
+	 * get authorizeHttpRequests with default values
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 * @see #authorizeHttpRequests(Customizer)
+	 */
+	public HttpSecurity authorizeHttpRequests() throws Exception {
+		ApplicationContext applicationContext = getContext();
+		Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeHttpRequestsCustomizer = Customizer.withDefaults();
+		authorizeHttpRequestsCustomizer
+				.customize(getOrApply(new AuthorizeHttpRequestsConfigurer<>(applicationContext)).getRegistry());
+		return HttpSecurity.this;
+	}
+
+
+	/**
 	 * Allows configuring the Request Cache. For example, a protected page (/protected)
 	 * may be requested prior to authentication. The application will redirect the user to
 	 * a login page. After authentication, Spring Security will redirect the user to the
