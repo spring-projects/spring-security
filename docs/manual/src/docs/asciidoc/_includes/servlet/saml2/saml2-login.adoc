@@ -1074,7 +1074,9 @@ To use Spring Security's SAML 2.0 Single Logout feature, you will need the follo
 * Second, the asserting party should be configured to sign and POST `saml2:LogoutRequest` s and `saml2:LogoutResponse` s your application's `/logout/saml2/slo` endpoint
 * Third, your application must have a PKCS#8 private key and X.509 certificate for signing `saml2:LogoutRequest` s and `saml2:LogoutResponse` s
 
-You can begin from the initial minimal example and add the following configuration:
+==== RP-Initiated Single Logout
+
+Given those, then for RP-initiated Single Logout, you can begin from the initial minimal example and add the following configuration:
 
 [source,java]
 ----
@@ -1103,15 +1105,28 @@ SecurityFilterChain web(HttpSecurity http, RelyingPartyRegistrationRepository re
             .anyRequest().authenticated()
         )
         .saml2Login(withDefaults())
-        .saml2Logout(withDefaults()); <2>
+        .logout((logout) -> logout
+                .logoutUrl("/saml2/logout")
+                .logoutSuccessHandler(successHandler))
+        .addFilterBefore(new Saml2LogoutResponseFilter(logoutHandler), CsrfFilter.class);
 
     return http.build();
 }
+
+private LogoutSuccessHandler logoutRequestSuccessHandler(RelyingPartyRegistrationResolver registrationResolver) { <2>
+    OpenSaml4LogoutRequestResolver logoutRequestResolver = new OpenSaml4LogoutRequestResolver(registrationResolver);
+    return new Saml2LogoutRequestSuccessHandler(logoutRequestResolver);
+}
+
+private LogoutHandler logoutHandler(RelyingPartyRegistrationResolver registrationResolver) { <3>
+    return new OpenSamlLogoutResponseHandler(relyingPartyRegistrationResolver);
+}
 ----
 <1> - First, add your signing key to the `RelyingPartyRegistration` instance or to <<servlet-saml2login-rpr-duplicated,multiple instances>>
-<2> - Second, indicate that your application wants to use SAML SLO to logout the end user
+<2> - Second, supply a `LogoutSuccessHandler` for initiating Single Logout, sending a `saml2:LogoutRequest` to the asserting party
+<3> - Third, supply the `LogoutHandler` s needed to handle the `saml2:LogoutResponse` s sent from the asserting party.
 
-==== Runtime Expectations
+==== Runtime Expectations for RP-Initiated
 
 Given the above configuration any logged in user can send a `POST /logout` to your application to perform RP-initiated SLO.
 Your application will then do the following:
@@ -1122,12 +1137,75 @@ Your application will then do the following:
 4. Deserialize, verify, and process the `<saml2:LogoutResponse>` sent by the asserting party
 5. Redirect to any configured successful logout endpoint
 
+[TIP]
+If your asserting party does not send `<saml2:LogoutResponse>` s when logout is complete, the asserting party can still send a `POST /saml2/logout` and then there is no need to configure the `Saml2LogoutResponseHandler`.
+
+==== AP-Initiated Single Logout
+
+Instead of RP-initiated Single Logout, you can again begin from the initial minimal example and add the following configuration to achieve AP-initiated Single Logout:
+
+[source,java]
+----
+@Value("${private.key}") RSAPrivateKey key;
+@Value("${public.certificate}") X509Certificate certificate;
+
+@Bean
+RelyingPartyRegistrationRepository registrations() {
+    RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations
+            .fromMetadataLocation("https://ap.example.org/metadata")
+            .registrationId("id")
+            .signingX509Credentials((signing) -> signing.add(Saml2X509Credential.signing(key, certificate))) <1>
+            .build();
+    return new InMemoryRelyingPartyRegistrationRepository(relyingPartyRegistration);
+}
+
+@Bean
+SecurityFilterChain web(HttpSecurity http, RelyingPartyRegistrationRepository registrations) throws Exception {
+	RelyingPartyRegistrationResolver registrationResolver = new DefaultRelyingPartyRegistrationResolver(registrations);
+    LogoutHandler logoutRequestHandler = logoutRequestHandler(registrationResolver);
+    LogoutSuccessHandler logoutResponseSuccessHandler = logoutResponseSuccessHandler(registrationResolver);
+
+    http
+        .authorizeRequests((authorize) -> authorize
+            .anyRequest().authenticated()
+        )
+        .saml2Login(withDefaults())
+        .addFilterBefore(new Saml2LogoutRequestFilter(logoutResponseSuccessHandler, logoutRequestHandler), CsrfFilter.class);
+
+    return http.build();
+}
+
+private LogoutHandler logoutHandler(RelyingPartyRegistrationResolver registrationResolver) { <2>
+    return new CompositeLogoutHandler(
+    		new OpenSamlLogoutRequestHandler(relyingPartyRegistrationResolver),
+            new SecurityContextLogoutHandler(),
+            new LogoutSuccessEventPublishingLogoutHandler());
+}
+
+private LogoutSuccessHandler logoutSuccessHandler(RelyingPartyRegistrationResolver registrationResolver) { <3>
+    OpenSaml4LogoutResponseResolver logoutResponseResolver = new OpenSaml4LogoutResponseResolver(registrationResolver);
+    return new Saml2LogoutResponseSuccessHandler(logoutResponseResolver);
+}
+----
+<1> - First, add your signing key to the `RelyingPartyRegistration` instance or to <<servlet-saml2login-rpr-duplicated,multiple instances>>
+<2> - Second, supply the `LogoutHandler` needed to handle the `saml2:LogoutRequest` s sent from the asserting party.
+<3> - Third, supply a `LogoutSuccessHandler` for completing Single Logout, sending a `saml2:LogoutResponse` to the asserting party
+
+==== Runtime Expectations for AP-Initiated
+
+Given the above configuration, an asserting party can send a `POST /logout/saml2` to your application that includes a `<saml2:LogoutRequest>`
 Also, your application can participate in an AP-initated logout when the asserting party sends a `<saml2:LogoutRequest>` to `/logout/saml2/slo`:
 
 1. Use a `Saml2LogoutRequestHandler` to deserialize, verify, and process the `<saml2:LogoutRequest>` sent by the asserting party
 2. Logout the user and invalidate the session
 3. Create, sign, and serialize a `<saml2:LogoutResponse>` based on the <<servlet-saml2login-relyingpartyregistration,`RelyingPartyRegistration`>> associated with the just logged-out user
 4. Send a redirect or post to the asserting party based on the <<servlet-saml2login-relyingpartyregistration,`RelyingPartyRegistration`>>
+
+[TIP]
+If your asserting party does not expect you do send a `<saml2:LogoutResponse>` s when logout is complete, you may not need to configure a `LogoutSuccessHandler`
+
+[NOTE]
+In the event that you need to support both logout flows, you can combine the above to configurations.
 
 === Configuring Logout Endpoints
 
@@ -1145,12 +1223,11 @@ To reduce changes in configuration for the asserting party, you can configure th
 
 [source,java]
 ----
-RequestMatcher slo = new AntPathRequestMatcher("/SLOService.saml2", "GET");
+Saml2LogoutResponseFilter filter = new Saml2LogoutResponseFilter(logoutHandler);
+filter.setLogoutRequestMatcher(new AntPathRequestMatcher("/SLOService.saml2", "GET"));
 http
-    .saml2Logout((saml2) -> saml2
-        .logoutRequest((request) -> request.logoutRequestMatcher(slo))
-        .logoutResponse((response) -> response.logoutRequestMatcher(slo))
-    );
+    // ...
+    .addFilterBefore(filter, CsrfFilter.class);
 ----
 
 === Customizing `<saml2:LogoutRequest>` Resolution
@@ -1168,40 +1245,22 @@ To add other values, you can use delegation, like so:
 
 [source,java]
 ----
-@Component
-public class MyOpenSamlLogoutRequestResolver implements Saml2LogoutRequestResolver {
-	private final OpenSaml3LogoutRequestResolver logoutRequestResolver;
-
-	public MyOpenSamlLogoutRequestResolver(RelyingPartyRegistrationRepository registrations) {
-		RelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
-                new DefaultRelyingPartyRegistrationResolver(registrations);
-		this.logoutRequestResolver = new OpenSaml3LogoutRequestResolver(relyingPartyRegistrationResolver);
-	}
-
-	@Override
-    public OpenSamlLogoutRequestBuilder resolveLogoutRequest(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-		String name = ((Saml2AuthenticatedPrincipal) authentication.getPrincipal()).getFirstAttribute("CustomAttribute");
-		String format = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
-	    return logoutRequestResolver.resolveLogoutRequest(request, authentication) <1>
-                .name(name) <2>
-                .logoutRequest((logoutRequest) -> logoutRequest.getNameID().setFormat(format));
-    }
-}
+OpenSamlLogoutRequestResolver delegate = new OpenSamlLogoutRequestResolver(registrationResolver);
+return (request, response, authentication) -> {
+	OpenSamlLogoutRequestBuilder builder = delegate.resolveLogoutRequest(request, response, authentication); <1>
+	builder.name(((Saml2AuthenticatedPrincipal) authentication.getPrincipal()).getFirstAttribute("CustomAttribute")); <2>
+	builder.logoutRequest((logoutRequest) -> logoutRequest.setIssueInstant(DateTime.now()));
+	return builder.logoutRequest(); <3>
+};
 ----
 <1> - Spring Security applies default values to a `<saml2:LogoutRequest>`
 <2> - Your application specifies customizations
+<3> - You complete the invocation by calling `request()`
 
-Then, you can supply your custom `Saml2LogoutRequestResolver` in the DSL as follows:
-
-[source,java]
-----
-http
-    .saml2Logout((saml2) -> saml2
-        .logoutRequest((request) -> request
-            .logoutRequestResolver(myOpenSamlLogoutRequestResolver)
-        )
-    );
-----
+[NOTE]
+Support for OpenSAML 4 is coming.
+In anticipation of that, `OpenSamlLogoutRequestResolver` does not add an `IssueInstant`.
+Once OpenSAML 4 support is added, the default will be able to appropriate negotiate that datatype change, meaning you will no longer have to set it.
 
 === Customizing `<saml2:LogoutResponse>` Resolution
 
@@ -1218,42 +1277,24 @@ To add other values, you can use delegation, like so:
 
 [source,java]
 ----
-@Component
-public class MyOpenSamlLogoutResponseResolver implements Saml2LogoutRequestResolver {
-	private final OpenSaml3LogoutResponseResolver logoutRequestResolver;
-
-	public MyOpenSamlLogoutResponseResolver(RelyingPartyRegistrationRepository registrations) {
-		RelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
-                new DefaultRelyingPartyRegistrationResolver(registrations);
-		this.logoutResponseResolver = new OpenSaml3LogoutResponseResolver(relyingPartyRegistrationResolver);
-	}
-
-	@Override
-    public OpenSamlLogoutResponseBuilder resolveLogoutResponse(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-		String name = ((Saml2AuthenticatedPrincipal) authentication.getPrincipal()).getFirstAttribute("CustomAttribute");
-		String format = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
-	    OpenSamlLogoutResponseBuilder builder =  logoutResponseResolver.resolveLogoutRequest(request, authentication); <1>
-        if (checkOtherPrevailingConditions()) {
-            builder.status(StatusCode.PARTIAL_LOGOUT); <2>
-        }
-        return builder;
+OpenSamlLogoutResponseResolver delegate = new OpenSamlLogoutResponseResolver(registrationResolver);
+return (request, response, authentication) -> {
+	OpenSamlLogoutResponseBuilder builder = delegate.resolveLogoutResponse(request, response, authentication); <1>
+    if (checkOtherPrevailingConditions()) {
+        builder.status(StatusCode.PARTIAL_LOGOUT); <2>
     }
-}
+	builder.logoutResponse((logoutResponse) -> logoutResponse.setIssueInstant(DateTime.now()));
+	return builder.logoutResponse(); <3>
+};
 ----
 <1> - Spring Security applies default values to a `<saml2:LogoutResponse>`
 <2> - Your application specifies customizations
+<3> - You complete the invocation by calling `response()`
 
-Then, you can supply your custom `Saml2LogoutResponseResolver` in the DSL as follows:
-
-[source,java]
-----
-http
-    .saml2Logout((saml2) -> saml2
-        .logoutRequest((request) -> request
-            .logoutRequestResolver(myOpenSamlLogoutRequestResolver)
-        )
-    );
-----
+[NOTE]
+Support for OpenSAML 4 is coming.
+In anticipation of that, `OpenSamlLogoutResponseResolver` does not add an `IssueInstant`.
+Once OpenSAML 4 support is added, the default will be able to appropriate negotiate that datatype change, meaning you will no longer have to set it.
 
 === Customizing `<saml2:LogoutRequest>` Validation
 
@@ -1262,35 +1303,14 @@ At this point, the validation is minimal, so you may be able to first delegate t
 
 [source,java]
 ----
-@Component
-public class MyOpenSamlLogoutRequestHandler implements LogoutHandler {
-	private final Saml2LogoutRequestHandler delegate;
-
-	public MyOpenSamlLogoutRequestHandler(RelyingPartyRegistrationRepository registrations) {
-		RelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
-            new DefaultRelyingPartyRegistrationResolver(registrations);
-		this.delegate = new OpenSamlLogoutRequestHandler(relyingPartyRegistrationResolver);
-	}
-
-	@Override
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+LogoutHandler logoutHandler(RelyingPartyRegistrationResolver registrationResolver) {
+	OpenSamlLogoutRequestHandler delegate = new OpenSamlLogoutRequestHandler(registrationResolver);
+	return (request, response, authentication) -> {
 		delegate.logout(request, response, authentication); // verify signature, issuer, destination, and principal name
 		LogoutRequest logoutRequest = // ... parse using OpenSAML
         // perform custom validation
-    }
+	}
 }
-----
-
-Then, you can supply your custom `LogoutHandler` in the DSL as follows:
-
-[source,java]
-----
-http
-    .saml2Logout((saml2) -> saml2
-        .logoutRequest((request) -> request
-            .logoutRequestHandler(myOpenSamlLogoutRequestHandler)
-        )
-    );
 ----
 
 === Customizing `<saml2:LogoutResponse>` Validation
@@ -1300,49 +1320,12 @@ At this point, the validation is minimal, so you may be able to first delegate t
 
 [source,java]
 ----
-@Component
-public class MyOpenSamlLogoutResponseHandler implements LogoutHandler {
-	private final Saml2LogoutResponseHandler delegate;
-
-	public MyOpenSamlLogoutResponseHandler(RelyingPartyRegistrationRepository registrations) {
-		RelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
-            new DefaultRelyingPartyRegistrationResolver(registrations);
-		this.delegate = new OpenSamlLogoutResponseHandler(relyingPartyRegistrationResolver);
-	}
-
-	@Override
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+LogoutHandler logoutHandler(RelyingPartyRegistrationResolver registrationResolver) {
+	OpenSamlLogoutResponseHandler delegate = new OpenSamlLogoutResponseHandler(registrationResolver);
+	return (request, response, authentication) -> {
 		delegate.logout(request, response, authentication); // verify signature, issuer, destination, and status
 		LogoutResponse logoutResponse = // ... parse using OpenSAML
         // perform custom validation
-    }
+	}
 }
-----
-
-Then, you can supply your custom `LogoutHandler` in the DSL as follows:
-
-[source,java]
-----
-http
-    .saml2Logout((saml2) -> saml2
-        .logoutResponse((response) -> response
-            .logoutResponseHandler(myOpenSamlLogoutResponseHandler)
-        )
-    );
-----
-
-=== Customizing `<saml2:LogoutRequest>` storage
-
-When your application sends a `<saml2:LogoutRequest>`, the value is stored in the session so that the `RelayState` parameter and the `InResponseTo` attribute in the `<saml2:LogoutResponse>` can be verified.
-
-If you want to store logout requests in some place other than the session, you can supply your custom implementation in the DSL, like so:
-
-[source,java]
-----
-http
-    .saml2Logout((saml2) -> saml2
-        .logoutRequest((request) -> request
-            .logoutRequestRepository(myCustomLogoutRequestRepository)
-        )
-    );
 ----
