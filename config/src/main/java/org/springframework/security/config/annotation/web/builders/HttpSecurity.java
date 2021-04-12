@@ -1418,12 +1418,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 */
 	public HttpSecurity authorizeHttpRequests() throws Exception {
 		ApplicationContext applicationContext = getContext();
-		Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeHttpRequestsCustomizer = Customizer.withDefaults();
+		Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeHttpRequestsCustomizer = Customizer
+				.withDefaults();
 		authorizeHttpRequestsCustomizer
 				.customize(getOrApply(new AuthorizeHttpRequestsConfigurer<>(applicationContext)).getRegistry());
 		return HttpSecurity.this;
 	}
-
 
 	/**
 	 * Allows configuring the Request Cache. For example, a protected page (/protected)

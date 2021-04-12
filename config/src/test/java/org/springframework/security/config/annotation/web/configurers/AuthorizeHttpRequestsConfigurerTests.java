@@ -75,8 +75,9 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Test
 	public void configureWhenAuthorizedHttpRequestsAndNoRequestsThenExceptionWithDefaultConfig() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NoRequestsConfigWithDefaultConfig.class).autowire()).withMessageContaining(
-				"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
+				.isThrownBy(() -> this.spring.register(NoRequestsConfigWithDefaultConfig.class).autowire())
+				.withMessageContaining(
+						"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
 	}
 
 	@Test
