@@ -34,7 +34,6 @@ import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.Extensions;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
-import org.opensaml.saml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml.saml2.metadata.SingleSignOnService;
 import org.opensaml.security.credential.UsageType;
 import org.opensaml.xmlsec.keyinfo.KeyInfoSupport;
@@ -106,10 +105,6 @@ class OpenSamlAssertingPartyMetadataConverter {
 			builder.assertingPartyDetails(
 					(party) -> party.signingAlgorithms((algorithms) -> algorithms.add(method.getAlgorithm())));
 		}
-		if (idpssoDescriptor.getSingleSignOnServices().isEmpty()) {
-			throw new Saml2Exception(
-					"Metadata response is missing a SingleSignOnService, necessary for sending AuthnRequests");
-		}
 		for (SingleSignOnService singleSignOnService : idpssoDescriptor.getSingleSignOnServices()) {
 			Saml2MessageBinding binding;
 			if (singleSignOnService.getBinding().equals(Saml2MessageBinding.POST.getUrn())) {
@@ -124,27 +119,10 @@ class OpenSamlAssertingPartyMetadataConverter {
 			builder.assertingPartyDetails(
 					(party) -> party.singleSignOnServiceLocation(singleSignOnService.getLocation())
 							.singleSignOnServiceBinding(binding));
-			break;
+			return builder;
 		}
-		for (SingleLogoutService singleLogoutService : idpssoDescriptor.getSingleLogoutServices()) {
-			Saml2MessageBinding binding;
-			if (singleLogoutService.getBinding().equals(Saml2MessageBinding.POST.getUrn())) {
-				binding = Saml2MessageBinding.POST;
-			}
-			else if (singleLogoutService.getBinding().equals(Saml2MessageBinding.REDIRECT.getUrn())) {
-				binding = Saml2MessageBinding.REDIRECT;
-			}
-			else {
-				continue;
-			}
-			String responseLocation = (singleLogoutService.getResponseLocation() == null)
-					? singleLogoutService.getLocation() : singleLogoutService.getResponseLocation();
-			builder.assertingPartyDetails(
-					(party) -> party.singleLogoutServiceLocation(singleLogoutService.getLocation())
-							.singleLogoutServiceResponseLocation(responseLocation).singleLogoutServiceBinding(binding));
-			break;
-		}
-		return builder;
+		throw new Saml2Exception(
+				"Metadata response is missing a SingleSignOnService, necessary for sending AuthnRequests");
 	}
 
 	private List<X509Certificate> certificates(KeyDescriptor keyDescriptor) {

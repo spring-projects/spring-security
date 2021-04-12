@@ -37,23 +37,17 @@ public final class TestRelyingPartyRegistrations {
 		String apEntityId = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php";
 		Saml2X509Credential verificationCertificate = TestSaml2X509Credentials.relyingPartyVerifyingCredential();
 		String singleSignOnServiceLocation = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php";
-		String singleLogoutServiceLocation = "{baseUrl}/logout/saml2/slo";
 		return RelyingPartyRegistration.withRegistrationId(registrationId).entityId(rpEntityId)
 				.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
-				.singleLogoutServiceLocation(singleLogoutServiceLocation).credentials((c) -> c.add(signingCredential))
+				.credentials((c) -> c.add(signingCredential))
 				.providerDetails((c) -> c.entityId(apEntityId).webSsoUrl(singleSignOnServiceLocation))
 				.credentials((c) -> c.add(verificationCertificate));
 	}
 
 	public static RelyingPartyRegistration.Builder noCredentials() {
 		return RelyingPartyRegistration.withRegistrationId("registration-id").entityId("rp-entity-id")
-				.singleLogoutServiceLocation("https://rp.example.org/logout/saml2/request")
-				.singleLogoutServiceResponseLocation("https://rp.example.org/logout/saml2/response")
-				.assertionConsumerServiceLocation("https://rp.example.org/acs")
-				.assertingPartyDetails((party) -> party.entityId("ap-entity-id")
-						.singleSignOnServiceLocation("https://ap.example.org/sso")
-						.singleLogoutServiceLocation("https://ap.example.org/logout/saml2/request")
-						.singleLogoutServiceResponseLocation("https://ap.example.org/logout/saml2/response"));
+				.assertionConsumerServiceLocation("https://rp.example.org/acs").assertingPartyDetails((party) -> party
+						.entityId("ap-entity-id").singleSignOnServiceLocation("https://ap.example.org/sso"));
 	}
 
 	public static RelyingPartyRegistration.Builder full() {
