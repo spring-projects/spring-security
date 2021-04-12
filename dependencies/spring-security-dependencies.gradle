@@ -66,7 +66,7 @@ dependencies {
 		api "org.powermock:powermock-module-junit4:2.0.9"
 		api "org.powermock:powermock-reflect:2.0.9"
 		api "org.python:jython:2.5.3"
-		api "org.seleniumhq.selenium:htmlunit-driver:2.48.0"
+		api "org.seleniumhq.selenium:htmlunit-driver:2.49.1"
 		api "org.seleniumhq.selenium:selenium-java:3.141.59"
 		api "org.seleniumhq.selenium:selenium-support:3.141.59"
 		api "org.skyscreamer:jsonassert:1.5.0"
