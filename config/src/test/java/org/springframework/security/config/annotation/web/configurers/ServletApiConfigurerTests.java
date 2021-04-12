@@ -153,8 +153,8 @@ public class ServletApiConfigurerTests {
 	public void configureWhenSharedObjectAuthenticationDetailsSourceThenAuthenticationDetailsSourceUsed() {
 		this.spring.register(SharedAuthenticationDetailsSourceConfig.class).autowire();
 		SecurityContextHolderAwareRequestFilter scaFilter = getFilter(SecurityContextHolderAwareRequestFilter.class);
-		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource =
-				getFieldValue(scaFilter, "authenticationDetailsSource");
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = getFieldValue(scaFilter,
+				"authenticationDetailsSource");
 		assertThat(authenticationDetailsSource).isEqualTo(SharedAuthenticationDetailsSourceConfig.ADS);
 	}
 
