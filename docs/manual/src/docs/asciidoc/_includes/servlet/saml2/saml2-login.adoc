@@ -555,24 +555,19 @@ There are a number of reasons you may want to customize. Among them:
 * You may know that you will never be a multi-tenant application and so want to have a simpler URL scheme
 * You may identify tenants in a way other than by the URI path
 
-To customize the way that a `RelyingPartyRegistration` is resolved, you can configure a custom `RelyingPartyRegistrationResolver`.
+To customize the way that a `RelyingPartyRegistration` is resolved, you can configure a custom `Converter<HttpServletRequest, RelyingPartyRegistration>`.
 The default looks up the registration id from the URI's last path element and looks it up in your `RelyingPartyRegistrationRepository`.
 
 You can provide a simpler resolver that, for example, always returns the same relying party:
 
 [source,java]
 ----
-public class SingleRelyingPartyRegistrationResolver implements RelyingPartyRegistrationResolver {
-
-	private final RelyingPartyRegistrationResolver delegate;
-
-	public SingleRelyingPartyRegistrationResolver(RelyingPartyRegistrationRepository registrations) {
-		this.delegate = new DefaultRelyingPartyRegistrationResolver(registrations);
-	}
+public class SingleRelyingPartyRegistrationResolver
+        implements Converter<HttpServletRequest, RelyingPartyRegistration> {
 
 	@Override
-    public RelyingPartyRegistration resolve(HttpServletRequest request, String registrationId) {
-		return this.delegate.resolve(request, "single");
+    public RelyingPartyRegistration convert(HttpServletRequest request) {
+		return this.relyingParty;
     }
 }
 ----
@@ -1020,7 +1015,7 @@ You can publish a metadata endpoint by adding the `Saml2MetadataFilter` to the f
 
 [source,java]
 ----
-DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
+Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver =
         new DefaultRelyingPartyRegistrationResolver(this.relyingPartyRegistrationRepository);
 Saml2MetadataFilter filter = new Saml2MetadataFilter(
 		relyingPartyRegistrationResolver,
@@ -1040,8 +1035,10 @@ You can change this by calling the `setRequestMatcher` method on the filter:
 
 [source,java]
 ----
-filter.setRequestMatcher(new AntPathRequestMatcher("/saml2/{registrationId}/metadata", "GET"));
+filter.setRequestMatcher(new AntPathRequestMatcher("/saml2/metadata/{registrationId}", "GET"));
 ----
+
+ensuring that the `registrationId` hint is at the end of the path.
 
 Or, if you have registered a custom relying party registration resolver in the constructor, then you can specify a path without a `registrationId` hint, like so:
 
