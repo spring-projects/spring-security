@@ -168,7 +168,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	 * {@link OAuth2AuthorizationRequest} is considered not expired. Must not be negative.
 	 * @since 5.5
 	 */
-	public void setAuthorizationRequestTimeToLive(Duration authorizationRequestTimeToLive) {
+	void setAuthorizationRequestTimeToLive(Duration authorizationRequestTimeToLive) {
 		Assert.notNull(authorizationRequestTimeToLive, "oAuth2AuthorizationRequestExpiresIn cannot be null");
 		Assert.state(!authorizationRequestTimeToLive.isNegative(),
 				"oAuth2AuthorizationRequestExpiresIn cannot be negative");
@@ -181,7 +181,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	 * attempt is made to save another one, then the oldest will be removed.
 	 * @param maxActiveAuthorizationRequests must not be negative.
 	 */
-	public void setMaxActiveAuthorizationRequestsPerSession(int maxActiveAuthorizationRequestsPerSession) {
+	void setMaxActiveAuthorizationRequestsPerSession(int maxActiveAuthorizationRequestsPerSession) {
 		Assert.state(maxActiveAuthorizationRequestsPerSession > 0,
 				"maxActiveAuthorizationRequestsPerSession must be greater than zero");
 		this.maxActiveAuthorizationRequestsPerSession = maxActiveAuthorizationRequestsPerSession;
