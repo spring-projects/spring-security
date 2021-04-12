@@ -63,7 +63,7 @@ dependencies {
 	implementation 'net.sourceforge.saxon:saxon:9.1.0.8'
 	implementation localGroovy()
 
-	implementation 'io.projectreactor:reactor-core:3.4.4'
+	implementation 'io.projectreactor:reactor-core:3.4.5'
 	implementation 'gradle.plugin.org.gretty:gretty:3.0.1'
 	implementation 'com.apollographql.apollo:apollo-runtime:2.4.5'
 	implementation 'com.github.ben-manes:gradle-versions-plugin:0.38.0'
