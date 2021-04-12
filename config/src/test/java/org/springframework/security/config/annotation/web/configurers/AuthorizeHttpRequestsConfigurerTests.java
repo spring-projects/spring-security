@@ -427,20 +427,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@EnableWebSecurity
-	static class IncompleteMappingConfigWithDefaultConfig {
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			return http
-					.authorizeHttpRequests()
-					.build();
-			// @formatter:on
-		}
-
-	}
-
-	@EnableWebSecurity
 	static class AfterAnyRequestConfig {
 
 		@Bean
