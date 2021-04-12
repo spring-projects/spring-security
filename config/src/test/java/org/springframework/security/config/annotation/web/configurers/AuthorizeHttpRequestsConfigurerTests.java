@@ -73,9 +73,23 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
+	public void configureWhenAuthorizedHttpRequestsAndNoRequestsThenExceptionWithDefaultConfig() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NoRequestsConfigWithDefaultConfig.class).autowire()).withMessageContaining(
+				"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
+	}
+
+	@Test
 	public void configureWhenAnyRequestIncompleteMappingThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> this.spring.register(IncompleteMappingConfig.class).autowire())
+				.withMessageContaining("An incomplete mapping was found for ");
+	}
+
+	@Test
+	public void configureWhenAnyRequestIncompleteMappingThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(IncompleteMappingConfigWithDefaultConfig.class).autowire())
 				.withMessageContaining("An incomplete mapping was found for ");
 	}
 
@@ -370,6 +384,34 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	static class NoRequestsConfigWithDefaultConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests()
+					.build();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class IncompleteMappingConfigWithDefaultConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests()
+					.build();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
 	static class IncompleteMappingConfig {
 
 		@Bean
@@ -377,6 +419,20 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			// @formatter:off
 			return http
 					.authorizeHttpRequests(AbstractRequestMatcherRegistry::anyRequest)
+					.build();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class IncompleteMappingConfigWithDefaultConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests()
 					.build();
 			// @formatter:on
 		}
