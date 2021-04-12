@@ -91,7 +91,8 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>>
 		if (trustResolver != null) {
 			this.securityContextRequestFilter.setTrustResolver(trustResolver);
 		}
-		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = http.getSharedObject(AuthenticationDetailsSource.class);
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = http
+				.getSharedObject(AuthenticationDetailsSource.class);
 		if (authenticationDetailsSource != null) {
 			this.securityContextRequestFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
 		}

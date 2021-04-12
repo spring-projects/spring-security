@@ -179,8 +179,8 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	/**
 	 * Sets the {@link AuthenticationDetailsSource} to be used. The default is
 	 * {@link WebAuthenticationDetailsSource}.
-	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} to use. Cannot be
-	 * null.
+	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} to use.
+	 * Cannot be null.
 	 */
 	public void setAuthenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {

@@ -165,8 +165,8 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	/**
 	 * Sets the {@link AuthenticationDetailsSource} to be used. The default is
 	 * {@link WebAuthenticationDetailsSource}.
-	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} to use. Cannot be
-	 * null.
+	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} to use.
+	 * Cannot be null.
 	 */
 	void setAuthenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
@@ -247,8 +247,10 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 		private Authentication getAuthentication(AuthenticationManager authManager, String username, String password)
 				throws ServletException {
 			try {
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, password);
-				authentication.setDetails(authenticationDetailsSource.buildDetails(this));
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username,
+						password);
+				Object details = HttpServlet3RequestFactory.this.authenticationDetailsSource.buildDetails(this);
+				authentication.setDetails(details);
 				return authManager.authenticate(authentication);
 			}
 			catch (AuthenticationException ex) {
