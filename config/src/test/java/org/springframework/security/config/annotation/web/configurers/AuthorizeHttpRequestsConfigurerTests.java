@@ -73,10 +73,26 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
+	public void configureWhenAuthorizedHttpRequestsAndNoRequestsThenExceptionWithDefaultConfig() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NoRequestsConfigWithDefaultConfig.class).autowire())
+				.withMessageContaining(
+						"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
+	}
+
+	@Test
 	public void configureWhenAnyRequestIncompleteMappingThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> this.spring.register(IncompleteMappingConfig.class).autowire())
 				.withMessageContaining("An incomplete mapping was found for ");
+	}
+
+	@Test
+	public void configureWhenAnyRequestIncompleteMappingDefaultConfigThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+		this.spring.register(IncompleteMappingConfigWithDefaultConfig.class, BasicController.class).autowire();
+		this.mvc.perform(get("/")).andExpect(status().isOk());
+		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
 	}
 
 	@Test
@@ -91,6 +107,14 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		CustomAuthorizationManagerConfig.authorizationManager = mock(AuthorizationManager.class);
 		this.spring.register(CustomAuthorizationManagerConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
+		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
+	}
+
+	@Test
+	public void configureMvcMatcherAccessAuthorizationManagerOnDefault() throws Exception {
+		CustomAuthorizationManagerConfig.authorizationManager = mock(AuthorizationManager.class);
+		this.spring.register(IncompleteMappingConfigWithDefaultConfig.class).autowire();
+		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
 		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
 	}
 
@@ -365,6 +389,34 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			return http
 					.authorizeHttpRequests(withDefaults())
 					.build();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class NoRequestsConfigWithDefaultConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests()
+					.build();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class IncompleteMappingConfigWithDefaultConfig {
+
+		@Bean
+		FormLoginConfigurer<HttpSecurity> filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests()
+					.formLogin();
 			// @formatter:on
 		}
 

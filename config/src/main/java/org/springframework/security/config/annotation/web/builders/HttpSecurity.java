@@ -1320,7 +1320,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
-	 *
+	 *HttpSecurity.java
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
@@ -1345,6 +1345,86 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		ApplicationContext context = getContext();
 		authorizeHttpRequestsCustomizer
 				.customize(getOrApply(new AuthorizeHttpRequestsConfigurer<>(context)).getRegistry());
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Allows restricting access based upon the {@link HttpServletRequest} using
+	 * {@link RequestMatcher} implementations (i.e. via URL patterns).
+	 *
+	 * <h2>Example Configurations</h2>
+	 *
+	 * The most basic example is to configure all URLs to require the role "ROLE_USER".
+	 * The configuration below requires authentication to every URL and will grant access
+	 * to both the user "admin" and "user".
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 *     .authorizeHttpRequests()
+	 *         .antMatchers(&quot;/**&quot;).hasRoles(&quot;USER&quot;)
+	 *         .and()
+	 *     .formLogin();
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * We can also configure multiple URLs. The configuration below requires
+	 * authentication to every URL and will grant access to URLs starting with /admin/ to
+	 * only the "admin" user. All other URLs either user can access.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 *     .authorizeHttpRequests()
+	 *         .antMatchers(&quot;/**&quot;).hasRoles(&quot;USER&quot;)
+	 *         .and()
+	 *     .formLogin();
+	 * 			.formLogin(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * Note that the matchers are considered in order. Therefore, the following is invalid
+	 * because the first matcher matches every request and will never get to the second
+	 * mapping:
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 *     .authorizeHttpRequests()
+	 *         .antMatchers(&quot;/**&quot;).hasRoles(&quot;USER&quot;)
+	 *         .and()
+	 *     .formLogin();
+	 * 	}
+	 * }
+	 * </pre>
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 * @since 5.5
+	 * @see #requestMatcher(RequestMatcher)
+	 */
+	public HttpSecurity authorizeHttpRequests() throws Exception {
+		ApplicationContext applicationContext = getContext();
+		Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeHttpRequestsCustomizer = Customizer
+				.withDefaults();
+		authorizeHttpRequestsCustomizer
+				.customize(getOrApply(new AuthorizeHttpRequestsConfigurer<>(applicationContext)).getRegistry());
 		return HttpSecurity.this;
 	}
 
