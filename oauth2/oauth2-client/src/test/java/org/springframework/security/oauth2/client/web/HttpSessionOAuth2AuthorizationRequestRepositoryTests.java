@@ -20,6 +20,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -270,22 +271,62 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 
 	@Test
 	public void removeOldestAuthorizationRequestWhenMoreThanMax() {
-		this.authorizationRequestRepository.setMaxActiveAuthorizationRequestsPerSession(2);
+		String registrationId = "registration-id-1";
+		this.authorizationRequestRepository.setMaxActiveAuthorizationRequestsPerRegistrationIdPerSession(2);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		String state1 = "state-1122";
-		OAuth2AuthorizationRequest authorizationRequest1 = createAuthorizationRequest().state(state1).build();
+		OAuth2AuthorizationRequest authorizationRequest1 = createAuthorizationRequest().state(state1)
+				.attributes(Collections.singletonMap(OAuth2ParameterNames.REGISTRATION_ID, registrationId)).build();
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest1, request, response);
 		String state2 = "state-3344";
-		OAuth2AuthorizationRequest authorizationRequest2 = createAuthorizationRequest().state(state2).build();
+		OAuth2AuthorizationRequest authorizationRequest2 = createAuthorizationRequest().state(state2)
+				.attributes(Collections.singletonMap(OAuth2ParameterNames.REGISTRATION_ID, registrationId)).build();
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest2, request, response);
 		String state3 = "state-4455";
-		OAuth2AuthorizationRequest authorizationRequest3 = createAuthorizationRequest().state(state3).build();
+		OAuth2AuthorizationRequest authorizationRequest3 = createAuthorizationRequest().state(state3)
+				.attributes(Collections.singletonMap(OAuth2ParameterNames.REGISTRATION_ID, registrationId)).build();
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest3, request, response);
 		request.addParameter(OAuth2ParameterNames.STATE, state1);
 		OAuth2AuthorizationRequest loadedAuthorizationRequest1 = this.authorizationRequestRepository
 				.loadAuthorizationRequest(request);
 		assertThat(loadedAuthorizationRequest1).isNull();
+		request.removeParameter(OAuth2ParameterNames.STATE);
+		request.addParameter(OAuth2ParameterNames.STATE, state2);
+		OAuth2AuthorizationRequest loadedAuthorizationRequest2 = this.authorizationRequestRepository
+				.loadAuthorizationRequest(request);
+		assertThat(loadedAuthorizationRequest2).isEqualTo(authorizationRequest2);
+		request.removeParameter(OAuth2ParameterNames.STATE);
+		request.addParameter(OAuth2ParameterNames.STATE, state3);
+		OAuth2AuthorizationRequest loadedAuthorizationRequest3 = this.authorizationRequestRepository
+				.loadAuthorizationRequest(request);
+		assertThat(loadedAuthorizationRequest3).isEqualTo(authorizationRequest3);
+	}
+
+	@Test
+	public void doNotremoveOldestAuthorizationRequestWhenLessThanMax() {
+		this.authorizationRequestRepository.setMaxActiveAuthorizationRequestsPerRegistrationIdPerSession(2);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		String state1 = "state-1122";
+		OAuth2AuthorizationRequest authorizationRequest1 = createAuthorizationRequest().state(state1)
+				.attributes(Collections.singletonMap(OAuth2ParameterNames.REGISTRATION_ID, "registration-id-1"))
+				.build();
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest1, request, response);
+		String state2 = "state-3344";
+		OAuth2AuthorizationRequest authorizationRequest2 = createAuthorizationRequest().state(state2)
+				.attributes(Collections.singletonMap(OAuth2ParameterNames.REGISTRATION_ID, "registration-id-2"))
+				.build();
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest2, request, response);
+		String state3 = "state-4455";
+		OAuth2AuthorizationRequest authorizationRequest3 = createAuthorizationRequest().state(state3)
+				.attributes(Collections.singletonMap(OAuth2ParameterNames.REGISTRATION_ID, "registration-id-3"))
+				.build();
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest3, request, response);
+		request.addParameter(OAuth2ParameterNames.STATE, state1);
+		OAuth2AuthorizationRequest loadedAuthorizationRequest1 = this.authorizationRequestRepository
+				.loadAuthorizationRequest(request);
+		assertThat(loadedAuthorizationRequest1).isEqualTo(authorizationRequest1);
 		request.removeParameter(OAuth2ParameterNames.STATE);
 		request.addParameter(OAuth2ParameterNames.STATE, state2);
 		OAuth2AuthorizationRequest loadedAuthorizationRequest2 = this.authorizationRequestRepository

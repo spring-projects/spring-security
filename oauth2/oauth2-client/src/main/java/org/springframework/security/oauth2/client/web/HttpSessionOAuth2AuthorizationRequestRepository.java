@@ -21,8 +21,10 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -59,7 +61,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 
 	private Duration authorizationRequestTimeToLive = Duration.ofSeconds(120);
 
-	private int maxActiveAuthorizationRequestsPerSession = 10;
+	private int maxActiveAuthorizationRequestsPerRegistrationIdPerSession = 3;
 
 	@Override
 	public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
@@ -87,10 +89,14 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 		Map<String, OAuth2AuthorizationRequestReference> authorizationRequests = this.getAuthorizationRequests(request);
 		authorizationRequests.put(state, new OAuth2AuthorizationRequestReference(authorizationRequest,
 				this.clock.instant().plus(this.authorizationRequestTimeToLive)));
-		if (authorizationRequests.size() > this.maxActiveAuthorizationRequestsPerSession) {
-			authorizationRequests.entrySet().stream()
-					.sorted((e, f) -> e.getValue().expiresAt.compareTo(f.getValue().expiresAt)).findFirst()
-					.map(Entry::getKey).ifPresent(authorizationRequests::remove);
+		for (String registrationId : authorizationRequests.values().stream().map((r) -> r.getRegistrationId())
+				.distinct().collect(Collectors.toList())) {
+			List<OAuth2AuthorizationRequestReference> references = authorizationRequests.values().stream()
+					.filter((r) -> Objects.equals(registrationId, r.getRegistrationId())).collect(Collectors.toList());
+			if (references.size() > this.maxActiveAuthorizationRequestsPerRegistrationIdPerSession) {
+				references.stream().sorted((a, b) -> a.expiresAt.compareTo(b.expiresAt)).findFirst()
+						.map((r) -> r.getState()).ifPresent(authorizationRequests::remove);
+			}
 		}
 		request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
 	}
@@ -177,14 +183,16 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 
 	/**
 	 * Sets the maximum number of {@link OAuth2AuthorizationRequest} that can be
-	 * stored/active for a session. If the maximum number are present in a session when an
-	 * attempt is made to save another one, then the oldest will be removed.
+	 * stored/active per registration id for a session. If the maximum number are present
+	 * in a session when an attempt is made to save another one, then the oldest will be
+	 * removed.
 	 * @param maxActiveAuthorizationRequestsPerSession must not be negative.
 	 */
-	void setMaxActiveAuthorizationRequestsPerSession(int maxActiveAuthorizationRequestsPerSession) {
-		Assert.state(maxActiveAuthorizationRequestsPerSession > 0,
-				"maxActiveAuthorizationRequestsPerSession must be greater than zero");
-		this.maxActiveAuthorizationRequestsPerSession = maxActiveAuthorizationRequestsPerSession;
+	void setMaxActiveAuthorizationRequestsPerRegistrationIdPerSession(
+			int maxActiveAuthorizationRequestsPerRegistrationIdPerSession) {
+		Assert.state(maxActiveAuthorizationRequestsPerRegistrationIdPerSession > 0,
+				"maxActiveAuthorizationRequestsPerRegistrationIdPerSession must be greater than zero");
+		this.maxActiveAuthorizationRequestsPerRegistrationIdPerSession = maxActiveAuthorizationRequestsPerRegistrationIdPerSession;
 	}
 
 	private static final class OAuth2AuthorizationRequestReference implements Serializable {
@@ -200,6 +208,14 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 			Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 			this.expiresAt = expiresAt;
 			this.authorizationRequest = authorizationRequest;
+		}
+
+		private String getRegistrationId() {
+			return this.authorizationRequest.getAttribute(OAuth2ParameterNames.REGISTRATION_ID);
+		}
+
+		private String getState() {
+			return this.authorizationRequest.getState();
 		}
 
 	}
