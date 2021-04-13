@@ -1,0 +1,178 @@
+= Update Dependencies
+
+Ensure you have no changes in your local repository.
+Change to a new branch.
+For example:
+
+[source,bash]
+----
+$ git checkout -b 5.5.0-RC1-dependencies
+----
+
+Review the rules in build.gradle to ensure the rules make sense.
+For example, we should not allow major version updates in a patch release.
+Also ensure that all of the exclusions still make sense.
+
+The following Gradle command will update your dependencies creating a commit for each dependency update.
+The first invocation of the command will take quite a while (~20 minutes depending on internet speed) to run because it is indexing all the versions of all the dependencies.
+
+[source,bash]
+----
+$ ./gradlew updateDependencies
+----
+
+Review the commits to ensure that the updated dependency versions make sense for this release. For example, we should not perform a major version update for a patch release.
+
+[source,bash]
+----
+$ git log
+----
+
+If any of the versions don’t make sense, update `build.gradle` to ensure that the version is excluded.
+
+Run all the checks:
+
+[source,bash]
+----
+$ ./gradlew check
+----
+
+If they don’t work, you can run a git bisect to discover what broke the build.
+Fix any commits that broke the build.
+
+Check out the original brach:
+
+[source,bash]
+----
+$ git checkout -
+----
+
+The following command will update the dependencies again but this time creating a ticket for each update and placing `Closes gh-<number>` in the commit. Replacing the following values:
+
+<github-personal-access-token> - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `public_repo`
+<next-version> - Replace with the title of the milestone you are releasing now (i.e. 5.5.0-RC1)
+
+[source,bash]
+----
+$ ./gradlew updateDependencies -PupdateMode=GITHUB_ISSUE -PgitHubAccessToken=<github-personal-access-token> -PnextVersion=<next-version>
+----
+
+Apply any fixes from your previous branch that were necessary.
+
+= Check All Issues are Closed
+
+Check that all issues are closed for the milestone https://github.com/spring-projects/spring-security/milestones
+
+= Update Release Version
+
+Update the version number in `gradle.properties` for the release, for example `5.5.0-M1`, `5.5.0-RC1`, `5.5.0`
+
+= Build Locally
+
+Run the build using
+
+[source,bash]
+----
+$ ./gradlew check
+----
+
+= Push the Release Commit
+
+Push the commit and GitHub actions will build and deploy the artifacts
+If you are pushing to Maven Central, then you can get notified when it’s uploaded by running the following:
+
+[source,bash]
+----
+$ ./scripts/release/wait-for-done.sh 5.5.0
+----
+
+= Announce the release on Slack
+
+* Announce via Slack on
+https://pivotal.slack.com/messages/spring-release[#spring-release],
+including the keyword `+spring-security-announcing+` in the message.
+Something like:
+
+....
+spring-security-announcing 5.5.0 is available.
+....
+
+= Tag the release
+
+* Tag the release and then push the tag
+
+....
+git tag 5.4.0-RC1
+git push origin 5.4.0-RC1
+....
+
+== 7. Update to Next Development Version
+
+* Update `gradle.properties` version to next `+SNAPSHOT+` version and then push
+
+== 8. Update version on project page
+
+The following command will update https://spring.io/projects/spring-security#learn with the new release version using the following parameters
+
+<github-personal-access-token> - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `public_repo`
+<next-version> - Replace with the milestone you are releasing now (i.e. 5.5.0-RC1)
+<previous-version> - Replace with the previous release which will be removed from the listed versions (i.e. 5.5.0-M3)
+
+[source,bash]
+----
+$ ./gradlew saganCreateRelease saganDeleteRelease -PgitHubAccessToken=<github-personal-access-token> -PnextVersion=<next-version> -PpreviousVersion=<previous-version>
+----
+
+
+
+== 9. Update Release Notes on GitHub
+
+* Download
+https://github.com/spring-io/github-changelog-generator/releases/latest[the
+GitHub release notes generator]
+
+....
+wget https://github.com/spring-io/github-changelog-generator/releases/download/v0.0.6/github-changelog-generator.jar
+....
+
+* Generate the release notes
+
+....
+java -jar github-changelog-generator.jar \
+    --changelog.repository=spring-projects/spring-security
+    --spring.config.location=scripts/release/release-notes-sections.yml \
+    $MILESTONE release-notes
+....
+
+Note 1: `+$MILESTONE+` is something like `+5.2.1+` or `+5.3.0-M1+`. +
+Note 2: The location `+scripts/release/release-notes-sections.yml+` is
+relative to the `+spring-security+` repo. +
+Note 3: This will create a file on your filesystem
+called `+release-notes+`.
+
+* Copy the release notes to your clipboard (your mileage may vary with
+the following command)
+
+....
+cat release-notes | xclip -selection clipboard
+....
+
+* Create the
+https://github.com/spring-projects/spring-security/releases[release on
+GitHub], associate it with the tag, and paste the generated notes
+
+== 10. Close / Create Milestone
+
+* In
+https://github.com/spring-projects/spring-security/milestones[GitHub
+Milestones], create a new milestone for the next release version
+* Move any open issues from the existing milestone you just released to
+the new milestone
+* Close the milestone for the release.
+
+== 11. Announce the release on other channels
+
+* Create a https://spring.io/admin/blog[Blog]
+* Tweet from [@SpringSecurity](https://twitter.com/springsecurity)
+
+
