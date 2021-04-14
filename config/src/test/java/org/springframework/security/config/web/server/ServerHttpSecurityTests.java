@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
@@ -48,6 +49,8 @@ import org.springframework.security.oauth2.client.web.server.authentication.OAut
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authentication.ServerX509AuthenticationConverter;
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
@@ -182,6 +185,25 @@ public class ServerHttpSecurityTests {
 			.expectStatus().isUnauthorized()
 			.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
 			.expectBody().isEmpty();
+	}
+
+	@Test
+	public void basicWhenXHRRequestThenUnauthorized() {
+		ServerAuthenticationEntryPoint authenticationEntryPoint = spy(
+				new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED));
+		this.http.httpBasic().authenticationEntryPoint(authenticationEntryPoint);
+		this.http.authorizeExchange().anyExchange().authenticated();
+		WebTestClient client = buildClient();
+		// @formatter:off
+		client.get().uri("/")
+				.header("X-Requested-With", "XMLHttpRequest")
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectHeader().doesNotExist("WWW-Authenticate")
+				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
+				.expectBody().isEmpty();
+		// @formatter:on
+		verify(authenticationEntryPoint).commence(any(), any());
 	}
 
 	@Test

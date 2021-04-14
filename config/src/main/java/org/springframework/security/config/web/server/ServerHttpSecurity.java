@@ -33,6 +33,7 @@ import java.util.function.Supplier;
 
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.server.WebSessionOAuth2ServerAuthorizationRequestRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import reactor.core.publisher.Mono;
@@ -113,6 +114,7 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authentication.ReactivePreAuthenticatedAuthenticationManager;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
@@ -2965,11 +2967,17 @@ public class ServerHttpSecurity {
 	 * @see #httpBasic()
 	 */
 	public class HttpBasicSpec {
+
+		private final ServerWebExchangeMatcher xhrMatcher = (exchange) -> Mono.just(exchange.getRequest().getHeaders())
+				.filter((h) -> h.getOrEmpty("X-Requested-With").contains("XMLHttpRequest"))
+				.flatMap((h) -> ServerWebExchangeMatcher.MatchResult.match())
+				.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.notMatch());
+
 		private ReactiveAuthenticationManager authenticationManager;
 
 		private ServerSecurityContextRepository securityContextRepository;
 
-		private ServerAuthenticationEntryPoint entryPoint = new HttpBasicServerAuthenticationEntryPoint();
+		private ServerAuthenticationEntryPoint entryPoint;
 
 		/**
 		 * The {@link ReactiveAuthenticationManager} used to authenticate. Defaults to
@@ -3034,7 +3042,13 @@ public class ServerHttpSecurity {
 				MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML,
 				MediaType.MULTIPART_FORM_DATA, MediaType.TEXT_XML);
 			restMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-			ServerHttpSecurity.this.defaultEntryPoints.add(new DelegateEntry(restMatcher, this.entryPoint));
+			ServerWebExchangeMatcher notHtmlMatcher = new NegatedServerWebExchangeMatcher(
+					new MediaTypeServerWebExchangeMatcher(MediaType.TEXT_HTML));
+			ServerWebExchangeMatcher restNotHtmlMatcher = new AndServerWebExchangeMatcher(
+					Arrays.asList(notHtmlMatcher, restMatcher));
+			ServerWebExchangeMatcher preferredMatcher = new OrServerWebExchangeMatcher(
+					Arrays.asList(this.xhrMatcher, restNotHtmlMatcher));
+			ServerHttpSecurity.this.defaultEntryPoints.add(new DelegateEntry(preferredMatcher, this.entryPoint));
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(
 				this.authenticationManager);
 			authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
@@ -3043,7 +3057,15 @@ public class ServerHttpSecurity {
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 		}
 
-		private HttpBasicSpec() {}
+		private HttpBasicSpec() {
+			List<DelegateEntry> entryPoints = new ArrayList<>();
+			entryPoints
+					.add(new DelegateEntry(this.xhrMatcher, new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED)));
+			DelegatingServerAuthenticationEntryPoint defaultEntryPoint = new DelegatingServerAuthenticationEntryPoint(
+					entryPoints);
+			defaultEntryPoint.setDefaultEntryPoint(new HttpBasicServerAuthenticationEntryPoint());
+			this.entryPoint = defaultEntryPoint;
+		}
 	}
 
 	/**
