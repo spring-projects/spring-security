@@ -16,14 +16,21 @@
 
 package org.springframework.security.config.annotation.web.builders;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.OrderComparator;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -129,11 +136,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	private final RequestMatcherConfigurer requestMatcherConfigurer;
 
-	private List<Filter> filters = new ArrayList<>();
+	private List<OrderedFilter> filters = new ArrayList<>();
 
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
 
-	private FilterComparator comparator = new FilterComparator();
+	private FilterOrderRegistration filterOrders = new FilterOrderRegistration();
 
 	/**
 	 * Creates a new instance
@@ -2609,8 +2616,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	@Override
 	protected DefaultSecurityFilterChain performBuild() {
-		this.filters.sort(this.comparator);
-		return new DefaultSecurityFilterChain(this.requestMatcher, this.filters);
+		this.filters.sort(OrderComparator.INSTANCE);
+		List<Filter> sortedFilters = new ArrayList<>(this.filters.size());
+		for (Filter filter : this.filters) {
+			sortedFilters.add(((OrderedFilter) filter).filter);
+		}
+		return new DefaultSecurityFilterChain(this.requestMatcher, sortedFilters);
 	}
 
 	@Override
@@ -2631,24 +2642,28 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	@Override
 	public HttpSecurity addFilterAfter(Filter filter, Class<? extends Filter> afterFilter) {
-		this.comparator.registerAfter(filter.getClass(), afterFilter);
-		return addFilter(filter);
+		return addFilterAtOffsetOf(filter, 1, afterFilter);
 	}
 
 	@Override
 	public HttpSecurity addFilterBefore(Filter filter, Class<? extends Filter> beforeFilter) {
-		this.comparator.registerBefore(filter.getClass(), beforeFilter);
-		return addFilter(filter);
+		return addFilterAtOffsetOf(filter, -1, beforeFilter);
+	}
+
+	private HttpSecurity addFilterAtOffsetOf(Filter filter, int offset, Class<? extends Filter> registeredFilter) {
+		int order = this.filterOrders.getOrder(registeredFilter) + offset;
+		this.filters.add(new OrderedFilter(filter, order));
+		return this;
 	}
 
 	@Override
 	public HttpSecurity addFilter(Filter filter) {
-		Class<? extends Filter> filterClass = filter.getClass();
-		if (!this.comparator.isRegistered(filterClass)) {
-			throw new IllegalArgumentException("The Filter class " + filterClass.getName()
+		Integer order = this.filterOrders.getOrder(filter.getClass());
+		if (order == null) {
+			throw new IllegalArgumentException("The Filter class " + filter.getClass().getName()
 					+ " does not have a registered order and cannot be added without a specified order. Consider using addFilterBefore or addFilterAfter instead.");
 		}
-		this.filters.add(filter);
+		this.filters.add(new OrderedFilter(filter, order));
 		return this;
 	}
 
@@ -2671,8 +2686,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link HttpSecurity} for further customizations
 	 */
 	public HttpSecurity addFilterAt(Filter filter, Class<? extends Filter> atFilter) {
-		this.comparator.registerAt(filter.getClass(), atFilter);
-		return addFilter(filter);
+		return addFilterAtOffsetOf(filter, 0, atFilter);
 	}
 
 	/**
@@ -3056,6 +3070,39 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		 */
 		public HttpSecurity and() {
 			return HttpSecurity.this;
+		}
+
+	}
+
+	/**
+	 * A Filter that implements Ordered to be sorted. After sorting occurs, the original
+	 * filter is what is used by FilterChainProxy
+	 */
+	private static final class OrderedFilter implements Ordered, Filter {
+
+		private final Filter filter;
+
+		private final int order;
+
+		private OrderedFilter(Filter filter, int order) {
+			this.filter = filter;
+			this.order = order;
+		}
+
+		@Override
+		public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+				throws IOException, ServletException {
+			this.filter.doFilter(servletRequest, servletResponse, filterChain);
+		}
+
+		@Override
+		public int getOrder() {
+			return this.order;
+		}
+
+		@Override
+		public String toString() {
+			return "OrderedFilter{" + "filter=" + this.filter + ", order=" + this.order + '}';
 		}
 
 	}
