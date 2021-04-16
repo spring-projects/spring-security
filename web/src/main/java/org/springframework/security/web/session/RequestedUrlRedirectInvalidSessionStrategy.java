@@ -17,7 +17,6 @@
 package org.springframework.security.web.session;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,9 +46,11 @@ public final class RequestedUrlRedirectInvalidSessionStrategy implements Invalid
 
 	@Override
 	public void onInvalidSessionDetected(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String destinationUrl = this.urlPathHelper.getOriginatingRequestUri(request)
-				+ Optional.ofNullable(this.urlPathHelper.getOriginatingQueryString(request)).filter((s) -> !s.isEmpty())
-						.map((s) -> "?" + s).orElse("");
+		String destinationUrl = this.urlPathHelper.getOriginatingRequestUri(request);
+		String queryString = this.urlPathHelper.getOriginatingQueryString(request);
+		if (queryString != null && !queryString.equals("")) {
+			destinationUrl = destinationUrl + "?" + queryString;
+		}
 		this.logger.debug("Starting new session (if required) and redirecting to '" + destinationUrl + "'");
 		if (this.createNewSession) {
 			request.getSession();
