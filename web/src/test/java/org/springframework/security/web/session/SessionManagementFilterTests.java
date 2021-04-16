@@ -151,6 +151,32 @@ public class SessionManagementFilterTests {
 	}
 
 	@Test
+	public void responseIsRedirectedToRequestedUrlIfSetAndSessionIsInvalid() throws Exception {
+		SecurityContextRepository repo = mock(SecurityContextRepository.class);
+		// repo will return false to containsContext()
+		SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
+		SessionManagementFilter filter = new SessionManagementFilter(repo, strategy);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestedSessionId("xxx");
+		request.setRequestedSessionIdValid(false);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(request, response, new MockFilterChain());
+		assertThat(response.getRedirectedUrl()).isNull();
+		// Now set a redirect URL
+		request = new MockHttpServletRequest();
+		request.setRequestedSessionId("xxx");
+		request.setRequestedSessionIdValid(false);
+		request.setRequestURI("/requested");
+		RequestedUrlRedirectInvalidSessionStrategy iss = new RequestedUrlRedirectInvalidSessionStrategy();
+		iss.setCreateNewSession(true);
+		filter.setInvalidSessionStrategy(iss);
+		FilterChain fc = mock(FilterChain.class);
+		filter.doFilter(request, response, fc);
+		verifyZeroInteractions(fc);
+		assertThat(response.getRedirectedUrl()).isEqualTo("/requested");
+	}
+
+	@Test
 	public void customAuthenticationTrustResolver() throws Exception {
 		AuthenticationTrustResolver trustResolver = mock(AuthenticationTrustResolver.class);
 		SecurityContextRepository repo = mock(SecurityContextRepository.class);
