@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
-import org.springframework.web.util.UrlPathHelper;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
  * Performs a redirect to the original request URL when an invalid requested session is
@@ -42,15 +42,10 @@ public final class RequestedUrlRedirectInvalidSessionStrategy implements Invalid
 
 	private boolean createNewSession = true;
 
-	private final UrlPathHelper urlPathHelper = new UrlPathHelper();
-
 	@Override
 	public void onInvalidSessionDetected(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String destinationUrl = this.urlPathHelper.getOriginatingRequestUri(request);
-		String queryString = this.urlPathHelper.getOriginatingQueryString(request);
-		if (queryString != null && !queryString.equals("")) {
-			destinationUrl = destinationUrl + "?" + queryString;
-		}
+		String destinationUrl = ServletUriComponentsBuilder.fromRequest(request).host(null).scheme(null).port(null)
+				.toUriString();
 		this.logger.debug("Starting new session (if required) and redirecting to '" + destinationUrl + "'");
 		if (this.createNewSession) {
 			request.getSession();
