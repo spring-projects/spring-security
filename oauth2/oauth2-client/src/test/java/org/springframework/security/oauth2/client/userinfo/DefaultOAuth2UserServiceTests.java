@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -44,6 +43,7 @@ import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.web.client.RestOperations;
@@ -51,7 +51,7 @@ import org.springframework.web.client.RestOperations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -362,11 +362,10 @@ public class DefaultOAuth2UserServiceTests {
 	}
 
 	private DefaultOAuth2UserService withMockResponse(Map<String, Object> response) {
-		ResponseEntity<Map<String, Object>> responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+		ResponseEntity<OidcUserInfo> responseEntity = new ResponseEntity<>(new OidcUserInfo(response), HttpStatus.OK);
 		Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter = mock(Converter.class);
 		RestOperations rest = mock(RestOperations.class);
-		given(rest.exchange(nullable(RequestEntity.class), any(ParameterizedTypeReference.class)))
-				.willReturn(responseEntity);
+		given(rest.exchange(nullable(RequestEntity.class), eq(OidcUserInfo.class))).willReturn(responseEntity);
 		DefaultOAuth2UserService userService = new DefaultOAuth2UserService();
 		userService.setRequestEntityConverter(requestEntityConverter);
 		userService.setRestOperations(rest);

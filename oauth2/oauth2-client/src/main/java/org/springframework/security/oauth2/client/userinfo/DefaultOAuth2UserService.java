@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 
 package org.springframework.security.oauth2.client.userinfo;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
-
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
@@ -32,6 +32,8 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.http.converter.OidcUserInfoHttpMessageConverter;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
@@ -57,6 +59,7 @@ import org.springframework.web.client.UnknownContentTypeException;
  * supported user attribute names.
  *
  * @author Joe Grandja
+ * @author Christian Knoop
  * @since 5.0
  * @see OAuth2UserService
  * @see OAuth2UserRequest
@@ -71,15 +74,14 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 
-	private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_RESPONSE_TYPE = new ParameterizedTypeReference<Map<String, Object>>() {
-	};
-
 	private Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter = new OAuth2UserRequestEntityConverter();
 
 	private RestOperations restOperations;
 
 	public DefaultOAuth2UserService() {
-		RestTemplate restTemplate = new RestTemplate();
+		RestTemplate restTemplate = new RestTemplate(
+				Arrays.asList(new FormHttpMessageConverter(), new OidcUserInfoHttpMessageConverter()));
+		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 		this.restOperations = restTemplate;
 	}
@@ -105,20 +107,20 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 		RequestEntity<?> request = this.requestEntityConverter.convert(userRequest);
-		ResponseEntity<Map<String, Object>> response = getResponse(userRequest, request);
-		Map<String, Object> userAttributes = response.getBody();
+		ResponseEntity<OidcUserInfo> response = getResponse(userRequest, request);
+		OidcUserInfo oidcUserInfo = response.getBody();
 		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
-		authorities.add(new OAuth2UserAuthority(userAttributes));
+		authorities.add(new OAuth2UserAuthority(oidcUserInfo.getClaims()));
 		OAuth2AccessToken token = userRequest.getAccessToken();
 		for (String authority : token.getScopes()) {
 			authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
 		}
-		return new DefaultOAuth2User(authorities, userAttributes, userNameAttributeName);
+		return new DefaultOAuth2User(authorities, oidcUserInfo.getClaims(), userNameAttributeName);
 	}
 
-	private ResponseEntity<Map<String, Object>> getResponse(OAuth2UserRequest userRequest, RequestEntity<?> request) {
+	private ResponseEntity<OidcUserInfo> getResponse(OAuth2UserRequest userRequest, RequestEntity<?> request) {
 		try {
-			return this.restOperations.exchange(request, PARAMETERIZED_RESPONSE_TYPE);
+			return this.restOperations.exchange(request, OidcUserInfo.class);
 		}
 		catch (OAuth2AuthorizationException ex) {
 			OAuth2Error oauth2Error = ex.getError();
@@ -174,6 +176,8 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 	 * <b>NOTE:</b> At a minimum, the supplied {@code restOperations} must be configured
 	 * with the following:
 	 * <ol>
+	 * <li>{@link HttpMessageConverter}'s - {@link FormHttpMessageConverter} and
+	 * {@link OidcUserInfoHttpMessageConverter}</li>
 	 * <li>{@link ResponseErrorHandler} - {@link OAuth2ErrorResponseErrorHandler}</li>
 	 * </ol>
 	 * @param restOperations the {@link RestOperations} used when requesting the UserInfo
