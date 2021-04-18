@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.security.oauth2.client.oidc.web.logout;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,9 +29,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
-import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -49,7 +46,7 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
-	private String postLogoutRedirectUri;
+	private PostLogoutRedirectUriProvider postLogoutRedirectUriProvider = new NoPostLogoutRedirectUriProvider();
 
 	public OidcClientInitiatedLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
@@ -90,20 +87,7 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 	}
 
 	private URI postLogoutRedirectUri(HttpServletRequest request) {
-		if (this.postLogoutRedirectUri == null) {
-			return null;
-		}
-		// @formatter:off
-		UriComponents uriComponents = UriComponentsBuilder
-				.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
-				.replacePath(request.getContextPath())
-				.replaceQuery(null)
-				.fragment(null)
-				.build();
-		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
-				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
-				.toUri();
-		// @formatter:on
+		return this.postLogoutRedirectUriProvider.postLogoutRedirectUri(request);
 	}
 
 	private String endpointUri(URI endSessionEndpoint, String idToken, URI postLogoutRedirectUri) {
@@ -128,7 +112,7 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 	@Deprecated
 	public void setPostLogoutRedirectUri(URI postLogoutRedirectUri) {
 		Assert.notNull(postLogoutRedirectUri, "postLogoutRedirectUri cannot be null");
-		this.postLogoutRedirectUri = postLogoutRedirectUri.toASCIIString();
+		this.setPostLogoutRedirectUri(postLogoutRedirectUri.toASCIIString());
 	}
 
 	/**
@@ -147,7 +131,11 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 	 */
 	public void setPostLogoutRedirectUri(String postLogoutRedirectUri) {
 		Assert.notNull(postLogoutRedirectUri, "postLogoutRedirectUri cannot be null");
-		this.postLogoutRedirectUri = postLogoutRedirectUri;
+		this.postLogoutRedirectUriProvider = new StaticLogoutRedirectUriProvider(postLogoutRedirectUri);
+	}
+
+	public void setPostLogoutRedirectUriProvider(PostLogoutRedirectUriProvider postLogoutRedirectUriProvider) {
+		this.postLogoutRedirectUriProvider = postLogoutRedirectUriProvider;
 	}
 
 }
