@@ -90,7 +90,8 @@ final class JwtDecoderProviderConfigurationUtils {
 			List<? extends JWK> jwks = jwkSource.get(new JWKSelector(jwkMatcher), null);
 			for (JWK jwk : jwks) {
 				if (jwk.getAlgorithm() != null) {
-					jwsAlgorithms.add((JWSAlgorithm) jwk.getAlgorithm());
+					JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(jwk.getAlgorithm().getName());
+					jwsAlgorithms.add(jwsAlgorithm);
 				}
 				else {
 					if (jwk.getKeyType() == KeyType.RSA) {
