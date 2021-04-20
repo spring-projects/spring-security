@@ -233,6 +233,19 @@ public class OAuth2LoginTests {
 	}
 
 	@Test
+	public void defaultLoginPageWithOAuth2LoginHttpBasicAndXhrRequestThenUnauthorized() {
+		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginWithHttpBasic.class,
+				WebFluxConfig.class).autowire();
+		// @formatter:off
+		this.client.get()
+				.uri("/")
+				.header("X-Requested-With", "XMLHttpRequest")
+				.exchange()
+				.expectStatus().isUnauthorized();
+		// @formatter:on
+	}
+
+	@Test
 	public void oauth2AuthorizeWhenCustomObjectsThenUsed() {
 		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2AuthorizeWithMockObjectsConfig.class,
 				AuthorizedClientController.class).autowire();
@@ -654,6 +667,30 @@ public class OAuth2LoginTests {
 				.oauth2Login()
 					.and()
 				.formLogin();
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	static class OAuth2LoginWithHttpBasic {
+
+		@Bean
+		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+			ReactiveUserDetailsService reactiveUserDetailsService = ReactiveAuthenticationTestConfiguration
+					.userDetailsService();
+			ReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
+					reactiveUserDetailsService);
+			http.authenticationManager(authenticationManager);
+			// @formatter:off
+			http
+				.authorizeExchange()
+					.anyExchange().authenticated()
+					.and()
+				.oauth2Login()
+					.and()
+				.httpBasic();
 			// @formatter:on
 			return http.build();
 		}
