@@ -36,6 +36,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -85,9 +86,11 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
@@ -399,6 +402,30 @@ public class OAuth2LoginConfigurerTests {
 		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).doesNotMatch("http://localhost/oauth2/authorization/google");
+	}
+
+	@Test
+	public void oauth2LoginWithHttpBasicOneClientConfiguredAndRequestXHRNotAuthenticatedThenUnauthorized()
+			throws Exception {
+		loadConfig(OAuth2LoginWithHttpBasicConfig.class);
+		String requestUri = "/";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getStatus()).isEqualTo(401);
+	}
+
+	@Test
+	public void oauth2LoginWithXHREntryPointOneClientConfiguredAndRequestXHRNotAuthenticatedThenUnauthorized()
+			throws Exception {
+		loadConfig(OAuth2LoginWithXHREntryPointConfig.class);
+		String requestUri = "/";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getStatus()).isEqualTo(401);
 	}
 
 	// gh-9457
@@ -892,6 +919,45 @@ public class OAuth2LoginConfigurerTests {
 			Map<String, Object> providerMetadata = Collections.singletonMap("end_session_endpoint", "https://logout");
 			return new InMemoryClientRegistrationRepository(TestClientRegistrations.clientRegistration()
 					.providerConfigurationMetadata(providerMetadata).build());
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginWithHttpBasicConfig extends CommonWebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2Login()
+					.clientRegistrationRepository(
+							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
+					.and()
+				.httpBasic();
+			// @formatter:on
+			super.configure(http);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginWithXHREntryPointConfig extends CommonWebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2Login()
+					.clientRegistrationRepository(
+							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
+					.and()
+				.exceptionHandling()
+					.defaultAuthenticationEntryPointFor(
+							new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+							new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
+			// @formatter:on
+			super.configure(http);
 		}
 
 	}
