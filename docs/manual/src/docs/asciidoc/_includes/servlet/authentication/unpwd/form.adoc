@@ -1,71 +1,70 @@
 [[servlet-authentication-form]]
 = Form Login
 
-Spring Security provides support for username and password being provided through an html form.
+Spring Security provides support for username and password being provided through an HTML form.
 This section provides details on how form based authentication works within Spring Security.
 // FIXME: describe authenticationentrypoint, authenticationfailurehandler, authenticationsuccesshandler
 
-Let's take a look at how form based log in works within Spring Security.
-First, we see how the user is redirected to the log in form.
+This section examines how form-based login works within Spring Security.
+First, we see how the user is redirected to the log in form:
 
 .Redirecting to the Log In Page
 image::{figures}/loginurlauthenticationentrypoint.png[]
 
-The figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+The preceding figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
 
-image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource `/private` for which it is not authorized.
+image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource (`/private`) for which it is not authorized.
 
 image:{icondir}/number_2.png[] Spring Security's <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
 
-image:{icondir}/number_3.png[] Since the user is not authenticated, <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> initiates __Start Authentication__ and sends a redirect to the log in page with the configured <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>>.
-In most cases the `AuthenticationEntryPoint` is an instance of {security-api-url}org/springframework/security/web/authentication/LoginUrlAuthenticationEntryPoint.html[`LoginUrlAuthenticationEntryPoint`].
+image:{icondir}/number_3.png[] Since the user is not authenticated, <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> initiates __Start Authentication__ and sends a redirect to the login page with the configured <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>>.
+In most cases, the `AuthenticationEntryPoint` is an instance of {security-api-url}org/springframework/security/web/authentication/LoginUrlAuthenticationEntryPoint.html[`LoginUrlAuthenticationEntryPoint`].
 
-image:{icondir}/number_4.png[] The browser will then request the log in page that it was redirected to.
+image:{icondir}/number_4.png[] The browser requests the login page to which it was redirected.
 
-image:{icondir}/number_5.png[] Something within the application, must <<servlet-authentication-form-custom,render the log in page>>.
+image:{icondir}/number_5.png[] Something within the application must <<servlet-authentication-form-custom,render the log in page>>.
 
 [[servlet-authentication-usernamepasswordauthenticationfilter]]
 When the username and password are submitted, the `UsernamePasswordAuthenticationFilter` authenticates the username and password.
-The `UsernamePasswordAuthenticationFilter` extends <<servlet-authentication-abstractprocessingfilter>>, so this diagram should look pretty similar.
+The `UsernamePasswordAuthenticationFilter` extends <<servlet-authentication-abstractprocessingfilter>>, so the following diagram should look pretty similar:
 
 .Authenticating Username and Password
 image::{figures}/usernamepasswordauthenticationfilter.png[]
 
 The figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
 
+image:{icondir}/number_1.png[] When the user submits their username and password, the `UsernamePasswordAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken`, which is a type of <<servlet-authentication-authentication,`Authentication`>>, by extracting the username and password from the `HttpServletRequest` instance.
 
-image:{icondir}/number_1.png[] When the user submits their username and password, the `UsernamePasswordAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken` which is a type of <<servlet-authentication-authentication,`Authentication`>> by extracting the username and password from the `HttpServletRequest`.
-
-image:{icondir}/number_2.png[] Next, the `UsernamePasswordAuthenticationToken` is passed into the `AuthenticationManager` to be authenticated.
+image:{icondir}/number_2.png[] Next, the `UsernamePasswordAuthenticationToken` is passed into the `AuthenticationManager` instance to be authenticated.
 The details of what `AuthenticationManager` look like depend on how the <<servlet-authentication-unpwd-storage,user information is stored>>.
 
-image:{icondir}/number_3.png[] If authentication fails, then __Failure__
+image:{icondir}/number_3.png[] If authentication fails, then __Failure__.
 
-* The <<servlet-authentication-securitycontextholder>> is cleared out.
-* `RememberMeServices.loginFail` is invoked.
+. The <<servlet-authentication-securitycontextholder>> is cleared out.
+. `RememberMeServices.loginFail` is invoked.
 If remember me is not configured, this is a no-op.
-// FIXME: link to rememberme
-* `AuthenticationFailureHandler` is invoked.
-// FIXME: link to AuthenticationFailureHandler
+See the {security-api-url}org/springframework/security/web/authentication/RememberMeServices.html[`RememberMeServices`] interface in the Javadoc.
+. `AuthenticationFailureHandler` is invoked.
+See the {security-api-url}springframework/security/web/authentication/AuthenticationFailureHandler.html[`AuthenticationFailureHandler`] class in the Javadoc
 
 image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
 
-* `SessionAuthenticationStrategy` is notified of a new log in.
-// FIXME: Add link to SessionAuthenticationStrategy
-* The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
-// FIXME: link securitycontextpersistencefilter
-* `RememberMeServices.loginSuccess` is invoked.
+. `SessionAuthenticationStrategy` is notified of a new log in.
+See the {security-api-url}springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[`SessionAuthenticationStrategy`] interface in the Javadoc.
+. The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
+See the {security-api-url}springframework/security/web/context/SecurityContextPersistenceFilter.html[`SecurityContextPersistenceFilter`] class in the Javadoc.
+. `RememberMeServices.loginSuccess` is invoked.
 If remember me is not configured, this is a no-op.
-// FIXME: link to rememberme
-* `ApplicationEventPublisher` publishes an `InteractiveAuthenticationSuccessEvent`.
-* The `AuthenticationSuccessHandler` is invoked. Typically this is a `SimpleUrlAuthenticationSuccessHandler` which will redirect to a request saved by <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> when we redirect to the log in page.
+See the {security-api-url}springframework/security/web/authentication/RememberMeServices.html[`RememberMeServices`] interface in the Javadoc.
+. `ApplicationEventPublisher` publishes an `InteractiveAuthenticationSuccessEvent`.
+. The `AuthenticationSuccessHandler` is invoked. Typically, this is a `SimpleUrlAuthenticationSuccessHandler`, which redirects to a request saved by <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> when we redirect to the login page.
 
 [[servlet-authentication-form-min]]
-Spring Security form log in is enabled by default.
-However, as soon as any servlet based configuration is provided, form based log in must be explicitly provided.
-A minimal, explicit Java configuration can be found below:
+By default, Spring Security form login is enabled.
+However, as soon as any servlet-based configuration is provided, form based login must be explicitly provided.
+The following example shows a minimal, explicit Java configuration:
 
-.Form Log In
+.Form LogIn
 ====
 .Java
 [source,java,role="primary"]
@@ -98,11 +97,11 @@ fun configure(http: HttpSecurity) {
 ----
 ====
 
-In this configuration Spring Security will render a default log in page.
-Most production applications will require a custom log in form.
+In the preceding configuration, Spring Security renders a default login page.
+Most production applications require a custom login form.
 
 [[servlet-authentication-form-custom]]
-The configuration below demonstrates how to provide a custom log in form.
+The following configuration demonstrates how to provide a custom login form.
 
 .Custom Log In Form Configuration
 ====
@@ -147,9 +146,9 @@ fun configure(http: HttpSecurity) {
 [[servlet-authentication-form-custom-html]]
 When the login page is specified in the Spring Security configuration, you are responsible for rendering the page.
 // FIXME: default login page rendered by Spring Security
-Below is a https://www.thymeleaf.org/[Thymeleaf] template that produces an HTML login form that complies with a login page of `/login`.:
+The following https://www.thymeleaf.org/[Thymeleaf] template produces an HTML login form that complies with a login page of `/login`.:
 
-.Log In Form
+.Login Form
 ====
 .src/main/resources/templates/login.html
 [source,xml]
@@ -181,19 +180,19 @@ Below is a https://www.thymeleaf.org/[Thymeleaf] template that produces an HTML 
 
 There are a few key points about the default HTML form:
 
-* The form should perform a `post` to `/login`
-* The form will need to include a <<servlet-csrf,CSRF Token>> which is <<servlet-csrf-include-form-auto,automatically included>> by Thymeleaf.
-* The form should specify the username in a parameter named `username`
-* The form should specify the password in a parameter named `password`
-* If the HTTP parameter error is found, it indicates the user failed to provide a valid username / password
-* If the HTTP parameter logout is found, it indicates the user has logged out successfully
+* The form should perform a `post` to `/login`.
+* The form needs to include a <<servlet-csrf,CSRF Token>>, which is <<servlet-csrf-include-form-auto,automatically included>> by Thymeleaf.
+* The form should specify the username in a parameter named `username`.
+* The form should specify the password in a parameter named `password`.
+* If the HTTP parameter named `error` is found, it indicates the user failed to provide a valid username or password.
+* If the HTTP parameter named `logout` is found, it indicates the user has logged out successfully.
 
-Many users will not need much more than to customize the log in page.
-However, if needed everything above can be customized with additional configuration.
+Many users do not need much more than to customize the log in page.
+However, if needed, you can customize everything shown earlier with additional configuration.
 
 [[servlet-authentication-form-custom-controller]]
-If you are using Spring MVC, you will need a controller that maps `GET /login` to the login template we created.
-A minimal sample `LoginController` can be see below:
+If you use Spring MVC, you need a controller that maps `GET /login` to the login template we created.
+The following example shows a minimal `LoginController`:
 
 .LoginController
 ====

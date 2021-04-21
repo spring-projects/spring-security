@@ -1,11 +1,11 @@
 [[servlet-authentication-userdetailsservice]]
 = UserDetailsService
 
-{security-api-url}org/springframework/security/core/userdetails/UserDetailsService.html[`UserDetailsService`] is used by <<servlet-authentication-daoauthenticationprovider,`DaoAuthenticationProvider`>> for retrieving a username, password, and other attributes for authenticating with a username and password.
+{security-api-url}org/springframework/security/core/userdetails/UserDetailsService.html[`UserDetailsService`] is used by <<servlet-authentication-daoauthenticationprovider,`DaoAuthenticationProvider`>> for retrieving a username, a password, and other attributes for authenticating with a username and password.
 Spring Security provides <<servlet-authentication-inmemory,in-memory>> and <<servlet-authentication-jdbc,JDBC>> implementations of `UserDetailsService`.
 
 You can define custom authentication by exposing a custom `UserDetailsService` as a bean.
-For example, the following will customize authentication assuming that `CustomUserDetailsService` implements `UserDetailsService`:
+For example, the following listing customizes authentication, assuming that `CustomUserDetailsService` implements `UserDetailsService`:
 
 NOTE: This is only used if the `AuthenticationManagerBuilder` has not been populated and no `AuthenticationProviderBean` is defined.
 

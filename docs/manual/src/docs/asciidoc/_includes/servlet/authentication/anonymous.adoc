@@ -1,38 +1,35 @@
 [[anonymous]]
 == Anonymous Authentication
 
-
 [[anonymous-overview]]
-=== Overview
-It's generally considered good security practice to adopt a "deny-by-default" where you explicitly specify what is allowed and disallow everything else.
+It is generally considered good security practice to adopt a "`deny-by-default`" stance, where you explicitly specify what is allowed and disallow everything else.
 Defining what is accessible to unauthenticated users is a similar situation, particularly for web applications.
 Many sites require that users must be authenticated for anything other than a few URLs (for example the home and login pages).
-In this case it is easiest to define access configuration attributes for these specific URLs rather than have for every secured resource.
-Put differently, sometimes it is nice to say `ROLE_SOMETHING` is required by default and only allow certain exceptions to this rule, such as for login, logout and home pages of an application.
+In that case, it is easiest to define access configuration attributes for these specific URLs rather than for every secured resource.
+Put differently, sometimes it is nice to say `ROLE_SOMETHING` is required by default and allow only certain exceptions to this rule, such as for login, logout, and home pages of an application.
 You could also omit these pages from the filter chain entirely, thus bypassing the access control checks, but this may be undesirable for other reasons, particularly if the pages behave differently for authenticated users.
 
 This is what we mean by anonymous authentication.
-Note that there is no real conceptual difference between a user who is "anonymously authenticated" and an unauthenticated user.
+Note that there is no real conceptual difference between a user who is "`anonymously authenticated`" and an unauthenticated user.
 Spring Security's anonymous authentication just gives you a more convenient way to configure your access-control attributes.
-Calls to servlet API calls such as `getCallerPrincipal`, for example, will still return null even though there is actually an anonymous authentication object in the `SecurityContextHolder`.
+Calls to servlet API calls, such as `getCallerPrincipal`, still return null, even though there is actually an anonymous authentication object in the `SecurityContextHolder`.
 
 There are other situations where anonymous authentication is useful, such as when an auditing interceptor queries the `SecurityContextHolder` to identify which principal was responsible for a given operation.
-Classes can be authored more robustly if they know the `SecurityContextHolder` always contains an `Authentication` object, and never `null`.
-
+Classes can be authored more robustly if they know the `SecurityContextHolder` always contains an `Authentication` object and never contains `null`.
 
 [[anonymous-config]]
 === Configuration
-Anonymous authentication support is provided automatically when using the HTTP configuration Spring Security 3.0 and can be customized (or disabled) using the `<anonymous>` element.
-You don't need to configure the beans described here unless you are using traditional bean configuration.
+Anonymous authentication support is provided automatically when you use the HTTP configuration (introduced inSpring Security 3.0).
+You can customize (or disable) it by using the `<anonymous>` element.
+You need not configure the beans described here unless you are using traditional bean configuration.
 
-Three classes that together provide the anonymous authentication feature.
-`AnonymousAuthenticationToken` is an implementation of `Authentication`, and stores the `GrantedAuthority` s which apply to the anonymous principal.
-There is a corresponding `AnonymousAuthenticationProvider`, which is chained into the `ProviderManager` so that `AnonymousAuthenticationToken` s are accepted.
-Finally, there is an `AnonymousAuthenticationFilter`, which is chained after the normal authentication mechanisms and automatically adds an `AnonymousAuthenticationToken` to the `SecurityContextHolder` if there is no existing `Authentication` held there.
-The definition of the filter and authentication provider appears as follows:
+Three classes work together to provide the anonymous authentication feature.
+`AnonymousAuthenticationToken` is an implementation of `Authentication` and stores the `GrantedAuthority` instancesthat apply to the anonymous principal.
+There is a corresponding `AnonymousAuthenticationProvider`, which is chained into the `ProviderManager` so that `AnonymousAuthenticationToken` instances are accepted.
+Finally, an `AnonymousAuthenticationFilter` is chained after the normal authentication mechanisms and automatically adds an `AnonymousAuthenticationToken` to the `SecurityContextHolder` if there is no existing `Authentication` held there.
+The filter and authentication provider is defined as follows:
 
-
-
+====
 [source,xml]
 ----
 
@@ -47,27 +44,24 @@ The definition of the filter and authentication provider appears as follows:
 <property name="key" value="foobar"/>
 </bean>
 ----
+====
 
+The `key` is shared between the filter and authentication provider so that tokens created by the former are accepted by the latter
 
-
-The `key` is shared between the filter and authentication provider, so that tokens created by the former are accepted by the latter footnote:[
-The use of the `key` property should not be regarded as providing any real security here.
+NOTE: The use of the `key` property should not be regarded as providing any real security here.
 It is merely a book-keeping exercise.
-If you are sharing a `ProviderManager` which contains an `AnonymousAuthenticationProvider` in a scenario where it is possible for an authenticating client to construct the `Authentication` object (such as with RMI invocations), then a malicious client could submit an `AnonymousAuthenticationToken` which it had created itself (with chosen username and authority list).
-If the `key` is guessable or can be found out, then the token would be accepted by the anonymous provider.
-This isn't a problem with normal usage but if you are using RMI you would be best to use a customized `ProviderManager` which omits the anonymous provider rather than sharing the one you use for your HTTP authentication mechanisms.
-].
+If you share a `ProviderManager` that contains an `AnonymousAuthenticationProvider` in a scenario where it is possible for an authenticating client to construct the `Authentication` object (such as with RMI invocations), then a malicious client could submit an `AnonymousAuthenticationToken` that it had created itself (with the chosen username and authority list).
+If the `key` is guessable or can be found out, the token would be accepted by the anonymous provider.
+This is not a problem with normal usage. However, if you use RMI, you should use a customized `ProviderManager` that omits the anonymous provider rather than sharing the one you use for your HTTP authentication mechanisms.
+
 The `userAttribute` is expressed in the form of `usernameInTheAuthenticationToken,grantedAuthority[,grantedAuthority]`.
-This is the same syntax as used after the equals sign for the `userMap` property of `InMemoryDaoImpl`.
+The same syntax is used after the equals sign for the `userMap` property of `InMemoryDaoImpl`.
 
-As explained earlier, the benefit of anonymous authentication is that all URI patterns can have security applied to them.
-For example:
+As explained earlier, the benefit of anonymous authentication is that all URI patterns can have security applied to them, as the following example shows:
 
-
-
+====
 [source,xml]
 ----
-
 <bean id="filterSecurityInterceptor"
 	class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
 <property name="authenticationManager" ref="authenticationManager"/>
@@ -83,20 +77,18 @@ For example:
 </property>
 </bean>
 ----
-
-
-
+====
 
 [[anonymous-auth-trust-resolver]]
 === AuthenticationTrustResolver
 Rounding out the anonymous authentication discussion is the `AuthenticationTrustResolver` interface, with its corresponding `AuthenticationTrustResolverImpl` implementation.
 This interface provides an `isAnonymous(Authentication)` method, which allows interested classes to take into account this special type of authentication status.
-The `ExceptionTranslationFilter` uses this interface in processing `AccessDeniedException` s.
-If an `AccessDeniedException` is thrown, and the authentication is of an anonymous type, instead of throwing a 403 (forbidden) response, the filter will instead commence the `AuthenticationEntryPoint` so the principal can authenticate properly.
-This is a necessary distinction, otherwise principals would always be deemed "authenticated" and never be given an opportunity to login via form, basic, digest or some other normal authentication mechanism.
+The `ExceptionTranslationFilter` uses this interface in processing `AccessDeniedException` instances.
+If an `AccessDeniedException` is thrown and the authentication is of an anonymous type, instead of throwing a 403 (forbidden) response, the filter, instead, commences the `AuthenticationEntryPoint` so that the principal can authenticate properly.
+This is a necessary distinction. Otherwise, principals would always be deemed "`authenticated`" and never be given an opportunity to login through form, basic, digest, or some other normal authentication mechanism.
 
-You will often see the `ROLE_ANONYMOUS` attribute in the above interceptor configuration replaced with `IS_AUTHENTICATED_ANONYMOUSLY`, which is effectively the same thing when defining access controls.
-This is an example of the use of the `AuthenticatedVoter` which we will see in the <<authz-authenticated-voter,authorization chapter>>.
+We often see the `ROLE_ANONYMOUS` attribute in the earlier interceptor configuration replaced with `IS_AUTHENTICATED_ANONYMOUSLY`, which is effectively the same thing when defining access controls.
+This is an example of the use of the `AuthenticatedVoter`, which we cover in the <<authz-authenticated-voter,authorization chapter>>.
 It uses an `AuthenticationTrustResolver` to process this particular configuration attribute and grant access to anonymous users.
-The `AuthenticatedVoter` approach is more powerful, since it allows you to differentiate between anonymous, remember-me and fully-authenticated users.
-If you don't need this functionality though, then you can stick with `ROLE_ANONYMOUS`, which will be processed by Spring Security's standard `RoleVoter`.
+The `AuthenticatedVoter` approach is more powerful, since it lets you differentiate between anonymous, remember-me, and fully authenticated users.
+If you do not need this functionality, though, you can stick with `ROLE_ANONYMOUS`, which is processed by Spring Security's standard `RoleVoter`.

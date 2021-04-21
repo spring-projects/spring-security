@@ -1,6 +1,7 @@
 [[features]]
 = Features
 
+// FIXME: Add a link for authorization
 Spring Security provides comprehensive support for <<authentication,authentication>>, authorization, and protection against <<exploits,common exploits>>.
 It also provides integration with other libraries to simplify its usage.
 

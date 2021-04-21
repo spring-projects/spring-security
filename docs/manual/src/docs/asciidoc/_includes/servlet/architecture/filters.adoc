@@ -1,21 +1,21 @@
 [[servlet-filters-review]]
-= A Review of ``Filter``s
+= A Review of Filters
 
-Spring Security's Servlet support is based on Servlet ``Filter``s, so it is helpful to look at the role of ``Filter``s generally first.
-The picture below shows the typical layering of the handlers for a single HTTP request.
+Spring Security's Servlet support is based on Servlet Filters, so it is helpful to look at the role of Filters generally first.
+The following image shows the typical layering of the handlers for a single HTTP request.
 
 .FilterChain
 [[servlet-filterchain-figure]]
 image::{figures}/filterchain.png[]
 
-The client sends a request to the application, and the container creates a `FilterChain` which contains the ``Filter``s and `Servlet` that should process the `HttpServletRequest` based on the path of the request URI.
-In a Spring MVC application the `Servlet` is an instance of https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-servlet[`DispatcherServlet`].
-At most one `Servlet` can handle a single `HttpServletRequest` and `HttpServletResponse`.
+The client sends a request to the application, and the container creates a `FilterChain`, which contains the `Filter` instances and `Servlet` that should process the `HttpServletRequest`, based on the path of the request URI.
+In a Spring MVC application, the `Servlet` is an instance of https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-servlet[`DispatcherServlet`].
+At most, one `Servlet` can handle a single `HttpServletRequest` and `HttpServletResponse`.
 However, more than one `Filter` can be used to:
 
-* Prevent downstream ``Filter``s or the `Servlet` from being invoked.
-In this instance the `Filter` will typically write the `HttpServletResponse`.
-* Modify the `HttpServletRequest` or `HttpServletResponse` used by the downstream ``Filter``s and `Servlet`
+* Prevent downstream `Filter` instances or the `Servlet` from being invoked.
+In this case, the `Filter` typically writes the `HttpServletResponse`.
+* Modify the `HttpServletRequest` or `HttpServletResponse` used by the downstream `Filter` instances and the `Servlet`.
 
 The power of the `Filter` comes from the `FilterChain` that is passed into it.
 
@@ -42,4 +42,4 @@ fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterCh
 ----
 ====
 
-Since a `Filter` only impacts downstream ``Filter``s and the `Servlet`, the order each `Filter` is invoked is extremely important.
+Since a `Filter` impacts only downstream `Filter` instances and the `Servlet`, the order in which each `Filter` is invoked is extremely important.

@@ -1,11 +1,11 @@
 [[servlet-authentication-jdbc]]
 = JDBC Authentication
 
-Spring Security's `JdbcDaoImpl` implements <<servlet-authentication-userdetailsservice,UserDetailsService>> to provide support for username/password based authentication that is retrieved using JDBC.
+Spring Security's `JdbcDaoImpl` implements <<servlet-authentication-userdetailsservice,`UserDetailsService`>> to provide support for username-and-password-based authentication that is retrieved by using JDBC.
 `JdbcUserDetailsManager` extends `JdbcDaoImpl` to provide management of `UserDetails` through the `UserDetailsManager` interface.
-`UserDetails` based authentication is used by Spring Security when it is configured to <<servlet-authentication-unpwd-input,accept a username/password>> for authentication.
+`UserDetails`-based authentication is used by Spring Security when it is configured to <<servlet-authentication-unpwd-input,accept a username/password>> for authentication.
 
-In the following sections we will discuss:
+In the following sections, we discuss:
 
 * The <<servlet-authentication-jdbc-schema>> used by Spring Security JDBC Authentication
 * <<servlet-authentication-jdbc-datasource>>
@@ -14,20 +14,16 @@ In the following sections we will discuss:
 [[servlet-authentication-jdbc-schema]]
 == Default Schema
 
-Spring Security provides default queries for JDBC based authentication.
+Spring Security provides default queries for JDBC-based authentication.
 This section provides the corresponding default schemas used with the default queries.
-You will need to adjust the schema to match any customizations to the queries and the database dialect you are using.
+You need to adjust the schema to match any customizations to the queries and the database dialect you use.
 
 [[servlet-authentication-jdbc-schema-user]]
 === User Schema
 
 `JdbcDaoImpl` requires tables to load the password, account status (enabled or disabled) and a list of authorities (roles) for the user.
-The default schema required can be found below.
 
-[NOTE]
-====
-The default schema is also exposed as a classpath resource named `org/springframework/security/core/userdetails/jdbc/users.ddl`.
-====
+NOTE: The default schema is also exposed as a classpath resource named `org/springframework/security/core/userdetails/jdbc/users.ddl`.
 
 .Default User Schema
 ====
@@ -48,8 +44,7 @@ create unique index ix_auth_username on authorities (username,authority);
 ----
 ====
 
-Oracle is a popular database choice, but requires a slightly different schema.
-You can find the default Oracle Schema for users below.
+Oracle is a popular database choice but requires a slightly different schema:
 
 .Default User Schema for Oracle Databases
 ====
@@ -74,8 +69,7 @@ ALTER TABLE AUTHORITIES ADD CONSTRAINT AUTHORITIES_FK1 FOREIGN KEY (USERNAME) RE
 [[servlet-authentication-jdbc-schema-group]]
 === Group Schema
 
-If your application is leveraging groups, you will need to provide the groups schema.
-The default schema for groups can be found below.
+If your application uses groups, you need to provide the groups schema:
 
 .Default Group Schema
 ====
@@ -105,7 +99,7 @@ create table group_members (
 == Setting up a DataSource
 
 Before we configure `JdbcUserDetailsManager`, we must create a `DataSource`.
-In our example, we will setup an https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/data-access.html#jdbc-embedded-database-support[embedded DataSource] that is initialized with the <<servlet-authentication-jdbc-schema,default user schema>>.
+In our example, we set up an https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/data-access.html#jdbc-embedded-database-support[embedded DataSource] that is initialized with the <<servlet-authentication-jdbc-schema,default user schema>>.
 
 .Embedded Data Source
 ====
@@ -142,12 +136,12 @@ fun dataSource(): DataSource {
 ----
 ====
 
-In a production environment, you will want to ensure you setup a connection to an external database.
+In a production environment, you want to ensure that you set up a connection to an external database.
 
 [[servlet-authentication-jdbc-bean]]
 == JdbcUserDetailsManager Bean
 
-In this sample we use <<authentication-password-storage-boot-cli,Spring Boot CLI>> to encode the password of `password` and get the encoded password of `+{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW+`.
+In this sample, we use <<authentication-password-storage-boot-cli,Spring Boot CLI>> to encode a password value of `password` and get the encoded password of `+{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW+`.
 See the <<authentication-password-storage,PasswordEncoder>> section for more details about how to store passwords.
 
 .JdbcUserDetailsManager
@@ -171,7 +165,7 @@ UserDetailsManager users(DataSource dataSource) {
 	JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
 	users.createUser(user);
 	users.createUser(admin);
-	return users; 
+	return users;
 }
 ----
 

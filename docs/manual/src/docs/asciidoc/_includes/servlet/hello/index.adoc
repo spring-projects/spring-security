@@ -3,11 +3,8 @@
 
 This section covers the minimum setup for how to use Spring Security with Spring Boot.
 
-[NOTE]
-====
-The completed application can be found at {gh-samples-url}/boot/helloworld[samples/boot/helloworld]
-For your convenience, you can download a minimal Spring Boot + Spring Security application by https://start.spring.io/starter.zip?type=maven-project&language=java&packaging=jar&jvmVersion=1.8&groupId=example&artifactId=hello-security&name=hello-security&description=Hello%20Security&packageName=example.hello-security&dependencies=web,security[clicking here].
-====
+NOTE: The completed application can be found at {gh-samples-url}/boot/helloworld[samples/boot/helloworld]
+For your convenience, you can download https://start.spring.io/starter.zip?type=maven-project&language=java&packaging=jar&jvmVersion=1.8&groupId=example&artifactId=hello-security&name=hello-security&description=Hello%20Security&packageName=example.hello-security&dependencies=web,security[a minimal Spring Boot + Spring Security application].
 
 [[servlet-hello-dependencies]]
 == Updating Dependencies
@@ -40,12 +37,12 @@ Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
 
 // FIXME: Link to relevant portions of documentation
 // FIXME: Link to Spring Boot's Security Auto configuration classes
-// FIXME: Add a links for what user's should do next
+// FIXME: Add links for what user's should do next
 
 Spring Boot automatically:
 
 * Enables Spring Security's default configuration, which creates a servlet `Filter` as a bean named `springSecurityFilterChain`.
-This bean is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, and so on) within your application.
+This bean is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the login form, and so on) within your application.
 * Creates a `UserDetailsService` bean with a username of `user` and a randomly generated password that is logged to the console.
 * Registers the `Filter` with a bean named `springSecurityFilterChain` with the Servlet container for every request.
 
@@ -71,4 +68,3 @@ A summary of the features follows:
 ** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[`HttpServletRequest.html#isUserInRole(java.lang.String)`]
 ** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[`HttpServletRequest.html#login(java.lang.String, java.lang.String)`]
 ** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[`HttpServletRequest.html#logout()`]
-

@@ -1,5 +1,5 @@
 [[authentication-support]]
 = Authentication Support
 
-Spring Security provides built in support for authenticating users.
-Refer to the sections on authentication for <<servlet-authentication,Servlet>> and WebFlux for details on what is supported for each stack.
+Spring Security provides built-in support for authenticating users.
+See the sections on authentication for <<servlet-authentication,Servlet>> and <<jc-webflux,WebFlux>> for details on what is supported for each stack.

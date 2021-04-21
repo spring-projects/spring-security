@@ -1,13 +1,9 @@
 = WebClient
 
-[NOTE]
-====
-The following documentation is for use within Reactive environments.
-For Servlet environments, refer to <<oauth2Client-webclient-servlet, WebClient for Servlet>> environments.
-====
+NOTE: The documentation in this section is for use within Reactive environments.
+For Servlet environments, see <<oauth2Client-webclient-servlet, WebClient for Servlet>>.
 
-
-Spring Framework has built in support for setting a Bearer token.
+Spring Framework has built-in support for setting a Bearer token:
 
 ====
 .Java
@@ -29,17 +25,17 @@ webClient.get()
 
 Spring Security builds on this support to provide additional benefits:
 
-* Spring Security will automatically refresh expired tokens (if a refresh token is present)
-* If an access token is requested and not present, Spring Security will automatically request the access token.
-** For authorization_code this involves performing the redirect and then replaying the original request
-** For client_credentials the token is simply requested and saved
+* Spring Security automatically refreshes expired tokens (if a refresh token is present).
+* If an access token is requested and not present, Spring Security automatically requests the access token.
+** For `authorization_code`, this involves performing the redirect and then replaying the original request.
+** For `client_credentials`, the token is requested and saved.
 * Support for the ability to transparently include the current OAuth token or explicitly select which token should be used.
 
 [[webclient-setup]]
 == WebClient OAuth2 Setup
 
-The first step is ensuring to setup the `WebClient` correctly.
-An example of setting up `WebClient` in a fully reactive environment can be found below:
+The first step is ensuring that the `WebClient` is set up correctly.
+The following example shows how to set up `WebClient` in a fully reactive environment:
 
 ====
 .Java
@@ -81,8 +77,8 @@ fun webClient(clientRegistrations: ReactiveClientRegistrationRepository,
 [[webclient-implicit]]
 == Implicit OAuth2AuthorizedClient
 
-If we set `defaultOAuth2AuthorizedClient` to `true` in our setup and the user authenticated with oauth2Login (i.e. OIDC), then the current authentication is used to automatically provide the access token.
-Alternatively,  if we set `defaultClientRegistrationId` to a valid `ClientRegistration` id, that registration is used to provide the access token.
+If we set `defaultOAuth2AuthorizedClient` to `true` in our setup and the user authenticated with `oauth2Login` (OIDC), the current authentication is used to automatically provide the access token.
+Alternatively,  if we set `defaultClientRegistrationId` to a valid `ClientRegistration` ID, that registration is used to provide the access token.
 This is convenient, but in environments where not all endpoints should get the access token, it is dangerous (you might provide the wrong access token to an endpoint).
 
 ====
@@ -110,8 +106,8 @@ val body: Mono<String> = webClient
 [[webclient-explicit]]
 == Explicit OAuth2AuthorizedClient
 
-The `OAuth2AuthorizedClient` can be explicitly provided by setting it on the requests attributes.
-In the example below we resolve the `OAuth2AuthorizedClient` using Spring WebFlux or Spring MVC argument resolver support.
+You can explicitly provide the `OAuth2AuthorizedClient` by setting it on the request attributes.
+In the next example, we resolve the `OAuth2AuthorizedClient` by using Spring WebFlux or the Spring MVC argument resolver support.
 However, it does not matter how the `OAuth2AuthorizedClient` is resolved.
 
 ====
@@ -147,8 +143,8 @@ fun explicit(@RegisteredOAuth2AuthorizedClient("client-id") authorizedClient: OA
 [[webclient-clientregistrationid]]
 == clientRegistrationId
 
-Alternatively, it is possible to specify the `clientRegistrationId` on the request attributes and the `WebClient` will attempt to lookup the `OAuth2AuthorizedClient`.
-If it is not found, one will automatically be acquired.
+Alternatively, you can specify the `clientRegistrationId` on the request attributes, and the `WebClient` tries to look up the `OAuth2AuthorizedClient`.
+If it is not found, one is automatically acquired.
 
 ====
 .Java

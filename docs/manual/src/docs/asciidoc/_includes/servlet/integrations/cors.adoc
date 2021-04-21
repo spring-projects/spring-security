@@ -2,12 +2,13 @@
 == CORS
 
 Spring Framework provides https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-cors[first class support for CORS].
-CORS must be processed before Spring Security because the pre-flight request will not contain any cookies (i.e. the `JSESSIONID`).
-If the request does not contain any cookies and Spring Security is first, the request will determine the user is not authenticated (since there are no cookies in the request) and reject it.
+CORS must be processed before Spring Security, because the pre-flight request does not contain any cookies (that is, the `JSESSIONID`).
+If the request does not contain any cookies and Spring Security is first, the request determines that the user is not authenticated (since there are no cookies in the request) and rejects it.
 
 The easiest way to ensure that CORS is handled first is to use the `CorsFilter`.
-Users can integrate the `CorsFilter` with Spring Security by providing a `CorsConfigurationSource` using the following:
+Users can integrate the `CorsFilter` with Spring Security by providing a `CorsConfigurationSource` that uses the following:
 
+====
 [source,java]
 ----
 @EnableWebSecurity
@@ -32,9 +33,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 ----
+====
 
-or in XML
+The following listing does the same thing in XML:
 
+====
 [source,xml]
 ----
 <http>
@@ -45,9 +48,11 @@ or in XML
 	...
 </b:bean>
 ----
+====
 
-If you are using Spring MVC's CORS support, you can omit specifying the `CorsConfigurationSource` and Spring Security will leverage the CORS configuration provided to Spring MVC.
+If you use Spring MVC's CORS support, you can omit specifying the `CorsConfigurationSource` and Spring Security uses the CORS configuration provided to Spring MVC:
 
+====
 [source,java]
 ----
 @EnableWebSecurity
@@ -63,9 +68,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 ----
+====
 
-or in XML
+The following listing does the same thing in XML:
 
+====
 [source,xml]
 ----
 <http>
@@ -74,3 +81,4 @@ or in XML
 	...
 </http>
 ----
+====

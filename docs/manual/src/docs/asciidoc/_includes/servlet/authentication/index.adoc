@@ -7,34 +7,34 @@ This section discusses:
 [[servlet-authentication-architecture]]
 *Architecture Components*
 
-This section describes the main architectural components of Spring Security's used in Servlet authentication.
-If you need concrete flows that explain how these pieces fit together, look at the <<servlet-authentication-mechanisms,Authentication Mechanism>> specific sections.
+This section describes the main architectural components of Spring Security that are used in Servlet authentication.
+If you need concrete flows that explain how these pieces fit together, see the <<servlet-authentication-mechanisms,Authentication Mechanism>> specific sections.
 
-* <<servlet-authentication-securitycontextholder>> - The `SecurityContextHolder` is where Spring Security stores the details of who is <<authentication,authenticated>>.
-* <<servlet-authentication-securitycontext>> - is obtained from the `SecurityContextHolder` and contains the `Authentication` of the currently authenticated user.
-* <<servlet-authentication-authentication>> - Can be the input to `AuthenticationManager` to provide the credentials a user has provided to authenticate or the current user from the `SecurityContext`.
-* <<servlet-authentication-granted-authority>> - An authority that is granted to the principal on the `Authentication` (i.e. roles, scopes, etc.)
-* <<servlet-authentication-authenticationmanager>> -  the API that defines how Spring Security's Filters perform  <<authentication,authentication>>.
-* <<servlet-authentication-providermanager>> -  the most common implementation of `AuthenticationManager`.
-* <<servlet-authentication-authenticationprovider>> - used by `ProviderManager` to perform a specific type of authentication.
-* <<servlet-authentication-authenticationentrypoint>> - used for requesting credentials from a client (i.e. redirecting to a log in page, sending a `WWW-Authenticate` response, etc.)
-* <<servlet-authentication-abstractprocessingfilter>> - a base `Filter` used for authentication.
-This also gives a good idea of the high level flow of authentication and how pieces work together.
+* <<servlet-authentication-securitycontextholder>>: The `SecurityContextHolder` is where Spring Security stores the details of who is <<authentication,authenticated>>.
+* <<servlet-authentication-securitycontext>>: Is obtained from the `SecurityContextHolder` and contains the `Authentication` of the currently authenticated user.
+* <<servlet-authentication-authentication>>: Can be the input to `AuthenticationManager` to provide the credentials a user has provided to authenticate or the current user from the `SecurityContext`.
+* <<servlet-authentication-granted-authority>>: An authority that is granted to the principal on the `Authentication` (roles, scopes, and so on)
+* <<servlet-authentication-authenticationmanager>>: The API that defines how Spring Security's Filters perform  <<authentication,authentication>>.
+* <<servlet-authentication-providermanager>>: The most common implementation of `AuthenticationManager`.
+* <<servlet-authentication-authenticationprovider>>: Used by `ProviderManager` to perform a specific type of authentication.
+* <<servlet-authentication-authenticationentrypoint>>: Used for requesting credentials from a client (redirecting to a log in page, sending a `WWW-Authenticate` response, and so on)
+* <<servlet-authentication-abstractprocessingfilter>>: A base `Filter` used for authentication.
+This also gives a good idea of the high-level flow of authentication and how the pieces work together.
 
 [[servlet-authentication-mechanisms]]
 *Authentication Mechanisms*
 
 // FIXME: brief description
 
-* <<servlet-authentication-unpwd,Username and Password>> - how to authenticate with a username/password
-* <<oauth2login,OAuth 2.0 Login>> - OAuth 2.0 Log In with OpenID Connect and non-standard OAuth 2.0 Login (i.e. GitHub)
-* <<servlet-saml2,SAML 2.0 Login>> - SAML 2.0 Log In
-* <<servlet-cas,Central Authentication Server (CAS)>> - Central Authentication Server (CAS) Support
-* <<servlet-rememberme, Remember Me>> - How to remember a user past session expiration
-* <<servlet-jaas, JAAS Authentication>> - Authenticate with JAAS
-* <<servlet-openid,OpenID>> - OpenID Authentication (not to be confused with OpenID Connect)
-* <<servlet-preauth>> - Authenticate with an external mechanism such as https://www.siteminder.com/[SiteMinder] or Java EE security but still use Spring Security for authorization and protection against common exploits.
-* <<servlet-x509,X509 Authentication>> - X509 Authentication
+* <<servlet-authentication-unpwd,Username and Password>>: How to authenticate with a username and password.
+* <<oauth2login,OAuth 2.0 Login>>: OAuth 2.0 Log In with OpenID Connect and non-standard OAuth 2.0 Login (i.e. GitHub).
+* <<servlet-saml2,SAML 2.0 Login>>: SAML 2.0 Log In.
+* <<servlet-cas,Central Authentication Server (CAS)>>: Central Authentication Server (CAS) support.
+* <<servlet-rememberme, Remember Me>>: How to remember the past session expiration of a user.
+* <<servlet-jaas, JAAS Authentication>>: Authenticate with JAAS.
+* <<servlet-openid,OpenID>>: OpenID Authentication (not to be confused with OpenID Connect).
+* <<servlet-preauth>>: Authenticate with an external mechanism such as https://www.siteminder.com/[SiteMinder] or Java EE security but still use Spring Security for authorization and protection against common exploits.
+* <<servlet-x509,X509 Authentication>>: X509 Authentication.
 
 // FIXME: Add other mechanisms
 

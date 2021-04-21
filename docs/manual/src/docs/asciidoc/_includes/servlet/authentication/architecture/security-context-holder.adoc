@@ -10,9 +10,9 @@ image::{figures}/securitycontextholder.png[]
 
 The `SecurityContextHolder` is where Spring Security stores the details of who is <<authentication,authenticated>>.
 Spring Security does not care how the `SecurityContextHolder` is populated.
-If it contains a value, then it is used as the currently authenticated user.
+If it contains a value, it is used as the currently authenticated user.
 
-The simplest way to indicate a user is authenticated is to set the `SecurityContextHolder` directly.
+The simplest way to indicate a user is authenticated is to set the `SecurityContextHolder` directly:
 
 .Setting `SecurityContextHolder`
 ====
@@ -36,18 +36,18 @@ context.authentication = authentication
 
 SecurityContextHolder.setContext(context) // <3>
 ----
-====
 
 <1> We start by creating an empty `SecurityContext`.
-It is important to create a new `SecurityContext` instance instead of using `SecurityContextHolder.getContext().setAuthentication(authentication)` to avoid race conditions across multiple threads.
-<2> Next we create a new <<servlet-authentication-authentication,`Authentication`>> object.
+You should create a new `SecurityContext` instance instead of using `SecurityContextHolder.getContext().setAuthentication(authentication)` to avoid race conditions across multiple threads.
+<2> Next, we create a new <<servlet-authentication-authentication,`Authentication`>> object.
 Spring Security does not care what type of `Authentication` implementation is set on the `SecurityContext`.
-Here we use `TestingAuthenticationToken` because it is very simple.
+Here, we use `TestingAuthenticationToken`, because it is very simple.
 A more common production scenario is `UsernamePasswordAuthenticationToken(userDetails, password, authorities)`.
 <3> Finally, we set the `SecurityContext` on the `SecurityContextHolder`.
-Spring Security will use this information for <<servlet-authorization,authorization>>.
+Spring Security uses this information for <<servlet-authorization,authorization>>.
+====
 
-If you wish to obtain information about the authenticated principal, you can do so by accessing the `SecurityContextHolder`.
+To obtain information about the authenticated principal, access the `SecurityContextHolder`.
 
 .Access Currently Authenticated User
 ====
@@ -72,18 +72,18 @@ val authorities = authentication.authorities
 ----
 ====
 
-// FIXME: add links to HttpServletRequest.getRemoteUser() and @CurrentSecurityContext @AuthenticationPrincipal
+// FIXME: Add links to and relevant description of HttpServletRequest.getRemoteUser() and @CurrentSecurityContext @AuthenticationPrincipal
 
-By default the `SecurityContextHolder` uses a `ThreadLocal` to store these details, which means that the `SecurityContext` is always available to methods in the same thread, even if the `SecurityContext` is not explicitly passed around as an argument to those methods.
-Using a `ThreadLocal` in this way is quite safe if care is taken to clear the thread after the present principal's request is processed.
+By default, `SecurityContextHolder` uses a `ThreadLocal` to store these details, which means that the `SecurityContext` is always available to methods in the same thread, even if the `SecurityContext` is not explicitly passed around as an argument to those methods.
+Using a `ThreadLocal` in this way is quite safe if you take care to clear the thread after the present principal's request is processed.
 Spring Security's <<servlet-filterchainproxy,FilterChainProxy>> ensures that the `SecurityContext` is always cleared.
 
-Some applications aren't entirely suitable for using a `ThreadLocal`, because of the specific way they work with threads.
+Some applications are not entirely suitable for using a `ThreadLocal`, because of the specific way they work with threads.
 For example, a Swing client might want all threads in a Java Virtual Machine to use the same security context.
-`SecurityContextHolder` can be configured with a strategy on startup to specify how you would like the context to be stored.
-For a standalone application you would use the `SecurityContextHolder.MODE_GLOBAL` strategy.
+You can configure `SecurityContextHolder` with a strategy on startup to specify how you would like the context to be stored.
+For a standalone application, you would use the `SecurityContextHolder.MODE_GLOBAL` strategy.
 Other applications might want to have threads spawned by the secure thread also assume the same security identity.
-This is achieved by using `SecurityContextHolder.MODE_INHERITABLETHREADLOCAL`.
+You can achieve this by using `SecurityContextHolder.MODE_INHERITABLETHREADLOCAL`.
 You can change the mode from the default `SecurityContextHolder.MODE_THREADLOCAL` in two ways.
-The first is to set a system property, the second is to call a static method on `SecurityContextHolder`.
-Most applications won't need to change from the default, but if you do, take a look at the JavaDoc for `SecurityContextHolder` to learn more.
+The first is to set a system property. The second is to call a static method on `SecurityContextHolder`.
+Most applications need not change from the default. However, if you do, take a look at the JavaDoc for `SecurityContextHolder` to learn more.

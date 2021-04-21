@@ -1,6 +1,8 @@
 
 = Appendix
 
+This appendix contains additional information that may help you understand topics within the Spring Security Reference Guide.
+
 include::database-schema.adoc[leveloffset=+1]
 
 include::namespace.adoc[]

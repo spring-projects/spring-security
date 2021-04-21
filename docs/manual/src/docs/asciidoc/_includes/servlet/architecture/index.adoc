@@ -2,8 +2,8 @@
 = Servlet Security: The Big Picture
 :figures: images/servlet/architecture
 
-This section discusses Spring Security's high level architecture within Servlet based applications.
-We build on this high level understanding within <<servlet-authentication>>, <<servlet-authorization>>, <<servlet-exploits>> sections of the reference.
+This section discusses Spring Security's high-level architecture within Servlet based applications.
+We build on this high-level understanding within the <<servlet-authentication>>, <<servlet-authorization>>, and <<servlet-exploits>> sections of the reference.
 // FIXME: Add links to other sections of architecture
 
 include::filters.adoc[leveloffset=+1]

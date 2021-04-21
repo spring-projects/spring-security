@@ -2,14 +2,15 @@
 == Spring Data Integration
 
 Spring Security provides Spring Data integration that allows referring to the current user within your queries.
-It is not only useful but necessary to include the user in the queries to support paged results since filtering the results afterwards would not scale.
+It is not only useful but necessary to include the user in the queries to support paged results, since filtering the results afterwards would not scale.
 
 [[data-configuration]]
 === Spring Data & Spring Security Configuration
 
-To use this support, add `org.springframework.security:spring-security-data` dependency and provide a bean of type `SecurityEvaluationContextExtension`.
-In Java Configuration, this would look like:
+To use this support, add the `org.springframework.security:spring-security-data` dependency and provide a bean of type `SecurityEvaluationContextExtension`.
+In Java configuration, this would look like:
 
+====
 [source,java]
 ----
 @Bean
@@ -17,20 +18,23 @@ public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
 	return new SecurityEvaluationContextExtension();
 }
 ----
+====
 
 In XML Configuration, this would look like:
 
+====
 [source,xml]
 ----
 <bean class="org.springframework.security.data.repository.query.SecurityEvaluationContextExtension"/>
 ----
+====
 
 [[data-query]]
 === Security Expressions within @Query
 
-Now Spring Security can be used within your queries.
-For example:
+Now you can use Spring Security within your queries:
 
+====
 [source,java]
 ----
 @Repository
@@ -39,7 +43,8 @@ public interface MessageRepository extends PagingAndSortingRepository<Message,Lo
 	Page<Message> findInbox(Pageable pageable);
 }
 ----
+====
 
 This checks to see if the `Authentication.getPrincipal().getId()` is equal to the recipient of the `Message`.
-Note that this example assumes you have customized the principal to be an Object that has an id property.
-By exposing the `SecurityEvaluationContextExtension` bean, all of the <<common-expressions,Common Security Expressions>> are available within the Query.
+Note that this example assumes you have customized the principal to be an `Object` that has an `id` property.
+By exposing the `SecurityEvaluationContextExtension` bean, all of the <<common-expressions,Common Security Expressions>> are available within the query.

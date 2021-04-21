@@ -1,9 +1,11 @@
 [[reactive-x509]]
 = Reactive X.509 Authentication
 
-Similar to <<servlet-x509,Servlet X.509 authentication>>, reactive x509 authentication filter allows extracting an authentication token from a certificate provided by a client.
+Similar to <<servlet-x509,Servlet X.509 authentication>>, the reactive x509 authentication filter allows extracting an authentication token from a certificate provided by a client.
 
-Below is an example of a reactive x509 security configuration:
+The folloiwng example shows a reactive x509 security configuration:
+
+====
 [source,java]
 ----
 @Bean
@@ -16,11 +18,13 @@ public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 	return http.build();
 }
 ----
+====
 
-In the configuration above, when neither `principalExtractor` nor `authenticationManager` is provided defaults will be used. The default principal extractor is `SubjectDnX509PrincipalExtractor` which extracts the CN (common name) field from a certificate provided by a client. The default authentication manager is `ReactivePreAuthenticatedAuthenticationManager` which performs user account validation, checking that user account with a name extracted by `principalExtractor` exists and it is not locked, disabled, or expired.
+In the preceding configuration, when neither `principalExtractor` nor `authenticationManager` is provided, defaults are used. The default principal extractor is `SubjectDnX509PrincipalExtractor`, which extracts the CN (common name) field from a certificate provided by a client. The default authentication manager is `ReactivePreAuthenticatedAuthenticationManager`, which performs user account validation, checking that a user account with a name extracted by `principalExtractor` exists and that it is not locked, disabled, or expired.
 
-The next example demonstrates how these defaults can be overridden.
+The following example demonstrates how these defaults can be overridden:
 
+====
 [source,java]
 ----
 @Bean
@@ -46,7 +50,8 @@ public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 	return http.build();
 }
 ----
+====
 
-In this example, a username is extracted from the OU field of a client certificate instead of CN, and account lookup using `ReactiveUserDetailsService` is not performed at all. Instead, if the provided certificate issued to an OU named "Trusted Org Unit", a request will be authenticated.
+In the previous example, a username is extracted from the OU field of a client certificate instead of CN, and account lookup using `ReactiveUserDetailsService` is not performed at all. Instead, if the provided certificate issued to an OU named "`Trusted Org Unit`", a request is authenticated.
 
 For an example of configuring Netty and `WebClient` or `curl` command-line tool to use mutual TLS and enable X.509 authentication, please refer to https://github.com/spring-projects/spring-security-samples/tree/main/servlet/java-configuration/authentication/x509.

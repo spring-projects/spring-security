@@ -2,8 +2,9 @@
 = OAuth2 Client
 
 Spring Security's OAuth Support allows obtaining an access token without authenticating.
-A basic configuration with Spring Boot can be seen below:
+The following example shows basic configuration with Spring Boot:
 
+====
 [source,yml]
 ----
 spring:
@@ -16,10 +17,11 @@ spring:
             client-secret: replace-with-client-secret
             scope: read:user,public_repo
 ----
+====
 
-You will need to replace the `client-id` and `client-secret` with values registered with GitHub.
+You need to replace the `client-id` and `client-secret` with values registered with GitHub.
 
-The next step is to instruct Spring Security that you wish to act as an OAuth2 Client so that you can obtain an access token.
+The next step is to instruct Spring Security that you wish to act as an OAuth2 Client so that you can obtain an access token:
 
 .OAuth2 Client
 ====
@@ -35,7 +37,6 @@ SecurityWebFilterChain configure(ServerHttpSecurity http) throws Exception {
 }
 ----
 
-
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
@@ -49,4 +50,4 @@ fun webFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
 ----
 ====
 
-You can now leverage Spring Security's <<webclient>> or <<webflux-roac,@RegisteredOAuth2AuthorizedClient>> support to obtain and use the access token.
+You can now use Spring Security's <<webclient>> or <<webflux-roac,`@RegisteredOAuth2AuthorizedClient`>> support to obtain and use the access token.

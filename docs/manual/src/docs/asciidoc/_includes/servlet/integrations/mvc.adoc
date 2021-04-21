@@ -8,24 +8,25 @@ This section covers the integration in further detail.
 === @EnableWebMvcSecurity
 
 NOTE: As of Spring Security 4.0, `@EnableWebMvcSecurity` is deprecated.
-The replacement is `@EnableWebSecurity` which will determine adding the Spring MVC features based upon the classpath.
+The replacement is `@EnableWebSecurity`, which adds the Spring MVC features, based upon the classpath.
 
-To enable Spring Security integration with Spring MVC add the `@EnableWebSecurity` annotation to your configuration.
+To enable Spring Security integration with Spring MVC, add the `@EnableWebSecurity` annotation to your configuration.
 
-NOTE: Spring Security provides the configuration using Spring MVC's https://docs.spring.io/spring/docs/5.0.0.RELEASE/spring-framework-reference/web.html#mvc-config-customize[WebMvcConfigurer].
-This means that if you are using more advanced options, like integrating with `WebMvcConfigurationSupport` directly, then you will need to manually provide the Spring Security configuration.
+NOTE: Spring Security provides the configuration by using Spring MVC's https://docs.spring.io/spring/docs/5.0.0.RELEASE/spring-framework-reference/web.html#mvc-config-customize[`WebMvcConfigurer`].
+This means that, if you use more advanced options, such as integrating with `WebMvcConfigurationSupport` directly, you need to manually provide the Spring Security configuration.
 
 [[mvc-requestmatcher]]
 === MvcRequestMatcher
 
 Spring Security provides deep integration with how Spring MVC matches on URLs with `MvcRequestMatcher`.
-This is helpful to ensure your Security rules match the logic used to handle your requests.
+This is helpful to ensure that your Security rules match the logic used to handle your requests.
 
-In order to use `MvcRequestMatcher` you must place the Spring Security Configuration in the same `ApplicationContext` as your `DispatcherServlet`.
+To use `MvcRequestMatcher`, you must place the Spring Security Configuration in the same `ApplicationContext` as your `DispatcherServlet`.
 This is necessary because Spring Security's `MvcRequestMatcher` expects a `HandlerMappingIntrospector` bean with the name of `mvcHandlerMappingIntrospector` to be registered by your Spring MVC configuration that is used to perform the matching.
 
-For a `web.xml` this means that you should place your configuration in the `DispatcherServlet.xml`.
+For a `web.xml` file, this means that you should place your configuration in the `DispatcherServlet.xml`:
 
+====
 [source,xml]
 ----
 <listener>
@@ -53,9 +54,11 @@ For a `web.xml` this means that you should place your configuration in the `Disp
   <url-pattern>/</url-pattern>
 </servlet-mapping>
 ----
+====
 
-Below `WebSecurityConfiguration` in placed in the ``DispatcherServlet``s `ApplicationContext`.
+The following `WebSecurityConfiguration` in placed in the  `ApplicationContext` of the `DispatcherServlet`.
 
+====
 [source,java]
 ----
 public class SecurityInitializer extends
@@ -78,26 +81,32 @@ public class SecurityInitializer extends
   }
 }
 ----
+====
 
 [NOTE]
 ====
-It is always recommended to provide authorization rules by matching on the `HttpServletRequest` and method security.
+We always recommend that you provide authorization rules by matching on the `HttpServletRequest` and method security.
 
-Providing authorization rules by matching on `HttpServletRequest` is good because it happens very early in the code path and helps reduce the https://en.wikipedia.org/wiki/Attack_surface[attack surface].
-Method security ensures that if someone has bypassed the web authorization rules, that your application is still secured.
-This is what is known as https://en.wikipedia.org/wiki/Defense_in_depth_(computing)[Defence in Depth]
+Providing authorization rules by matching on `HttpServletRequest` is good, because it happens very early in the code path and helps reduce the https://en.wikipedia.org/wiki/Attack_surface[attack surface].
+Method security ensures that, if someone has bypassed the web authorization rules, your application is still secured.
+This is known as https://en.wikipedia.org/wiki/Defense_in_depth_(computing)[Defense in Depth]
 ====
 
 Consider a controller that is mapped as follows:
 
+====
 [source,java]
 ----
 @RequestMapping("/admin")
 public String admin() {
+  ...
+}
 ----
+====
 
-If we wanted to restrict access to this controller method to admin users, a developer can provide authorization rules by matching on the `HttpServletRequest` with the following:
+To restrict access to this controller method to admin users, you can provide authorization rules by matching on the `HttpServletRequest` with the following:
 
+====
 [source,java]
 ----
 protected configure(HttpSecurity http) throws Exception {
@@ -107,27 +116,30 @@ protected configure(HttpSecurity http) throws Exception {
 		);
 }
 ----
+====
 
-or in XML
+The following listing does the same thing in XML:
 
+====
 [source,xml]
 ----
 <http>
 	<intercept-url pattern="/admin" access="hasRole('ADMIN')"/>
 </http>
 ----
+====
 
-With either configuration, the URL `/admin` will require the authenticated user to be an admin user.
-However, depending on our Spring MVC configuration, the URL `/admin.html` will also map to our `admin()` method.
-Additionally, depending on our Spring MVC configuration, the URL `/admin/` will also map to our `admin()` method.
+With either configuration, the `/admin` URL requires the authenticated user to be an admin user.
+However, depending on our Spring MVC configuration, the `/admin.html` URL also maps to our `admin()` method.
+Additionally, depending on our Spring MVC configuration, the `/admin` URL also maps to our `admin()` method.
 
-The problem is that our security rule is only protecting `/admin`.
+The problem is that our security rule protects only  `/admin`.
 We could add additional rules for all the permutations of Spring MVC, but this would be quite verbose and tedious.
 
-Instead, we can leverage Spring Security's `MvcRequestMatcher`.
-The following configuration will protect the same URLs that Spring MVC will match on by using Spring MVC to match on the URL.
+Instead, we can use Spring Security's `MvcRequestMatcher`.
+The following configuration protects the same URLs that Spring MVC matches on by using Spring MVC to match on the URL.
 
-
+====
 [source,java]
 ----
 protected configure(HttpSecurity http) throws Exception {
@@ -137,24 +149,27 @@ protected configure(HttpSecurity http) throws Exception {
 		);
 }
 ----
+====
 
-or in XML
+The following XML has the same effect:
 
+====
 [source,xml]
 ----
 <http request-matcher="mvc">
 	<intercept-url pattern="/admin" access="hasRole('ADMIN')"/>
 </http>
 ----
+====
 
 [[mvc-authentication-principal]]
 === @AuthenticationPrincipal
 
-Spring Security provides `AuthenticationPrincipalArgumentResolver` which can automatically resolve the current `Authentication.getPrincipal()` for Spring MVC arguments.
-By using `@EnableWebSecurity` you will automatically have this added to your Spring MVC configuration.
-If you use XML based configuration, you must add this yourself.
-For example:
+Spring Security provides `AuthenticationPrincipalArgumentResolver`, which can automatically resolve the current `Authentication.getPrincipal()` for Spring MVC arguments.
+By using `@EnableWebSecurity`, you automatically have this added to your Spring MVC configuration.
+If you use XML-based configuration, you must add this yourself:
 
+====
 [source,xml]
 ----
 <mvc:annotation-driven>
@@ -163,11 +178,13 @@ For example:
 		</mvc:argument-resolvers>
 </mvc:annotation-driven>
 ----
+====
 
-Once `AuthenticationPrincipalArgumentResolver` is properly configured, you can be entirely decoupled from Spring Security in your Spring MVC layer.
+Once you have properly configured `AuthenticationPrincipalArgumentResolver`, you can entirely decouple from Spring Security in your Spring MVC layer.
 
-Consider a situation where a custom `UserDetailsService` that returns an `Object` that implements `UserDetails` and your own `CustomUser` `Object`. The `CustomUser` of the currently authenticated user could be accessed using the following code:
+Consider a situation where a custom `UserDetailsService` returns an `Object` that implements `UserDetails` and your own `CustomUser` `Object`. The `CustomUser` of the currently authenticated user could be accessed by using the following code:
 
+====
 [source,java]
 ----
 @RequestMapping("/messages/inbox")
@@ -179,9 +196,11 @@ public ModelAndView findMessagesForUser() {
 	// .. find messages for this user and return them ...
 }
 ----
+====
 
-As of Spring Security 3.2 we can resolve the argument more directly by adding an annotation. For example:
+As of Spring Security 3.2, we can resolve the argument more directly by adding an annotation:
 
+====
 [source,java]
 ----
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -194,12 +213,13 @@ public ModelAndView findMessagesForUser(@AuthenticationPrincipal CustomUser cust
 	// .. find messages for this user and return them ...
 }
 ----
+====
 
-Sometimes it may be necessary to transform the principal in some way.
-For example, if `CustomUser` needed to be final it could not be extended.
-In this situation the `UserDetailsService` might returns an `Object` that implements `UserDetails` and provides a method named `getCustomUser` to access `CustomUser`.
-For example, it might look like:
+Sometimes, you may need to transform the principal in some way.
+For example, if `CustomUser` needed to be final, it could not be extended.
+In this situation, the `UserDetailsService` might return an `Object` that implements `UserDetails` and provides a method named `getCustomUser` to access `CustomUser`:
 
+====
 [source,java]
 ----
 public class CustomUserUserDetails extends User {
@@ -209,9 +229,11 @@ public class CustomUserUserDetails extends User {
 		}
 }
 ----
+====
 
-We could then access the `CustomUser` using a https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[SpEL expression] that uses `Authentication.getPrincipal()` as the root object:
+We could then access the `CustomUser` by using a https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[SpEL expression] that uses `Authentication.getPrincipal()` as the root object:
 
+====
 [source,java]
 ----
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -224,10 +246,12 @@ public ModelAndView findMessagesForUser(@AuthenticationPrincipal(expression = "c
 	// .. find messages for this user and return them ...
 }
 ----
+====
 
-We can also refer to Beans in our SpEL expressions.
-For example, the following could be used if we were using JPA to manage our Users and we wanted to modify and save a property on the current user.
+We can also refer to beans in our SpEL expressions.
+For example, we could use the following if we were using JPA to manage our users and if we wanted to modify and save a property on the current user:
 
+====
 [source,java]
 ----
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -244,13 +268,15 @@ public ModelAndView updateName(@AuthenticationPrincipal(expression = "@jpaEntity
 	// ...
 }
 ----
+====
 
-We can further remove our dependency on Spring Security by making `@AuthenticationPrincipal` a meta annotation on our own annotation.
-Below we demonstrate how we could do this on an annotation named `@CurrentUser`.
+We can further remove our dependency on Spring Security by making `@AuthenticationPrincipal` a meta-annotation on our own annotation.
+The next example demonstrates how we could do so on an annotation named `@CurrentUser`.
 
-NOTE: It is important to realize that in order to remove the dependency on Spring Security, it is the consuming application that would create `@CurrentUser`.
-This step is not strictly required, but assists in isolating your dependency to Spring Security to a more central location.
+NOTE: To remove the dependency on Spring Security, it is the consuming application that would create `@CurrentUser`.
+This step is not strictly required but assists in isolating your dependency to Spring Security to a more central location.
 
+====
 [source,java]
 ----
 @Target({ElementType.PARAMETER, ElementType.TYPE})
@@ -259,10 +285,12 @@ This step is not strictly required, but assists in isolating your dependency to 
 @AuthenticationPrincipal
 public @interface CurrentUser {}
 ----
+====
 
-Now that `@CurrentUser` has been specified, we can use it to signal to resolve our `CustomUser` of the currently authenticated user.
-We have also isolated our dependency on Spring Security to a single file.
+We have isolated our dependency on Spring Security to a single file.
+Now that `@CurrentUser` has been specified, we can use it to signal to resolve our `CustomUser` of the currently authenticated user:
 
+====
 [source,java]
 ----
 @RequestMapping("/messages/inbox")
@@ -271,15 +299,16 @@ public ModelAndView findMessagesForUser(@CurrentUser CustomUser customUser) {
 	// .. find messages for this user and return them ...
 }
 ----
-
+====
 
 [[mvc-async]]
 === Spring MVC Async Integration
 
 Spring Web MVC 3.2+ has excellent support for https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-ann-async[Asynchronous Request Processing].
-With no additional configuration, Spring Security will automatically setup the `SecurityContext` to the `Thread` that invokes a `Callable` returned by your controllers.
-For example, the following method will automatically have its `Callable` invoked with the `SecurityContext` that was available when the `Callable` was created:
+With no additional configuration, Spring Security automatically sets up the `SecurityContext` to the `Thread` that invokes a `Callable` returned by your controllers.
+For example, the following method automatically has its `Callable` invoked with the `SecurityContext` that was available when the `Callable` was created:
 
+====
 [source,java]
 ----
 @RequestMapping(method=RequestMethod.POST)
@@ -293,26 +322,27 @@ return new Callable<String>() {
 };
 }
 ----
+====
 
-[NOTE]
 .Associating SecurityContext to Callable's
-====
-More technically speaking, Spring Security integrates with `WebAsyncManager`.
-The `SecurityContext` that is used to process the `Callable` is the `SecurityContext` that exists on the `SecurityContextHolder` at the time `startCallableProcessing` is invoked.
-====
+NOTE: More technically speaking, Spring Security integrates with `WebAsyncManager`.
+The `SecurityContext` that is used to process the `Callable` is the `SecurityContext` that exists on the `SecurityContextHolder` when `startCallableProcessing` is invoked.
 
 There is no automatic integration with a `DeferredResult` that is returned by controllers.
-This is because `DeferredResult` is processed by the users and thus there is no way of automatically integrating with it.
+This is because `DeferredResult` is processed by the users and, thus, there is no way of automatically integrating with it.
 However, you can still use <<concurrency,Concurrency Support>> to provide transparent integration with Spring Security.
 
 [[mvc-csrf]]
 === Spring MVC and CSRF Integration
 
+Spring Security integrates with Spring MVC to add CSRF protection.
+
 ==== Automatic Token Inclusion
 
-Spring Security will automatically <<servlet-csrf-include,include the CSRF Token>> within forms that use the https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag].
-For example, the following JSP:
+Spring Security automatically <<servlet-csrf-include,includes the CSRF Token>> within forms that use the https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-view-jsp-formtaglib[Spring MVC form tag].
+Consider the following JSP:
 
+====
 [source,xml]
 ----
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
@@ -336,9 +366,11 @@ For example, the following JSP:
 </html>
 </jsp:root>
 ----
+====
 
-Will output HTML that is similar to the following:
+The preceding example output HTMLs that is similar to the following:
 
+====
 [source,xml]
 ----
 <!-- ... -->
@@ -350,16 +382,18 @@ Will output HTML that is similar to the following:
 
 <!-- ... -->
 ----
+====
 
 [[mvc-csrf-resolver]]
 ==== Resolving the CsrfToken
 
-Spring Security provides `CsrfTokenArgumentResolver` which can automatically resolve the current `CsrfToken` for Spring MVC arguments.
-By using <<jc-hello-wsca,@EnableWebSecurity>> you will automatically have this added to your Spring MVC configuration.
-If you use XML based configuration, you must add this yourself.
+Spring Security provides `CsrfTokenArgumentResolver`, which can automatically resolve the current `CsrfToken` for Spring MVC arguments.
+By using <<jc-hello-wsca,@EnableWebSecurity>>, you automatically have this added to your Spring MVC configuration.
+If you use XML-based configuration, you must add this yourself.
 
-Once `CsrfTokenArgumentResolver` is properly configured, you can expose the `CsrfToken` to your static HTML based application.
+Once `CsrfTokenArgumentResolver` is properly configured, you can expose the `CsrfToken` to your static HTML based application:
 
+====
 [source,java]
 ----
 @RestController
@@ -371,6 +405,7 @@ public class CsrfController {
 	}
 }
 ----
+====
 
 It is important to keep the `CsrfToken` a secret from other domains.
-This means if you are using https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS[Cross Origin Sharing (CORS)], you should **NOT** expose the `CsrfToken` to any external domains.
+This means that, if you use https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS[Cross Origin Sharing (CORS)], you should *NOT* expose the `CsrfToken` to any external domains.

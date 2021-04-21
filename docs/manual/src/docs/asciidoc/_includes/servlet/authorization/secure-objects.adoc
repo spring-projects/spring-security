@@ -2,25 +2,27 @@
 [[secure-object-impls]]
 == Secure Object Implementations
 
+This section covers how Spring Security handles Secure Object implementations.
+
 [[aop-alliance]]
 === AOP Alliance (MethodInvocation) Security Interceptor
-Prior to Spring Security 2.0, securing `MethodInvocation` s needed quite a lot of boiler plate configuration.
+Prior to Spring Security 2.0, securing `MethodInvocation` instances needed a lot of boiler plate configuration.
 Now the recommended approach for method security is to use <<ns-method-security,namespace configuration>>.
-This way the method security infrastructure beans are configured automatically for you so you don't really need to know about the implementation classes.
-We'll just provide a quick overview of the classes that are involved here.
+This way, the method security infrastructure beans are configured automatically for you, so you need not know about the implementation classes.
+We provide only a quick overview of the classes that are involved here.
 
-Method security is enforced using a `MethodSecurityInterceptor`, which secures `MethodInvocation` s.
+Method security is enforced by using a `MethodSecurityInterceptor`, which secures `MethodInvocation` instances.
 Depending on the configuration approach, an interceptor may be specific to a single bean or shared between multiple beans.
 The interceptor uses a `MethodSecurityMetadataSource` instance to obtain the configuration attributes that apply to a particular method invocation.
-`MapBasedMethodSecurityMetadataSource` is used to store configuration attributes keyed by method names (which can be wildcarded) and will be used internally when the attributes are defined in the application context using the `<intercept-methods>` or `<protect-point>` elements.
-Other implementations will be used to handle annotation-based configuration.
+`MapBasedMethodSecurityMetadataSource` is used to store configuration attributes keyed by method names (which can be wildcarded) and is used internally when the attributes are defined in the application context by using the `<intercept-methods>` or `<protect-point>` elements.
+Other implementations are used to handle annotation-based configuration.
 
 ==== Explicit MethodSecurityInterceptor Configuration
-You can of course configure a `MethodSecurityInterceptor` directly in your application context for use with one of Spring AOP's proxying mechanisms:
+You can configure a `MethodSecurityInterceptor` directly in your application context for use with one of Spring AOP's proxying mechanisms:
 
+====
 [source,xml]
 ----
-
 <bean id="bankManagerSecurity" class=
 	"org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
 <property name="authenticationManager" ref="authenticationManager"/>
@@ -34,22 +36,22 @@ You can of course configure a `MethodSecurityInterceptor` directly in your appli
 </property>
 </bean>
 ----
+====
 
 [[aspectj]]
 === AspectJ (JoinPoint) Security Interceptor
 The AspectJ security interceptor is very similar to the AOP Alliance security interceptor discussed in the previous section.
-Indeed we will only discuss the differences in this section.
+We discuss only the differences in this section.
 
 The AspectJ interceptor is named `AspectJSecurityInterceptor`.
-Unlike the AOP Alliance security interceptor, which relies on the Spring application context to weave in the security interceptor via proxying, the `AspectJSecurityInterceptor` is weaved in via the AspectJ compiler.
+Unlike the AOP Alliance security interceptor, which relies on the Spring application context to weave in the security interceptor through proxying, the `AspectJSecurityInterceptor` is woven in through the AspectJ compiler.
 It would not be uncommon to use both types of security interceptors in the same application, with `AspectJSecurityInterceptor` being used for domain object instance security and the AOP Alliance `MethodSecurityInterceptor` being used for services layer security.
 
-Let's first consider how the `AspectJSecurityInterceptor` is configured in the Spring application context:
+We first consider how the `AspectJSecurityInterceptor` is configured in the Spring application context:
 
-
+====
 [source,xml]
 ----
-
 <bean id="bankManagerSecurity" class=
 	"org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor">
 <property name="authenticationManager" ref="authenticationManager"/>
@@ -63,19 +65,17 @@ Let's first consider how the `AspectJSecurityInterceptor` is configured in the S
 </property>
 </bean>
 ----
-
+====
 
 As you can see, aside from the class name, the `AspectJSecurityInterceptor` is exactly the same as the AOP Alliance security interceptor.
-Indeed the two interceptors can share the same `securityMetadataSource`, as the `SecurityMetadataSource` works with `java.lang.reflect.Method` s rather than an AOP library-specific class.
-Of course, your access decisions have access to the relevant AOP library-specific invocation (ie `MethodInvocation` or `JoinPoint`) and as such can consider a range of addition criteria when making access decisions (such as method arguments).
+The two interceptors can share the same `securityMetadataSource`, as the `SecurityMetadataSource` works with `java.lang.reflect.Method` instances rather than an AOP library-specific class.
+Your access decisions have access to the relevant AOP library-specific invocation (`MethodInvocation` or `JoinPoint`) and can consider a range of additional criteria (such as method arguments) when making access decisions.
 
-Next you'll need to define an AspectJ `aspect`.
-For example:
+Next, you need to define an AspectJ `aspect`, as the following example shows:
 
-
+====
 [source,java]
 ----
-
 package org.springframework.security.samples.aspectj;
 
 import org.springframework.security.access.intercept.aspectj.AspectJSecurityInterceptor;
@@ -118,16 +118,16 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 	}
 }
 ----
+====
 
-
-In the above example, the security interceptor will be applied to every instance of `PersistableEntity`, which is an abstract class not shown (you can use any other class or `pointcut` expression you like).
+In the preceding example, the security interceptor is applied to every instance of `PersistableEntity`, which is an abstract class not shown (you can use any other class or `pointcut` expression you like).
 For those curious, `AspectJCallback` is needed because the `proceed();` statement has special meaning only within an `around()` body.
 The `AspectJSecurityInterceptor` calls this anonymous `AspectJCallback` class when it wants the target object to continue.
 
-You will need to configure Spring to load the aspect and wire it with the `AspectJSecurityInterceptor`.
-A bean declaration which achieves this is shown below:
+You need to configure Spring to load the aspect and wire it with the `AspectJSecurityInterceptor`.
+The following example shows a bean declaration that achieves this:
 
-
+====
 [source,xml]
 ----
 
@@ -137,7 +137,6 @@ A bean declaration which achieves this is shown below:
 <property name="securityInterceptor" ref="bankManagerSecurity"/>
 </bean>
 ----
+====
 
-
-That's it!
-Now you can create your beans from anywhere within your application, using whatever means you think fit (e.g. `new Person();`) and they will have the security interceptor applied.
+Now you can create your beans from anywhere within your application, using whatever means you think fit (e.g. `new Person();`), and they have the security interceptor applied.

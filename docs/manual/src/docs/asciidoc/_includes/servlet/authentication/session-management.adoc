@@ -1,12 +1,13 @@
 [[session-mgmt]]
 == Session Management
-HTTP session related functionality is handled by a combination of the `SessionManagementFilter` and the `SessionAuthenticationStrategy` interface, which the filter delegates to.
-Typical usage includes session-fixation protection attack prevention, detection of session timeouts and restrictions on how many sessions an authenticated user may have open concurrently.
+HTTP session-related functionality is handled by a combination of the {security-api-url}org/springframework/security/authentication/AuthenticationProvider.html[`SessionManagementFilter`] and the {security-api-url}org/springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[`SessionAuthenticationStrategy`] interface, to which the filter delegates.
+Typical usage includes session-fixation protection attack prevention, detection of session timeouts, and restrictions on how many sessions an authenticated user may have open concurrently.
 
 === Detecting Timeouts
 You can configure Spring Security to detect the submission of an invalid session ID and redirect the user to an appropriate URL.
-This is achieved through the `session-management` element:
+To do so, configure the `session-management` element:
 
+====
 [source,xml]
 ----
 <http>
@@ -14,25 +15,29 @@ This is achieved through the `session-management` element:
 <session-management invalid-session-url="/invalidSession.htm" />
 </http>
 ----
+====
 
-Note that if you use this mechanism to detect session timeouts, it may falsely report an error if the user logs out and then logs back in without closing the browser.
-This is because the session cookie is not cleared when you invalidate the session and will be resubmitted even if the user has logged out.
-You may be able to explicitly delete the JSESSIONID cookie on logging out, for example by using the following syntax in the logout handler:
+Note that, if you use this mechanism to detect session timeouts, it may falsely report an error if the user logs out and then logs back in without closing the browser.
+This is because the session cookie is not cleared when you invalidate the session and is resubmitted even if the user has logged out.
+You may be able to explicitly delete the `JSESSIONID` cookie on logging out -- for example, by using the following syntax in the logout handler:
 
+====
 [source,xml]
 ----
 <http>
 <logout delete-cookies="JSESSIONID" />
 </http>
 ----
+====
 
-Unfortunately this can't be guaranteed to work with every servlet container, so you will need to test it in your environment
+Unfortunately, this cannot be guaranteed to work with every servlet container, so you need to test it in your environment.
 
 [NOTE]
-====
-If you are running your application behind a proxy, you may also be able to remove the session cookie by configuring the proxy server.
-For example, using Apache HTTPD's mod_headers, the following directive would delete the `JSESSIONID` cookie by expiring it in the response to a logout request (assuming the application is deployed under the path `/tutorial`):
+=====
+If you run your application behind a proxy, you may also be able to remove the session cookie by configuring the proxy server.
+For example, by using Apache HTTPD's `mod_headers`, the following directive deletes the `JSESSIONID` cookie by expiring it in the response to a logout request (assuming the application is deployed under the `/tutorial` path):
 
+====
 [source,xml]
 ----
 <LocationMatch "/tutorial/logout">
@@ -40,13 +45,15 @@ Header always set Set-Cookie "JSESSIONID=;Path=/tutorial;Expires=Thu, 01 Jan 197
 </LocationMatch>
 ----
 ====
+=====
 
 
 [[ns-concurrent-sessions]]
 === Concurrent Session Control
-If you wish to place constraints on a single user's ability to log in to your application, Spring Security supports this out of the box with the following simple additions.
-First you need to add the following listener to your `web.xml` file to keep Spring Security updated about session lifecycle events:
+If you wish to place constraints on a single user's ability to log in to your application, Spring Security supports this with the following simple additions.
+First, you need to add the following listener to your `web.xml` file to keep Spring Security updated about session lifecycle events:
 
+====
 [source,xml]
 ----
 <listener>
@@ -55,9 +62,11 @@ First you need to add the following listener to your `web.xml` file to keep Spri
 </listener-class>
 </listener>
 ----
+====
 
 Then add the following lines to your application context:
 
+====
 [source,xml]
 ----
 <http>
@@ -67,10 +76,12 @@ Then add the following lines to your application context:
 </session-management>
 </http>
 ----
+====
 
-This will prevent a user from logging in multiple times - a second login will cause the first to be invalidated.
-Often you would prefer to prevent a second login, in which case you can use
+These changes prevent a user from logging in multiple times. A second login causes the first to be invalidated.
+Often, you would prefer to prevent a second login. In that case, you can use:
 
+====
 [source,xml]
 ----
 <http>
@@ -80,61 +91,61 @@ Often you would prefer to prevent a second login, in which case you can use
 </session-management>
 </http>
 ----
+====
 
-The second login will then be rejected.
-By "rejected", we mean that the user will be sent to the `authentication-failure-url` if form-based login is being used.
-If the second authentication takes place through another non-interactive mechanism, such as "remember-me", an "unauthorized" (401) error will be sent to the client.
-If instead you want to use an error page, you can add the attribute `session-authentication-error-url` to the `session-management` element.
+The second login is then rejected.
+By "`rejected`", we mean that the user is sent to the `authentication-failure-url` if form-based login is being used.
+If the second authentication takes place through another non-interactive mechanism, such as "`remember-me`", an "`unauthorized`" (401) error is sent to the client.
+If, instead, you want to use an error page, you can add the `session-authentication-error-url` attribute to the `session-management` element.
 
-If you are using a customized authentication filter for form-based login, then you have to configure concurrent session control support explicitly.
-More details can be found in the <<session-mgmt,Session Management chapter>>.
+If you use a customized authentication filter for form-based login, you have to configure concurrent session control support explicitly.
+You can find more details in the <<session-mgmt,Session Management chapter>>.
 
 [[ns-session-fixation]]
 === Session Fixation Attack Protection
-https://en.wikipedia.org/wiki/Session_fixation[Session fixation] attacks are a potential risk where it is possible for a malicious attacker to create a session by accessing a site, then persuade another user to log in with the same session (by sending them a link containing the session identifier as a parameter, for example).
-Spring Security protects against this automatically by creating a new session or otherwise changing the session ID when a user logs in.
-If you don't require this protection, or it conflicts with some other requirement, you can control the behavior using the `session-fixation-protection` attribute on `<session-management>`, which has four options
+https://en.wikipedia.org/wiki/Session_fixation[Session fixation] attacks are a potential risk where it is possible for a malicious attacker to create a session by accessing a site and then persuade another user to log in with the same session (by sending them a link containing the session identifier as a parameter, for example).
+Spring Security automatically protects against this by creating a new session or otherwise changing the session ID when a user logs in.
+If you do not require this protection or it conflicts with some other requirement, you can control the behavior setting the `session-fixation-protection` attribute on `<session-management>`, which has four options
 
-* `none` - Don't do anything.
-The original session will be retained.
+* `none`: Do nothing.
+The original session is retained.
 
-* `newSession` - Create a new "clean" session, without copying the existing session data (Spring Security-related attributes will still be copied).
+* `newSession`: Create a new, "`clean`" session, without copying the existing session data (Spring Security-related attributes are still copied).
 
-* `migrateSession` - Create a new session and copy all existing session attributes to the new session.
+* `migrateSession`: Create a new session and copy all existing session attributes to the new session.
 This is the default in Servlet 3.0 or older containers.
 
-* `changeSessionId` - Do not create a new session.
+* `changeSessionId`: Do not create a new session.
 Instead, use the session fixation protection provided by the Servlet container (`HttpServletRequest#changeSessionId()`).
-This option is only available in Servlet 3.1 (Java EE 7) and newer containers.
-Specifying it in older containers will result in an exception.
-This is the default in Servlet 3.1 and newer containers.
-
+This option is available only in Servlet 3.1 (Java EE 7) and newer containers, where it is the default.
+Specifying it in older containers results in an exception.
 
 When session fixation protection occurs, it results in a `SessionFixationProtectionEvent` being published in the application context.
-If you use `changeSessionId`, this protection will __also__ result in any  `javax.servlet.http.HttpSessionIdListener` s being notified, so use caution if your code listens for both events.
+If you use `changeSessionId`, this protection will _also_ result in any  `javax.servlet.http.HttpSessionIdListener` instances being notified, so use caution if your code listens for both events.
 See the <<session-mgmt,Session Management>> chapter for additional information.
 
 === SessionManagementFilter
-The `SessionManagementFilter` checks the contents of the `SecurityContextRepository` against the current contents of the `SecurityContextHolder` to determine whether a user has been authenticated during the current request, typically by a non-interactive authentication mechanism, such as pre-authentication or remember-me  footnote:[
-Authentication by mechanisms which perform a redirect after authenticating (such as form-login) will not be detected by `SessionManagementFilter`, as the filter will not be invoked during the authenticating request.
-Session-management functionality has to be handled separately in these cases.
-].
-If the repository contains a security context, the filter does nothing.
-If it doesn't, and the thread-local `SecurityContext` contains a (non-anonymous) `Authentication` object, the filter assumes they have been authenticated by a previous filter in the stack.
-It will then invoke the configured `SessionAuthenticationStrategy`.
+The `SessionManagementFilter` checks the contents of the `SecurityContextRepository` against the current contents of the `SecurityContextHolder` to determine whether a user has been authenticated during the current request, typically by a non-interactive authentication mechanism, such as pre-authentication or remember-me
 
-If the user is not currently authenticated, the filter will check whether an invalid session ID has been requested (because of a timeout, for example) and will invoke the configured `InvalidSessionStrategy`, if one is set.
-The most common behaviour is just to redirect to a fixed URL and this is encapsulated in the standard implementation `SimpleRedirectInvalidSessionStrategy`.
-The latter is also used when configuring an invalid session URL through the namespace,<<session-mgmt,as described earlier>>.
+NOTE: Authentication by mechanisms that perform a redirect after authenticating (such as form-login) are not detected by `SessionManagementFilter`, as the filter is not invoked during the authenticating request.
+Session-management functionality has to be handled separately in these cases.
+
+If the repository contains a security context, the filter does nothing.
+If it does not and the thread-local `SecurityContext` contains a (non-anonymous) `Authentication` object, the filter assumes they have been authenticated by a previous filter in the stack.
+It then invokes the configured `SessionAuthenticationStrategy`.
+
+If the user is not currently authenticated, the filter checks whether an invalid session ID has been requested (because of a timeout, for example) and invokes the configured `InvalidSessionStrategy`, if one is set.
+The most common behavior is to redirect to a fixed URL, and this is encapsulated in the standard implementation (`SimpleRedirectInvalidSessionStrategy`).
+The latter is also used when configuring an invalid session URL through the namespace, <<session-mgmt,as described earlier>>.
 
 
 === SessionAuthenticationStrategy
-`SessionAuthenticationStrategy` is used by both `SessionManagementFilter` and `AbstractAuthenticationProcessingFilter`, so if you are using a customized form-login class, for example, you will need to inject it into both of these.
-In this case, a typical configuration, combining the namespace and custom beans might look like this:
+`SessionAuthenticationStrategy` is used by both `SessionManagementFilter` and `AbstractAuthenticationProcessingFilter`, so, if you are using a customized form-login class, for example, you need to inject it into both of these.
+In this case, a typical configuration that combines the namespace and custom beans might look like this:
 
+====
 [source,xml]
 ----
-
 <http>
 <custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />
 <session-management session-authentication-strategy-ref="sas"/>
@@ -148,56 +159,53 @@ In this case, a typical configuration, combining the namespace and custom beans 
 
 <beans:bean id="sas" class=
 "org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
-
 ----
+====
 
-Note that the use of the default, `SessionFixationProtectionStrategy` may cause issues if you are storing beans in the session which implement `HttpSessionBindingListener`, including Spring session-scoped beans.
-See the Javadoc for this class for more information.
+Note that the use of the default, `SessionFixationProtectionStrategy`, may cause issues if you are storing beans in the session that implement `HttpSessionBindingListener`, including Spring session-scoped beans.
+See the Javadoc for this Java class for more information.
 
 [[concurrent-sessions]]
 === Concurrency Control
-Spring Security is able to prevent a principal from concurrently authenticating to the same application more than a specified number of times.
-Many ISVs take advantage of this to enforce licensing, whilst network administrators like this feature because it helps prevent people from sharing login names.
-You can, for example, stop user "Batman" from logging onto the web application from two different sessions.
+Spring Security can prevent a principal from concurrently authenticating to the same application more than a specified number of times.
+Many ISVs take advantage of this to enforce licensing, while network administrators like this feature because it helps prevent people from sharing login names.
+You can, for example, stop user `Batman` from logging onto the web application from two different sessions.
 You can either expire their previous login or you can report an error when they try to log in again, preventing the second login.
-Note that if you are using the second approach, a user who has not explicitly logged out (but who has just closed their browser, for example) will not be able to log in again until their original session expires.
+Note that, if you use the second approach, a user who has not explicitly logged out (but who has just closed their browser, for example) cannot log in again until their original session expires.
 
+//FIXME: Add a link to the namespace chapter.
 Concurrency control is supported by the namespace, so please check the earlier namespace chapter for the simplest configuration.
-Sometimes you need to customize things though.
+Sometimes, though, you need to customize things.
 
 The implementation uses a specialized version of `SessionAuthenticationStrategy`, called `ConcurrentSessionControlAuthenticationStrategy`.
-[NOTE]
-====
 
-Previously the concurrent authentication check was made by the `ProviderManager`, which could be injected with a `ConcurrentSessionController`.
+NOTE: Previously, the concurrent authentication check was made by the `ProviderManager`, which could be injected with a `ConcurrentSessionController`.
 The latter would check if the user was attempting to exceed the number of permitted sessions.
 However, this approach required that an HTTP session be created in advance, which is undesirable.
-In Spring Security 3, the user is first authenticated by the `AuthenticationManager` and once they are successfully authenticated, a session is created and the check is made whether they are allowed to have another session open.
+In Spring Security 3 and later, the user is first authenticated by the `AuthenticationManager` and once they are successfully authenticated, a session is created and the check is made whether they are allowed to have another session open.
+
+To use concurrent session support, you need to add the following to `web.xml`:
 
 ====
-
-
-To use concurrent session support, you'll need to add the following to `web.xml`:
-
 [source,xml]
 ----
-
 <listener>
 	<listener-class>
 	org.springframework.security.web.session.HttpSessionEventPublisher
 	</listener-class>
 </listener>
 ----
+====
 
+In addition, you need to add the `ConcurrentSessionFilter` to your `FilterChainProxy`.
+The `ConcurrentSessionFilter` requires two constructor arguments:
+* `sessionRegistry`, which generally points to an instance of `SessionRegistryImpl`
+* `sessionInformationExpiredStrategy`, which defines the strategy to apply when a session has expired
+The following sample configuration uses the namespace to create the `FilterChainProxy` and other default beans:
 
-
-In addition, you will need to add the `ConcurrentSessionFilter` to your `FilterChainProxy`.
-The `ConcurrentSessionFilter` requires two constructor arguments, `sessionRegistry`, which generally points to an instance of `SessionRegistryImpl`, and `sessionInformationExpiredStrategy`, which defines the strategy to apply when a session has expired.
-A configuration using the namespace to create the `FilterChainProxy` and other default beans might look like this:
-
+====
 [source,xml]
 ----
-
 <http>
 <custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />
 <custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />
@@ -241,25 +249,22 @@ class="org.springframework.security.web.session.ConcurrentSessionFilter">
 
 <beans:bean id="sessionRegistry"
 	class="org.springframework.security.core.session.SessionRegistryImpl" />
-
 ----
-
-
+====
 
 Adding the listener to `web.xml` causes an `ApplicationEvent` to be published to the Spring `ApplicationContext` every time a `HttpSession` commences or ends.
-This is critical, as it allows the `SessionRegistryImpl` to be notified when a session ends.
-Without it, a user will never be able to log back in again once they have exceeded their session allowance, even if they log out of another session or it times out.
-
+This is critical, as it lets the `SessionRegistryImpl` be notified when a session ends.
+Without it, a user can never log back in again once they have exceeded their session allowance, even if they log out of another session or it times out.
 
 [[list-authenticated-principals]]
 ==== Querying the SessionRegistry for currently authenticated users and their sessions
-Setting up concurrency-control, either through the namespace or using plain beans has the useful side effect of providing you with a reference to the `SessionRegistry` which you can use directly within your application, so even if you don't want to restrict the number of sessions a user may have, it may be worth setting up the infrastructure anyway.
-You can set the `maximumSession` property to -1 to allow unlimited sessions.
-If you're using the namespace, you can set an alias for the internally-created `SessionRegistry` using the `session-registry-alias` attribute, providing a reference which you can inject into your own beans.
+Setting up concurrency control, either through the namespace or using plain beans has the useful side effect of providing you with a reference to the `SessionRegistry` that you can use directly within your application. So, even if you do not want to restrict the number of sessions a user may have, it may be worth setting up the infrastructure anyway.
+You can set the `maximumSession` property to `-1` to allow unlimited sessions.
+If you use the namespace, you can set an alias for the internally-created `SessionRegistry` by using the `session-registry-alias` attribute, providing a reference that you can inject into your own beans.
 
 The `getAllPrincipals()` method supplies you with a list of the currently authenticated users.
 You can list a user's sessions by calling the `getAllSessions(Object principal, boolean includeExpiredSessions)` method, which returns a list of `SessionInformation` objects.
 You can also expire a user's session by calling `expireNow()` on a `SessionInformation` instance.
-When the user returns to the application, they will be prevented from proceeding.
+When the user returns to the application, they are prevented from proceeding.
 You may find these methods useful in an administration application, for example.
-Have a look at the Javadoc for more information.
+See the Javadoc for more information about the {security-api-url}org/springframework/security/core/session/SessionRegistry.html[`SessionRegistry`] interface.

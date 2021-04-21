@@ -3,21 +3,22 @@
 
 
 [[spring-security-crypto-introduction]]
-== Introduction
 The Spring Security Crypto module provides support for symmetric encryption, key generation, and password encoding.
 The code is distributed as part of the core module but has no dependencies on any other Spring Security (or Spring) code.
 
 
 [[spring-security-crypto-encryption]]
 == Encryptors
-The Encryptors class provides factory methods for constructing symmetric encryptors.
-Using this class, you can create ByteEncryptors to encrypt data in raw byte[] form.
-You can also construct TextEncryptors to encrypt text strings.
+The {security-api-url}org/springframework/security/crypto/encrypt/Encryptors.html[`Encryptors`] class provides factory methods for constructing symmetric encryptors.
+This class lets you create {security-api-url}org/springframework/security/crypto/encrypt/BytesEncryptor.html[`BytesEncryptor`] instances to encrypt data in raw `byte[]` form.
+You can also construct {security-api-url}org/springframework/security/crypto/encrypt/TextEncryptor.html[TextEncryptor] instances to encrypt text strings.
 Encryptors are thread-safe.
+
+NOTE: Both `BytesEncryptor` and `TextEncryptor` are interfaces. `BytesEncryptor` has multiple implementations.
 
 [[spring-security-crypto-encryption-bytes]]
 === BytesEncryptor
-Use the `Encryptors.stronger` factory method to construct a BytesEncryptor:
+YOu can use the `Encryptors.stronger` factory method to construct a `BytesEncryptor`:
 
 .BytesEncryptor
 ====
@@ -34,16 +35,16 @@ Encryptors.stronger("password", "salt")
 ----
 ====
 
-The "stronger" encryption method creates an encryptor using 256 bit AES encryption with
+The `stronger` encryption method creates an encryptor by using 256-bit AES encryption with
 Galois Counter Mode (GCM).
-It derives the secret key using PKCS #5's PBKDF2 (Password-Based Key Derivation Function #2).
+It derives the secret key by using PKCS #5's PBKDF2 (Password-Based Key Derivation Function #2).
 This method requires Java 6.
-The password used to generate the SecretKey should be kept in a secure place and not be shared.
-The salt is used to prevent dictionary attacks against the key in the event your encrypted data is compromised.
-A 16-byte random initialization vector is also applied so each encrypted message is unique.
+The password used to generate the `SecretKey` should be kept in a secure place and should not be shared.
+The salt is used to prevent dictionary attacks against the key in the event that your encrypted data is compromised.
+A 16-byte random initialization vector is also applied so that each encrypted message is unique.
 
 The provided salt should be in hex-encoded String form, be random, and be at least 8 bytes in length.
-Such a salt may be generated using a KeyGenerator:
+You can generate such a salt by using a `KeyGenerator`:
 
 .Generating a key
 ====
@@ -60,14 +61,14 @@ val salt = KeyGenerators.string().generateKey() // generates a random 8-byte sal
 ----
 ====
 
-Users may also use the `standard` encryption method, which is 256-bit AES in Cipher Block Chaining (CBC) Mode.
+You can also use the `standard` encryption method, which is 256-bit AES in Cipher Block Chaining (CBC) Mode.
 This mode is not https://en.wikipedia.org/wiki/Authenticated_encryption[authenticated] and does not provide any
 guarantees about the authenticity of the data.
-For a more secure alternative, users should prefer `Encryptors.stronger`.
+For a more secure alternative, use `Encryptors.stronger`.
 
 [[spring-security-crypto-encryption-text]]
 === TextEncryptor
-Use the Encryptors.text factory method to construct a standard TextEncryptor:
+You can use the `Encryptors.text` factory method to construct a standard TextEncryptor:
 
 .TextEncryptor
 ====
@@ -84,10 +85,10 @@ Encryptors.text("password", "salt")
 ----
 ====
 
-A TextEncryptor uses a standard BytesEncryptor to encrypt text data.
-Encrypted results are returned as hex-encoded strings for easy storage on the filesystem or in the database.
+A `TextEncryptor` uses a standard `BytesEncryptor` to encrypt text data.
+Encrypted results are returned as hex-encoded strings for easy storage on the filesystem or in a database.
 
-Use the Encryptors.queryableText factory method to construct a "queryable" TextEncryptor:
+You can use the `Encryptors.queryableText` factory method to construct a "`queryable`" `TextEncryptor`:
 
 .Queryable TextEncryptor
 ====
@@ -104,21 +105,21 @@ Encryptors.queryableText("password", "salt")
 ----
 ====
 
-The difference between a queryable TextEncryptor and a standard TextEncryptor has to do with initialization vector (iv) handling.
-The iv used in a queryable TextEncryptor#encrypt operation is shared, or constant, and is not randomly generated.
-This means the same text encrypted multiple times will always produce the same encryption result.
-This is less secure, but necessary for encrypted data that needs to be queried against.
-An example of queryable encrypted text would be an OAuth apiKey.
+The difference between a queryable `TextEncryptor` and a standard `TextEncryptor` has to do with initialization vector (IV) handling.
+The IV used in a queryable `TextEncryptor.encrypt` operation is shared, or constant, and is not randomly generated.
+This means the same text encrypted multiple times always produces the same encryption result.
+This is less secure but necessary for encrypted data that needs to be queried against.
+An example of queryable encrypted text would be an OAuth `apiKey`.
 
 [[spring-security-crypto-keygenerators]]
 == Key Generators
-The KeyGenerators class provides a number of convenience factory methods for constructing different types of key generators.
-Using this class, you can create a BytesKeyGenerator to generate byte[] keys.
-You can also construct a StringKeyGenerator to generate string keys.
-KeyGenerators are thread-safe.
+The {security-api-url}org/springframework/security/crypto/keygen/KeyGenerators.html[`KeyGenerators`] class provides a number of convenience factory methods for constructing different types of key generators.
+By using this class, you can create a {security-api-url}org/springframework/security/crypto/keygen/BytesKeyGenerator.html[`BytesKeyGenerator`] to generate `byte[]` keys.
+You can also construct a {security-api-url}org/springframework/security/crypto/keygen/StringKeyGenerator.html`[StringKeyGenerator]` to generate string keys.
+`KeyGenerators` is a thread-safe class.
 
 === BytesKeyGenerator
-Use the KeyGenerators.secureRandom factory methods to generate a BytesKeyGenerator backed by a SecureRandom instance:
+You can use the `KeyGenerators.secureRandom` factory methods to generate a `BytesKeyGenerator` backed by a `SecureRandom` instance:
 
 .BytesKeyGenerator
 ====
@@ -138,7 +139,7 @@ val key = generator.generateKey()
 ====
 
 The default key length is 8 bytes.
-There is also a KeyGenerators.secureRandom variant that provides control over the key length:
+A `KeyGenerators.secureRandom` variant provides control over the key length:
 
 .KeyGenerators.secureRandom
 ====
@@ -155,7 +156,7 @@ KeyGenerators.secureRandom(16)
 ----
 ====
 
-Use the KeyGenerators.shared factory method to construct a BytesKeyGenerator that always returns the same key on every invocation:
+Use the `KeyGenerators.shared` factory method to construct a BytesKeyGenerator that always returns the same key on every invocation:
 
 .KeyGenerators.shared
 ====
@@ -173,7 +174,7 @@ KeyGenerators.shared(16)
 ====
 
 === StringKeyGenerator
-Use the KeyGenerators.string factory method to construct a 8-byte, SecureRandom KeyGenerator that hex-encodes each key as a String:
+You can use the `KeyGenerators.string` factory method to construct an 8-byte, `SecureRandom` `KeyGenerator` that hex-encodes each key as a `String`:
 
 .StringKeyGenerator
 ====
@@ -192,9 +193,10 @@ KeyGenerators.string()
 
 [[spring-security-crypto-passwordencoders]]
 == Password Encoding
-The password package of the spring-security-crypto module provides support for encoding passwords.
+The password package of the `spring-security-crypto` module provides support for encoding passwords.
 `PasswordEncoder` is the central service interface and has the following signature:
 
+====
 [source,java]
 ----
 public interface PasswordEncoder {
@@ -204,16 +206,18 @@ String encode(String rawPassword);
 boolean matches(String rawPassword, String encodedPassword);
 }
 ----
+====
 
-The matches method returns true if the rawPassword, once encoded, equals the encodedPassword.
+The `matches` method returns true if the `rawPassword`, once encoded, equals the `encodedPassword`.
 This method is designed to support password-based authentication schemes.
 
-The `BCryptPasswordEncoder` implementation uses the widely supported "bcrypt" algorithm to hash the passwords.
-Bcrypt uses a random 16 byte salt value and is a deliberately slow algorithm, in order to hinder password crackers.
-The amount of work it does can be tuned using the "strength" parameter which takes values from 4 to 31.
+The `BCryptPasswordEncoder` implementation uses the widely supported "`bcrypt`" algorithm to hash the passwords.
+Bcrypt uses a random 16-byte salt value and is a deliberately slow algorithm, to hinder password crackers.
+You can tune the amount of work it does by using the `strength` parameter, which takes a value from 4 to 31.
 The higher the value, the more work has to be done to calculate the hash.
-The default value is 10.
+The default value is `10`.
 You can change this value in your deployed system without affecting existing passwords, as the value is also stored in the encoded hash.
+The following example uses the `BCryptPasswordEncoder`:
 
 .BCryptPasswordEncoder
 ====
@@ -239,8 +243,8 @@ assertTrue(encoder.matches("myPassword", result))
 ====
 
 The `Pbkdf2PasswordEncoder` implementation uses PBKDF2 algorithm to hash the passwords.
-In order to defeat password cracking PBKDF2 is a deliberately slow algorithm and should be tuned to take about .5 seconds to verify a password on your system.
-
+To defeat password cracking, PBKDF2 is a deliberately slow algorithm and should be tuned to take about .5 seconds to verify a password on your system.
+The following system uses the `Pbkdf2PasswordEncoder`:
 
 .Pbkdf2PasswordEncoder
 ====

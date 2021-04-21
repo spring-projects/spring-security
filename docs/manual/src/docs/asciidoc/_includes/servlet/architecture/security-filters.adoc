@@ -2,41 +2,41 @@
 = Security Filters
 
 The Security Filters are inserted into the <<servlet-filterchainproxy>> with the <<servlet-securityfilterchain>> API.
-The <<servlet-filters-review,order of ``Filter``>>s matters.
-It is typically not necessary to know the ordering of Spring Security's ``Filter``s.
-However, there are times that it is beneficial to know the ordering
+The <<servlet-filters-review,order of `Filter`>> instances matters.
+It is typically not necessary to know the ordering of Spring Security's `Filter` instances.
+However, there are times that it is beneficial to know the ordering.
 
-Below is a comprehensive list of Spring Security Filter ordering:
+The following is a comprehensive list of Spring Security Filter ordering:
 
-* ChannelProcessingFilter
-* WebAsyncManagerIntegrationFilter
-* SecurityContextPersistenceFilter
-* HeaderWriterFilter
-* CorsFilter
-* CsrfFilter
-* LogoutFilter
-* OAuth2AuthorizationRequestRedirectFilter
-* Saml2WebSsoAuthenticationRequestFilter
-* X509AuthenticationFilter
-* AbstractPreAuthenticatedProcessingFilter
-* CasAuthenticationFilter
-* OAuth2LoginAuthenticationFilter
-* Saml2WebSsoAuthenticationFilter
+* `ChannelProcessingFilter`
+* `WebAsyncManagerIntegrationFilter`
+* `SecurityContextPersistenceFilter`
+* `HeaderWriterFilter`
+* `CorsFilter`
+* `CsrfFilter`
+* `LogoutFilter`
+* `OAuth2AuthorizationRequestRedirectFilter`
+* `Saml2WebSsoAuthenticationRequestFilter`
+* `X509AuthenticationFilter`
+* `AbstractPreAuthenticatedProcessingFilter`
+* `CasAuthenticationFilter`
+* `OAuth2LoginAuthenticationFilter`
+* `Saml2WebSsoAuthenticationFilter`
 * <<servlet-authentication-usernamepasswordauthenticationfilter,`UsernamePasswordAuthenticationFilter`>>
-* OpenIDAuthenticationFilter
-* DefaultLoginPageGeneratingFilter
-* DefaultLogoutPageGeneratingFilter
-* ConcurrentSessionFilter
+* `OpenIDAuthenticationFilter`
+* `DefaultLoginPageGeneratingFilter`
+* `DefaultLogoutPageGeneratingFilter`
+* `ConcurrentSessionFilter`
 * <<servlet-authentication-digest,`DigestAuthenticationFilter`>>
-* BearerTokenAuthenticationFilter
+* `BearerTokenAuthenticationFilter`
 * <<servlet-authentication-basic,`BasicAuthenticationFilter`>>
-* RequestCacheAwareFilter
-* SecurityContextHolderAwareRequestFilter
-* JaasApiIntegrationFilter
-* RememberMeAuthenticationFilter
-* AnonymousAuthenticationFilter
-* OAuth2AuthorizationCodeGrantFilter
-* SessionManagementFilter
+* `RequestCacheAwareFilter`
+* `SecurityContextHolderAwareRequestFilter`
+* `JaasApiIntegrationFilter`
+* `RememberMeAuthenticationFilter`
+* `AnonymousAuthenticationFilter`
+* `OAuth2AuthorizationCodeGrantFilter`
+* `SessionManagementFilter`
 * <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>>
 * <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>>
-* SwitchUserFilter
+* `SwitchUserFilter`

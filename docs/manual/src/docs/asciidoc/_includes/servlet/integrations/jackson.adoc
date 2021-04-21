@@ -1,11 +1,12 @@
 [[jackson]]
 == Jackson Support
 
-Spring Security provides Jackson support for persisting Spring Security related classes.
-This can improve the performance of serializing Spring Security related classes when working with distributed sessions (i.e. session replication, Spring Session, etc).
+Spring Security provides Jackson support for persisting Spring Security-related classes.
+This can improve the performance of serializing Spring Security-related classes when working with distributed sessions (session replication, Spring Session, and so on).
 
 To use it, register the `SecurityJackson2Modules.getModules(ClassLoader)` with `ObjectMapper` (https://github.com/FasterXML/jackson-databind[jackson-databind]):
 
+====
 [source,java]
 ----
 ObjectMapper mapper = new ObjectMapper();
@@ -18,13 +19,14 @@ SecurityContext context = new SecurityContextImpl();
 // ...
 String json = mapper.writeValueAsString(context);
 ----
+====
 
 [NOTE]
 ====
 The following Spring Security modules provide Jackson support:
 
-- spring-security-core (`CoreJackson2Module`)
-- spring-security-web (`WebJackson2Module`, `WebServletJackson2Module`, `WebServerJackson2Module`)
-- <<oauth2client, spring-security-oauth2-client>> (`OAuth2ClientJackson2Module`)
-- spring-security-cas (`CasJackson2Module`)
+- spring-security-core ({security-api-url}org/springframework/security/jackson2/CoreJackson2Module.html[`CoreJackson2Module`])
+- spring-security-web ({security-api-url}org/springframework/security/web/jackson2/WebJackson2Module.html[`WebJackson2Module`], {security-api-url}org/springframework/security/web/jackson2/WebServletJackson2Module.html[`WebServletJackson2Module`], {security-api-url}org/springframework/security/web/server/jackson2/WebServerJackson2Module.html[`WebServerJackson2Module`])
+- <<oauth2client, spring-security-oauth2-client>> ({security-api-url}org/springframework/security/oauth2/client/jackson2/OAuth2ClientJackson2Module.html[`OAuth2ClientJackson2Module`])
+- spring-security-cas ({security-api-url}org/springframework/security/cas/jackson2/CasJackson2Module.html[`CasJackson2Module`])
 ====

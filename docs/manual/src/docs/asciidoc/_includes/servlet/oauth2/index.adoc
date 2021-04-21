@@ -1,5 +1,7 @@
 = OAuth2
 
+This section describes how Spring Security enables OAuth2.
+
 include::oauth2-login.adoc[]
 
 include::oauth2-client.adoc[]

@@ -1,7 +1,9 @@
 [[servlet-securityfilterchain]]
 = SecurityFilterChain
 
-{security-api-url}org/springframework/security/web/SecurityFilterChain.html[`SecurityFilterChain`] is used by <<servlet-filterchainproxy>> to determine which Spring Security ``Filter``s should be invoked for this request.
+{security-api-url}org/springframework/security/web/SecurityFilterChain.html[`SecurityFilterChain`] is used by <<servlet-filterchainproxy>> to determine which Spring Security `Filter` instances should be invoked for the current request.
+
+The following image shows the role of `SecurityFilterChain`.
 
 .SecurityFilterChain
 [[servlet-securityfilterchain-figure]]
@@ -10,34 +12,36 @@ image::{figures}/securityfilterchain.png[]
 The <<servlet-security-filters,Security Filters>> in `SecurityFilterChain` are typically Beans, but they are registered with `FilterChainProxy` instead of <<servlet-delegatingfilterproxy>>.
 `FilterChainProxy` provides a number of advantages to registering directly with the Servlet container or <<servlet-delegatingfilterproxy>>.
 First, it provides a starting point for all of Spring Security's Servlet support.
-For that reason, if you are attempting to troubleshoot Spring Security's Servlet support, adding a debug point in `FilterChainProxy` is a great place to start.
+For that reason, if you try to troubleshoot Spring Security's Servlet support, adding a debug point in `FilterChainProxy` is a great place to start.
 
-Second, since `FilterChainProxy` is central to Spring Security usage it can perform tasks that are not viewed as optional.
+Second, since `FilterChainProxy` is central to Spring Security usage, it can perform tasks that are not viewed as optional.
 // FIXME: Add a link to SecurityContext
 For example, it clears out the `SecurityContext` to avoid memory leaks.
 It also applies Spring Security's <<servlet-httpfirewall,`HttpFirewall`>> to protect applications against certain types of attacks.
 
 In addition, it provides more flexibility in determining when a `SecurityFilterChain` should be invoked.
-In a Servlet container, ``Filter``s are invoked based upon the URL alone.
+In a Servlet container, `Filter` instances are invoked based upon the URL alone.
 // FIXME: Link to RequestMatcher
-However, `FilterChainProxy` can determine invocation based upon anything in the `HttpServletRequest` by leveraging the `RequestMatcher` interface.
+However, `FilterChainProxy` can determine invocation based upon anything in the `HttpServletRequest` by using the `RequestMatcher` interface.
 
-In fact, `FilterChainProxy` can be used to determine which `SecurityFilterChain` should be used.
-This allows providing a totally separate configuration for different _slices_ of your application.
+In fact, you can use `FilterChainProxy` to determine which `SecurityFilterChain` should be used.
+This lets you provide a totally separate configuration for different _slices_ of your application.
+
+The following image shows multiple `SecurityFilterChain` instances:
 
 .Multiple SecurityFilterChain
 [[servlet-multi-securityfilterchain-figure]]
 image::{figures}/multi-securityfilterchain.png[]
 
-In the <<servlet-multi-securityfilterchain-figure>> Figure `FilterChainProxy` decides which `SecurityFilterChain` should be used.
-Only the first `SecurityFilterChain` that matches will be invoked.
-If a URL of `/api/messages/` is requested, it will first match on ``SecurityFilterChain~0~``'s pattern of `+/api/**+`, so only `SecurityFilterChain~0~` will be invoked even though it also matches on ``SecurityFilterChain~n~``.
-If a URL of `/messages/` is requested, it will not match on ``SecurityFilterChain~0~``'s pattern of `+/api/**+`, so `FilterChainProxy` will continue trying each `SecurityFilterChain`.
-Assuming that no other, `SecurityFilterChain` instances match `SecurityFilterChain~n~` will be invoked.
-// FIXME add link to pattern matching
+In the <<servlet-multi-securityfilterchain-figure>> figure, `FilterChainProxy` decides which `SecurityFilterChain` should be used.
+Only the first `SecurityFilterChain` that matches is invoked.
+If a URL of `/api/messages/` is requested, it first matches on the `SecurityFilterChain~0~` pattern of `+/api/**+`, so only `SecurityFilterChain~0~` is invoked, even though it also matches on ``SecurityFilterChain~n~``.
+If a URL of `/messages/` is requested, it does not match on the `SecurityFilterChain~0~` pattern of `+/api/**+`, so `FilterChainProxy` continues trying each `SecurityFilterChain`.
+Assuming that no other `SecurityFilterChain` instances match, `SecurityFilterChain~n~` is invoked.
+// FIXME: add link to pattern matching
 
-Notice that `SecurityFilterChain~0~` has only three security ``Filter``s instances configured.
-However, `SecurityFilterChain~n~` has four security ``Filter``s configured.
-It is important to note that each `SecurityFilterChain` can be unique and configured in isolation.
-In fact, a `SecurityFilterChain` might have zero security ``Filter``s if the application wants Spring Security to ignore certain requests.
+Notice that `SecurityFilterChain~0~` has only three security `Filter` instances configured.
+However, `SecurityFilterChain~n~` has four security `Filter` instanes configured.
+It is important to note that each `SecurityFilterChain` can be unique and can be configured in isolation.
+In fact, a `SecurityFilterChain` might have zero security `Filter` instances if the application wants Spring Security to ignore certain requests.
 // FIXME: add link to configuring multiple `SecurityFilterChain` instances

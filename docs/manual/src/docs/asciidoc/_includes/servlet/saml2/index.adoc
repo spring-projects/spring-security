@@ -1,4 +1,7 @@
 [[servlet-saml2]]
-= SAML2
+= SAML 2.0
+
+This section discusses how Spring Security works with Security Assertion Markup Language 2.0.
+The https://en.wikipedia.org/wiki/SAML_2.0[Wikipedia article about SAML 2.0] provides some general background
 
 include::saml2-login.adoc[]

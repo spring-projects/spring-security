@@ -1,41 +1,41 @@
 // from the original documentation
-
 [[authz-arch]]
 = Authorization Architecture
 
+This section describes the Spring Security architecture that applies to authorization.
 
 [[authz-authorities]]
 == Authorities
-<<servlet-authentication-authentication,`Authentication`>>, discusses how all `Authentication` implementations store a list of `GrantedAuthority` objects.
+<<servlet-authentication-authentication,`Authentication`>> discusses how all `Authentication` implementations store a list of `GrantedAuthority` objects.
 These represent the authorities that have been granted to the principal.
-the `GrantedAuthority` objects are inserted into the `Authentication` object by the `AuthenticationManager` and are later read by `AccessDecisionManager` s when making authorization decisions.
+The `GrantedAuthority` objects are inserted into the `Authentication` object by the `AuthenticationManager` and are later read by `AccessDecisionManager` instances when making authorization decisions.
 
-`GrantedAuthority` is an interface with only one method:
+The `GrantedAuthority` interface has only one method:
 
+====
 [source,java]
 ----
-
 String getAuthority();
-
 ----
+====
 
-This method allows
-`AccessDecisionManager` s to obtain a precise `String` representation of the `GrantedAuthority`.
-By returning a representation as a `String`, a `GrantedAuthority` can be easily "read" by most `AccessDecisionManager` s.
-If a `GrantedAuthority` cannot be precisely represented as a `String`, the `GrantedAuthority` is considered "complex" and `getAuthority()` must return `null`.
+This method lets an
+`AccessDecisionManager` instance to obtain a precise `String` representation of the `GrantedAuthority`.
+By returning a representation as a `String`, a `GrantedAuthority` can be easily "`read`" by most `AccessDecisionManager` implementations.
+If a `GrantedAuthority` cannot be precisely represented as a `String`, the `GrantedAuthority` is considered "`complex`" and `getAuthority()` must return `null`.
 
-An example of a "complex" `GrantedAuthority` would be an implementation that stores a list of operations and authority thresholds that apply to different customer account numbers.
-Representing this complex `GrantedAuthority` as a `String` would be quite difficult, and as a result the `getAuthority()` method should return `null`.
-This will indicate to any `AccessDecisionManager` that it will need to specifically support the `GrantedAuthority` implementation in order to understand its contents.
+An example of a "`complex`" `GrantedAuthority` would be an implementation that stores a list of operations and authority thresholds that apply to different customer account numbers.
+Representing this complex `GrantedAuthority` as a `String` would be quite difficult. As a result, the `getAuthority()` method should return `null`.
+This indicates to any `AccessDecisionManager` that it needs to support the specific `GrantedAuthority` implementation to understand its contents.
 
-Spring Security includes one concrete `GrantedAuthority` implementation, `SimpleGrantedAuthority`.
-This allows any user-specified `String` to be converted into a `GrantedAuthority`.
-All `AuthenticationProvider` s included with the security architecture use `SimpleGrantedAuthority` to populate the `Authentication` object.
+Spring Security includes one concrete `GrantedAuthority` implementation: `SimpleGrantedAuthority`.
+This implementation lets any user-specified `String` be converted into a `GrantedAuthority`.
+All `AuthenticationProvider` instances included with the security architecture use `SimpleGrantedAuthority` to populate the `Authentication` object.
 
 
 [[authz-pre-invocation]]
 == Pre-Invocation Handling
-Spring Security provides interceptors which control access to secure objects such as method invocations or web requests.
+Spring Security provides interceptors that control access to secure objects, such as method invocations or web requests.
 A pre-invocation decision on whether the invocation is allowed to proceed is made by the `AccessDecisionManager`.
 
 
@@ -44,6 +44,7 @@ A pre-invocation decision on whether the invocation is allowed to proceed is mad
 The `AccessDecisionManager` is called by the `AbstractSecurityInterceptor` and is responsible for making final access control decisions.
 The `AccessDecisionManager` interface contains three methods:
 
+====
 [source,java]
 ----
 void decide(Authentication authentication, Object secureObject,
@@ -53,32 +54,34 @@ boolean supports(ConfigAttribute attribute);
 
 boolean supports(Class clazz);
 ----
+====
 
-The ``AccessDecisionManager``'s `decide` method is passed all the relevant information it needs in order to make an authorization decision.
-In particular, passing the secure `Object` enables those arguments contained in the actual secure object invocation to be inspected.
-For example, let's assume the secure object was a `MethodInvocation`.
-It would be easy to query the `MethodInvocation` for any `Customer` argument, and then implement some sort of security logic in the `AccessDecisionManager` to ensure the principal is permitted to operate on that customer.
+The `decide` method of the `AccessDecisionManager` is passed all the relevant information it needs to make an authorization decision.
+In particular, passing the secure `Object` lets those arguments contained in the actual secure object invocation be inspected.
+For example, assume the secure object is a `MethodInvocation`.
+You can query the `MethodInvocation` for any `Customer` argument and then implement some sort of security logic in the `AccessDecisionManager` to ensure the principal is permitted to operate on that customer.
 Implementations are expected to throw an `AccessDeniedException` if access is denied.
 
 The `supports(ConfigAttribute)` method is called by the `AbstractSecurityInterceptor` at startup time to determine if the `AccessDecisionManager` can process the passed `ConfigAttribute`.
-The `supports(Class)` method is called by a security interceptor implementation to ensure the configured `AccessDecisionManager` supports the type of secure object that the security interceptor will present.
+The `supports(Class)` method is called by a security interceptor implementation to ensure the configured `AccessDecisionManager` supports the type of secure object that the security interceptor presents.
 
 [[authz-voting-based]]
 === Voting-Based AccessDecisionManager Implementations
-Whilst users can implement their own `AccessDecisionManager` to control all aspects of authorization, Spring Security includes several `AccessDecisionManager` implementations that are based on voting.
-<<authz-access-voting>> illustrates the relevant classes.
+While users can implement their own `AccessDecisionManager` to control all aspects of authorization, Spring Security includes several `AccessDecisionManager` implementations that are based on voting.
+<<authz-access-voting>> describes the relevant classes.
+
+The following image shows the `AccessDecisionManager` interface:
 
 [[authz-access-voting]]
 .Voting Decision Manager
 image::images/access-decision-voting.png[]
 
-
-
-Using this approach, a series of `AccessDecisionVoter` implementations are polled on an authorization decision.
+By using this approach, a series of `AccessDecisionVoter` implementations are polled on an authorization decision.
 The `AccessDecisionManager` then decides whether or not to throw an `AccessDeniedException` based on its assessment of the votes.
 
 The `AccessDecisionVoter` interface has three methods:
 
+====
 [source,java]
 ----
 int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attrs);
@@ -87,87 +90,88 @@ boolean supports(ConfigAttribute attribute);
 
 boolean supports(Class clazz);
 ----
+====
 
-Concrete implementations return an `int`, with possible values               being reflected in the `AccessDecisionVoter` static fields `ACCESS_ABSTAIN`, `ACCESS_DENIED` and `ACCESS_GRANTED`.
-A voting implementation will return `ACCESS_ABSTAIN` if it has no opinion on an authorization decision.
+Concrete implementations return an `int`, with possible values being reflected in the `AccessDecisionVoter` static fields named `ACCESS_ABSTAIN`, `ACCESS_DENIED` and `ACCESS_GRANTED`.
+A voting implementation returns `ACCESS_ABSTAIN` if it has no opinion on an authorization decision.
 If it does have an opinion, it must return either `ACCESS_DENIED` or `ACCESS_GRANTED`.
 
-There are three concrete `AccessDecisionManager` s provided with Spring Security that tally the votes.
-The `ConsensusBased` implementation will grant or deny access based on the consensus of non-abstain votes.
+There are three concrete `AccessDecisionManager` implementations provided with Spring Security to tally the votes.
+The `ConsensusBased` implementation grants or denies access based on the consensus of non-abstain votes.
 Properties are provided to control behavior in the event of an equality of votes or if all votes are abstain.
-The `AffirmativeBased` implementation will grant access if one or more `ACCESS_GRANTED` votes were received (i.e. a deny vote will be ignored, provided there was at least one grant vote).
+The `AffirmativeBased` implementation grants access if one or more `ACCESS_GRANTED` votes were received (in other words, a deny vote will be ignored, provided there was at least one grant vote).
 Like the `ConsensusBased` implementation, there is a parameter that controls the behavior if all voters abstain.
 The `UnanimousBased` provider expects unanimous `ACCESS_GRANTED` votes in order to grant access, ignoring abstains.
-It will deny access if there is any `ACCESS_DENIED` vote.
-Like the other implementations, there is a parameter that controls the behaviour if all voters abstain.
+It denies access if there is any `ACCESS_DENIED` vote.
+Like the other implementations, there is a parameter that controls the behavior if all voters abstain.
 
-It is possible to implement a custom `AccessDecisionManager` that tallies votes differently.
-For example, votes from a particular `AccessDecisionVoter` might receive additional weighting, whilst a deny vote from a particular voter may have a veto effect.
+You can implement a custom `AccessDecisionManager` that tallies votes differently.
+For example, votes from a particular `AccessDecisionVoter` might receive additional weighting, while a deny vote from a particular voter may have a veto effect.
 
 
 [[authz-role-voter]]
 ==== RoleVoter
-The most commonly used `AccessDecisionVoter` provided with Spring Security is the simple `RoleVoter`, which treats configuration attributes as simple role names and votes to grant access if the user has been assigned that role.
+The most commonly used `AccessDecisionVoter` provided with Spring Security is the `RoleVoter`, which treats configuration attributes as role names and votes to grant access if the user has been assigned that role.
 
-It will vote if any `ConfigAttribute` begins with the prefix `ROLE_`.
-It will vote to grant access if there is a `GrantedAuthority` which returns a `String` representation (via the `getAuthority()` method) exactly equal to one or more `ConfigAttributes` starting with the prefix `ROLE_`.
-If there is no exact match of any `ConfigAttribute` starting with `ROLE_`, the `RoleVoter` will vote to deny access.
-If no `ConfigAttribute` begins with `ROLE_`, the voter will abstain.
+It votes if any `ConfigAttribute` begins with the `ROLE_` prefix.
+It votes to grant access if there is a `GrantedAuthority` that returns a `String` representation (from the `getAuthority()` method) exactly equal to one or more `ConfigAttributes` that start with the `ROLE_` prefix.
+If there is no exact match of any `ConfigAttribute` starting with `ROLE_`, `RoleVoter` votes to deny access.
+If no `ConfigAttribute` begins with `ROLE_`, the voter abstains.
 
 
 [[authz-authenticated-voter]]
 ==== AuthenticatedVoter
-Another voter which we've implicitly seen is the `AuthenticatedVoter`, which can be used to differentiate between anonymous, fully-authenticated and remember-me authenticated users.
-Many sites allow certain limited access under remember-me authentication, but require a user to confirm their identity by logging in for full access.
+Another voter which we have implicitly seen is the `AuthenticatedVoter`, which can be used to differentiate between anonymous, fully-authenticated, and remember-me authenticated users.
+Many sites allow certain limited access under remember-me authentication but require a user to confirm their identity by logging in for full access.
 
-When we've used the attribute `IS_AUTHENTICATED_ANONYMOUSLY` to grant anonymous access, this attribute was being processed by the `AuthenticatedVoter`.
-See the Javadoc for this class for more information.
-
+When we have used the `IS_AUTHENTICATED_ANONYMOUSLY` attribute to grant anonymous access, this attribute was being processed by the `AuthenticatedVoter`.
+For more information, see
+{security-api-url}org/springframework/security/access/vote/AuthenticatedVoter.html[`AuthenticatedVoter`].
 
 [[authz-custom-voter]]
 ==== Custom Voters
-Obviously, you can also implement a custom `AccessDecisionVoter` and you can put just about any access-control logic you want in it.
+You can also implement a custom `AccessDecisionVoter` and put just about any access-control logic you want in it.
 It might be specific to your application (business-logic related) or it might implement some security administration logic.
-For example, you'll find a https://spring.io/blog/2009/01/03/spring-security-customization-part-2-adjusting-secured-session-in-real-time[blog article] on the Spring web site which describes how to use a voter to deny access in real-time to users whose accounts have been suspended.
+For example, on the Spring web site, you can find a https://spring.io/blog/2009/01/03/spring-security-customization-part-2-adjusting-secured-session-in-real-time[blog article] that describes how to use a voter to deny access in real-time to users whose accounts have been suspended.
 
 
 [[authz-after-invocation-handling]]
 == After Invocation Handling
-Whilst the `AccessDecisionManager` is called by the `AbstractSecurityInterceptor` before proceeding with the secure object invocation, some applications need a way of modifying the object actually returned by the secure object invocation.
-Whilst you could easily implement your own AOP concern to achieve this, Spring Security provides a convenient hook that has several concrete implementations that integrate with its ACL capabilities.
+While the `AccessDecisionManager` is called by the `AbstractSecurityInterceptor` before proceeding with the secure object invocation, some applications need a way to modify the object actually returned by the secure object invocation.
+While you could implement your own AOP concern to achieve this, Spring Security provides a convenient hook that has several concrete implementations that integrate with its ACL capabilities.
 
-<<authz-after-invocation>> illustrates Spring Security's `AfterInvocationManager` and its concrete implementations.
+<<authz-after-invocation>> describes Spring Security's `AfterInvocationManager` and its concrete implementations.
+The following image shows the `AfterInvocationManager`:
 
 [[authz-after-invocation]]
 .After Invocation Implementation
 image::images/after-invocation.png[]
 
-Like many other parts of Spring Security, `AfterInvocationManager` has a single concrete implementation, `AfterInvocationProviderManager`, which polls a list of `AfterInvocationProvider` s.
+Like many other parts of Spring Security, `AfterInvocationManager` has a single concrete implementation, `AfterInvocationProviderManager`, which polls a list of `AfterInvocationProvider` instances.
 Each `AfterInvocationProvider` is allowed to modify the return object or throw an `AccessDeniedException`.
-Indeed multiple providers can modify the object, as the result of the previous provider is passed to the next in the list.
+Indeed, multiple providers can modify the object, as the result of the previous provider is passed to the next in the list.
 
-Please be aware that if you're using `AfterInvocationManager`, you will still need configuration attributes that allow the ``MethodSecurityInterceptor``'s `AccessDecisionManager` to allow an operation.
-If you're using the typical Spring Security included `AccessDecisionManager` implementations, having no configuration attributes defined for a particular secure method invocation will cause each `AccessDecisionVoter` to abstain from voting.
-In turn, if the `AccessDecisionManager` property           "`allowIfAllAbstainDecisions`" is `false`, an `AccessDeniedException` will be thrown.
-You may avoid this potential issue by either (i) setting "`allowIfAllAbstainDecisions`" to `true` (although this is generally not recommended) or (ii) simply ensure that there is at least one configuration attribute that an `AccessDecisionVoter` will vote to grant access for.
+Note that, if you use `AfterInvocationManager`, you still need configuration attributes to let the `AccessDecisionManager` of the `MethodSecurityInterceptor` allow an operation.
+If you use the typical Spring Security `AccessDecisionManager` implementations, having no configuration attributes defined for a particular secure method invocation causes each `AccessDecisionVoter` to abstain from voting.
+In turn, if the `allowIfAllAbstainDecisions` property of `AccessDecisionManager` is `false`, an `AccessDeniedException` is thrown.
+You may avoid this potential issue by either (i) setting `allowIfAllAbstainDecisions` to `true` (although this is generally not recommended) or (ii) ensuring that there is at least one configuration attribute for which an `AccessDecisionVoter` votes to grant access.
 This latter (recommended) approach is usually achieved through a `ROLE_USER` or `ROLE_AUTHENTICATED` configuration attribute.
 
 
 [[authz-hierarchical-roles]]
 == Hierarchical Roles
-It is a common requirement that a particular role in an application should automatically "include" other roles.
+It is a common requirement that a particular role in an application should automatically "`include`" other roles.
 For example, in an application which has the concept of an "admin" and a "user" role, you may want an admin to be able to do everything a normal user can.
-To achieve this, you can either make sure that all admin users are also assigned the "user" role.
-Alternatively, you can modify every access constraint which requires the "user" role to also include the "admin" role.
-This can get quite complicated if you have a lot of different roles in your application.
+To achieve this, you can either make sure that all admin users are also assigned the "`user`" role or you can modify every access constraint which requires the "`user`" role to also include the "`admin`" role.
+This can get complicated if you have a lot of different roles in your application.
 
-The use of a role-hierarchy allows you to configure which roles (or authorities) should include others.
-An extended version of Spring Security's <<authz-role-voter,RoleVoter>>, `RoleHierarchyVoter`, is configured with a `RoleHierarchy`, from which it obtains all the "reachable authorities" which the user is assigned.
-A typical configuration might look like this:
+The use of a role-hierarchy lets you configure which roles (or authorities) should include others.
+An extended version of Spring Security's <<authz-role-voter,RoleVoter>>, `RoleHierarchyVoter`, is configured with a `RoleHierarchy`, from which it obtains all the "`reachable authorities`" that the user is assigned.
+The following example shows a typical configuration:
 
+====
 [source,xml]
 ----
-
 <bean id="roleVoter" class="org.springframework.security.access.vote.RoleHierarchyVoter">
 	<constructor-arg ref="roleHierarchy" />
 </bean>
@@ -182,10 +186,11 @@ A typical configuration might look like this:
 	</property>
 </bean>
 ----
+====
 
-Here we have four roles in a hierarchy `ROLE_ADMIN => ROLE_STAFF => ROLE_USER => ROLE_GUEST`.
-A user who is authenticated with `ROLE_ADMIN`, will behave as if they have all four roles when security constraints are evaluated against an `AccessDecisionManager` configured with the above `RoleHierarchyVoter`.
-The `>` symbol can be thought of as meaning "includes".
+Here, we have four roles in a hierarchy `ROLE_ADMIN => ROLE_STAFF => ROLE_USER => ROLE_GUEST`.
+A user who is authenticated with `ROLE_ADMIN` behaves as if they have all four roles when security constraints are evaluated against an `AccessDecisionManager` configured with the preceding `RoleHierarchyVoter`.
+The `>` symbol can be thought of as meaning "`includes`".
 
-Role hierarchies offer a convenient means of simplifying the access-control configuration data for your application and/or reducing the number of authorities which you need to assign to a user.
-For more complex requirements you may wish to define a logical mapping between the specific access-rights your application requires and the roles that are assigned to users, translating between the two when loading the user information.
+Role hierarchies offer a convenient means of simplifying the access-control configuration data for your application and reducing the number of authorities that you need to assign to a user.
+For more complex requirements, you may wish to define a logical mapping between the specific access-rights your application requires and the roles that are assigned to users, translating between the two when loading the user information.

@@ -1,8 +1,8 @@
 
 [[kotlin-config]]
 = Kotlin Configuration
-Spring Security Kotlin Configuration support has been available since Spring Security 5.3.
-It enables users to easily configure Spring Security using a native Kotlin DSL.
+Spring Security Kotlin configuration has been available since Spring Security 5.3.
+It lets users configure Spring Security by using a native Kotlin DSL.
 
 NOTE: Spring Security provides https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/kotlin/hello-security[a sample application] which demonstrates the use of Spring Security Kotlin Configuration.
 
@@ -10,10 +10,11 @@ NOTE: Spring Security provides https://github.com/spring-projects/spring-securit
 == HttpSecurity
 
 How does Spring Security know that we want to require all users to be authenticated?
-How does Spring Security know we want to support form based authentication?
-There is a configuration class that is being invoked behind the scenes called `WebSecurityConfigurerAdapter`.
+How does Spring Security know we want to support form-based authentication?
+There is a configuration class (called `WebSecurityConfigurerAdapter`) that is being invoked behind the scenes.
 It has a method called `configure` with the following default implementation:
 
+====
 [source,kotlin]
 ----
 fun configure(http: HttpSecurity) {
@@ -26,15 +27,17 @@ fun configure(http: HttpSecurity) {
     }
 }
 ----
+====
 
-The default configuration above:
+The default configuration (shown in the preceding listing):
 
 * Ensures that any request to our application requires the user to be authenticated
-* Allows users to authenticate with form based login
-* Allows users to authenticate with HTTP Basic authentication
+* Lets users authenticate with form-based login
+* Lets users authenticate with HTTP Basic authentication
 
-You will notice that this configuration is quite similar the XML Namespace configuration:
+Note that this configuration is parallels the XML namespace configuration:
 
+====
 [source,xml]
 ----
 <http>
@@ -43,14 +46,17 @@ You will notice that this configuration is quite similar the XML Namespace confi
 	<http-basic />
 </http>
 ----
+====
 
-== Multiple HttpSecurity
+== Multiple HttpSecurity Instances
 
-We can configure multiple HttpSecurity instances just as we can have multiple `<http>` blocks.
+We can configure multiple HttpSecurity instances, just as we can have multiple `<http>` blocks.
 The key is to extend the `WebSecurityConfigurerAdapter` multiple times.
-For example, the following is an example of having a different configuration for URL's that start with `/api/`.
+The following  example has a different configuration for URL's that start with `/api/`:
 
-[source,kotlin]
+// The source is Kotlin, but we specify Java to get code formatting. At present, Asciidoctor doesnt' have a Kotlin formatter.
+====
+[source,java]
 ----
 @EnableWebSecurity
 class MultiHttpSecurityConfig {
@@ -91,9 +97,10 @@ class MultiHttpSecurityConfig {
 }
 ----
 
-<1> Configure Authentication as normal
+<1> Configure Authentication as usual.
 <2> Create an instance of `WebSecurityConfigurerAdapter` that contains `@Order` to specify which `WebSecurityConfigurerAdapter` should be considered first.
-<3> The `http.antMatcher` states that this `HttpSecurity` will only be applicable to URLs that start with `/api/`
+<3> The `http.antMatcher` states that this `HttpSecurity` is applicable only to URLs that start with `/api/`
 <4> Create another instance of `WebSecurityConfigurerAdapter`.
-If the URL does not start with `/api/` this configuration will be used.
-This configuration is considered after `ApiWebSecurityConfigurationAdapter` since it has an `@Order` value after `1` (no `@Order` defaults to last).
+If the URL does not start with `/api/`, this configuration is used.
+This configuration is considered after `ApiWebSecurityConfigurationAdapter`, since it has an `@Order` value after `1` (no `@Order` defaults to last).
+====

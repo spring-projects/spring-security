@@ -8,28 +8,28 @@ The {security-api-url}org/springframework/security/web/access/ExceptionTranslati
 
 `ExceptionTranslationFilter` is inserted into the <<servlet-filterchainproxy>> as one of the <<servlet-security-filters>>.
 
+The following image shows the relationship of `ExceptionTranslationFilter` to other components:
+
 image::{figures}/exceptiontranslationfilter.png[]
 
-
 * image:{icondir}/number_1.png[] First, the `ExceptionTranslationFilter` invokes `FilterChain.doFilter(request, response)` to invoke the rest of the application.
-* image:{icondir}/number_2.png[] If the user is not authenticated or it is an `AuthenticationException`, then __Start Authentication__.
-** The <<servlet-authentication-securitycontextholder>> is cleared out
+* image:{icondir}/number_2.png[] If the user is not authenticated or it is an `AuthenticationException`, __Start Authentication__.
+** The <<servlet-authentication-securitycontextholder>> is cleared out.
 ** The `HttpServletRequest` is saved in the {security-api-url}org/springframework/security/web/savedrequest/RequestCache.html[`RequestCache`].
 When the user successfully authenticates, the `RequestCache` is used to replay the original request.
 // FIXME: add link to authentication success
 ** The `AuthenticationEntryPoint` is used to request credentials from the client.
 For example, it might redirect to a log in page or send a `WWW-Authenticate` header.
 // FIXME: link to AuthenticationEntryPoint
-* image:{icondir}/number_3.png[] Otherwise if it is an `AccessDeniedException`, then __Access Denied__.
+* image:{icondir}/number_3.png[] Otherwise, if it is an `AccessDeniedException`, then __Access Denied__.
 The `AccessDeniedHandler` is invoked to handle access denied.
 // FIXME: link to AccessDeniedHandler
 
-[NOTE]
-====
-If the application does not throw an `AccessDeniedException` or an `AuthenticationException`, then `ExceptionTranslationFilter` does not do anything.
-====
+NOTE: If the application does not throw an `AccessDeniedException` or an `AuthenticationException`, `ExceptionTranslationFilter` does not do anything.
 
 The pseudocode for `ExceptionTranslationFilter` looks something like this:
+
+// FIXME: Use real code from a real repository rather than pseudo code
 
 .ExceptionTranslationFilter pseudocode
 [source,java]
@@ -44,7 +44,7 @@ try {
 	}
 }
 ----
-<1> You will recall from <<servlet-filters-review>> that invoking `FilterChain.doFilter(request, response)` is the equivalent of invoking the rest of the application.
-This means that if another part of the application, (i.e. <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> or method security) throws an `AuthenticationException` or `AccessDeniedException` it will be caught and handled here.
-<2> If the user is not authenticated or it is an `AuthenticationException`, then __Start Authentication__.
+<1> As described in <<servlet-filters-review>>, invoking `FilterChain.doFilter(request, response)` is the equivalent of invoking the rest of the application.
+This means that if another part of the application, (<<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> or method security) throws an `AuthenticationException` or `AccessDeniedException` it is caught and handled here.
+<2> If the user is not authenticated or it is an `AuthenticationException`, __Start Authentication__.
 <3> Otherwise, __Access Denied__

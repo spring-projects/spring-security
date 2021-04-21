@@ -1,14 +1,13 @@
 [[jc-erms]]
 = EnableReactiveMethodSecurity
 
-Spring Security supports method security using https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] which is setup using `ReactiveSecurityContextHolder`.
-For example, this demonstrates how to retrieve the currently logged in user's message.
+Spring Security supports method security by using https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context], which is set up by `ReactiveSecurityContextHolder`.
+The following example shows how to retrieve the currently logged in user's message:
 
 [NOTE]
 ====
 For this to work the return type of the method must be a `org.reactivestreams.Publisher` (i.e. `Mono`/`Flux`) or the function must be a Kotlin coroutine function.
 This is necessary to integrate with Reactor's `Context`.
-====
 
 ====
 .Java
@@ -27,6 +26,7 @@ StepVerifier.create(messageByUsername)
 	.expectNext("Hi user")
 	.verifyComplete();
 ----
+====
 
 .Kotlin
 [source,kotlin,role="secondary"]
@@ -55,6 +55,7 @@ Mono<String> findMessageByUsername(String username) {
 	return Mono.just("Hi " + username);
 }
 ----
+====
 
 .Kotlin
 [source,kotlin,role="secondary"]
@@ -88,6 +89,7 @@ public class SecurityConfig {
 	}
 }
 ----
+====
 
 .Kotlin
 [source,kotlin,role="secondary"]
@@ -125,6 +127,7 @@ public class HelloWorldMessageService {
 	}
 }
 ----
+====
 
 .Kotlin
 [source,kotlin,role="secondary"]
@@ -162,7 +165,7 @@ It is important to note that any of the expressions in standard method security 
 However, at this time we only support return type of `Boolean` or `boolean` of the expression.
 This means that the expression must not block.
 
-When integrating with <<jc-webflux>>, the Reactor Context is automatically established by Spring Security according to the authenticated user.
+When integrating with <<jc-webflux>>, the Reactor Context is automatically established by Spring Security according to the authenticated user:
 
 ====
 .Java
@@ -198,8 +201,8 @@ public class SecurityConfig {
 		return new MapReactiveUserDetailsService(rob, admin);
 	}
 }
-
 ----
+====
 
 .Kotlin
 [source,kotlin,role="secondary"]

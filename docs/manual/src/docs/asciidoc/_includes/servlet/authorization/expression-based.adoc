@@ -1,20 +1,20 @@
 
 [[el-access]]
 == Expression-Based Access Control
-Spring Security 3.0 introduced the ability to use Spring EL expressions as an authorization mechanism in addition to the simple use of configuration attributes and access-decision voters which have seen before.
-Expression-based access control is built on the same architecture but allows complicated Boolean logic to be encapsulated in a single expression.
+Spring Security 3.0 introduced the ability to use Spring Expression Language (SpEL) expressions as an authorization mechanism in addition to the existing configuration attributes and access-decision voters.
+Expression-based access control is built on the same architecture but lets complicated Boolean logic be encapsulated in a single expression.
 
 
 === Overview
-Spring Security uses Spring EL for expression support and you should look at how that works if you are interested in understanding the topic in more depth.
-Expressions are evaluated with a "root object" as part of the evaluation context.
-Spring Security uses specific classes for web and method security as the root object, in order to provide built-in expressions and access to values such as the current principal.
+Spring Security uses SpEL for expression support and you should look at how that works if you are interested in understanding the topic in more depth.
+Expressions are evaluated with a "`root object`" as part of the evaluation context.
+Spring Security uses specific classes for web and method security as the root object to provide built-in expressions and access to values, such as the current principal.
 
 
 [[el-common-built-in]]
 ==== Common Built-In Expressions
 The base class for expression root objects is `SecurityExpressionRoot`.
-This provides some common expressions which are available in both web and method security.
+This provides some common expressions that are available in both web and method security:
 
 [[common-expressions]]
 .Common built-in expressions
@@ -24,95 +24,94 @@ This provides some common expressions which are available in both web and method
 | `hasRole(String role)`
 | Returns `true` if the current principal has the specified role.
 
-For example, `hasRole('admin')`
+Example: `hasRole('admin')`
 
-By default if the supplied role does not start with 'ROLE_' it will be added.
-This can be customized by modifying the `defaultRolePrefix` on `DefaultWebSecurityExpressionHandler`.
+By default, if the supplied role does not start with `ROLE_`, it is added.
+You can customize this behavior by modifying the `defaultRolePrefix` on `DefaultWebSecurityExpressionHandler`.
 
 | `hasAnyRole(String... roles)`
 | Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings).
 
-For example, `hasAnyRole('admin', 'user')`
+Example: `hasAnyRole('admin', 'user')`.
 
-By default if the supplied role does not start with 'ROLE_' it will be added.
-This can be customized by modifying the `defaultRolePrefix` on `DefaultWebSecurityExpressionHandler`.
+By default, if the supplied role does not start with `ROLE_`, it is added.
+You can customize this behavior by modifying the `defaultRolePrefix` on `DefaultWebSecurityExpressionHandler`.
 
 | `hasAuthority(String authority)`
 | Returns `true` if the current principal has the specified authority.
 
-For example, `hasAuthority('read')`
+Example: `hasAuthority('read')`
 
 | `hasAnyAuthority(String... authorities)`
-| Returns `true` if the current principal has any of the supplied authorities (given as a comma-separated list of strings)
+| Returns `true` if the current principal has any of the supplied authorities (given as a comma-separated list of strings).
 
-For example, `hasAnyAuthority('read', 'write')`
+Example: `hasAnyAuthority('read', 'write')`.
 
 | `principal`
-| Allows direct access to the principal object representing the current user
+| Allows direct access to the principal object that represents the current user.
 
 | `authentication`
-| Allows direct access to the current `Authentication` object obtained from the `SecurityContext`
+| Allows direct access to the current `Authentication` object obtained from the `SecurityContext`.
 
 | `permitAll`
-| Always evaluates to `true`
+| Always evaluates to `true`.
 
 | `denyAll`
-| Always evaluates to `false`
+| Always evaluates to `false`.
 
 | `isAnonymous()`
-| Returns `true` if the current principal is an anonymous user
+| Returns `true` if the current principal is an anonymous user.
 
 | `isRememberMe()`
-| Returns `true` if the current principal is a remember-me user
+| Returns `true` if the current principal is a remember-me user.
 
 | `isAuthenticated()`
-| Returns `true` if the user is not anonymous
+| Returns `true` if the user is not anonymous.
 
 | `isFullyAuthenticated()`
-| Returns `true` if the user is not an anonymous or a remember-me user
+| Returns `true` if the user is not an anonymous and is not a remember-me user.
 
 | `hasPermission(Object target, Object permission)`
 | Returns `true` if the user has access to the provided target for the given permission.
-For example, `hasPermission(domainObject, 'read')`
+Example, `hasPermission(domainObject, 'read')`.
 
 | `hasPermission(Object targetId, String targetType, Object permission)`
 | Returns `true` if the user has access to the provided target for the given permission.
-For example, `hasPermission(1, 'com.example.domain.Message', 'read')`
+Example, `hasPermission(1, 'com.example.domain.Message', 'read')`.
 |===
-
 
 
 [[el-access-web]]
 === Web Security Expressions
-To use expressions to secure individual URLs, you would first need to set the `use-expressions` attribute in the `<http>` element to `true`.
-Spring Security will then expect the `access` attributes of the `<intercept-url>` elements to contain Spring EL expressions.
-The expressions should evaluate to a Boolean, defining whether access should be allowed or not.
-For example:
+To use expressions to secure individual URLs, you first need to set the `use-expressions` attribute in the `<http>` element to `true`.
+Spring Security then expects the `access` attributes of the `<intercept-url>` elements to contain SpEL expressions.
+Each expression should evaluate to a Boolean, defining whether access should be allowed or not.
+The following listing shows an example:
 
+====
 [source,xml]
 ----
-
 <http>
 	<intercept-url pattern="/admin*"
 		access="hasRole('admin') and hasIpAddress('192.168.1.0/24')"/>
 	...
 </http>
-
 ----
+====
 
-Here we have defined that the "admin" area of an application (defined by the URL pattern) should only be available to users who have the granted authority "admin" and whose IP address matches a local subnet.
-We've already seen the built-in `hasRole` expression in the previous section.
-The expression `hasIpAddress` is an additional built-in expression which is specific to web security.
+Here, we have defined that the `admin` area of an application (defined by the URL pattern) should be available only to users who have the granted authority (`admin`) and whose IP address matches a local subnet.
+We have already seen the built-in `hasRole` expression in the previous section.
+The `hasIpAddress` expression is an additional built-in expression that is specific to web security.
 It is defined by the `WebSecurityExpressionRoot` class, an instance of which is used as the expression root object when evaluating web-access expressions.
-This object also directly exposed the `HttpServletRequest` object under the name `request` so you can invoke the request directly in an expression.
-If expressions are being used, a `WebExpressionVoter` will be added to the `AccessDecisionManager` which is used by the namespace.
-So if you aren't using the namespace and want to use expressions, you will have to add one of these to your configuration.
+This object also directly exposed the `HttpServletRequest` object under the name `request` so that you can invoke the request directly in an expression.
+If expressions are being used, a `WebExpressionVoter` is added to the `AccessDecisionManager` that is used by the namespace.
+So, if you do not use the namespace and want to use expressions, you have to add one of these to your configuration.
 
 [[el-access-web-beans]]
 ==== Referring to Beans in Web Security Expressions
 
 If you wish to extend the expressions that are available, you can easily refer to any Spring Bean you expose.
-For example, assuming you have a Bean with the name of `webSecurity` that contains the following method signature:
+For example, you could use the following, assuming you have a Bean with the name of `webSecurity` that contains the following method signature:
 
 ====
 .Java
@@ -136,7 +135,7 @@ class WebSecurity {
 ----
 ====
 
-You could refer to the method using:
+You could then refer to the method as follows:
 
 .Refer to method
 ====
@@ -174,11 +173,11 @@ http {
 [[el-access-web-path-variables]]
 ==== Path Variables in Web Security Expressions
 
-At times it is nice to be able to refer to path variables within a URL.
-For example, consider a RESTful application that looks up a user by id from the URL path in the format `+/user/{userId}+`.
+At times, it is nice to be able to refer to path variables within a URL.
+For example, consider a RESTful application that looks up a user by ID from a URL path in a format of `+/user/{userId}+`.
 
 You can easily refer to the path variable by placing it in the pattern.
-For example, if you had a Bean with the name of `webSecurity` that contains the following method signature:
+For example, you could use the following if you had a Bean with the name of `webSecurity` that contains the following method signature:
 
 ====
 .Java
@@ -202,7 +201,7 @@ class WebSecurity {
 ----
 ====
 
-You could refer to the method using:
+You could then refer to the method as follows:
 
 .Path Variables
 ====
@@ -237,28 +236,30 @@ http {
 ----
 ====
 
-In this configuration URLs that match would pass in the path variable (and convert it) into checkUserId method.
-For example, if the URL were `/user/123/resource`, then the id passed in would be `123`.
+In this configuration, URLs that match would pass in the path variable (and convert it) into the `checkUserId` method.
+For example, if the URL were `/user/123/resource`, the ID passed in would be `123`.
 
 === Method Security Expressions
 Method security is a bit more complicated than a simple allow or deny rule.
-Spring Security 3.0 introduced some new annotations in order to allow comprehensive support for the use of expressions.
+Spring Security 3.0 introduced some new annotations to allow comprehensive support for the use of expressions.
 
 
 [[el-pre-post-annotations]]
 ==== @Pre and @Post Annotations
-There are four annotations which support expression attributes to allow pre and post-invocation authorization checks and also to support filtering of submitted collection arguments or return values.
-They are `@PreAuthorize`, `@PreFilter`, `@PostAuthorize` and `@PostFilter`.
+There are four annotations that support expression attributes to allow pre and post-invocation authorization checks and also to support filtering of submitted collection arguments or return values.
+They are `@PreAuthorize`, `@PreFilter`, `@PostAuthorize`, and `@PostFilter`.
 Their use is enabled through the `global-method-security` namespace element:
 
+====
 [source,xml]
 ----
 <global-method-security pre-post-annotations="enabled"/>
 ----
+====
 
 ===== Access Control using @PreAuthorize and @PostAuthorize
-The most obviously useful annotation is `@PreAuthorize` which decides whether a method can actually be invoked or not.
-For example (from the "Contacts" sample application)
+The most obviously useful annotation is `@PreAuthorize`, which decides whether a method can actually be invoked or not.
+The following example (from the "Contacts" sample application) uses the `@PreAuthorize` annotation:
 
 ====
 .Java
@@ -276,9 +277,9 @@ fun create(contact: Contact?)
 ----
 ====
 
-which means that access will only be allowed for users with the role "ROLE_USER".
-Obviously the same thing could easily be achieved using a traditional configuration and a simple configuration attribute for the required role.
-But what about:
+This means that access is allowed only for users with the `ROLE_USER` role.
+Obviously, the same thing could easily be achieved by using a traditional configuration and a simple configuration attribute for the required role.
+However, consider the following example:
 
 ====
 .Java
@@ -296,20 +297,18 @@ fun deletePermission(contact: Contact?, recipient: Sid?, permission: Permission?
 ----
 ====
 
-Here we're actually using a method argument as part of the expression to decide whether the current user has the "admin"permission for the given contact.
-The built-in `hasPermission()` expression is linked into the Spring Security ACL module through the application context, as we'll <<el-permission-evaluator,see below>>.
+Here, we actually use a method argument as part of the expression to decide whether the current user has the `admin` permission for the given contact.
+The built-in `hasPermission()` expression is linked into the Spring Security ACL module through the application context, as we <<el-permission-evaluator,see later in this section>>.
 You can access any of the method arguments by name as expression variables.
 
-There are a number of ways in which Spring Security can resolve the method arguments.
+Spring Security can resolve the method arguments in a number of ways.
 Spring Security uses `DefaultSecurityParameterNameDiscoverer` to discover the parameter names.
-By default, the following options are tried for a method as a whole.
+By default, the following options are tried for a method.
 
-* If Spring Security's `@P` annotation is present on a single argument to the method, the value will be used.
-This is useful for interfaces compiled with a JDK prior to JDK 8 which do not contain any information about the parameter names.
-For example:
-
+* If Spring Security's `@P` annotation is present on a single argument to the method, the value is used.
+This is useful for interfaces compiled with a JDK prior to JDK 8 (which do not contain any information about the parameter names).
+The following example uses the `@P` annotation:
 +
-
 ====
 .Java
 [source,java,role="primary"]
@@ -333,17 +332,13 @@ import org.springframework.security.access.method.P
 fun doSomething(@P("c") contact: Contact?)
 ----
 ====
-
 +
+Behind the scenes, this is implemented by using `AnnotationParameterNameDiscoverer`, which you can customize to support the value attribute of any specified annotation.
 
-Behind the scenes this is implemented using `AnnotationParameterNameDiscoverer` which can be customized to support the value attribute of any specified annotation.
-
-* If Spring Data's `@Param` annotation is present on at least one parameter for the method, the value will be used.
+* If Spring Data's `@Param` annotation is present on at least one parameter for the method, the value is used.
 This is useful for interfaces compiled with a JDK prior to JDK 8 which do not contain any information about the parameter names.
-For example:
-
+The following example uses the `@Param` annotation:
 +
-
 ====
 .Java
 [source,java,role="primary"]
@@ -367,23 +362,19 @@ import org.springframework.data.repository.query.Param
 fun findContactByName(@Param("n") name: String?): Contact?
 ----
 ====
-
 +
+Behind the scenes, this is implemented by using `AnnotationParameterNameDiscoverer`, which you can customize to support the value attribute of any specified annotation.
 
-Behind the scenes this is implemented using `AnnotationParameterNameDiscoverer` which can be customized to support the value attribute of any specified annotation.
-
-* If JDK 8 was used to compile the source with the -parameters argument and Spring 4+ is being used, then the standard JDK reflection API is used to discover the parameter names.
+* If JDK 8 was used to compile the source with the `-parameters` argument and Spring 4+ is being used, the standard JDK reflection API is used to discover the parameter names.
 This works on both classes and interfaces.
 
-* Last, if the code was compiled with the debug symbols, the parameter names will be discovered using the debug symbols.
-This will not work for interfaces since they do not have debug information about the parameter names.
+* Finally, if the code was compiled with the debug symbols, the parameter names are discovered by using the debug symbols.
+This does not work for interfaces, since they do not have debug information about the parameter names.
 For interfaces, annotations or the JDK 8 approach must be used.
 
 .[[el-pre-post-annotations-spel]]
---
-Any Spring-EL functionality is available within the expression, so you can also access properties on the arguments.
-For example, if you wanted a particular method to only allow access to a user whose username matched that of the contact, you could write
---
+Any SpEL functionality is available within the expression, so you can also access properties on the arguments.
+For example, if you wanted a particular method to allow access only to a user whose username matched that of the contact, you could write
 
 ====
 .Java
@@ -401,21 +392,19 @@ fun doSomething(contact: Contact?)
 ----
 ====
 
-Here we are accessing another built-in expression, `authentication`, which is the `Authentication` stored in the security context.
-You can also access its "principal" property directly, using the expression `principal`.
-The value will often be a `UserDetails` instance, so you might use an expression like `principal.username` or `principal.enabled`.
+Here, we access another built-in expression, `authentication`, which is the `Authentication` stored in the security context.
+You can also access its `principal` property directly, by using the `principal` expression.
+The value is often a `UserDetails` instance, so you might use an expression such as `principal.username` or `principal.enabled`.
 
 .[[el-pre-post-annotations-post]]
---
 Less commonly, you may wish to perform an access-control check after the method has been invoked.
-This can be achieved using the `@PostAuthorize` annotation.
+You can do so by using the `@PostAuthorize` annotation.
 To access the return value from a method, use the built-in name `returnObject` in the expression.
---
 
 ===== Filtering using @PreFilter and @PostFilter
-Spring Security supports filtering of collections, arrays, maps and streams using expressions.
+Spring Security supports filtering of collections, arrays, maps, and streams by using expressions.
 This is most commonly performed on the return value of a method.
-For example:
+The following example uses `@PostFilter`:
 
 ====
 .Java
@@ -436,29 +425,30 @@ fun getAll(): List<Contact?>
 ====
 
 When using the `@PostFilter` annotation, Spring Security iterates through the returned collection or map and removes any elements for which the supplied expression is false.
-For an array, a new array instance will be returned containing filtered elements.
-The name `filterObject` refers to the current object in the collection.
-In case when a map is used it will refer to the current `Map.Entry` object which allows one to use `filterObject.key` or `filterObject.value` in the expresion.
-You can also filter before the method call, using `@PreFilter`, though this is a less common requirement.
-The syntax is just the same, but if there is more than one argument which is a collection type then you have to select one by name using the `filterTarget` property of this annotation.
+For an array, a new array instance that contains filtered elements is returned.
+`filterObject` refers to the current object in the collection.
+When a map is used, it refers to the current `Map.Entry` object, which lets you use `filterObject.key` or `filterObject.value` in the expression.
+You can also filter before the method call by using `@PreFilter`, though this is a less common requirement.
+The syntax is the same. However, if there is more than one argument that is a collection type, you have to select one by name using the `filterTarget` property of this annotation.
 
 Note that filtering is obviously not a substitute for tuning your data retrieval queries.
-If you are filtering large collections and removing many of the entries then this is likely to be inefficient.
+If you are filtering large collections and removing many of the entries, this is likely to be inefficient.
 
 
 [[el-method-built-in]]
 ==== Built-In Expressions
-There are some built-in expressions which are specific to method security, which we have already seen in use above.
+There are some built-in expressions that are specific to method security, which we have already seen in use earlier.
 The `filterTarget` and `returnValue` values are simple enough, but the use of the `hasPermission()` expression warrants a closer look.
 
 
 [[el-permission-evaluator]]
 ===== The PermissionEvaluator interface
 `hasPermission()` expressions are delegated to an instance of `PermissionEvaluator`.
-It is intended to bridge between the expression system and Spring Security's ACL system, allowing you to specify authorization constraints on domain objects, based on abstract permissions.
+It is intended to bridge between the expression system and Spring Security's ACL system, letting you specify authorization constraints on domain objects, based on abstract permissions.
 It has no explicit dependencies on the ACL module, so you could swap that out for an alternative implementation if required.
 The interface has two methods:
 
+====
 [source,java]
 ----
 boolean hasPermission(Authentication authentication, Object targetDomainObject,
@@ -467,17 +457,19 @@ boolean hasPermission(Authentication authentication, Object targetDomainObject,
 boolean hasPermission(Authentication authentication, Serializable targetId,
 							String targetType, Object permission);
 ----
+====
 
-which map directly to the available versions of the expression, with the exception that the first argument (the `Authentication` object) is not supplied.
+These methods map directly to the available versions of the expression, with the exception that the first argument (the `Authentication` object) is not supplied.
 The first is used in situations where the domain object, to which access is being controlled, is already loaded.
-Then expression will return true if the current user has the given permission for that object.
-The second version is used in cases where the object is not loaded, but its identifier is known.
-An abstract "type" specifier for the domain object is also required, allowing the correct ACL permissions to be loaded.
-This has traditionally been the Java class of the object, but does not have to be as long as it is consistent with how the permissions are loaded.
+Then the expression returns `true` if the current user has the given permission for that object.
+The second version is used in cases where the object is not loaded but its identifier is known.
+An abstract "`type`" specifier for the domain object is also required, letting the correct ACL permissions be loaded.
+This has traditionally been the Java class of the object but does not have to be, as long as it is consistent with how the permissions are loaded.
 
 To use `hasPermission()` expressions, you have to explicitly configure a `PermissionEvaluator` in your application context.
-This would look something like this:
+The following example shows how to do so:
 
+====
 [source,xml]
 ----
 <security:global-method-security pre-post-annotations="enabled">
@@ -489,23 +481,26 @@ This would look something like this:
 	<property name="permissionEvaluator" ref="myPermissionEvaluator"/>
 </bean>
 ----
+====
 
 Where `myPermissionEvaluator` is the bean which implements `PermissionEvaluator`.
-Usually this will be the implementation from the ACL module which is called `AclPermissionEvaluator`.
-See the "Contacts" sample application configuration for more details.
+Usually, this is the implementation from the ACL module, which is called `AclPermissionEvaluator`.
+See the "`Contacts`" sample application configuration for more details.
 
 ===== Method Security Meta Annotations
 
 You can make use of meta annotations for method security to make your code more readable.
-This is especially convenient if you find that you are repeating the same complex expression throughout your code base.
+This is especially convenient if you find that you repeat the same complex expression throughout your code base.
 For example, consider the following:
 
+====
 [source,java]
 ----
 @PreAuthorize("#contact.name == authentication.name")
 ----
+====
 
-Instead of repeating this everywhere, we can create a meta annotation that can be used instead.
+Instead of repeating this everywhere, you can create a meta annotation:
 
 ====
 .Java
@@ -525,6 +520,5 @@ annotation class ContactPermission
 ----
 ====
 
-Meta annotations can be used for any of the Spring Security method security annotations.
-In order to remain compliant with the specification JSR-250 annotations do not support meta annotations.
-
+You can use meta annotations for any of the Spring Security method security annotations.
+To remain compliant with the specification, JSR-250 annotations do not support meta annotations.

@@ -3,27 +3,28 @@
 :figures: images/servlet/authorization
 :icondir: images/icons
 
-This section builds on <<servlet-architecture,Servlet Architecture and Implementation>> by digging deeper into how <<servlet-authorization,authorization>> works within Servlet based applications.
+This section builds on <<servlet-architecture,Servlet Architecture and Implementation>> by digging deeper into how <<servlet-authorization,authorization>> works within Servlet-based applications.
 
-The {security-api-url}org/springframework/security/web/access/intercept/FilterSecurityInterceptor.html[`FilterSecurityInterceptor`] provides <<servlet-authorization,authorization>> for ``HttpServletRequest``s.
+The {security-api-url}org/springframework/security/web/access/intercept/FilterSecurityInterceptor.html[`FilterSecurityInterceptor`] provides <<servlet-authorization,authorization>> for `HttpServletRequest` instances.
 It is inserted into the <<servlet-filterchainproxy>> as one of the <<servlet-security-filters>>.
+
+The following image shows the role of `FilterSecurityInterceptor`:
 
 .Authorize HttpServletRequest
 image::{figures}/filtersecurityinterceptor.png[]
 
-* image:{icondir}/number_1.png[] First, the `FilterSecurityInterceptor` obtains an  <<servlet-authentication-authentication>> from the <<servlet-authentication-securitycontextholder>>.
-* image:{icondir}/number_2.png[] Second, `FilterSecurityInterceptor` creates a {security-api-url}org/springframework/security/web/FilterInvocation.html[`FilterInvocation`] from the `HttpServletRequest`, `HttpServletResponse`, and `FilterChain` that are passed into the `FilterSecurityInterceptor`.
-// FIXME: link to FilterInvocation
-* image:{icondir}/number_3.png[] Next, it passes the `FilterInvocation` to `SecurityMetadataSource` to get the ``ConfigAttribute``s.
-* image:{icondir}/number_4.png[] Finally, it passes the `Authentication`, `FilterInvocation`, and ``ConfigAttribute``s to the `AccessDecisionManager`.
-** image:{icondir}/number_5.png[] If authorization is denied, an `AccessDeniedException` is thrown.
-In this case the <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> handles the `AccessDeniedException`.
-** image:{icondir}/number_6.png[] If access is granted, `FilterSecurityInterceptor` continues with the <<servlet-filters-review,FilterChain>> which allows the application to process normally.
+image:{icondir}/number_1.png[] The `FilterSecurityInterceptor` obtains an  <<servlet-authentication-authentication>> from the <<servlet-authentication-securitycontextholder>>.
+image:{icondir}/number_2.png[] `FilterSecurityInterceptor` creates a {security-api-url}org/springframework/security/web/FilterInvocation.html[`FilterInvocation`] from the `HttpServletRequest`, `HttpServletResponse`, and `FilterChain` that are passed into the `FilterSecurityInterceptor`.
+image:{icondir}/number_3.png[] It passes the `FilterInvocation` to `SecurityMetadataSource` to get the ``ConfigAttribute``s.
+image:{icondir}/number_4.png[] It passes the `Authentication`, `FilterInvocation`, and ``ConfigAttribute``s to the `AccessDecisionManager`.
+image:{icondir}/number_5.png[] If authorization is denied, an `AccessDeniedException` is thrown.
+In this case, the <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> handles the `AccessDeniedException`.
+image:{icondir}/number_6.png[] If access is granted, `FilterSecurityInterceptor` continues with the <<servlet-filters-review,FilterChain>>, which lets the application process normally.
 
 // configuration (xml/java)
 
-By default, Spring Security's authorization will require all requests to be authenticated.
-The explicit configuration looks like:
+By default, Spring Security's authorization requires all requests to be authenticated.
+The following listing shows the explicit configuration:
 
 .Every Request Must be Authenticated
 ====
@@ -62,7 +63,7 @@ fun configure(http: HttpSecurity) {
 ----
 ====
 
-We can configure Spring Security to have different rules by adding more rules in order of precedence.
+We can configure Spring Security to have different rules by adding more rules in order of precedence:
 
 .Authorize Requests
 ====
@@ -115,13 +116,13 @@ fun configure(http: HttpSecurity) {
 }
 ----
 ====
-<1> There are multiple authorization rules specified.
-Each rule is considered in the order they were declared.
-<2> We specified multiple URL patterns that any user can access.
-Specifically, any user can access a request if the URL starts with "/resources/", equals "/signup", or equals "/about".
-<3> Any URL that starts with "/admin/" will be restricted to users who have the role "ROLE_ADMIN".
-You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
-<4> Any URL that starts with "/db/" requires the user to have both "ROLE_ADMIN" and "ROLE_DBA".
-You will notice that since we are using the `hasRole` expression we do not need to specify the "ROLE_" prefix.
-<5> Any URL that has not already been matched on is denied access.
+<1> Multiple authorization rules are specified.
+Each rule is considered in the order in which it is declared.
+<2> Specify multiple URL patterns that any user can access.
+Specifically, any user can access a request if the URL starts with `/resources/`, equals `/signup`, or equals `/about`.
+<3> Any URL that starts with `/admin/` is restricted to users who have the `ROLE_ADMIN` role.
+Notice that, since we invoke the `hasRole` method, we need not specify the `ROLE_` prefix.
+<4> Any URL that starts with `/db/` requires the user to have both `ROLE_ADMIN` and `ROLE_DBA`.
+Notice that, since we use the `hasRole` expression, we need not specify the `ROLE_` prefix.
+<5> Any URL that has not already been matched is denied access.
 This is a good strategy if you do not want to accidentally forget to update your authorization rules.

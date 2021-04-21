@@ -1,11 +1,11 @@
 [[servlet-openid]]
 == OpenID Support
 
-[NOTE]
-The OpenID 1.0 and 2.0 protocols have been deprecated and users are encouraged to migrate to OpenID Connect, which is supported by spring-security-oauth2.
+NOTE: The OpenID 1.0 and 2.0 protocols have been deprecated. You should migrate to OpenID Connect, which is supported by `spring-security-oauth2`.
 
-The namespace supports https://openid.net/[OpenID] login either instead of, or in addition to normal form-based login, with a simple change:
+The namespace supports https://openid.net/[OpenID] login either instead of or in addition to normal form-based login, with a simple change:
 
+====
 [source,xml]
 ----
 <http>
@@ -13,24 +13,27 @@ The namespace supports https://openid.net/[OpenID] login either instead of, or i
 <openid-login />
 </http>
 ----
+====
 
 You should then register yourself with an OpenID provider (such as myopenid.com), and add the user information to your in-memory `<user-service>`:
 
+====
 [source,xml]
 ----
 <user name="https://jimi.hendrix.myopenid.com/" authorities="ROLE_USER" />
 ----
+====
 
-You should be able to login using the `myopenid.com` site to authenticate.
-It is also possible to select a specific `UserDetailsService` bean for use OpenID by setting the `user-service-ref` attribute on the `openid-login` element.
-Note that we have omitted the password attribute from the above user configuration, since this set of user data is only being used to load the authorities for the user.
-A random password will be generated internally, preventing you from accidentally using this user data as an authentication source elsewhere in your configuration.
-
+You should be able to login by using the `myopenid.com` site to authenticate.
+You can also select a specific `UserDetailsService` bean for use with OpenID by setting the `user-service-ref` attribute on the `openid-login` element.
+Note that we have omitted the password attribute from the above user configuration, since this set of user data is being used only to load the authorities for the user.
+A random password is generated internally, preventing you from accidentally using this user data as an authentication source elsewhere in your configuration.
 
 === Attribute Exchange
-Support for OpenID https://openid.net/specs/openid-attribute-exchange-1_0.html[attribute exchange].
-As an example, the following configuration would attempt to retrieve the email and full name from the OpenID provider, for use by the application:
+Spring Security includes support for OpenID https://openid.net/specs/openid-attribute-exchange-1_0.html[attribute exchange].
+As an example, the following configuration tries to retrieve the email and full name from the OpenID provider for use by the application:
 
+====
 [source,xml]
 ----
 <openid-login>
@@ -40,21 +43,24 @@ As an example, the following configuration would attempt to retrieve the email a
 </attribute-exchange>
 </openid-login>
 ----
+====
 
-The "type" of each OpenID attribute is a URI, determined by a particular schema, in this case https://axschema.org/[https://axschema.org/].
-If an attribute must be retrieved for successful authentication, the `required` attribute can be set.
-The exact schema and attributes supported will depend on your OpenID provider.
-The attribute values are returned as part of the authentication process and can be accessed afterwards using the following code:
+The "`type`" of each OpenID attribute is a URI, determined by a particular schema -- in this case, https://axschema.org/[https://axschema.org/].
+If an attribute must be retrieved for successful authentication, you can set the `required` attribute.
+The exact schema and attributes supported depend on your OpenID provider.
+The attribute values are returned as part of the authentication process and can be accessed afterwards by using the following code:
 
+====
 [source,java]
 ----
 OpenIDAuthenticationToken token =
 	(OpenIDAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
 List<OpenIDAttribute> attributes = token.getAttributes();
 ----
+====
 
 We can obtain the `OpenIDAuthenticationToken` from the <<servlet-authentication-securitycontextholder>>.
 The `OpenIDAttribute` contains the attribute type and the retrieved value (or values in the case of multi-valued attributes).
-You can supply multiple `attribute-exchange` elements, using an `identifier-matcher` attribute on each.
-This contains a regular expression which will be matched against the OpenID identifier supplied by the user.
-See the OpenID sample application in the codebase for an example configuration, providing different attribute lists for the Google, Yahoo and MyOpenID providers.
+You can supply multiple `attribute-exchange` elements by using an `identifier-matcher` attribute on each element.
+This contains a regular expression that is matched against the OpenID identifier supplied by the user.
+See the {gh-samples-url}/boot/oauth2login[OpenID sample application] in the codebase for an example configuration, providing different attribute lists for the Google, Yahoo and MyOpenID providers.

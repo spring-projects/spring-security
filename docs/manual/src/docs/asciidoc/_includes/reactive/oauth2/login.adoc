@@ -1,9 +1,9 @@
 [[webflux-oauth2-login]]
 = OAuth 2.0 Login
 
-The OAuth 2.0 Login feature provides an application with the capability to have users log in to the application by using their existing account at an OAuth 2.0 Provider (e.g.
+The OAuth 2.0 Login feature provides an application with the ability to have users log in to the application by using their existing account at an OAuth 2.0 Provider (such as
 GitHub) or OpenID Connect 1.0 Provider (such as Google).
-OAuth 2.0 Login implements the use cases: "Login with Google" or "Login with GitHub".
+OAuth 2.0 Login implements the "Login with Google" or "Login with GitHub" use cases.
 
 NOTE: OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework] and https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0].
 
@@ -12,38 +12,38 @@ NOTE: OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as
 
 Spring Boot 2.0 brings full auto-configuration capabilities for OAuth 2.0 Login.
 
-This section shows how to configure the {gh-samples-url}/boot/oauth2login-webflux[*OAuth 2.0 Login WebFlux sample*] using _Google_ as the _Authentication Provider_ and covers the following topics:
+This section shows how to configure the {gh-samples-url}/boot/oauth2login-webflux[*OAuth 2.0 Login WebFlux sample*] by using _Google_ as the _Authentication Provider_ and covers the following topics:
 
-* <<webflux-oauth2-login-sample-setup,Initial setup>>
-* <<webflux-oauth2-login-sample-redirect,Setting the redirect URI>>
-* <<webflux-oauth2-login-sample-config,Configure `application.yml`>>
-* <<webflux-oauth2-login-sample-start,Boot up the application>>
+* <<webflux-oauth2-login-sample-setup>>
+* <<webflux-oauth2-login-sample-redirect>>
+* <<webflux-oauth2-login-sample-config>>
+* <<webflux-oauth2-login-sample-start>>
 
 
 [[webflux-oauth2-login-sample-setup]]
-=== Initial setup
+=== Initial Setup
 
 To use Google's OAuth 2.0 authentication system for login, you must set up a project in the Google API Console to obtain OAuth 2.0 credentials.
 
 NOTE: https://developers.google.com/identity/protocols/OpenIDConnect[Google's OAuth 2.0 implementation] for authentication conforms to the  https://openid.net/connect/[OpenID Connect 1.0] specification and is https://openid.net/certification/[OpenID Certified].
 
-Follow the instructions on the https://developers.google.com/identity/protocols/OpenIDConnect[OpenID Connect] page, starting in the section, "Setting up OAuth 2.0".
+Follow the instructions on the https://developers.google.com/identity/protocols/OpenIDConnect[OpenID Connect] page, starting in the "`Setting up OAuth 2.0`" section.
 
-After completing the "Obtain OAuth 2.0 credentials" instructions, you should have a new OAuth Client with credentials consisting of a Client ID and a Client Secret.
+After completing the "`Obtain OAuth 2.0 credentials`" instructions, you should have a new OAuth Client with credentials that consist of a Client ID and a Client Secret.
 
 [[webflux-oauth2-login-sample-redirect]]
-=== Setting the redirect URI
+=== Setting the Redirect URI
 
-The redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with Google and have granted access to the OAuth Client _(<<webflux-oauth2-login-sample-setup,created in the previous step>>)_ on the Consent page.
+The redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with Google and have been granted access to the OAuth Client (<<webflux-oauth2-login-sample-setup,created in the previous step>>) on the consent page.
 
-In the "Set a redirect URI" sub-section, ensure that the *Authorized redirect URIs* field is set to `http://localhost:8080/login/oauth2/code/google`.
+In the "`Set a redirect URI`" sub-section, ensure that the *Authorized redirect URIs* field is set to `http://localhost:8080/login/oauth2/code/google`.
 
 TIP: The default redirect URI template is `+{baseUrl}/login/oauth2/code/{registrationId}+`.
 The *_registrationId_* is a unique identifier for the <<oauth2Client-client-registration,ClientRegistration>>.
 For our example, the `registrationId` is `google`.
 
-IMPORTANT: If the OAuth Client is running behind a proxy server, it is recommended to check <<http-proxy-server,Proxy Server Configuration>> to ensure the application is correctly configured.
-Also, see the supported <<oauth2Client-auth-code-redirect-uri, `URI` template variables>> for `redirect-uri`.
+IMPORTANT: If the OAuth Client runs behind a proxy server, we recommend checking the <<http-proxy-server,Proxy Server Configuration>> to ensure the application is correctly configured.
+Also, see the supported <<oauth2Client-auth-code-redirect-uri,`URI` template variables>> for the `redirect-uri`.
 
 [[webflux-oauth2-login-sample-config]]
 === Configure `application.yml`
@@ -53,6 +53,8 @@ To do so:
 
 . Go to `application.yml` and set the following configuration:
 +
+.OAuth Client properties
+====
 [source,yaml]
 ----
 spring:
@@ -65,8 +67,6 @@ spring:
             client-secret: google-client-secret
 ----
 +
-.OAuth Client properties
-====
 <1> `spring.security.oauth2.client.registration` is the base property prefix for OAuth Client properties.
 <2> Following the base property prefix is the ID for the <<oauth2Client-client-registration,ClientRegistration>>, such as google.
 ====
@@ -75,7 +75,7 @@ spring:
 
 
 [[webflux-oauth2-login-sample-start]]
-=== Boot up the application
+=== Boot the Application
 
 Launch the Spring Boot 2.0 sample and go to `http://localhost:8080`.
 You are then redirected to the default _auto-generated_ login page, which displays a link for Google.
@@ -92,7 +92,7 @@ At this point, the OAuth Client retrieves your email address and basic profile i
 == Using OpenID Provider Configuration
 
 For well known providers, Spring Security provides the necessary defaults for the OAuth Authorization Provider's configuration.
-If you are working with your own Authorization Provider that supports https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[OpenID Provider Configuration] or https://tools.ietf.org/html/rfc8414#section-3[Authorization Server Metadata], the https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse[OpenID Provider Configuration Response]'s `issuer-uri` can be used to configure the application.
+If you are working with your own Authorization Provider that supports https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[OpenID Provider Configuration] or https://tools.ietf.org/html/rfc8414#section-3[Authorization Server Metadata], you can use the https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse[OpenID Provider Configuration Response]'s `issuer-uri` to configure the application.
 
 [source,yml]
 ----
@@ -109,10 +109,9 @@ spring:
             client-secret: 6cea952f-10d0-4d00-ac79-cc865820dc2c
 ----
 
-The `issuer-uri` instructs Spring Security to query in series the endpoints `https://idp.example.com/auth/realms/demo/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/auth/realms/demo`, or `https://idp.example.com/.well-known/oauth-authorization-server/auth/realms/demo` to discover the configuration.
+The `issuer-uri` instructs Spring Security to query, in series, the following endpoints to discover the configuration: `https://idp.example.com/auth/realms/demo/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/auth/realms/demo`, or `https://idp.example.com/.well-known/oauth-authorization-server/auth/realms/demo`.
 
-[NOTE]
-Spring Security will query the endpoints one at a time, stopping at the first that gives a 200 response.
+NOTE: Spring Security queries the endpoints one at a time, stopping at the first that gives a 200 response.
 
 The `client-id` and `client-secret` are linked to the provider because `keycloak` is used for both the provider and the registration.
 
@@ -120,7 +119,7 @@ The `client-id` and `client-secret` are linked to the provider because `keycloak
 [[webflux-oauth2-login-explicit]]
 == Explicit OAuth2 Login Configuration
 
-A minimal OAuth2 Login configuration is shown below:
+The following listing shows a minimal OAuth2 Login configuration:
 
 .Minimal OAuth2 Login
 ====
@@ -168,7 +167,7 @@ fun webFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
 ----
 ====
 
-Additional configuration options can be seen below:
+The following example shows additional configuration options:
 
 .Advanced OAuth2 Login
 ====
@@ -206,7 +205,7 @@ fun webFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
 ----
 ====
 
-You may register a `GrantedAuthoritiesMapper` `@Bean` to have it automatically applied to the default configuration, as shown in the following example:
+You can register a `GrantedAuthoritiesMapper` `@Bean` to have it be automatically applied to the default configuration:
 
 .GrantedAuthoritiesMapper Bean
 ====

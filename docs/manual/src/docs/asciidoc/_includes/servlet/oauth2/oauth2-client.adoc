@@ -95,7 +95,7 @@ The following code shows the complete configuration options available in the <<n
 
 The `OAuth2AuthorizedClientManager` is responsible for managing the authorization (or re-authorization) of an OAuth 2.0 Client, in collaboration with one or more `OAuth2AuthorizedClientProvider`(s).
 
-The following code shows an example of how to register an `OAuth2AuthorizedClientManager` `@Bean` and associate it with an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials` and `password` authorization grant types:
+The following code shows an example of how to register an `OAuth2AuthorizedClientManager` `@Bean` and associate it with an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials`, and `password` authorization grant types:
 
 ====
 .Java
@@ -144,14 +144,14 @@ fun authorizedClientManager(
 ----
 ====
 
-The following sections will go into more detail on the core components used by OAuth 2.0 Client and the configuration options available:
+The following sections go into more detail on the core components used by OAuth 2.0 Client and the configuration options available:
 
 * <<oauth2Client-core-interface-class>>
-** <<oauth2Client-client-registration, ClientRegistration>>
-** <<oauth2Client-client-registration-repo, ClientRegistrationRepository>>
-** <<oauth2Client-authorized-client, OAuth2AuthorizedClient>>
-** <<oauth2Client-authorized-repo-service, OAuth2AuthorizedClientRepository / OAuth2AuthorizedClientService>>
-** <<oauth2Client-authorized-manager-provider, OAuth2AuthorizedClientManager / OAuth2AuthorizedClientProvider>>
+** <<oauth2Client-client-registration>>
+** <<oauth2Client-client-registration-repo>>
+** <<oauth2Client-authorized-client>>
+** <<oauth2Client-authorized-repo-service>>
+** <<oauth2Client-authorized-manager-provider>>
 * <<oauth2Client-auth-grant-support>>
 ** <<oauth2Client-auth-code-grant, Authorization Code>>
 ** <<oauth2Client-refresh-token-grant, Refresh Token>>
@@ -161,12 +161,14 @@ The following sections will go into more detail on the core components used by O
 * <<oauth2Client-client-auth-support>>
 ** <<oauth2Client-jwt-bearer-auth, JWT Bearer>>
 * <<oauth2Client-additional-features>>
-** <<oauth2Client-registered-authorized-client, Resolving an Authorized Client>>
+** <<oauth2Client-registered-authorized-client>>
 * <<oauth2Client-webclient-servlet>>
 
 
 [[oauth2Client-core-interface-class]]
-=== Core Interfaces / Classes
+=== Core Interfaces and Classes
+
+This section describes the OAuth2 core interfaces and classes that Spring Security offers.
 
 
 [[oauth2Client-client-registration]]
@@ -174,10 +176,11 @@ The following sections will go into more detail on the core components used by O
 
 `ClientRegistration` is a representation of a client registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
 
-A client registration holds information, such as client id, client secret, authorization grant type, redirect URI, scope(s), authorization URI, token URI, and other details.
+A `ClientRegistration` object holds information, such as client id, client secret, authorization grant type, redirect URI, scope(s), authorization URI, token URI, and other details.
 
 `ClientRegistration` and its properties are defined as follows:
 
+====
 [source,java]
 ----
 public final class ClientRegistration {
@@ -223,18 +226,19 @@ The name may be used in certain scenarios, such as when displaying the name of t
 <9> `authorizationUri`: The Authorization Endpoint URI for the Authorization Server.
 <10> `tokenUri`: The Token Endpoint URI for the Authorization Server.
 <11> `jwkSetUri`: The URI used to retrieve the https://tools.ietf.org/html/rfc7517[JSON Web Key (JWK)] Set from the Authorization Server,
- which contains the cryptographic key(s) used to verify the https://tools.ietf.org/html/rfc7515[JSON Web Signature (JWS)] of the ID Token and optionally the UserInfo Response.
-<12> `issuerUri`: Returns the issuer identifier uri for the OpenID Connect 1.0 provider or the OAuth 2.0 Authorization Server.
+which contains the cryptographic key(s) used to verify the https://tools.ietf.org/html/rfc7515[JSON Web Signature (JWS)] of the ID Token and (optionally) the UserInfo Response.
+<12> `issuerUri`: Returns the issuer identifier URI for the OpenID Connect 1.0 provider or the OAuth 2.0 Authorization Server.
 <13> `configurationMetadata`: The https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[OpenID Provider Configuration Information].
- This information will only be available if the Spring Boot 2.x property `spring.security.oauth2.client.provider.[providerId].issuerUri` is configured.
-<14> `(userInfoEndpoint)uri`: The UserInfo Endpoint URI used to access the claims/attributes of the authenticated end-user.
+ This information is available only if the Spring Boot 2.x property `spring.security.oauth2.client.provider.[providerId].issuerUri` is configured.
+<14> `(userInfoEndpoint)uri`: The UserInfo Endpoint URI used to access the claims and attributes of the authenticated end-user.
 <15> `(userInfoEndpoint)authenticationMethod`: The authentication method used when sending the access token to the UserInfo Endpoint.
-The supported values are *header*, *form* and *query*.
+The supported values are *header*, *form*, and *query*.
 <16> `userNameAttributeName`: The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
+====
 
-A `ClientRegistration` can be initially configured using discovery of an OpenID Connect Provider's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Configuration endpoint] or an Authorization Server's https://tools.ietf.org/html/rfc8414#section-3[Metadata endpoint].
+You can initially configure a `ClientRegistration` by using discovery of an OpenID Connect Provider's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Configuration endpoint] or an Authorization Server's https://tools.ietf.org/html/rfc8414#section-3[Metadata endpoint].
 
-`ClientRegistrations` provides convenience methods for configuring a `ClientRegistration` in this way, as can be seen in the following example:
+`ClientRegistrations` provides convenience methods for configuring a `ClientRegistration` in this way, as follows:
 
 ====
 .Java
@@ -251,25 +255,23 @@ val clientRegistration = ClientRegistrations.fromIssuerLocation("https://idp.exa
 ----
 ====
 
-The above code will query in series `https://idp.example.com/issuer/.well-known/openid-configuration`, and then `https://idp.example.com/.well-known/openid-configuration/issuer`, and finally `https://idp.example.com/.well-known/oauth-authorization-server/issuer`, stopping at the first to return a 200 response.
+The preceding code queries, in series, `https://idp.example.com/issuer/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/issuer`, and `https://idp.example.com/.well-known/oauth-authorization-server/issuer`, stopping at the first to return a 200 response.
 
-As an alternative, you can use `ClientRegistrations.fromOidcIssuerLocation()` to only query the OpenID Connect Provider's Configuration endpoint.
+As an alternative, you can use `ClientRegistrations.fromOidcIssuerLocation()` to query only the OpenID Connect Provider's Configuration endpoint.
 
 [[oauth2Client-client-registration-repo]]
 ==== ClientRegistrationRepository
 
 The `ClientRegistrationRepository` serves as a repository for OAuth 2.0 / OpenID Connect 1.0 `ClientRegistration`(s).
 
-[NOTE]
-Client registration information is ultimately stored and owned by the associated Authorization Server.
-This repository provides the ability to retrieve a sub-set of the primary client registration information, which is stored with the Authorization Server.
+NOTE: Client registration information is ultimately stored and owned by the associated Authorization Server.
+This repository provides the ability to retrieve a subset of the primary client registration information, which is stored with the Authorization Server.
 
 Spring Boot 2.x auto-configuration binds each of the properties under `spring.security.oauth2.client.registration._[registrationId]_` to an instance of `ClientRegistration` and then composes each of the `ClientRegistration` instance(s) within a `ClientRegistrationRepository`.
 
-[NOTE]
-The default implementation of `ClientRegistrationRepository` is `InMemoryClientRegistrationRepository`.
+NOTE: The default implementation of `ClientRegistrationRepository` is `InMemoryClientRegistrationRepository`.
 
-The auto-configuration also registers the `ClientRegistrationRepository` as a `@Bean` in the `ApplicationContext` so that it is available for dependency-injection, if needed by the application.
+The auto-configuration also registers the `ClientRegistrationRepository` as a `@Bean` in the `ApplicationContext` so that it is available for dependency injection, if needed by the application.
 
 The following listing shows an example:
 
@@ -321,18 +323,18 @@ class OAuth2ClientController {
 ==== OAuth2AuthorizedClient
 
 `OAuth2AuthorizedClient` is a representation of an Authorized Client.
-A client is considered to be authorized when the end-user (Resource Owner) has granted authorization to the client to access its protected resources.
+A client is considered to be authorized when the end-user (the Resource Owner) has granted authorization to the client to access its protected resources.
 
 `OAuth2AuthorizedClient` serves the purpose of associating an `OAuth2AccessToken` (and optional `OAuth2RefreshToken`) to a `ClientRegistration` (client) and resource owner, who is the `Principal` end-user that granted the authorization.
 
 
 [[oauth2Client-authorized-repo-service]]
-==== OAuth2AuthorizedClientRepository / OAuth2AuthorizedClientService
+==== OAuth2AuthorizedClientRepository and OAuth2AuthorizedClientService
 
-`OAuth2AuthorizedClientRepository` is responsible for persisting `OAuth2AuthorizedClient`(s) between web requests.
-Whereas, the primary role of `OAuth2AuthorizedClientService` is to manage `OAuth2AuthorizedClient`(s) at the application-level.
+`OAuth2AuthorizedClientRepository` is responsible for persisting `OAuth2AuthorizedClient`(s) between web requests,
+whereas the primary role of `OAuth2AuthorizedClientService` is to manage `OAuth2AuthorizedClient`(s) at the application-level.
 
-From a developer perspective, the `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` provides the capability to lookup an `OAuth2AccessToken` associated with a client so that it may be used to initiate a protected resource request.
+From a developer perspective, the `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` provides the ability to look up an `OAuth2AccessToken` associated with a client so that it can be used to initiate a protected resource request.
 
 The following listing shows an example:
 
@@ -383,37 +385,35 @@ class OAuth2ClientController {
 ----
 ====
 
-[NOTE]
-Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientRepository` and/or `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
-However, the application may choose to override and register a custom `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` `@Bean`.
+NOTE: Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientRepository` or an `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
+However, the application can override and register a custom `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` `@Bean`.
 
-The default implementation of `OAuth2AuthorizedClientService` is `InMemoryOAuth2AuthorizedClientService`, which stores `OAuth2AuthorizedClient`(s) in-memory.
+The default implementation of `OAuth2AuthorizedClientService` is `InMemoryOAuth2AuthorizedClientService`, which stores `OAuth2AuthorizedClient` objects in-memory.
 
-Alternatively, the JDBC implementation `JdbcOAuth2AuthorizedClientService` may be configured for persisting `OAuth2AuthorizedClient`(s) in a database.
+Alternatively, you can configure the JDBC implementation `JdbcOAuth2AuthorizedClientService` to persist `OAuth2AuthorizedClient` instances in a database.
 
-[NOTE]
-`JdbcOAuth2AuthorizedClientService` depends on the table definition described in <<dbschema-oauth2-client, OAuth 2.0 Client Schema>>.
+NOTE: `JdbcOAuth2AuthorizedClientService` depends on the table definition described in <<dbschema-oauth2-client, OAuth 2.0 Client Schema>>.
 
 
 [[oauth2Client-authorized-manager-provider]]
-==== OAuth2AuthorizedClientManager / OAuth2AuthorizedClientProvider
+==== OAuth2AuthorizedClientManager and OAuth2AuthorizedClientProvider
 
 The `OAuth2AuthorizedClientManager` is responsible for the overall management of `OAuth2AuthorizedClient`(s).
 
 The primary responsibilities include:
 
-* Authorizing (or re-authorizing) an OAuth 2.0 Client, using an `OAuth2AuthorizedClientProvider`.
-* Delegating the persistence of an `OAuth2AuthorizedClient`, typically using an `OAuth2AuthorizedClientService` or `OAuth2AuthorizedClientRepository`.
+* Authorizing (or re-authorizing) an OAuth 2.0 Client, by using an `OAuth2AuthorizedClientProvider`.
+* Delegating the persistence of an `OAuth2AuthorizedClient`, typically by using an `OAuth2AuthorizedClientService` or `OAuth2AuthorizedClientRepository`.
 * Delegating to an `OAuth2AuthorizationSuccessHandler` when an OAuth 2.0 Client has been successfully authorized (or re-authorized).
 * Delegating to an `OAuth2AuthorizationFailureHandler` when an OAuth 2.0 Client fails to authorize (or re-authorize).
 
 An `OAuth2AuthorizedClientProvider` implements a strategy for authorizing (or re-authorizing) an OAuth 2.0 Client.
-Implementations will typically implement an authorization grant type, eg. `authorization_code`, `client_credentials`, etc.
+Implementations typically implement an authorization grant type, such as `authorization_code`, `client_credentials`, and others.
 
 The default implementation of `OAuth2AuthorizedClientManager` is `DefaultOAuth2AuthorizedClientManager`, which is associated with an `OAuth2AuthorizedClientProvider` that may support multiple authorization grant types using a delegation-based composite.
-The `OAuth2AuthorizedClientProviderBuilder` may be used to configure and build the delegation-based composite.
+You can use `OAuth2AuthorizedClientProviderBuilder` to configure and build the delegation-based composite.
 
-The following code shows an example of how to configure and build an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials` and `password` authorization grant types:
+The following code shows an example of how to configure and build an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials`, and `password` authorization grant types:
 
 ====
 .Java
@@ -462,12 +462,12 @@ fun authorizedClientManager(
 ----
 ====
 
-When an authorization attempt succeeds, the `DefaultOAuth2AuthorizedClientManager` will delegate to the `OAuth2AuthorizationSuccessHandler`, which (by default) will save the `OAuth2AuthorizedClient` via the `OAuth2AuthorizedClientRepository`.
-In the case of a re-authorization failure, eg. a refresh token is no longer valid, the previously saved `OAuth2AuthorizedClient` will be removed from the `OAuth2AuthorizedClientRepository` via the `RemoveAuthorizedClientOAuth2AuthorizationFailureHandler`.
-The default behaviour may be customized via `setAuthorizationSuccessHandler(OAuth2AuthorizationSuccessHandler)` and `setAuthorizationFailureHandler(OAuth2AuthorizationFailureHandler)`.
+When an authorization attempt succeeds, the `DefaultOAuth2AuthorizedClientManager` delegates to the `OAuth2AuthorizationSuccessHandler`, which (by default) saves the `OAuth2AuthorizedClient` through the `OAuth2AuthorizedClientRepository`.
+In the case of a re-authorization failure (for example, a refresh token is no longer valid), the previously saved `OAuth2AuthorizedClient` is removed from the `OAuth2AuthorizedClientRepository` through the `RemoveAuthorizedClientOAuth2AuthorizationFailureHandler`.
+You can customize the default behavior through `setAuthorizationSuccessHandler(OAuth2AuthorizationSuccessHandler)` and `setAuthorizationFailureHandler(OAuth2AuthorizationFailureHandler)`.
 
 The `DefaultOAuth2AuthorizedClientManager` is also associated with a `contextAttributesMapper` of type `Function<OAuth2AuthorizeRequest, Map<String, Object>>`, which is responsible for mapping attribute(s) from the `OAuth2AuthorizeRequest` to a `Map` of attributes to be associated to the `OAuth2AuthorizationContext`.
-This can be useful when you need to supply an `OAuth2AuthorizedClientProvider` with required (supported) attribute(s), eg. the `PasswordOAuth2AuthorizedClientProvider` requires the resource owner's `username` and `password` to be available in `OAuth2AuthorizationContext.getAttributes()`.
+This can be useful when you need to supply an `OAuth2AuthorizedClientProvider` with required (supported) attribute(s). For example, the `PasswordOAuth2AuthorizedClientProvider` requires the resource owner's `username` and `password` to be available in `OAuth2AuthorizationContext.getAttributes()`.
 
 The following code shows an example of the `contextAttributesMapper`:
 
@@ -556,10 +556,10 @@ private fun contextAttributesMapper(): Function<OAuth2AuthorizeRequest, MutableM
 ----
 ====
 
-The `DefaultOAuth2AuthorizedClientManager` is designed to be used *_within_* the context of a `HttpServletRequest`.
-When operating *_outside_* of a `HttpServletRequest` context, use `AuthorizedClientServiceOAuth2AuthorizedClientManager` instead.
+The `DefaultOAuth2AuthorizedClientManager` is designed to be used _within_ the context of a `HttpServletRequest`.
+When operating _outside_ of a `HttpServletRequest` context, use `AuthorizedClientServiceOAuth2AuthorizedClientManager` instead.
 
-A _service application_ is a common use case for when to use an `AuthorizedClientServiceOAuth2AuthorizedClientManager`.
+A service application is a common use case for when to use an `AuthorizedClientServiceOAuth2AuthorizedClientManager`.
 Service applications often run in the background, without any user interaction, and typically run under a system-level account instead of a user account.
 An OAuth 2.0 Client configured with the `client_credentials` grant type can be considered a type of service application.
 
@@ -610,18 +610,18 @@ fun authorizedClientManager(
 [[oauth2Client-auth-grant-support]]
 === Authorization Grant Support
 
+This section describes Spring Security's support for authorization grants.
+
 
 [[oauth2Client-auth-code-grant]]
 ==== Authorization Code
 
-[NOTE]
-Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.1[Authorization Code] grant.
+NOTE: See the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.1[Authorization Code] grant.
 
 
 ===== Obtaining Authorization
 
-[NOTE]
-Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.1[Authorization Request/Response] protocol flow for the Authorization Code grant.
+NOTE: See the https://tools.ietf.org/html/rfc6749#section-4.1.1[Authorization Request/Response] protocol flow for the Authorization Code grant.
 
 
 ===== Initiating the Authorization Request
@@ -629,10 +629,11 @@ Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.1[Authorizat
 The `OAuth2AuthorizationRequestRedirectFilter` uses an `OAuth2AuthorizationRequestResolver` to resolve an `OAuth2AuthorizationRequest` and initiate the Authorization Code grant flow by redirecting the end-user's user-agent to the Authorization Server's Authorization Endpoint.
 
 The primary role of the `OAuth2AuthorizationRequestResolver` is to resolve an `OAuth2AuthorizationRequest` from the provided web request.
-The default implementation `DefaultOAuth2AuthorizationRequestResolver` matches on the (default) path `+/oauth2/authorization/{registrationId}+` extracting the `registrationId` and using it to build the `OAuth2AuthorizationRequest` for the associated `ClientRegistration`.
+The default implementation `DefaultOAuth2AuthorizationRequestResolver` matches on the (default) path `+/oauth2/authorization/{registrationId}+`, extracting the `registrationId`, and using it to build the `OAuth2AuthorizationRequest` for the associated `ClientRegistration`.
 
-Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Consider the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
 
+====
 [source,yaml,attrs="-attributes"]
 ----
 spring:
@@ -651,15 +652,16 @@ spring:
             authorization-uri: https://dev-1234.oktapreview.com/oauth2/v1/authorize
             token-uri: https://dev-1234.oktapreview.com/oauth2/v1/token
 ----
+====
 
-A request with the base path `/oauth2/authorization/okta` will initiate the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectFilter` and ultimately start the Authorization Code grant flow.
+Given the preceding properties, a request with the base path `/oauth2/authorization/okta` initiates the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectFilter` and ultimately starts the Authorization Code grant flow.
 
-[NOTE]
-The `AuthorizationCodeOAuth2AuthorizedClientProvider` is an implementation of `OAuth2AuthorizedClientProvider` for the Authorization Code grant,
+NOTE: The `AuthorizationCodeOAuth2AuthorizedClientProvider` is an implementation of `OAuth2AuthorizedClientProvider` for the Authorization Code grant,
 which also initiates the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectFilter`.
 
-If the OAuth 2.0 Client is a https://tools.ietf.org/html/rfc6749#section-2.1[Public Client], then configure the OAuth 2.0 Client registration as follows:
+If the OAuth 2.0 Client is a https://tools.ietf.org/html/rfc6749#section-2.1[Public Client], configure the OAuth 2.0 Client registration as follows:
 
+====
 [source,yaml,attrs="-attributes"]
 ----
 spring:
@@ -674,18 +676,20 @@ spring:
             redirect-uri: "{baseUrl}/authorized/okta"
             ...
 ----
+====
 
-Public Clients are supported using https://tools.ietf.org/html/rfc7636[Proof Key for Code Exchange] (PKCE).
-If the client is running in an untrusted environment (eg. native application or web browser-based application) and therefore incapable of maintaining the confidentiality of it's credentials, PKCE will automatically be used when the following conditions are true:
+Public Clients are supported by using https://tools.ietf.org/html/rfc7636[Proof Key for Code Exchange] (PKCE).
+If the client is running in an untrusted environment (such as a native application or web browser-based application) and is therefore incapable of maintaining the confidentiality of its credentials, PKCE is automatically used when the following conditions are true:
 
-. `client-secret` is omitted (or empty)
-. `client-authentication-method` is set to "none" (`ClientAuthenticationMethod.NONE`)
+* `client-secret` is omitted (or empty)
+* `client-authentication-method` is set to `none` (`ClientAuthenticationMethod.NONE`)
 
 [[oauth2Client-auth-code-redirect-uri]]
-The `DefaultOAuth2AuthorizationRequestResolver` also supports `URI` template variables for the `redirect-uri` using `UriComponentsBuilder`.
+The `DefaultOAuth2AuthorizationRequestResolver` also supports `URI` template variables for the `redirect-uri` by using `UriComponentsBuilder`.
 
 The following configuration uses all the supported `URI` template variables:
 
+====
 [source,yaml,attrs="-attributes"]
 ----
 spring:
@@ -698,12 +702,12 @@ spring:
             redirect-uri: "{baseScheme}://{baseHost}{basePort}{basePath}/authorized/{registrationId}"
             ...
 ----
+====
 
-[NOTE]
-`+{baseUrl}+` resolves to `+{baseScheme}://{baseHost}{basePort}{basePath}+`
+NOTE: `+{baseUrl}+` resolves to `+{baseScheme}://{baseHost}{basePort}{basePath}+`
 
 Configuring the `redirect-uri` with `URI` template variables is especially useful when the OAuth 2.0 Client is running behind a <<http-proxy-server,Proxy Server>>.
-This ensures that the `X-Forwarded-*` headers are used when expanding the `redirect-uri`.
+Doing so ensures that the `X-Forwarded-*` headers are used when expanding the `redirect-uri`.
 
 ===== Customizing the Authorization Request
 
@@ -712,8 +716,7 @@ One of the primary use cases an `OAuth2AuthorizationRequestResolver` can realize
 For example, OpenID Connect defines additional OAuth 2.0 request parameters for the https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest[Authorization Code Flow] extending from the standard parameters defined in the https://tools.ietf.org/html/rfc6749#section-4.1.1[OAuth 2.0 Authorization Framework].
 One of those extended parameters is the `prompt` parameter.
 
-[NOTE]
-OPTIONAL. Space delimited, case sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for reauthentication and consent. The defined values are: none, login, consent, select_account
+NOTE: The `prompt` parameter is optional. Space delimited, case sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for re-authentication and consent. The defined values are: `none`, `login`, `consent`, and `select_account`.
 
 The following example shows how to configure the `DefaultOAuth2AuthorizationRequestResolver` with a `Consumer<OAuth2AuthorizationRequest.Builder>` that customizes the Authorization Request for `oauth2Login()`, by including the request parameter `prompt=consent`.
 
@@ -802,10 +805,11 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 ----
 ====
 
-For the simple use case, where the additional request parameter is always the same for a specific provider, it may be added directly in the `authorization-uri` property.
+For the simple use case where the additional request parameter is always the same for a specific provider, you can add it directly in the `authorization-uri` property.
 
-For example, if the value for the request parameter `prompt` is always `consent` for the provider `okta`, than simply configure as follows:
+For example, if the value for the request parameter `prompt` is always `consent` for the provider `okta`, you can configure it as follows:
 
+====
 [source,yaml]
 ----
 spring:
@@ -816,14 +820,14 @@ spring:
           okta:
             authorization-uri: https://dev-1234.oktapreview.com/oauth2/v1/authorize?prompt=consent
 ----
+====
 
 The preceding example shows the common use case of adding a custom parameter on top of the standard parameters.
-Alternatively, if your requirements are more advanced, you can take full control in building the Authorization Request URI by simply overriding the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
+Alternatively, if your requirements are more advanced, you can take full control in building the Authorization Request URI by overriding the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
 
-[TIP]
-`OAuth2AuthorizationRequest.Builder.build()` constructs the `OAuth2AuthorizationRequest.authorizationRequestUri`, which represents the Authorization Request URI including all query parameters using the `application/x-www-form-urlencoded` format.
+TIP: `OAuth2AuthorizationRequest.Builder.build()` constructs the `OAuth2AuthorizationRequest.authorizationRequestUri`, which represents the Authorization Request URI that includes all query parameters that use the `application/x-www-form-urlencoded` format.
 
-The following example shows a variation of `authorizationRequestCustomizer()` from the preceding example, and instead overrides the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
+The following example shows a variation of `authorizationRequestCustomizer()` from the preceding example and instead overrides the `OAuth2AuthorizationRequest.authorizationRequestUri` property:
 
 ====
 .Java
@@ -856,12 +860,11 @@ private fun authorizationRequestCustomizer(): Consumer<OAuth2AuthorizationReques
 
 The `AuthorizationRequestRepository` is responsible for the persistence of the `OAuth2AuthorizationRequest` from the time the Authorization Request is initiated to the time the Authorization Response is received (the callback).
 
-[TIP]
-The `OAuth2AuthorizationRequest` is used to correlate and validate the Authorization Response.
+TIP: The `OAuth2AuthorizationRequest` is used to correlate and validate the Authorization Response.
 
 The default implementation of `AuthorizationRequestRepository` is `HttpSessionOAuth2AuthorizationRequestRepository`, which stores the `OAuth2AuthorizationRequest` in the `HttpSession`.
 
-If you have a custom implementation of `AuthorizationRequestRepository`, you may configure it as shown in the following example:
+If you have a custom implementation of `AuthorizationRequestRepository`, you can configure it as follows:
 
 .AuthorizationRequestRepository Configuration
 ====
@@ -915,26 +918,25 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
 
 ===== Requesting an Access Token
 
-[NOTE]
-Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.3[Access Token Request/Response] protocol flow for the Authorization Code grant.
+NOTE: See the https://tools.ietf.org/html/rfc6749#section-4.1.3[Access Token Request/Response] protocol flow for the Authorization Code grant.
 
-The default implementation of `OAuth2AccessTokenResponseClient` for the Authorization Code grant is `DefaultAuthorizationCodeTokenResponseClient`, which uses a `RestOperations` for exchanging an authorization code for an access token at the Authorization Server’s Token Endpoint.
+The default implementation of `OAuth2AccessTokenResponseClient` for the Authorization Code grant is `DefaultAuthorizationCodeTokenResponseClient`, which uses a `RestOperations` instance to exchange an authorization code for an access token at the Authorization Server’s Token Endpoint.
 
-The `DefaultAuthorizationCodeTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+The `DefaultAuthorizationCodeTokenResponseClient` is flexible, as it lets you customize the pre-processing of the Token Request and/or post-handling of the Token Response.
 
 
 ===== Customizing the Access Token Request
 
 If you need to customize the pre-processing of the Token Request, you can provide `DefaultAuthorizationCodeTokenResponseClient.setRequestEntityConverter()` with a custom `Converter<OAuth2AuthorizationCodeGrantRequest, RequestEntity<?>>`.
-The default implementation `OAuth2AuthorizationCodeGrantRequestEntityConverter` builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-4.1.3[OAuth 2.0 Access Token Request].
-However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+The default implementation (`OAuth2AuthorizationCodeGrantRequestEntityConverter`) builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-4.1.3[OAuth 2.0 Access Token Request].
+However, providing a custom `Converter` would let you extend the standard Token Request and add custom parameter(s).
 
 IMPORTANT: The custom `Converter` must return a valid `RequestEntity` representation of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
 
 
 ===== Customizing the Access Token Response
 
-On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `DefaultAuthorizationCodeTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
+On the other end, if you need to customize the post-handling of the Token Response, you need to provide `DefaultAuthorizationCodeTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
 The default `RestOperations` is configured as follows:
 
 ====
@@ -959,15 +961,15 @@ restTemplate.errorHandler = OAuth2ErrorResponseErrorHandler()
 ----
 ====
 
-TIP: Spring MVC `FormHttpMessageConverter` is required as it's used when sending the OAuth 2.0 Access Token Request.
+TIP: Spring MVC `FormHttpMessageConverter` is required, as it is used when sending the OAuth 2.0 Access Token Request.
 
-`OAuth2AccessTokenResponseHttpMessageConverter` is a `HttpMessageConverter` for an OAuth 2.0 Access Token Response.
+`OAuth2AccessTokenResponseHttpMessageConverter` is an `HttpMessageConverter` for an OAuth 2.0 Access Token Response.
 You can provide `OAuth2AccessTokenResponseHttpMessageConverter.setTokenResponseConverter()` with a custom `Converter<Map<String, String>, OAuth2AccessTokenResponse>` that is used for converting the OAuth 2.0 Access Token Response parameters to an `OAuth2AccessTokenResponse`.
 
-`OAuth2ErrorResponseErrorHandler` is a `ResponseErrorHandler` that can handle an OAuth 2.0 Error, eg. 400 Bad Request.
+`OAuth2ErrorResponseErrorHandler` is a `ResponseErrorHandler` that can handle an OAuth 2.0 Error, such as `400 Bad Request`.
 It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error parameters to an `OAuth2Error`.
 
-Whether you customize `DefaultAuthorizationCodeTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
+Whether you customize `DefaultAuthorizationCodeTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you need to configure it as follows:
 
 .Access Token Response Configuration
 ====
@@ -1023,32 +1025,30 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
 [[oauth2Client-refresh-token-grant]]
 ==== Refresh Token
 
-[NOTE]
-Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.5[Refresh Token].
+NOTE: See the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.5[Refresh Token].
 
 
 ===== Refreshing an Access Token
 
-[NOTE]
-Please refer to the https://tools.ietf.org/html/rfc6749#section-6[Access Token Request/Response] protocol flow for the Refresh Token grant.
+NOTE: See the https://tools.ietf.org/html/rfc6749#section-6[Access Token Request/Response] protocol flow for the Refresh Token grant.
 
 The default implementation of `OAuth2AccessTokenResponseClient` for the Refresh Token grant is `DefaultRefreshTokenTokenResponseClient`, which uses a `RestOperations` when refreshing an access token at the Authorization Server’s Token Endpoint.
 
-The `DefaultRefreshTokenTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+The `DefaultRefreshTokenTokenResponseClient` is flexible, as it lets you customize the pre-processing of the Token Request or post-handling of the Token Response.
 
 
 ===== Customizing the Access Token Request
 
 If you need to customize the pre-processing of the Token Request, you can provide `DefaultRefreshTokenTokenResponseClient.setRequestEntityConverter()` with a custom `Converter<OAuth2RefreshTokenGrantRequest, RequestEntity<?>>`.
-The default implementation `OAuth2RefreshTokenGrantRequestEntityConverter` builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-6[OAuth 2.0 Access Token Request].
-However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+The default implementation (`OAuth2RefreshTokenGrantRequestEntityConverter`) builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-6[OAuth 2.0 Access Token Request].
+However, providing a custom `Converter` would let you extend the standard Token Request and add custom parameter(s).
 
 IMPORTANT: The custom `Converter` must return a valid `RequestEntity` representation of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
 
 
 ===== Customizing the Access Token Response
 
-On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `DefaultRefreshTokenTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
+On the other end, if you need to customize the post-handling of the Token Response, you need to provide `DefaultRefreshTokenTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
 The default `RestOperations` is configured as follows:
 
 ====
@@ -1073,15 +1073,15 @@ restTemplate.errorHandler = OAuth2ErrorResponseErrorHandler()
 ----
 ====
 
-TIP: Spring MVC `FormHttpMessageConverter` is required as it's used when sending the OAuth 2.0 Access Token Request.
+TIP: Spring MVC `FormHttpMessageConverter` is required, as it is used when sending the OAuth 2.0 Access Token Request.
 
 `OAuth2AccessTokenResponseHttpMessageConverter` is a `HttpMessageConverter` for an OAuth 2.0 Access Token Response.
 You can provide `OAuth2AccessTokenResponseHttpMessageConverter.setTokenResponseConverter()` with a custom `Converter<Map<String, String>, OAuth2AccessTokenResponse>` that is used for converting the OAuth 2.0 Access Token Response parameters to an `OAuth2AccessTokenResponse`.
 
-`OAuth2ErrorResponseErrorHandler` is a `ResponseErrorHandler` that can handle an OAuth 2.0 Error, eg. 400 Bad Request.
+`OAuth2ErrorResponseErrorHandler` is a `ResponseErrorHandler` that can handle an OAuth 2.0 Error, such as `400 Bad Request`.
 It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error parameters to an `OAuth2Error`.
 
-Whether you customize `DefaultRefreshTokenTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
+Whether you customize `DefaultRefreshTokenTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you need to configure it as follows:
 
 ====
 .Java
@@ -1122,39 +1122,37 @@ authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 `OAuth2AuthorizedClientProviderBuilder.builder().refreshToken()` configures a `RefreshTokenOAuth2AuthorizedClientProvider`,
 which is an implementation of an `OAuth2AuthorizedClientProvider` for the Refresh Token grant.
 
-The `OAuth2RefreshToken` may optionally be returned in the Access Token Response for the `authorization_code` and `password` grant types.
-If the `OAuth2AuthorizedClient.getRefreshToken()` is available and the `OAuth2AuthorizedClient.getAccessToken()` is expired, it will automatically be refreshed by the `RefreshTokenOAuth2AuthorizedClientProvider`.
+The `OAuth2RefreshToken` can optionally be returned in the Access Token Response for the `authorization_code` and `password` grant types.
+If the `OAuth2AuthorizedClient.getRefreshToken()` is available and the `OAuth2AuthorizedClient.getAccessToken()` is expired, it is automatically refreshed by the `RefreshTokenOAuth2AuthorizedClientProvider`.
 
 
 [[oauth2Client-client-creds-grant]]
 ==== Client Credentials
 
-[NOTE]
-Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.4[Client Credentials] grant.
+NOTE: See the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.4[Client Credentials] grant.
 
 
 ===== Requesting an Access Token
 
-[NOTE]
-Please refer to the https://tools.ietf.org/html/rfc6749#section-4.4.2[Access Token Request/Response] protocol flow for the Client Credentials grant.
+NOTE: See the https://tools.ietf.org/html/rfc6749#section-4.4.2[Access Token Request/Response] protocol flow for the Client Credentials grant.
 
 The default implementation of `OAuth2AccessTokenResponseClient` for the Client Credentials grant is `DefaultClientCredentialsTokenResponseClient`, which uses a `RestOperations` when requesting an access token at the Authorization Server’s Token Endpoint.
 
-The `DefaultClientCredentialsTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+The `DefaultClientCredentialsTokenResponseClient` is flexible, as it lets you customize the pre-processing of the Token Request or post-handling of the Token Response.
 
 
 ===== Customizing the Access Token Request
 
 If you need to customize the pre-processing of the Token Request, you can provide `DefaultClientCredentialsTokenResponseClient.setRequestEntityConverter()` with a custom `Converter<OAuth2ClientCredentialsGrantRequest, RequestEntity<?>>`.
-The default implementation `OAuth2ClientCredentialsGrantRequestEntityConverter` builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-4.4.2[OAuth 2.0 Access Token Request].
-However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+The default implementation (`OAuth2ClientCredentialsGrantRequestEntityConverter`) builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-4.4.2[OAuth 2.0 Access Token Request].
+However, providing a custom `Converter` would let you extend the standard Token Request and add custom parameter(s).
 
 IMPORTANT: The custom `Converter` must return a valid `RequestEntity` representation of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
 
 
 ===== Customizing the Access Token Response
 
-On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `DefaultClientCredentialsTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
+On the other end, if you need to customize the post-handling of the Token Response, you need to provide `DefaultClientCredentialsTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
 The default `RestOperations` is configured as follows:
 
 ====
@@ -1179,15 +1177,15 @@ restTemplate.errorHandler = OAuth2ErrorResponseErrorHandler()
 ----
 ====
 
-TIP: Spring MVC `FormHttpMessageConverter` is required as it's used when sending the OAuth 2.0 Access Token Request.
+TIP: Spring MVC `FormHttpMessageConverter` is required, as it is used when sending the OAuth 2.0 Access Token Request.
 
 `OAuth2AccessTokenResponseHttpMessageConverter` is a `HttpMessageConverter` for an OAuth 2.0 Access Token Response.
 You can provide `OAuth2AccessTokenResponseHttpMessageConverter.setTokenResponseConverter()` with a custom `Converter<Map<String, String>, OAuth2AccessTokenResponse>` that is used for converting the OAuth 2.0 Access Token Response parameters to an `OAuth2AccessTokenResponse`.
 
-`OAuth2ErrorResponseErrorHandler` is a `ResponseErrorHandler` that can handle an OAuth 2.0 Error, eg. 400 Bad Request.
-It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error parameters to an `OAuth2Error`.
+`OAuth2ErrorResponseErrorHandler` is a `ResponseErrorHandler` that can handle an OAuth 2.0 Error, such as `400 Bad Request`.
+It uses an `OAuth2ErrorHttpMessageConverter` to convert the OAuth 2.0 Error parameters to an `OAuth2Error`.
 
-Whether you customize `DefaultClientCredentialsTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
+Whether you customize `DefaultClientCredentialsTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you need to configure it as follows:
 
 ====
 .Java
@@ -1222,14 +1220,14 @@ authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
 ====
 
-[NOTE]
-`OAuth2AuthorizedClientProviderBuilder.builder().clientCredentials()` configures a `ClientCredentialsOAuth2AuthorizedClientProvider`,
+NOTE: `OAuth2AuthorizedClientProviderBuilder.builder().clientCredentials()` configures a `ClientCredentialsOAuth2AuthorizedClientProvider`,
 which is an implementation of an `OAuth2AuthorizedClientProvider` for the Client Credentials grant.
 
 ===== Using the Access Token
 
-Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Consider the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
 
+====
 [source,yaml]
 ----
 spring:
@@ -1246,8 +1244,9 @@ spring:
           okta:
             token-uri: https://dev-1234.oktapreview.com/oauth2/v1/token
 ----
+====
 
-...and the `OAuth2AuthorizedClientManager` `@Bean`:
+Further consider the following `OAuth2AuthorizedClientManager` `@Bean`:
 
 ====
 .Java
@@ -1290,7 +1289,7 @@ fun authorizedClientManager(
 ----
 ====
 
-You may obtain the `OAuth2AccessToken` as follows:
+Given the preceding properties and bean, you can obtain the `OAuth2AccessToken` as follows:
 
 ====
 .Java
@@ -1355,40 +1354,37 @@ class OAuth2ClientController {
 ----
 ====
 
-[NOTE]
-`HttpServletRequest` and `HttpServletResponse` are both OPTIONAL attributes.
-If not provided, it will default to `ServletRequestAttributes` using `RequestContextHolder.getRequestAttributes()`.
+NOTE: `HttpServletRequest` and `HttpServletResponse` are both OPTIONAL attributes.
+If not provided, they default to `ServletRequestAttributes` by using `RequestContextHolder.getRequestAttributes()`.
 
 
 [[oauth2Client-password-grant]]
 ==== Resource Owner Password Credentials
 
-[NOTE]
-Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.3[Resource Owner Password Credentials] grant.
+NOTE: See the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.3[Resource Owner Password Credentials] grant.
 
 
 ===== Requesting an Access Token
 
-[NOTE]
-Please refer to the https://tools.ietf.org/html/rfc6749#section-4.3.2[Access Token Request/Response] protocol flow for the Resource Owner Password Credentials grant.
+NOTE: See the https://tools.ietf.org/html/rfc6749#section-4.3.2[Access Token Request/Response] protocol flow for the Resource Owner Password Credentials grant.
 
 The default implementation of `OAuth2AccessTokenResponseClient` for the Resource Owner Password Credentials grant is `DefaultPasswordTokenResponseClient`, which uses a `RestOperations` when requesting an access token at the Authorization Server’s Token Endpoint.
 
-The `DefaultPasswordTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+The `DefaultPasswordTokenResponseClient` is flexible, as it lets you customize the pre-processing of the Token Request or post-handling of the Token Response.
 
 
 ===== Customizing the Access Token Request
 
 If you need to customize the pre-processing of the Token Request, you can provide `DefaultPasswordTokenResponseClient.setRequestEntityConverter()` with a custom `Converter<OAuth2PasswordGrantRequest, RequestEntity<?>>`.
-The default implementation `OAuth2PasswordGrantRequestEntityConverter` builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-4.3.2[OAuth 2.0 Access Token Request].
-However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+The default implementation (`OAuth2PasswordGrantRequestEntityConverter`) builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-4.3.2[OAuth 2.0 Access Token Request].
+However, providing a custom `Converter` would let you extend the standard Token Request and add custom parameter(s).
 
 IMPORTANT: The custom `Converter` must return a valid `RequestEntity` representation of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
 
 
 ===== Customizing the Access Token Response
 
-On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `DefaultPasswordTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
+On the other end, if you need to customize the post-handling of the Token Response, you need to provide `DefaultPasswordTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
 The default `RestOperations` is configured as follows:
 
 ====
@@ -1413,15 +1409,15 @@ restTemplate.errorHandler = OAuth2ErrorResponseErrorHandler()
 ----
 ====
 
-TIP: Spring MVC `FormHttpMessageConverter` is required as it's used when sending the OAuth 2.0 Access Token Request.
+TIP: Spring MVC `FormHttpMessageConverter` is required, as it is used when sending the OAuth 2.0 Access Token Request.
 
 `OAuth2AccessTokenResponseHttpMessageConverter` is a `HttpMessageConverter` for an OAuth 2.0 Access Token Response.
-You can provide `OAuth2AccessTokenResponseHttpMessageConverter.setTokenResponseConverter()` with a custom `Converter<Map<String, String>, OAuth2AccessTokenResponse>` that is used for converting the OAuth 2.0 Access Token Response parameters to an `OAuth2AccessTokenResponse`.
+You can provide `OAuth2AccessTokenResponseHttpMessageConverter.setTokenResponseConverter()` with a custom `Converter<Map<String, String>, OAuth2AccessTokenResponse>` that is used to convert the OAuth 2.0 Access Token Response parameters to an `OAuth2AccessTokenResponse`.
 
-`OAuth2ErrorResponseErrorHandler` is a `ResponseErrorHandler` that can handle an OAuth 2.0 Error, eg. 400 Bad Request.
-It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error parameters to an `OAuth2Error`.
+`OAuth2ErrorResponseErrorHandler` is a `ResponseErrorHandler` that can handle an OAuth 2.0 Error, such as `400 Bad Request`.
+It uses an `OAuth2ErrorHttpMessageConverter` to convert the OAuth 2.0 Error parameters to an `OAuth2Error`.
 
-Whether you customize `DefaultPasswordTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
+Whether you customize `DefaultPasswordTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you need to configure it as follows:
 
 ====
 .Java
@@ -1463,7 +1459,7 @@ which is an implementation of an `OAuth2AuthorizedClientProvider` for the Resour
 
 ===== Using the Access Token
 
-Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Consider the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----
@@ -1482,7 +1478,7 @@ spring:
             token-uri: https://dev-1234.oktapreview.com/oauth2/v1/token
 ----
 
-...and the `OAuth2AuthorizedClientManager` `@Bean`:
+Further consider the `OAuth2AuthorizedClientManager` `@Bean`:
 
 ====
 .Java
@@ -1568,7 +1564,7 @@ private fun contextAttributesMapper(): Function<OAuth2AuthorizeRequest, MutableM
 ----
 ====
 
-You may obtain the `OAuth2AccessToken` as follows:
+Given the preceding properties and bean, you can obtain the `OAuth2AccessToken` as follows:
 
 ====
 .Java
@@ -1635,7 +1631,7 @@ class OAuth2ClientController {
 
 [NOTE]
 `HttpServletRequest` and `HttpServletResponse` are both OPTIONAL attributes.
-If not provided, it will default to `ServletRequestAttributes` using `RequestContextHolder.getRequestAttributes()`.
+If not provided, they default to `ServletRequestAttributes` using `RequestContextHolder.getRequestAttributes()`.
 
 
 [[oauth2Client-jwt-bearer-grant]]
@@ -2026,12 +2022,14 @@ tokenResponseClient.setRequestEntityConverter(requestEntityConverter)
 [[oauth2Client-additional-features]]
 === Additional Features
 
+This section covers additional features provided by Spring Security for the OAuth2 client.
 
 [[oauth2Client-registered-authorized-client]]
 ==== Resolving an Authorized Client
 
-The `@RegisteredOAuth2AuthorizedClient` annotation provides the capability of resolving a method parameter to an argument value of type `OAuth2AuthorizedClient`.
-This is a convenient alternative compared to accessing the `OAuth2AuthorizedClient` using the `OAuth2AuthorizedClientManager` or `OAuth2AuthorizedClientService`.
+The `@RegisteredOAuth2AuthorizedClient` annotation provides the ability to resolve a method parameter to an argument value of type `OAuth2AuthorizedClient`.
+This is a convenient alternative compared to accessing the `OAuth2AuthorizedClient` by using the `OAuth2AuthorizedClientManager` or `OAuth2AuthorizedClientService`.
+The following example shows how to use `@RegisteredOAuth2AuthorizedClient`:
 
 ====
 .Java
@@ -2068,22 +2066,22 @@ class OAuth2ClientController {
 ----
 ====
 
-The `@RegisteredOAuth2AuthorizedClient` annotation is handled by `OAuth2AuthorizedClientArgumentResolver`, which directly uses an <<oauth2Client-authorized-manager-provider, OAuth2AuthorizedClientManager>> and therefore inherits it's capabilities.
+The `@RegisteredOAuth2AuthorizedClient` annotation is handled by `OAuth2AuthorizedClientArgumentResolver`, which directly uses an <<oauth2Client-authorized-manager-provider, OAuth2AuthorizedClientManager>> and, therefore, inherits its capabilities.
 
 
 [[oauth2Client-webclient-servlet]]
-=== WebClient integration for Servlet Environments
+=== WebClient Integration for Servlet Environments
 
-The OAuth 2.0 Client support integrates with `WebClient` using an `ExchangeFilterFunction`.
+The OAuth 2.0 Client support integrates with `WebClient` by using an `ExchangeFilterFunction`.
 
-The `ServletOAuth2AuthorizedClientExchangeFilterFunction` provides a simple mechanism for requesting protected resources by using an `OAuth2AuthorizedClient` and including the associated `OAuth2AccessToken` as a Bearer Token.
-It directly uses an <<oauth2Client-authorized-manager-provider, OAuth2AuthorizedClientManager>> and therefore inherits the following capabilities:
+The `ServletOAuth2AuthorizedClientExchangeFilterFunction` provides a mechanism for requesting protected resources by using an `OAuth2AuthorizedClient` and including the associated `OAuth2AccessToken` as a Bearer Token.
+It directly uses an <<oauth2Client-authorized-manager-provider, `OAuth2AuthorizedClientManager`>> and, therefore, inherits the following capabilities:
 
-* An `OAuth2AccessToken` will be requested if the client has not yet been authorized.
-** `authorization_code` - triggers the Authorization Request redirect to initiate the flow
-** `client_credentials` - the access token is obtained directly from the Token Endpoint
-** `password` - the access token is obtained directly from the Token Endpoint
-* If the `OAuth2AccessToken` is expired, it will be refreshed (or renewed) if an `OAuth2AuthorizedClientProvider` is available to perform the authorization
+* An `OAuth2AccessToken` is requested if the client has not yet been authorized.
+** `authorization_code`: Triggers the Authorization Request redirect to initiate the flow.
+** `client_credentials`: The access token is obtained directly from the Token Endpoint.
+** `password`: The access token is obtained directly from the Token Endpoint.
+* If the `OAuth2AccessToken` is expired, it is refreshed (or renewed) if an `OAuth2AuthorizedClientProvider` is available to perform the authorization
 
 The following code shows an example of how to configure `WebClient` with OAuth 2.0 Client support:
 
@@ -2161,9 +2159,8 @@ fun index(@RegisteredOAuth2AuthorizedClient("okta") authorizedClient: OAuth2Auth
     return "index"
 }
 ----
-====
-
 <1> `oauth2AuthorizedClient()` is a `static` method in `ServletOAuth2AuthorizedClientExchangeFilterFunction`.
+====
 
 The following code shows how to set the `ClientRegistration.getRegistrationId()` as a request attribute:
 
@@ -2209,15 +2206,14 @@ fun index(): String {
     return "index"
 }
 ----
-====
 <1> `clientRegistrationId()` is a `static` method in `ServletOAuth2AuthorizedClientExchangeFilterFunction`.
-
+====
 
 ==== Defaulting the Authorized Client
 
-If neither `OAuth2AuthorizedClient` or `ClientRegistration.getRegistrationId()` is provided as a request attribute, the `ServletOAuth2AuthorizedClientExchangeFilterFunction` can determine the _default_ client to use depending on it's configuration.
+If neither `OAuth2AuthorizedClient` or `ClientRegistration.getRegistrationId()` is provided as a request attribute, the `ServletOAuth2AuthorizedClientExchangeFilterFunction` can determine the _default_ client to use, depending on its configuration.
 
-If `setDefaultOAuth2AuthorizedClient(true)` is configured and the user has authenticated using `HttpSecurity.oauth2Login()`, the `OAuth2AccessToken` associated with the current `OAuth2AuthenticationToken` is used.
+If `setDefaultOAuth2AuthorizedClient(true)` is configured and the user has authenticated by using `HttpSecurity.oauth2Login()`, the `OAuth2AccessToken` associated with the current `OAuth2AuthenticationToken` is used.
 
 The following code shows the specific configuration:
 
@@ -2250,8 +2246,7 @@ fun webClient(authorizedClientManager: OAuth2AuthorizedClientManager?): WebClien
 ----
 ====
 
-[WARNING]
-It is recommended to be cautious with this feature since all HTTP requests will receive the access token.
+WARNING: Be cautious with this feature, since all HTTP requests receive the access token.
 
 Alternatively, if `setDefaultClientRegistrationId("okta")` is configured with a valid `ClientRegistration`, the `OAuth2AccessToken` associated with the `OAuth2AuthorizedClient` is used.
 
@@ -2286,5 +2281,4 @@ fun webClient(authorizedClientManager: OAuth2AuthorizedClientManager?): WebClien
 ----
 ====
 
-[WARNING]
-It is recommended to be cautious with this feature since all HTTP requests will receive the access token.
+WARNING: Be cautious with this feature, since all HTTP requests receive the access token.

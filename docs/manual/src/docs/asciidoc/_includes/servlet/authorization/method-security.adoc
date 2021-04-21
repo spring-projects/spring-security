@@ -1,10 +1,10 @@
 [[jc-method]]
 == Method Security
 
-From version 2.0 onwards Spring Security has improved support substantially for adding security to your service layer methods.
+From version 2.0 onwards, Spring Security has improved support substantially for adding security to your service layer methods.
 It provides support for JSR-250 annotation security as well as the framework's original `@Secured` annotation.
-From 3.0 you can also make use of new <<el-access,expression-based annotations>>.
-You can apply security to a single bean, using the `intercept-methods` element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
+From 3.0, you can also make use of new <<el-access,expression-based annotations>>.
+You can apply security to a single bean, by using the `intercept-methods` element to decorate the bean declaration, or you can secure multiple beans across the entire service layer by using AspectJ style pointcuts.
 
 === EnableMethodSecurity
 
@@ -600,9 +600,10 @@ and it will be invoked after the `@PostAuthorize` interceptor.
 [[jc-enable-global-method-security]]
 === EnableGlobalMethodSecurity
 
-We can enable annotation-based security using the `@EnableGlobalMethodSecurity` annotation on any `@Configuration` instance.
-For example, the following would enable Spring Security's `@Secured` annotation.
+We can enable annotation-based security by using the `@EnableGlobalMethodSecurity` annotation on any `@Configuration` instance.
+The following example enables Spring Security's `@Secured` annotation:
 
+====
 [source,java]
 ----
 @EnableGlobalMethodSecurity(securedEnabled = true)
@@ -610,11 +611,13 @@ public class MethodSecurityConfig {
 // ...
 }
 ----
+====
 
 Adding an annotation to a method (on a class or interface) would then limit the access to that method accordingly.
 Spring Security's native annotation support defines a set of attributes for the method.
-These will be passed to the AccessDecisionManager for it to make the actual decision:
+These are passed to the `AccessDecisionManager` for it to make the actual decision:
 
+====
 [source,java]
 ----
 public interface BankService {
@@ -629,9 +632,11 @@ public Account[] findAccounts();
 public Account post(Account account, double amount);
 }
 ----
+====
 
-Support for JSR-250 annotations can be enabled using
+Support for JSR-250 annotations can be enabled by using:
 
+====
 [source,java]
 ----
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
@@ -639,10 +644,12 @@ public class MethodSecurityConfig {
 // ...
 }
 ----
+====
 
-These are standards-based and allow simple role-based constraints to be applied but do not have the power Spring Security's native annotations.
-To use the new expression-based syntax, you would use
+These are standards-based and let simple role-based constraints be applied but do not have the power Spring Security's native annotations.
+To use the new expression-based syntax, you would use:
 
+====
 [source,java]
 ----
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -650,9 +657,11 @@ public class MethodSecurityConfig {
 // ...
 }
 ----
+====
 
-and the equivalent Java code would be
+The equivalent Java code is:
 
+====
 [source,java]
 ----
 public interface BankService {
@@ -667,13 +676,15 @@ public Account[] findAccounts();
 public Account post(Account account, double amount);
 }
 ----
+====
 
 === GlobalMethodSecurityConfiguration
 
-Sometimes you may need to perform operations that are more complicated than are possible with the `@EnableGlobalMethodSecurity` annotation allow.
-For these instances, you can extend the `GlobalMethodSecurityConfiguration` ensuring that the `@EnableGlobalMethodSecurity` annotation is present on your subclass.
+Sometimes, you may need to perform operations that are more complicated than are possible with the `@EnableGlobalMethodSecurity` annotation.
+For these instances, you can extend the `GlobalMethodSecurityConfiguration`, ensuring that the `@EnableGlobalMethodSecurity` annotation is present on your subclass.
 For example, if you wanted to provide a custom `MethodSecurityExpressionHandler`, you could use the following configuration:
 
+====
 [source,java]
 ----
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -685,24 +696,29 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 	}
 }
 ----
+====
 
-For additional information about methods that can be overridden, refer to the `GlobalMethodSecurityConfiguration` Javadoc.
+For additional information about methods that can be overridden, see the Javadoc for the {security-api-url}org/springframework/security/config/annotation/method/configuration/GlobalMethodSecurityConfiguration.html[`GlobalMethodSecurityConfiguration`] class.
 
 [[ns-global-method]]
 === The <global-method-security> Element
-This element is used to enable annotation-based security in your application (by setting the appropriate attributes on the element), and also to group together security pointcut declarations which will be applied across your entire application context.
+This element is used to enable annotation-based security in your application (by setting the appropriate attributes on the element) and to group together security pointcut declarations that are applied across your entire application context.
 You should only declare one `<global-method-security>` element.
-The following declaration would enable support for Spring Security's `@Secured`:
+The following declaration enables support for Spring Security's `@Secured`:
 
+====
 [source,xml]
 ----
 <global-method-security secured-annotations="enabled" />
 ----
+====
 
-Adding an annotation to a method (on an class or interface) would then limit the access to that method accordingly.
+Adding an annotation to a method (on a class or interface) would then limit the access to that method accordingly.
 Spring Security's native annotation support defines a set of attributes for the method.
-These will be passed to the `AccessDecisionManager` for it to make the actual decision:
+These are passed to the `AccessDecisionManager` for it to make the actual decision.
+The following example shows the `@Secured` annotation in a typical interface:
 
+====
 [source,java]
 ----
 public interface BankService {
@@ -717,24 +733,30 @@ public Account[] findAccounts();
 public Account post(Account account, double amount);
 }
 ----
+====
 
-Support for JSR-250 annotations can be enabled using
+Support for JSR-250 annotations can be enabled by using:
 
+====
 [source,xml]
 ----
 <global-method-security jsr250-annotations="enabled" />
 ----
+====
 
-These are standards-based and allow simple role-based constraints to be applied but do not have the power Spring Security's native annotations.
-To use the new expression-based syntax, you would use
+These are standards-based and allow simple role-based constraints to be applied, but they do not have the power Spring Security's native annotations.
+To use the expression-based syntax, use:
 
+====
 [source,xml]
 ----
 <global-method-security pre-post-annotations="enabled" />
 ----
+====
 
-and the equivalent Java code would be
+The equivalent Java code is:
 
+====
 [source,java]
 ----
 public interface BankService {
@@ -749,27 +771,23 @@ public Account[] findAccounts();
 public Account post(Account account, double amount);
 }
 ----
+====
 
 Expression-based annotations are a good choice if you need to define simple rules that go beyond checking the role names against the user's list of authorities.
 
-[NOTE]
-====
-The annotated methods will only be secured for instances which are defined as Spring beans (in the same application context in which method-security is enabled).
+NOTE: The annotated methods will only be secured for instances which are defined as Spring beans (in the same application context in which method-security is enabled).
 If you want to secure instances which are not created by Spring (using the `new` operator, for example) then you need to use AspectJ.
-====
 
-[NOTE]
-====
-You can enable more than one type of annotation in the same application, but only one type should be used for any interface or class as the behaviour will not be well-defined otherwise.
+NOTE: You can enable more than one type of annotation in the same application, but only one type should be used for any interface or class as the behaviour will not be well-defined otherwise.
 If two annotations are found which apply to a particular method, then only one of them will be applied.
-====
 
 [[ns-protect-pointcut]]
-=== Adding Security Pointcuts using protect-pointcut
+=== Adding Security Pointcuts by using protect-pointcut
 
-The use of `protect-pointcut` is particularly powerful, as it allows you to apply security to many beans with only a simple declaration.
+`protect-pointcut` is particularly powerful, as it lets you apply security to many beans with only a simple declaration.
 Consider the following example:
 
+====
 [source,xml]
 ----
 <global-method-security>
@@ -777,8 +795,9 @@ Consider the following example:
 	access="ROLE_USER"/>
 </global-method-security>
 ----
+====
 
-This will protect all methods on beans declared in the application context whose classes are in the `com.mycompany` package and whose class names end in "Service".
-Only users with the `ROLE_USER` role will be able to invoke these methods.
-As with URL matching, the most specific matches must come first in the list of pointcuts, as the first matching expression will be used.
+This configuration protects all methods on beans declared in the application context whose classes are in the `com.mycompany` package and whose class names end in `Service`.
+Only users with the `ROLE_USER` role can invoke these methods.
+As with URL matching, the most specific matches must come first in the list of pointcuts, as the first matching expression is used.
 Security annotations take precedence over pointcuts.

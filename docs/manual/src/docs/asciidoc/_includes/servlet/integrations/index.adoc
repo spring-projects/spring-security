@@ -1,5 +1,7 @@
 = Integrations
 
+This section describes various integrations that Spring Security has with other technologies:
+
 include::servlet-api.adoc[]
 
 include::data.adoc[]

@@ -4,7 +4,7 @@
 :icondir: images/icons
 
 {security-api-url}org/springframework/security/web/authentication/AbstractAuthenticationProcessingFilter.html[`AbstractAuthenticationProcessingFilter`] is used as a base `Filter` for authenticating a user's credentials.
-Before the credentials can be authenticated, Spring Security typically requests the credentials using <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>>.
+Before the credentials can be authenticated, Spring Security typically requests the credentials by using <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>>.
 
 Next, the `AbstractAuthenticationProcessingFilter` can authenticate any authentication requests that are submitted to it.
 
@@ -16,26 +16,26 @@ For example, <<servlet-authentication-usernamepasswordauthenticationfilter,`User
 
 image:{icondir}/number_2.png[] Next, the <<servlet-authentication-authentication,`Authentication`>> is passed into the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> to be authenticated.
 
-image:{icondir}/number_3.png[] If authentication fails, then __Failure__
+image:{icondir}/number_3.png[] If authentication fails, then __Failure__.
 
 * The <<servlet-authentication-securitycontextholder>> is cleared out.
 * `RememberMeServices.loginFail` is invoked.
 If remember me is not configured, this is a no-op.
-// FIXME: link to rememberme
+See the {security-api-url}org/springframework/security/web/authentication/rememberme/package-frame.html[`rememberme`] package.
 * `AuthenticationFailureHandler` is invoked.
-// FIXME: link to AuthenticationFailureHandler
+See the {security-api-url}org/springframework/security/web/authentication/AuthenticationFailureHandler.html[`AuthenticationFailureHandler`] interface.
 
 image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
 
-* `SessionAuthenticationStrategy` is notified of a new log in.
-// FIXME: Add link to SessionAuthenticationStrategy
+* `SessionAuthenticationStrategy` is notified of a new login.
+See the {security-api-url}org/springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[`SessionAuthenticationStrategy`] interface.
 * The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
-Later the `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession`.
-// FIXME: link securitycontextpersistencefilter
+Later, the `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession`.
+See the {security-api-url}org/springframework/security/web/context/SecurityContextPersistenceFilter.html[`SecurityContextPersistenceFilter`] class.
 * `RememberMeServices.loginSuccess` is invoked.
 If remember me is not configured, this is a no-op.
-// FIXME: link to rememberme
+See the {security-api-url}org/springframework/security/web/authentication/rememberme/package-frame.html[`rememberme`] package.
 * `ApplicationEventPublisher` publishes an `InteractiveAuthenticationSuccessEvent`.
 * `AuthenticationSuccessHandler` is invoked.
 // FIXME: link to AuthenticationSuccessHandler
-
+See the {security-api-url}org/springframework/security/web/authentication/AuthenticationSuccessHandler.html[`AuthenticationSuccessHandler`] interface.

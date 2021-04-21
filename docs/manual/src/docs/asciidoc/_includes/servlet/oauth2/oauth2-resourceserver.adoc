@@ -1,9 +1,9 @@
-[[oauth2resourceserver]]
+NML.[[oauth2resourceserver]]
 == OAuth 2.0 Resource Server
 :figures: images/servlet/oauth2
 :icondir: images/icons
 
-Spring Security supports protecting endpoints using two forms of OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens]:
+Spring Security supports protecting endpoints BY using two forms of OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens]:
 
 * https://tools.ietf.org/html/rfc7519[JWT]
 * Opaque Tokens
@@ -11,42 +11,37 @@ Spring Security supports protecting endpoints using two forms of OAuth 2.0 https
 This is handy in circumstances where an application has delegated its authority management to an https://tools.ietf.org/html/rfc6749[authorization server] (for example, Okta or Ping Identity).
 This authorization server can be consulted by resource servers to authorize requests.
 
-This section provides details on how Spring Security provides support for OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens].
+This section details how Spring Security provides support for OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens].
 
-[NOTE]
-====
-Working samples for both {gh-samples-url}/boot/oauth2resourceserver[JWTs] and {gh-samples-url}/boot/oauth2resourceserver-opaque[Opaque Tokens] are available in the {gh-samples-url}[Spring Security repository].
-====
+NOTE: Working samples for both {gh-samples-url}/boot/oauth2resourceserver[JWTs] and {gh-samples-url}/boot/oauth2resourceserver-opaque[Opaque Tokens] are available in the {gh-samples-url}[Spring Security repository].
 
-Let's take a look at how Bearer Token Authentication works within Spring Security.
-First, we see that, like <<servlet-authentication-basic,Basic Authentication>>, the https://tools.ietf.org/html/rfc7235#section-4.1[WWW-Authenticate] header is sent back to an unauthenticated client.
+Now we can consider how Bearer Token Authentication works within Spring Security.
+First, we see that, as with <<servlet-authentication-basic,Basic Authentication>>, the https://tools.ietf.org/html/rfc7235#section-4.1[WWW-Authenticate] header is sent back to an unauthenticated client:
 
 .Sending WWW-Authenticate Header
 image::{figures}/bearerauthenticationentrypoint.png[]
 
-The figure above builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the `/private` resource for which the user is not authorized.
 
-image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource `/private` for which it is not authorized.
+image:{icondir}/number_2.png[] Spring Security's <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> indicates that the unauthenticated request is _Denied_ by throwing an `AccessDeniedException`.
 
-image:{icondir}/number_2.png[] Spring Security's <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
+image:{icondir}/number_3.png[] Since the user is not authenticated, <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> initiates _Start Authentication_.
+The configured <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>> is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/authentication/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`], which sends a `WWW-Authenticate` header.
+The `RequestCache` is typically a `NullRequestCache` that does not save the request, since the client is capable of replaying the requests it originally requested.
 
-image:{icondir}/number_3.png[] Since the user is not authenticated, <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> initiates __Start Authentication__.
-The configured <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>> is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/authentication/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`] which sends a WWW-Authenticate header.
-The `RequestCache` is typically a `NullRequestCache` that does not save the request since the client is capable of replaying the requests it originally requested.
+NOTE: The preceding figure builds off of our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
 
 When a client receives the `WWW-Authenticate: Bearer` header, it knows it should retry with a bearer token.
-Below is the flow for the bearer token being processed.
+The following image shows the flow for the bearer token being processed:
 
 [[oauth2resourceserver-authentication-bearertokenauthenticationfilter]]
 .Authenticating Bearer Token
 image::{figures}/bearertokenauthenticationfilter.png[]
 
-The figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
-
-image:{icondir}/number_1.png[] When the user submits their bearer token, the `BearerTokenAuthenticationFilter` creates a `BearerTokenAuthenticationToken` which is a type of <<servlet-authentication-authentication,`Authentication`>> by extracting the token from the `HttpServletRequest`.
+image:{icondir}/number_1.png[] When the user submits their bearer token, the `BearerTokenAuthenticationFilter` creates a `BearerTokenAuthenticationToken`, which is a type of <<servlet-authentication-authentication,`Authentication`>>, by extracting the token from the `HttpServletRequest`.
 
 image:{icondir}/number_2.png[] Next, the `HttpServletRequest` is passed to the `AuthenticationManagerResolver`, which selects the `AuthenticationManager`. The `BearerTokenAuthenticationToken` is passed into the `AuthenticationManager` to be authenticated.
-The details of what `AuthenticationManager` looks like depends on whether you're configured for <<oauth2resourceserver-jwt-minimalconfiguration,JWT>> or <<oauth2resourceserver-opaque-minimalconfiguration,opaque token>>.
+The details of what `AuthenticationManager` looks like depends on whether you configured for <<oauth2resourceserver-jwt-minimalconfiguration,JWT>> or an <<oauth2resourceserver-opaque-minimalconfiguration,opaque token>>.
 
 image:{icondir}/number_3.png[] If authentication fails, then __Failure__
 
@@ -58,22 +53,27 @@ image:{icondir}/number_4.png[] If authentication is successful, then __Success__
 * The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
 * The `BearerTokenAuthenticationFilter` invokes `FilterChain.doFilter(request,response)` to continue with the rest of the application logic.
 
+NOTE: The preceding figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+
 [[oauth2resourceserver-jwt-minimaldependencies]]
 === Minimal Dependencies for JWT
 
 Most Resource Server support is collected into `spring-security-oauth2-resource-server`.
-However, the support for decoding and verifying JWTs is in `spring-security-oauth2-jose`, meaning that both are necessary in order to have a working resource server that supports JWT-encoded Bearer Tokens.
+However, the support for decoding and verifying JWTs is in `spring-security-oauth2-jose`, meaning that both are necessary to have a working resource server that supports JWT-encoded Bearer Tokens.
 
 [[oauth2resourceserver-jwt-minimalconfiguration]]
 === Minimal Configuration for JWTs
 
 When using https://spring.io/projects/spring-boot[Spring Boot], configuring an application as a resource server consists of two basic steps.
-First, include the needed dependencies and second, indicate the location of the authorization server.
+
+. Include the needed dependencies.
+. Indicate the location of the authorization server.
 
 ==== Specifying the Authorization Server
 
-In a Spring Boot application, to specify which authorization server to use, simply do:
+In a Spring Boot application, to specify which authorization server to use, you can use a YAML file similar to the following:
 
+====
 [source,yml]
 ----
 spring:
@@ -81,94 +81,93 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://idp.example.com/issuer
+          issuer-uri: https://idp.example.com/issuer <1>
 ----
+<1> `https://idp.example.com/issuer` is the value contained in the `iss` claim for JWT tokens that the authorization server issues.
+====
 
-Where `https://idp.example.com/issuer` is the value contained in the `iss` claim for JWT tokens that the authorization server will issue.
-Resource Server will use this property to further self-configure, discover the authorization server's public keys, and subsequently validate incoming JWTs.
+Resource Server uses this property to further self-configure, discover the authorization server's public keys, and, subsequently, validate incoming JWTs.
 
-[NOTE]
-To use the `issuer-uri` property, it must also be true that one of `https://idp.example.com/issuer/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/issuer`, or `https://idp.example.com/.well-known/oauth-authorization-server/issuer` is a supported endpoint for the authorization server.
+NOTE: To use the `issuer-uri` property, it must also be true that one of `https://idp.example.com/issuer/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/issuer`, or `https://idp.example.com/.well-known/oauth-authorization-server/issuer` is a supported endpoint for the authorization server.
 This endpoint is referred to as a https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Provider Configuration] endpoint or a https://tools.ietf.org/html/rfc8414#section-3[Authorization Server Metadata] endpoint.
-
-And that's it!
 
 ==== Startup Expectations
 
-When this property and these dependencies are used, Resource Server will automatically configure itself to validate JWT-encoded Bearer Tokens.
+When this property and these dependencies are used, Resource Server automatically configures itself to validate JWT-encoded Bearer Tokens.
 
 It achieves this through a deterministic startup process:
 
-1. Query the Provider Configuration or Authorization Server Metadata endpoint for the `jwks_url` property
-2. Query the `jwks_url` endpoint for supported algorithms
-3. Configure the validation strategy to query `jwks_url` for valid public keys of the algorithms found
-4. Configure the validation strategy to validate each JWTs `iss` claim against `https://idp.example.com`.
+. Query the Provider Configuration or Authorization Server Metadata endpoint for the `jwks_url` property.
+. Query the `jwks_url` endpoint for supported algorithms.
+. Configure the validation strategy to query `jwks_url` for valid public keys of the algorithms found.
+. Configure the validation strategy to validate each JWTs `iss` claim against `https://idp.example.com`.
 
-A consequence of this process is that the authorization server must be up and receiving requests in order for Resource Server to successfully start up.
+A consequence of this process is that the authorization server must be up and receiving requests for Resource Server to successfully start up.
 
-[NOTE]
-If the authorization server is down when Resource Server queries it (given appropriate timeouts), then startup will fail.
+NOTE: If the authorization server is down when Resource Server queries it (given appropriate timeouts), startup fails.
 
 ==== Runtime Expectations
 
-Once the application is started up, Resource Server will attempt to process any request containing an `Authorization: Bearer` header:
+Once the application has started, Resource Server tries to process any request containing an `Authorization: Bearer` header:
 
+====
 [source,html]
 ----
 GET / HTTP/1.1
 Authorization: Bearer some-token-value # Resource Server will process this
 ----
+====
 
-So long as this scheme is indicated, Resource Server will attempt to process the request according to the Bearer Token specification.
+So long as this scheme is indicated, Resource Server tries to process the request, according to the Bearer Token specification.
 
-Given a well-formed JWT, Resource Server will:
+Given a well-formed JWT, Resource Server:
 
-1. Validate its signature against a public key obtained from the `jwks_url` endpoint during startup and matched against the JWT
-2. Validate the JWT's `exp` and `nbf` timestamps and the JWT's `iss` claim, and
-3. Map each scope to an authority with the prefix `SCOPE_`.
+. Validates its signature against a public key obtained from the `jwks_url` endpoint during startup and matched against the JWT.
+. Validates the JWT's `exp` and `nbf` timestamps and the JWT's `iss` claim.
+. Maps each scope to an authority with the prefix `SCOPE_`.
 
-[NOTE]
-As the authorization server makes available new keys, Spring Security will automatically rotate the keys used to validate JWTs.
+NOTE: As the authorization server makes available new keys, Spring Security automatically rotates the keys used to validate JWTs.
 
 The resulting `Authentication#getPrincipal`, by default, is a Spring Security `Jwt` object, and `Authentication#getName` maps to the JWT's `sub` property, if one is present.
 
 From here, consider jumping to:
 
-* <<oauth2resourceserver-jwt-architecture,How JWT Authentication Works>>
+* <<oauth2resourceserver-jwt-architecture>>
 * <<oauth2resourceserver-jwt-jwkseturi,How to Configure without tying Resource Server startup to an authorization server's availability>>
 * <<oauth2resourceserver-jwt-sansboot,How to Configure without Spring Boot>>
 
 [[oauth2resourceserver-jwt-architecture]]
 === How JWT Authentication Works
 
-Next, let's see the architectural components that Spring Security uses to support https://tools.ietf.org/html/rfc7519[JWT] Authentication in servlet-based applications, like the one we just saw.
+Next, we consider the architectural components that Spring Security uses to support https://tools.ietf.org/html/rfc7519[JWT] Authentication in servlet-based applications, like the one we just saw.
 
-{security-api-url}org/springframework/security/oauth2/server/resource/authentication/JwtAuthenticationProvider.html[`JwtAuthenticationProvider`] is an <<servlet-authentication-authenticationprovider,`AuthenticationProvider`>> implementation that leverages a <<oauth2resourceserver-jwt-decoder,`JwtDecoder`>> and <<oauth2resourceserver-jwt-authorization-extraction,`JwtAuthenticationConverter`>> to authenticate a JWT.
+{security-api-url}org/springframework/security/oauth2/server/resource/authentication/JwtAuthenticationProvider.html[`JwtAuthenticationProvider`] is an <<servlet-authentication-authenticationprovider,`AuthenticationProvider`>> implementation that uses a <<oauth2resourceserver-jwt-decoder,`JwtDecoder`>> and <<oauth2resourceserver-jwt-authorization-extraction,`JwtAuthenticationConverter`>> to authenticate a JWT.
 
-Let's take a look at how `JwtAuthenticationProvider` works within Spring Security.
-The figure explains details of how the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> in figures from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> works.
+Now we can examine how `JwtAuthenticationProvider` works within Spring Security.
+The following figure details how the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> in other figures (from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>>) works.
 
 .`JwtAuthenticationProvider` Usage
 image::{figures}/jwtauthenticationprovider.png[]
 
-image:{icondir}/number_1.png[] The authentication `Filter` from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by <<servlet-authentication-providermanager,`ProviderManager`>>.
+image:{icondir}/number_1.png[] The authentication `Filter` from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager`, which is implemented by <<servlet-authentication-providermanager,`ProviderManager`>>.
 
 image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an <<servlet-authentication-authenticationprovider>> of type `JwtAuthenticationProvider`.
 
 [[oauth2resourceserver-jwt-architecture-jwtdecoder]]
-image:{icondir}/number_3.png[] `JwtAuthenticationProvider` decodes, verifies, and validates the `Jwt` using a <<oauth2resourceserver-jwt-decoder,`JwtDecoder`>>.
+image:{icondir}/number_3.png[] `JwtAuthenticationProvider` decodes, verifies, and validates the `Jwt` by using a <<oauth2resourceserver-jwt-decoder,`JwtDecoder`>>.
 
 [[oauth2resourceserver-jwt-architecture-jwtauthenticationconverter]]
 image:{icondir}/number_4.png[] `JwtAuthenticationProvider` then uses the <<oauth2resourceserver-jwt-authorization-extraction,`JwtAuthenticationConverter`>> to convert the `Jwt` into a `Collection` of granted authorities.
 
 image:{icondir}/number_5.png[] When authentication is successful, the <<servlet-authentication-authentication,`Authentication`>> that is returned is of type `JwtAuthenticationToken` and has a principal that is the `Jwt` returned by the configured `JwtDecoder`.
-Ultimately, the returned `JwtAuthenticationToken` will be set on the <<servlet-authentication-securitycontextholder,`SecurityContextHolder`>> by the authentication `Filter`.
+Ultimately, the returned `JwtAuthenticationToken` is set on the <<servlet-authentication-securitycontextholder,`SecurityContextHolder`>> by the authentication `Filter`.
 
 [[oauth2resourceserver-jwt-jwkseturi]]
 === Specifying the Authorization Server JWK Set Uri Directly
 
-If the authorization server doesn't support any configuration endpoints, or if Resource Server must be able to start up independently from the authorization server, then the `jwk-set-uri` can be supplied as well:
+If the authorization server does not support any configuration endpoints or if Resource Server must be able to start up independently from the authorization server, you can supply the `jwk-set-uri` as well:
 
+====
 [source,yaml]
 ----
 spring:
@@ -179,22 +178,21 @@ spring:
           issuer-uri: https://idp.example.com
           jwk-set-uri: https://idp.example.com/.well-known/jwks.json
 ----
+====
 
-[NOTE]
-The JWK Set uri is not standardized, but can typically be found in the authorization server's documentation
+NOTE: The JWK Set URI is not standardized, but you can typically find it in the authorization server's documentation.
 
-Consequently, Resource Server will not ping the authorization server at startup.
+Consequently, Resource Server does not ping the authorization server at startup.
 We still specify the `issuer-uri` so that Resource Server still validates the `iss` claim on incoming JWTs.
 
-[NOTE]
-This property can also be supplied directly on the <<oauth2resourceserver-jwt-jwkseturi-dsl,DSL>>.
+NOTE: You can also supply this property directly on the <<oauth2resourceserver-jwt-jwkseturi-dsl,DSL>>.
 
 [[oauth2resourceserver-jwt-sansboot]]
 === Overriding or Replacing Boot Auto Configuration
 
-There are two `@Bean` s that Spring Boot generates on Resource Server's behalf.
+There are two `@Bean` instances that Spring Boot generates on Resource Server's behalf.
 
-The first is a `WebSecurityConfigurerAdapter` that configures the app as a resource server. When including `spring-security-oauth2-jose`, this `WebSecurityConfigurerAdapter` looks like:
+The first is a `WebSecurityConfigurerAdapter` that configures the application as a resource server. When you include `spring-security-oauth2-jose`, this `WebSecurityConfigurerAdapter` looks like:
 
 .Default JWT Configuration
 ====
@@ -226,7 +224,7 @@ fun configure(http: HttpSecurity) {
 ----
 ====
 
-If the application doesn't expose a `WebSecurityConfigurerAdapter` bean, then Spring Boot will expose the above default one.
+If the application does not expose a `WebSecurityConfigurerAdapter` bean, Spring Boot exposes the preceding default one.
 
 Replacing this is as simple as exposing the bean within the application:
 
@@ -274,9 +272,9 @@ class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
 ----
 ====
 
-The above requires the scope of `message:read` for any URL that starts with `/messages/`.
+The preceding exmaple requires the scope of `message:read` for any URL that starts with `/messages/`.
 
-Methods on the `oauth2ResourceServer` DSL will also override or replace auto configuration.
+Methods on the `oauth2ResourceServer` DSL also override or replace auto-configuration.
 
 [[oauth2resourceserver-jwt-decoder]]
 For example, the second `@Bean` Spring Boot creates is a `JwtDecoder`, which <<oauth2resourceserver-jwt-architecture-jwtdecoder,decodes `String` tokens into validated instances of `Jwt`>>:
@@ -302,16 +300,15 @@ fun jwtDecoder(): JwtDecoder {
 ----
 ====
 
-[NOTE]
-Calling `{security-api-url}org/springframework/security/oauth2/jwt/JwtDecoders.html#fromIssuerLocation-java.lang.String-[JwtDecoders#fromIssuerLocation]` is what invokes the Provider Configuration or Authorization Server Metadata endpoint in order to derive the JWK Set Uri.
+NOTE: Calling `{security-api-url}org/springframework/security/oauth2/jwt/JwtDecoders.html#fromIssuerLocation-java.lang.String-[JwtDecoders#fromIssuerLocation]` invokes the Provider Configuration or Authorization Server Metadata endpoint, to derive the JWK Set URI.
 
-If the application doesn't expose a `JwtDecoder` bean, then Spring Boot will expose the above default one.
+If the application does not expose a `JwtDecoder` bean, Spring Boot exposes the earlier default one.
 
-And its configuration can be overridden using `jwkSetUri()` or replaced using `decoder()`.
+You can override its configuration by using `jwkSetUri()` or replaced using `decoder()`.
 
-Or, if you're not using Spring Boot at all, then both of these components - the filter chain and a `JwtDecoder` can be specified in XML.
+Alternatively, if you do not use Spring Boot at all, you can specify both of these components (the filter chain and a `JwtDecoder`) in XML.
 
-The filter chain is specified like so:
+The filter chain is specified as follows:
 
 .Default JWT Configuration
 ====
@@ -327,7 +324,7 @@ The filter chain is specified like so:
 ----
 ====
 
-And the `JwtDecoder` like so:
+The `JwtDecoder` is specified as follows:
 
 .JWT Decoder
 ====
@@ -345,7 +342,7 @@ And the `JwtDecoder` like so:
 [[oauth2resourceserver-jwt-jwkseturi-dsl]]
 ==== Using `jwkSetUri()`
 
-An authorization server's JWK Set Uri can be configured <<oauth2resourceserver-jwt-jwkseturi,as a configuration property>> or it can be supplied in the DSL:
+You can configure an authorization server's JWK Set URI <<oauth2resourceserver-jwt-jwkseturi,as a configuration property>>, or you can supply it in the DSL:
 
 .JWK Set Uri Configuration
 ====
@@ -405,7 +402,7 @@ Using `jwkSetUri()` takes precedence over any configuration property.
 [[oauth2resourceserver-jwt-decoder-dsl]]
 ==== Using `decoder()`
 
-More powerful than `jwkSetUri()` is `decoder()`, which will completely replace any Boot auto configuration of <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>>:
+More powerful than `jwkSetUri()` is `decoder()`, which completely replaces any Boot auto configuration of <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>>:
 
 .JWT Decoder Configuration
 ====
@@ -460,12 +457,12 @@ class DirectlyConfiguredJwtDecoder : WebSecurityConfigurerAdapter() {
 ----
 ====
 
-This is handy when deeper configuration, like <<oauth2resourceserver-jwt-validation,validation>>, <<oauth2resourceserver-jwt-claimsetmapping,mapping>>, or <<oauth2resourceserver-jwt-timeouts,request timeouts>>, is necessary.
+This is handy when deeper configuration (such as <<oauth2resourceserver-jwt-validation,validation>>, <<oauth2resourceserver-jwt-claimsetmapping,mapping>>, or <<oauth2resourceserver-jwt-timeouts,request timeouts>>) is necessary.
 
 [[oauth2resourceserver-jwt-decoder-bean]]
 ==== Exposing a `JwtDecoder` `@Bean`
 
-Or, exposing a <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> `@Bean` has the same effect as `decoder()`:
+Alternatively, exposing a <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> `@Bean` has the same effect as `decoder()`:
 
 ====
 .Java
@@ -490,15 +487,16 @@ fun jwtDecoder(): JwtDecoder {
 [[oauth2resourceserver-jwt-decoder-algorithm]]
 === Configuring Trusted Algorithms
 
-By default, `NimbusJwtDecoder`, and hence Resource Server, will only trust and verify tokens using `RS256`.
+By default, `NimbusJwtDecoder` and, hence, Resource Server, trust and verify tokens only that use `RS256`.
 
-You can customize this via <<oauth2resourceserver-jwt-boot-algorithm,Spring Boot>>, <<oauth2resourceserver-jwt-decoder-builder,the NimbusJwtDecoder builder>>, or from the <<oauth2resourceserver-jwt-decoder-jwk-response,JWK Set response>>.
+You can customize this through <<oauth2resourceserver-jwt-boot-algorithm,Spring Boot>> or <<oauth2resourceserver-jwt-decoder-builder,the NimbusJwtDecoder builder>> or from the <<oauth2resourceserver-jwt-decoder-jwk-response,JWK Set response>>.
 
 [[oauth2resourceserver-jwt-boot-algorithm]]
 ==== Via Spring Boot
 
 The simplest way to set the algorithm is as a property:
 
+====
 [source,yaml]
 ----
 spring:
@@ -509,6 +507,7 @@ spring:
           jws-algorithm: RS512
           jwk-set-uri: https://idp.example.org/.well-known/jwks.json
 ----
+====
 
 [[oauth2resourceserver-jwt-decoder-builder]]
 ==== Using a Builder
@@ -537,7 +536,7 @@ fun jwtDecoder(): JwtDecoder {
 ----
 ====
 
-Calling `jwsAlgorithm` more than once will configure `NimbusJwtDecoder` to trust more than one algorithm, like so:
+Calling `jwsAlgorithm` more than once configures `NimbusJwtDecoder` to trust more than one algorithm, as follows:
 
 ====
 .Java
@@ -561,7 +560,7 @@ fun jwtDecoder(): JwtDecoder {
 ----
 ====
 
-Or, you can call `jwsAlgorithms`:
+Alternatively, you can call `jwsAlgorithms`:
 
 ====
 .Java
@@ -594,10 +593,10 @@ fun jwtDecoder(): JwtDecoder {
 [[oauth2resourceserver-jwt-decoder-jwk-response]]
 ==== From JWK Set response
 
-Since Spring Security's JWT support is based off of Nimbus, you can use all it's great features as well.
+Since Spring Security's JWT support is based off of Nimbus, you can use all its great features as well.
 
-For example, Nimbus has a `JWSKeySelector` implementation that will select the set of algorithms based on the JWK Set URI response.
-You can use it to generate a `NimbusJwtDecoder` like so:
+For example, Nimbus has a `JWSKeySelector` implementation that selects the set of algorithms, based on the JWK Set URI response.
+You can use it to generate a `NimbusJwtDecoder`, as follows:
 
 ====
 .Java
@@ -634,15 +633,16 @@ fun jwtDecoder(): JwtDecoder {
 [[oauth2resourceserver-jwt-decoder-public-key]]
 === Trusting a Single Asymmetric Key
 
-Simpler than backing a Resource Server with a JWK Set endpoint is to hard-code an RSA public key.
-The public key can be provided via <<oauth2resourceserver-jwt-decoder-public-key-boot,Spring Boot>> or by <<oauth2resourceserver-jwt-decoder-public-key-builder,Using a Builder>>.
+Simpler than backing a Resource Server with a JWK Set endpoint is to hard code an RSA public key.
+The public key can be provided through <<oauth2resourceserver-jwt-decoder-public-key-boot,Spring Boot>> or by <<oauth2resourceserver-jwt-decoder-public-key-builder,Using a Builder>>.
 
 [[oauth2resourceserver-jwt-decoder-public-key-boot]]
-==== Via Spring Boot
+==== Providing a Public Key through Spring Boot
 
-Specifying a key via Spring Boot is quite simple.
-The key's location can be specified like so:
+With Spring Boot,
+you can specify the key's location:
 
+====
 [source,yaml]
 ----
 spring:
@@ -652,8 +652,9 @@ spring:
         jwt:
           public-key-location: classpath:my-key.pub
 ----
+====
 
-Or, to allow for a more sophisticated lookup, you can post-process the `RsaKeyConversionServicePostProcessor`:
+Alternatively, to allow for a more sophisticated lookup, you can post-process the `RsaKeyConversionServicePostProcessor`:
 
 ====
 .Java
@@ -680,13 +681,16 @@ fun conversionServiceCustomizer(): BeanFactoryPostProcessor {
 ----
 ====
 
-Specify your key's location:
+To specify your key's location:
 
-```yaml
+====
+[source,yaml]
+----
 key.location: hfds://my-key.pub
-```
+----
+====
 
-And then autowire the value:
+Then autowire the value:
 
 ====
 .Java
@@ -705,9 +709,9 @@ val key: RSAPublicKey? = null
 ====
 
 [[oauth2resourceserver-jwt-decoder-public-key-builder]]
-==== Using a Builder
+==== Using a Builder to Provide a Public Key
 
-To wire an `RSAPublicKey` directly, you can simply use the appropriate `NimbusJwtDecoder` builder, like so:
+To wire an `RSAPublicKey` directly, you can use the appropriate `NimbusJwtDecoder` builder:
 
 ====
 .Java
@@ -732,8 +736,7 @@ fun jwtDecoder(): JwtDecoder {
 [[oauth2resourceserver-jwt-decoder-secret-key]]
 === Trusting a Single Symmetric Key
 
-Using a single symmetric key is also simple.
-You can simply load in your `SecretKey` and use the appropriate `NimbusJwtDecoder` builder, like so:
+To use a single symmetric key, you can load in your `SecretKey` and use the appropriate `NimbusJwtDecoder` builder:
 
 ====
 .Java
@@ -758,13 +761,13 @@ fun jwtDecoder(): JwtDecoder {
 [[oauth2resourceserver-jwt-authorization]]
 === Configuring Authorization
 
-A JWT that is issued from an OAuth 2.0 Authorization Server will typically either have a `scope` or `scp` attribute, indicating the scopes (or authorities) it's been granted, for example:
+A JWT that is issued from an OAuth 2.0 Authorization Server typically have either a `scope` or an `scp` attribute, indicating the scopes (or authorities) it has been granted -- for example:
 
 `{ ..., "scope" : "messages contacts"}`
 
-When this is the case, Resource Server will attempt to coerce these scopes into a list of granted authorities, prefixing each scope with the string "SCOPE_".
+When this is the case, Resource Server tries to coerce these scopes into a list of granted authorities, prefixing each scope with the string, `SCOPE_`.
 
-This means that to protect an endpoint or method with a scope derived from a JWT, the corresponding expressions should include this prefix:
+This means that, to protect an endpoint or method with a scope derived from a JWT, the corresponding expressions should include this prefix:
 
 .Authorization Configuration
 ====
@@ -818,28 +821,30 @@ class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
 ----
 ====
 
-Or similarly with method security:
+A similar arrangement applies to method security:
 
+====
 [source,java]
 ----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 public List<Message> getMessages(...) {}
 ----
+====
 
 [[oauth2resourceserver-jwt-authorization-extraction]]
 ==== Extracting Authorities Manually
 
 However, there are a number of circumstances where this default is insufficient.
-For example, some authorization servers don't use the `scope` attribute, but instead have their own custom attribute.
-Or, at other times, the resource server may need to adapt the attribute or a composition of attributes into internalized authorities.
+For example, some authorization servers do not use the `scope` attribute but, instead, have their own custom attribute.
+At other times, the resource server may need to adapt the attribute or a composition of attributes into internalized authorities.
 
 To this end, Spring Security ships with `JwtAuthenticationConverter`, which is responsible for <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,converting a `Jwt` into an `Authentication`>>.
-By default, Spring Security will wire the `JwtAuthenticationProvider` with a default instance of `JwtAuthenticationConverter`.
+By default, Spring Security wires the `JwtAuthenticationProvider` with a default instance of `JwtAuthenticationConverter`.
 
 As part of configuring a `JwtAuthenticationConverter`, you can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
 
-Let's say that that your authorization server communicates authorities in a custom claim called `authorities`.
-In that case, you can configure the claim that <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,`JwtAuthenticationConverter`>> should inspect, like so:
+Suppose your authorization server communicates authorities in a custom claim called `authorities`.
+In that case, you can configure the claim that <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,`JwtAuthenticationConverter`>> should inspect:
 
 .Authorities Claim Configuration
 ====
@@ -896,7 +901,7 @@ fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
 ====
 
 You can also configure the authority prefix to be different as well.
-Instead of prefixing each authority with `SCOPE_`, you can change it to `ROLE_` like so:
+Instead of prefixing each authority with `SCOPE_`, you can change it to `ROLE_`:
 
 .Authorities Prefix Configuration
 ====
@@ -952,7 +957,7 @@ fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
 ----
 ====
 
-Or, you can remove the prefix altogether by calling `JwtGrantedAuthoritiesConverter#setAuthorityPrefix("")`.
+Alternatively, you can remove the prefix altogether by calling `JwtGrantedAuthoritiesConverter#setAuthorityPrefix("")`.
 
 For more flexibility, the DSL supports entirely replacing the converter with any class that implements `Converter<Jwt, AbstractAuthenticationToken>`:
 
@@ -1016,7 +1021,7 @@ class CustomAuthenticationConverterConfig : WebSecurityConfigurerAdapter() {
 [[oauth2resourceserver-jwt-validation]]
 === Configuring Validation
 
-Using <<oauth2resourceserver-jwt-minimalconfiguration,minimal Spring Boot configuration>>, indicating the authorization server's issuer uri, Resource Server will default to verifying the `iss` claim as well as the `exp` and `nbf` timestamp claims.
+Using <<oauth2resourceserver-jwt-minimalconfiguration,minimal Spring Boot configuration>> and indicating the authorization server's issuer URI, Resource Server defaults to verifying the `iss` claim as well as the `exp` and `nbf` timestamp claims.
 
 In circumstances where validation needs to be customized, Resource Server ships with two standard validators and also accepts custom `OAuth2TokenValidator` instances.
 
@@ -1025,10 +1030,10 @@ In circumstances where validation needs to be customized, Resource Server ships 
 
 JWT's typically have a window of validity, with the start of the window indicated in the `nbf` claim and the end indicated in the `exp` claim.
 
-However, every server can experience clock drift, which can cause tokens to appear expired to one server, but not to another.
+However, every server can experience clock drift, which can cause tokens to appear to be expired to one server but not to another.
 This can cause some implementation heartburn as the number of collaborating servers increases in a distributed system.
 
-Resource Server uses `JwtTimestampValidator` to verify a token's validity window, and it can be configured with a `clockSkew` to alleviate the above problem:
+Resource Server uses `JwtTimestampValidator` to verify a token's validity window, and you can configure it with a `clockSkew` to alleviate the problem of clock drift:
 
 ====
 .Java
@@ -1073,7 +1078,7 @@ By default, Resource Server configures a clock skew of 60 seconds.
 [[oauth2resourceserver-jwt-validation-custom]]
 ==== Configuring a Custom Validator
 
-Adding a check for the `aud` claim is simple with the `OAuth2TokenValidator` API:
+You can use the `OAuth2TokenValidator` API to add a check for the `aud` claim:
 
 ====
 .Java
@@ -1093,7 +1098,7 @@ fun audienceValidator(): OAuth2TokenValidator<Jwt?> {
 ----
 ====
 
-Or, for more control you can implement your own `OAuth2TokenValidator`:
+Alternatively, for more control, you can implement your own `OAuth2TokenValidator`:
 
 ====
 .Java
@@ -1142,7 +1147,7 @@ fun audienceValidator(): OAuth2TokenValidator<Jwt> {
 ----
 ====
 
-Then, to add into a resource server, it's a matter of specifying the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> instance:
+Then, to add into a resource server, you can specify the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> instance:
 
 ====
 .Java
@@ -1184,21 +1189,21 @@ fun jwtDecoder(): JwtDecoder {
 [[oauth2resourceserver-jwt-claimsetmapping]]
 === Configuring Claim Set Mapping
 
-Spring Security uses the https://bitbucket.org/connect2id/nimbus-jose-jwt/wiki/Home[Nimbus] library for parsing JWTs and validating their signatures.
+Spring Security uses the https://bitbucket.org/connect2id/nimbus-jose-jwt/wiki/Home[Nimbus] library to parse JWTs and validate their signatures.
 Consequently, Spring Security is subject to Nimbus's interpretation of each field value and how to coerce each into a Java type.
 
-For example, because Nimbus remains Java 7 compatible, it doesn't use `Instant` to represent timestamp fields.
+For example, because Nimbus remains Java 7 compatible, it does not use `Instant` to represent timestamp fields.
 
-And it's entirely possible to use a different library or for JWT processing, which may make its own coercion decisions that need adjustment.
+Also, it is entirely possible to use a different library or for JWT processing, which may make its own coercion decisions that need adjustment.
 
-Or, quite simply, a resource server may want to add or remove claims from a JWT for domain-specific reasons.
+Put differently, a resource server may want to add or remove claims from a JWT for domain-specific reasons.
 
 For these purposes, Resource Server supports mapping the JWT claim set with `MappedJwtClaimSetConverter`.
 
 [[oauth2resourceserver-jwt-claimsetmapping-singleclaim]]
 ==== Customizing the Conversion of a Single Claim
 
-By default, `MappedJwtClaimSetConverter` will attempt to coerce claims into the following types:
+By default, `MappedJwtClaimSetConverter` tries to coerce claims into the following types:
 
 |============
 | Claim | Java Type
@@ -1211,7 +1216,7 @@ By default, `MappedJwtClaimSetConverter` will attempt to coerce claims into the 
 | `sub` | `String`
 |============
 
-An individual claim's conversion strategy can be configured using `MappedJwtClaimSetConverter.withDefaults`:
+You can configure an individual claim's conversion strategy by using `MappedJwtClaimSetConverter.withDefaults`:
 
 ====
 .Java
@@ -1244,12 +1249,13 @@ fun jwtDecoder(): JwtDecoder {
 }
 ----
 ====
-This will keep all the defaults, except it will override the default claim converter for `sub`.
+
+This approach keeps all the defaults, except that it overrides the default claim converter for `sub`.
 
 [[oauth2resourceserver-jwt-claimsetmapping-add]]
 ==== Adding a Claim
 
-`MappedJwtClaimSetConverter` can also be used to add a custom claim, for example, to adapt to an existing system:
+`MappedJwtClaimSetConverter` can also be used to add a custom claim -- for example, to adapt to an existing system:
 
 ====
 .Java
@@ -1268,7 +1274,7 @@ MappedJwtClaimSetConverter.withDefaults(mapOf("custom" to Converter<Any, String>
 [[oauth2resourceserver-jwt-claimsetmapping-remove]]
 ==== Removing a Claim
 
-And removing a claim is also simple, using the same API:
+And removing a claim is also simple, by using the same API:
 
 ====
 .Java
@@ -1323,7 +1329,7 @@ class UsernameSubClaimAdapter : Converter<Map<String, Any?>, Map<String, Any?>> 
 ----
 ====
 
-And then, the instance can be supplied like normal:
+Then you can supply the instance in the normal way:
 
 ====
 .Java
@@ -1355,7 +1361,7 @@ fun jwtDecoder(): JwtDecoder {
 By default, Resource Server uses connection and socket timeouts of 30 seconds each for coordinating with the authorization server.
 
 This may be too short in some scenarios.
-Further, it doesn't take into account more sophisticated patterns like back-off and discovery.
+Further, it does not take into account more sophisticated patterns like back-off and discovery.
 
 To adjust the way in which Resource Server connects to the authorization server, `NimbusJwtDecoder` accepts an instance of `RestOperations`:
 
@@ -1389,8 +1395,8 @@ fun jwtDecoder(builder: RestTemplateBuilder): JwtDecoder {
 ----
 ====
 
-Also by default, Resource Server caches in-memory the authorization server's JWK set for 5 minutes, which you may want to adjust.
-Further, it doesn't take into account more sophisticated caching patterns like eviction or using a shared cache.
+Also, by default, Resource Server caches (in memory) the authorization server's JWK set for 5 minutes, which you may want to adjust.
+Further, it does not take into account more sophisticated caching patterns, such as eviction or using a shared cache.
 
 To adjust the way in which Resource Server caches the JWK set, `NimbusJwtDecoder` accepts an instance of `Cache`:
 
@@ -1418,34 +1424,37 @@ fun jwtDecoder(cacheManager: CacheManager): JwtDecoder {
 ----
 ====
 
-When given a `Cache`, Resource Server will use the JWK Set Uri as the key and the JWK Set JSON as the value.
+When given a `Cache`, Resource Server uses the JWK Set URI as the key and the JWK Set JSON as the value.
 
-NOTE: Spring isn't a cache provider, so you'll need to make sure to include the appropriate dependencies, like `spring-boot-starter-cache` and your favorite caching provider.
+NOTE: Spring is not a cache provider, so you need to make sure to include the appropriate dependencies, such as `spring-boot-starter-cache` and your favorite caching provider.
 
-NOTE: Whether it's socket or cache timeouts, you may instead want to work with Nimbus directly.
+NOTE: Whether it is socket or cache timeouts, you may instead want to work with Nimbus directly.
 To do so, remember that `NimbusJwtDecoder` ships with a constructor that takes Nimbus's `JWTProcessor`.
 
 [[oauth2resourceserver-opaque-minimaldependencies]]
 === Minimal Dependencies for Introspection
 As described in <<oauth2resourceserver-jwt-minimaldependencies,Minimal Dependencies for JWT>> most of Resource Server support is collected in `spring-security-oauth2-resource-server`.
-However unless a custom <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> is provided, the Resource Server will fallback to NimbusOpaqueTokenIntrospector.
-Meaning that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary in order to have a working minimal Resource Server that supports opaque Bearer Tokens.
-Please refer to `spring-security-oauth2-resource-server` in order to determin the correct version for `oauth2-oidc-sdk`.
+However, unless a custom <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> is provided, Resource Server falls back to NimbusOpaqueTokenIntrospector.
+This means that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary to have a working minimal Resource Server that supports opaque Bearer Tokens.
+See `spring-security-oauth2-resource-server` to determine the correct version for `oauth2-oidc-sdk`.
 
 [[oauth2resourceserver-opaque-minimalconfiguration]]
 === Minimal Configuration for Introspection
 
-Typically, an opaque token can be verified via an https://tools.ietf.org/html/rfc7662[OAuth 2.0 Introspection Endpoint], hosted by the authorization server.
+Typically, you can verify an opaque token through an https://tools.ietf.org/html/rfc7662[OAuth 2.0 Introspection Endpoint], hosted by the authorization server.
 This can be handy when revocation is a requirement.
 
-When using https://spring.io/projects/spring-boot[Spring Boot], configuring an application as a resource server that uses introspection consists of two basic steps.
-First, include the needed dependencies and second, indicate the introspection endpoint details.
+When you use https://spring.io/projects/spring-boot[Spring Boot], configuring an application as a resource server that uses introspection consists of two basic steps:
+
+. Include the needed dependencies.
+. Indicate the introspection endpoint details.
 
 [[oauth2resourceserver-opaque-introspectionuri]]
 ==== Specifying the Authorization Server
 
-To specify where the introspection endpoint is, simply do:
+The following exmaple specifies where the introspection endpoint is:
 
+====
 [source,yaml]
 ----
 security:
@@ -1456,39 +1465,40 @@ security:
         client-id: client
         client-secret: secret
 ----
+====
 
 Where `https://idp.example.com/introspect` is the introspection endpoint hosted by your authorization server and `client-id` and `client-secret` are the credentials needed to hit that endpoint.
 
-Resource Server will use these properties to further self-configure and subsequently validate incoming JWTs.
+Resource Server uses these properties to further self-configure and subsequently validate incoming JWTs.
 
-[NOTE]
-When using introspection, the authorization server's word is the law.
-If the authorization server responses that the token is valid, then it is.
-
-And that's it!
+NOTE: When using introspection, the authorization server's word is law.
+If the authorization server responsed that the token is valid, it is.
 
 ==== Startup Expectations
 
-When this property and these dependencies are used, Resource Server will automatically configure itself to validate Opaque Bearer Tokens.
+When this property and these dependencies are used, Resource Server automatically configures itself to validate Opaque Bearer Tokens.
 
-This startup process is quite a bit simpler than for JWTs since no endpoints need to be discovered and no additional validation rules get added.
+This startup process is quite a bit simpler than for JWTs, since no endpoints need to be discovered and no additional validation rules get added.
 
 ==== Runtime Expectations
 
-Once the application is started up, Resource Server will attempt to process any request containing an `Authorization: Bearer` header:
+Once the application has started, Resource Server tries to process any request containing an `Authorization: Bearer` header:
 
-```http
+====
+[source,text]
+----
 GET / HTTP/1.1
 Authorization: Bearer some-token-value # Resource Server will process this
-```
+----
+====
 
-So long as this scheme is indicated, Resource Server will attempt to process the request according to the Bearer Token specification.
+So long as this scheme is indicated, Resource Server tries to process the request according to the Bearer Token specification.
 
-Given an Opaque Token, Resource Server will
+Given an Opaque Token, Resource Server:
 
-1. Query the provided introspection endpoint using the provided credentials and the token
-2. Inspect the response for an `{ 'active' : true }` attribute
-3. Map each scope to an authority with the prefix `SCOPE_`
+1. Queries the provided introspection endpoint by using the provided credentials and the token.
+2. Inspects the response for an `{ 'active' : true }` attribute.
+3. Maps each scope to an authority with a prefix of `SCOPE_`.
 
 The resulting `Authentication#getPrincipal`, by default, is a Spring Security `{security-api-url}org/springframework/security/oauth2/core/OAuth2AuthenticatedPrincipal.html[OAuth2AuthenticatedPrincipal]` object, and `Authentication#getName` maps to the token's `sub` property, if one is present.
 
@@ -1502,12 +1512,12 @@ From here, you may want to jump to:
 [[oauth2resourceserver-opaque-architecture]]
 === How Opaque Token Authentication Works
 
-Next, let's see the architectural components that Spring Security uses to support https://tools.ietf.org/html/rfc7662[opaque token] Authentication in servlet-based applications, like the one we just saw.
+Next, let's see the architectural components that Spring Security uses to support https://tools.ietf.org/html/rfc7662[opaque token] authentication in servlet-based applications, such as the one we examined earlier in this chapter.
 
 {security-api-url}org/springframework/security/oauth2/server/resource/authentication/OpaqueTokenAuthenticationProvider.html[`OpaqueTokenAuthenticationProvider`] is an <<servlet-authentication-authenticationprovider,`AuthenticationProvider`>> implementation that leverages a <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> to authenticate an opaque token.
 
-Let's take a look at how `OpaqueTokenAuthenticationProvider` works within Spring Security.
-The figure explains details of how the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> in figures from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> works.
+Now we examine how `OpaqueTokenAuthenticationProvider` works within Spring Security.
+The figure details how the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> in figures from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> works.
 
 .`OpaqueTokenAuthenticationProvider` Usage
 image::{figures}/opaquetokenauthenticationprovider.png[]
@@ -1517,16 +1527,16 @@ image:{icondir}/number_1.png[] The authentication `Filter` from <<oauth2resource
 image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an <<servlet-authentication-authenticationprovider>> of type `OpaqueTokenAuthenticationProvider`.
 
 [[oauth2resourceserver-opaque-architecture-introspector]]
-image:{icondir}/number_3.png[] `OpaqueTokenAuthenticationProvider` introspects the opaque token and adds granted authorities using an <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>>.
+image:{icondir}/number_3.png[] `OpaqueTokenAuthenticationProvider` introspects the opaque token and adds granted authorities by using an <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>>.
 When authentication is successful, the <<servlet-authentication-authentication,`Authentication`>> that is returned is of type `BearerTokenAuthentication` and has a principal that is the `OAuth2AuthenticatedPrincipal` returned by the configured <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>>.
-Ultimately, the returned `BearerTokenAuthentication` will be set on the <<servlet-authentication-securitycontextholder,`SecurityContextHolder`>> by the authentication `Filter`.
+Ultimately, the returned `BearerTokenAuthentication` is set on the <<servlet-authentication-securitycontextholder,`SecurityContextHolder`>> by the authentication `Filter`.
 
 [[oauth2resourceserver-opaque-attributes]]
 === Looking Up Attributes Post-Authentication
 
 Once a token is authenticated, an instance of `BearerTokenAuthentication` is set in the `SecurityContext`.
 
-This means that it's available in `@Controller` methods when using `@EnableWebMvc` in your configuration:
+This means that it is available in `@Controller` methods when you use `@EnableWebMvc` in your configuration:
 
 ====
 .Java
@@ -1548,7 +1558,7 @@ fun foo(authentication: BearerTokenAuthentication): String {
 ----
 ====
 
-Since `BearerTokenAuthentication` holds an `OAuth2AuthenticatedPrincipal`, that also means that it's available to controller methods, too:
+Since `BearerTokenAuthentication` holds an `OAuth2AuthenticatedPrincipal`, that also means that it is available to controller methods, too:
 
 ====
 .Java
@@ -1570,11 +1580,11 @@ fun foo(@AuthenticationPrincipal principal: OAuth2AuthenticatedPrincipal): Strin
 ----
 ====
 
-==== Looking Up Attributes Via SpEL
+==== Looking Up Attributes with SpEL
 
-Of course, this also means that attributes can be accessed via SpEL.
+Of course, this also means that attributes can be accessed with SpEL (Spring Expression Language).
 
-For example, if using `@EnableGlobalMethodSecurity` so that you can use `@PreAuthorize` annotations, you can do:
+For example, if you use `@EnableGlobalMethodSecurity` so that you can use `@PreAuthorize` annotations, you can use:
 
 ====
 .Java
@@ -1599,10 +1609,10 @@ fun forFoosEyesOnly(): String {
 [[oauth2resourceserver-opaque-sansboot]]
 === Overriding or Replacing Boot Auto Configuration
 
-There are two `@Bean` s that Spring Boot generates on Resource Server's behalf.
+There are two `@Bean` instances that Spring Boot generates on Resource Server's behalf.
 
-The first is a `WebSecurityConfigurerAdapter` that configures the app as a resource server.
-When use Opaque Token, this `WebSecurityConfigurerAdapter` looks like:
+The first is a `WebSecurityConfigurerAdapter` that configures the application as a resource server.
+When you use Opaque Token, this `WebSecurityConfigurerAdapter` looks like:
 
 .Default Opaque Token Configuration
 ====
@@ -1634,9 +1644,9 @@ override fun configure(http: HttpSecurity) {
 ----
 ====
 
-If the application doesn't expose a `WebSecurityConfigurerAdapter` bean, then Spring Boot will expose the above default one.
+If the application does not expose a `WebSecurityConfigurerAdapter` bean, Spring Boot exposes the preceding default one.
 
-Replacing this is as simple as exposing the bean within the application:
+Replacing this involves exposing the bean within the application:
 
 .Custom Opaque Token Configuration
 ====
@@ -1682,12 +1692,12 @@ class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
 ----
 ====
 
-The above requires the scope of `message:read` for any URL that starts with `/messages/`.
+The preceding example requires the scope of `message:read` for any URL that starts with `/messages/`.
 
-Methods on the `oauth2ResourceServer` DSL will also override or replace auto configuration.
+Methods on the `oauth2ResourceServer` DSL also override or replace auto configuration.
 
 [[oauth2resourceserver-opaque-introspector]]
-For example, the second `@Bean` Spring Boot creates is an `OpaqueTokenIntrospector`, <<oauth2resourceserver-opaque-architecture-introspector,which decodes `String` tokens into validated instances of `OAuth2AuthenticatedPrincipal`>>:
+For example, the second `@Bean` that Spring Boot creates is an `OpaqueTokenIntrospector`, <<oauth2resourceserver-opaque-architecture-introspector,which decodes `String` tokens into validated instances of `OAuth2AuthenticatedPrincipal`>>:
 
 ====
 .Java
@@ -1709,11 +1719,11 @@ fun introspector(): OpaqueTokenIntrospector {
 ----
 ====
 
-If the application doesn't expose a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> bean, then Spring Boot will expose the above default one.
+If the application does not expose a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> bean, Spring Boot exposes the preceding default one.
 
-And its configuration can be overridden using `introspectionUri()` and `introspectionClientCredentials()` or replaced using `introspector()`.
+You can override its configuration by using `introspectionUri()` and `introspectionClientCredentials()` or replace it by using `introspector()`.
 
-Or, if you're not using Spring Boot at all, then both of these components - the filter chain and a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> can be specified in XML.
+Alternatively, if you do not use Spring Boot at all, you can specify both of these components (the filter chain and a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>>) in XML.
 
 The filter chain is specified like so:
 
@@ -1750,7 +1760,7 @@ And the <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntr
 [[oauth2resourceserver-opaque-introspectionuri-dsl]]
 ==== Using `introspectionUri()`
 
-An authorization server's Introspection Uri can be configured <<oauth2resourceserver-opaque-introspectionuri,as a configuration property>> or it can be supplied in the DSL:
+You can configure an authorization server's introspection URI <<oauth2resourceserver-opaque-introspectionuri,as a configuration property>> or supply it in the DSL:
 
 .Introspection URI Configuration
 ====
@@ -1812,7 +1822,7 @@ Using `introspectionUri()` takes precedence over any configuration property.
 [[oauth2resourceserver-opaque-introspector-dsl]]
 ==== Using `introspector()`
 
-More powerful than `introspectionUri()` is `introspector()`, which will completely replace any Boot auto configuration of <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>>:
+More powerful than `introspectionUri()` is `introspector()`, which completely replaces any Boot auto-configuration of <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>>:
 
 .Introspector Configuration
 ====
@@ -1867,13 +1877,14 @@ class DirectlyConfiguredIntrospector : WebSecurityConfigurerAdapter() {
 ----
 ====
 
-This is handy when deeper configuration, like <<oauth2resourceserver-opaque-authorization-extraction,authority mapping>>, <<oauth2resourceserver-opaque-jwt-introspector,JWT revocation>>, or <<oauth2resourceserver-opaque-timeouts,request timeouts>>, is necessary.
+This is handy when deeper configuration (such as <<oauth2resourceserver-opaque-authorization-extraction,authority mapping>>, <<oauth2resourceserver-opaque-jwt-introspector,JWT revocation>>, or <<oauth2resourceserver-opaque-timeouts,request timeouts>>) is necessary.
 
 [[oauth2resourceserver-opaque-introspector-bean]]
 ==== Exposing a `OpaqueTokenIntrospector` `@Bean`
 
-Or, exposing a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> `@Bean` has the same effect as `introspector()`:
+Alternatively, exposing an <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> `@Bean` has the same effect as `introspector()`:
 
+====
 [source,java]
 ----
 @Bean
@@ -1881,17 +1892,18 @@ public OpaqueTokenIntrospector introspector() {
     return new NimbusOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret);
 }
 ----
+====
 
 [[oauth2resourceserver-opaque-authorization]]
 === Configuring Authorization
 
-An OAuth 2.0 Introspection endpoint will typically return a `scope` attribute, indicating the scopes (or authorities) it's been granted, for example:
+An OAuth 2.0 Introspection endpoint typically returns a `scope` attribute, indicating the scopes (or authorities) it has been granted -- for example:
 
 `{ ..., "scope" : "messages contacts"}`
 
-When this is the case, Resource Server will attempt to coerce these scopes into a list of granted authorities, prefixing each scope with the string "SCOPE_".
+When this is the case, Resource Server tries to coerce these scopes into a list of granted authorities, prefixing each scope with the string "SCOPE_".
 
-This means that to protect an endpoint or method with a scope derived from an Opaque Token, the corresponding expressions should include this prefix:
+This means that, to protect an endpoint or method with a scope derived from an Opaque Token, the corresponding expressions should include this prefix:
 
 .Authorization Opaque Token Configuration
 ====
@@ -1945,7 +1957,7 @@ class MappedAuthorities : WebSecurityConfigurerAdapter() {
 ----
 ====
 
-Or similarly with method security:
+Method security requires a similar approach:
 
 ====
 .Java
@@ -1966,10 +1978,11 @@ fun getMessages(): List<Message?> {}
 [[oauth2resourceserver-opaque-authorization-extraction]]
 ==== Extracting Authorities Manually
 
-By default, Opaque Token support will extract the scope claim from an introspection response and parse it into individual `GrantedAuthority` instances.
+By default, Opaque Token support extracts the scope claim from an introspection response and parse it into individual `GrantedAuthority` instances.
 
-For example, if the introspection response were:
+For example, consider the following introspection response:
 
+====
 [source,json]
 ----
 {
@@ -1977,10 +1990,11 @@ For example, if the introspection response were:
     "scope" : "message:read message:write"
 }
 ----
+====
 
-Then Resource Server would generate an `Authentication` with two authorities, one for `message:read` and the other for `message:write`.
+Given that response, Resource Server would generate an `Authentication` with two authorities, one for `message:read` and the other for `message:write`.
 
-This can, of course, be customized using a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> that takes a look at the attribute set and converts in its own way:
+You can customize this can be customized by using a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> that examines the attribute set and converts in its own way:
 
 ====
 .Java
@@ -2025,7 +2039,7 @@ class CustomAuthoritiesOpaqueTokenIntrospector : OpaqueTokenIntrospector {
 ----
 ====
 
-Thereafter, this custom introspector can be configured simply by exposing it as a `@Bean`:
+Thereafter, you can configure this custom introspector by exposing it as a `@Bean`:
 
 ====
 .Java
@@ -2050,10 +2064,10 @@ fun introspector(): OpaqueTokenIntrospector {
 [[oauth2resourceserver-opaque-timeouts]]
 === Configuring Timeouts
 
-By default, Resource Server uses connection and socket timeouts of 30 seconds each for coordinating with the authorization server.
+By default, Resource Server uses connection and socket timeouts of 30 seconds each to coordinate with the authorization server.
 
-This may be too short in some scenarios.
-Further, it doesn't take into account more sophisticated patterns like back-off and discovery.
+In some scenarios this value may be too short.
+Further, it does not take into account more sophisticated patterns, such as backing off and discovery.
 
 To adjust the way in which Resource Server connects to the authorization server, `NimbusOpaqueTokenIntrospector` accepts an instance of `RestOperations`:
 
@@ -2092,12 +2106,13 @@ fun introspector(builder: RestTemplateBuilder, properties: OAuth2ResourceServerP
 === Using Introspection with JWTs
 
 A common question is whether or not introspection is compatible with JWTs.
-Spring Security's Opaque Token support has been designed to not care about the format of the token -- it will gladly pass any token to the introspection endpoint provided.
+Spring Security's Opaque Token support has been designed to not care about the format of the token -- it gladly passes any token to the provided introspection endpoint.
 
-So, let's say that you've got a requirement that requires you to check with the authorization server on each request, in case the JWT has been revoked.
+So, suppose you have a requirement to check with the authorization server on each request, in case the JWT has been revoked.
 
-Even though you are using the JWT format for the token, your validation method is introspection, meaning you'd want to do:
+Even though you use the JWT format for the token, your validation method is introspection, meaning that you want to do:
 
+====
 [source,yaml]
 ----
 spring:
@@ -2109,14 +2124,15 @@ spring:
           client-id: client
           client-secret: secret
 ----
+====
 
-In this case, the resulting `Authentication` would be `BearerTokenAuthentication`.
+In this case, the resulting `Authentication` is `BearerTokenAuthentication`.
 Any attributes in the corresponding `OAuth2AuthenticatedPrincipal` would be whatever was returned by the introspection endpoint.
 
-But, let's say that, oddly enough, the introspection endpoint only returns whether or not the token is active.
+However, suppose that, oddly enough, the introspection endpoint returns only whether or not the token is active.
 Now what?
 
-In this case, you can create a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> that still hits the endpoint, but then updates the returned principal to have the JWTs claims as the attributes:
+In that case, you can create a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> that still hits the endpoint but then updates the returned principal to have the JWTs claims as the attributes:
 
 ====
 .Java
@@ -2171,7 +2187,7 @@ class JwtOpaqueTokenIntrospector : OpaqueTokenIntrospector {
 ----
 ====
 
-Thereafter, this custom introspector can be configured simply by exposing it as a `@Bean`:
+Thereafter, you can configure this custom introspector by exposing it as a `@Bean`:
 
 ====
 .Java
@@ -2196,12 +2212,12 @@ fun introspector(): OpaqueTokenIntrospector {
 [[oauth2resourceserver-opaque-userinfo]]
 === Calling a `/userinfo` Endpoint
 
-Generally speaking, a Resource Server doesn't care about the underlying user, but instead about the authorities that have been granted.
+Generally speaking, a Resource Server does not care about the underlying user but, instead, cares about the authorities that have been granted.
 
-That said, at times it can be valuable to tie the authorization statement back to a user.
+That said, at times, it can be valuable to tie the authorization statement back to a user.
 
-If an application is also using `spring-security-oauth2-client`, having set up the appropriate `ClientRegistrationRepository`, then this is quite simple with a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>>.
-This implementation below does three things:
+If an application also uses `spring-security-oauth2-client`, having set up the appropriate `ClientRegistrationRepository`, then this is possible with a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>>.
+The implementation shown in the next listing does three things:
 
 * Delegates to the introspection endpoint, to affirm the token's validity
 * Looks up the appropriate client registration associated with the `/userinfo` endpoint
@@ -2256,8 +2272,8 @@ class UserInfoOpaqueTokenIntrospector : OpaqueTokenIntrospector {
 ----
 ====
 
-If you aren't using `spring-security-oauth2-client`, it's still quite simple.
-You will simply need to invoke the `/userinfo` with your own instance of `WebClient`:
+If you do not use `spring-security-oauth2-client`, it is still possible.
+You need to invoke the `/userinfo` with your own instance of `WebClient`:
 
 ====
 .Java
@@ -2316,10 +2332,10 @@ fun introspector(): OpaqueTokenIntrospector {
 [[oauth2reourceserver-opaqueandjwt]]
 === Supporting both JWT and Opaque Token
 
-In some cases, you may have a need to access both kinds of tokens.
-For example, you may support more than one tenant where one tenant issues JWTs and the other issues opaque tokens.
+In some cases, you may need to access both kinds of tokens.
+For example, you may support more than one tenant, where one tenant issues JWTs and the other issues opaque tokens.
 
-If this decision must be made at request-time, then you can use an `AuthenticationManagerResolver` to achieve it, like so:
+If this decision must be made at request-time, you can use an `AuthenticationManagerResolver` to achieve it:
 
 ====
 .Java
@@ -2361,9 +2377,9 @@ fun tokenAuthenticationManagerResolver(): AuthenticationManagerResolver<HttpServ
 ----
 ====
 
-NOTE: The implementation of `useJwt(HttpServletRequest)` will likely depend on custom request material like the path.
+NOTE: The implementation of `useJwt(HttpServletRequest)` likely depends on custom request material, such as the path.
 
-And then specify this `AuthenticationManagerResolver` in the DSL:
+Then you can specify this `AuthenticationManagerResolver` in the DSL:
 
 .Authentication Manager Resolver
 ====
@@ -2407,16 +2423,16 @@ http {
 A resource server is considered multi-tenant when there are multiple strategies for verifying a bearer token, keyed by some tenant identifier.
 
 For example, your resource server may accept bearer tokens from two different authorization servers.
-Or, your authorization server may represent a multiplicity of issuers.
+Alternatively, your authorization server may represent a multiplicity of issuers.
 
-In each case, there are two things that need to be done and trade-offs associated with how you choose to do them:
+In each case, you need to do two things, and trade-offs exist with how you choose to do them:
 
-1. Resolve the tenant
-2. Propagate the tenant
+. Resolve the tenant
+. Propagate the tenant
 
 ==== Resolving the Tenant By Claim
 
-One way to differentiate tenants is by the issuer claim. Since the issuer claim accompanies signed JWTs, this can be done with the `JwtIssuerAuthenticationManagerResolver`, like so:
+One way to differentiate tenants is by the issuer claim. Since the issuer claim accompanies signed JWTs, you can do this with the `JwtIssuerAuthenticationManagerResolver`:
 
 .Multitenancy Tenant by JWT Claim
 ====
@@ -2469,14 +2485,14 @@ http {
 ----
 ====
 
-This is nice because the issuer endpoints are loaded lazily.
+This is nice, because the issuer endpoints are loaded lazily.
 In fact, the corresponding `JwtAuthenticationProvider` is instantiated only when the first request with the corresponding issuer is sent.
-This allows for an application startup that is independent from those authorization servers being up and available.
+This allows for an application startup that is independent from those authorization servers being available.
 
 ===== Dynamic Tenants
 
-Of course, you may not want to restart the application each time a new tenant is added.
-In this case, you can configure the `JwtIssuerAuthenticationManagerResolver` with a repository of `AuthenticationManager` instances, which you can edit at runtime, like so:
+You may not want to restart the application each time a new tenant is added.
+In this case, you can configure the `JwtIssuerAuthenticationManagerResolver` with a repository of `AuthenticationManager` instances, which you can edit at runtime:
 
 ====
 .Java
@@ -2527,11 +2543,11 @@ http {
 ----
 ====
 
-In this case, you construct `JwtIssuerAuthenticationManagerResolver` with a strategy for obtaining the `AuthenticationManager` given the issuer.
-This approach allows us to add and remove elements from the repository (shown as a `Map` in the snippet) at runtime.
+In this case, you construct `JwtIssuerAuthenticationManagerResolver` with a strategy for obtaining the `AuthenticationManager`, given the issuer.
+This approach lets you add and remove elements from the repository (shown as a `Map` in the snippet) at runtime.
 
-NOTE: It would be unsafe to simply take any issuer and construct an `AuthenticationManager` from it.
-The issuer should be one that the code can verify from a trusted source like a list of allowed issuers.
+NOTE: It would be unsafe to take any issuer and construct an `AuthenticationManager` from it.
+The issuer should be one that the code can verify from a trusted source, such as a list of allowed issuers.
 
 ===== Parsing the Claim Only Once
 
@@ -2619,17 +2635,17 @@ class TenantJWSKeySelector(tenants: TenantRepository) : JWTClaimSetAwareJWSKeySe
     }
 }
 ----
+<1> A hypothetical source for tenant information.
+<2> A cache for `JWKKeySelector`s, keyed by tenant identifier.
+<3> Looking up the tenant is more secure than calculating the JWK Set endpoint on the fly -- the lookup acts as a list of allowed tenants.
+<4> Create a `JWSKeySelector` through the types of keys that come back from the JWK Set endpoint -- the lazy lookup here means that you need not configure all tenants at startup.
 ====
-<1> A hypothetical source for tenant information
-<2> A cache for `JWKKeySelector`s, keyed by tenant identifier
-<3> Looking up the tenant is more secure than simply calculating the JWK Set endpoint on the fly - the lookup acts as a list of allowed tenants
-<4> Create a `JWSKeySelector` via the types of keys that come back from the JWK Set endpoint - the lazy lookup here means that you don't need to configure all tenants at startup
 
-The above key selector is a composition of many key selectors.
+The preceding key selector is a composition of many key selectors.
 It chooses which key selector to use based on the `iss` claim in the JWT.
 
 NOTE: To use this approach, make sure that the authorization server is configured to include the claim set as part of the token's signature.
-Without this, you have no guarantee that the issuer hasn't been altered by a bad actor.
+Without this, you have no guarantee that the issuer has not been altered by a bad actor.
 
 Next, we can construct a `JWTProcessor`:
 
@@ -2661,8 +2677,8 @@ fun jwtProcessor(keySelector: JWTClaimsSetAwareJWSKeySelector<SecurityContext>):
 As you are already seeing, the trade-off for moving tenant-awareness down to this level is more configuration.
 We have just a bit more.
 
-Next, we still want to make sure you are validating the issuer.
-But, since the issuer may be different per JWT, then you'll need a tenant-aware validator, too:
+Next, we still want to make sure you validate the issuer.
+However, since the issuer may differ per JWT, you need a tenant-aware validator, too:
 
 ====
 .Java
@@ -2755,10 +2771,10 @@ fun jwtDecoder(jwtProcessor: JWTProcessor<SecurityContext>?, jwtValidator: OAuth
 ----
 ====
 
-We've finished talking about resolving the tenant.
+We have finished talking about resolving the tenant.
 
-If you've chosen to resolve the tenant by something other than a JWT claim, then you'll need to make sure you address your downstream resource servers in the same way.
-For example, if you are resolving it by subdomain, you may need to address the downstream resource server using the same subdomain.
+If you chose to resolve the tenant by something other than a JWT claim, you need to make sure you address your downstream resource servers in the same way.
+For example, if you resolve it by subdomain, you may need to address the downstream resource server by using the same subdomain.
 
 However, if you resolve it by a claim in the bearer token, read on to learn about <<oauth2resourceserver-bearertoken-resolver,Spring Security's support for bearer token propagation>>.
 
@@ -2766,12 +2782,12 @@ However, if you resolve it by a claim in the bearer token, read on to learn abou
 === Bearer Token Resolution
 
 By default, Resource Server looks for a bearer token in the `Authorization` header.
-This, however, can be customized in a handful of ways.
+However, you can customize this in a handful of ways.
 
 ==== Reading the Bearer Token from a Custom Header
 
-For example, you may have a need to read the bearer token from a custom header.
-To achieve this, you can expose a `DefaultBearerTokenResolver` as a bean, or wire an instance into the DSL, as you can see in the following example:
+For example, you may need to read the bearer token from a custom header.
+To do so, you can expose a `DefaultBearerTokenResolver` as a bean or wire an instance into the DSL, as follows:
 
 .Custom Bearer Token Header
 ====
@@ -2811,11 +2827,11 @@ fun bearerTokenResolver(): BearerTokenResolver {
 ----
 ====
 
-Or, in circumstances where a provider is using both a custom header and value, you can use `HeaderBearerTokenResolver` instead.
+Alternatively, in circumstances where a provider uses both a custom header and value, you can use `HeaderBearerTokenResolver` instead.
 
 ==== Reading the Bearer Token from a Form Parameter
 
-Or, you may wish to read the token from a form parameter, which you can do by configuring the `DefaultBearerTokenResolver`, as you can see below:
+Alternatively, you may wish to read the token from a form parameter, which you can do by configuring the `DefaultBearerTokenResolver`:
 
 .Form Parameter Bearer Token
 ====
@@ -2858,8 +2874,8 @@ http {
 
 === Bearer Token Propagation
 
-Now that you're resource server has validated the token, it might be handy to pass it to downstream services.
-This is quite simple with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServletBearerExchangeFilterFunction.html[ServletBearerExchangeFilterFunction]`, which you can see in the following example:
+Now that your resource server has validated the token, it might be handy to pass it to downstream services.
+This is possible with {security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServletBearerExchangeFilterFunction.html[`ServletBearerExchangeFilterFunction`]:
 
 ====
 .Java
@@ -2885,10 +2901,8 @@ fun rest(): WebClient {
 ----
 ====
 
-When the above `WebClient` is used to perform requests, Spring Security will look up the current `Authentication` and extract any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[AbstractOAuth2Token]` credential.
-Then, it will propagate that token in the `Authorization` header.
-
-For example:
+When the `WebClient` performs requests, Spring Security looks up the current `Authentication` and extracts any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[`AbstractOAuth2Token`]` credential.
+Then it propagates that token in the `Authorization` header:
 
 ====
 .Java
@@ -2912,9 +2926,9 @@ this.rest.get()
 ----
 ====
 
-Will invoke the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
+The preceding code invokes the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
 
-In places where you need to override this behavior, it's a simple matter of supplying the header yourself, like so:
+In places where you need to override this behavior, you can supply the header yourself:
 
 ====
 .Java
@@ -2940,15 +2954,14 @@ this.rest.get()
 ----
 ====
 
-In this case, the filter will fall back and simply forward the request onto the rest of the web filter chain.
+In this case, the filter falls back and forwards the request onto the rest of the web filter chain.
 
-[NOTE]
-Unlike the {security-api-url}org/springframework/security/oauth2/client/web/reactive/function/client/ServletOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
-To obtain this level of support, please use the OAuth 2.0 Client filter.
+NOTE: Unlike the {security-api-url}org/springframework/security/oauth2/client/web/reactive/function/client/ServletOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
+To obtain this level of support, use the OAuth 2.0 Client filter.
 
 ==== `RestTemplate` support
 
-There is no `RestTemplate` equivalent for `ServletBearerExchangeFilterFunction` at the moment, but you can propagate the request's bearer token quite simply with your own interceptor:
+There is no `RestTemplate` equivalent for `ServletBearerExchangeFilterFunction` at the moment, but you can propagate the request's bearer token with your own interceptor:
 
 ====
 .Java
@@ -3001,25 +3014,26 @@ fun rest(): RestTemplate {
 ====
 
 
-[NOTE]
-Unlike the {security-api-url}org/springframework/security/oauth2/client/OAuth2AuthorizedClientManager.html[OAuth 2.0 Authorized Client Manager], this filter interceptor makes no attempt to renew the token, should it be expired.
-To obtain this level of support, please create an interceptor using the <<oauth2client,OAuth 2.0 Authorized Client Manager>>.
+NOTE: Unlike the {security-api-url}org/springframework/security/oauth2/client/OAuth2AuthorizedClientManager.html[OAuth 2.0 Authorized Client Manager], this filter interceptor makes no attempt to renew the token, should it be expired.
+To obtain this level of support, create an interceptor by using the <<oauth2client,OAuth 2.0 Authorized Client Manager>>.
 
 [[oauth2resourceserver-bearertoken-failure]]
 === Bearer Token Failure
 
-A bearer token may be invalid for a number of reasons. For example, the token may no longer be active.
+A bearer token can be invalid for a number of reasons. For example, the token may no longer be active.
 
 In these circumstances, Resource Server throws an `InvalidBearerTokenException`.
 Like other exceptions, this results in an OAuth 2.0 Bearer Token error response:
 
-[source,http request]
+====
+[source,text]
 ----
 HTTP/1.1 401 Unauthorized
 WWW-Authenticate: Bearer error_code="invalid_token", error_description="Unsupported algorithm of none", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"
 ----
+====
 
-Additionally, it is published as an `AuthenticationFailureBadCredentialsEvent`, which you can <<servlet-events,listen for in your application>> like so:
+Additionally, it is published as an `AuthenticationFailureBadCredentialsEvent`, for which you can <<servlet-events,listen in your application>>:
 
 ====
 .Java

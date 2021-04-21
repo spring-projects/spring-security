@@ -1,80 +1,71 @@
 [[servlet-jaas]]
 == Java Authentication and Authorization Service (JAAS) Provider
 
-
-=== Overview
-Spring Security provides a package able to delegate authentication requests to the Java Authentication and Authorization Service (JAAS).
-This package is discussed in detail below.
-
+Spring Security provides a package to delegate authentication requests to the Java Authentication and Authorization Service (JAAS).
+This section discusses that package.
 
 [[jaas-abstractjaasauthenticationprovider]]
 === AbstractJaasAuthenticationProvider
-The `AbstractJaasAuthenticationProvider` is the basis for the provided JAAS `AuthenticationProvider` implementations.
+The `AbstractJaasAuthenticationProvider` class is the basis for the provided JAAS `AuthenticationProvider` implementations.
 Subclasses must implement a method that creates the `LoginContext`.
-The `AbstractJaasAuthenticationProvider` has a number of dependencies that can be injected into it that are discussed below.
-
+The `AbstractJaasAuthenticationProvider` has a number of dependencies that can be injected into it, as discussed in the remainder of this section.
 
 [[jaas-callbackhandler]]
 ==== JAAS CallbackHandler
-Most JAAS `LoginModule` s require a callback of some sort.
+Most JAAS `LoginModule` instances require a callback of some sort.
 These callbacks are usually used to obtain the username and password from the user.
 
-In a Spring Security deployment, Spring Security is responsible for this user interaction (via the authentication mechanism).
-Thus, by the time the authentication request is delegated through to JAAS, Spring Security's authentication mechanism will already have fully-populated an `Authentication` object containing all the information required by the JAAS `LoginModule`.
+In a Spring Security deployment, Spring Security is responsible for this user interaction (through the authentication mechanism).
+Thus, by the time the authentication request is delegated through to JAAS, Spring Security's authentication mechanism has already fully populated an `Authentication` object that contains all the information required by the JAAS `LoginModule`.
 
-Therefore, the JAAS package for Spring Security provides two default callback handlers, `JaasNameCallbackHandler` and `JaasPasswordCallbackHandler`.
-Each of these callback handlers implement `JaasAuthenticationCallbackHandler`.
-In most cases these callback handlers can simply be used without understanding the internal mechanics.
+Therefore, the JAAS package for Spring Security provides two default callback handlers: `JaasNameCallbackHandler` and `JaasPasswordCallbackHandler`.
+Each of these callback handlers implements `JaasAuthenticationCallbackHandler`.
+In most cases, these callback handlers can be used without understanding the internal mechanics.
 
-For those needing full control over the callback behavior, internally `AbstractJaasAuthenticationProvider` wraps these `JaasAuthenticationCallbackHandler` s with an `InternalCallbackHandler`.
-The `InternalCallbackHandler` is the class that actually implements JAAS normal `CallbackHandler` interface.
-Any time that the JAAS `LoginModule` is used, it is passed a list of application context configured `InternalCallbackHandler` s.
-If the `LoginModule` requests a callback against the `InternalCallbackHandler` s, the callback is in-turn passed to the `JaasAuthenticationCallbackHandler` s being wrapped.
-
+For those needing full control over the callback behavior, `AbstractJaasAuthenticationProvider` internally wraps these `JaasAuthenticationCallbackHandler` instances with an `InternalCallbackHandler`.
+The `InternalCallbackHandler` is the class that actually implements the JAAS normal `CallbackHandler` interface.
+Any time that the JAAS `LoginModule` is used, it is passed a list of application contexts configured `InternalCallbackHandler` instances.
+If the `LoginModule` requests a callback against the `InternalCallbackHandler` instances, the callback is, in turn, passed to the `JaasAuthenticationCallbackHandler` instances being wrapped.
 
 [[jaas-authoritygranter]]
 ==== JAAS AuthorityGranter
 JAAS works with principals.
-Even "roles" are represented as principals in JAAS.
+Even "`roles`" are represented as principals in JAAS.
 Spring Security, on the other hand, works with `Authentication` objects.
-Each `Authentication` object contains a single principal, and multiple `GrantedAuthority` s.
+Each `Authentication` object contains a single principal and multiple `GrantedAuthority` instances.
 To facilitate mapping between these different concepts, Spring Security's JAAS package includes an `AuthorityGranter` interface.
 
-An `AuthorityGranter` is responsible for inspecting a JAAS principal and returning a set of `String` s, representing the authorities assigned to the principal.
-For each returned authority string, the `AbstractJaasAuthenticationProvider` creates a `JaasGrantedAuthority` (which implements Spring Security's `GrantedAuthority` interface) containing the authority string and the JAAS principal that the `AuthorityGranter` was passed.
-The `AbstractJaasAuthenticationProvider` obtains the JAAS principals by firstly successfully authenticating the user's credentials using the JAAS `LoginModule`, and then accessing the `LoginContext` it returns.
+An `AuthorityGranter` is responsible for inspecting a JAAS principal and returning a set of `String` objects that represent the authorities assigned to the principal.
+For each returned authority string, the `AbstractJaasAuthenticationProvider` creates a `JaasGrantedAuthority` (which implements Spring Security's `GrantedAuthority` interface) that contains the authority string and the JAAS principal that the `AuthorityGranter` was passed.
+The `AbstractJaasAuthenticationProvider` obtains the JAAS principals by first successfully authenticating the user's credentials by using the JAAS `LoginModule` and then accessing the `LoginContext` it returns.
 A call to `LoginContext.getSubject().getPrincipals()` is made, with each resulting principal passed to each `AuthorityGranter` defined against the `AbstractJaasAuthenticationProvider.setAuthorityGranters(List)` property.
 
-Spring Security does not include any production `AuthorityGranter` s given that every JAAS principal has an implementation-specific meaning.
+Spring Security does not include any production `AuthorityGranter` instances, given that every JAAS principal has an implementation-specific meaning.
 However, there is a `TestAuthorityGranter` in the unit tests that demonstrates a simple `AuthorityGranter` implementation.
-
 
 [[jaas-defaultjaasauthenticationprovider]]
 === DefaultJaasAuthenticationProvider
-The `DefaultJaasAuthenticationProvider` allows a JAAS `Configuration` object to be injected into it as a dependency.
-It then creates a `LoginContext` using the injected JAAS `Configuration`.
-This means that `DefaultJaasAuthenticationProvider` is not bound any particular implementation of `Configuration` as `JaasAuthenticationProvider` is.
-
+The `DefaultJaasAuthenticationProvider` lets a JAAS `Configuration` object be injected into it as a dependency.
+It then creates a `LoginContext` by using the injected JAAS `Configuration`.
+This means that `DefaultJaasAuthenticationProvider` is not bound to any particular implementation of `Configuration`, as `JaasAuthenticationProvider` is.
 
 [[jaas-inmemoryconfiguration]]
 ==== InMemoryConfiguration
-In order to make it easy to inject a `Configuration` into `DefaultJaasAuthenticationProvider`, a default in-memory implementation named `InMemoryConfiguration` is provided.
-The implementation constructor accepts a `Map` where each key represents a login configuration name and the value represents an `Array` of `AppConfigurationEntry` s.
-`InMemoryConfiguration` also supports a default `Array` of `AppConfigurationEntry` objects that will be used if no mapping is found within the provided `Map`.
-For details, refer to the class level javadoc of `InMemoryConfiguration`.
-
+To make it easy to inject a `Configuration` into `DefaultJaasAuthenticationProvider`, a default in-memory implementation named `InMemoryConfiguration` is provided.
+The implementation constructor accepts a `Map` where each key represents a login configuration name, and the value represents an `Array` of `AppConfigurationEntry` instances.
+`InMemoryConfiguration` also supports a default `Array` of `AppConfigurationEntry` objects that is used if no mapping is found within the provided `Map`.
+For details, see the {security-api-url}org/springframework/security/authentication/jaas/memory/InMemoryConfiguration.html[Javadoc of `InMemoryConfiguration`].
 
 [[jaas-djap-config]]
 ==== DefaultJaasAuthenticationProvider Example Configuration
-While the Spring configuration for `InMemoryConfiguration` can be more verbose than the standard JAAS configuration files, using it in conjunction with `DefaultJaasAuthenticationProvider` is more flexible than `JaasAuthenticationProvider` since it not dependant on the default `Configuration` implementation.
+While the Spring configuration for `InMemoryConfiguration` can be more verbose than the standard JAAS configuration files, using it in conjunction with `DefaultJaasAuthenticationProvider` is more flexible than `JaasAuthenticationProvider`, since it not dependent on the default `Configuration` implementation.
 
-An example configuration of `DefaultJaasAuthenticationProvider` using `InMemoryConfiguration` is provided below.
+The next example provides a configuration of `DefaultJaasAuthenticationProvider` that uses `InMemoryConfiguration`.
 Note that custom implementations of `Configuration` can easily be injected into `DefaultJaasAuthenticationProvider` as well.
 
-
+====
 [source,xml]
 ----
-
 <bean id="jaasAuthProvider"
 class="org.springframework.security.authentication.jaas.DefaultJaasAuthenticationProvider">
 <property name="configuration">
@@ -110,32 +101,32 @@ class="org.springframework.security.authentication.jaas.DefaultJaasAuthenticatio
 </list>
 </property>
 </bean>
-
 ----
-
-
+====
 
 [[jaas-jaasauthenticationprovider]]
 === JaasAuthenticationProvider
-The `JaasAuthenticationProvider` assumes the default `Configuration` is an instance of https://download.oracle.com/javase/1.4.2/docs/guide/security/jaas/spec/com/sun/security/auth/login/ConfigFile.html[ ConfigFile].
-This assumption is made in order to attempt to update the `Configuration`.
+The `JaasAuthenticationProvider` assumes that the default `Configuration` is an instance of https://download.oracle.com/javase/1.4.2/docs/guide/security/jaas/spec/com/sun/security/auth/login/ConfigFile.html[`ConfigFile`].
+This assumption is made in order to try to update the `Configuration`.
 The `JaasAuthenticationProvider` then uses the default `Configuration` to create the `LoginContext`.
 
-Let's assume we have a JAAS login configuration file, `/WEB-INF/login.conf`, with the following contents:
+Assume that we have a JAAS login configuration file, `/WEB-INF/login.conf`, with the following contents:
 
+====
 [source,txt]
 ----
 JAASTest {
 	sample.SampleLoginModule required;
 };
 ----
+====
 
-Like all Spring Security beans, the `JaasAuthenticationProvider` is configured via the application context.
+Like all Spring Security beans, the `JaasAuthenticationProvider` is configured through the application context.
 The following definitions would correspond to the above JAAS login configuration file:
 
+====
 [source,xml]
 ----
-
 <bean id="jaasAuthenticationProvider"
 class="org.springframework.security.authentication.jaas.JaasAuthenticationProvider">
 <property name="loginConfig" value="/WEB-INF/login.conf"/>
@@ -155,16 +146,19 @@ class="org.springframework.security.authentication.jaas.JaasAuthenticationProvid
 </property>
 </bean>
 ----
+====
 
 [[jaas-apiprovision]]
 === Running as a Subject
-If configured, the `JaasApiIntegrationFilter` will attempt to run as the `Subject` on the `JaasAuthenticationToken`.
+If configured, the `JaasApiIntegrationFilter` tries to run as the `Subject` on the `JaasAuthenticationToken`.
 This means that the `Subject` can be accessed using:
 
+====
 [source,java]
 ----
 Subject subject = Subject.getSubject(AccessController.getContext());
 ----
+====
 
-This integration can easily be configured using the <<nsa-http-jaas-api-provision,jaas-api-provision>> attribute.
+You can configure this integration by using the <<nsa-http-jaas-api-provision,jaas-api-provision>> attribute.
 This feature is useful when integrating with legacy or external API's that rely on the JAAS Subject being populated.

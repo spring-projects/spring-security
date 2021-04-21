@@ -4,21 +4,21 @@
 :icondir: images/icons
 
 One of the most common ways to authenticate a user is by validating a username and password.
-As such, Spring Security provides comprehensive support for authenticating with a username and password.
+Spring Security provides comprehensive support for authenticating with a username and password.
 
 [[servlet-authentication-unpwd-input]]
-*Reading the Username & Password*
+== Reading the Username & Password
 
-Spring Security provides the following built in mechanisms for reading a username and password from the `HttpServletRequest`:
+Spring Security provides the following built-in mechanisms for reading a username and password from `HttpServletRequest`:
 
 * <<servlet-authentication-form,Form Login>>
 * <<servlet-authentication-basic,Basic Authentication>>
 * <<servlet-authentication-digest,Digest Authentication>>
 
 [[servlet-authentication-unpwd-storage]]
-*Storage Mechanisms*
+== Storage Mechanisms
 
-Each of the supported mechanisms for reading a username and password can leverage any of the supported storage mechanisms:
+Each of the supported mechanisms for reading a username and password can use any of the supported storage mechanisms:
 
 * Simple Storage with <<servlet-authentication-inmemory>>
 * Relational Databases with <<servlet-authentication-jdbc>>

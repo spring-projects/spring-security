@@ -3,18 +3,18 @@
 :figures: images/servlet/authentication/architecture
 
 {security-api-url}org/springframework/security/authentication/ProviderManager.html[`ProviderManager`] is the most commonly used implementation of <<servlet-authentication-authenticationmanager,`AuthenticationManager`>>.
-`ProviderManager` delegates to a `List` of <<servlet-authentication-authenticationprovider,``AuthenticationProvider``s>>.
-// FIXME: link to AuthenticationProvider
+`ProviderManager` delegates to a `List` of <<servlet-authentication-authenticationprovider,`AuthenticationProvider`>> instances.
+(See the Javadoc for the {security-api-url}org/springframework/security/authentication/AuthenticationProvider.html[`AuthenticationProvider`].
 Each `AuthenticationProvider` has an opportunity to indicate that authentication should be successful, fail, or indicate it cannot make a decision and allow a downstream `AuthenticationProvider` to decide.
-If none of the configured ``AuthenticationProvider``s can authenticate, then authentication will fail with a `ProviderNotFoundException` which is a special `AuthenticationException` that indicates the `ProviderManager` was not configured to support the type of `Authentication` that was passed into it.
+If none of the configured `AuthenticationProvider` instances can authenticate, authentication fails with a `ProviderNotFoundException`, which is a special `AuthenticationException` that indicates that the `ProviderManager` was not configured to support the type of `Authentication` that was passed into it.
 
 image::{figures}/providermanager.png[]
 
 In practice each `AuthenticationProvider` knows how to perform a specific type of authentication.
- For example, one `AuthenticationProvider` might be able to validate a username/password, while another might be able to authenticate a SAML assertion.
-This allows each `AuthenticationProvider` to do a very specific type of authentication, while supporting multiple types of authentication and only exposing a single `AuthenticationManager` bean.
+For example, one `AuthenticationProvider` might be able to validate a username/password, while another might be able to authenticate a SAML assertion.
+This lets each `AuthenticationProvider` do a very specific type of authentication while supporting multiple types of authentication and expose only a single `AuthenticationManager` bean.
 
-`ProviderManager` also allows configuring an optional parent `AuthenticationManager` which is consulted in the event that no `AuthenticationProvider` can perform authentication.
+`ProviderManager` also allows configuring an optional parent `AuthenticationManager`, which is consulted in the event that no `AuthenticationProvider` can perform authentication.
 The parent can be any type of `AuthenticationManager`, but it is often an instance of `ProviderManager`.
 
 image::{figures}/providermanager-parent.png[]
@@ -25,12 +25,12 @@ This is somewhat common in scenarios where there are multiple <<servlet-security
 image::{figures}/providermanagers-parent.png[]
 
 [[servlet-authentication-providermanager-erasing-credentials]]
-By default `ProviderManager` will attempt to clear any sensitive credentials information from the `Authentication` object which is returned by a successful authentication request.
-This prevents information like passwords being retained longer than necessary in the `HttpSession`.
+By default, `ProviderManager` tries to clear any sensitive credentials information from the `Authentication` object that is returned by a successful authentication request.
+This prevents information, such as passwords, being retained longer than necessary in the `HttpSession`.
 
-This may cause issues when you are using a cache of user objects, for example, to improve performance in a stateless application.
-If the `Authentication` contains a reference to an object in the cache (such as a `UserDetails` instance) and this has its credentials removed, then it will no longer be possible to authenticate against the cached value.
-You need to take this into account if you are using a cache.
-An obvious solution is to make a copy of the object first, either in the cache implementation or in the `AuthenticationProvider` which creates the returned `Authentication` object.
+This may cause issues when you use a cache of user objects, for example, to improve performance in a stateless application.
+If the `Authentication` contains a reference to an object in the cache (such as a `UserDetails` instance) and this has its credentials removed, it is no longer possible to authenticate against the cached value.
+You need to take this into account if you use a cache.
+An obvious solution is to first make a copy of the object, either in the cache implementation or in the `AuthenticationProvider` that creates the returned `Authentication` object.
 Alternatively, you can disable the `eraseCredentialsAfterAuthentication` property on `ProviderManager`.
-See the {security-api-url}org/springframework/security/authentication/ProviderManager.html[Javadoc] for more information.
+See the Javadoc for the {security-api-url}org/springframework/security/authentication/ProviderManager.html[`ProviderManager`] class.
