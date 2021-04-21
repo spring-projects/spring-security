@@ -4,9 +4,7 @@
 Spring Security supports method security by using https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context], which is set up by `ReactiveSecurityContextHolder`.
 The following example shows how to retrieve the currently logged in user's message:
 
-[NOTE]
-====
-For this to work the return type of the method must be a `org.reactivestreams.Publisher` (i.e. `Mono`/`Flux`) or the function must be a Kotlin coroutine function.
+NOTE: For this example to work, the return type of the method must be a `org.reactivestreams.Publisher` (that is, a `Mono` or a `Flux`) or the function must be a Kotlin coroutine function.
 This is necessary to integrate with Reactor's `Context`.
 
 ====
@@ -26,7 +24,6 @@ StepVerifier.create(messageByUsername)
 	.expectNext("Hi user")
 	.verifyComplete();
 ----
-====
 
 .Kotlin
 [source,kotlin,role="secondary"]
@@ -45,7 +42,7 @@ StepVerifier.create(messageByUsername)
 ----
 ====
 
-with `this::findMessageByUsername` defined as:
+Where `this::findMessageByUsername` is defined as:
 
 ====
 .Java
@@ -55,7 +52,6 @@ Mono<String> findMessageByUsername(String username) {
 	return Mono.just("Hi " + username);
 }
 ----
-====
 
 .Kotlin
 [source,kotlin,role="secondary"]
@@ -66,7 +62,7 @@ fun findMessageByUsername(username: String): Mono<String> {
 ----
 ====
 
-Below is a minimal method security configuration when using method security in reactive applications.
+The following minimal method security configures method security in reactive applications:
 
 ====
 .Java
@@ -89,7 +85,6 @@ public class SecurityConfig {
 	}
 }
 ----
-====
 
 .Kotlin
 [source,kotlin,role="secondary"]
@@ -127,7 +122,6 @@ public class HelloWorldMessageService {
 	}
 }
 ----
-====
 
 .Kotlin
 [source,kotlin,role="secondary"]
@@ -142,7 +136,7 @@ class HelloWorldMessageService {
 ----
 ====
 
-Or, the following class using Kotlin coroutines:
+Alternatively, the following class uses Kotlin coroutines:
 
 ====
 .Kotlin
@@ -160,9 +154,9 @@ class HelloWorldMessageService {
 ====
 
 
-Combined with our configuration above, `@PreAuthorize("hasRole('ADMIN')")` will ensure that `findByMessage` is only invoked by a user with the role `ADMIN`.
-It is important to note that any of the expressions in standard method security work for `@EnableReactiveMethodSecurity`.
-However, at this time we only support return type of `Boolean` or `boolean` of the expression.
+Combined with our configuration above, `@PreAuthorize("hasRole('ADMIN')")` ensures that `findByMessage` is invoked only by a user with the `ADMIN` role.
+Note that any of the expressions in standard method security work for `@EnableReactiveMethodSecurity`.
+However, at this time, we support only a return type of `Boolean` or `boolean` of the expression.
 This means that the expression must not block.
 
 When integrating with <<jc-webflux>>, the Reactor Context is automatically established by Spring Security according to the authenticated user:
@@ -202,7 +196,6 @@ public class SecurityConfig {
 	}
 }
 ----
-====
 
 .Kotlin
 [source,kotlin,role="secondary"]
@@ -237,4 +230,4 @@ class SecurityConfig {
 ----
 ====
 
-You can find a complete sample in {gh-samples-url}/javaconfig/hellowebflux-method[hellowebflux-method]
+You can find a complete sample in {gh-samples-url}/javaconfig/hellowebflux-method[hellowebflux-method].
