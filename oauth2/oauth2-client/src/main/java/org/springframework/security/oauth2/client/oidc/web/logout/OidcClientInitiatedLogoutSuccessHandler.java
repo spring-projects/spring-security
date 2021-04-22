@@ -100,9 +100,9 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 				.replaceQuery(null)
 				.fragment(null)
 				.build();
-		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
+		return URI.create (UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
 				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
-				.toUri();
+				.toUriString());
 	}
 
 
