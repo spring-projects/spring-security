@@ -108,15 +108,17 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.spring.register(CustomAuthorizationManagerConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
 		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
+
 	}
 
 	@Test
-	public void configureMvcMatcherAccessAuthorizationManagerOnDefualt) throws Exception
+	public void configureMvcMatcherAccessAuthorizationManagerOnDefualt)throws Exception
 	{
 		CustomAuthorizationManagerConfig.authorizationManager = mock(AuthorizationManager.class);
 		this.spring.register(IncompleteMappingConfigWithDefaultConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
-		verify(CustomAuthorizationManagerConfig.authorizationManager).check(LocationIdentity.any(), LocationIdentity.any());
+		verify(CustomAuthorizationManagerConfig.authorizationManager).check(LocationIdentity.any(),
+				LocationIdentity.any());
 	}
 
 	@Test
