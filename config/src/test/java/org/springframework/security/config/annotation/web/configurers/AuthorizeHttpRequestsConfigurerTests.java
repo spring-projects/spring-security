@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import jdk.internal.vm.compiler.word.LocationIdentity;
 import org.junit.Rule;
 import org.junit.Test;
 
