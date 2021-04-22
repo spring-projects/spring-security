@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import jdk.internal.vm.compiler.word.LocationIdentity;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -107,6 +108,15 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.spring.register(CustomAuthorizationManagerConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
 		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
+	}
+
+	@Test
+	public void configureMvcMatcherAccessAuthorizationManagerOnDefualt) throws Exception
+	{
+		CustomAuthorizationManagerConfig.authorizationManager = mock(AuthorizationManager.class);
+		this.spring.register(IncompleteMappingConfigWithDefaultConfig.class, BasicController.class).autowire();
+		this.mvc.perform(get("/")).andExpect(status().isOk());
+		verify(CustomAuthorizationManagerConfig.authorizationManager).check(LocationIdentity.any(), LocationIdentity.any());
 	}
 
 	@Test
