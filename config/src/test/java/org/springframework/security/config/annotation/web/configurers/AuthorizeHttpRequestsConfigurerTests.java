@@ -89,7 +89,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
-	public void configureWhenAnyRequestIncompleteMappingThenException() {
+	public void configureWhenAnyRequestIncompleteMappingDefaultConfigThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> this.spring.register(IncompleteMappingConfigWithDefaultConfig.class).autowire())
 				.withMessageContaining("An incomplete mapping was found for ");
