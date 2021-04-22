@@ -84,7 +84,8 @@ public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAu
 			if (WellKnownAuthType.BEARER.equals(wellKnownAuthType)) {
 				return bearer(rawAuthentication);
 			}
-		} finally {
+		}
+		finally {
 			rawAuthentication.release();
 		}
 		throw new IllegalArgumentException("Unknown Mime Type " + wellKnownAuthType);
