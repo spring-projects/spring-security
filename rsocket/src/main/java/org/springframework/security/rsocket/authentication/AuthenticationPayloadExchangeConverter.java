@@ -71,16 +71,21 @@ public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAu
 		if (authenticationMetadata == null) {
 			return null;
 		}
-		ByteBuf rawAuthentication = ByteBufAllocator.DEFAULT.buffer().writeBytes(authenticationMetadata);
-		if (!AuthMetadataCodec.isWellKnownAuthType(rawAuthentication)) {
-			return null;
-		}
-		WellKnownAuthType wellKnownAuthType = AuthMetadataCodec.readWellKnownAuthType(rawAuthentication);
-		if (WellKnownAuthType.SIMPLE.equals(wellKnownAuthType)) {
-			return simple(rawAuthentication);
-		}
-		if (WellKnownAuthType.BEARER.equals(wellKnownAuthType)) {
-			return bearer(rawAuthentication);
+		ByteBuf rawAuthentication = ByteBufAllocator.DEFAULT.buffer();
+		try {
+			rawAuthentication.writeBytes(authenticationMetadata);
+			if (!AuthMetadataCodec.isWellKnownAuthType(rawAuthentication)) {
+				return null;
+			}
+			WellKnownAuthType wellKnownAuthType = AuthMetadataCodec.readWellKnownAuthType(rawAuthentication);
+			if (WellKnownAuthType.SIMPLE.equals(wellKnownAuthType)) {
+				return simple(rawAuthentication);
+			}
+			if (WellKnownAuthType.BEARER.equals(wellKnownAuthType)) {
+				return bearer(rawAuthentication);
+			}
+		} finally {
+			rawAuthentication.release();
 		}
 		throw new IllegalArgumentException("Unknown Mime Type " + wellKnownAuthType);
 	}
