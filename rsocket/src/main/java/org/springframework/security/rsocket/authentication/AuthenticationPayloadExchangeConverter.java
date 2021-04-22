@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,18 +71,24 @@ public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAu
 		if (authenticationMetadata == null) {
 			return null;
 		}
-		ByteBuf rawAuthentication = ByteBufAllocator.DEFAULT.buffer().writeBytes(authenticationMetadata);
-		if (!AuthMetadataCodec.isWellKnownAuthType(rawAuthentication)) {
-			return null;
+		ByteBuf rawAuthentication = ByteBufAllocator.DEFAULT.buffer();
+		try {
+			rawAuthentication.writeBytes(authenticationMetadata);
+			if (!AuthMetadataCodec.isWellKnownAuthType(rawAuthentication)) {
+				return null;
+			}
+			WellKnownAuthType wellKnownAuthType = AuthMetadataCodec.readWellKnownAuthType(rawAuthentication);
+			if (WellKnownAuthType.SIMPLE.equals(wellKnownAuthType)) {
+				return simple(rawAuthentication);
+			}
+			if (WellKnownAuthType.BEARER.equals(wellKnownAuthType)) {
+				return bearer(rawAuthentication);
+			}
+			throw new IllegalArgumentException("Unknown Mime Type " + wellKnownAuthType);
 		}
-		WellKnownAuthType wellKnownAuthType = AuthMetadataCodec.readWellKnownAuthType(rawAuthentication);
-		if (WellKnownAuthType.SIMPLE.equals(wellKnownAuthType)) {
-			return simple(rawAuthentication);
+		finally {
+			rawAuthentication.release();
 		}
-		if (WellKnownAuthType.BEARER.equals(wellKnownAuthType)) {
-			return bearer(rawAuthentication);
-		}
-		throw new IllegalArgumentException("Unknown Mime Type " + wellKnownAuthType);
 	}
 
 	private Authentication simple(ByteBuf rawAuthentication) {
