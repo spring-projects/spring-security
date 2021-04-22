@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
+import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
@@ -32,6 +33,7 @@ import com.nimbusds.jose.util.Base64URL;
 import org.junit.Test;
 
 import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,6 +73,17 @@ public class JwtDecoderProviderConfigurationUtilsTests {
 		given(jwkSource.get(any(JWKSelector.class), isNull())).willReturn(Arrays.asList(ecKey, rsaKey));
 		Set<SignatureAlgorithm> algorithms = JwtDecoderProviderConfigurationUtils.getSignatureAlgorithms(jwkSource);
 		assertThat(algorithms).contains(SignatureAlgorithm.ES256, SignatureAlgorithm.ES384, SignatureAlgorithm.ES512);
+	}
+
+	// gh-9651
+	@Test
+	public void getSignatureAlgorithmsWhenAlgorithmThenParses() throws Exception {
+		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
+		RSAKey key = new RSAKey.Builder(TestKeys.DEFAULT_PUBLIC_KEY).keyUse(KeyUse.SIGNATURE)
+				.algorithm(new Algorithm(JwsAlgorithms.RS256)).build();
+		given(jwkSource.get(any(JWKSelector.class), isNull())).willReturn(Collections.singletonList(key));
+		Set<SignatureAlgorithm> algorithms = JwtDecoderProviderConfigurationUtils.getSignatureAlgorithms(jwkSource);
+		assertThat(algorithms).containsOnly(SignatureAlgorithm.RS256);
 	}
 
 }

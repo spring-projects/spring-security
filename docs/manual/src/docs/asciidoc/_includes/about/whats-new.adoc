@@ -21,7 +21,6 @@ Below are the highlights of the release.
 * SAML 2.0 Service Provider
 
 ** Added https://github.com/spring-projects/spring-security/issues/9095[OpenSAML 4 support]
-** Added https://github.com/spring-projects/spring-security/issues/8731[Single Logout support]
 ** Enhanced SAML 2.0 https://github.com/spring-projects/spring-security/issues/9131[Assertion] https://github.com/spring-projects/spring-security/issues/9044[decryption]
 ** Added https://github.com/spring-projects/spring-security/issues/9028[file-based configuration] for asserting party metadata
 ** Improved https://github.com/spring-projects/spring-security/issues/9486[`RelyingPartyRegistration` resolution] support
@@ -31,7 +30,7 @@ Below are the highlights of the release.
 * Configuration
 
 ** Introduced https://github.com/spring-projects/spring-security/issues/9205[DispatcherType request matcher]
-** Introduced https://github.com/spring-projects/spring-security/issues/8900[`AuthorizationManager`] and applied it to filter and https://github.com/spring-projects/spring-security/issues/9289[method security]
+** Introduced https://github.com/spring-projects/spring-security/issues/8900[`AuthorizationManager`] for filter security
 
 * Kotlin DSL
 

@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
@@ -38,7 +37,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -136,20 +134,6 @@ public class Saml2MetadataFilterTests {
 		this.filter.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getHeaderValue(HttpHeaders.CONTENT_DISPOSITION)).asString()
 				.isEqualTo("attachment; filename=\"%s\"; filename*=UTF-8''%s", fileName, encodedFileName);
-	}
-
-	@Test
-	public void doFilterWhenPathStartsWithRegistrationIdThenServesMetadata() throws Exception {
-		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
-		given(this.repository.findByRegistrationId("registration-id")).willReturn(registration);
-		given(this.resolver.resolve(any())).willReturn("metadata");
-		DefaultRelyingPartyRegistrationResolver resolver = new DefaultRelyingPartyRegistrationResolver(
-				(id) -> this.repository.findByRegistrationId("registration-id"));
-		this.filter = new Saml2MetadataFilter(resolver, this.resolver);
-		this.filter.setRequestMatcher(new AntPathRequestMatcher("/metadata"));
-		this.request.setPathInfo("/metadata");
-		this.filter.doFilter(this.request, this.response, new MockFilterChain());
-		verify(this.repository).findByRegistrationId("registration-id");
 	}
 
 	@Test

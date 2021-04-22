@@ -201,7 +201,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure(H http) {
-		http.setSharedObject(CsrfTokenRepository.class, this.csrfTokenRepository);
 		CsrfFilter filter = new CsrfFilter(this.csrfTokenRepository);
 		RequestMatcher requireCsrfProtectionMatcher = getRequireCsrfProtectionMatcher();
 		if (requireCsrfProtectionMatcher != null) {

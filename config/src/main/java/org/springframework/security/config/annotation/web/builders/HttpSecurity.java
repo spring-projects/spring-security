@@ -16,14 +16,21 @@
 
 package org.springframework.security.config.annotation.web.builders;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.OrderComparator;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -64,7 +71,6 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.annotation.web.configurers.openid.OpenIDLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LoginConfigurer;
-import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LogoutConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -130,11 +136,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	private final RequestMatcherConfigurer requestMatcherConfigurer;
 
-	private List<Filter> filters = new ArrayList<>();
+	private List<OrderedFilter> filters = new ArrayList<>();
 
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
 
-	private FilterComparator comparator = new FilterComparator();
+	private FilterOrderRegistration filterOrders = new FilterOrderRegistration();
 
 	/**
 	 * Creates a new instance
@@ -2206,142 +2212,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	/**
-	 * Configures logout support for an SAML 2.0 Relying Party. <br>
-	 * <br>
-	 *
-	 * Implements the <b>Single Logout Profile, using POST and REDIRECT bindings</b>, as
-	 * documented in the
-	 * <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0
-	 * Core,Profiles and Bindings</a> specifications. <br>
-	 * <br>
-	 *
-	 * As a prerequisite to using this feature, is that you have a SAML v2.0 Asserting
-	 * Party to sent a logout request to. The representation of the relying party and the
-	 * asserting party is contained within {@link RelyingPartyRegistration}. <br>
-	 * <br>
-	 *
-	 * {@link RelyingPartyRegistration}(s) are composed within a
-	 * {@link RelyingPartyRegistrationRepository}, which is <b>required</b> and must be
-	 * registered with the {@link ApplicationContext} or configured via
-	 * <code>saml2Logout().relyingPartyRegistrationRepository(..)</code>. <br>
-	 * <br>
-	 *
-	 * The default configuration provides an auto-generated logout endpoint at
-	 * <code>&quot;/saml2/logout&quot;</code> and redirects to <code>/login?logout</code>
-	 * when logout completes. <br>
-	 * <br>
-	 *
-	 * <p>
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The following example shows the minimal configuration required, using SimpleSamlPhp
-	 * as the asserting party.
-	 *
-	 * <pre>
-	 *	&#064;EnableWebSecurity
-	 *	&#064;Configuration
-	 *	public class Saml2LogoutSecurityConfig {
-	 *		&#064;Bean
-	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
-	 *			http
-	 *				.authorizeRequests((authorize) -> authorize
-	 *					.anyRequest().authenticated()
-	 *				)
-	 *				.saml2Login(withDefaults())
-	 *				.saml2Logout(withDefaults());
-	 *			return http.build();
-	 *		}
-	 *
-	 *		&#064;Bean
-	 *		public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
-	 *			RelyingPartyRegistration registration = RelyingPartyRegistrations
-	 *					.withMetadataLocation("https://ap.example.org/metadata")
-	 *					.registrationId("simple")
-	 *					.build();
-	 *			return new InMemoryRelyingPartyRegistrationRepository(registration);
-	 *		}
-	 *	}
-	 * </pre>
-	 *
-	 * <p>
-	 * @return the {@link Saml2LoginConfigurer} for further customizations
-	 * @throws Exception
-	 * @since 5.5
-	 */
-	public HttpSecurity saml2Logout(Customizer<Saml2LogoutConfigurer<HttpSecurity>> saml2LogoutCustomizer)
-			throws Exception {
-		saml2LogoutCustomizer.customize(getOrApply(new Saml2LogoutConfigurer<>(getContext())));
-		return HttpSecurity.this;
-	}
-
-	/**
-	 * Configures logout support for an SAML 2.0 Relying Party. <br>
-	 * <br>
-	 *
-	 * Implements the <b>Single Logout Profile, using POST and REDIRECT bindings</b>, as
-	 * documented in the
-	 * <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0
-	 * Core,Profiles and Bindings</a> specifications. <br>
-	 * <br>
-	 *
-	 * As a prerequisite to using this feature, is that you have a SAML v2.0 Asserting
-	 * Party to sent a logout request to. The representation of the relying party and the
-	 * asserting party is contained within {@link RelyingPartyRegistration}. <br>
-	 * <br>
-	 *
-	 * {@link RelyingPartyRegistration}(s) are composed within a
-	 * {@link RelyingPartyRegistrationRepository}, which is <b>required</b> and must be
-	 * registered with the {@link ApplicationContext} or configured via
-	 * <code>saml2Logout().relyingPartyRegistrationRepository(..)</code>. <br>
-	 * <br>
-	 *
-	 * The default configuration provides an auto-generated logout endpoint at
-	 * <code>&quot;/saml2/logout&quot;</code> and redirects to <code>/login?logout</code>
-	 * when logout completes. <br>
-	 * <br>
-	 *
-	 * <p>
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The following example shows the minimal configuration required, using SimpleSamlPhp
-	 * as the asserting party.
-	 *
-	 * <pre>
-	 *	&#064;EnableWebSecurity
-	 *	&#064;Configuration
-	 *	public class Saml2LogoutSecurityConfig {
-	 *		&#064;Bean
-	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
-	 *			http
-	 *				.authorizeRequests((authorize) -> authorize
-	 *					.anyRequest().authenticated()
-	 *				)
-	 *				.saml2Login(withDefaults())
-	 *				.saml2Logout(withDefaults());
-	 *			return http.build();
-	 *		}
-	 *
-	 *		&#064;Bean
-	 *		public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
-	 *			RelyingPartyRegistration registration = RelyingPartyRegistrations
-	 *					.withMetadataLocation("https://ap.example.org/metadata")
-	 *					.registrationId("simple")
-	 *					.build();
-	 *			return new InMemoryRelyingPartyRegistrationRepository(registration);
-	 *		}
-	 *	}
-	 * </pre>
-	 *
-	 * <p>
-	 * @return the {@link Saml2LoginConfigurer} for further customizations
-	 * @throws Exception
-	 * @since 5.5
-	 */
-	public Saml2LogoutConfigurer<HttpSecurity> saml2Logout() throws Exception {
-		return getOrApply(new Saml2LogoutConfigurer<>(getContext()));
-	}
-
-	/**
 	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0
 	 * Provider. <br>
 	 * <br>
@@ -2829,8 +2699,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	@Override
 	protected DefaultSecurityFilterChain performBuild() {
-		this.filters.sort(this.comparator);
-		return new DefaultSecurityFilterChain(this.requestMatcher, this.filters);
+		this.filters.sort(OrderComparator.INSTANCE);
+		List<Filter> sortedFilters = new ArrayList<>(this.filters.size());
+		for (Filter filter : this.filters) {
+			sortedFilters.add(((OrderedFilter) filter).filter);
+		}
+		return new DefaultSecurityFilterChain(this.requestMatcher, sortedFilters);
 	}
 
 	@Override
@@ -2851,24 +2725,28 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	@Override
 	public HttpSecurity addFilterAfter(Filter filter, Class<? extends Filter> afterFilter) {
-		this.comparator.registerAfter(filter.getClass(), afterFilter);
-		return addFilter(filter);
+		return addFilterAtOffsetOf(filter, 1, afterFilter);
 	}
 
 	@Override
 	public HttpSecurity addFilterBefore(Filter filter, Class<? extends Filter> beforeFilter) {
-		this.comparator.registerBefore(filter.getClass(), beforeFilter);
-		return addFilter(filter);
+		return addFilterAtOffsetOf(filter, -1, beforeFilter);
+	}
+
+	private HttpSecurity addFilterAtOffsetOf(Filter filter, int offset, Class<? extends Filter> registeredFilter) {
+		int order = this.filterOrders.getOrder(registeredFilter) + offset;
+		this.filters.add(new OrderedFilter(filter, order));
+		return this;
 	}
 
 	@Override
 	public HttpSecurity addFilter(Filter filter) {
-		Class<? extends Filter> filterClass = filter.getClass();
-		if (!this.comparator.isRegistered(filterClass)) {
-			throw new IllegalArgumentException("The Filter class " + filterClass.getName()
+		Integer order = this.filterOrders.getOrder(filter.getClass());
+		if (order == null) {
+			throw new IllegalArgumentException("The Filter class " + filter.getClass().getName()
 					+ " does not have a registered order and cannot be added without a specified order. Consider using addFilterBefore or addFilterAfter instead.");
 		}
-		this.filters.add(filter);
+		this.filters.add(new OrderedFilter(filter, order));
 		return this;
 	}
 
@@ -2891,8 +2769,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link HttpSecurity} for further customizations
 	 */
 	public HttpSecurity addFilterAt(Filter filter, Class<? extends Filter> atFilter) {
-		this.comparator.registerAt(filter.getClass(), atFilter);
-		return addFilter(filter);
+		return addFilterAtOffsetOf(filter, 0, atFilter);
 	}
 
 	/**
@@ -3276,6 +3153,39 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		 */
 		public HttpSecurity and() {
 			return HttpSecurity.this;
+		}
+
+	}
+
+	/**
+	 * A Filter that implements Ordered to be sorted. After sorting occurs, the original
+	 * filter is what is used by FilterChainProxy
+	 */
+	private static final class OrderedFilter implements Ordered, Filter {
+
+		private final Filter filter;
+
+		private final int order;
+
+		private OrderedFilter(Filter filter, int order) {
+			this.filter = filter;
+			this.order = order;
+		}
+
+		@Override
+		public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+				throws IOException, ServletException {
+			this.filter.doFilter(servletRequest, servletResponse, filterChain);
+		}
+
+		@Override
+		public int getOrder() {
+			return this.order;
+		}
+
+		@Override
+		public String toString() {
+			return "OrderedFilter{" + "filter=" + this.filter + ", order=" + this.order + '}';
 		}
 
 	}

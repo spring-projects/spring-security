@@ -41,13 +41,14 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Josh Cummings
  * @since 5.4
  */
-public final class DefaultRelyingPartyRegistrationResolver implements RelyingPartyRegistrationResolver {
+public final class DefaultRelyingPartyRegistrationResolver
+		implements Converter<HttpServletRequest, RelyingPartyRegistration> {
 
 	private static final char PATH_DELIMITER = '/';
 
 	private final RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
-	private final RequestMatcher registrationRequestMatcher = new AntPathRequestMatcher("/**/{registrationId}");
+	private final Converter<HttpServletRequest, String> registrationIdResolver = new RegistrationIdResolver();
 
 	public DefaultRelyingPartyRegistrationResolver(
 			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
@@ -55,20 +56,14 @@ public final class DefaultRelyingPartyRegistrationResolver implements RelyingPar
 		this.relyingPartyRegistrationRepository = relyingPartyRegistrationRepository;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public RelyingPartyRegistration resolve(HttpServletRequest request, String relyingPartyRegistrationId) {
-		if (relyingPartyRegistrationId == null) {
-			relyingPartyRegistrationId = this.registrationRequestMatcher.matcher(request).getVariables()
-					.get("registrationId");
-		}
-		if (relyingPartyRegistrationId == null) {
+	public RelyingPartyRegistration convert(HttpServletRequest request) {
+		String registrationId = this.registrationIdResolver.convert(request);
+		if (registrationId == null) {
 			return null;
 		}
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationRepository
-				.findByRegistrationId(relyingPartyRegistrationId);
+				.findByRegistrationId(registrationId);
 		if (relyingPartyRegistration == null) {
 			return null;
 		}
@@ -77,14 +72,9 @@ public final class DefaultRelyingPartyRegistrationResolver implements RelyingPar
 		String relyingPartyEntityId = templateResolver.apply(relyingPartyRegistration.getEntityId());
 		String assertionConsumerServiceLocation = templateResolver
 				.apply(relyingPartyRegistration.getAssertionConsumerServiceLocation());
-		String singleLogoutServiceLocation = templateResolver
-				.apply(relyingPartyRegistration.getSingleLogoutServiceLocation());
-		String singleLogoutServiceResponseLocation = templateResolver
-				.apply(relyingPartyRegistration.getSingleLogoutServiceResponseLocation());
 		return RelyingPartyRegistration.withRelyingPartyRegistration(relyingPartyRegistration)
 				.entityId(relyingPartyEntityId).assertionConsumerServiceLocation(assertionConsumerServiceLocation)
-				.singleLogoutServiceLocation(singleLogoutServiceLocation)
-				.singleLogoutServiceResponseLocation(singleLogoutServiceResponseLocation).build();
+				.build();
 	}
 
 	private Function<String, String> templateResolver(String applicationUri, RelyingPartyRegistration relyingParty) {
@@ -92,9 +82,6 @@ public final class DefaultRelyingPartyRegistrationResolver implements RelyingPar
 	}
 
 	private static String resolveUrlTemplate(String template, String baseUrl, RelyingPartyRegistration relyingParty) {
-		if (template == null) {
-			return null;
-		}
 		String entityId = relyingParty.getAssertingPartyDetails().getEntityId();
 		String registrationId = relyingParty.getRegistrationId();
 		Map<String, String> uriVariables = new HashMap<>();
@@ -122,6 +109,18 @@ public final class DefaultRelyingPartyRegistrationResolver implements RelyingPar
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
 				.replacePath(request.getContextPath()).replaceQuery(null).fragment(null).build();
 		return uriComponents.toUriString();
+	}
+
+	private static class RegistrationIdResolver implements Converter<HttpServletRequest, String> {
+
+		private final RequestMatcher requestMatcher = new AntPathRequestMatcher("/**/{registrationId}");
+
+		@Override
+		public String convert(HttpServletRequest request) {
+			RequestMatcher.MatchResult result = this.requestMatcher.matcher(request);
+			return result.getVariables().get("registrationId");
+		}
+
 	}
 
 }

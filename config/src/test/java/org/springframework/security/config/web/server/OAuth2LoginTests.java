@@ -134,6 +134,11 @@ public class OAuth2LoginTests {
 	private static ClientRegistration google = CommonOAuth2Provider.GOOGLE.getBuilder("google").clientId("client")
 			.clientSecret("secret").build();
 
+	// @formatter:off
+	private static ClientRegistration clientCredentials = TestClientRegistrations.clientCredentials()
+			.build();
+	// @formatter:on
+
 	@Autowired
 	public void setApplicationContext(ApplicationContext context) {
 		if (context.getBeanNamesForType(WebHandler.class).length > 0) {
@@ -179,6 +184,22 @@ public class OAuth2LoginTests {
 		assertThat(driver.getCurrentUrl()).startsWith("https://github.com/login/oauth/authorize");
 	}
 
+	// gh-9457
+	@Test
+	public void defaultLoginPageWithAuthorizationCodeAndClientCredentialsClientRegistrationThenRedirect() {
+		this.spring.register(OAuth2LoginWithAuthorizationCodeAndClientCredentialsClientRegistration.class).autowire();
+		// @formatter:off
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(new GitHubWebFilter(), this.springSecurity)
+				.build();
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+		// @formatter:on
+		driver.get("http://localhost/");
+		assertThat(driver.getCurrentUrl()).startsWith("https://github.com/login/oauth/authorize");
+	}
+
 	@Test
 	public void defaultLoginPageWithSingleClientRegistrationAndFormLoginThenLinks() {
 		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginWithFormLogin.class).autowire();
@@ -208,6 +229,19 @@ public class OAuth2LoginTests {
 				.exchange()
 				.expectStatus().is3xxRedirection()
 				.expectHeader().valueEquals(HttpHeaders.LOCATION, "/login");
+		// @formatter:on
+	}
+
+	@Test
+	public void defaultLoginPageWithOAuth2LoginHttpBasicAndXhrRequestThenUnauthorized() {
+		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginWithHttpBasic.class,
+				WebFluxConfig.class).autowire();
+		// @formatter:off
+		this.client.get()
+				.uri("/")
+				.header("X-Requested-With", "XMLHttpRequest")
+				.exchange()
+				.expectStatus().isUnauthorized();
 		// @formatter:on
 	}
 
@@ -564,6 +598,16 @@ public class OAuth2LoginTests {
 
 	}
 
+	@EnableWebFluxSecurity
+	static class OAuth2LoginWithAuthorizationCodeAndClientCredentialsClientRegistration {
+
+		@Bean
+		InMemoryReactiveClientRegistrationRepository clientRegistrationRepository() {
+			return new InMemoryReactiveClientRegistrationRepository(github, clientCredentials);
+		}
+
+	}
+
 	@EnableWebFlux
 	static class OAuth2AuthorizeWithMockObjectsConfig {
 
@@ -623,6 +667,30 @@ public class OAuth2LoginTests {
 				.oauth2Login()
 					.and()
 				.formLogin();
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	static class OAuth2LoginWithHttpBasic {
+
+		@Bean
+		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+			ReactiveUserDetailsService reactiveUserDetailsService = ReactiveAuthenticationTestConfiguration
+					.userDetailsService();
+			ReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
+					reactiveUserDetailsService);
+			http.authenticationManager(authenticationManager);
+			// @formatter:off
+			http
+				.authorizeExchange()
+					.anyExchange().authenticated()
+					.and()
+				.oauth2Login()
+					.and()
+				.httpBasic();
 			// @formatter:on
 			return http.build();
 		}

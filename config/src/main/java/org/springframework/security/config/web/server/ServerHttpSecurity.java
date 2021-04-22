@@ -41,6 +41,7 @@ import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.DelegatingReactiveAuthenticationManager;
@@ -80,6 +81,7 @@ import org.springframework.security.oauth2.client.web.server.ServerOAuth2Authori
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.WebSessionOAuth2ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.server.authentication.OAuth2LoginAuthenticationWebFilter;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -110,6 +112,7 @@ import org.springframework.security.web.server.authentication.AnonymousAuthentic
 import org.springframework.security.web.server.authentication.AuthenticationConverterServerWebExchangeMatcher;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authentication.ReactivePreAuthenticatedAuthenticationManager;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
@@ -1909,13 +1912,25 @@ public class ServerHttpSecurity {
 	 */
 	public final class HttpBasicSpec {
 
+		private final ServerWebExchangeMatcher xhrMatcher = (exchange) -> Mono.just(exchange.getRequest().getHeaders())
+				.filter((h) -> h.getOrEmpty("X-Requested-With").contains("XMLHttpRequest"))
+				.flatMap((h) -> ServerWebExchangeMatcher.MatchResult.match())
+				.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.notMatch());
+
 		private ReactiveAuthenticationManager authenticationManager;
 
 		private ServerSecurityContextRepository securityContextRepository;
 
-		private ServerAuthenticationEntryPoint entryPoint = new HttpBasicServerAuthenticationEntryPoint();
+		private ServerAuthenticationEntryPoint entryPoint;
 
 		private HttpBasicSpec() {
+			List<DelegateEntry> entryPoints = new ArrayList<>();
+			entryPoints
+					.add(new DelegateEntry(this.xhrMatcher, new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED)));
+			DelegatingServerAuthenticationEntryPoint defaultEntryPoint = new DelegatingServerAuthenticationEntryPoint(
+					entryPoints);
+			defaultEntryPoint.setDefaultEntryPoint(new HttpBasicServerAuthenticationEntryPoint());
+			this.entryPoint = defaultEntryPoint;
 		}
 
 		/**
@@ -1980,7 +1995,13 @@ public class ServerHttpSecurity {
 					MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML, MediaType.MULTIPART_FORM_DATA,
 					MediaType.TEXT_XML);
 			restMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-			ServerHttpSecurity.this.defaultEntryPoints.add(new DelegateEntry(restMatcher, this.entryPoint));
+			ServerWebExchangeMatcher notHtmlMatcher = new NegatedServerWebExchangeMatcher(
+					new MediaTypeServerWebExchangeMatcher(MediaType.TEXT_HTML));
+			ServerWebExchangeMatcher restNotHtmlMatcher = new AndServerWebExchangeMatcher(
+					Arrays.asList(notHtmlMatcher, restMatcher));
+			ServerWebExchangeMatcher preferredMatcher = new OrServerWebExchangeMatcher(
+					Arrays.asList(this.xhrMatcher, restNotHtmlMatcher));
+			ServerHttpSecurity.this.defaultEntryPoints.add(new DelegateEntry(preferredMatcher, this.entryPoint));
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(this.authenticationManager);
 			authenticationFilter
 					.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
@@ -3356,8 +3377,11 @@ public class ServerHttpSecurity {
 				return Collections.emptyMap();
 			}
 			Map<String, String> result = new HashMap<>();
-			registrations.iterator().forEachRemaining(
-					(r) -> result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName()));
+			registrations.iterator().forEachRemaining((r) -> {
+				if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(r.getAuthorizationGrantType())) {
+					result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName());
+				}
+			});
 			return result;
 		}
 

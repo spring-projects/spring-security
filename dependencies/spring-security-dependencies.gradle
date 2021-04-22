@@ -8,17 +8,17 @@ javaPlatform {
 
 dependencies {
 	api platform("org.springframework:spring-framework-bom:5.3.5")
-	api platform("io.projectreactor:reactor-bom:2020.0.5")
+	api platform("io.projectreactor:reactor-bom:2020.0.6")
 	api platform("io.rsocket:rsocket-bom:1.1.0")
 	api platform("org.springframework.data:spring-data-bom:2020.0.7")
 	api platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion")
 	api platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.4.3")
-	api platform("com.fasterxml.jackson:jackson-bom:2.12.2")
+	api platform("com.fasterxml.jackson:jackson-bom:2.12.3")
 	constraints {
 		api "ch.qos.logback:logback-classic:1.2.3"
 		api "com.google.inject:guice:3.0"
 		api "com.nimbusds:nimbus-jose-jwt:9.8.1"
-		api "com.nimbusds:oauth2-oidc-sdk:9.3.1"
+		api "com.nimbusds:oauth2-oidc-sdk:9.3.3"
 		api "com.squareup.okhttp3:mockwebserver:3.14.9"
 		api "com.squareup.okhttp3:okhttp:3.14.9"
 		api "com.unboundid:unboundid-ldapsdk:4.0.14"
@@ -34,7 +34,7 @@ dependencies {
 		api "junit:junit:4.13.2"
 		api "ldapsdk:ldapsdk:4.1"
 		api "net.sf.ehcache:ehcache:2.10.6"
-		api "net.sourceforge.htmlunit:htmlunit:2.48.0"
+		api "net.sourceforge.htmlunit:htmlunit:2.49.1"
 		api "net.sourceforge.nekohtml:nekohtml:1.9.22"
 		api "org.apache.directory.server:apacheds-core-entry:1.5.5"
 		api "org.apache.directory.server:apacheds-core:1.5.5"
@@ -66,7 +66,7 @@ dependencies {
 		api "org.powermock:powermock-module-junit4:2.0.9"
 		api "org.powermock:powermock-reflect:2.0.9"
 		api "org.python:jython:2.5.3"
-		api "org.seleniumhq.selenium:htmlunit-driver:2.48.0"
+		api "org.seleniumhq.selenium:htmlunit-driver:2.49.1"
 		api "org.seleniumhq.selenium:selenium-java:3.141.59"
 		api "org.seleniumhq.selenium:selenium-support:3.141.59"
 		api "org.skyscreamer:jsonassert:1.5.0"
