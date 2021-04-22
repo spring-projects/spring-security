@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -610,19 +610,25 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 		@Override
 		public long getDateHeader(String name) {
-			validateAllowedHeaderName(name);
+			if (name != null) {
+				validateAllowedHeaderName(name);
+			}
 			return super.getDateHeader(name);
 		}
 
 		@Override
 		public int getIntHeader(String name) {
-			validateAllowedHeaderName(name);
+			if (name != null) {
+				validateAllowedHeaderName(name);
+			}
 			return super.getIntHeader(name);
 		}
 
 		@Override
 		public String getHeader(String name) {
-			validateAllowedHeaderName(name);
+			if (name != null) {
+				validateAllowedHeaderName(name);
+			}
 			String value = super.getHeader(name);
 			if (value != null) {
 				validateAllowedHeaderValue(value);
@@ -632,7 +638,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 		@Override
 		public Enumeration<String> getHeaders(String name) {
-			validateAllowedHeaderName(name);
+			if (name != null) {
+				validateAllowedHeaderName(name);
+			}
 			Enumeration<String> headers = super.getHeaders(name);
 			return new Enumeration<String>() {
 
@@ -673,7 +681,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 		@Override
 		public String getParameter(String name) {
-			validateAllowedParameterName(name);
+			if (name != null) {
+				validateAllowedParameterName(name);
+			}
 			String value = super.getParameter(name);
 			if (value != null) {
 				validateAllowedParameterValue(value);
@@ -717,7 +727,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 		@Override
 		public String[] getParameterValues(String name) {
-			validateAllowedParameterName(name);
+			if (name != null) {
+				validateAllowedParameterName(name);
+			}
 			String[] values = super.getParameterValues(name);
 			if (values != null) {
 				for (String value : values) {
