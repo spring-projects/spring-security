@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
@@ -688,6 +689,47 @@ public class StrictHttpFirewallTests {
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
 		assertThatExceptionOfType(RequestRejectedException.class)
 				.isThrownBy(() -> request.getParameterValues("bad name"));
+	}
+
+	// gh-9598
+	@Test
+	public void getFirewalledRequestGetParameterWhenNameIsNullThenIllegalArgumentException() {
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> request.getParameter(null));
+	}
+
+	// gh-9598
+	@Test
+	public void getFirewalledRequestGetParameterValuesWhenNameIsNullThenIllegalArgumentException() {
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> request.getParameterValues(null));
+	}
+
+	// gh-9598
+	@Test
+	public void getFirewalledRequestGetHeaderWhenNameIsNullThenNull() {
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+		assertThat(request.getHeader(null)).isNull();
+	}
+
+	// gh-9598
+	@Test
+	public void getFirewalledRequestGetHeadersWhenNameIsNullThenEmptyEnumeration() {
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+		assertThat(request.getHeaders(null).hasMoreElements()).isFalse();
+	}
+
+	// gh-9598
+	@Test
+	public void getFirewalledRequestGetIntHeaderWhenNameIsNullThenNegativeOne() {
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+		assertThat(request.getIntHeader(null)).isEqualTo(-1);
+	}
+
+	@Test
+	public void getFirewalledRequestGetDateHeaderWhenNameIsNullThenNegativeOne() {
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+		assertThat(request.getDateHeader(null)).isEqualTo(-1);
 	}
 
 }
