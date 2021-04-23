@@ -396,7 +396,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	static class NoRequestsConfigWithDefaultConfig {
 
 		@Bean
-		SecurityFilterChain filterChainNoRequestsConfigWithDefaultConfig(HttpSecurity http) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
 					.authorizeHttpRequests()
@@ -410,7 +410,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	static class IncompleteMappingConfigWithDefaultConfig {
 
 		@Bean
-		SecurityFilterChain filterChainIncompleteMapping(HttpSecurity http) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
 					.authorizeHttpRequests()
