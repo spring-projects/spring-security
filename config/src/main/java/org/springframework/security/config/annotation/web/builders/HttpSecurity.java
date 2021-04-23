@@ -1320,14 +1320,15 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
-	 *
+	 *HttpSecurity.java
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 *     .authorizeHttpRequests()
-	 *         .antMatchers(&quot;/**&quot;).hasRoles(&quot;USER&quot;)
-	 *         .and()
-	 *     .formLogin();
+	 * 		 	.authorizeHttpRequests((authorizeHttpRequests) ->
+	 * 		 		authorizeHttpRequests
+	 * 			 		.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			 		.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 		 	);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1365,11 +1366,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeHttpRequests((authorizeHttpRequests) ->
-	 * 				authorizeHttpRequests
-	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 			)
-	 * 			.formLogin(withDefaults());
+	 *     .authorizeHttpRequests()
+	 *         .antMatchers(&quot;/**&quot;).hasRoles(&quot;USER&quot;)
+	 *         .and()
+	 *     .formLogin();
 	 * 	}
 	 * }
 	 * </pre>
