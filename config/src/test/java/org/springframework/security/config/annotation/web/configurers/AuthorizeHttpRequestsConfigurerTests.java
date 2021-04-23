@@ -89,13 +89,9 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	@Test
 	public void configureWhenAnyRequestIncompleteMappingDefaultConfigThenException() {
-		// assertThatExceptionOfType(BeanCreationException.class)
-		// .isThrownBy(() ->
-		// .withMessageContaining("An incomplete mapping was found for ");
-		CustomAuthorizationManagerConfig.authorizationManager = mock(AuthorizationManager.class);
-		this.spring.register(IncompleteMappingConfigWithDefaultConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isOk());
-		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(IncompleteMappingConfigWithDefaultConfig.class).autowire())
+				.withMessageContaining("An incomplete mapping was found for ");
 	}
 
 	@Test
