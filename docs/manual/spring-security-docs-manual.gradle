@@ -14,7 +14,7 @@ asciidoctor {
 }
 
 asciidoctorj {
-	def ghTag = snapshotBuild ? 'master' : project.version
+	def ghTag = snapshotBuild ? 'main' : project.version
 	def ghUrl = "https://github.com/spring-projects/spring-security/tree/$ghTag"
 	attributes 'spring-security-version' : project.version,
 		'spring-boot-version' : springBootVersion,

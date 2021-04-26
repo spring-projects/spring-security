@@ -28,7 +28,7 @@ ext.spec = copySpec {
 }
 
 def getDownloadUrl() {
-	snapshotBuild ? "https://github.com/spring-projects/spring-security/archive/master.zip" : "https://github.com/spring-projects/spring-security/archive/${project.version}.zip"
+	snapshotBuild ? "https://github.com/spring-projects/spring-security/archive/main.zip" : "https://github.com/spring-projects/spring-security/archive/${project.version}.zip"
 }
 
 

@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.Base64;
 
 /**
- * Implements necessary calls to the Sagan API See https://github.com/spring-io/sagan/blob/master/sagan-site/src/docs/asciidoc/index.adoc
+ * Implements necessary calls to the Sagan API See https://spring.io/restdocs/index.html
  */
 public class SaganApi {
 	private String baseUrl = "https://spring.io/api";

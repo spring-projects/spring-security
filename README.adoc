@@ -1,6 +1,6 @@
 image::https://badges.gitter.im/Join%20Chat.svg[Gitter,link=https://gitter.im/spring-projects/spring-security?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge]
 
-image:https://github.com/spring-projects/spring-security/workflows/CI/badge.svg?branch=master["Build Status", link="https://github.com/spring-projects/spring-security/actions?query=workflow%3ACI"]
+image:https://github.com/spring-projects/spring-security/workflows/CI/badge.svg?branch=main["Build Status", link="https://github.com/spring-projects/spring-security/actions?query=workflow%3ACI"]
 
 image:https://img.shields.io/badge/Revved%20up%20by-Gradle%20Enterprise-06A0CE?logo=Gradle&labelColor=02303A["Revved up by Gradle Enterprise", link="https://ge.spring.io/scans?search.rootProjectNames=spring-security"]
 
@@ -12,7 +12,7 @@ a minimum and also requires Java 8.
 For a detailed list of features and access to the latest release, please visit https://spring.io/projects[Spring projects].
 
 == Code of Conduct
-Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CONDUCT.md[code of conduct]
+Please see our https://github.com/spring-projects/.github/blob/main/CODE_OF_CONDUCT.md[code of conduct]
 
 == Downloading Artifacts
 See https://docs.spring.io/spring-security/site/docs/current/reference/html5/#getting[Getting Spring Security] for how to obtain Spring Security.
@@ -60,7 +60,7 @@ Check out the https://stackoverflow.com/questions/tagged/spring-security[Spring 
 https://spring.io/services[Commercial support] is available too.
 
 == Contributing
-https://help.github.com/articles/creating-a-pull-request[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.adoc[contributor guidelines] for details.
+https://help.github.com/articles/creating-a-pull-request[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/main/CONTRIBUTING.adoc[contributor guidelines] for details.
 
 == License
 Spring Security is Open Source software released under the

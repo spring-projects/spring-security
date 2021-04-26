@@ -1,7 +1,6 @@
 [[servletapi]]
 == Servlet API integration
 This section describes how Spring Security is integrated with the Servlet API.
-The https://github.com/spring-projects/spring-security/tree/master/samples/xml/servletapi[servletapi-xml] sample application demonstrates the usage of each of these methods.
 
 
 [[servletapi-25]]
