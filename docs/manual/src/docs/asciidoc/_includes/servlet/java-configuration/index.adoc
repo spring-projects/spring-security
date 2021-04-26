@@ -7,7 +7,7 @@ Since Spring Security 3.2 there has been Spring Security Java Configuration supp
 
 If you are familiar with the <<ns-config>> then you should find quite a few similarities between it and the Security Java Configuration support.
 
-NOTE: Spring Security provides https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig[lots of sample applications] which demonstrate the use of Spring Security Java Configuration.
+NOTE: Spring Security provides https://github.com/spring-projects/spring-security-samples/tree/main/servlet/java-configuration[lots of sample applications] which demonstrate the use of Spring Security Java Configuration.
 
 == Hello Web Security Java Configuration
 

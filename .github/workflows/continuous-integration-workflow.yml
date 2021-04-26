@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - main
   schedule:
     - cron: '0 10 * * *' # Once per day at 10am UTC
   workflow_dispatch: # Manual trigger
@@ -102,16 +102,16 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
-      - name: Run Sonar on given (non-master) branch
-        if: ${{ github.ref != 'refs/heads/master' }}
+      - name: Run Sonar on given (non-main) branch
+        if: ${{ github.ref != 'refs/heads/main' }}
         run: |
           export BRANCH=${GITHUB_REF#refs/heads/}
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
           ./gradlew sonarqube -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD" -PexcludeProjects='**/samples/**' -Dsonar.projectKey="spring-security-${GITHUB_REF#refs/heads/}" -Dsonar.projectName="spring-security-${GITHUB_REF#refs/heads/}" -Dsonar.host.url="$SONAR_URL" -Dsonar.login="$SONAR_TOKEN" --stacktrace
-      - name: Run Sonar on master
-        if: ${{ github.ref == 'refs/heads/master' }}
+      - name: Run Sonar on main
+        if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"

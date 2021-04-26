@@ -5,7 +5,7 @@ guard 'shell' do
   watch(/^.*\.asc$/) {|m|
     Asciidoctor.render_file(m[0], :to_dir => "build/", :safe => Asciidoctor::SafeMode::UNSAFE, :attributes=> {'toc' => '', 'idprefix' => '', 'idseparator' => '-', 'copycss' => '', 'icons' => 'font', 'source-highlighter' => 'prettify', 'sectanchors' => '', 'toc-placement' => 'preamble', 'revnumber' => '3.2.0.CI-SNAPSHOT',
      'spring-security-version' => '3.2.0.CI-SNAPSHOT',
-     'download-url' => 'https://github.com/spring-projects/spring-security/archive/master.zip',
+     'download-url' => 'https://github.com/spring-projects/spring-security/archive/main.zip',
      'include-maven-repository' => '_includes/maven-repository-snapshot.asc' })
   }
 end

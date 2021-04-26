@@ -49,4 +49,4 @@ public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
 In this example, a username is extracted from the OU field of a client certificate instead of CN, and account lookup using `ReactiveUserDetailsService` is not performed at all. Instead, if the provided certificate issued to an OU named "Trusted Org Unit", a request will be authenticated.
 
-For an example of configuring Netty and `WebClient` or `curl` command-line tool to use mutual TLS and enable X.509 authentication, please refer to https://github.com/spring-projects/spring-security/tree/master/samples/boot/webflux-x509.
+For an example of configuring Netty and `WebClient` or `curl` command-line tool to use mutual TLS and enable X.509 authentication, please refer to https://github.com/spring-projects/spring-security-samples/tree/main/servlet/java-configuration/authentication/x509.
