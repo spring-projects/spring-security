@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.web.server.ServerWebExchange;
  * AngularJS. When using with AngularJS be sure to use {@link #withHttpOnlyFalse()} .
  *
  * @author Eric Deandrea
+ * @author Thomas Vitale
  * @since 5.1
  */
 public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRepository {
@@ -53,6 +54,8 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	private String cookieName = DEFAULT_CSRF_COOKIE_NAME;
 
 	private boolean cookieHttpOnly = true;
+
+	private Boolean secure;
 
 	/**
 	 * Factory method to conveniently create an instance that has
@@ -75,11 +78,16 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	public Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token) {
 		return Mono.fromRunnable(() -> {
 			String tokenValue = (token != null) ? token.getToken() : "";
-			int maxAge = !tokenValue.isEmpty() ? -1 : 0;
-			String path = (this.cookiePath != null) ? this.cookiePath : getRequestContext(exchange.getRequest());
-			boolean secure = exchange.getRequest().getSslInfo() != null;
-			ResponseCookie cookie = ResponseCookie.from(this.cookieName, tokenValue).domain(this.cookieDomain)
-					.httpOnly(this.cookieHttpOnly).maxAge(maxAge).path(path).secure(secure).build();
+			// @formatter:off
+			ResponseCookie cookie = ResponseCookie
+					.from(this.cookieName, tokenValue)
+					.domain(this.cookieDomain)
+					.httpOnly(this.cookieHttpOnly)
+					.maxAge(!tokenValue.isEmpty() ? -1 : 0)
+					.path((this.cookiePath != null) ? this.cookiePath : getRequestContext(exchange.getRequest()))
+					.secure((this.secure != null) ? this.secure : (exchange.getRequest().getSslInfo() != null))
+					.build();
+			// @formatter:on
 			exchange.getResponse().addCookie(cookie);
 		});
 	}
@@ -144,6 +152,16 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	 */
 	public void setCookieDomain(String cookieDomain) {
 		this.cookieDomain = cookieDomain;
+	}
+
+	/**
+	 * Sets the cookie secure flag. If not set, the value depends on
+	 * {@link ServerHttpRequest#getSslInfo()}.
+	 * @param secure The value for the secure flag
+	 * @since 5.5
+	 */
+	public void setSecure(boolean secure) {
+		this.secure = secure;
 	}
 
 	private CsrfToken createCsrfToken() {
