@@ -4,7 +4,7 @@
 Spring Security Kotlin configuration has been available since Spring Security 5.3.
 It lets users configure Spring Security by using a native Kotlin DSL.
 
-NOTE: Spring Security provides https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/kotlin/hello-security[a sample application] which demonstrates the use of Spring Security Kotlin Configuration.
+NOTE: Spring Security provides https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/kotlin/hello-security[a sample application] to demonstrate the use of Spring Security Kotlin Configuration.
 
 [[kotlin-config-httpsecurity]]
 == HttpSecurity
