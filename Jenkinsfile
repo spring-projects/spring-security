@@ -176,7 +176,7 @@ try {
 					withCredentials([file(credentialsId: 'docs.spring.io-jenkins_private_ssh_key', variable: 'DEPLOY_SSH_KEY')]) {
 						withCredentials([ARTIFACTORY_CREDENTIALS]) {
 							withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
-								sh "./gradlew deployDocs -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD -PdeployDocsHost=docs-ip.spring.io --refresh-dependencies --no-daemon --stacktrace"
+								sh "./gradlew deployDocs -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace"
 							}
 						}
 					}
@@ -191,7 +191,7 @@ try {
 					withCredentials([file(credentialsId: 'docs.spring.io-jenkins_private_ssh_key', variable: 'DEPLOY_SSH_KEY')]) {
 						withCredentials([ARTIFACTORY_CREDENTIALS]) {
 							withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
-								sh "./gradlew deploySchema -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME -PdeployDocsHost=docs-ip.spring.io --refresh-dependencies --no-daemon --stacktrace"
+								sh "./gradlew deploySchema -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME --refresh-dependencies --no-daemon --stacktrace"
 							}
 						}
 					}
