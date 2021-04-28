@@ -31,8 +31,8 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.access.intercept.DelegatingAuthorizationManager;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -105,7 +105,8 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Test
 	public void configureWhenObjectPostProcessorRegisteredThenInvokedOnAuthorizationManagerAndAuthorizationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(DelegatingAuthorizationManager.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor)
+				.postProcess(any(RequestMatcherDelegatingAuthorizationManager.class));
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(AuthorizationFilter.class));
 	}
 
