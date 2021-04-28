@@ -87,6 +87,7 @@ dependencies {
 	}
 	testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core'
 	testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
+	testImplementation 'io.mockk:mockk'
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }

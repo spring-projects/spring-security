@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.flow
 import org.springframework.security.access.prepost.PostAuthorize
 import org.springframework.security.access.prepost.PreAuthorize
 
-class KotlinReactiveMessageServiceImpl : KotlinReactiveMessageService {
+class KotlinReactiveMessageServiceImpl(val delegate: KotlinReactiveMessageService) : KotlinReactiveMessageService {
 
     override suspend fun suspendingNoAuth(): String {
         delay(1)
@@ -48,6 +48,11 @@ class KotlinReactiveMessageServiceImpl : KotlinReactiveMessageService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    override suspend fun suspendingPreAuthorizeDelegate(): String {
+        return delegate.suspendingPreAuthorizeHasRole()
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     override suspend fun suspendingFlowPreAuthorize(): Flow<Int> {
         delay(1)
         return flow {
@@ -70,6 +75,12 @@ class KotlinReactiveMessageServiceImpl : KotlinReactiveMessageService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    override suspend fun suspendingFlowPreAuthorizeDelegate(): Flow<Int> {
+        delay(1)
+        return delegate.flowPreAuthorize()
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     override fun flowPreAuthorize(): Flow<Int> {
         return flow {
             for (i in 1..3) {
@@ -87,5 +98,10 @@ class KotlinReactiveMessageServiceImpl : KotlinReactiveMessageService {
                 emit(i)
             }
         }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    override fun flowPreAuthorizeDelegate(): Flow<Int> {
+        return delegate.flowPreAuthorize()
     }
 }
