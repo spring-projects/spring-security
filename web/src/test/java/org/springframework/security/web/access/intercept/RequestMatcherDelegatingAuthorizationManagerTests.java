@@ -30,36 +30,38 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- * Tests for {@link DelegatingAuthorizationManager}.
+ * Tests for {@link RequestMatcherDelegatingAuthorizationManager}.
  *
  * @author Evgeniy Cheban
  */
-public class DelegatingAuthorizationManagerTests {
+public class RequestMatcherDelegatingAuthorizationManagerTests {
 
 	@Test
 	public void buildWhenMappingsEmptyThenException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> DelegatingAuthorizationManager.builder().build())
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder().build())
 				.withMessage("mappings cannot be empty");
 	}
 
 	@Test
 	public void addWhenMatcherNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> DelegatingAuthorizationManager.builder()
+				.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder()
 						.add(null, (a, o) -> new AuthorizationDecision(true)).build())
 				.withMessage("matcher cannot be null");
 	}
 
 	@Test
 	public void addWhenManagerNullThenException() {
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> DelegatingAuthorizationManager.builder().add(new MvcRequestMatcher(null, "/grant"), null).build())
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder()
+						.add(new MvcRequestMatcher(null, "/grant"), null).build())
 				.withMessage("manager cannot be null");
 	}
 
 	@Test
 	public void checkWhenMultipleMappingsConfiguredThenDelegatesMatchingManager() {
-		DelegatingAuthorizationManager manager = DelegatingAuthorizationManager.builder()
+		RequestMatcherDelegatingAuthorizationManager manager = RequestMatcherDelegatingAuthorizationManager.builder()
 				.add(new MvcRequestMatcher(null, "/grant"), (a, o) -> new AuthorizationDecision(true))
 				.add(new MvcRequestMatcher(null, "/deny"), (a, o) -> new AuthorizationDecision(false))
 				.add(new MvcRequestMatcher(null, "/neutral"), (a, o) -> null).build();
