@@ -28,11 +28,17 @@ interface KotlinReactiveMessageService {
 
     suspend fun suspendingPostAuthorizeContainsName(): String
 
+    suspend fun suspendingPreAuthorizeDelegate(): String
+
     suspend fun suspendingFlowPreAuthorize(): Flow<Int>
 
     suspend fun suspendingFlowPostAuthorize(id: Boolean): Flow<Int>
 
+    suspend fun suspendingFlowPreAuthorizeDelegate(): Flow<Int>
+
     fun flowPreAuthorize(): Flow<Int>
 
     fun flowPostAuthorize(id: Boolean): Flow<Int>
+
+    fun flowPreAuthorizeDelegate(): Flow<Int>
 }
