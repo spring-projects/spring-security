@@ -40,13 +40,13 @@ import org.springframework.util.Assert;
  * @author Evgeniy Cheban
  * @since 5.5
  */
-public final class DelegatingAuthorizationManager implements AuthorizationManager<HttpServletRequest> {
+public final class RequestMatcherDelegatingAuthorizationManager implements AuthorizationManager<HttpServletRequest> {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final Map<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> mappings;
 
-	private DelegatingAuthorizationManager(
+	private RequestMatcherDelegatingAuthorizationManager(
 			Map<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> mappings) {
 		Assert.notEmpty(mappings, "mappings cannot be empty");
 		this.mappings = mappings;
@@ -85,7 +85,7 @@ public final class DelegatingAuthorizationManager implements AuthorizationManage
 	}
 
 	/**
-	 * Creates a builder for {@link DelegatingAuthorizationManager}.
+	 * Creates a builder for {@link RequestMatcherDelegatingAuthorizationManager}.
 	 * @return the new {@link Builder} instance
 	 */
 	public static Builder builder() {
@@ -93,7 +93,7 @@ public final class DelegatingAuthorizationManager implements AuthorizationManage
 	}
 
 	/**
-	 * A builder for {@link DelegatingAuthorizationManager}.
+	 * A builder for {@link RequestMatcherDelegatingAuthorizationManager}.
 	 */
 	public static final class Builder {
 
@@ -113,11 +113,11 @@ public final class DelegatingAuthorizationManager implements AuthorizationManage
 		}
 
 		/**
-		 * Creates a {@link DelegatingAuthorizationManager} instance.
-		 * @return the {@link DelegatingAuthorizationManager} instance
+		 * Creates a {@link RequestMatcherDelegatingAuthorizationManager} instance.
+		 * @return the {@link RequestMatcherDelegatingAuthorizationManager} instance
 		 */
-		public DelegatingAuthorizationManager build() {
-			return new DelegatingAuthorizationManager(this.mappings);
+		public RequestMatcherDelegatingAuthorizationManager build() {
+			return new RequestMatcherDelegatingAuthorizationManager(this.mappings);
 		}
 
 	}
