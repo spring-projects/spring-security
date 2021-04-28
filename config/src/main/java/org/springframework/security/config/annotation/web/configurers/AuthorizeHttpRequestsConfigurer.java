@@ -30,8 +30,8 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.access.intercept.DelegatingAuthorizationManager;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -89,7 +89,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 	public final class AuthorizationManagerRequestMatcherRegistry
 			extends AbstractRequestMatcherRegistry<AuthorizedUrl> {
 
-		private final DelegatingAuthorizationManager.Builder managerBuilder = DelegatingAuthorizationManager.builder();
+		private final RequestMatcherDelegatingAuthorizationManager.Builder managerBuilder = RequestMatcherDelegatingAuthorizationManager
+				.builder();
 
 		private List<RequestMatcher> unmappedMatchers;
 
