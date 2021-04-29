@@ -281,6 +281,7 @@ The default is false (the headers are enabled).
 * <<nsa-header,header>>
 * <<nsa-hpkp,hpkp>>
 * <<nsa-hsts,hsts>>
+* <<nsa-permissions-policy,permission-policy>>
 * <<nsa-referrer-policy,referrer-policy>>
 * <<nsa-xss-protection,xss-protection>>
 
@@ -517,7 +518,21 @@ On the other hand, if you specify SAMEORIGIN, you can still use the page in a fr
 
 * <<nsa-headers,headers>>
 
+[[nsa-permissions-policy]]
+==== <permissions-policy>
+Adds the https://w3c.github.io/webappsec-permissions-policy/[Permissions-Policy header] to the response.
 
+[[nsa-permissions-policy-attributes]]
+===== <permissions-policy> Attributes
+
+[[nsa-permissions-policy-policy]]
+* **policy**
+The policy value to write for the `Permissions-Policy` header
+
+[[nsa-permissions-policy-parents]]
+===== Parent Elements of <permissions-policy>
+
+* <<nsa-headers,headers>>
 
 [[nsa-xss-protection]]
 ==== <xss-protection>
