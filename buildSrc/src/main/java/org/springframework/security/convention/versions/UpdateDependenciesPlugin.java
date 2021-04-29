@@ -165,9 +165,6 @@ public class UpdateDependenciesPlugin implements Plugin<Project> {
 		String commitMessage = title;
 		if (updateDependenciesExtension.getUpdateMode() == UpdateDependenciesExtension.UpdateMode.GITHUB_ISSUE) {
 			GitHubApi.FindCreateIssueResult createIssueResult = createIssueResultMono.block();
-			RateLimitQuery.RateLimit rateLimit = gitHubApi.findRateLimit().block();
-			rateLimit = gitHubApi.findRateLimit().block();
-			System.out.println("remaining " + rateLimit.remaining() + " reset at " + rateLimit.resetAt());
 			Integer issueNumber = gitHubApi.createIssue(createIssueResult.getRepositoryId(), title, createIssueResult.getLabelIds(), createIssueResult.getMilestoneId(), createIssueResult.getAssigneeId()).delayElement(Duration.ofSeconds(1)).block();
 			commitMessage += "\n\nCloses gh-" + issueNumber;
 		}
