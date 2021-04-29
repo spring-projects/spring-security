@@ -65,7 +65,7 @@ public class XsdDocumentedTests {
 
 	String schema31xDocumentLocation = "org/springframework/security/config/spring-security-3.1.xsd";
 
-	String schemaDocumentLocation = "org/springframework/security/config/spring-security-5.4.xsd";
+	String schemaDocumentLocation = "org/springframework/security/config/spring-security-5.5.xsd";
 
 	XmlSupport xml = new XmlSupport();
 
