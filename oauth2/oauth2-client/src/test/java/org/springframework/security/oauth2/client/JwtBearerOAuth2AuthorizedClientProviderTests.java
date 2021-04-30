@@ -16,6 +16,9 @@
 
 package org.springframework.security.oauth2.client;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,6 +30,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
@@ -84,6 +88,33 @@ public class JwtBearerOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
+	public void setClockSkewWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
+				.withMessage("clockSkew cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void setClockSkewWhenNegativeSecondsThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(-1)))
+				.withMessage("clockSkew must be >= 0");
+		// @formatter:on
+	}
+
+	@Test
+	public void setClockWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClock(null))
+				.withMessage("clock cannot be null");
+		// @formatter:on
+	}
+
+	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()
@@ -105,7 +136,7 @@ public class JwtBearerOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
-	public void authorizeWhenJwtBearerAndAuthorizedThenNotAuthorized() {
+	public void authorizeWhenJwtBearerAndTokenNotExpiredThenNotReauthorize() {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principal.getName(), TestOAuth2AccessTokens.scopes("read", "write"));
 		// @formatter:off
@@ -115,6 +146,55 @@ public class JwtBearerOAuth2AuthorizedClientProviderTests {
 				.build();
 		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
+	}
+
+	@Test
+	public void authorizeWhenJwtBearerAndTokenExpiredThenReauthorize() {
+		Instant now = Instant.now();
+		Instant issuedAt = now.minus(Duration.ofMinutes(60));
+		Instant expiresAt = now.minus(Duration.ofMinutes(30));
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token-1234",
+				issuedAt, expiresAt);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
+				this.principal.getName(), accessToken);
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
+		// @formatter:off
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
+		authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
+		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
+		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
+		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+	}
+
+	@Test
+	public void authorizeWhenJwtBearerAndTokenNotExpiredButClockSkewForcesExpiryThenReauthorize() {
+		Instant now = Instant.now();
+		Instant issuedAt = now.minus(Duration.ofMinutes(60));
+		Instant expiresAt = now.plus(Duration.ofMinutes(1));
+		OAuth2AccessToken expiresInOneMinAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+				"access-token-1234", issuedAt, expiresAt);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
+				this.principal.getName(), expiresInOneMinAccessToken);
+		// Shorten the lifespan of the access token by 90 seconds, which will ultimately
+		// force it to expire on the client
+		this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(90));
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
+		// @formatter:off
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
+		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
+		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
+		assertThat(reauthorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
+		assertThat(reauthorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
 	}
 
 	@Test
