@@ -90,8 +90,9 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Test
 	public void configureWhenAnyRequestIncompleteMappingDefaultConfigThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(IncompleteMappingConfigWithDefaultConfig.class).autowire())
-				.withMessageContaining("An incomplete mapping was found for ");
+		this.spring.register(IncompleteMappingConfigWithDefaultConfig.class, BasicController.class).autowire();
+		this.mvc.perform(get("/")).andExpect(status().isOk());
+		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
 	}
 
 	@Test
@@ -112,8 +113,8 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Test
 	public void configureMvcMatcherAccessAuthorizationManagerOnDefault() throws Exception {
 		CustomAuthorizationManagerConfig.authorizationManager = mock(AuthorizationManager.class);
-		this.spring.register(IncompleteMappingConfigWithDefaultConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isOk());
+		this.spring.register(IncompleteMappingConfigWithDefaultConfig.class).autowire();
+		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
 		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
 	}
 
@@ -410,11 +411,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	static class IncompleteMappingConfigWithDefaultConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		FormLoginConfigurer<HttpSecurity> filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
 					.authorizeHttpRequests()
-					.build();
+					.formLogin();
 			// @formatter:on
 		}
 
