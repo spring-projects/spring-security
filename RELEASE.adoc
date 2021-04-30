@@ -138,34 +138,19 @@ $ ./gradlew saganCreateRelease saganDeleteRelease -PgitHubAccessToken=<github-pe
 
 == 9. Update Release Notes on GitHub
 
-* Download
-https://github.com/spring-io/github-changelog-generator/releases/latest[the
-GitHub release notes generator]
+Generate the Release Notes replacing:
 
-....
-wget https://github.com/spring-io/github-changelog-generator/releases/download/v0.0.6/github-changelog-generator.jar
-....
+* <next-version> - Replace with the milestone you are releasing now (i.e. 5.5.0-RC1)
 
-* Generate the release notes
-
-....
-java -jar github-changelog-generator.jar \
-    --changelog.repository=spring-projects/spring-security
-    --spring.config.location=scripts/release/release-notes-sections.yml \
-    $MILESTONE release-notes
-....
-
-Note 1: `+$MILESTONE+` is something like `+5.2.1+` or `+5.3.0-M1+`. +
-Note 2: The location `+scripts/release/release-notes-sections.yml+` is
-relative to the `+spring-security+` repo. +
-Note 3: This will create a file on your filesystem
-called `+release-notes+`.
+----
+$ ./gradlew generateChangelog -P<next-version>
+----
 
 * Copy the release notes to your clipboard (your mileage may vary with
 the following command)
 
 ....
-cat release-notes | xclip -selection clipboard
+cat build/changelog/release-notes.md | xclip -selection clipboard
 ....
 
 * Create the

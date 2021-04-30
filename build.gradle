@@ -18,6 +18,7 @@ apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.update-dependencies'
 apply plugin: 'org.springframework.security.sagan'
 apply plugin: 'org.springframework.github.milestone'
+apply plugin: 'org.springframework.github.changelog'
 
 group = 'org.springframework.security'
 description = 'Spring Security'
