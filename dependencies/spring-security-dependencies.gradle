@@ -34,7 +34,7 @@ dependencies {
 		api "javax.xml.bind:jaxb-api:2.3.1"
 		api "junit:junit:4.13.2"
 		api "ldapsdk:ldapsdk:4.1"
-		api "net.sf.ehcache:ehcache:2.10.6"
+		api "net.sf.ehcache:ehcache:2.10.9.2"
 		api "net.sourceforge.htmlunit:htmlunit:2.49.1"
 		api "net.sourceforge.nekohtml:nekohtml:1.9.22"
 		api "org.apache.directory.server:apacheds-core-entry:1.5.5"
