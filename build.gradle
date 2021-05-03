@@ -43,6 +43,11 @@ tasks.named("gitHubCheckMilestoneHasNoOpenIssues") {
 	}
 }
 
+tasks.named("updateDependencies") {
+	// we aren't Gradle 7 compatible yet
+	checkForGradleUpdate = false
+}
+
 updateDependenciesSettings {
 	gitHub {
 		organization = "spring-projects"
