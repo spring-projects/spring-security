@@ -1,7 +1,7 @@
 buildscript {
 	dependencies {
 		classpath "io.spring.javaformat:spring-javaformat-gradle-plugin:$springJavaformatVersion"
-		classpath 'io.spring.nohttp:nohttp-gradle:0.0.6.RELEASE'
+		classpath 'io.spring.nohttp:nohttp-gradle:0.0.7'
 		classpath "io.freefair.gradle:aspectj-plugin:5.3.3.3"
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 	}
