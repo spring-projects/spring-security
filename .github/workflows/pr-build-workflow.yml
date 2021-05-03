@@ -2,21 +2,27 @@ name: PR Build
 
 on: pull_request
 
+env:
+  RUN_JOBS: ${{ github.repository == 'spring-projects/spring-security' }}
+
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    if: github.repository == 'spring-projects/spring-security'
     steps:
-      - uses: actions/checkout@v2
+      - if: env.RUN_JOBS == 'true'
+        uses: actions/checkout@v2
       - name: Set up JDK
+        if: env.RUN_JOBS == 'true'
         uses: actions/setup-java@v1
         with:
           java-version: '11'
       - name: Cache Gradle packages
+        if: env.RUN_JOBS == 'true'
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
       - name: Build with Gradle
+        if: env.RUN_JOBS == 'true'
         run: ./gradlew clean build --continue --scan

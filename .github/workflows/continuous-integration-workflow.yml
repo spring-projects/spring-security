@@ -17,25 +17,33 @@ env:
   COMMIT_SHA: ${{ github.sha }}
   ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
   ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+  RUN_JOBS: ${{ github.repository == 'spring-projects/spring-security' }}
 
 jobs:
-  initiate_error_tracking:
-    name: Initiate job-level error tracking
+  prerequisites:
+    name: Pre-requisites for building
     runs-on: ubuntu-latest
+    outputs:
+      runjobs: ${{ steps.continue.outputs.runjobs }}
     steps:
       - uses: actions/checkout@v2
       - name: Initiate error tracking
         uses: spring-projects/track-build-errors-action@v1
         with:
-          job-name: "initiate-error-tracking"
+          job-name: "prerequisites"
       - name: Export errors file
         uses: actions/upload-artifact@v2
         with:
           name: errors
-          path: job-initiate-error-tracking.txt
+          path: job-prerequisites.txt
+      - id: continue
+        name: Determine if should continue
+        run: echo "::set-output name=runjobs::${RUN_JOBS}"
   build_jdk_11:
     name: Build JDK 11
+    needs: [prerequisites]
     runs-on: ubuntu-latest
+    if: needs.prequisites.outputs.runjobs == 'true'
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
@@ -66,7 +74,9 @@ jobs:
           path: job-${{ github.job }}.txt
   snapshot_tests:
     name: Test against snapshots
+    needs: [prerequisites]
     runs-on: ubuntu-latest
+    if: needs.prequisites.outputs.runjobs == 'true'
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
@@ -92,7 +102,9 @@ jobs:
           path: job-${{ github.job }}.txt
   sonar_analysis:
     name: Static Code Analysis
+    needs: [prerequisites]
     runs-on: ubuntu-latest
+    if: needs.prequisites.outputs.runjobs == 'true'
     env:
       SONAR_URL: ${{ secrets.SONAR_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
