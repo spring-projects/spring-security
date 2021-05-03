@@ -56,6 +56,7 @@ updateDependenciesSettings {
 	})
 	dependencyExcludes {
 		majorVersionBump()
+		minorVersionBump()
 		alphaBetaVersions()
 		releaseCandidatesVersions()
 		milestoneVersions()
