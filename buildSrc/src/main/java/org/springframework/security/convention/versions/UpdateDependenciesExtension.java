@@ -147,6 +147,24 @@ public class UpdateDependenciesExtension {
 			return this;
 		}
 
+		public DependencyExcludes minorVersionBump() {
+			this.actions.add(createExcludeMinorVersionBump());
+			return this;
+		}
+
+		public Action<ComponentSelectionWithCurrent> createExcludeMinorVersionBump() {
+			return (selection) -> {
+				String currentVersion = selection.getCurrentVersion();
+				int majorSeparator = currentVersion.indexOf(".");
+				int separator = currentVersion.indexOf(".", majorSeparator + 1);
+				String majorMinor = separator > 0 ? currentVersion.substring(0, separator) : currentVersion;
+				String candidateVersion = selection.getCandidate().getVersion();
+				if (!candidateVersion.startsWith(majorMinor)) {
+					selection.reject("Cannot upgrade to new Minor Version");
+				}
+			};
+		}
+
 		public DependencyExcludes releaseCandidatesVersions() {
 			this.actions.add(excludeVersionWithRegex("(?i).*?rc\\d+.*", "a release candidate version"));
 			return this;

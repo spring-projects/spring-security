@@ -179,6 +179,9 @@ public class UpdateDependenciesPlugin implements Plugin<Project> {
 	}
 
 	private void updateGradleVersion(Result result, Project project, UpdateDependenciesExtension updateDependenciesSettings) {
+		if (!result.getGradle().isEnabled()) {
+			return;
+		}
 		GradleUpdateResult current = result.getGradle().getCurrent();
 		GradleUpdateResult running = result.getGradle().getRunning();
 		if (current.compareTo(running) > 0) {
