@@ -573,7 +573,7 @@ public class OpenSamlAuthenticationProviderTests {
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 				.isThrownBy(() -> this.provider.authenticate(token))
-				.satisfies(errorOf(Saml2ErrorCodes.INVALID_RESPONSE));
+				.satisfies(errorOf(Saml2ErrorCodes.INVALID_RESPONSE, "Invalid status"));
 	}
 
 	@Test
