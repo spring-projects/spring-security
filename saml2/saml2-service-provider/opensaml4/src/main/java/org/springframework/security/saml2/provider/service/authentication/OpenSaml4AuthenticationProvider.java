@@ -61,6 +61,7 @@ import org.opensaml.saml.saml2.core.Condition;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.OneTimeUse;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.impl.ResponseUnmarshaller;
 import org.opensaml.saml.saml2.encryption.Decrypter;
@@ -491,6 +492,12 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			Response response = responseToken.getResponse();
 			Saml2AuthenticationToken token = responseToken.getToken();
 			Saml2ResponseValidatorResult result = Saml2ResponseValidatorResult.success();
+			String statusCode = getStatusCode(response);
+			if (!StatusCode.SUCCESS.equals(statusCode)) {
+				String message = String.format("Invalid status [%s] for SAML response [%s]", statusCode,
+						response.getID());
+				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, message));
+			}
 			String issuer = response.getIssuer().getValue();
 			String destination = response.getDestination();
 			String location = token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
@@ -511,6 +518,16 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			}
 			return result;
 		};
+	}
+
+	private String getStatusCode(Response response) {
+		if (response.getStatus() == null) {
+			return StatusCode.SUCCESS;
+		}
+		if (response.getStatus().getStatusCode() == null) {
+			return StatusCode.SUCCESS;
+		}
+		return response.getStatus().getStatusCode().getValue();
 	}
 
 	private Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionSignatureValidator() {

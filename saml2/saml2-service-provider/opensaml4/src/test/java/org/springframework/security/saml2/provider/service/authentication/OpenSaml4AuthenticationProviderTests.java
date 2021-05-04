@@ -52,6 +52,7 @@ import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.OneTimeUse;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.saml.saml2.core.impl.AttributeBuilder;
@@ -563,6 +564,25 @@ public class OpenSaml4AuthenticationProviderTests {
 		});
 		Authentication authentication = this.provider.authenticate(token);
 		assertThat(authentication.getName()).isEqualTo("decrypted name");
+	}
+
+	@Test
+	public void authenticateWhenResponseStatusIsNotSuccessThenFails() {
+		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion(
+				(r) -> r.setStatus(TestOpenSamlObjects.status(StatusCode.AUTHN_FAILED)));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies(errorOf(Saml2ErrorCodes.INVALID_RESPONSE, "Invalid status"));
+	}
+
+	@Test
+	public void authenticateWhenResponseStatusIsSuccessThenSucceeds() {
+		Response response = TestOpenSamlObjects
+				.signedResponseWithOneAssertion((r) -> r.setStatus(TestOpenSamlObjects.successStatus()));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		Authentication authentication = this.provider.authenticate(token);
+		assertThat(authentication.getName()).isEqualTo("test@saml.user");
 	}
 
 	private <T extends XMLObject> T build(QName qName) {
