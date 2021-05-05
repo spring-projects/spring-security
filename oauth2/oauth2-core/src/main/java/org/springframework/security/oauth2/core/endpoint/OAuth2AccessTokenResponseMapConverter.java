@@ -34,14 +34,14 @@ import org.springframework.util.StringUtils;
  * @since 5.3
  */
 public final class OAuth2AccessTokenResponseMapConverter
-		implements Converter<OAuth2AccessTokenResponse, Map<String, String>> {
+		implements Converter<OAuth2AccessTokenResponse, Map<String, Object>> {
 
 	@Override
-	public Map<String, String> convert(OAuth2AccessTokenResponse tokenResponse) {
-		Map<String, String> parameters = new HashMap<>();
+	public Map<String, Object> convert(OAuth2AccessTokenResponse tokenResponse) {
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(OAuth2ParameterNames.ACCESS_TOKEN, tokenResponse.getAccessToken().getTokenValue());
 		parameters.put(OAuth2ParameterNames.TOKEN_TYPE, tokenResponse.getAccessToken().getTokenType().getValue());
-		parameters.put(OAuth2ParameterNames.EXPIRES_IN, String.valueOf(getExpiresIn(tokenResponse)));
+		parameters.put(OAuth2ParameterNames.EXPIRES_IN, getExpiresIn(tokenResponse));
 		if (!CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
 			parameters.put(OAuth2ParameterNames.SCOPE,
 					StringUtils.collectionToDelimitedString(tokenResponse.getAccessToken().getScopes(), " "));

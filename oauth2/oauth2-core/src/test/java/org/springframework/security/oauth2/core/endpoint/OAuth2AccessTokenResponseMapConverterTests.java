@@ -58,7 +58,7 @@ public class OAuth2AccessTokenResponseMapConverterTests {
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.build();
 		// @formatter:on
-		Map<String, String> result = this.messageConverter.convert(build);
+		Map<String, Object> result = this.messageConverter.convert(build);
 		Assert.assertEquals(7, result.size());
 		Assert.assertEquals("access-token-value-1234", result.get("access_token"));
 		Assert.assertEquals("refresh-token-value-1234", result.get("refresh_token"));
@@ -76,7 +76,7 @@ public class OAuth2AccessTokenResponseMapConverterTests {
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.build();
 		// @formatter:on
-		Map<String, String> result = this.messageConverter.convert(build);
+		Map<String, Object> result = this.messageConverter.convert(build);
 		Assert.assertEquals(3, result.size());
 		Assert.assertEquals("access-token-value-1234", result.get("access_token"));
 		Assert.assertEquals("Bearer", result.get("token_type"));

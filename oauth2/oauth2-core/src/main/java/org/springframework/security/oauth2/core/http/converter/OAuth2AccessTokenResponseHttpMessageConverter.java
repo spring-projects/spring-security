@@ -57,7 +57,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 
 	protected Converter<Map<String, String>, OAuth2AccessTokenResponse> tokenResponseConverter = new MapOAuth2AccessTokenResponseConverter();
 
-	protected Converter<OAuth2AccessTokenResponse, Map<String, String>> tokenResponseParametersConverter = new OAuth2AccessTokenResponseMapConverter();
+	protected Converter<OAuth2AccessTokenResponse, Map<String, Object>> tokenResponseParametersConverter = new OAuth2AccessTokenResponseMapConverter();
 
 	public OAuth2AccessTokenResponseHttpMessageConverter() {
 		super(DEFAULT_CHARSET, MediaType.APPLICATION_JSON, new MediaType("application", "*+json"));
@@ -95,7 +95,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 	protected void writeInternal(OAuth2AccessTokenResponse tokenResponse, HttpOutputMessage outputMessage)
 			throws HttpMessageNotWritableException {
 		try {
-			Map<String, String> tokenResponseParameters = this.tokenResponseParametersConverter.convert(tokenResponse);
+			Map<String, Object> tokenResponseParameters = this.tokenResponseParametersConverter.convert(tokenResponse);
 			this.jsonMessageConverter.write(tokenResponseParameters, STRING_OBJECT_MAP.getType(),
 					MediaType.APPLICATION_JSON, outputMessage);
 		}
@@ -125,7 +125,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 	 * to a {@code Map} representation of the Access Token Response parameters
 	 */
 	public final void setTokenResponseParametersConverter(
-			Converter<OAuth2AccessTokenResponse, Map<String, String>> tokenResponseParametersConverter) {
+			Converter<OAuth2AccessTokenResponse, Map<String, Object>> tokenResponseParametersConverter) {
 		Assert.notNull(tokenResponseParametersConverter, "tokenResponseParametersConverter cannot be null");
 		this.tokenResponseParametersConverter = tokenResponseParametersConverter;
 	}
