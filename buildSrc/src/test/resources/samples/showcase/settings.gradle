@@ -1,3 +1,5 @@
+import java.util.regex.Matcher
+
 rootProject.name = 'spring-gradle-build-conventions-sample'
 
 
@@ -10,7 +12,7 @@ String rootDirPath = rootDir.absolutePath + File.separator
 projects.each { File buildFile ->
 	String buildFilePath = buildFile.parentFile.absolutePath
 
-	String projectPath = buildFilePath.replace(rootDirPath, '').replaceAll(File.separator, ':')
+	String projectPath = buildFilePath.replace(rootDirPath, '').replaceAll(Matcher.quoteReplacement(File.separator), ':')
 
 	include projectPath
 
