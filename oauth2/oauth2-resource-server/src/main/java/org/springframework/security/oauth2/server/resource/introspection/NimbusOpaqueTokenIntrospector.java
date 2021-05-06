@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,7 +109,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 	private HttpHeaders requestHeaders() {
 		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		return headers;
 	}
 
