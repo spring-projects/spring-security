@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -244,7 +244,7 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		given(clientResponse.statusCode()).willReturn(HttpStatus.OK);
 		given(clientResponse.bodyToMono(String.class)).willReturn(Mono.just(response));
 		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);
-		given(headers.contentType()).willReturn(Optional.of(MediaType.APPLICATION_JSON_UTF8));
+		given(headers.contentType()).willReturn(Optional.of(MediaType.APPLICATION_JSON));
 		given(clientResponse.headers()).willReturn(headers);
 		given(spec.exchange()).willReturn(Mono.just(clientResponse));
 		return webClient;
