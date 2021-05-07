@@ -73,6 +73,28 @@ jobs:
         with:
           name: errors
           path: job-${{ github.job }}.txt
+  check_windows:
+    name: Check Windows
+    needs: [prerequisites]
+    runs-on: windows-latest
+    if: needs.prerequisites.outputs.runjobs
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+      - name: Check with Gradle
+        run: |
+          set GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
+          set GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
+          set GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
+          ./gradlew check -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD"
   snapshot_tests:
     name: Test against snapshots
     needs: [prerequisites]
