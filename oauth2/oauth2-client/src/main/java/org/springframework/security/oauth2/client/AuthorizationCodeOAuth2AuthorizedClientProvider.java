@@ -39,8 +39,10 @@ public final class AuthorizationCodeOAuth2AuthorizedClientProvider implements OA
 	 * not {@link AuthorizationGrantType#AUTHORIZATION_CODE authorization_code} OR the
 	 * client is already authorized.
 	 * @param context the context that holds authorization-specific state for the client
-	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization is not
-	 * supported
+	 * @return {@code null} if authorization is not supported or client is already authorized
+	 * @throws ClientAuthorizationRequiredException in order to trigger authorization 
+	 * in which the OAuth2AuthorizationRequestRedirectFilter will catch and initiate 
+	 * authorization.
 	 */
 	@Override
 	@Nullable
