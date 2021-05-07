@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationRequestRedirectWebFilter;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
 
@@ -41,8 +42,11 @@ public final class AuthorizationCodeReactiveOAuth2AuthorizedClientProvider
 	 * not {@link AuthorizationGrantType#AUTHORIZATION_CODE authorization_code} OR the
 	 * client is already authorized.
 	 * @param context the context that holds authorization-specific state for the client
-	 * @return the {@link OAuth2AuthorizedClient} or an empty {@code Mono} if
-	 * authorization is not supported
+	 * @return an empty {@code Mono} if authorization is not supported or the client is
+	 * already authorized
+	 * @throws ClientAuthorizationRequiredException in order to trigger authorization in
+	 * which the {@link OAuth2AuthorizationRequestRedirectWebFilter} will catch and
+	 * initiate the authorization request
 	 */
 	@Override
 	public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizationContext context) {
