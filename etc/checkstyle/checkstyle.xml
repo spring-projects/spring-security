@@ -14,6 +14,7 @@
 	<module name="io.spring.javaformat.checkstyle.SpringChecks">
 		<property name="excludes" value="io.spring.javaformat.checkstyle.check.SpringHeaderCheck" />
 		<property name="avoidStaticImportExcludes" value="org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.*" />
+		<property name="avoidStaticImportExcludes" value="org.springframework.security.test.web.servlet.response.SecurityMockMvcResultHandlers.*" />
 	</module>
 	<module name="com.puppycrawl.tools.checkstyle.TreeWalker">
  		<module name="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck">
