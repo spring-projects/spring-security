@@ -1,0 +1,10 @@
+# Normalize line endings to auto.
+* text auto
+
+# Ensure the following are treated as binary.
+*.cer      binary
+*.jar      binary
+*.jpeg     binary
+*.jpg      binary
+*.keystore binary
+*.png      binary
