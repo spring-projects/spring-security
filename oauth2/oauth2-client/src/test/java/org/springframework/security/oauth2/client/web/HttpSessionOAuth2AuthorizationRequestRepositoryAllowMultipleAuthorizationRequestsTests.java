@@ -73,4 +73,49 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryAllowMultipleAuthori
 		assertThat(loadedAuthorizationRequest3).isEqualTo(authorizationRequest3);
 	}
 
+	@Test
+	public void loadAuthorizationRequestWhenSavedWithAllowMultipleAuthorizationRequests() {
+		// save 2 requests with legacy (allowMultipleAuthorizationRequests=true) and load
+		// with new
+		HttpSessionOAuth2AuthorizationRequestRepository legacy = new HttpSessionOAuth2AuthorizationRequestRepository();
+		legacy.setAllowMultipleAuthorizationRequests(true);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		String state1 = "state-1122";
+		OAuth2AuthorizationRequest authorizationRequest1 = createAuthorizationRequest().state(state1).build();
+		legacy.saveAuthorizationRequest(authorizationRequest1, request, response);
+		String state2 = "state-3344";
+		OAuth2AuthorizationRequest authorizationRequest2 = createAuthorizationRequest().state(state2).build();
+		legacy.saveAuthorizationRequest(authorizationRequest2, request, response);
+
+		request.setParameter(OAuth2ParameterNames.STATE, state1);
+		OAuth2AuthorizationRequest loaded = this.authorizationRequestRepository.loadAuthorizationRequest(request);
+
+		assertThat(loaded).isEqualTo(authorizationRequest1);
+	}
+
+	@Test
+	public void saveAuthorizationRequestWhenSavedWithAllowMultipleAuthorizationRequests() {
+		// save 2 requests with legacy (allowMultipleAuthorizationRequests=true), save
+		// with new, and load with new
+		HttpSessionOAuth2AuthorizationRequestRepository legacy = new HttpSessionOAuth2AuthorizationRequestRepository();
+		legacy.setAllowMultipleAuthorizationRequests(true);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		String state1 = "state-1122";
+		OAuth2AuthorizationRequest authorizationRequest1 = createAuthorizationRequest().state(state1).build();
+		legacy.saveAuthorizationRequest(authorizationRequest1, request, response);
+		String state2 = "state-3344";
+		OAuth2AuthorizationRequest authorizationRequest2 = createAuthorizationRequest().state(state2).build();
+		legacy.saveAuthorizationRequest(authorizationRequest2, request, response);
+		String state3 = "state-5566";
+		OAuth2AuthorizationRequest authorizationRequest3 = createAuthorizationRequest().state(state3).build();
+
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest3, request, response);
+		request.setParameter(OAuth2ParameterNames.STATE, state3);
+		OAuth2AuthorizationRequest loaded = this.authorizationRequestRepository.loadAuthorizationRequest(request);
+
+		assertThat(loaded).isEqualTo(authorizationRequest3);
+	}
+
 }
