@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,7 +134,7 @@ public final class RelyingPartyRegistration {
 
 	/**
 	 * Get the relying party's <a href=
-	 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
+	 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.9%20EntityDescriptor">EntityID</a>.
 	 *
 	 * <p>
 	 * Equivalent to the value found in the relying party's &lt;EntityDescriptor
@@ -476,7 +476,7 @@ public final class RelyingPartyRegistration {
 
 		/**
 		 * Get the asserting party's <a href=
-		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
+		 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.9%20EntityDescriptor">EntityID</a>.
 		 *
 		 * <p>
 		 * Equivalent to the value found in the asserting party's &lt;EntityDescriptor
@@ -539,7 +539,7 @@ public final class RelyingPartyRegistration {
 
 		/**
 		 * Get the <a href=
-		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
+		 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint">SingleSignOnService</a>
 		 * Location.
 		 *
 		 * <p>
@@ -553,7 +553,7 @@ public final class RelyingPartyRegistration {
 
 		/**
 		 * Get the <a href=
-		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
+		 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint">SingleSignOnService</a>
 		 * Binding.
 		 *
 		 * <p>
@@ -583,7 +583,7 @@ public final class RelyingPartyRegistration {
 
 			/**
 			 * Set the asserting party's <a href=
-			 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
+			 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.9%20EntityDescriptor">EntityID</a>.
 			 * Equivalent to the value found in the asserting party's &lt;EntityDescriptor
 			 * EntityID="..."/&gt;
 			 * @param entityId the asserting party's EntityID
@@ -647,7 +647,7 @@ public final class RelyingPartyRegistration {
 
 			/**
 			 * Set the <a href=
-			 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
+			 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint">SingleSignOnService</a>
 			 * Location.
 			 *
 			 * <p>
@@ -663,7 +663,7 @@ public final class RelyingPartyRegistration {
 
 			/**
 			 * Set the <a href=
-			 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
+			 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint">SingleSignOnService</a>
 			 * Binding.
 			 *
 			 * <p>
@@ -758,7 +758,7 @@ public final class RelyingPartyRegistration {
 
 			/**
 			 * Set the asserting party's <a href=
-			 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
+			 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.9%20EntityDescriptor">EntityID</a>.
 			 * Equivalent to the value found in the asserting party's &lt;EntityDescriptor
 			 * EntityID="..."/&gt;
 			 * @param entityId the asserting party's EntityID
@@ -850,7 +850,7 @@ public final class RelyingPartyRegistration {
 
 		/**
 		 * Set the relying party's <a href=
-		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
+		 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.9%20EntityDescriptor">EntityID</a>.
 		 * Equivalent to the value found in the relying party's &lt;EntityDescriptor
 		 * EntityID="..."/&gt;
 		 *
@@ -896,8 +896,8 @@ public final class RelyingPartyRegistration {
 
 		/**
 		 * Set the <a href=
-		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/AssertionConsumerService">AssertionConsumerService</a>
-		 * Location.
+		 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.3%20AttributeConsumingService">
+		 * AssertionConsumerService</a> Location.
 		 *
 		 * <p>
 		 * Equivalent to the value found in &lt;AssertionConsumerService
@@ -918,8 +918,8 @@ public final class RelyingPartyRegistration {
 
 		/**
 		 * Set the <a href=
-		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/AssertionConsumerService">AssertionConsumerService</a>
-		 * Binding.
+		 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.3%20AttributeConsumingService">
+		 * AssertionConsumerService</a> Binding.
 		 *
 		 * <p>
 		 * Equivalent to the value found in &lt;AssertionConsumerService
@@ -970,7 +970,7 @@ public final class RelyingPartyRegistration {
 
 		/**
 		 * <a href=
-		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/AssertionConsumerService">Assertion
+		 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.3%20AttributeConsumingService">Assertion
 		 * Consumer Service</a> URL template. It can contain variables {@code baseUrl},
 		 * {@code registrationId}, {@code baseScheme}, {@code baseHost}, and
 		 * {@code basePort}.
