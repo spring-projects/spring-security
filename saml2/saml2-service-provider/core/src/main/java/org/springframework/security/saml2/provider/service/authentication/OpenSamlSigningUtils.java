@@ -42,6 +42,9 @@ import org.opensaml.xmlsec.SignatureSigningParametersResolver;
 import org.opensaml.xmlsec.criterion.SignatureSigningConfigurationCriterion;
 import org.opensaml.xmlsec.crypto.XMLSigningUtil;
 import org.opensaml.xmlsec.impl.BasicSignatureSigningConfiguration;
+import org.opensaml.xmlsec.keyinfo.KeyInfoGeneratorManager;
+import org.opensaml.xmlsec.keyinfo.NamedKeyInfoGeneratorManager;
+import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
 import org.opensaml.xmlsec.signature.SignableXMLObject;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.opensaml.xmlsec.signature.support.SignatureSupport;
@@ -102,6 +105,7 @@ final class OpenSamlSigningUtils {
 		signingConfiguration.setSignatureAlgorithms(algorithms);
 		signingConfiguration.setSignatureReferenceDigestMethods(digests);
 		signingConfiguration.setSignatureCanonicalizationAlgorithm(canonicalization);
+		signingConfiguration.setKeyInfoGeneratorManager(buildSignatureKeyInfoGeneratorManager());
 		criteria.add(new SignatureSigningConfigurationCriterion(signingConfiguration));
 		try {
 			SignatureSigningParameters parameters = resolver.resolveSingle(criteria);
@@ -111,6 +115,22 @@ final class OpenSamlSigningUtils {
 		catch (Exception ex) {
 			throw new Saml2Exception(ex);
 		}
+	}
+
+	private static NamedKeyInfoGeneratorManager buildSignatureKeyInfoGeneratorManager() {
+		final NamedKeyInfoGeneratorManager namedManager = new NamedKeyInfoGeneratorManager();
+
+		namedManager.setUseDefaultManager(true);
+		final KeyInfoGeneratorManager defaultManager = namedManager.getDefaultManager();
+
+		// Generator for X509Credentials
+		final X509KeyInfoGeneratorFactory x509Factory = new X509KeyInfoGeneratorFactory();
+		x509Factory.setEmitEntityCertificate(true);
+		x509Factory.setEmitEntityCertificateChain(true);
+
+		defaultManager.registerFactory(x509Factory);
+
+		return namedManager;
 	}
 
 	private static List<Credential> resolveSigningCredentials(RelyingPartyRegistration relyingPartyRegistration) {
