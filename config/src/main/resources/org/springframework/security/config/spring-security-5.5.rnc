@@ -529,8 +529,8 @@ client-registration.attlist &=
 	## The method used to authenticate the client with the provider. The supported values are client_secret_basic, client_secret_post and none (public clients).
 	attribute client-authentication-method {"client_secret_basic" | "basic" | "client_secret_post" | "post" | "none"}?
 client-registration.attlist &=
-	## The OAuth 2.0 Authorization Framework defines four Authorization Grant types. The supported values are authorization_code, client_credentials, password and implicit.
-	attribute authorization-grant-type {"authorization_code" | "client_credentials" | "password" | "implicit"}?
+	## The OAuth 2.0 Authorization Framework defines four Authorization Grant types. The supported values are authorization_code, client_credentials, password, implicit, as well as, extension grant type urn:ietf:params:oauth:grant-type:jwt-bearer.
+	attribute authorization-grant-type {"authorization_code" | "client_credentials" | "password" | "implicit" | "urn:ietf:params:oauth:grant-type:jwt-bearer"}?
 client-registration.attlist &=
 	## The client’s registered redirect URI that the Authorization Server redirects the end-user’s user-agent to after the end-user has authenticated and authorized access to the client.
 	attribute redirect-uri {xsd:token}?

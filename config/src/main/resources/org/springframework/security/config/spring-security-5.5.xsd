@@ -1673,7 +1673,8 @@
       <xs:attribute name="authorization-grant-type">
          <xs:annotation>
             <xs:documentation>The OAuth 2.0 Authorization Framework defines four Authorization Grant types. The
-                supported values are authorization_code, client_credentials, password and implicit.
+                supported values are authorization_code, client_credentials, password, implicit, as well
+                as, extension grant type urn:ietf:params:oauth:grant-type:jwt-bearer.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
@@ -1682,6 +1683,7 @@
                <xs:enumeration value="client_credentials"/>
                <xs:enumeration value="password"/>
                <xs:enumeration value="implicit"/>
+               <xs:enumeration value="urn:ietf:params:oauth:grant-type:jwt-bearer"/>
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
