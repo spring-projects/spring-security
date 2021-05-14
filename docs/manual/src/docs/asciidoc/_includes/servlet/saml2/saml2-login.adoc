@@ -208,7 +208,8 @@ This replaces OpenSAML's `InitializationService#initialize`.
 Occasionally, it can be valuable to customize how OpenSAML builds, marshalls, and unmarshalls SAML objects.
 In these circumstances, you may instead want to call `OpenSamlInitializationService#requireInitialize(Consumer)` that gives you access to OpenSAML's `XMLObjectProviderFactory`.
 
-For example, in the event that you always want to always force the asserting party to reauthenticate the user, you can register your own `AuthnRequestMarshaller`, like so:
+For example, when sending an unsigned AuthNRequest, you may want to force reauthentication.
+In that case, you can register your own `AuthnRequestMarshaller`, like so:
 
 [source,java]
 ----
@@ -230,7 +231,7 @@ static {
 				authnRequest.setForceAuthN(true);
             }
 		}
-		
+
 	    factory.getMarshallerFactory().registerMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME, marshaller);
 	});
 }
