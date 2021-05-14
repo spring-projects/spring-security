@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 package org.springframework.security.saml2.provider.service.registration;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
@@ -102,6 +104,29 @@ public class RelyingPartyRegistrationsTests {
 	public void fromMetadataFileLocationWhenNotFoundThenSaml2Exception() {
 		assertThatExceptionOfType(Saml2Exception.class)
 				.isThrownBy(() -> RelyingPartyRegistrations.fromMetadataLocation("filePath"));
+	}
+
+	@Test
+	public void fromMetadataInputStreamWhenResolvableThenPopulatesBuilder() throws Exception {
+		try (InputStream source = new ByteArrayInputStream(this.metadata.getBytes())) {
+			RelyingPartyRegistration registration = RelyingPartyRegistrations.fromMetadata(source).entityId("rp")
+					.build();
+			RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+			assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
+			assertThat(details.getSingleSignOnServiceLocation())
+					.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
+			assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
+			assertThat(details.getVerificationX509Credentials()).hasSize(1);
+			assertThat(details.getEncryptionX509Credentials()).hasSize(1);
+		}
+	}
+
+	@Test
+	public void fromMetadataInputStreamWhenEmptyThenSaml2Exception() throws Exception {
+		try (InputStream source = new ByteArrayInputStream("".getBytes())) {
+			assertThatExceptionOfType(Saml2Exception.class)
+					.isThrownBy(() -> RelyingPartyRegistrations.fromMetadata(source));
+		}
 	}
 
 }
