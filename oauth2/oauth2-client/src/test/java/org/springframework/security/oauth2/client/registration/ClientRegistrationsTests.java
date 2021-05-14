@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.client.registration;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -159,7 +160,7 @@ public class ClientRegistrationsTests {
 	private void assertIssuerMetadata(ClientRegistration registration, ClientRegistration.ProviderDetails provider) {
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
-		assertThat(registration.getRegistrationId()).isEqualTo(this.server.getHostName());
+		assertThat(registration.getRegistrationId()).isEqualTo(URI.create(this.issuer).getHost());
 		assertThat(registration.getClientName()).isEqualTo(this.issuer);
 		assertThat(registration.getScopes()).isNull();
 		assertThat(provider.getAuthorizationUri()).isEqualTo("https://example.com/o/oauth2/v2/auth");
