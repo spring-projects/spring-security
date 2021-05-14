@@ -1,16 +1,16 @@
 changelog:
   repository: spring-projects/spring-security
   sections:
-    - title: "Breaking Changes"
-      emoji: ":rewind:"
+    - title: ":rewind: Breaking Changes"
       labels: ["type: breaks-passivity"]
-    - title: "New Features"
-      emoji: ":star:"
+      sort: "title"
+    - title: ":star: New Features"
       labels: ["type: enhancement"]
-    - title: "Bug Fixes"
-      emoji: ":beetle:"
+      sort: "title"
+    - title: ":beetle: Bug Fixes"
       labels: ["type:bug"]
-    - title: "Dependency Upgrades"
+      sort: "title"
+    - title: ":hammer: Dependency Upgrades"
       emoji: ":hammer:"
       labels: ["type: dependency-upgrade"]
       sort: "title"
