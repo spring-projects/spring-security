@@ -536,7 +536,6 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations
         .registrationId("my-id")
         .build();
 ----
-
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
@@ -546,6 +545,20 @@ val relyingPartyRegistration = RelyingPartyRegistrations
     .build()
 ----
 ====
+
+Note that you can also create a `RelyingPartyRegistration` from an arbitrary `InputStream` source.
+One such example is when the metadata is stored in a database:
+
+[source,java]
+----
+String xml = fromDatabase();
+try (InputStream source = new ByteArrayInputStream(xml.getBytes())) {
+    RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations
+            .fromMetadata(source)
+            .registrationId("my-id")
+            .build();
+}
+----
 
 Though a more sophisticated setup is also possible, like so:
 
