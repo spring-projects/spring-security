@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.springframework.security.saml2.Saml2Exception;
  *
  * @author Josh Cummings
  * @author Ryan Cassar
+ * @author Marcus da Coregio
  * @since 5.4
  */
 public final class RelyingPartyRegistrations {
@@ -73,7 +74,7 @@ public final class RelyingPartyRegistrations {
 	 */
 	public static RelyingPartyRegistration.Builder fromMetadataLocation(String metadataLocation) {
 		try (InputStream source = resourceLoader.getResource(metadataLocation).getInputStream()) {
-			return assertingPartyMetadataConverter.convert(source);
+			return fromMetadata(source);
 		}
 		catch (IOException ex) {
 			if (ex.getCause() instanceof Saml2Exception) {
@@ -81,6 +82,47 @@ public final class RelyingPartyRegistrations {
 			}
 			throw new Saml2Exception(ex);
 		}
+	}
+
+	/**
+	 * Return a {@link RelyingPartyRegistration.Builder} based off of the given SAML 2.0
+	 * Asserting Party (IDP) metadata.
+	 *
+	 * <p>
+	 * This method is intended for scenarios when the metadata is looked up by a separate
+	 * mechanism. One such example is when the metadata is stored in a database.
+	 * </p>
+	 *
+	 * <p>
+	 * <strong>The callers of this method are accountable for closing the
+	 * {@code InputStream} source.</strong>
+	 * </p>
+	 *
+	 * Note that by default the registrationId is set to be the given metadata location,
+	 * but this will most often not be sufficient. To complete the configuration, most
+	 * applications will also need to provide a registrationId, like so:
+	 *
+	 * <pre>
+	 *	String xml = fromDatabase();
+	 *	try (InputStream source = new ByteArrayInputStream(xml.getBytes())) {
+	 *		RelyingPartyRegistration registration = RelyingPartyRegistrations
+	 * 			.fromMetadata(source)
+	 * 			.registrationId("registration-id")
+	 * 			.build();
+	 * 	}
+	 * </pre>
+	 *
+	 * Also note that an {@code IDPSSODescriptor} typically only contains information
+	 * about the asserting party. Thus, you will need to remember to still populate
+	 * anything about the relying party, like any private keys the relying party will use
+	 * for signing AuthnRequests.
+	 * @param source the {@link InputStream} source containing the asserting party
+	 * metadata
+	 * @return the {@link RelyingPartyRegistration.Builder} for further configuration
+	 * @since 5.6
+	 */
+	public static RelyingPartyRegistration.Builder fromMetadata(InputStream source) {
+		return assertingPartyMetadataConverter.convert(source);
 	}
 
 }
