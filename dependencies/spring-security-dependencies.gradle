@@ -74,7 +74,7 @@ dependencies {
 		api "org.slf4j:jcl-over-slf4j:1.7.30"
 		api "org.slf4j:log4j-over-slf4j:1.7.30"
 		api "org.slf4j:slf4j-api:1.7.30"
-		api "org.springframework.ldap:spring-ldap-core:2.3.3.RELEASE"
+		api "org.springframework.ldap:spring-ldap-core:2.3.4.RELEASE"
 		api "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
 	}
 }
