@@ -191,7 +191,7 @@ public class CsrfWebFilter implements WebFilter {
 
 	private Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
 		return this.csrfTokenRepository.generateToken(exchange)
-				.delayUntil((token) -> this.csrfTokenRepository.saveToken(exchange, token));
+				.delayUntil((token) -> this.csrfTokenRepository.saveToken(exchange, token)).cache();
 	}
 
 	private static class DefaultRequireCsrfProtectionMatcher implements ServerWebExchangeMatcher {
