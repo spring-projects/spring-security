@@ -1920,6 +1920,32 @@ DefaultAuthorizationCodeTokenResponseClient tokenResponseClient =
 		new DefaultAuthorizationCodeTokenResponseClient();
 tokenResponseClient.setRequestEntityConverter(requestEntityConverter);
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val jwkResolver: Function<ClientRegistration, JWK> =
+    Function<ClientRegistration, JWK> { clientRegistration ->
+        if (clientRegistration.clientAuthenticationMethod.equals(ClientAuthenticationMethod.PRIVATE_KEY_JWT)) {
+            // Assuming RSA key type
+            var publicKey: RSAPublicKey
+            var privateKey: RSAPrivateKey
+            RSAKey.Builder(publicKey) = //...
+                .privateKey(privateKey) = //...
+                .keyID(UUID.randomUUID().toString())
+                .build()
+        }
+        null
+    }
+
+val requestEntityConverter = OAuth2AuthorizationCodeGrantRequestEntityConverter()
+requestEntityConverter.addParametersConverter(
+    NimbusJwtClientAuthenticationParametersConverter(jwkResolver)
+)
+
+val tokenResponseClient = DefaultAuthorizationCodeTokenResponseClient()
+tokenResponseClient.setRequestEntityConverter(requestEntityConverter)
+----
 ====
 
 
@@ -1968,6 +1994,31 @@ requestEntityConverter.addParametersConverter(
 DefaultClientCredentialsTokenResponseClient tokenResponseClient =
 		new DefaultClientCredentialsTokenResponseClient();
 tokenResponseClient.setRequestEntityConverter(requestEntityConverter);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val jwkResolver = Function<ClientRegistration, JWK?> { clientRegistration: ClientRegistration ->
+    if (clientRegistration.clientAuthenticationMethod == ClientAuthenticationMethod.CLIENT_SECRET_JWT) {
+        val secretKey = SecretKeySpec(
+            clientRegistration.clientSecret.toByteArray(StandardCharsets.UTF_8),
+            "HmacSHA256"
+        )
+        OctetSequenceKey.Builder(secretKey)
+            .keyID(UUID.randomUUID().toString())
+            .build()
+    }
+    null
+}
+
+val requestEntityConverter = OAuth2ClientCredentialsGrantRequestEntityConverter()
+requestEntityConverter.addParametersConverter(
+    NimbusJwtClientAuthenticationParametersConverter(jwkResolver)
+)
+
+val tokenResponseClient = DefaultClientCredentialsTokenResponseClient()
+tokenResponseClient.setRequestEntityConverter(requestEntityConverter)
 ----
 ====
 
