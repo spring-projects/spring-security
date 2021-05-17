@@ -1,88 +1,71 @@
 apply plugin: 'io.spring.convention.spring-module'
+apply plugin: 'nebula.facet'
 
-tasks.forEach({ task ->
-	if (project(":saml2-service-provider-core").tasks.findByName(task.name)) {
-		task.dependsOn(project(":saml2-service-provider-core").tasks[task.name])
+facets {
+	opensaml3Main {
+		parentSourceSet = 'main'
 	}
-	if (project(":saml2-service-provider-opensaml3").tasks.findByName(task.name)) {
-		task.dependsOn(project(":saml2-service-provider-opensaml3").tasks[task.name])
+	opensaml4Main {
+		parentSourceSet = 'main'
 	}
-	if (project(":saml2-service-provider-opensaml4").tasks.findByName(task.name)) {
-		task.dependsOn(project(":saml2-service-provider-opensaml4").tasks[task.name])
+	opensaml3Test {
+		parentSourceSet = 'opensaml3Main'
 	}
-})
+	opensaml4Test {
+		parentSourceSet = 'opensaml4Main'
+	}
+}
+
+sourceSets {
+	opensaml3Test {
+		compileClasspath += sourceSets.test.output
+		runtimeClasspath += sourceSets.test.output
+	}
+	opensaml4Test {
+		compileClasspath += sourceSets.test.output
+		runtimeClasspath += sourceSets.test.output
+	}
+}
 
 configurations {
-	coreSource {
-		canBeConsumed = false
-		canBeResolved = true
-	}
-	opensaml3Source {
-		canBeConsumed = false
-		canBeResolved = true
-	}
-	opensaml4Source {
-		canBeConsumed = false
-		canBeResolved = true
-	}
-	coreClasses {
-		canBeConsumed = false
-		canBeResolved = true
-	}
-	opensaml3Classes {
-		canBeConsumed = false
-		canBeResolved = true
-	}
-	opensaml4Classes {
-		canBeConsumed = false
-		canBeResolved = true
-	}
-	coreJavadoc {
-		canBeConsumed = false
-		canBeResolved = true
-	}
-	opensaml3Javadoc {
-		canBeConsumed = false
-		canBeResolved = true
-	}
-	opensaml4Javadoc {
-		canBeConsumed = false
-		canBeResolved = true
-	}
+	opensaml3TestImplementation.extendsFrom testImplementation
+	opensaml4TestImplementation.extendsFrom testImplementation
+}
+
+compileOpensaml4MainJava {
+	sourceCompatibility = '11'
+	targetCompatibility = '11'
 }
 
 dependencies {
 	management platform(project(":spring-security-dependencies"))
 	api project(':spring-security-web')
-	api("org.opensaml:opensaml-core")
-	api("org.opensaml:opensaml-saml-api")
-	api("org.opensaml:opensaml-saml-impl")
-	coreSource(project(path: ":saml2-service-provider-core", configuration: 'sourceElements'))
-	opensaml3Source(project(path: ":saml2-service-provider-opensaml3", configuration: 'sourceElements'))
-	opensaml4Source(project(path: ":saml2-service-provider-opensaml4", configuration: 'sourceElements'))
-	coreClasses(project(path: ":saml2-service-provider-core", configuration: 'classesOnlyElements'))
-	opensaml3Classes(project(path: ":saml2-service-provider-opensaml3", configuration: 'classesOnlyElements'))
-	opensaml4Classes(project(path: ":saml2-service-provider-opensaml4", configuration: 'classesOnlyElements'))
-	coreJavadoc(project(path: ":saml2-service-provider-core", configuration: 'javadocElements'))
-	opensaml3Javadoc(project(path: ":saml2-service-provider-opensaml3", configuration: 'javadocElements'))
-	opensaml4Javadoc(project(path: ":saml2-service-provider-opensaml4", configuration: 'javadocElements'))
+	api "org.opensaml:opensaml-core"
+	api "org.opensaml:opensaml-saml-api"
+	api "org.opensaml:opensaml-saml-impl"
+	opensaml4MainCompile "org.opensaml:opensaml-core:4.1.0"
+	opensaml4MainCompile "org.opensaml:opensaml-saml-api:4.1.0"
+	opensaml4MainCompile "org.opensaml:opensaml-saml-impl:4.1.0"
+
+	provided 'javax.servlet:javax.servlet-api'
+
+	testImplementation 'com.squareup.okhttp3:mockwebserver'
 }
 
-jar {
-	from configurations.coreClasses
-	from configurations.opensaml3Classes
-	from configurations.opensaml4Classes
+project.tasks.matching { t -> t.name == "jar"}.configureEach {
+	from {
+		compileOpensaml3MainJava
+	}
+	from {
+		compileOpensaml4MainJava
+	}
 }
 
-javadocJar {
-	from configurations.coreJavadoc
-	from configurations.opensaml3Javadoc
-	from configurations.opensaml4Javadoc
-	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-sourcesJar {
-	from configurations.coreSource
-	from configurations.opensaml3Source
-	from configurations.opensaml4Source
+project.tasks.matching { t -> t.name == "sourcesJar"}.configureEach {
+	from {
+		sourceSets.opensaml3Main.allSource
+	}
+	from {
+		sourceSets.opensaml4Main.allSource
+	}
 }

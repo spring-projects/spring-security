@@ -19,8 +19,7 @@ dependencies {
 
 	optional project(':spring-security-ldap')
 	optional project(':spring-security-messaging')
-	optional project(':saml2-service-provider-opensaml3')
-	optional project(':saml2-service-provider-opensaml4')
+	optional project(':spring-security-saml2-service-provider')
 	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-oauth2-jose')
 	optional project(':spring-security-oauth2-resource-server')
@@ -48,8 +47,7 @@ dependencies {
 	testImplementation project(path : ':spring-security-ldap', configuration : 'tests')
 	testImplementation project(path : ':spring-security-oauth2-client', configuration : 'tests')
 	testImplementation project(path : ':spring-security-oauth2-resource-server', configuration : 'tests')
-	testImplementation project(path : ':saml2-service-provider-core', configuration : 'tests')
-	testImplementation project(path : ':saml2-service-provider-opensaml4', configuration : 'tests')
+	testImplementation project(path : ':spring-security-saml2-service-provider', configuration : 'tests')
 	testImplementation project(path : ':spring-security-web', configuration : 'tests')
 	testImplementation apachedsDependencies
 	testImplementation powerMock2Dependencies
