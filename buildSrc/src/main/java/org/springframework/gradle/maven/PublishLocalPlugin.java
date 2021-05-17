@@ -20,7 +20,7 @@ public class PublishLocalPlugin implements Plugin<Project> {
 					@Override
 					public void execute(MavenArtifactRepository maven) {
 						maven.setName("local");
-						maven.setUrl(new File(project.getRootDir(), "publications/repos"));
+						maven.setUrl(new File(project.getRootProject().getBuildDir(), "publications/repos"));
 					}
 				});
 			}
