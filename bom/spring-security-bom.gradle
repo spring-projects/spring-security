@@ -1,4 +1,13 @@
+import io.spring.gradle.convention.SpringModulePlugin
+
 apply plugin: 'io.spring.convention.bom'
 
-sonarqube.skipProject = true
-
+dependencies {
+	constraints {
+		project.allprojects { p ->
+			p.plugins.withType(SpringModulePlugin) {
+				api p
+			}
+		}
+	}
+}
