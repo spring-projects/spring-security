@@ -51,6 +51,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
@@ -84,6 +88,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
@@ -117,6 +125,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
       - name: Snapshot Tests
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -148,6 +160,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
       - name: Run Sonar on given (non-main) branch
         if: ${{ github.ref != 'refs/heads/main' }}
         run: |
@@ -184,6 +200,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
       - name: Deploy artifacts
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -222,6 +242,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
       - name: Deploy Docs
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -253,6 +277,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
       - name: Deploy Schema
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
