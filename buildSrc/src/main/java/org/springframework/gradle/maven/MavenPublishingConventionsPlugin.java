@@ -1,5 +1,6 @@
 package org.springframework.gradle.maven;
 
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin;
@@ -17,11 +18,14 @@ import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 public class MavenPublishingConventionsPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-		project.getPlugins().withType(MavenPublishPlugin.class).all((mavenPublish) -> {
-			PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
-			publishing.getPublications().withType(MavenPublication.class)
-					.all((mavenPublication) -> customizePom(mavenPublication.getPom(), project));
-			customizeJavaPlugin(project);
+		project.getPlugins().withType(MavenPublishPlugin.class).all(new Action<MavenPublishPlugin>() {
+			@Override
+			public void execute(MavenPublishPlugin mavenPublish) {
+				PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
+				publishing.getPublications().withType(MavenPublication.class)
+						.all((mavenPublication) -> MavenPublishingConventionsPlugin.this.customizePom(mavenPublication.getPom(), project));
+				MavenPublishingConventionsPlugin.this.customizeJavaPlugin(project);
+			}
 		});
 	}
 
@@ -32,7 +36,7 @@ public class MavenPublishingConventionsPlugin implements Plugin<Project> {
 		pom.organization(this::customizeOrganization);
 		pom.licenses(this::customizeLicences);
 		pom.developers(this::customizeDevelopers);
-		pom.scm((scm) -> customizeScm(scm));
+		pom.scm(this::customizeScm);
 		pom.issueManagement(this::customizeIssueManagement);
 	}
 
