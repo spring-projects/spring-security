@@ -6,6 +6,8 @@ import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.VariantVersionMappingStrategy;
+import org.gradle.api.publish.VersionMappingStrategy;
 import org.gradle.api.publish.maven.MavenPom;
 import org.gradle.api.publish.maven.MavenPomDeveloperSpec;
 import org.gradle.api.publish.maven.MavenPomIssueManagement;
@@ -23,7 +25,20 @@ public class MavenPublishingConventionsPlugin implements Plugin<Project> {
 			public void execute(MavenPublishPlugin mavenPublish) {
 				PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
 				publishing.getPublications().withType(MavenPublication.class)
-						.all((mavenPublication) -> MavenPublishingConventionsPlugin.this.customizePom(mavenPublication.getPom(), project));
+						.all((mavenPublication) -> {
+							mavenPublication.versionMapping(new Action<VersionMappingStrategy>() {
+								@Override
+								public void execute(VersionMappingStrategy versionStrategy) {
+									versionStrategy.usage("java-runtime", new Action<VariantVersionMappingStrategy>() {
+										@Override
+										public void execute(VariantVersionMappingStrategy mappingStrategy) {
+											mappingStrategy.fromResolutionResult();
+										}
+									});
+								}
+							});
+							MavenPublishingConventionsPlugin.this.customizePom(mavenPublication.getPom(), project);
+						});
 				MavenPublishingConventionsPlugin.this.customizeJavaPlugin(project);
 			}
 		});
