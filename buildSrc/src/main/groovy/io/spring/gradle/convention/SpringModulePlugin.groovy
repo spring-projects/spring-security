@@ -19,7 +19,8 @@ package io.spring.gradle.convention;
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.MavenPlugin;
-import org.gradle.api.plugins.PluginManager;
+import org.gradle.api.plugins.PluginManager
+import org.springframework.gradle.maven.SpringMavenPlugin;
 
 /**
  * @author Rob Winch
@@ -30,9 +31,7 @@ class SpringModulePlugin extends AbstractSpringJavaPlugin {
 	void additionalPlugins(Project project) {
 		PluginManager pluginManager = project.getPluginManager();
 		pluginManager.apply(JavaLibraryPlugin.class)
-		pluginManager.apply(MavenPlugin.class);
-		pluginManager.apply("io.spring.convention.maven");
-		pluginManager.apply("io.spring.convention.artifactory");
+		pluginManager.apply(SpringMavenPlugin.class);
 		pluginManager.apply("io.spring.convention.jacoco");
 
 		def deployArtifacts = project.task("deployArtifacts")

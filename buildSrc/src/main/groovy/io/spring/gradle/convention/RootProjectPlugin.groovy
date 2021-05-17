@@ -21,6 +21,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.PluginManager
+import org.springframework.gradle.maven.SpringNexusPublishPlugin
 
 class RootProjectPlugin implements Plugin<Project> {
 
@@ -30,6 +31,7 @@ class RootProjectPlugin implements Plugin<Project> {
 		pluginManager.apply(BasePlugin)
 		pluginManager.apply(SchemaPlugin)
 		pluginManager.apply(NoHttpPlugin)
+        pluginManager.apply(SpringNexusPublishPlugin)
 		pluginManager.apply("org.sonarqube")
 
 		project.repositories.mavenCentral()
@@ -50,17 +52,7 @@ class RootProjectPlugin implements Plugin<Project> {
 
 		def finalizeDeployArtifacts = project.task("finalizeDeployArtifacts")
 		if (Utils.isRelease(project) && project.hasProperty("ossrhUsername")) {
-			project.ext.nexusUsername = project.ossrhUsername
-			project.ext.nexusPassword = project.ossrhPassword
-			project.getPluginManager().apply("io.codearte.nexus-staging")
-			finalizeDeployArtifacts.dependsOn project.tasks.closeAndReleaseRepository
-			project.nexusStaging {
-				packageGroup = 'org.springframework'
-
-				// try for 5 minutes total
-				numberOfRetries = 60 // default is 20
-				delayBetweenRetriesInMillis = 5000 // default is 2000
-			}
+			finalizeDeployArtifacts.dependsOn project.tasks.closeAndReleaseOssrhtagingRepository
 		}
 	}
 

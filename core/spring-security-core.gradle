@@ -51,7 +51,9 @@ tasks.processResources {
 
 tasks.jar.from { includeProject.sourceSets.main.output }
 
-tasks.sourcesJar.from {includeProject.sourceSets.main.java}
+project.tasks.matching { t -> t.name == "sourcesJar"}.configureEach {
+	from {includeProject.sourceSets.main.java }
+}
 
 configure(project.tasks.withType(Test)) {
 	doFirst {
