@@ -49,6 +49,10 @@ public class ManagementConfigurationPlugin implements Plugin<Project> {
 					);
 				}));
 			});
+			plugins.withType(PropDepsPlugin.class, (propDepsPlugin -> {
+				configurations.getByName("optional").extendsFrom(management);
+				configurations.getByName("provided").extendsFrom(management);
+			}));
 		});
 	}
 }
