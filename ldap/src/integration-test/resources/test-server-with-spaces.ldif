@@ -1,0 +1,14 @@
+dn: ou=space cadets,dc=spring framework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: space cadets
+
+dn: uid=space cadet,ou=space cadets,dc=spring framework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Space Cadet
+sn: Cadet
+uid: space cadet
+userPassword: spacecadetspassword
