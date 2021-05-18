@@ -52,7 +52,7 @@ class RootProjectPlugin implements Plugin<Project> {
 
 		def finalizeDeployArtifacts = project.task("finalizeDeployArtifacts")
 		if (Utils.isRelease(project) && project.hasProperty("ossrhUsername")) {
-			finalizeDeployArtifacts.dependsOn project.tasks.closeAndReleaseOssrhtagingRepository
+			finalizeDeployArtifacts.dependsOn project.tasks.closeAndReleaseOssrhStagingRepository
 		}
 	}
 
