@@ -31,7 +31,7 @@ class RootProjectPlugin implements Plugin<Project> {
 		pluginManager.apply(BasePlugin)
 		pluginManager.apply(SchemaPlugin)
 		pluginManager.apply(NoHttpPlugin)
-        pluginManager.apply(SpringNexusPublishPlugin)
+		pluginManager.apply(SpringNexusPublishPlugin)
 		pluginManager.apply("org.sonarqube")
 
 		project.repositories.mavenCentral()
