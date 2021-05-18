@@ -69,3 +69,8 @@ project.tasks.matching { t -> t.name == "sourcesJar"}.configureEach {
 		sourceSets.opensaml4Main.allSource
 	}
 }
+
+
+javadoc {
+	source += sourceSets.opensaml3Main.allJava + sourceSets.opensaml4Main.allJava
+}
