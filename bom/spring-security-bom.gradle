@@ -4,7 +4,7 @@ apply plugin: 'io.spring.convention.bom'
 
 dependencies {
 	constraints {
-		project.allprojects { p ->
+		project.rootProject.allprojects { p ->
 			p.plugins.withType(SpringModulePlugin) {
 				api p
 			}
