@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.core.endpoint;
 
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,21 +26,22 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 
 /**
- * Tests for {@link MapOAuth2AccessTokenResponseConverter}.
+ * Tests for {@link DefaultMapOAuth2AccessTokenResponseConverter}.
  *
- * @author Nikita Konev
+ * @author Steve Riesenberg
  */
-public class MapOAuth2AccessTokenResponseConverterTests {
+public class DefaultMapOAuth2AccessTokenResponseConverterTests {
 
-	private MapOAuth2AccessTokenResponseConverter messageConverter;
+	private Converter<Map<String, ?>, OAuth2AccessTokenResponse> messageConverter;
 
 	@Before
 	public void setup() {
-		this.messageConverter = new MapOAuth2AccessTokenResponseConverter();
+		this.messageConverter = new DefaultMapOAuth2AccessTokenResponseConverter();
 	}
 
 	@Test
@@ -114,6 +116,56 @@ public class MapOAuth2AccessTokenResponseConverterTests {
 		Map<String, Object> additionalParameters = converted.getAdditionalParameters();
 		Assert.assertNotNull(additionalParameters);
 		Assert.assertEquals(0, additionalParameters.size());
+	}
+
+	// gh-9685
+	@Test
+	public void shouldConvertWithNumericExpiresIn() {
+		Map<String, Object> map = new HashMap<>();
+		map.put("access_token", "access-token-1234");
+		map.put("token_type", "bearer");
+		map.put("expires_in", 3600);
+		OAuth2AccessTokenResponse converted = this.messageConverter.convert(map);
+		OAuth2AccessToken accessToken = converted.getAccessToken();
+		Assert.assertNotNull(accessToken);
+		Assert.assertEquals("access-token-1234", accessToken.getTokenValue());
+		Assert.assertEquals(OAuth2AccessToken.TokenType.BEARER, accessToken.getTokenType());
+		Assert.assertEquals(3600, Duration.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()).getSeconds());
+	}
+
+	// gh-9685
+	@Test
+	public void shouldConvertWithObjectAdditionalParameter() {
+		Map<String, Object> map = new HashMap<>();
+		map.put("access_token", "access-token-1234");
+		map.put("token_type", "bearer");
+		map.put("expires_in", "3600");
+		map.put("scope", "read write");
+		map.put("refresh_token", "refresh-token-1234");
+		Map<String, Object> nestedObject = new LinkedHashMap<>();
+		nestedObject.put("a", "first value");
+		nestedObject.put("b", "second value");
+		map.put("custom_parameter_1", nestedObject);
+		map.put("custom_parameter_2", "custom-value-2");
+		OAuth2AccessTokenResponse converted = this.messageConverter.convert(map);
+		OAuth2AccessToken accessToken = converted.getAccessToken();
+		Assert.assertNotNull(accessToken);
+		Assert.assertEquals("access-token-1234", accessToken.getTokenValue());
+		Assert.assertEquals(OAuth2AccessToken.TokenType.BEARER, accessToken.getTokenType());
+		Set<String> scopes = accessToken.getScopes();
+		Assert.assertNotNull(scopes);
+		Assert.assertEquals(2, scopes.size());
+		Assert.assertTrue(scopes.contains("read"));
+		Assert.assertTrue(scopes.contains("write"));
+		Assert.assertEquals(3600, Duration.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()).getSeconds());
+		OAuth2RefreshToken refreshToken = converted.getRefreshToken();
+		Assert.assertNotNull(refreshToken);
+		Assert.assertEquals("refresh-token-1234", refreshToken.getTokenValue());
+		Map<String, Object> additionalParameters = converted.getAdditionalParameters();
+		Assert.assertNotNull(additionalParameters);
+		Assert.assertEquals(2, additionalParameters.size());
+		Assert.assertEquals(nestedObject, additionalParameters.get("custom_parameter_1"));
+		Assert.assertEquals("custom-value-2", additionalParameters.get("custom_parameter_2"));
 	}
 
 }
