@@ -5,8 +5,13 @@ apply plugin: 'io.spring.convention.spring-module'
 def includeProject = project(':spring-security-crypto')
 
 configurations {
-	included
-	api.extendsFrom included
+	included {
+		visible = false
+		transitive = false
+	}
+	compileClasspath.extendsFrom included
+	testCompileClasspath.extendsFrom included
+	testRuntimeClasspath.extendsFrom included
 }
 
 dependencies {
