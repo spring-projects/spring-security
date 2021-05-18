@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,8 +53,17 @@ public class DefaultSpringSecurityContextSourceTests {
 
 	@Test
 	public void supportsSpacesInUrl() {
-		new DefaultSpringSecurityContextSource(
+		DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
 				"ldap://myhost:10389/dc=spring%20framework,dc=org");
+		assertThat(contextSource.getBaseLdapPathAsString()).isEqualTo("dc=spring framework,dc=org");
+	}
+
+	// gh-9742
+	@Test
+	public void constructorWhenUrlEncodedSpacesWithPlusCharacterThenBaseDnIsProperlyDecoded() {
+		DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
+				"ldap://blah:123/dc=spring+framework,dc=org ldap://blah:456/dc=spring+framework,dc=org");
+		assertThat(contextSource.getBaseLdapPathAsString()).isEqualTo("dc=spring framework,dc=org");
 	}
 
 	@Test
@@ -105,6 +114,7 @@ public class DefaultSpringSecurityContextSourceTests {
 		DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
 				this.contextSource.getUrls()[0]
 						+ "ou=space%20cadets,dc=springframework,dc=org");
+		assertThat(contextSource.getBaseLdapPathAsString()).isEqualTo("ou=space cadets,dc=springframework,dc=org");
 		contextSource.afterPropertiesSet();
 		contextSource.getContext(
 				"uid=space cadet,ou=space cadets,dc=springframework,dc=org",
@@ -145,6 +155,18 @@ public class DefaultSpringSecurityContextSourceTests {
 
 		assertThat(ctxSrc.isAnonymousReadOnly()).isFalse();
 		assertThat(ctxSrc.isPooled()).isTrue();
+	}
+
+	// gh-9742
+	@Test
+	public void constructorWhenServerListWithSpacesInBaseDnThenSuccess() {
+		List<String> serverUrls = new ArrayList<>();
+		serverUrls.add("ldap://ad1.example.org:789");
+		serverUrls.add("ldap://ad2.example.org:389");
+		serverUrls.add("ldaps://ad3.example.org:636");
+		DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(serverUrls,
+				"dc=spring framework,dc=org");
+		assertThat(contextSource.getBaseLdapPathAsString()).isEqualTo("dc=spring framework,dc=org");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
