@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -124,9 +125,11 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 				.isBeforeOrEqualTo(Instant.now().plusSeconds(3600));
 		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("read", "write");
 		assertThat(accessTokenResponse.getRefreshToken().getTokenValue()).isEqualTo("refresh-token-1234");
-		assertThat(accessTokenResponse.getAdditionalParameters()).containsExactly(
-				entry("custom_object_1", "{name1=value1}"), entry("custom_object_2", "[value1, value2]"),
-				entry("custom_parameter_1", "custom-value-1"), entry("custom_parameter_2", "custom-value-2"));
+		Map<String, String> additionalParameters = accessTokenResponse.getAdditionalParameters().entrySet().stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> String.valueOf(entry.getValue())));
+		assertThat(additionalParameters).containsExactly(entry("custom_object_1", "{name1=value1}"),
+				entry("custom_object_2", "[value1, value2]"), entry("custom_parameter_1", "custom-value-1"),
+				entry("custom_parameter_2", "custom-value-2"));
 	}
 
 	// gh-8108
@@ -148,7 +151,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 		assertThat(accessTokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(accessTokenResponse.getAccessToken().getExpiresAt())
 				.isBeforeOrEqualTo(Instant.now().plusSeconds(3600));
-		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("null");
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).isEmpty();
 		assertThat(accessTokenResponse.getRefreshToken().getTokenValue()).isEqualTo("refresh-token-1234");
 	}
 
