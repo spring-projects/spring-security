@@ -33,10 +33,8 @@ public class ManagementConfigurationPlugin implements Plugin<Project> {
 			PluginContainer plugins = project.getPlugins();
 			plugins.withType(JavaPlugin.class, (javaPlugin) -> {
 				configurations.getByName(JavaPlugin.COMPILE_CLASSPATH_CONFIGURATION_NAME).extendsFrom(management);
-				configurations.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME).extendsFrom(management);
 				configurations.getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME).extendsFrom(management);
 				configurations.getByName(JavaPlugin.TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME).extendsFrom(management);
-				configurations.getByName(JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME).extendsFrom(management);
 				configurations.getByName(JavaPlugin.TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME).extendsFrom(management);
 			});
 			plugins.withType(JavaTestFixturesPlugin.class, (javaTestFixturesPlugin) -> {
