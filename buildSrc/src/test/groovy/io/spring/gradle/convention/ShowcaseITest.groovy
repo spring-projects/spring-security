@@ -20,6 +20,7 @@ import io.spring.gradle.testkit.junit.rules.TestKit
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
+import spock.lang.Ignore
 import spock.lang.Specification
 
 class ShowcaseITest extends Specification {
@@ -36,6 +37,7 @@ class ShowcaseITest extends Specification {
 		result.output.contains("BUILD SUCCESSFUL")
 	}
 
+	@Ignore
 	def "install"() {
 		when:
 		BuildResult result = testKit.withProjectResource("samples/showcase/")
