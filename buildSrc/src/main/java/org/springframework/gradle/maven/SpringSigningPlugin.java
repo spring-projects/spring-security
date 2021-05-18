@@ -58,11 +58,11 @@ public class SpringSigningPlugin implements Plugin<Project> {
 		} else {
 			signing.useInMemoryPgpKeys(signingKey, signingPassword);
 		}
-		project.getPlugins().withType(PublishingPlugin.class).all(new Action<PublishingPlugin>() {
+		project.getPlugins().withType(PublishAllJavaComponentsPlugin.class).all(new Action<PublishAllJavaComponentsPlugin>() {
 			@Override
-			public void execute(PublishingPlugin publishingPlugin) {
+			public void execute(PublishAllJavaComponentsPlugin publishingPlugin) {
 				PublishingExtension publishing = project.getExtensions().findByType(PublishingExtension.class);
-				Publication maven = publishing.getPublications().getByName("maven");
+				Publication maven = publishing.getPublications().getByName("mavenJava");
 				signing.sign(maven);
 			}
 		});
