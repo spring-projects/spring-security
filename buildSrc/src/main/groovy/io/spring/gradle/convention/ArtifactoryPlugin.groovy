@@ -36,6 +36,9 @@ class ArtifactoryPlugin implements Plugin<Project> {
 						password = artifactoryPassword
 					}
 				}
+				defaults {
+					publications('mavenJava')
+				}
 			}
 		}
 	}
