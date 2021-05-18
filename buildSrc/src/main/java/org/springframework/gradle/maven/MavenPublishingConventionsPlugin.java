@@ -1,11 +1,8 @@
 package org.springframework.gradle.maven;
 
-import io.spring.gradle.propdeps.PropDepsPlugin;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.component.AdhocComponentWithVariants;
-import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.publish.PublishingExtension;
@@ -18,8 +15,6 @@ import org.gradle.api.publish.maven.MavenPomScm;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 
-import java.util.function.Consumer;
-
 public class MavenPublishingConventionsPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
@@ -30,13 +25,6 @@ public class MavenPublishingConventionsPlugin implements Plugin<Project> {
 				publishing.getPublications().withType(MavenPublication.class)
 						.all((mavenPublication) -> MavenPublishingConventionsPlugin.this.customizePom(mavenPublication.getPom(), project));
 				MavenPublishingConventionsPlugin.this.customizeJavaPlugin(project);
-			}
-		});
-		project.getPlugins().withType(PropDepsPlugin.class).forEach(new Consumer<PropDepsPlugin>() {
-			@Override
-			public void accept(PropDepsPlugin plugin) {
-				AdhocComponentWithVariants component = (AdhocComponentWithVariants) project.getComponents().findByName("java");
-				component.addVariantsFromConfiguration(project.getConfigurations().getByName("optional"), (details) -> details.mapToOptional());
 			}
 		});
 	}
