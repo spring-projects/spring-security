@@ -2,27 +2,14 @@ import java.util.concurrent.Callable
 
 apply plugin: 'io.spring.convention.spring-module'
 
-def includeProject = project(':spring-security-crypto')
-
-configurations {
-	included {
-		visible = false
-		transitive = false
-	}
-	compileClasspath.extendsFrom included
-	testCompileClasspath.extendsFrom included
-	testRuntimeClasspath.extendsFrom included
-}
-
 dependencies {
 	management platform(project(":spring-security-dependencies"))
+	api project(':spring-security-crypto')
 	api 'org.springframework:spring-aop'
 	api 'org.springframework:spring-beans'
 	api 'org.springframework:spring-context'
 	api 'org.springframework:spring-core'
 	api 'org.springframework:spring-expression'
-
-	included includeProject
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'io.projectreactor:reactor-core'
@@ -52,12 +39,6 @@ tasks.processResources {
 	into('META-INF') {
 		from project.tasks.springVersion.outputs
 	}
-}
-
-tasks.jar.from { includeProject.sourceSets.main.output }
-
-project.tasks.matching { t -> t.name == "sourcesJar"}.configureEach {
-	from {includeProject.sourceSets.main.java }
 }
 
 configure(project.tasks.withType(Test)) {
