@@ -28,7 +28,8 @@ import org.gradle.plugins.ide.eclipse.EclipseWtpPlugin;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import io.spring.gradle.propdeps.PropDepsEclipsePlugin;
 import io.spring.gradle.propdeps.PropDepsIdeaPlugin;
-import io.spring.gradle.propdeps.PropDepsPlugin;
+import io.spring.gradle.propdeps.PropDepsPlugin
+import org.springframework.gradle.CopyPropertiesPlugin;
 
 /**
  * @author Rob Winch
@@ -59,10 +60,7 @@ public abstract class AbstractSpringJavaPlugin implements Plugin<Project> {
 		pluginManager.apply("io.spring.convention.dependency-set");
 		pluginManager.apply("io.spring.convention.javadoc-options");
 		pluginManager.apply("io.spring.convention.checkstyle");
-
-		copyPropertyFromRootProjectTo("group", project);
-		copyPropertyFromRootProjectTo("version", project);
-		copyPropertyFromRootProjectTo("description", project);
+		pluginManager.apply(CopyPropertiesPlugin);
 
 		project.jar {
 			manifest.attributes["Created-By"] =
@@ -72,14 +70,6 @@ public abstract class AbstractSpringJavaPlugin implements Plugin<Project> {
 			manifest.attributes["Automatic-Module-Name"] = project.name.replace('-', '.')
 		}
 		additionalPlugins(project);
-	}
-
-	private void copyPropertyFromRootProjectTo(String propertyName, Project project) {
-		Project rootProject = project.getRootProject();
-		Object property = rootProject.findProperty(propertyName);
-		if(property != null) {
-			project.setProperty(propertyName, property);
-		}
 	}
 
 	protected abstract void additionalPlugins(Project project);

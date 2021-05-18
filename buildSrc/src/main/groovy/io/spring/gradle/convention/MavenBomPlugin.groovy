@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlatformPlugin
 import org.sonarqube.gradle.SonarQubePlugin
+import org.springframework.gradle.CopyPropertiesPlugin
 import org.springframework.gradle.maven.SpringMavenPlugin
 
 public class MavenBomPlugin implements Plugin<Project> {
@@ -12,5 +13,6 @@ public class MavenBomPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.plugins.apply(JavaPlatformPlugin)
 		project.plugins.apply(SpringMavenPlugin)
+		project.plugins.apply(CopyPropertiesPlugin)
 	}
 }
