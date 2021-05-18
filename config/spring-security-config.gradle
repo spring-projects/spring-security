@@ -48,6 +48,7 @@ dependencies {
 	testImplementation project(path : ':spring-security-oauth2-client', configuration : 'tests')
 	testImplementation project(path : ':spring-security-oauth2-resource-server', configuration : 'tests')
 	testImplementation project(path : ':spring-security-saml2-service-provider', configuration : 'tests')
+	testImplementation project(path: ':spring-security-saml2-service-provider', configuration: 'opensaml4MainCompile')
 	testImplementation project(path : ':spring-security-web', configuration : 'tests')
 	testImplementation apachedsDependencies
 	testImplementation powerMock2Dependencies
