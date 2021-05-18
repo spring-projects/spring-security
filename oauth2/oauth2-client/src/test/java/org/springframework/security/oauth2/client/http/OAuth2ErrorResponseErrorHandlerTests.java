@@ -15,12 +15,19 @@
  */
 package org.springframework.security.oauth2.client.http;
 
+import java.io.IOException;
+
 import org.junit.Test;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.web.client.UnknownHttpStatusCodeException;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -58,4 +65,49 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessage("[insufficient_scope] The access token expired");
 	}
+
+	@Test
+	public void handleErrorWhenErrorResponseWithInvalidStatusCodeThenHandled() {
+		CustomMockClientHttpResponse response = new CustomMockClientHttpResponse(new byte[0], 596);
+		assertThatExceptionOfType(UnknownHttpStatusCodeException.class)
+				.isThrownBy(() -> this.errorHandler.handleError(response)).withMessage("596 : [no body]");
+	}
+
+	private static final class CustomMockClientHttpResponse extends MockHttpInputMessage implements ClientHttpResponse {
+
+		private final int statusCode;
+
+		private CustomMockClientHttpResponse(byte[] content, int statusCode) {
+			super(content);
+			this.statusCode = statusCode;
+		}
+
+		@Override
+		public HttpStatus getStatusCode() throws IOException {
+			return HttpStatus.valueOf(getRawStatusCode());
+		}
+
+		@Override
+		public int getRawStatusCode() {
+			return this.statusCode;
+		}
+
+		@Override
+		public String getStatusText() throws IOException {
+			HttpStatus httpStatus = HttpStatus.resolve(this.statusCode);
+			return (httpStatus != null) ? httpStatus.getReasonPhrase() : "";
+		}
+
+		@Override
+		public void close() {
+			try {
+				getBody().close();
+			}
+			catch (IOException ex) {
+				// ignore
+			}
+		}
+
+	}
+
 }
