@@ -2420,7 +2420,9 @@ public class ServerHttpSecurity {
 		 * Configures {@code Feature-Policy} response header.
 		 * @param policyDirectives the policy
 		 * @return the {@link FeaturePolicySpec} to configure
+		 * @deprecated Use {@link #permissionsPolicy(Customizer)} instead.
 		 */
+		@Deprecated
 		public FeaturePolicySpec featurePolicy(String policyDirectives) {
 			return new FeaturePolicySpec(policyDirectives);
 		}
