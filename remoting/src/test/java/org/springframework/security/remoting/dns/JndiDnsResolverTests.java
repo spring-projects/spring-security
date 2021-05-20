@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2016 the original author or authors.
+ * Copyright 2009-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,13 +96,13 @@ public class JndiDnsResolverTests {
 	}
 
 	@Test
-	public void resolveServiceIpAddressWithPort() throws Exception {
+	public void resolveServiceIpAddressAndPortWhenExistsThenReturnsIpAddressAndPort() throws Exception {
 		BasicAttributes srvRecords = createSrvRecords();
 		BasicAttributes aRecords = new BasicAttributes("A", "63.246.7.80");
 		given(this.context.getAttributes("_ldap._tcp.springsource.com", new String[] { "SRV" })).willReturn(srvRecords);
 		given(this.context.getAttributes("kdc.springsource.com", new String[] { "A" })).willReturn(aRecords);
-		String ipAddress = this.dnsResolver.resolveServiceIpAddressAndPort("ldap", "springsource.com");
-		assertThat(ipAddress).isEqualTo("63.246.7.80:389");
+		String ipAddressAndPort = this.dnsResolver.resolveServiceIpAddressAndPort("ldap", "springsource.com");
+		assertThat(ipAddressAndPort).isEqualTo("63.246.7.80:389");
 	}
 
 	@Test
