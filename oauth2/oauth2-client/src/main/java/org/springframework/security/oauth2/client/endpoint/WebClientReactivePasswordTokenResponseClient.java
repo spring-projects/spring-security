@@ -15,6 +15,14 @@
  */
 package org.springframework.security.oauth2.client.endpoint;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.function.Consumer;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
@@ -32,10 +40,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
-import java.util.Collections;
-import java.util.function.Consumer;
 
 import static org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors.oauth2AccessTokenResponse;
 
@@ -100,9 +104,21 @@ public final class WebClientReactivePasswordTokenResponseClient implements React
 			headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			if (ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
-				headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
+				String clientId = encodeClientCredential(clientRegistration.getClientId());
+				String clientSecret = encodeClientCredential(clientRegistration.getClientSecret());
+				headers.setBasicAuth(clientId, clientSecret);
 			}
 		};
+	}
+
+	private static String encodeClientCredential(String clientCredential) {
+		try {
+			return URLEncoder.encode(clientCredential, StandardCharsets.UTF_8.toString());
+		}
+		catch (UnsupportedEncodingException ex) {
+			// Will not happen since UTF-8 is a standard charset
+			throw new IllegalArgumentException(ex);
+		}
 	}
 
 	private static BodyInserters.FormInserter<String> tokenRequestBody(OAuth2PasswordGrantRequest passwordGrantRequest) {

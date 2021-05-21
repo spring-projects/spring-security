@@ -15,6 +15,14 @@
  */
 package org.springframework.security.oauth2.client.endpoint;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Set;
+import java.util.function.Consumer;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
@@ -30,10 +38,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
-
-import java.util.Set;
-import java.util.function.Consumer;
 
 import static org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors.oauth2AccessTokenResponse;
 
@@ -98,9 +102,21 @@ public class WebClientReactiveClientCredentialsTokenResponseClient implements Re
 		return headers -> {
 			headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 			if (ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
-				headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
+				String clientId = encodeClientCredential(clientRegistration.getClientId());
+				String clientSecret = encodeClientCredential(clientRegistration.getClientSecret());
+				headers.setBasicAuth(clientId, clientSecret);
 			}
 		};
+	}
+
+	private static String encodeClientCredential(String clientCredential) {
+		try {
+			return URLEncoder.encode(clientCredential, StandardCharsets.UTF_8.toString());
+		}
+		catch (UnsupportedEncodingException ex) {
+			// Will not happen since UTF-8 is a standard charset
+			throw new IllegalArgumentException(ex);
+		}
 	}
 
 	private static BodyInserters.FormInserter<String> body(OAuth2ClientCredentialsGrantRequest authorizationGrantRequest) {
