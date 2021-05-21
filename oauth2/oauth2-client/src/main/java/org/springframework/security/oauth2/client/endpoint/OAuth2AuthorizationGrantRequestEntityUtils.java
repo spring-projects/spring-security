@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,17 @@
  */
 package org.springframework.security.oauth2.client.endpoint;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-
-import java.util.Collections;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
@@ -44,9 +47,21 @@ final class OAuth2AuthorizationGrantRequestEntityUtils {
 		HttpHeaders headers = new HttpHeaders();
 		headers.addAll(DEFAULT_TOKEN_REQUEST_HEADERS);
 		if (ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
-			headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
+			String clientId = encodeClientCredential(clientRegistration.getClientId());
+			String clientSecret = encodeClientCredential(clientRegistration.getClientSecret());
+			headers.setBasicAuth(clientId, clientSecret);
 		}
 		return headers;
+	}
+
+	private static String encodeClientCredential(String clientCredential) {
+		try {
+			return URLEncoder.encode(clientCredential, StandardCharsets.UTF_8.toString());
+		}
+		catch (UnsupportedEncodingException ex) {
+			// Will not happen since UTF-8 is a standard charset
+			throw new IllegalArgumentException(ex);
+		}
 	}
 
 	private static HttpHeaders getDefaultTokenRequestHeaders() {
