@@ -63,6 +63,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extends AbstractOAuth2AuthorizationGrantRequest>
 		implements ReactiveOAuth2AccessTokenResponseClient<T> {
 
+	private boolean encodeClientCredentials = true;
+
 	private WebClient webClient = WebClient.builder().build();
 
 	AbstractWebClientReactiveOAuth2AccessTokenResponseClient() {
@@ -100,8 +102,11 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(clientRegistration.getClientAuthenticationMethod())
 				|| ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
-			String clientId = encodeClientCredential(clientRegistration.getClientId());
-			String clientSecret = encodeClientCredential(clientRegistration.getClientSecret());
+			String clientId = this.encodeClientCredentials ? encodeClientCredential(clientRegistration.getClientId())
+					: clientRegistration.getClientId();
+			String clientSecret = this.encodeClientCredentials
+					? encodeClientCredential(clientRegistration.getClientSecret())
+					: clientRegistration.getClientSecret();
 			headers.setBasicAuth(clientId, clientSecret);
 		}
 	}
@@ -228,6 +233,19 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	public void setWebClient(WebClient webClient) {
 		Assert.notNull(webClient, "webClient cannot be null");
 		this.webClient = webClient;
+	}
+
+	/**
+	 * Sets the flag that controls whether client credentials are encoded using the
+	 * application/x-www-form-urlencoded algorithm while populating token request headers.
+	 * @deprecated Support for non-compliant providers will be removed in Spring Security
+	 * 5.6
+	 * @param encodeClientCredentials {@code false} to disable encoding client credentials
+	 * (default is true)
+	 */
+	@Deprecated
+	public void setEncodeClientCredentials(boolean encodeClientCredentials) {
+		this.encodeClientCredentials = encodeClientCredentials;
 	}
 
 }
