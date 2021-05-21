@@ -1281,11 +1281,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
-	 * 				authorizeHttpRequests
-	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 			)
-	 * 			.formLogin(withDefaults());
+	 * 			.authorizeHttpRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.formLogin();
 	 * 	}
 	 * }
 	 * </pre>
@@ -1302,12 +1301,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
-	 * 				authorizeHttpRequests
-	 * 					.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
-	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 			)
-	 * 			.formLogin(withDefaults());
+	 * 			.authorizeHttpRequests()
+	 * 				.antMatchers(&quot;/admin&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.formLogin();
 	 * 	}
 	 * }
 	 * </pre>
@@ -1320,32 +1318,27 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
-	 *HttpSecurity.java
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 		 	.authorizeHttpRequests((authorizeHttpRequests) -&gt;
-	 * 		 		authorizeHttpRequests
-	 * 			 		.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 			 		.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
-	 * 		 	);
+	 * 			.authorizeHttpRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 				.and()
+	 * 			.formLogin();
 	 * 	}
 	 * }
 	 * </pre>
-	 * @param authorizeHttpRequestsCustomizer the {@link Customizer} to provide more
-	 * options for the {@link AuthorizationManagerRequestMatcherRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
-	 * @since 5.5
+	 * @since 5.6
 	 * @see #requestMatcher(RequestMatcher)
 	 */
-	public HttpSecurity authorizeHttpRequests(
-			Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeHttpRequestsCustomizer)
+	public AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorizeHttpRequests()
 			throws Exception {
 		ApplicationContext context = getContext();
-		authorizeHttpRequestsCustomizer
-				.customize(getOrApply(new AuthorizeHttpRequestsConfigurer<>(context)).getRegistry());
-		return HttpSecurity.this;
+		return getOrApply(new AuthorizeHttpRequestsConfigurer<>(context)).getRegistry();
 	}
 
 	/**
@@ -1366,10 +1359,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 *     .authorizeHttpRequests()
-	 *         .antMatchers(&quot;/**&quot;).hasRoles(&quot;USER&quot;)
-	 *         .and()
-	 *     .formLogin();
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) ->
+	 * 				authorizeHttpRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.formLogin(withDefaults());
 	 * 	}
 	 * }
 	 * </pre>
@@ -1386,10 +1380,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 *     .authorizeHttpRequests()
-	 *         .antMatchers(&quot;/**&quot;).hasRoles(&quot;USER&quot;)
-	 *         .and()
-	 *     .formLogin();
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) ->
+	 * 				authorizeHttpRequests
+	 * 					.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
 	 * 			.formLogin(withDefaults());
 	 * 	}
 	 * }
@@ -1407,24 +1402,27 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 *     .authorizeHttpRequests()
-	 *         .antMatchers(&quot;/**&quot;).hasRoles(&quot;USER&quot;)
-	 *         .and()
-	 *     .formLogin();
+	 * 		 	.authorizeHttpRequests((authorizeHttpRequests) ->
+	 * 		 		authorizeHttpRequests
+	 * 			 		.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			 		.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 		 	);
 	 * 	}
 	 * }
 	 * </pre>
+	 * @param authorizeHttpRequestsCustomizer the {@link Customizer} to provide more
+	 * options for the {@link AuthorizationManagerRequestMatcherRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 * @since 5.5
 	 * @see #requestMatcher(RequestMatcher)
 	 */
-	public HttpSecurity authorizeHttpRequests() throws Exception {
-		ApplicationContext applicationContext = getContext();
-		Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeHttpRequestsCustomizer = Customizer
-				.withDefaults();
+	public HttpSecurity authorizeHttpRequests(
+			Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeHttpRequestsCustomizer)
+			throws Exception {
+		ApplicationContext context = getContext();
 		authorizeHttpRequestsCustomizer
-				.customize(getOrApply(new AuthorizeHttpRequestsConfigurer<>(applicationContext)).getRegistry());
+				.customize(getOrApply(new AuthorizeHttpRequestsConfigurer<>(context)).getRegistry());
 		return HttpSecurity.this;
 	}
 

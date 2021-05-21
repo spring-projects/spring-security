@@ -73,9 +73,9 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
-	public void configureWhenAuthorizedHttpRequestsAndNoRequestsThenExceptionWithDefaultConfig() {
+	public void configureNoParameterWhenAuthorizedHttpRequestsAndNoRequestsThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NoRequestsConfigWithDefaultConfig.class).autowire())
+				.isThrownBy(() -> this.spring.register(NoRequestsNoParameterConfig.class).autowire())
 				.withMessageContaining(
 						"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
 	}
@@ -88,11 +88,10 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
-	public void configureWhenAnyRequestIncompleteMappingDefaultConfigThenException() {
+	public void configureNoParameterWhenAnyRequestIncompleteMappingThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-		this.spring.register(IncompleteMappingConfigWithDefaultConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isOk());
-		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
+				.isThrownBy(() -> this.spring.register(IncompleteMappingNoParameterConfig.class).autowire())
+				.withMessageContaining("An incomplete mapping was found for ");
 	}
 
 	@Test
@@ -111,11 +110,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
-	public void configureMvcMatcherAccessAuthorizationManagerOnDefault() throws Exception {
-		CustomAuthorizationManagerConfig.authorizationManager = mock(AuthorizationManager.class);
-		this.spring.register(IncompleteMappingConfigWithDefaultConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
-		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
+	public void configureNoParameterMvcMatcherAccessAuthorizationManagerWhenNotNullThenVerifyUse() throws Exception {
+		CustomAuthorizationManagerNoParameterConfig.authorizationManager = mock(AuthorizationManager.class);
+		this.spring.register(CustomAuthorizationManagerNoParameterConfig.class, BasicController.class).autowire();
+		this.mvc.perform(get("/")).andExpect(status().isOk());
+		verify(CustomAuthorizationManagerNoParameterConfig.authorizationManager).check(any(), any());
 	}
 
 	@Test
@@ -395,29 +394,16 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@EnableWebSecurity
-	static class NoRequestsConfigWithDefaultConfig {
+	static class NoRequestsNoParameterConfig {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
-			return http
-					.authorizeHttpRequests()
-					.build();
+			http
+				.authorizeHttpRequests();
 			// @formatter:on
-		}
 
-	}
-
-	@EnableWebSecurity
-	static class IncompleteMappingConfigWithDefaultConfig {
-
-		@Bean
-		FormLoginConfigurer<HttpSecurity> filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			return http
-					.authorizeHttpRequests()
-					.formLogin();
-			// @formatter:on
+			return http.build();
 		}
 
 	}
@@ -432,6 +418,22 @@ public class AuthorizeHttpRequestsConfigurerTests {
 					.authorizeHttpRequests(AbstractRequestMatcherRegistry::anyRequest)
 					.build();
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class IncompleteMappingNoParameterConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests()
+					.anyRequest();
+			// @formatter:on
+
+			return http.build();
 		}
 
 	}
@@ -467,6 +469,24 @@ public class AuthorizeHttpRequestsConfigurerTests {
 					)
 					.build();
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class CustomAuthorizationManagerNoParameterConfig {
+
+		static AuthorizationManager<RequestAuthorizationContext> authorizationManager;
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests()
+					.anyRequest().access(authorizationManager);
+			// @formatter:on
+
+			return http.build();
 		}
 
 	}
