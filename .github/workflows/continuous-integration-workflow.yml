@@ -24,16 +24,6 @@ jobs:
     outputs:
       runjobs: ${{ steps.continue.outputs.runjobs }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Initiate error tracking
-        uses: spring-projects/track-build-errors-action@v1
-        with:
-          job-name: "prerequisites"
-      - name: Export errors file
-        uses: actions/upload-artifact@v2
-        with:
-          name: errors
-          path: job-prerequisites.txt
       - id: continue
         name: Determine if should continue
         if: env.RUN_JOBS == 'true'
@@ -67,17 +57,6 @@ jobs:
           GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
           GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
         run: ./gradlew clean build --continue -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD"
-      - name: Track error step
-        uses: spring-projects/track-build-errors-action@v1
-        if: ${{ failure() }}
-        with:
-          job-name: ${{ github.job }}
-      - name: Export errors file
-        uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
-        with:
-          name: errors
-          path: job-${{ github.job }}.txt
   snapshot_tests:
     name: Test against snapshots
     needs: [prerequisites]
@@ -99,17 +78,6 @@ jobs:
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
           ./gradlew test --refresh-dependencies -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD" -PforceMavenRepositories=snapshot -PspringVersion='5.+' -PreactorVersion='20+' -PspringDataVersion='Neumann-BUILD-SNAPSHOT' -PrsocketVersion=1.1.0-SNAPSHOT -PspringBootVersion=2.4.0-SNAPSHOT -PlocksDisabled --stacktrace
-      - name: Track error step
-        uses: spring-projects/track-build-errors-action@v1
-        if: ${{ failure() }}
-        with:
-          job-name: ${{ github.job }}
-      - name: Export errors file
-        uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
-        with:
-          name: errors
-          path: job-${{ github.job }}.txt
   sonar_analysis:
     name: Static Code Analysis
     needs: [prerequisites]
@@ -143,17 +111,6 @@ jobs:
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
           ./gradlew sonarqube -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD" -PexcludeProjects='**/samples/**' -Dsonar.host.url="$SONAR_URL" -Dsonar.login="$SONAR_TOKEN" --stacktrace
-      - name: Track error step
-        uses: spring-projects/track-build-errors-action@v1
-        if: ${{ failure() }}
-        with:
-          job-name: ${{ github.job }}
-      - name: Export errors file
-        uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
-        with:
-          name: errors
-          path: job-${{ github.job }}.txt
   deploy_artifacts:
     name: Deploy Artifacts
     needs: [build_jdk_11, snapshot_tests, sonar_analysis]
@@ -181,17 +138,6 @@ jobs:
           OSSRH_TOKEN_PASSWORD: ${{ secrets.OSSRH_S01_TOKEN_PASSWORD }}
           ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
           ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-      - name: Track error step
-        uses: spring-projects/track-build-errors-action@v1
-        if: ${{ failure() }}
-        with:
-          job-name: ${{ github.job }}
-      - name: Export errors file
-        uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
-        with:
-          name: errors
-          path: job-${{ github.job }}.txt
   deploy_docs:
     name: Deploy Docs
     needs: [build_jdk_11, snapshot_tests, sonar_analysis]
@@ -216,17 +162,6 @@ jobs:
           DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
           DOCS_SSH_KEY: ${{ secrets.DOCS_SSH_KEY }}
           DOCS_HOST: ${{ secrets.DOCS_HOST }}
-      - name: Track error step
-        uses: spring-projects/track-build-errors-action@v1
-        if: ${{ failure() }}
-        with:
-          job-name: ${{ github.job }}
-      - name: Export errors file
-        uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
-        with:
-          name: errors
-          path: job-${{ github.job }}.txt
   deploy_schema:
     name: Deploy Schema
     needs: [build_jdk_11, snapshot_tests, sonar_analysis]
@@ -251,34 +186,16 @@ jobs:
           DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
           DOCS_SSH_KEY: ${{ secrets.DOCS_SSH_KEY }}
           DOCS_HOST: ${{ secrets.DOCS_HOST }}
-      - name: Track error step
-        uses: spring-projects/track-build-errors-action@v1
-        if: ${{ failure() }}
-        with:
-          job-name: ${{ github.job }}
-      - name: Export errors file
-        uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
-        with:
-          name: errors
-          path: job-${{ github.job }}.txt
   notify_result:
     name: Check for failures
     needs: [build_jdk_11, snapshot_tests, sonar_analysis, deploy_artifacts, deploy_docs, deploy_schema]
-    if: always()
+    if: failure()
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Download errors folder
-        uses: actions/download-artifact@v2
-        with:
-          name: errors
       - name: Send Slack message
-        uses: spring-projects/notify-slack-errors-action@v1
+        uses: Gamesight/slack-workflow-status@v1.0.1
         with:
-          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          branch-name: ${{ github.ref }}
-          commit-sha: ${{ github.sha }}
-          commit-owner: ${{ github.actor }}
-          repo-name: ${{ github.repository }}
-          run-id: ${{ github.run_id }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: '#spring-security-ci'
+          name: 'CI Notifier'
