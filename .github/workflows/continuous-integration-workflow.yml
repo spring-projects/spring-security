@@ -41,44 +41,10 @@ jobs:
   build_jdk_11:
     name: Build JDK 11
     needs: [prerequisites]
-    runs-on: ubuntu-latest
-    if: needs.prerequisites.outputs.runjobs
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: '11'
-      - name: Setup gradle user name
-        run: |
-          mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-      - name: Build with Gradle
-        run: |
-          export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
-          export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
-          export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          ./gradlew clean build --continue -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD"
-      - name: Track error step
-        uses: spring-projects/track-build-errors-action@v1
-        if: ${{ failure() }}
-        with:
-          job-name: ${{ github.job }}
-      - name: Export errors file
-        uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
-        with:
-          name: errors
-          path: job-${{ github.job }}.txt
-  build_windows:
-    name: Build Windows
-    needs: [prerequisites]
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     if: needs.prerequisites.outputs.runjobs
     steps:
       - uses: actions/checkout@v2
@@ -190,7 +156,7 @@ jobs:
           path: job-${{ github.job }}.txt
   deploy_artifacts:
     name: Deploy Artifacts
-    needs: [build_jdk_11, build_windows, snapshot_tests, sonar_analysis]
+    needs: [build_jdk_11, snapshot_tests, sonar_analysis]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -228,7 +194,7 @@ jobs:
           path: job-${{ github.job }}.txt
   deploy_docs:
     name: Deploy Docs
-    needs: [build_jdk_11, build_windows, snapshot_tests, sonar_analysis]
+    needs: [build_jdk_11, snapshot_tests, sonar_analysis]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -263,7 +229,7 @@ jobs:
           path: job-${{ github.job }}.txt
   deploy_schema:
     name: Deploy Schema
-    needs: [build_jdk_11, build_windows, snapshot_tests, sonar_analysis]
+    needs: [build_jdk_11, snapshot_tests, sonar_analysis]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -298,7 +264,7 @@ jobs:
           path: job-${{ github.job }}.txt
   notify_result:
     name: Check for failures
-    needs: [build_jdk_11, build_windows, snapshot_tests, sonar_analysis, deploy_artifacts, deploy_docs, deploy_schema]
+    needs: [build_jdk_11, snapshot_tests, sonar_analysis, deploy_artifacts, deploy_docs, deploy_schema]
     if: always()
     runs-on: ubuntu-latest
     steps:
