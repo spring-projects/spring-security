@@ -165,15 +165,17 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 				"post_logout_redirect_uri=https://rp.example.org");
 	}
 
+	// gh-9511
 	@Test
-	public void logoutWhenUsingPostLogoutRedirectUriWithQueryParametersThenBuildItForRedirectWithEncodedQueryParameters() throws IOException, ServletException {
+	public void logoutWhenUsingPostLogoutRedirectUriWithQueryParametersThenBuildsItForRedirect()
+			throws IOException, ServletException {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 		this.handler.setPostLogoutRedirectUri("https://rp.example.org/context?forwardUrl=secured%3Fparam%3Dtrue");
 		this.request.setUserPrincipal(token);
 		this.handler.onLogoutSuccess(this.request, this.response, token);
-		assertThat(this.response.getRedirectedUrl()).isEqualTo(
-				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org/context?forwardUrl%3Dsecured%253Fparam%253Dtrue");
+		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://endpoint?id_token_hint=id-token&"
+				+ "post_logout_redirect_uri=https://rp.example.org/context?forwardUrl%3Dsecured%253Fparam%253Dtrue");
 	}
 
 	@Test
