@@ -5,6 +5,8 @@ asciidoctor {
 	baseDir = file('src/docs/asciidoc')
 	options eruby: 'erubis'
 
+	def ghTag = snapshotBuild ? 'main' : project.version
+	def ghSamplesUrl = "https://github.com/spring-projects/spring-security-samples/tree/$ghTag"
 	attributes copycss : '',
 			icons : 'font',
 			'source-highlighter': 'prettify',
@@ -17,7 +19,9 @@ asciidoctor {
 			'spring-security-version' : project.version,
 			'download-url' : getDownloadUrl(),
 			'include-maven-repository' : getMavenRepositoryInclude(),
-			revnumber : project.version
+			revnumber : project.version,
+			'gh-samples-url': ghSamplesUrl,
+			'gh-old-samples-url': "https://github.com/spring-projects/spring-security/tree/5.4.x/samples"
 }
 
 ext.spec = copySpec {
