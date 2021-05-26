@@ -67,7 +67,7 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 			URI endSessionEndpoint = this.endSessionEndpoint(clientRegistration);
 			if (endSessionEndpoint != null) {
 				String idToken = idToken(authentication);
-				URI postLogoutRedirectUri = postLogoutRedirectUri(request);
+				String postLogoutRedirectUri = postLogoutRedirectUri(request);
 				targetUrl = endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri);
 			}
 		}
@@ -89,7 +89,7 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 		return ((OidcUser) authentication.getPrincipal()).getIdToken().getTokenValue();
 	}
 
-	private URI postLogoutRedirectUri(HttpServletRequest request) {
+	private String postLogoutRedirectUri(HttpServletRequest request) {
 		if (this.postLogoutRedirectUri == null) {
 			return null;
 		}
@@ -100,13 +100,13 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 				.replaceQuery(null)
 				.fragment(null)
 				.build();
-		return URI.create (UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
+		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
 				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
-				.toUriString());
+				.toUriString();
 		// @formatter:on
 	}
 
-	private String endpointUri(URI endSessionEndpoint, String idToken, URI postLogoutRedirectUri) {
+	private String endpointUri(URI endSessionEndpoint, String idToken, String postLogoutRedirectUri) {
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(endSessionEndpoint);
 		builder.queryParam("id_token_hint", idToken);
 		if (postLogoutRedirectUri != null) {
