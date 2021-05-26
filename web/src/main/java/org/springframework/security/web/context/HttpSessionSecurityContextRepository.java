@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -348,7 +348,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 				}
 				return;
 			}
-			httpSession = (httpSession != null) ? httpSession : createNewSessionIfAllowed(context);
+			httpSession = (httpSession != null) ? httpSession : createNewSessionIfAllowed(context, authentication);
 			// If HttpSession exists, store current SecurityContext but only if it has
 			// actually changed in this thread (see SEC-37, SEC-1307, SEC-1528)
 			if (httpSession != null) {
@@ -369,8 +369,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 					|| context.getAuthentication() != this.authBeforeExecution;
 		}
 
-		private HttpSession createNewSessionIfAllowed(SecurityContext context) {
-			if (isTransientAuthentication(context.getAuthentication())) {
+		private HttpSession createNewSessionIfAllowed(SecurityContext context, Authentication authentication) {
+			if (isTransientAuthentication(authentication)) {
 				return null;
 			}
 			if (this.httpSessionExistedAtStartOfRequest) {
