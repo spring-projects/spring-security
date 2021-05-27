@@ -201,13 +201,13 @@ public class XsdDocumentedTests {
 					docAttrName = id.substring(0, id.length() - 8);
 					currentDocAttrNameToElmt = docAttrNameToParents;
 				}
-				else if (docAttrName != null && !id.startsWith(docAttrName)) {
+				else if (id.endsWith("-attributes") || docAttrName != null && !id.startsWith(docAttrName)) {
 					currentDocAttrNameToElmt = null;
 					docAttrName = null;
 				}
 			}
 			if (docAttrName != null && currentDocAttrNameToElmt != null) {
-				String expression = "^\\* <<(nsa-.*),.*>>$";
+				String expression = ".*<<(nsa-.*),.*>>.*";
 				if (line.matches(expression)) {
 					String elmtId = line.replaceAll(expression, "$1");
 					currentDocAttrNameToElmt.computeIfAbsent(docAttrName, (key) -> new ArrayList<>()).add(elmtId);
