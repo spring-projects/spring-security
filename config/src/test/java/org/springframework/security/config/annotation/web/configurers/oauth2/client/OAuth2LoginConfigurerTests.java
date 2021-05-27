@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -368,6 +368,17 @@ public class OAuth2LoginConfigurerTests {
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/oauth2/authorization/google");
 	}
 
+	// gh-6802
+	@Test
+	public void oauth2LoginWithOneClientConfiguredAndFormLoginThenRedirectDefaultLoginPage() throws Exception {
+		loadConfig(OAuth2LoginConfigFormLogin.class);
+		String requestUri = "/";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
+	}
+
 	// gh-5347
 	@Test
 	public void oauth2LoginWithOneClientConfiguredAndRequestFaviconNotAuthenticatedThenRedirectDefaultLoginPage()
@@ -638,6 +649,26 @@ public class OAuth2LoginConfigurerTests {
 		@Override
 		public void onApplicationEvent(AuthenticationSuccessEvent event) {
 			EVENTS.add(event);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginConfigFormLogin extends CommonWebSecurityConfigurerAdapter {
+
+		private final InMemoryClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(
+				GOOGLE_CLIENT_REGISTRATION);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2Login()
+					.clientRegistrationRepository(this.clientRegistrationRepository)
+					.and()
+				.formLogin();
+			// @formatter:on
+			super.configure(http);
 		}
 
 	}
