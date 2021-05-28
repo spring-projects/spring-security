@@ -114,6 +114,18 @@ final class FilterOrderRegistration {
 		put(SwitchUserFilter.class, order.next());
 	}
 
+	/**
+	 * Add a particular {@link Filter} class to the latest position to the internal
+	 * data structure of the FilterOrderRegistration.
+	 * @param filter the {@link Filter} class that should be added
+	 */
+	void add(Class<? extends Filter> filter) {
+		int givenOrder = getOrder(filter);
+		Step step = new Step(givenOrder, ORDER_STEP);
+		int nextOrder = step.next();
+		put(filter, nextOrder);
+	}
+
 	private void put(Class<? extends Filter> filter, int position) {
 		String className = filter.getName();
 		this.filterToOrder.put(className, position);
