@@ -20,10 +20,7 @@ This simplifies reuse and customization.
 5. Complies with JSR-250
 6. Enables `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter` by default
 
-[NOTE]
-====
-For earlier versions, please read about similar support with <<jc-enable-global-method-security, @EnableGlobalMethodSecurity>>.
-====
+NOTE: For earlier versions, please read about similar support with <<jc-enable-global-method-security, @EnableGlobalMethodSecurity>>.
 
 For example, the following would enable Spring Security's `@PreAuthorize` annotation:
 

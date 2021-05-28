@@ -1,3 +1,4 @@
+[[webclient]]
 = WebClient
 
 NOTE: The documentation in this section is for use within Reactive environments.

@@ -8,13 +8,13 @@ If you are familiar with the <<ns-config>>, you should find quite a few similari
 
 NOTE: Spring Security provides https://github.com/spring-projects/spring-security-samples/tree/main/servlet/java-configuration[lots of sample applications] to demonstrate the use of Spring Security Java Configuration.
 
+[[jc-hello-wsca]]
 == Hello Web Security Java Configuration
 
 The first step is to create our Spring Security Java Configuration.
 The configuration creates a Servlet Filter known as the `springSecurityFilterChain`, which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, and so on) within your application.
 The following example shows the most basic example of a Spring Security Java Configuration:
 
-[[jc-hello-wsca]]
 ====
 [source,java]
 ----
@@ -68,6 +68,7 @@ The way in which we use `AbstractSecurityWebApplicationInitializer` differs depe
 * <<abstractsecuritywebapplicationinitializer-without-existing-spring>> - Use these instructions if you are not already using Spring
 * <<abstractsecuritywebapplicationinitializer-with-spring-mvc>> - Use these instructions if you are already using Spring
 
+[[abstractsecuritywebapplicationinitializer-without-existing-spring]]
 === AbstractSecurityWebApplicationInitializer without Existing Spring
 
 If you are not using Spring or Spring MVC, you need to pass the `WebSecurityConfig` to the superclass to ensure the configuration is picked up:
@@ -92,6 +93,7 @@ The `SecurityWebApplicationInitializer`:
 * Automatically registers the `springSecurityFilterChain` Filter for every URL in your application.
 * Add a `ContextLoaderListener` that loads the <<jc-hello-wsca,WebSecurityConfig>>.
 
+[[abstractsecuritywebapplicationinitializer-with-spring-mvc]]
 === AbstractSecurityWebApplicationInitializer with Spring MVC
 
 If we use Spring elsewhere in our application, we probably already have a `WebApplicationInitializer` that is loading our Spring Configuration.

@@ -1,4 +1,4 @@
-NML.[[oauth2resourceserver]]
+[[oauth2resourceserver]]
 == OAuth 2.0 Resource Server
 :figures: images/servlet/oauth2
 :icondir: images/icons

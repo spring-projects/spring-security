@@ -274,7 +274,7 @@ The default is false (the headers are enabled).
 [[nsa-headers-parents]]
 ===== Parent Elements of <headers>
 
-The parent element of the `<headers>` element is the <<nsa-http,`<http>`>> element.
+The parent element of the `<headers>` element is the <<nsa-http,http>> element.
 
 
 [[nsa-headers-children]]
@@ -314,7 +314,7 @@ Default: `false`.
 [[nsa-cache-control-parents]]
 ===== Parent Elements of <cache-control>
 
-The parent of the `<cache-control>` element is the <<nsa-headers,`<headers>`>> element.
+The parent of the `<cache-control>` element is the <<nsa-headers,headers>> element.
 
 
 [[nsa-hsts]]
@@ -358,7 +358,7 @@ Default: `false`.
 [[nsa-hsts-parents]]
 ===== Parent Elements of <hsts>
 
-The parent element of the `<hsts>` element is the <<nsa-headers,`<headers>`>> element.
+The parent element of the `<hsts>` element is the <<nsa-headers,headers>> element.
 
 
 [[nsa-hpkp]]
@@ -403,7 +403,7 @@ Specifies the URI to which the browser should report pin validation failures.
 [[nsa-hpkp-parents]]
 ===== Parent Elements of <hpkp>
 
-The parent element of the <hpkp> element is the <<nsa-headers,`<headers>`>> element.
+The parent element of the <hpkp> element is the <<nsa-headers,headers>> element.
 
 
 [[nsa-pins]]
@@ -414,7 +414,7 @@ This section describes the attributes and child elements of the `<pins>` element
 [[nsa-pins-children]]
 ===== Child Elements of <pins>
 
-The <pins> element has a single child element: <<nsa-pin,`<pin>`>>. There can be multiple <pin> elements.
+The <pins> element has a single child element: <<nsa-pin,pin>>. There can be multiple <pin> elements.
 
 
 [[nsa-pin]]
@@ -433,7 +433,7 @@ Default: SHA256.
 [[nsa-pin-parents]]
 ===== Parent Elements of <pin>
 
-The parent element of the <pin> element is the <<nsa-pins,`<pins>`>> element.
+The parent element of the <pin> element is the <<nsa-pins,pins>> element.
 
 
 
@@ -459,7 +459,7 @@ Default: `false`.
 [[nsa-content-security-policy-parents]]
 ===== Parent Elements of <content-security-policy>
 
-The parent element of the <content-security-policy> element is <<nsa-headers,`<headers>`>>.
+The parent element of the <content-security-policy> element is <<nsa-headers,headers>>.
 
 
 
@@ -480,7 +480,7 @@ Default: `no-referrer`.
 [[nsa-referrer-policy-parents]]
 ===== Parent Elements of <referrer-policy>
 
-The parent element of the `<referrer-policy>` element is the <<nsa-headers,`<headers>`>> element.
+The parent element of the `<referrer-policy>` element is the <<nsa-headers,headers>> element.
 
 
 
@@ -500,7 +500,7 @@ The security policy directive(s) for the Feature-Policy header.
 [[nsa-feature-policy-parents]]
 ===== Parent Elements of <feature-policy>
 
-The parent element of the <feature-policy> element is the <<nsa-headers,`<headers>`>> element.
+The parent element of the <feature-policy> element is the <<nsa-headers,headers>> element.
 
 
 
@@ -533,7 +533,7 @@ On the other hand, if you specify `SAMEORIGIN`, you can still use the page in a 
 [[nsa-frame-options-parents]]
 ===== Parent Elements of <frame-options>
 
-The parent element of the `<frame-options>` element is the <<nsa-headers,`<headers>`>> element.
+The parent element of the `<frame-options>` element is the <<nsa-headers,headers>> element.
 
 [[nsa-permissions-policy]]
 ==== <permissions-policy>
@@ -583,7 +583,7 @@ Note that there are sometimes ways of bypassing this mode, which can often times
 [[nsa-xss-protection-parents]]
 ===== Parent Elements of <xss-protection>
 
-The parent element of the `<xss-protection>` is the <<nsa-headers,`<headers>`>> element.
+The parent element of the `<xss-protection>` is the <<nsa-headers,headers>> element.
 
 
 
@@ -606,7 +606,7 @@ Default: `false`.
 [[nsa-content-type-options-parents]]
 ===== Parent Elements of <content-type-options>
 
-The parent element of the `<content-type-options>` element is the <<nsa-headers,`<headers>`>> element.
+The parent element of the `<content-type-options>` element is the <<nsa-headers,headers>> element.
 
 
 
@@ -639,7 +639,7 @@ Reference to a custom implementation of the `HeaderWriter` interface.
 ===== Parent Elements of <header>
 
 
-The parent element of the `<header>` is the <<nsa-headers,`<headers>`>> element.
+The parent element of the `<header>` is the <<nsa-headers,headers>> element.
 
 
 
@@ -652,7 +652,7 @@ This element is required if you use the `IS_AUTHENTICATED_ANONYMOUSLY` attribute
 [[nsa-anonymous-parents]]
 ===== Parent Elements of <anonymous>
 
-The parent element of the `<anonymous>` element is the <<nsa-http,`<http>`>> element.
+The parent element of the `<anonymous>` element is the <<nsa-http,http>> element.
 
 
 
@@ -736,7 +736,7 @@ Full details can be found in the <<ns-custom-filters, namespace chapter>>.
 [[nsa-custom-filter-parents]]
 ===== Parent Elements of <custom-filter>
 
-The parent element of the `<custom-filter>` is the <<nsa-http,`<http>`>> element.
+The parent element of the `<custom-filter>` is the <<nsa-http,http>> element.
 
 
 
@@ -811,7 +811,7 @@ The class `DefaultLoginPageGeneratingFilter` class is responsible for rendering 
 ===== Parent Elements of <form-login>
 
 
-The parent element of the `<form-login>` element is the <<nsa-http,`<http>`>> element.
+The parent element of the `<form-login>` element is the <<nsa-http,http>> element.
 
 
 
@@ -901,7 +901,7 @@ The <<oauth2login,OAuth 2.0 Login>> feature configures authentication support by
 [[nsa-oauth2-login-parents]]
 ===== Parent Elements of <oauth2-login>
 
-The parent element of the `<oauth2-login>` element is the <<nsa-http,`<http>`>> element.
+The parent element of the `<oauth2-login>` element is the <<nsa-http,http>> element.
 
 [[nsa-oauth2-login-attributes]]
 ===== <oauth2-login> Attributes
@@ -986,7 +986,7 @@ Configures <<oauth2client,OAuth 2.0 Client>> support.
 [[nsa-oauth2-client-parents]]
 ===== Parent Elements of <oauth2-client>
 
-The parent of the `<oauth2-client>` is the <<nsa-http,`<http>`>> element.
+The parent of the `<oauth2-client>` is the <<nsa-http,http>> element.
 
 [[nsa-oauth2-client-attributes]]
 ===== <oauth2-client> Attributes
@@ -1011,7 +1011,7 @@ Reference to the `OAuth2AuthorizedClientService`.
 [[nsa-oauth2-client-children]]
 ===== Child Elements of <oauth2-client>
 
-The `<oauth2-client>` has one child element: <<nsa-authorization-code-grant,`<authorization-code-grant>`>>.
+The `<oauth2-client>` has one child element: <<nsa-authorization-code-grant,authorization-code-grant>>.
 
 
 [[nsa-authorization-code-grant]]
@@ -1129,7 +1129,7 @@ The `<provider>` element contains the configuration information for an OAuth 2.0
 [[nsa-provider-parents]]
 ===== Parent Elements of <provider>
 
-The parent element of the `<provider>` element is the <<nsa-client-registrations,`<client-registrations>`>> element.
+The parent element of the `<provider>` element is the <<nsa-client-registrations,client-registrations>> element.
 
 
 [[nsa-provider-attributes]]
@@ -1186,15 +1186,15 @@ In addition, either `<jwt>` or `<opaque-token>` must be specified.
 [[nsa-oauth2-resource-server-parents]]
 ===== Parents Elements of <oauth2-resource-server>
 
-The parent element of the `<oauth2-resource-server>` is the <<nsa-http,`<http>`>> element.
+The parent element of the `<oauth2-resource-server>` is the <<nsa-http,http>> element.
 
 [[nsa-oauth2-resource-server-children]]
 ===== Child Elements of <oauth2-resource-server>
 
 The `<oauth2-resource-server>` element has the following child elements:
 
-* <<nsa-jwt,`<jwt>`>>
-* <<nsa-opaque-token,`<opaque-token>`>>
+* <<nsa-jwt,jwt>>
+* <<nsa-opaque-token,opaque-token>>
 
 [[nsa-oauth2-resource-server-attributes]]
 ===== <oauth2-resource-server> Attributes
@@ -1221,7 +1221,7 @@ The `<jwt>` element represents an OAuth 2.0 Resource Server that authorizes JWTs
 [[nsa-jwt-parents]]
 ===== Parent Elements of <jwt>
 
-The parent element of the `<jwt>` element is the <<nsa-oauth2-resource-server,`<oauth2-resource-server>`>> element.
+The parent element of the `<jwt>` element is the <<nsa-oauth2-resource-server,oauth2-resource-server>> element.
 
 
 [[nsa-jwt-attributes]]
@@ -1279,7 +1279,7 @@ The latter is used as the configuration entry point only if form-based login is 
 ===== Parent Elements of <http-basic>
 
 
-The parent element of the `<http-basic>` element is the <<nsa-http,`<http>`>> element.
+The parent element of the `<http-basic>` element is the <<nsa-http,http>> element.
 
 
 
@@ -1329,8 +1329,8 @@ So, the most specific patterns should come first and the most general should com
 
 The parent elements of the `<intercept-url>` element are:
 
-* <<nsa-filter-security-metadata-source,`<filter-security-metadata-source>`>>
-* <<nsa-http,`<http>`>>
+* <<nsa-filter-security-metadata-source,filter-security-metadata-source>>
+* <<nsa-http,http>>
 
 
 [[nsa-intercept-url-attributes]]
@@ -1393,7 +1393,7 @@ The `<jee>` element a dds a `J2eePreAuthenticatedProcessingFilter` to the filter
 [[nsa-jee-parents]]
 ===== Parent Elements of <jee>
 
-The parent element of the `<jee>` element is the <<nsa-http,`<http>`>> element.
+The parent element of the `<jee>` element is the <<nsa-http,http>> element.
 
 
 [[nsa-jee-attributes]]
@@ -1420,7 +1420,7 @@ It is configured by a `SecurityContextLogoutHandler`.
 [[nsa-logout-parents]]
 ===== Parent Elements of <logout>
 
-The parent element of the `<logout>` element is the <<nsa-http,`<http>`>> element.
+The parent element of the `<logout>` element is the <<nsa-http,http>> element.
 
 
 [[nsa-logout-attributes]]
@@ -1471,7 +1471,7 @@ You can specify this reference by `id`, by using the `user-service-ref` attribut
 [[nsa-openid-login-parents]]
 ===== Parent Elements of <openid-login>
 
-The parent element of the `<openid-login>` element is the <<nsa-http,`<http>`>> element.
+The parent element of the `<openid-login>` element is the <<nsa-http,http>> element.
 
 
 [[nsa-openid-login-attributes]]
@@ -1556,7 +1556,7 @@ Default: `username`
 [[nsa-openid-login-children]]
 ===== Child Elements of <openid-login>
 
-The `<openid-login>` element has only one child attribute: <<nsa-attribute-exchange,`<attribute-exchange>`>>.
+The `<openid-login>` element has only one child attribute: <<nsa-attribute-exchange,attribute-exchange>>.
 
 
 [[nsa-attribute-exchange]]
@@ -1570,7 +1570,7 @@ This lets different attribute lists be fetched from different providers (Google,
 [[nsa-attribute-exchange-parents]]
 ===== Parent Elements of <attribute-exchange>
 
-The parent element of the `<attribute-exchange>` element is the <<nsa-openid-login,`<openid-login>`>> element.
+The parent element of the `<attribute-exchange>` element is the <<nsa-openid-login,openid-login>> element.
 
 
 [[nsa-attribute-exchange-attributes]]
@@ -1587,7 +1587,7 @@ A regular expression that is compared against the claimed identity when deciding
 [[nsa-attribute-exchange-children]]
 ===== Child Elements of <attribute-exchange>
 
-The `<attribute-exchange>` element has a single child attribute: <<nsa-openid-attribute,`<openid-attribute>`>>.
+The `<attribute-exchange>` element has a single child attribute: <<nsa-openid-attribute,openid-attribute>>.
 
 
 [[nsa-openid-attribute]]
@@ -1641,7 +1641,7 @@ You can find an example of overriding these values in <<servlet-http-redirect>>.
 [[nsa-port-mappings-parents]]
 ===== Parent Element of <port-mappings>
 
-The parent element of the `<port-mappings>` element is the <<nsa-http,`<http>`>> element.
+The parent element of the `<port-mappings>` element is the <<nsa-http,http>> element.
 
 
 [[nsa-port-mappings-children]]
@@ -1658,7 +1658,7 @@ The `<port-mapping>` element provides a method to map HTTP ports to HTTPS ports 
 [[nsa-port-mapping-parents]]
 ===== Parent Elements of <port-mapping>
 
-The parent element of the `<port-mapping>` element is the <<nsa-port-mappings,`<port-mappings>`>> element.
+The parent element of the `<port-mapping>` element is the <<nsa-port-mappings,port-mappings>> element.
 
 
 
@@ -1686,7 +1686,7 @@ This filter is, in turn, configured with either a `TokenBasedRememberMeServices`
 [[nsa-remember-me-parents]]
 ===== Parent Elements of <remember-me>
 
-The parent element of the `<remember-me>` element is the <<nsa-http,`<http>`>> element.
+The parent element of the `<remember-me>` element is the <<nsa-http,http>> element.
 
 
 [[nsa-remember-me-attributes]]
@@ -1777,7 +1777,7 @@ Sets the `RequestCache` instance, which is used by the `ExceptionTranslationFilt
 [[nsa-request-cache-parents]]
 ===== Parent Elements of <request-cache>
 
-The parent element of the `<request-cache>` element is the <<nsa-http,`<http>`>> element.
+The parent element of the `<request-cache>` element is the <<nsa-http,http>> element.
 
 [[nsa-request-cache-attributes]]
 ===== <request-cache> Attributes
@@ -1798,7 +1798,7 @@ Session-management functionality is implemented by the addition of a `SessionMan
 ===== Parent Elements of <session-management>
 
 
-The parent element of the `<session-management>` element is the  <<nsa-http,`<http>`>> element.
+The parent element of the `<session-management>` element is the  <<nsa-http,http>> element.
 
 
 [[nsa-session-management-attributes]]
@@ -1844,7 +1844,7 @@ See the {security-api-url}org/springframework/security/web/session/SessionManage
 [[nsa-session-management-children]]
 ===== Child Elements of <session-management>
 
-The `<session-management>` element has only one child element: <<nsa-concurrency-control,`<concurrency-control>`>>
+The `<session-management>` element has only one child element: <<nsa-concurrency-control,concurrency-control>>
 
 
 [[nsa-concurrency-control]]
@@ -1858,7 +1858,7 @@ An instance of `SessionRegistry` (a `SessionRegistryImpl` instance unless the us
 [[nsa-concurrency-control-parents]]
 ===== Parent Elements of <concurrency-control>
 
-The parent element of the `<concurrency-control>`  element is the  <<nsa-session-management,`<session-management>`>> element.
+The parent element of the `<concurrency-control>`  element is the  <<nsa-session-management,session-management>> element.
 
 
 [[nsa-concurrency-control-attributes]]
@@ -1912,7 +1912,7 @@ A `PreAuthenticatedAuthenticationProvider` is also created. It delegates the loa
 [[nsa-x509-parents]]
 ===== Parent Elements of <x509>
 
-The parent element of the `<x509>` element is the <<nsa-http,`<http>`>> element.
+The parent element of the `<x509>` element is the <<nsa-http,http>> element.
 
 
 [[nsa-x509-attributes]]
@@ -1956,7 +1956,7 @@ Currently, the options are `ant` (for Ant path patterns), `regex` (for regular e
 [[nsa-filter-chain-map-children]]
 ===== Child Elements of <filter-chain-map>
 
-The `<filter-chain-map>` element has one child element: <<nsa-filter-chain,`<filter-chain>`>>.
+The `<filter-chain-map>` element has one child element: <<nsa-filter-chain,filter-chain>>.
 
 
 [[nsa-filter-chain]]
@@ -1969,7 +1969,7 @@ When multiple `<filter-chain>` elements are assembled in a list, to configure a 
 [[nsa-filter-chain-parents]]
 ===== Parent Elements of <filter-chain>
 
-The parent element of the `<filter-chain>` element is the <<nsa-filter-chain-map,`<filter-chain-map>`>> element.
+The parent element of the `<filter-chain>` element is the <<nsa-filter-chain-map,filter-chain-map>> element.
 
 
 [[nsa-filter-chain-attributes]]
@@ -1985,7 +1985,7 @@ A value of `none` means that no `Filter` should be used for this `FilterChain`.
 
 [[nsa-filter-chain-pattern]]
 `pattern`::
-A pattern that creates `RequestMatcher` in combination with the <<nsa-filter-chain-map-request-matcher,`<request-matcher>`>> element.
+A pattern that creates `RequestMatcher` in combination with the <<nsa-filter-chain-map-request-matcher,request-matcher>> element.
 
 
 [[nsa-filter-chain-request-matcher-ref]]
@@ -2028,7 +2028,7 @@ If the expression evaluates to `true`, access is granted.
 [[nsa-filter-security-metadata-source-children]]
 ===== Child Elements of <filter-security-metadata-source>
 
-The `<filter-security-metadata-source>` has a single child element: <<nsa-intercept-url,`<intercept-url>`>>.
+The `<filter-security-metadata-source>` has a single child element: <<nsa-intercept-url,intercept-url>>.
 
 [[nsa-websocket-security]]
 === WebSocket Security
@@ -2080,8 +2080,8 @@ Changing the default lets other origins make SockJS connections.
 
 The `<websocket-message-broker>` element has the following child elements:
 
-* <<nsa-expression-handler,`<expression-handler>`>>
-* <<nsa-intercept-message,`<intercept-message>`>>
+* <<nsa-expression-handler,expression-handler>>
+* <<nsa-intercept-message,intercept-message>>
 
 [[nsa-intercept-message]]
 ==== <intercept-message> Element
@@ -2161,8 +2161,8 @@ It is the same as the `alias` element but provides a more consistent experience 
 
 The `<authentication-manager>` element has the following child elements:
 
-* <<nsa-authentication-provider,`<authentication-provider>`>>
-* <<nsa-ldap-authentication-provider,`<ldap-authentication-provider>`>>
+* <<nsa-authentication-provider,authentication-provider>>
+* <<nsa-ldap-authentication-provider,ldap-authentication-provider>>
 
 
 
@@ -2176,7 +2176,7 @@ You can define the `UserDetailsService` instance either by using an available na
 [[nsa-authentication-provider-parents]]
 ===== Parent Elements of <authentication-provider>
 
-The parent element of the `<authentication-provider>` element is the <<nsa-authentication-manager,`<authentication-manager>`>> element.
+The parent element of the `<authentication-provider>` element is the <<nsa-authentication-manager,authentication-manager>> element.
 
 
 [[nsa-authentication-provider-attributes]]
@@ -2213,10 +2213,10 @@ A reference to a bean that implements `UserDetailsService`, which may be created
 
 The `<authentication-provider>` element has the following child elements:
 
-* <<nsa-jdbc-user-service,`<jdbc-user-service>`>>
-* <<nsa-ldap-user-service,`<ldap-user-service>`>>
-* <<nsa-password-encoder,`<password-encoder>`>>
-* <<nsa-user-service,`<user-service>`>>
+* <<nsa-jdbc-user-service,jdbc-user-service>>
+* <<nsa-ldap-user-service,ldap-user-service>>
+* <<nsa-password-encoder,password-encoder>>
+* <<nsa-user-service,user-service>>
 
 
 [[nsa-jdbc-user-service]]
@@ -2303,8 +2303,8 @@ Authentication providers can optionally be configured to use a password encoder,
 
 The `<password-encoder>` element has the following parent elements:
 
-* <<nsa-authentication-provider,`<authentication-provider>`>>
-* <<nsa-password-compare,`<password-compare>`>>
+* <<nsa-authentication-provider,authentication-provider>>
+* <<nsa-password-compare,password-compare>>
 
 
 
@@ -2355,7 +2355,7 @@ username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]
 [[nsa-user-service-children]]
 ===== Child Element of <user-service>
 
-The `<user-service>` element has a single child element: <<nsa-user,`<user>`>>.
+The `<user-service>` element has a single child element: <<nsa-user,user>>.
 Multiple `<user>` elements can be present.
 
 
@@ -2367,7 +2367,7 @@ The `<user>` represents a user in the application.
 [[nsa-user-parents]]
 ===== Parent Element of <user>
 
-The parent element of the `<user>` element is the <<nsa-user-service,`<user-service>`>> element.
+The parent element of the `<user>` element is the <<nsa-user-service,user-service>> element.
 
 
 [[nsa-user-attributes]]
@@ -2505,10 +2505,10 @@ Default: `disabled`
 
 The `<global-method-security>` has the following child elements:
 
-* <<nsa-after-invocation-provider,`<after-invocation-provider>`>>
-* <<nsa-expression-handler,`<expression-handler>`>>
-* <<nsa-pre-post-annotation-handling,`<pre-post-annotation-handling>`>>
-* <<nsa-protect-pointcut,`<protect-pointcut>`>>
+* <<nsa-after-invocation-provider,after-invocation-provider>>
+* <<nsa-expression-handler,expression-handler>>
+* <<nsa-pre-post-annotation-handling,pre-post-annotation-handling>>
+* <<nsa-protect-pointcut,protect-pointcut>>
 
 
 [[nsa-after-invocation-provider]]
@@ -2520,7 +2520,7 @@ You can define zero or more of these elements within the `global-method-security
 [[nsa-after-invocation-provider-parents]]
 ===== Parent Elements of <after-invocation-provider>
 
-The parent element of the `<after-invocation-provider>` is the <<nsa-global-method-security,`<global-method-security>`>> element.
+The parent element of the `<after-invocation-provider>` is the <<nsa-global-method-security,global-method-security>> element.
 
 
 [[nsa-after-invocation-provider-attributes]]
@@ -2542,7 +2542,7 @@ It applies only if these annotations are enabled.
 [[nsa-pre-post-annotation-handling-parents]]
 ===== Parent Elements of <pre-post-annotation-handling>
 
-The parent element of the `<pre-post-annotation-handling>` element is the  <<nsa-global-method-security,`<global-method-security>`>> element.
+The parent element of the `<pre-post-annotation-handling>` element is the  <<nsa-global-method-security,global-method-security>> element.
 
 
 [[nsa-pre-post-annotation-handling-children]]
@@ -2550,9 +2550,9 @@ The parent element of the `<pre-post-annotation-handling>` element is the  <<nsa
 
 The `<pre-post-annotation-handling>` element has the following children:
 
-* <<nsa-invocation-attribute-factory,`<invocation-attribute-factory>`>>
-* <<nsa-post-invocation-advice,`<post-invocation-advice>`>>
-* <<nsa-pre-invocation-advice,`<pre-invocation-advice>`>>
+* <<nsa-invocation-attribute-factory,invocation-attribute-factory>>
+* <<nsa-post-invocation-advice,post-invocation-advice>>
+* <<nsa-pre-invocation-advice,pre-invocation-advice>>
 
 
 
@@ -2585,7 +2585,7 @@ The `<post-invocation-advice>` element customizes the `PostInvocationAdviceProvi
 [[nsa-post-invocation-advice-parents]]
 ===== Parent Elements of <post-invocation-advice>
 
-The parent element of the `<post-invocation-advice>` element is the <<nsa-pre-post-annotation-handling,`<pre-post-annotation-handling>`>> element.
+The parent element of the `<post-invocation-advice>` element is the <<nsa-pre-post-annotation-handling,pre-post-annotation-handling>> element.
 
 
 [[nsa-post-invocation-advice-attributes]]
@@ -2606,7 +2606,7 @@ The `<pre-invocation-advice>` element customizes the `PreInvocationAuthorization
 [[nsa-pre-invocation-advice-parents]]
 ===== Parent Elements of <pre-invocation-advice>
 
-The parent element of the `<pre-invocation-advice>` is the <<nsa-pre-post-annotation-handling,`<pre-post-annotation-handling>`>> element.
+The parent element of the `<pre-invocation-advice>` is the <<nsa-pre-post-annotation-handling,pre-post-annotation-handling>> element.
 
 
 [[nsa-pre-invocation-advice-attributes]]
@@ -2628,7 +2628,7 @@ You can find an example in the <<ns-protect-pointcut,namespace introduction>>.
 [[nsa-protect-pointcut-parents]]
 ===== Parent Elements of <protect-pointcut>
 
-The parent element of the `<protect-pointcut>` element is the <<nsa-global-method-security,`<global-method-security>`>> element.
+The parent element of the `<protect-pointcut>` element is the <<nsa-global-method-security,global-method-security>> element.
 
 
 
@@ -2666,7 +2666,7 @@ Optional `AccessDecisionManager` bean ID to be used by the created method securi
 [[nsa-intercept-methods-children]]
 ===== Child Elements of <intercept-methods>
 
-The parent element of the `<intercept-methods>` is the <<nsa-protect,`<protect>`>> element.
+The parent element of the `<intercept-methods>` is the <<nsa-protect,protect>> element.
 
 
 [[nsa-method-security-metadata-source]]
@@ -2695,7 +2695,7 @@ If the expression evaluates to `true`, access is granted.
 [[nsa-method-security-metadata-source-children]]
 ===== Child Elements of <method-security-metadata-source>
 
-The `<method-security-metadata-source>` has a single child element: <<nsa-protect,`<protect>`>>.
+The `<method-security-metadata-source>` has a single child element: <<nsa-protect,protect>>.
 
 
 [[nsa-protect]]
@@ -2709,8 +2709,8 @@ We strongly advise you NOT to mix "`protect`" declarations with any services pro
 
 The `<protect>` element has two parent elements:
 
-* <<nsa-intercept-methods,`<intercept-methods>`>>
-* <<nsa-method-security-metadata-source,`<method-security-metadata-source>`>>
+* <<nsa-intercept-methods,intercept-methods>>
+* <<nsa-method-security-metadata-source,method-security-metadata-source>>
 
 
 [[nsa-protect-attributes]]
@@ -2810,7 +2810,7 @@ As with all namespace authentication providers, it must be included as a child o
 [[nsa-ldap-authentication-provider-parents]]
 ===== Parent Elements of <ldap-authentication-provider>
 
-The parent element of the `<ldap-authentication-provider>` is the <<nsa-authentication-manager,`<authentication-manager>`>> element.
+The parent element of the `<ldap-authentication-provider>` is the <<nsa-authentication-manager,authentication-manager>> element.
 
 
 [[nsa-ldap-authentication-provider-attributes]]
@@ -2897,7 +2897,7 @@ If these attributes are not set and no `user-dn-pattern` has been supplied as an
 [[nsa-ldap-authentication-provider-children]]
 ===== Child Elements of <ldap-authentication-provider>
 
-The `<ldap-authentication-provider>` has a single child element: <<nsa-password-compare,`<password-compare>`>>.
+The `<ldap-authentication-provider>` has a single child element: <<nsa-password-compare,password-compare>>.
 
 
 [[nsa-password-compare]]
@@ -2908,7 +2908,7 @@ The `<password-compare>` element is used as a child element to `<ldap-provider>`
 [[nsa-password-compare-parents]]
 ===== Parent Elements of <password-compare>
 
-The parent element of the `<password-compare>` element is the  <<nsa-ldap-authentication-provider,`<ldap-authentication-provider>`>> element.
+The parent element of the `<password-compare>` element is the  <<nsa-ldap-authentication-provider,ldap-authentication-provider>> element.
 
 
 [[nsa-password-compare-attributes]]
@@ -2931,7 +2931,7 @@ Default: `userPassword`
 [[nsa-password-compare-children]]
 ===== Child Elements of <password-compare>
 
-The `<password-compare>` element has a single child element: <<nsa-password-encoder,`<password-encoder>`>>.
+The `<password-compare>` element has a single child element: <<nsa-password-encoder,password-encoder>>.
 
 
 [[nsa-ldap-user-service]]
@@ -3003,7 +3003,7 @@ If set, the framework tries to load standard attributes for the defined class in
 [[nsa-ldap-user-service-user-search-base]]
 `user-search-base`::
 Search base for user searches.
-It is used only with a <<nsa-ldap-user-service-user-search-filter,`<user-search-filter>`>> element.
+It is used only with a <<nsa-ldap-user-service-user-search-filter,user-search-filter>> element.
 Default: `""`
 
 

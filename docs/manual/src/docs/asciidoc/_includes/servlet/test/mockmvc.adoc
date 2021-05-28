@@ -219,7 +219,7 @@ mvc
 [[running-as-a-user-in-spring-mvc-test-with-annotations]]
 ===== Running as a User in Spring MVC Test with Annotations
 
-As an alternative to using a `RequestPostProcessor` to create your user, you can use the annotations described in <<Testing Method Security>>.
+As an alternative to using a `RequestPostProcessor` to create your user, you can use the annotations described in <<test-method>>.
 The following example runs the test with a user whose username is `user`, whose password is `password`, and whose role is `ROLE_USER`:
 
 ====

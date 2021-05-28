@@ -62,7 +62,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
 We assume this syntax is being used from now on in this chapter.
 
 
-=== Design of the Namespace
+== Design of the Namespace
 The namespace is designed to capture the most common uses of the framework and provide a simplified and concise syntax for enabling them within an application.
 The design is based around the large-scale dependencies within the framework and can be divided up into the following areas:
 

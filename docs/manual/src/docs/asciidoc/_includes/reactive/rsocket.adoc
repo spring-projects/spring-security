@@ -16,7 +16,7 @@ The following example shows a minimal RSocket Security configuration:
 
 ====
 [source,java]
------
+----
 @Configuration
 @EnableRSocketSecurity
 public class HelloRSocketSecurityConfig {
@@ -31,7 +31,7 @@ public class HelloRSocketSecurityConfig {
 		return new MapReactiveUserDetailsService(user);
 	}
 }
------
+----
 ====
 
 This configuration enables <<rsocket-authentication-simple,simple authentication>> and sets up <<rsocket-authorization,rsocket-authorization>> to require an authenticated user for any request.

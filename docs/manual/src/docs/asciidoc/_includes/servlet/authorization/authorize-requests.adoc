@@ -73,7 +73,7 @@ We can configure Spring Security to have different rules by adding more rules in
 protected void configure(HttpSecurity http) throws Exception {
 	http
 		// ...
-		.authorizeRequests(authorize -> authorize                                  // <1>
+		.authorizeRequests(authorize -> authorize                                // <1>
 			.mvcMatchers("/resources/**", "/signup", "/about").permitAll()         // <2>
 			.mvcMatchers("/admin/**").hasRole("ADMIN")                             // <3>
 			.mvcMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")   // <4>
@@ -115,7 +115,6 @@ fun configure(http: HttpSecurity) {
     }
 }
 ----
-====
 <1> Multiple authorization rules are specified.
 Each rule is considered in the order in which it is declared.
 <2> Specify multiple URL patterns that any user can access.
@@ -126,3 +125,4 @@ Notice that, since we invoke the `hasRole` method, we need not specify the `ROLE
 Notice that, since we use the `hasRole` expression, we need not specify the `ROLE_` prefix.
 <5> Any URL that has not already been matched is denied access.
 This is a good strategy if you do not want to accidentally forget to update your authorization rules.
+====

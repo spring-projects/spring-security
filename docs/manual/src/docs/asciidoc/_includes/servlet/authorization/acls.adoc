@@ -57,7 +57,7 @@ The tables are presented in order of size in a typical Spring Security ACL deplo
 
 [[acl_tables]]
 * `ACL_SID` lets us uniquely identify any principal or authority in the system ("`SID`" stands for "`Security IDentity`").
-The only columns are the ID, a textual representation of the SID, and a flag to indicate whether the textual                   representation refers to a principal name or a `GrantedAuthority`.
+The only columns are the ID, a textual representation of the SID, and a flag to indicate whether the textual representation refers to a principal name or a `GrantedAuthority`.
 Thus, there is a single row for each unique principal or `GrantedAuthority`.
 When used in the context of receiving a permission, an SID is generally called a "`recipient`".
 
