@@ -2653,7 +2653,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	private HttpSecurity addFilterAtOffsetOf(Filter filter, int offset, Class<? extends Filter> registeredFilter) {
 		int order = this.filterOrders.getOrder(registeredFilter) + offset;
 		this.filters.add(new OrderedFilter(filter, order));
-		this.filterOrders.add(filter.getClass());
 		return this;
 	}
 
@@ -2665,6 +2664,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 					+ " does not have a registered order and cannot be added without a specified order. Consider using addFilterBefore or addFilterAfter instead.");
 		}
 		this.filters.add(new OrderedFilter(filter, order));
+		this.filterOrders.add(filter.getClass());
 		return this;
 	}
 

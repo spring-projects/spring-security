@@ -115,8 +115,8 @@ final class FilterOrderRegistration {
 	}
 
 	/**
-	 * Add a particular {@link Filter} class to the latest position to the internal
-	 * data structure of the FilterOrderRegistration.
+	 * Add a particular {@link Filter} class to the latest position to the internal data
+	 * structure of the FilterOrderRegistration.
 	 * @param filter the {@link Filter} class that should be added
 	 */
 	void add(Class<? extends Filter> filter) {
