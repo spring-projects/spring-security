@@ -195,7 +195,7 @@ public class CsrfFilterTests {
 	public void doFilterIsCsrfRequestExistingTokenHeader() throws ServletException, IOException {
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
-		given(this.tokenRepository.readActualToken(this.request, this.token)).willReturn(this.token.getToken());
+		given(this.tokenRepository.readActualToken(this.request, this.token)).willCallRealMethod();
 		this.request.addHeader(this.token.getHeaderName(), this.token.getToken());
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
@@ -209,7 +209,7 @@ public class CsrfFilterTests {
 			throws ServletException, IOException {
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
-		given(this.tokenRepository.readActualToken(this.request, this.token)).willReturn(this.token.getToken());
+		given(this.tokenRepository.readActualToken(this.request, this.token)).willCallRealMethod();
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken() + " INVALID");
 		this.request.addHeader(this.token.getHeaderName(), this.token.getToken());
 		this.filter.doFilter(this.request, this.response, this.filterChain);
@@ -223,7 +223,7 @@ public class CsrfFilterTests {
 	public void doFilterIsCsrfRequestExistingToken() throws ServletException, IOException {
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
-		given(this.tokenRepository.readActualToken(this.request, this.token)).willReturn(this.token.getToken());
+		given(this.tokenRepository.readActualToken(this.request, this.token)).willCallRealMethod();
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken());
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
@@ -238,7 +238,7 @@ public class CsrfFilterTests {
 	public void doFilterIsCsrfRequestGenerateToken() throws ServletException, IOException {
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		given(this.tokenRepository.generateToken(this.request)).willReturn(this.token);
-		given(this.tokenRepository.readActualToken(this.request, this.token)).willReturn(this.token.getToken());
+		given(this.tokenRepository.readActualToken(this.request, this.token)).willCallRealMethod();
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken());
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 		assertToken(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
@@ -333,6 +333,7 @@ public class CsrfFilterTests {
 		given(token.getHeaderName()).willReturn(this.token.getHeaderName());
 		given(token.getParameterName()).willReturn(this.token.getParameterName());
 		given(this.tokenRepository.loadToken(this.request)).willReturn(token);
+		given(this.tokenRepository.readActualToken(this.request, token)).willCallRealMethod();
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		filter.doFilterInternal(this.request, this.response, this.filterChain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
