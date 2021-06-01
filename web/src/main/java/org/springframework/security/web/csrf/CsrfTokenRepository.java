@@ -26,8 +26,8 @@ import javax.servlet.http.HttpSession;
  * {@link HttpSession}.
  *
  * @author Rob Winch
- * @see HttpSessionCsrfTokenRepository
  * @since 3.2
+ * @see HttpSessionCsrfTokenRepository
  */
 public interface CsrfTokenRepository {
 

@@ -1,15 +1,33 @@
+/*
+ * Copyright 2012-2021 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.security.web.csrf;
+
+import java.util.UUID;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.ResponseCookie;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.WebUtils;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.UUID;
 
 /**
  * A {@link CsrfTokenRepository} that persists the CSRF token in a cookie named
@@ -155,7 +173,7 @@ public class SameSiteCookieCsrfTokenRepository implements CsrfTokenRepository {
 	 * @param sameSite
 	 */
 	public void setSameSite(String sameSite) {
-		Assert.notNull(cookieName, "sameSite cannot be null");
+		Assert.notNull(sameSite, "sameSite cannot be null");
 		Assert.isTrue(sameSite.equals(SAME_SITE_LAX) || sameSite.equals(SAME_SITE_STRICT),
 				"sameSite should be either set to Lax or Strict");
 		this.sameSite = sameSite;
