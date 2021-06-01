@@ -28,11 +28,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.WebUtils;
 
-
 /**
  * A {@link CsrfTokenRepository} that persists the CSRF token in a cookie named
- * "XSRF-TOKEN" which has sameSite attribute and reads the same cookie. SameSite
- * prevents the browser from sending this cookie along with cross-site requests.
+ * "XSRF-TOKEN" which has sameSite attribute and reads the same cookie. SameSite prevents
+ * the browser from sending this cookie along with cross-site requests.
  *
  * @author gajendra.jatav
  */
@@ -78,11 +77,9 @@ public class SameSiteCookieCsrfTokenRepository implements CsrfTokenRepository {
 	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
 		String tokenValue = (token != null) ? token.getToken() : "";
 		ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(this.cookieName, tokenValue)
-				.sameSite(this.sameSite)
-				.secure((this.secure != null) ? this.secure : request.isSecure())
+				.sameSite(this.sameSite).secure((this.secure != null) ? this.secure : request.isSecure())
 				.path(StringUtils.hasLength(this.cookiePath) ? this.cookiePath : this.getRequestContext(request))
-				.maxAge((token != null) ? this.cookieMaxAge : 0)
-				.httpOnly(this.cookieHttpOnly);
+				.maxAge((token != null) ? this.cookieMaxAge : 0).httpOnly(this.cookieHttpOnly);
 
 		if (StringUtils.hasLength(this.cookieDomain)) {
 			cookieBuilder.domain(this.cookieDomain);
@@ -116,12 +113,10 @@ public class SameSiteCookieCsrfTokenRepository implements CsrfTokenRepository {
 		return token;
 	}
 
-
 	/**
 	 * Sets the name of the HTTP request parameter that should be used to provide a token.
-	 *
 	 * @param parameterName the name of the HTTP request parameter that should be used to
-	 *                      provide a token
+	 * provide a token
 	 */
 	public void setParameterName(String parameterName) {
 		Assert.notNull(parameterName, "parameterName cannot be null");
@@ -130,9 +125,8 @@ public class SameSiteCookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	/**
 	 * Sets the name of the HTTP header that should be used to provide the token.
-	 *
 	 * @param headerName the name of the HTTP header that should be used to provide the
-	 *                   token
+	 * token
 	 */
 	public void setHeaderName(String headerName) {
 		Assert.notNull(headerName, "headerName cannot be null");
@@ -141,9 +135,8 @@ public class SameSiteCookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	/**
 	 * Sets the name of the cookie that the expected CSRF token is saved to and read from.
-	 *
 	 * @param cookieName the name of the cookie that the expected CSRF token is saved to
-	 *                   and read from
+	 * and read from
 	 */
 	public void setCookieName(String cookieName) {
 		Assert.notNull(cookieName, "cookieName cannot be null");
@@ -153,9 +146,8 @@ public class SameSiteCookieCsrfTokenRepository implements CsrfTokenRepository {
 	/**
 	 * Sets the HttpOnly attribute on the cookie containing the CSRF token. Defaults to
 	 * <code>true</code>.
-	 *
 	 * @param cookieHttpOnly <code>true</code> sets the HttpOnly attribute,
-	 *                       <code>false</code> does not set it
+	 * <code>false</code> does not set it
 	 */
 	public void setCookieHttpOnly(boolean cookieHttpOnly) {
 		this.cookieHttpOnly = cookieHttpOnly;
@@ -169,7 +161,6 @@ public class SameSiteCookieCsrfTokenRepository implements CsrfTokenRepository {
 	/**
 	 * Sets the SameSite attribute on the cookie containing the CSRF token. Defaults to
 	 * <code>Lax</code>.
-	 *
 	 * @param sameSite
 	 */
 	public void setSameSite(String sameSite) {
@@ -186,7 +177,6 @@ public class SameSiteCookieCsrfTokenRepository implements CsrfTokenRepository {
 	/**
 	 * Set the path that the Cookie will be created with. This will override the default
 	 * functionality which uses the request context as the path.
-	 *
 	 * @param path the path to use
 	 */
 	public void setCookiePath(String path) {
@@ -195,7 +185,6 @@ public class SameSiteCookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	/**
 	 * Get the path that the CSRF cookie will be set to.
-	 *
 	 * @return the path to be used.
 	 */
 	public String getCookiePath() {
@@ -205,9 +194,8 @@ public class SameSiteCookieCsrfTokenRepository implements CsrfTokenRepository {
 	/**
 	 * Sets the domain of the cookie that the expected CSRF token is saved to and read
 	 * from.
-	 *
 	 * @param cookieDomain the domain of the cookie that the expected CSRF token is saved
-	 *                     to and read from
+	 * to and read from
 	 * @since 5.2
 	 */
 	public void setCookieDomain(String cookieDomain) {
@@ -217,9 +205,8 @@ public class SameSiteCookieCsrfTokenRepository implements CsrfTokenRepository {
 	/**
 	 * Sets secure flag of the cookie that the expected CSRF token is saved to and read
 	 * from. By default secure flag depends on {@link ServletRequest#isSecure()}
-	 *
 	 * @param secure the secure flag of the cookie that the expected CSRF token is saved
-	 *               to and read from
+	 * to and read from
 	 * @since 5.4
 	 */
 	public void setSecure(Boolean secure) {
@@ -242,10 +229,9 @@ public class SameSiteCookieCsrfTokenRepository implements CsrfTokenRepository {
 	 * <p>
 	 * A zero value causes the cookie to be deleted immediately therefore it is not a
 	 * valid value and in that case an {@link IllegalArgumentException} will be thrown.
-	 *
 	 * @param cookieMaxAge an integer specifying the maximum age of the cookie in seconds;
-	 *                     if negative, means the cookie is not stored; if zero, the method throws an
-	 *                     {@link IllegalArgumentException}
+	 * if negative, means the cookie is not stored; if zero, the method throws an
+	 * {@link IllegalArgumentException}
 	 * @since 5.5
 	 */
 	public void setCookieMaxAge(int cookieMaxAge) {
