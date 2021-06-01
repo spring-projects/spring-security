@@ -1,14 +1,13 @@
 package io.spring.gradle.convention
 
+import org.aim42.htmlsanitycheck.HtmlSanityCheckPlugin
+import org.aim42.htmlsanitycheck.HtmlSanityCheckTask
+import org.aim42.htmlsanitycheck.check.BrokenHttpLinksChecker
 import org.asciidoctor.gradle.jvm.AbstractAsciidoctorTask
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.plugins.PluginManager
-import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.bundling.Zip
 
 /**
@@ -25,6 +24,7 @@ public class DocsPlugin implements Plugin<Project> {
 		pluginManager.apply(AsciidoctorConventionPlugin);
 		pluginManager.apply(DeployDocsPlugin);
 		pluginManager.apply(JavadocApiPlugin);
+		pluginManager.apply(HtmlSanityCheckPlugin)
 
 		String projectName = Utils.getProjectName(project);
 		String pdfFilename = projectName + "-reference.pdf";
@@ -38,6 +38,17 @@ public class DocsPlugin implements Plugin<Project> {
 			}
 		}
 
+		project.tasks.withType(HtmlSanityCheckTask) { HtmlSanityCheckTask t ->
+			project.configure(t) {
+				t.dependsOn 'asciidoctor'
+				t.checkerClasses = [BrokenHttpLinksChecker]
+				t.checkingResultsDir = new File(project.getBuildDir(), "/report/htmlchecks")
+				t.failOnErrors = false
+				t.httpConnectionTimeout = 3000
+				t.sourceDir = new File(project.getBuildDir(), "/docs/asciidoc/")
+				t.sourceDocuments = project.files(new File(project.getBuildDir(), "/docs/asciidoc/index.html"))
+			}
+		}
 
 		Task docsZip = project.tasks.create('docsZip', Zip) {
 			dependsOn 'api', 'asciidoctor'
