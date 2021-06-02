@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,6 +93,20 @@ public class RsaKeyConvertersTests {
 			+ "-----END PUBLIC KEY-----";
 	// @formatter:on
 
+	// @formatter:off
+	private static final String X509_CERTIFICATE = "-----BEGIN CERTIFICATE-----\n" +
+			"MIIBqDCCARECBgF5zJA6MjANBgkqhkiG9w0BAQsFADAaMRgwFgYDVQQDEw9TaGF6\n" +
+			"aW4gU2FkYWthdGgwHhcNMjEwNjAxMTE1MTE0WhcNMjEwNTE3MjAwOTI1WjAaMRgw\n" +
+			"FgYDVQQDEw9TaGF6aW4gU2FkYWthdGgwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJ\n" +
+			"AoGBAKsKpS6sliNSri3koOAgzS7Nz2cpl0tGpNP3GPuUYVMP4MA0LJ2+blxjxUcn\n" +
+			"oIajtaf9HljFetKVjyARp1zjZ3Oxm//lfmyqqI5KDUjqe5J2rdtbdFCH9FXUEoGD\n" +
+			"mu2ameR9lAfxtaGI58DGS9uJ5hvGJoIvLiaDUfv1qZ+kIwG7AgMBAAEwDQYJKoZI\n" +
+			"hvcNAQELBQADgYEAWdIIi4cGPod5O/V7K0QSTXZRLRIKFQ7qhn5XTNlMUnFnwp7c\n" +
+			"8O8EsOiCKAZeVvgRnurFkxAlVnpxmdktZ9j+mv2mrMGKJxYkZcBkFh++DRixpY8N\n" +
+			"zBLbxZJ9kcOHWWDA602FMbNIEL1OiHrfggsPk3sckSaSg4d7UoP9T6+uqq8=\n" +
+			"-----END CERTIFICATE-----";
+	// @formatter:on
+
 	private static final String MALFORMED_X509_KEY = "malformed";
 
 	private final Converter<InputStream, RSAPublicKey> x509 = RsaKeyConverters.x509();
@@ -112,8 +126,14 @@ public class RsaKeyConvertersTests {
 	}
 
 	@Test
-	public void x509WhenConverteringX509PublicKeyThenOk() {
+	public void x509WhenConvertingX509PublicKeyThenOk() {
 		RSAPublicKey key = this.x509.convert(toInputStream(X509_PUBLIC_KEY));
+		Assertions.assertThat(key.getModulus().bitLength()).isEqualTo(1024);
+	}
+
+	@Test
+	public void x509WhenConvertingX509CertificateThenOk() {
+		RSAPublicKey key = this.x509.convert(toInputStream(X509_CERTIFICATE));
 		Assertions.assertThat(key.getModulus().bitLength()).isEqualTo(1024);
 	}
 
