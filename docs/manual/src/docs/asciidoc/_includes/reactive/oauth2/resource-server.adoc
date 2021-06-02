@@ -818,7 +818,7 @@ fun jwtDecoder(): ReactiveJwtDecoder {
 ====
 
 [NOTE]
-By default, Resource Server configures a clock skew of 30 seconds.
+By default, Resource Server configures a clock skew of 60 seconds.
 
 [[webflux-oauth2resourceserver-validation-custom]]
 ==== Configuring a Custom Validator
