@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,15 @@
 package org.springframework.security.converter;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -36,6 +41,7 @@ import org.springframework.util.Assert;
  * Used for creating {@link java.security.Key} converter instances
  *
  * @author Josh Cummings
+ * @author Shazin Sadakath
  * @since 5.2
  */
 public final class RsaKeyConverters {
@@ -49,6 +55,10 @@ public final class RsaKeyConverters {
 	private static final String X509_PEM_HEADER = DASHES + "BEGIN PUBLIC KEY" + DASHES;
 
 	private static final String X509_PEM_FOOTER = DASHES + "END PUBLIC KEY" + DASHES;
+
+	private static final String X509_CERT_HEADER = DASHES + "BEGIN CERTIFICATE" + DASHES;
+
+	private static final String X509_CERT_FOOTER = DASHES + "END CERTIFICATE" + DASHES;
 
 	private RsaKeyConverters() {
 	}
@@ -91,8 +101,8 @@ public final class RsaKeyConverters {
 	}
 
 	/**
-	 * Construct a {@link Converter} for converting a PEM-encoded X.509 RSA Public Key
-	 * into a {@link RSAPublicKey}.
+	 * Construct a {@link Converter} for converting a PEM-encoded X.509 RSA Public Key or
+	 * X.509 Certificate into a {@link RSAPublicKey}.
 	 *
 	 * This converter does not close the {@link InputStream} in order to avoid making
 	 * non-portable assumptions about the streams' origin and further use.
@@ -101,25 +111,50 @@ public final class RsaKeyConverters {
 	 */
 	public static Converter<InputStream, RSAPublicKey> x509() {
 		KeyFactory keyFactory = rsaFactory();
+		CertificateFactory certificateFactory = x509CertificateFactory();
 		return (source) -> {
 			List<String> lines = readAllLines(source);
-			Assert.isTrue(!lines.isEmpty() && lines.get(0).startsWith(X509_PEM_HEADER),
-					"Key is not in PEM-encoded X.509 format, please check that the header begins with -----"
-							+ X509_PEM_HEADER + "-----");
+			Assert.isTrue(
+					!lines.isEmpty()
+							&& (lines.get(0).startsWith(X509_PEM_HEADER) || lines.get(0).startsWith(X509_CERT_HEADER)),
+					"Key is not in PEM-encoded X.509 format or a valid X.509 certificate, please check that the header begins with "
+							+ X509_PEM_HEADER + " or " + X509_CERT_HEADER);
 			StringBuilder base64Encoded = new StringBuilder();
 			for (String line : lines) {
-				if (RsaKeyConverters.isNotX509Wrapper(line)) {
+				if (RsaKeyConverters.isNotX509PemWrapper(line) && isNotX509CertificateWrapper(line)) {
 					base64Encoded.append(line);
 				}
 			}
 			byte[] x509 = Base64.getDecoder().decode(base64Encoded.toString());
-			try {
-				return (RSAPublicKey) keyFactory.generatePublic(new X509EncodedKeySpec(x509));
+			if (lines.get(0).startsWith(X509_PEM_HEADER)) {
+				try {
+					return (RSAPublicKey) keyFactory.generatePublic(new X509EncodedKeySpec(x509));
+				}
+				catch (Exception ex) {
+					throw new IllegalArgumentException(ex);
+				}
 			}
-			catch (Exception ex) {
-				throw new IllegalArgumentException(ex);
+			if (lines.get(0).startsWith(X509_CERT_HEADER)) {
+				try (InputStream x509CertStream = new ByteArrayInputStream(x509)) {
+					X509Certificate certificate = (X509Certificate) certificateFactory
+							.generateCertificate(x509CertStream);
+					return (RSAPublicKey) certificate.getPublicKey();
+				}
+				catch (CertificateException | IOException ex) {
+					throw new IllegalArgumentException(ex);
+				}
 			}
+			return null;
 		};
+	}
+
+	private static CertificateFactory x509CertificateFactory() {
+		try {
+			return CertificateFactory.getInstance("X.509");
+		}
+		catch (CertificateException ex) {
+			throw new IllegalArgumentException(ex);
+		}
 	}
 
 	private static List<String> readAllLines(InputStream source) {
@@ -140,8 +175,12 @@ public final class RsaKeyConverters {
 		return !PKCS8_PEM_HEADER.equals(line) && !PKCS8_PEM_FOOTER.equals(line);
 	}
 
-	private static boolean isNotX509Wrapper(String line) {
+	private static boolean isNotX509PemWrapper(String line) {
 		return !X509_PEM_HEADER.equals(line) && !X509_PEM_FOOTER.equals(line);
+	}
+
+	private static boolean isNotX509CertificateWrapper(String line) {
+		return !X509_CERT_HEADER.equals(line) && !X509_CERT_FOOTER.equals(line);
 	}
 
 }
