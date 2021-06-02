@@ -6,9 +6,9 @@ This section provides details on how form based authentication works within Spri
 // FIXME: describe authenticationentrypoint, authenticationfailurehandler, authenticationsuccesshandler
 
 This section examines how form-based login works within Spring Security.
-First, we see how the user is redirected to the log in form:
+First, we see how the user is redirected to the login form:
 
-.Redirecting to the Log In Page
+.Redirecting to the Login Page
 image::{figures}/loginurlauthenticationentrypoint.png[]
 
 The preceding figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
@@ -22,7 +22,7 @@ In most cases, the `AuthenticationEntryPoint` is an instance of {security-api-ur
 
 image:{icondir}/number_4.png[] The browser requests the login page to which it was redirected.
 
-image:{icondir}/number_5.png[] Something within the application must <<servlet-authentication-form-custom,render the log in page>>.
+image:{icondir}/number_5.png[] Something within the application must <<servlet-authentication-form-custom,render the login page>>.
 
 [[servlet-authentication-usernamepasswordauthenticationfilter]]
 When the username and password are submitted, the `UsernamePasswordAuthenticationFilter` authenticates the username and password.
@@ -49,7 +49,7 @@ See the {security-api-url}springframework/security/web/authentication/Authentica
 
 image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
 
-. `SessionAuthenticationStrategy` is notified of a new log in.
+. `SessionAuthenticationStrategy` is notified of a new login.
 See the {security-api-url}springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[`SessionAuthenticationStrategy`] interface in the Javadoc.
 . The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
 See the {security-api-url}springframework/security/web/context/SecurityContextPersistenceFilter.html[`SecurityContextPersistenceFilter`] class in the Javadoc.
@@ -64,7 +64,7 @@ By default, Spring Security form login is enabled.
 However, as soon as any servlet-based configuration is provided, form based login must be explicitly provided.
 The following example shows a minimal, explicit Java configuration:
 
-.Form LogIn
+.Form Login
 ====
 .Java
 [source,java,role="primary"]
@@ -103,7 +103,7 @@ Most production applications require a custom login form.
 [[servlet-authentication-form-custom]]
 The following configuration demonstrates how to provide a custom login form.
 
-.Custom Log In Form Configuration
+.Custom Login Form Configuration
 ====
 .Java
 [source,java,role="primary"]
@@ -187,7 +187,7 @@ There are a few key points about the default HTML form:
 * If the HTTP parameter named `error` is found, it indicates the user failed to provide a valid username or password.
 * If the HTTP parameter named `logout` is found, it indicates the user has logged out successfully.
 
-Many users do not need much more than to customize the log in page.
+Many users do not need much more than to customize the login page.
 However, if needed, you can customize everything shown earlier with additional configuration.
 
 [[servlet-authentication-form-custom-controller]]

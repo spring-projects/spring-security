@@ -3,7 +3,7 @@
 :figures: images/servlet/oauth2
 :icondir: images/icons
 
-Spring Security supports protecting endpoints BY using two forms of OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens]:
+Spring Security supports protecting endpoints by using two forms of OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens]:
 
 * https://tools.ietf.org/html/rfc7519[JWT]
 * Opaque Tokens
@@ -1485,7 +1485,7 @@ This startup process is quite a bit simpler than for JWTs, since no endpoints ne
 Once the application has started, Resource Server tries to process any request containing an `Authorization: Bearer` header:
 
 ====
-[source,text]
+[source,http]
 ----
 GET / HTTP/1.1
 Authorization: Bearer some-token-value # Resource Server will process this
@@ -3026,7 +3026,7 @@ In these circumstances, Resource Server throws an `InvalidBearerTokenException`.
 Like other exceptions, this results in an OAuth 2.0 Bearer Token error response:
 
 ====
-[source,text]
+[source,http]
 ----
 HTTP/1.1 401 Unauthorized
 WWW-Authenticate: Bearer error_code="invalid_token", error_description="Unsupported algorithm of none", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"

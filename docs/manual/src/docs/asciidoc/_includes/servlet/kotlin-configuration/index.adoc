@@ -52,11 +52,10 @@ Note that this configuration is parallels the XML namespace configuration:
 
 We can configure multiple HttpSecurity instances, just as we can have multiple `<http>` blocks.
 The key is to extend the `WebSecurityConfigurerAdapter` multiple times.
-The following  example has a different configuration for URL's that start with `/api/`:
+The following example has a different configuration for URL's that start with `/api/`:
 
-// The source is Kotlin, but we specify Java to get code formatting. At present, Asciidoctor doesnt' have a Kotlin formatter.
 ====
-[source,java]
+[source,kotlin]
 ----
 @EnableWebSecurity
 class MultiHttpSecurityConfig {
