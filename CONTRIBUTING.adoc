@@ -70,7 +70,12 @@ Please carefully follow the whitespace and formatting conventions already presen
 Whitespace management tips
 
 . You can use the https://marketplace.eclipse.org/content/anyedit-tools[AnyEdit Eclipse plugin] to ensure spaces are used and to clean up trailing whitespaces.
+  Once installed this plugin an extra mandatory configuration must be completed to accomplish the _Unix (LF), not dos (CRLF) line endings_ mentioned in the previous list go to: `Preferences` -> `General` -> `Editors` -> `AnyEdit Tools` -> `Auto Convert` tab and check the `Fix line delimiters (CRLF to LF etc)` checkbox.
 . Use Git's `pre-commit.sample` hook to prevent invalid whitespace from being pushed out. You can enable it by moving `.git/hooks/pre-commit.sample` to `.git/hooks/pre-commit` and ensuring it is executable. For more information on hooks refer to https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks[https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks].
+
+= Formatting
+
+For the build process, it for the project or a specific module, is possible that appears some error messages about invalid formatting with details to fix, it because Spring Security uses the link:https://github.com/spring-io/spring-javaformat[spring-javaformat] plugin.
 
 = Add Apache license header to all new classes
 
