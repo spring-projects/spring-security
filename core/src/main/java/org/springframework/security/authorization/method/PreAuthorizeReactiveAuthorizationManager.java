@@ -16,27 +16,24 @@
 
 package org.springframework.security.authorization.method;
 
-import java.util.function.Supplier;
-
 import org.aopalliance.intercept.MethodInvocation;
+import reactor.core.publisher.Mono;
 
-import org.springframework.expression.EvaluationContext;
-import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 
 /**
- * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
- * invoke the {@link MethodInvocation} by evaluating an expression from the
+ * A {@link ReactiveAuthorizationManager} which can determine if an {@link Authentication}
+ * has access to the {@link MethodInvocation} by evaluating an expression from the
  * {@link PreAuthorize} annotation.
  *
  * @author Evgeniy Cheban
- * @since 5.6
+ * @since 5.8
  */
-public final class PreAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocation> {
+public final class PreAuthorizeReactiveAuthorizationManager implements ReactiveAuthorizationManager<MethodInvocation> {
 
 	private final PreAuthorizeExpressionAttributeRegistry registry = new PreAuthorizeExpressionAttributeRegistry();
 
@@ -49,23 +46,25 @@ public final class PreAuthorizeAuthorizationManager implements AuthorizationMana
 	}
 
 	/**
-	 * Determine if an {@link Authentication} has access to a method by evaluating an
-	 * expression from the {@link PreAuthorize} annotation that the
-	 * {@link MethodInvocation} specifies.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
+	 * Determines if an {@link Authentication} has access to the {@link MethodInvocation}
+	 * by evaluating an expression from the {@link PreAuthorize} annotation.
+	 * @param authentication the {@link Mono} of the {@link Authentication} to check
 	 * @param mi the {@link MethodInvocation} to check
-	 * @return an {@link AuthorizationDecision} or {@code null} if the
-	 * {@link PreAuthorize} annotation is not present
+	 * @return a {@link Mono} of the {@link AuthorizationDecision} or an empty
+	 * {@link Mono} if the {@link PreAuthorize} annotation is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
+	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, MethodInvocation mi) {
 		ExpressionAttribute attribute = this.registry.getAttribute(mi);
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
-			return null;
+			return Mono.empty();
 		}
-		EvaluationContext ctx = this.registry.getExpressionHandler().createEvaluationContext(authentication, mi);
-		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
-		return new ExpressionAttributeAuthorizationDecision(granted, attribute);
+		// @formatter:off
+		return authentication
+				.map((auth) -> this.registry.getExpressionHandler().createEvaluationContext(auth, mi))
+				.flatMap((ctx) -> ReactiveExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx))
+				.map((granted) -> new ExpressionAttributeAuthorizationDecision(granted, attribute));
+		// @formatter:on
 	}
 
 }

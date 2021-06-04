@@ -16,7 +16,6 @@
 
 package org.springframework.security.authorization.method;
 
-import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
 import org.aopalliance.aop.Advice;
@@ -26,12 +25,8 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.framework.AopInfrastructureBean;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.core.Ordered;
 import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
-import org.springframework.lang.NonNull;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -61,8 +56,6 @@ public final class PreFilterAuthorizationMethodInterceptor
 
 	private final Pointcut pointcut;
 
-	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-
 	/**
 	 * Creates a {@link PreFilterAuthorizationMethodInterceptor} using the provided
 	 * parameters
@@ -76,8 +69,7 @@ public final class PreFilterAuthorizationMethodInterceptor
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-		this.expressionHandler = expressionHandler;
+		this.registry.setExpressionHandler(expressionHandler);
 	}
 
 	/**
@@ -127,13 +119,14 @@ public final class PreFilterAuthorizationMethodInterceptor
 	 */
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
-		PreFilterExpressionAttribute attribute = this.registry.getAttribute(mi);
-		if (attribute == PreFilterExpressionAttribute.NULL_ATTRIBUTE) {
+		PreFilterExpressionAttributeRegistry.PreFilterExpressionAttribute attribute = this.registry.getAttribute(mi);
+		if (attribute == PreFilterExpressionAttributeRegistry.PreFilterExpressionAttribute.NULL_ATTRIBUTE) {
 			return mi.proceed();
 		}
-		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(this.authentication, mi);
-		Object filterTarget = findFilterTarget(attribute.filterTarget, ctx, mi);
-		this.expressionHandler.filter(filterTarget, attribute.getExpression(), ctx);
+		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();
+		EvaluationContext ctx = expressionHandler.createEvaluationContext(this.authentication, mi);
+		Object filterTarget = findFilterTarget(attribute.getFilterTarget(), ctx, mi);
+		expressionHandler.filter(filterTarget, attribute.getExpression(), ctx);
 		return mi.proceed();
 	}
 
@@ -166,43 +159,6 @@ public final class PreFilterAuthorizationMethodInterceptor
 			}
 			return authentication;
 		};
-	}
-
-	private final class PreFilterExpressionAttributeRegistry
-			extends AbstractExpressionAttributeRegistry<PreFilterExpressionAttribute> {
-
-		@NonNull
-		@Override
-		PreFilterExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
-			Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-			PreFilter preFilter = findPreFilterAnnotation(specificMethod);
-			if (preFilter == null) {
-				return PreFilterExpressionAttribute.NULL_ATTRIBUTE;
-			}
-			Expression preFilterExpression = PreFilterAuthorizationMethodInterceptor.this.expressionHandler
-					.getExpressionParser().parseExpression(preFilter.value());
-			return new PreFilterExpressionAttribute(preFilterExpression, preFilter.filterTarget());
-		}
-
-		private PreFilter findPreFilterAnnotation(Method method) {
-			PreFilter preFilter = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PreFilter.class);
-			return (preFilter != null) ? preFilter
-					: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), PreFilter.class);
-		}
-
-	}
-
-	private static final class PreFilterExpressionAttribute extends ExpressionAttribute {
-
-		private static final PreFilterExpressionAttribute NULL_ATTRIBUTE = new PreFilterExpressionAttribute(null, null);
-
-		private final String filterTarget;
-
-		private PreFilterExpressionAttribute(Expression expression, String filterTarget) {
-			super(expression);
-			this.filterTarget = filterTarget;
-		}
-
 	}
 
 }

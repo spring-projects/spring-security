@@ -67,7 +67,7 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
 		advice.setExpressionHandler(expressionHandler);
-		assertThat(advice).extracting("expressionHandler").isEqualTo(expressionHandler);
+		assertThat(advice).extracting("registry").extracting("expressionHandler").isEqualTo(expressionHandler);
 	}
 
 	@Test
