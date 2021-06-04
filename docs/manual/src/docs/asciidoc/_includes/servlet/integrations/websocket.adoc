@@ -207,7 +207,7 @@ This means developers need to explicitly protect their applications from externa
 ==== Spring WebSocket Allowed Origin
 
 Fortunately, since Spring 4.1.5 Spring's WebSocket and SockJS support restricts access to the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html#websocket-server-allowed-origins[current domain].
-Spring Security adds an additional layer of protection to provide https://en.wikipedia.org/wiki/Defense_in_depth_%2528computing%2529[defence in depth].
+Spring Security adds an additional layer of protection to provide https://en.wikipedia.org/wiki/Defense_in_depth_(computing)[defence in depth].
 
 [[websocket-sameorigin-csrf]]
 ==== Adding CSRF to Stomp Headers

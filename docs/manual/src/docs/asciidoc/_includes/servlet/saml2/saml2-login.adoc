@@ -319,7 +319,7 @@ class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
 The above requires the role of `USER` for any URL that starts with `/messages/`.
 
 [[servlet-saml2login-relyingpartyregistrationrepository]]
-The second `@Bean` Spring Boot creates is a {security-api-url}org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistrationRepository.html[`RelyingPartyRegistrationRepository`], which represents the asserting party and relying party metadata.
+The second `@Bean` Spring Boot creates is a {old-security-api-url}org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistrationRepository.html[`RelyingPartyRegistrationRepository`], which represents the asserting party and relying party metadata.
 This includes things like the location of the SSO endpoint the relying party should use when requesting authentication from the asserting party.
 
 You can override the default by publishing your own `RelyingPartyRegistrationRepository` bean.
@@ -422,7 +422,7 @@ A relying party can be multi-tenant by registering more than one relying party i
 
 [[servlet-saml2login-relyingpartyregistration]]
 === RelyingPartyRegistration
-A {security-api-url}org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistration.html[`RelyingPartyRegistration`]
+A {old-security-api-url}org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistration.html[`RelyingPartyRegistration`]
 instance represents a link between an relying party and assering party's metadata.
 
 In a `RelyingPartyRegistration`, you can provide relying party metadata like its `Issuer` value, where it expects SAML Responses to be sent to, and any credentials that it owns for the purposes of signing or decrypting payloads.
