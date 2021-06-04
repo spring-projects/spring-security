@@ -398,7 +398,7 @@ public class ServerHttpSecurity {
 	 * 	    http
 	 * 	        // ...
 	 * 	        .redirectToHttps()
-	 * 	            .httpsRedirectWhen((serverWebExchange) ->
+	 * 	            .httpsRedirectWhen((serverWebExchange) -&gt;
 	 * 	            	serverWebExchange.getRequest().getHeaders().containsKey("X-Requires-Https"))
 	 * 	    return http.build();
 	 * 	}
@@ -433,9 +433,9 @@ public class ServerHttpSecurity {
 	 * 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 * 	    http
 	 * 	        // ...
-	 * 	        .redirectToHttps((redirectToHttps) ->
+	 * 	        .redirectToHttps((redirectToHttps) -&gt;
 	 * 	        	redirectToHttps
-	 * 	            	.httpsRedirectWhen((serverWebExchange) ->
+	 * 	            	.httpsRedirectWhen((serverWebExchange) -&gt;
 	 * 	            		serverWebExchange.getRequest().getHeaders().containsKey("X-Requires-Https"))
 	 * 	            );
 	 * 	    return http.build();
@@ -503,7 +503,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .csrf((csrf) ->
+	 *          .csrf((csrf) -&gt;
 	 *              csrf.disabled()
 	 *          );
 	 *      return http.build();
@@ -518,7 +518,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .csrf((csrf) ->
+	 *          .csrf((csrf) -&gt;
 	 *              csrf
 	 *                  // Handle CSRF failures
 	 *                  .accessDeniedHandler(accessDeniedHandler)
@@ -609,7 +609,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .anonymous((anonymous) ->
+	 *          .anonymous((anonymous) -&gt;
 	 *              anonymous
 	 *                  .key("key")
 	 *                  .authorities("ROLE_ANONYMOUS")
@@ -662,7 +662,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .httpBasic((httpBasic) ->
+	 *          .httpBasic((httpBasic) -&gt;
 	 *              httpBasic
 	 *                  // used for authenticating the credentials
 	 *                  .authenticationManager(authenticationManager)
@@ -721,7 +721,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .formLogin((formLogin) ->
+	 *          .formLogin((formLogin) -&gt;
 	 *              formLogin
 	 *              	// used for authenticating the credentials
 	 *              	.authenticationManager(authenticationManager)
@@ -783,7 +783,7 @@ public class ServerHttpSecurity {
 	 *  &#064;Bean
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
-	 *          .x509((x509) ->
+	 *          .x509((x509) -&gt;
 	 *              x509
 	 *          	    .authenticationManager(authenticationManager)
 	 *                  .principalExtractor(principalExtractor)
@@ -841,7 +841,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .oauth2Login((oauth2Login) ->
+	 *          .oauth2Login((oauth2Login) -&gt;
 	 *              oauth2Login
 	 *                  .authenticationConverter(authenticationConverter)
 	 *                  .authenticationManager(manager)
@@ -892,7 +892,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .oauth2Client((oauth2Client) ->
+	 *          .oauth2Client((oauth2Client) -&gt;
 	 *              oauth2Client
 	 *                  .clientRegistrationRepository(clientRegistrationRepository)
 	 *                  .authorizedClientRepository(authorizedClientRepository)
@@ -943,9 +943,9 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .oauth2ResourceServer((oauth2ResourceServer) ->
+	 *          .oauth2ResourceServer((oauth2ResourceServer) -&gt;
 	 *              oauth2ResourceServer
-	 *                  .jwt((jwt) ->
+	 *                  .jwt((jwt) -&gt;
 	 *                      jwt
 	 *                          .publicKey(publicKey())
 	 *                  )
@@ -1029,15 +1029,15 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .headers((headers) ->
+	 *          .headers((headers) -&gt;
 	 *              headers
 	 *                  // customize frame options to be same origin
-	 *                  .frameOptions((frameOptions) ->
+	 *                  .frameOptions((frameOptions) -&gt;
 	 *                      frameOptions
 	 *                          .mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN)
 	 *                   )
 	 *                  // disable cache control
-	 *                  .cache((cache) ->
+	 *                  .cache((cache) -&gt;
 	 *                      cache
 	 *                          .disable()
 	 *                  )
@@ -1090,7 +1090,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .exceptionHandling((exceptionHandling) ->
+	 *          .exceptionHandling((exceptionHandling) -&gt;
 	 *              exceptionHandling
 	 *                  // customize how to request for authentication
 	 *                  .authenticationEntryPoint(entryPoint)
@@ -1125,10 +1125,10 @@ public class ServerHttpSecurity {
 	 *              .pathMatchers(HttpMethod.POST, "/users").hasAuthority("USER_POST")
 	 *              // a request to /users/{username} requires the current authentication's username
 	 *              // to be equal to the {username}
-	 *              .pathMatchers("/users/{username}").access((authentication, context) ->
+	 *              .pathMatchers("/users/{username}").access((authentication, context) -&gt;
 	 *                  authentication
 	 *                      .map(Authentication::getName)
-	 *                      .map((username) -> username.equals(context.getVariables().get("username")))
+	 *                      .map((username) -&gt; username.equals(context.getVariables().get("username")))
 	 *                      .map(AuthorizationDecision::new)
 	 *              )
 	 *              // allows providing a custom matching strategy that requires the role "ROLE_CUSTOM"
@@ -1155,7 +1155,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .authorizeExchange((exchanges) ->
+	 *          .authorizeExchange((exchanges) -&gt;
 	 *              exchanges
 	 *                  // any URL that starts with /admin/ requires the role "ROLE_ADMIN"
 	 *                  .pathMatchers("/admin/**").hasRole("ADMIN")
@@ -1163,10 +1163,10 @@ public class ServerHttpSecurity {
 	 *                  .pathMatchers(HttpMethod.POST, "/users").hasAuthority("USER_POST")
 	 *                  // a request to /users/{username} requires the current authentication's username
 	 *                  // to be equal to the {username}
-	 *                  .pathMatchers("/users/{username}").access((authentication, context) ->
+	 *                  .pathMatchers("/users/{username}").access((authentication, context) -&gt;
 	 *                      authentication
 	 *                          .map(Authentication::getName)
-	 *                          .map((username) -> username.equals(context.getVariables().get("username")))
+	 *                          .map((username) -&gt; username.equals(context.getVariables().get("username")))
 	 *                          .map(AuthorizationDecision::new)
 	 *                  )
 	 *                  // allows providing a custom matching strategy that requires the role "ROLE_CUSTOM"
@@ -1224,7 +1224,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .logout((logout) ->
+	 *          .logout((logout) -&gt;
 	 *              logout
 	 *                  // configures how log out is done
 	 *                  .logoutHandler(logoutHandler)
@@ -1280,7 +1280,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .requestCache((requestCache) ->
+	 *          .requestCache((requestCache) -&gt;
 	 *              requestCache
 	 *                  // configures how the request is cached
 	 *                  .requestCache(customRequestCache)
