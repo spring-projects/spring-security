@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,7 +99,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 *     authenticationManagers.put("https://issuerOne.example.org", managerOne);
 	 *     authenticationManagers.put("https://issuerTwo.example.org", managerTwo);
 	 *     JwtIssuerReactiveAuthenticationManagerResolver resolver = new JwtIssuerReactiveAuthenticationManagerResolver
-	 *     	((issuer) -> Mono.justOrEmpty(authenticationManagers.get(issuer));
+	 *     	((issuer) -&gt; Mono.justOrEmpty(authenticationManagers.get(issuer));
 	 * </pre>
 	 *
 	 * The keys in the {@link Map} are the trusted issuers.
