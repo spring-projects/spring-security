@@ -585,6 +585,34 @@ public class OpenSaml4AuthenticationProviderTests {
 		assertThat(authentication.getName()).isEqualTo("test@saml.user");
 	}
 
+	@Test
+	public void setResponseValidatorWhenNullThenIllegalArgument() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.provider.setResponseValidator(null));
+	}
+
+	@Test
+	public void authenticateWhenCustomResponseValidatorThenUses() {
+		Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2ResponseValidatorResult> validator = mock(
+				Converter.class);
+		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		// @formatter:off
+		provider.setResponseValidator((responseToken) -> OpenSaml4AuthenticationProvider.createDefaultResponseValidator()
+				.convert(responseToken)
+				.concat(validator.convert(responseToken))
+		);
+		// @formatter:on
+		Response response = response();
+		Assertion assertion = assertion();
+		response.getAssertions().add(assertion);
+		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
+				ASSERTING_PARTY_ENTITY_ID);
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		given(validator.convert(any(OpenSaml4AuthenticationProvider.ResponseToken.class)))
+				.willReturn(Saml2ResponseValidatorResult.success());
+		provider.authenticate(token);
+		verify(validator).convert(any(OpenSaml4AuthenticationProvider.ResponseToken.class));
+	}
+
 	private <T extends XMLObject> T build(QName qName) {
 		return (T) XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(qName).buildObject(qName);
 	}
