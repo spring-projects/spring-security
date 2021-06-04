@@ -1101,6 +1101,7 @@ fun jwtDecoder(): JwtDecoder {
 ====
 
 [NOTE]
+====
 By default, Resource Server configures a clock skew of 60 seconds.
 ====
 
