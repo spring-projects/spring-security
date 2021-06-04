@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package org.springframework.security.config.web.servlet
 
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mock.web.MockHttpSession
 import org.springframework.security.authentication.TestingAuthenticationToken
@@ -285,18 +285,21 @@ class LogoutDslTests {
     @Test
     fun `logout when custom logout handler then custom handler used`() {
         this.spring.register(CustomLogoutHandlerConfig::class.java).autowire()
+       mockkObject(CustomLogoutHandlerConfig.HANDLER)
+        every { CustomLogoutHandlerConfig.HANDLER.logout(any(), any(), any()) } returns Unit
 
         this.mockMvc.post("/logout") {
             with(csrf())
         }
 
-        verify(CustomLogoutHandlerConfig.HANDLER).logout(any(), any(), any())
+        verify(exactly = 1) { CustomLogoutHandlerConfig.HANDLER.logout(any(), any(), any()) }
     }
 
     @EnableWebSecurity
     open class CustomLogoutHandlerConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            var HANDLER: LogoutHandler = mock(LogoutHandler::class.java)
+            val HANDLER: LogoutHandler = LogoutHandler { _, _, _ -> }
         }
 
         override fun configure(http: HttpSecurity) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,19 @@
 
 package org.springframework.security.config.web.server
 
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.verify
+import java.math.BigInteger
+import java.security.KeyFactory
+import java.security.interfaces.RSAPublicKey
+import java.security.spec.RSAPublicKeySpec
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpStatus
-import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestRule
@@ -36,10 +39,7 @@ import org.springframework.security.web.server.authorization.HttpStatusServerAcc
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.server.ServerWebExchange
-import java.math.BigInteger
-import java.security.KeyFactory
-import java.security.interfaces.RSAPublicKey
-import java.security.spec.RSAPublicKeySpec
+import reactor.core.publisher.Mono
 
 /**
  * Tests for [ServerOAuth2ResourceServerDsl]
@@ -127,20 +127,25 @@ class ServerOAuth2ResourceServerDslTests {
     @Test
     fun `request when custom bearer token converter configured then custom converter used`() {
         this.spring.register(BearerTokenConverterConfig::class.java).autowire()
+        mockkObject(BearerTokenConverterConfig.CONVERTER)
+        every {
+            BearerTokenConverterConfig.CONVERTER.convert(any())
+        } returns Mono.empty()
 
         this.client.get()
                 .uri("/")
                 .headers { it.setBearerAuth(validJwt) }
                 .exchange()
 
-        verify(BearerTokenConverterConfig.CONVERTER).convert(any())
+        verify(exactly = 1) { BearerTokenConverterConfig.CONVERTER.convert(any()) }
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class BearerTokenConverterConfig {
+
         companion object {
-            val CONVERTER: ServerBearerTokenAuthenticationConverter = mock(ServerBearerTokenAuthenticationConverter::class.java)
+            val CONVERTER: ServerBearerTokenAuthenticationConverter = ServerBearerTokenAuthenticationConverter()
         }
 
         @Bean
@@ -162,21 +167,25 @@ class ServerOAuth2ResourceServerDslTests {
     @Test
     fun `request when custom authentication manager resolver configured then custom resolver used`() {
         this.spring.register(AuthenticationManagerResolverConfig::class.java).autowire()
+        mockkObject(AuthenticationManagerResolverConfig.RESOLVER)
+        every {
+            AuthenticationManagerResolverConfig.RESOLVER.resolve(any())
+        } returns Mono.empty()
 
         this.client.get()
                 .uri("/")
                 .headers { it.setBearerAuth(validJwt) }
                 .exchange()
 
-        verify(AuthenticationManagerResolverConfig.RESOLVER).resolve(any())
+        verify(exactly = 1) { AuthenticationManagerResolverConfig.RESOLVER.resolve(any()) }
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AuthenticationManagerResolverConfig {
+
         companion object {
-            val RESOLVER: ReactiveAuthenticationManagerResolver<ServerWebExchange> =
-                    mock(ReactiveAuthenticationManagerResolver::class.java) as ReactiveAuthenticationManagerResolver<ServerWebExchange>
+            val RESOLVER: ReactiveAuthenticationManagerResolver<ServerWebExchange> = ReactiveAuthenticationManagerResolver { Mono.empty() }
         }
 
         @Bean

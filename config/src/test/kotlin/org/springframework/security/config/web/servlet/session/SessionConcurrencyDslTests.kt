@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 
 package org.springframework.security.config.web.servlet.session
 
+import io.mockk.every
+import io.mockk.mockkObject
+import java.util.Date
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -27,11 +29,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.core.session.SessionInformation
 import org.springframework.security.core.session.SessionRegistry
+import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy
@@ -40,7 +43,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.*
 
 /**
  * Tests for [SessionConcurrencyDsl]
@@ -90,11 +92,12 @@ class SessionConcurrencyDslTests {
     @Test
     fun `session concurrency when expired url then redirects to url`() {
         this.spring.register(ExpiredUrlConfig::class.java).autowire()
+        mockkObject(ExpiredUrlConfig.SESSION_REGISTRY)
 
         val session = MockHttpSession()
         val sessionInformation = SessionInformation("", session.id, Date(0))
         sessionInformation.expireNow()
-        `when`(ExpiredUrlConfig.sessionRegistry.getSessionInformation(any())).thenReturn(sessionInformation)
+        every { ExpiredUrlConfig.SESSION_REGISTRY.getSessionInformation(any()) } returns sessionInformation
 
         this.mockMvc.perform(get("/").session(session))
                 .andExpect(redirectedUrl("/expired-session"))
@@ -102,8 +105,9 @@ class SessionConcurrencyDslTests {
 
     @EnableWebSecurity
     open class ExpiredUrlConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            val sessionRegistry: SessionRegistry = mock(SessionRegistry::class.java)
+            val SESSION_REGISTRY: SessionRegistry = SessionRegistryImpl()
         }
 
         override fun configure(http: HttpSecurity) {
@@ -112,26 +116,25 @@ class SessionConcurrencyDslTests {
                     sessionConcurrency {
                         maximumSessions = 1
                         expiredUrl = "/expired-session"
-                        sessionRegistry = sessionRegistry()
+                        sessionRegistry = SESSION_REGISTRY
                     }
                 }
             }
         }
 
         @Bean
-        open fun sessionRegistry(): SessionRegistry {
-            return sessionRegistry
-        }
+        open fun sessionRegistry(): SessionRegistry = SESSION_REGISTRY
     }
 
     @Test
     fun `session concurrency when expired session strategy then strategy used`() {
         this.spring.register(ExpiredSessionStrategyConfig::class.java).autowire()
+        mockkObject(ExpiredSessionStrategyConfig.SESSION_REGISTRY)
 
         val session = MockHttpSession()
         val sessionInformation = SessionInformation("", session.id, Date(0))
         sessionInformation.expireNow()
-        `when`(ExpiredSessionStrategyConfig.sessionRegistry.getSessionInformation(any())).thenReturn(sessionInformation)
+        every { ExpiredSessionStrategyConfig.SESSION_REGISTRY.getSessionInformation(any()) } returns sessionInformation
 
         this.mockMvc.perform(get("/").session(session))
                 .andExpect(redirectedUrl("/expired-session"))
@@ -139,8 +142,9 @@ class SessionConcurrencyDslTests {
 
     @EnableWebSecurity
     open class ExpiredSessionStrategyConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            val sessionRegistry: SessionRegistry = mock(SessionRegistry::class.java)
+            val SESSION_REGISTRY: SessionRegistry = SessionRegistryImpl()
         }
 
         override fun configure(http: HttpSecurity) {
@@ -149,16 +153,14 @@ class SessionConcurrencyDslTests {
                     sessionConcurrency {
                         maximumSessions = 1
                         expiredSessionStrategy = SimpleRedirectSessionInformationExpiredStrategy("/expired-session")
-                        sessionRegistry = sessionRegistry()
+                        sessionRegistry = SESSION_REGISTRY
                     }
                 }
             }
         }
 
         @Bean
-        open fun sessionRegistry(): SessionRegistry {
-            return sessionRegistry
-        }
+        open fun sessionRegistry(): SessionRegistry = SESSION_REGISTRY
     }
 
     @Configuration

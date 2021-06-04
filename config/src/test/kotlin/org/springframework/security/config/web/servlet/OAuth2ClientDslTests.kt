@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
 
 package org.springframework.security.config.web.servlet
 
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -33,6 +34,8 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository
 import org.springframework.security.oauth2.core.OAuth2AccessToken
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse
@@ -77,6 +80,9 @@ class OAuth2ClientDslTests {
     @Test
     fun `oauth2Client when custom authorized client repository then repository used`() {
         this.spring.register(ClientRepositoryConfig::class.java, ClientConfig::class.java).autowire()
+        mockkObject(ClientRepositoryConfig.REQUEST_REPOSITORY)
+        mockkObject(ClientRepositoryConfig.CLIENT)
+        mockkObject(ClientRepositoryConfig.CLIENT_REPOSITORY)
         val authorizationRequest = OAuth2AuthorizationRequest
                 .authorizationCode()
                 .state("test")
@@ -85,30 +91,41 @@ class OAuth2ClientDslTests {
                 .redirectUri("http://localhost/callback")
                 .attributes(mapOf(Pair(OAuth2ParameterNames.REGISTRATION_ID, "registrationId")))
                 .build()
-        `when`(ClientRepositoryConfig.REQUEST_REPOSITORY.loadAuthorizationRequest(any()))
-                .thenReturn(authorizationRequest)
-        `when`(ClientRepositoryConfig.REQUEST_REPOSITORY.removeAuthorizationRequest(any(), any()))
-                .thenReturn(authorizationRequest)
-        `when`(ClientRepositoryConfig.CLIENT.getTokenResponse(any()))
-                .thenReturn(OAuth2AccessTokenResponse
-                        .withToken("token")
-                        .tokenType(OAuth2AccessToken.TokenType.BEARER)
-                        .build())
+        every {
+            ClientRepositoryConfig.REQUEST_REPOSITORY.loadAuthorizationRequest(any())
+        } returns authorizationRequest
+        every {
+            ClientRepositoryConfig.REQUEST_REPOSITORY.removeAuthorizationRequest(any(), any())
+        } returns authorizationRequest
+        every {
+            ClientRepositoryConfig.CLIENT.getTokenResponse(any())
+        } returns OAuth2AccessTokenResponse
+            .withToken("token")
+            .tokenType(OAuth2AccessToken.TokenType.BEARER)
+            .build()
+        every {
+            ClientRepositoryConfig.CLIENT_REPOSITORY.saveAuthorizedClient(any(), any(), any(), any())
+        } returns Unit
 
         this.mockMvc.get("/callback") {
             param("state", "test")
             param("code", "123")
         }
 
-        verify(ClientRepositoryConfig.CLIENT_REPOSITORY).saveAuthorizedClient(any(), any(), any(), any())
+        verify(exactly = 1) { ClientRepositoryConfig.CLIENT_REPOSITORY.saveAuthorizedClient(any(), any(), any(), any()) }
     }
 
     @EnableWebSecurity
     open class ClientRepositoryConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            var REQUEST_REPOSITORY: AuthorizationRequestRepository<OAuth2AuthorizationRequest> = mock(AuthorizationRequestRepository::class.java) as AuthorizationRequestRepository<OAuth2AuthorizationRequest>
-            var CLIENT: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> = mock(OAuth2AccessTokenResponseClient::class.java) as OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>
-            var CLIENT_REPOSITORY: OAuth2AuthorizedClientRepository = mock(OAuth2AuthorizedClientRepository::class.java)
+            val REQUEST_REPOSITORY: AuthorizationRequestRepository<OAuth2AuthorizationRequest> =
+                HttpSessionOAuth2AuthorizationRequestRepository()
+            val CLIENT: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> =
+                OAuth2AccessTokenResponseClient {
+                    OAuth2AccessTokenResponse.withToken("some tokenValue").build()
+                }
+            val CLIENT_REPOSITORY: OAuth2AuthorizedClientRepository = HttpSessionOAuth2AuthorizedClientRepository()
         }
 
         override fun configure(http: HttpSecurity) {

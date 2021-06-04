@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,22 @@
 
 package org.springframework.security.config.web.server
 
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
+import org.springframework.security.config.test.SpringTestRule
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService
 import org.springframework.security.core.userdetails.User
-import org.springframework.security.config.test.SpringTestRule
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.savedrequest.ServerRequestCache
+import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
 import reactor.core.publisher.Mono
@@ -59,20 +59,24 @@ class ServerRequestCacheDslTests {
     @Test
     fun `GET when request cache enabled then redirected to cached page`() {
         this.spring.register(RequestCacheConfig::class.java, UserDetailsConfig::class.java).autowire()
-        `when`(RequestCacheConfig.REQUEST_CACHE.removeMatchingRequest(any())).thenReturn(Mono.empty())
+        mockkObject(RequestCacheConfig.REQUEST_CACHE)
+        every {
+            RequestCacheConfig.REQUEST_CACHE.removeMatchingRequest(any())
+        } returns Mono.empty()
 
         this.client.get()
                 .uri("/test")
                 .exchange()
 
-        verify(RequestCacheConfig.REQUEST_CACHE).saveRequest(any())
+        verify(exactly = 1) { RequestCacheConfig.REQUEST_CACHE.saveRequest(any()) }
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class RequestCacheConfig {
+
         companion object {
-            var REQUEST_CACHE: ServerRequestCache = Mockito.mock(ServerRequestCache::class.java)
+            val REQUEST_CACHE: ServerRequestCache = WebSessionServerRequestCache()
         }
 
         @Bean

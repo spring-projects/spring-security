@@ -16,14 +16,22 @@
 
 package org.springframework.security.config.web.servlet
 
+import io.mockk.Called
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.justRun
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.verify
+import javax.servlet.http.HttpServletRequest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.jupiter.api.fail
-import org.mockito.BDDMockito.given
-import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
 import org.springframework.core.annotation.Order
+import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpSession
 import org.springframework.security.authentication.RememberMeAuthenticationToken
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
@@ -36,21 +44,21 @@ import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.PasswordEncodedUser
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
+import org.springframework.security.web.authentication.NullRememberMeServices
 import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices
-import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 /**
  * Tests for [RememberMeDsl]
@@ -58,12 +66,15 @@ import javax.servlet.http.HttpServletResponse
  * @author Ivan Pavlov
  */
 internal class RememberMeDslTests {
+
     @Rule
     @JvmField
     val spring = SpringTestRule()
 
     @Autowired
     lateinit var mockMvc: MockMvc
+
+    private val mockAuthentication: Authentication = mockk()
 
     @Test
     fun `Remember Me login when remember me true then responds with remember me cookie`() {
@@ -165,39 +176,49 @@ internal class RememberMeDslTests {
 
     @Test
     fun `Remember Me when remember me services then uses`() {
-        RememberMeServicesRefConfig.REMEMBER_ME_SERVICES = mock(RememberMeServices::class.java)
         this.spring.register(RememberMeServicesRefConfig::class.java).autowire()
+        mockkObject(RememberMeServicesRefConfig.REMEMBER_ME_SERVICES)
+        every {
+            RememberMeServicesRefConfig.REMEMBER_ME_SERVICES.autoLogin(any(),any())
+        } returns mockAuthentication
+        every {
+            RememberMeServicesRefConfig.REMEMBER_ME_SERVICES.loginFail(any(), any())
+        } returns Unit
+        every {
+            RememberMeServicesRefConfig.REMEMBER_ME_SERVICES.loginSuccess(any(), any(), any())
+        } returns Unit
+
         mockMvc.get("/")
-        verify(RememberMeServicesRefConfig.REMEMBER_ME_SERVICES).autoLogin(any(HttpServletRequest::class.java),
-                any(HttpServletResponse::class.java))
+
+        verify(exactly = 1) { RememberMeServicesRefConfig.REMEMBER_ME_SERVICES.autoLogin(any(),any()) }
         mockMvc.post("/login") {
             with(csrf())
         }
-        verify(RememberMeServicesRefConfig.REMEMBER_ME_SERVICES).loginFail(any(HttpServletRequest::class.java),
-                any(HttpServletResponse::class.java))
+        verify(exactly = 2) { RememberMeServicesRefConfig.REMEMBER_ME_SERVICES.loginFail(any(), any()) }
         mockMvc.post("/login") {
             loginRememberMeRequest()
         }
-        verify(RememberMeServicesRefConfig.REMEMBER_ME_SERVICES).loginSuccess(any(HttpServletRequest::class.java),
-                any(HttpServletResponse::class.java), any(Authentication::class.java))
+        verify(exactly = 1) { RememberMeServicesRefConfig.REMEMBER_ME_SERVICES.loginSuccess(any(), any(), any()) }
     }
 
     @Test
     fun `Remember Me when authentication success handler then uses`() {
-        RememberMeSuccessHandlerConfig.SUCCESS_HANDLER = mock(AuthenticationSuccessHandler::class.java)
         this.spring.register(RememberMeSuccessHandlerConfig::class.java).autowire()
+        mockkObject(RememberMeSuccessHandlerConfig.SUCCESS_HANDLER)
+        justRun {
+            RememberMeSuccessHandlerConfig.SUCCESS_HANDLER.onAuthenticationSuccess(any(), any(), any())
+        }
         val mvcResult = mockMvc.post("/login") {
             loginRememberMeRequest()
         }.andReturn()
-        verifyNoInteractions(RememberMeSuccessHandlerConfig.SUCCESS_HANDLER)
+
         val rememberMeCookie = mvcResult.response.getCookie("remember-me")
                 ?: fail { "Missing remember-me cookie in login response" }
         mockMvc.get("/abc") {
             cookie(rememberMeCookie)
         }
-        verify(RememberMeSuccessHandlerConfig.SUCCESS_HANDLER).onAuthenticationSuccess(
-                any(HttpServletRequest::class.java), any(HttpServletResponse::class.java),
-                any(Authentication::class.java))
+
+        verify(exactly = 1) { RememberMeSuccessHandlerConfig.SUCCESS_HANDLER.onAuthenticationSuccess(any(), any(), any()) }
     }
 
     @Test
@@ -228,13 +249,15 @@ internal class RememberMeDslTests {
 
     @Test
     fun `Remember Me when token repository then uses`() {
-        RememberMeTokenRepositoryConfig.TOKEN_REPOSITORY = mock(PersistentTokenRepository::class.java)
         this.spring.register(RememberMeTokenRepositoryConfig::class.java).autowire()
+        mockkObject(RememberMeTokenRepositoryConfig.TOKEN_REPOSITORY)
+        every {
+            RememberMeTokenRepositoryConfig.TOKEN_REPOSITORY.createNewToken(any())
+        } returns Unit
         mockMvc.post("/login") {
             loginRememberMeRequest()
         }
-        verify(RememberMeTokenRepositoryConfig.TOKEN_REPOSITORY).createNewToken(
-                any(PersistentRememberMeToken::class.java))
+        verify(exactly = 1) { RememberMeTokenRepositoryConfig.TOKEN_REPOSITORY.createNewToken(any()) }
     }
 
     @Test
@@ -312,24 +335,32 @@ internal class RememberMeDslTests {
 
     @Test
     fun `Remember Me when global user details service then uses`() {
-        RememberMeDefaultUserDetailsServiceConfig.USER_DETAIL_SERVICE = mock(UserDetailsService::class.java)
         this.spring.register(RememberMeDefaultUserDetailsServiceConfig::class.java).autowire()
+        mockkObject(RememberMeDefaultUserDetailsServiceConfig.USER_DETAIL_SERVICE)
+        val user = User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER"))
+        every {
+            RememberMeDefaultUserDetailsServiceConfig.USER_DETAIL_SERVICE.loadUserByUsername("user")
+        } returns user
+
         mockMvc.post("/login") {
             loginRememberMeRequest()
         }
-        verify(RememberMeDefaultUserDetailsServiceConfig.USER_DETAIL_SERVICE).loadUserByUsername("user")
+
+        verify(exactly = 1) { RememberMeDefaultUserDetailsServiceConfig.USER_DETAIL_SERVICE.loadUserByUsername("user") }
     }
 
     @Test
     fun `Remember Me when user details service then uses`() {
-        RememberMeUserDetailsServiceConfig.USER_DETAIL_SERVICE = mock(UserDetailsService::class.java)
         this.spring.register(RememberMeUserDetailsServiceConfig::class.java).autowire()
+        mockkObject(RememberMeUserDetailsServiceConfig.USER_DETAIL_SERVICE)
         val user = User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER"))
-        given(RememberMeUserDetailsServiceConfig.USER_DETAIL_SERVICE.loadUserByUsername("user")).willReturn(user)
+        every {
+            RememberMeUserDetailsServiceConfig.USER_DETAIL_SERVICE.loadUserByUsername("user")
+        } returns user
         mockMvc.post("/login") {
             loginRememberMeRequest()
         }
-        verify(RememberMeUserDetailsServiceConfig.USER_DETAIL_SERVICE).loadUserByUsername("user")
+        verify(exactly = 1) { RememberMeUserDetailsServiceConfig.USER_DETAIL_SERVICE.loadUserByUsername("user") }
     }
 
     @Test
@@ -344,8 +375,10 @@ internal class RememberMeDslTests {
         }
     }
 
-    private fun MockHttpServletRequestDsl.loginRememberMeRequest(rememberMeParameter: String = "remember-me",
-                                                                 rememberMeValue: Boolean? = true) {
+    private fun MockHttpServletRequestDsl.loginRememberMeRequest(
+        rememberMeParameter: String = "remember-me",
+        rememberMeValue: Boolean? = true
+    ) {
         with(csrf())
         param("username", "user")
         param("password", "password")
@@ -392,6 +425,11 @@ internal class RememberMeDslTests {
 
     @EnableWebSecurity
     open class RememberMeServicesRefConfig : DefaultUserConfig() {
+
+        companion object {
+            val REMEMBER_ME_SERVICES: RememberMeServices = NullRememberMeServices()
+        }
+
         override fun configure(http: HttpSecurity) {
             http {
                 formLogin {}
@@ -400,14 +438,15 @@ internal class RememberMeDslTests {
                 }
             }
         }
-
-        companion object {
-            lateinit var REMEMBER_ME_SERVICES: RememberMeServices
-        }
     }
 
     @EnableWebSecurity
     open class RememberMeSuccessHandlerConfig : DefaultUserConfig() {
+
+        companion object {
+            val SUCCESS_HANDLER: AuthenticationSuccessHandler = AuthenticationSuccessHandler { _ , _, _ -> }
+        }
+
         override fun configure(http: HttpSecurity) {
             http {
                 formLogin {}
@@ -415,10 +454,6 @@ internal class RememberMeDslTests {
                     authenticationSuccessHandler = SUCCESS_HANDLER
                 }
             }
-        }
-
-        companion object {
-            lateinit var SUCCESS_HANDLER: AuthenticationSuccessHandler
         }
     }
 
@@ -453,6 +488,11 @@ internal class RememberMeDslTests {
 
     @EnableWebSecurity
     open class RememberMeTokenRepositoryConfig : DefaultUserConfig() {
+
+        companion object {
+            val TOKEN_REPOSITORY: PersistentTokenRepository = mockk()
+        }
+
         override fun configure(http: HttpSecurity) {
             http {
                 formLogin {}
@@ -460,10 +500,6 @@ internal class RememberMeDslTests {
                     tokenRepository = TOKEN_REPOSITORY
                 }
             }
-        }
-
-        companion object {
-            lateinit var TOKEN_REPOSITORY: PersistentTokenRepository
         }
     }
 
@@ -517,6 +553,14 @@ internal class RememberMeDslTests {
 
     @EnableWebSecurity
     open class RememberMeDefaultUserDetailsServiceConfig : DefaultUserConfig() {
+
+        companion object {
+            val USER_DETAIL_SERVICE: UserDetailsService = UserDetailsService { _ ->
+                User("username", "password", emptyList())
+            }
+            val PASSWORD_ENCODER: PasswordEncoder = BCryptPasswordEncoder()
+        }
+
         override fun configure(http: HttpSecurity) {
             http {
                 formLogin {}
@@ -528,13 +572,20 @@ internal class RememberMeDslTests {
             auth.userDetailsService(USER_DETAIL_SERVICE)
         }
 
-        companion object {
-            lateinit var USER_DETAIL_SERVICE: UserDetailsService
-        }
+        @Bean
+        open fun delegatingPasswordEncoder(): PasswordEncoder = PASSWORD_ENCODER
+
     }
 
     @EnableWebSecurity
     open class RememberMeUserDetailsServiceConfig : DefaultUserConfig() {
+
+        companion object {
+            val USER_DETAIL_SERVICE: UserDetailsService = UserDetailsService { _ ->
+                User("username", "password", emptyList())
+            }
+        }
+
         override fun configure(http: HttpSecurity) {
             http {
                 formLogin {}
@@ -542,10 +593,6 @@ internal class RememberMeDslTests {
                     userDetailsService = USER_DETAIL_SERVICE
                 }
             }
-        }
-
-        companion object {
-            lateinit var USER_DETAIL_SERVICE: UserDetailsService
         }
     }
 

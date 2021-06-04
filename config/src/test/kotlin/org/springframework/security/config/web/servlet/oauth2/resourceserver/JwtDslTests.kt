@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 
 package org.springframework.security.config.web.servlet.oauth2.resourceserver
 
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.core.convert.converter.Converter
@@ -59,7 +62,7 @@ class JwtDslTests {
             http {
                 oauth2ResourceServer {
                     jwt {
-                        jwtDecoder = mock(JwtDecoder::class.java)
+                        jwtDecoder = mockk()
                     }
                 }
             }
@@ -87,25 +90,32 @@ class JwtDslTests {
     @Test
     fun `JWT when custom JWT authentication converter then converter used`() {
         this.spring.register(CustomJwtAuthenticationConverterConfig::class.java).autowire()
-        `when`(CustomJwtAuthenticationConverterConfig.DECODER.decode(anyString())).thenReturn(
-                Jwt.withTokenValue("token")
-                        .header("alg", "none")
-                        .claim(IdTokenClaimNames.SUB, "user")
-                        .build())
-        `when`(CustomJwtAuthenticationConverterConfig.CONVERTER.convert(any()))
-                .thenReturn(TestingAuthenticationToken("test", "this", "ROLE"))
+        mockkObject(CustomJwtAuthenticationConverterConfig.CONVERTER)
+        mockkObject(CustomJwtAuthenticationConverterConfig.DECODER)
+        every {
+            CustomJwtAuthenticationConverterConfig.DECODER.decode(any())
+        } returns Jwt.withTokenValue("token")
+            .header("alg", "none")
+            .claim(IdTokenClaimNames.SUB, "user")
+            .build()
+        every {
+            CustomJwtAuthenticationConverterConfig.CONVERTER.convert(any())
+        } returns TestingAuthenticationToken("test", "this", "ROLE")
         this.mockMvc.get("/") {
             header("Authorization", "Bearer token")
         }
 
-        verify(CustomJwtAuthenticationConverterConfig.CONVERTER).convert(any())
+        verify(exactly = 1) { CustomJwtAuthenticationConverterConfig.CONVERTER.convert(any()) }
     }
 
     @EnableWebSecurity
     open class CustomJwtAuthenticationConverterConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            var CONVERTER: Converter<Jwt, out AbstractAuthenticationToken> = mock(Converter::class.java) as Converter<Jwt, out AbstractAuthenticationToken>
-            var DECODER: JwtDecoder = mock(JwtDecoder::class.java)
+            val CONVERTER: Converter<Jwt, out AbstractAuthenticationToken> = Converter { _ ->
+                TestingAuthenticationToken("a", "b",  "c")
+            }
+            val DECODER: JwtDecoder = JwtDecoder { Jwt.withTokenValue("some tokenValue").build() }
         }
 
         override fun configure(http: HttpSecurity) {
@@ -122,31 +132,32 @@ class JwtDslTests {
         }
 
         @Bean
-        open fun jwtDecoder(): JwtDecoder {
-            return DECODER
-        }
+        open fun jwtDecoder(): JwtDecoder = DECODER
     }
 
     @Test
     fun `JWT when custom JWT decoder set after jwkSetUri then decoder used`() {
         this.spring.register(JwtDecoderAfterJwkSetUriConfig::class.java).autowire()
-        `when`(JwtDecoderAfterJwkSetUriConfig.DECODER.decode(anyString())).thenReturn(
-                Jwt.withTokenValue("token")
-                        .header("alg", "none")
-                        .claim(IdTokenClaimNames.SUB, "user")
-                        .build())
+        mockkObject(JwtDecoderAfterJwkSetUriConfig.DECODER)
+        every {
+            JwtDecoderAfterJwkSetUriConfig.DECODER.decode(any())
+        } returns Jwt.withTokenValue("token")
+            .header("alg", "none")
+            .claim(IdTokenClaimNames.SUB, "user")
+            .build()
 
         this.mockMvc.get("/") {
             header("Authorization", "Bearer token")
         }
 
-        verify(JwtDecoderAfterJwkSetUriConfig.DECODER).decode(any())
+        verify(exactly = 1) { JwtDecoderAfterJwkSetUriConfig.DECODER.decode(any()) }
     }
 
     @EnableWebSecurity
     open class JwtDecoderAfterJwkSetUriConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            var DECODER: JwtDecoder = mock(JwtDecoder::class.java)
+            val DECODER: JwtDecoder = JwtDecoder { Jwt.withTokenValue("some tokenValue").build() }
         }
 
         override fun configure(http: HttpSecurity) {
