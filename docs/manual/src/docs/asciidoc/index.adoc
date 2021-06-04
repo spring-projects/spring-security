@@ -1,7 +1,6 @@
 = Spring Security Reference
 Ben Alex; Luke Taylor; Rob Winch; Gunnar Hillert; Joe Grandja; Jay Bryant; Eddú Meléndez; Josh Cummings; Dave Syer; Eleftheria Stein
 :include-dir: _includes
-:security-api-url: https://docs.spring.io/spring-security/site/docs/current/api/
 :source-indent: 0
 :tabsize: 4
 :toc: left
