@@ -1258,8 +1258,29 @@ It's not required to call `OpenSaml4AuthenticationProvider` 's default authentic
 It returns a `Saml2AuthenticatedPrincipal` containing the attributes it extracted from `AttributeStatement` s as well as the single `ROLE_USER` authority.
 
 [[servlet-saml2login-opensamlauthenticationprovider-additionalvalidation]]
-==== Performing Additional Validation
+==== Performing Additional Response Validation
 
+`OpenSaml4AuthenticationProvider` validates the `Issuer` and `Destination` values right after decrypting the `Response`.
+You can customize the validation by extending the default validator concatenating with your own response validator, or you can replace it entirely with yours.
+
+For example, you can throw a custom exception with any additional information available in the `Response` object, like so:
+[source,java]
+----
+OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+provider.setResponseValidator((responseToken) -> {
+	Saml2ResponseValidatorResult result = OpenSamlAuthenticationProvider
+		.createDefaultResponseValidator()
+		.convert(responseToken)
+		.concat(myCustomValidator.convert(responseToken));
+	if (!result.getErrors().isEmpty()) {
+		String inResponseTo = responseToken.getInResponseTo();
+		throw new CustomSaml2AuthenticationException(result, inResponseTo);
+	}
+	return result;
+});
+----
+
+==== Performing Additional Assertion Validation
 `OpenSaml4AuthenticationProvider` performs minimal validation on SAML 2.0 Assertions.
 After verifying the signature, it will:
 

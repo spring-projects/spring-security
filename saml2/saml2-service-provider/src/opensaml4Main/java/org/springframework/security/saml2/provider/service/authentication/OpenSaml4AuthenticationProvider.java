@@ -145,7 +145,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 
 	private Consumer<ResponseToken> responseElementsDecrypter = createDefaultResponseElementsDecrypter();
 
-	private final Converter<ResponseToken, Saml2ResponseValidatorResult> responseValidator = createDefaultResponseValidator();
+	private Converter<ResponseToken, Saml2ResponseValidatorResult> responseValidator = createDefaultResponseValidator();
 
 	private final Converter<AssertionToken, Saml2ResponseValidatorResult> assertionSignatureValidator = createDefaultAssertionSignatureValidator();
 
@@ -211,6 +211,28 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	public void setResponseElementsDecrypter(Consumer<ResponseToken> responseElementsDecrypter) {
 		Assert.notNull(responseElementsDecrypter, "responseElementsDecrypter cannot be null");
 		this.responseElementsDecrypter = responseElementsDecrypter;
+	}
+
+	/**
+	 * Set the {@link Converter} to use for validating the SAML 2.0 Response.
+	 *
+	 * You can still invoke the default validator by delegating to
+	 * {@link #createDefaultResponseValidator()}, like so:
+	 *
+	 * <pre>
+	 * OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+	 * provider.setResponseValidator(responseToken -&gt; {
+	 * 		Saml2ResponseValidatorResult result = createDefaultResponseValidator()
+	 * 			.convert(responseToken)
+	 * 		return result.concat(myCustomValidator.convert(responseToken));
+	 * });
+	 * </pre>
+	 * @param responseValidator the {@link Converter} to use
+	 * @since 5.6
+	 */
+	public void setResponseValidator(Converter<ResponseToken, Saml2ResponseValidatorResult> responseValidator) {
+		Assert.notNull(responseValidator, "responseValidator cannot be null");
+		this.responseValidator = responseValidator;
 	}
 
 	/**
@@ -324,6 +346,44 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			Converter<ResponseToken, ? extends AbstractAuthenticationToken> responseAuthenticationConverter) {
 		Assert.notNull(responseAuthenticationConverter, "responseAuthenticationConverter cannot be null");
 		this.responseAuthenticationConverter = responseAuthenticationConverter;
+	}
+
+	/**
+	 * Construct a default strategy for validating the SAML 2.0 Response
+	 * @return the default response validator strategy
+	 * @since 5.6
+	 */
+	public static Converter<ResponseToken, Saml2ResponseValidatorResult> createDefaultResponseValidator() {
+		return (responseToken) -> {
+			Response response = responseToken.getResponse();
+			Saml2AuthenticationToken token = responseToken.getToken();
+			Saml2ResponseValidatorResult result = Saml2ResponseValidatorResult.success();
+			String statusCode = getStatusCode(response);
+			if (!StatusCode.SUCCESS.equals(statusCode)) {
+				String message = String.format("Invalid status [%s] for SAML response [%s]", statusCode,
+						response.getID());
+				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, message));
+			}
+			String issuer = response.getIssuer().getValue();
+			String destination = response.getDestination();
+			String location = token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
+			if (StringUtils.hasText(destination) && !destination.equals(location)) {
+				String message = "Invalid destination [" + destination + "] for SAML response [" + response.getID()
+						+ "]";
+				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_DESTINATION, message));
+			}
+			String assertingPartyEntityId = token.getRelyingPartyRegistration().getAssertingPartyDetails()
+					.getEntityId();
+			if (!StringUtils.hasText(issuer) || !issuer.equals(assertingPartyEntityId)) {
+				String message = String.format("Invalid issuer [%s] for SAML response [%s]", issuer, response.getID());
+				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, message));
+			}
+			if (response.getAssertions().isEmpty()) {
+				throw createAuthenticationException(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA,
+						"No assertions found in response.", null);
+			}
+			return result;
+		};
 	}
 
 	/**
@@ -487,40 +547,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		};
 	}
 
-	private Converter<ResponseToken, Saml2ResponseValidatorResult> createDefaultResponseValidator() {
-		return (responseToken) -> {
-			Response response = responseToken.getResponse();
-			Saml2AuthenticationToken token = responseToken.getToken();
-			Saml2ResponseValidatorResult result = Saml2ResponseValidatorResult.success();
-			String statusCode = getStatusCode(response);
-			if (!StatusCode.SUCCESS.equals(statusCode)) {
-				String message = String.format("Invalid status [%s] for SAML response [%s]", statusCode,
-						response.getID());
-				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, message));
-			}
-			String issuer = response.getIssuer().getValue();
-			String destination = response.getDestination();
-			String location = token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
-			if (StringUtils.hasText(destination) && !destination.equals(location)) {
-				String message = "Invalid destination [" + destination + "] for SAML response [" + response.getID()
-						+ "]";
-				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_DESTINATION, message));
-			}
-			String assertingPartyEntityId = token.getRelyingPartyRegistration().getAssertingPartyDetails()
-					.getEntityId();
-			if (!StringUtils.hasText(issuer) || !issuer.equals(assertingPartyEntityId)) {
-				String message = String.format("Invalid issuer [%s] for SAML response [%s]", issuer, response.getID());
-				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, message));
-			}
-			if (response.getAssertions().isEmpty()) {
-				throw createAuthenticationException(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA,
-						"No assertions found in response.", null);
-			}
-			return result;
-		};
-	}
-
-	private String getStatusCode(Response response) {
+	private static String getStatusCode(Response response) {
 		if (response.getStatus() == null) {
 			return StatusCode.SUCCESS;
 		}
