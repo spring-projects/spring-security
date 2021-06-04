@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,22 @@
 
 package org.springframework.security.config.web.servlet.oauth2.login
 
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
-import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.web.servlet.invoke
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
@@ -46,7 +47,6 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
-import java.util.*
 
 /**
  * Tests for [UserInfoEndpointDsl]
@@ -64,6 +64,9 @@ class UserInfoEndpointDslTests {
     @Test
     fun `oauth2Login when custom user service then user service used`() {
         this.spring.register(UserServiceConfig::class.java, ClientConfig::class.java).autowire()
+        mockkObject(UserServiceConfig.REPOSITORY)
+        mockkObject(UserServiceConfig.CLIENT)
+        mockkObject(UserServiceConfig.USER_SERVICE)
 
         val registrationId = "registrationId"
         val attributes = HashMap<String, Any>()
@@ -76,31 +79,35 @@ class UserInfoEndpointDslTests {
                 .redirectUri("http://localhost/login/oauth2/code/google")
                 .attributes(attributes)
                 .build()
-        `when`(UserServiceConfig.REPOSITORY.removeAuthorizationRequest(any(), any()))
-                .thenReturn(authorizationRequest)
-        `when`(UserServiceConfig.CLIENT.getTokenResponse(any()))
-                .thenReturn(OAuth2AccessTokenResponse
-                        .withToken("token")
-                        .tokenType(OAuth2AccessToken.TokenType.BEARER)
-                        .build())
-        `when`(UserServiceConfig.USER_SERVICE.loadUser(any()))
-                .thenReturn(DefaultOAuth2User(listOf(SimpleGrantedAuthority("ROLE_USER")), mapOf(Pair("user", "user")), "user"))
+        every {
+            UserServiceConfig.REPOSITORY.removeAuthorizationRequest(any(), any())
+        } returns authorizationRequest
+        every {
+            UserServiceConfig.CLIENT.getTokenResponse(any())
+        } returns OAuth2AccessTokenResponse
+            .withToken("token")
+            .tokenType(OAuth2AccessToken.TokenType.BEARER)
+            .build()
+        every {
+            UserServiceConfig.USER_SERVICE.loadUser(any())
+        } returns DefaultOAuth2User(listOf(SimpleGrantedAuthority("ROLE_USER")), mapOf(Pair("user", "user")), "user")
 
         this.mockMvc.get("/login/oauth2/code/google") {
             param("code", "auth-code")
             param("state", "test")
         }
 
-        Mockito.verify(UserServiceConfig.USER_SERVICE).loadUser(any())
+        verify(exactly = 1) { UserServiceConfig.USER_SERVICE.loadUser(any()) }
     }
 
     @EnableWebSecurity
     open class UserServiceConfig : WebSecurityConfigurerAdapter() {
-        companion object {
-            var USER_SERVICE: OAuth2UserService<OAuth2UserRequest, OAuth2User> = Mockito.mock(OAuth2UserService::class.java) as OAuth2UserService<OAuth2UserRequest, OAuth2User>
-            var CLIENT: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> = Mockito.mock(OAuth2AccessTokenResponseClient::class.java) as OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>
-            var REPOSITORY: AuthorizationRequestRepository<OAuth2AuthorizationRequest> = Mockito.mock(AuthorizationRequestRepository::class.java) as AuthorizationRequestRepository<OAuth2AuthorizationRequest>
-        }
+
+         companion object {
+             val REPOSITORY: AuthorizationRequestRepository<OAuth2AuthorizationRequest> = mockk()
+             val CLIENT: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> = mockk()
+             val USER_SERVICE: OAuth2UserService<OAuth2UserRequest, OAuth2User> = mockk()
+         }
 
         override fun configure(http: HttpSecurity) {
             http {

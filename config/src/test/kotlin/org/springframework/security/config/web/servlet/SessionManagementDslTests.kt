@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,14 @@
 
 package org.springframework.security.config.web.servlet
 
+import io.mockk.every
+import io.mockk.justRun
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.mock.web.MockHttpSession
@@ -38,8 +42,6 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 /**
  * Tests for [SessionManagementDsl]
@@ -59,13 +61,13 @@ class SessionManagementDslTests {
         this.spring.register(InvalidSessionUrlConfig::class.java).autowire()
 
         this.mockMvc.perform(get("/")
-                .with { request ->
-                    request.isRequestedSessionIdValid = false
-                    request.requestedSessionId = "id"
-                    request
-                })
-                .andExpect(status().isFound)
-                .andExpect(redirectedUrl("/invalid"))
+            .with { request ->
+                request.isRequestedSessionIdValid = false
+                request.requestedSessionId = "id"
+                request
+            })
+            .andExpect(status().isFound)
+            .andExpect(redirectedUrl("/invalid"))
     }
 
     @EnableWebSecurity
@@ -84,13 +86,13 @@ class SessionManagementDslTests {
         this.spring.register(InvalidSessionStrategyConfig::class.java).autowire()
 
         this.mockMvc.perform(get("/")
-                .with { request ->
-                    request.isRequestedSessionIdValid = false
-                    request.requestedSessionId = "id"
-                    request
-                })
-                .andExpect(status().isFound)
-                .andExpect(redirectedUrl("/invalid"))
+            .with { request ->
+                request.isRequestedSessionIdValid = false
+                request.requestedSessionId = "id"
+                request
+            })
+            .andExpect(status().isFound)
+            .andExpect(redirectedUrl("/invalid"))
     }
 
     @EnableWebSecurity
@@ -107,14 +109,16 @@ class SessionManagementDslTests {
     @Test
     fun `session management when session authentication error url then redirected to url`() {
         this.spring.register(SessionAuthenticationErrorUrlConfig::class.java).autowire()
-        val session = mock(MockHttpSession::class.java)
-        `when`(session.changeSessionId()).thenThrow(SessionAuthenticationException::class.java)
+        val authentication: Authentication = mockk()
+        val session: MockHttpSession = mockk(relaxed = true)
+        every { session.changeSessionId() } throws SessionAuthenticationException("any SessionAuthenticationException")
+        every<Any?> { session.getAttribute(any()) } returns null
 
         this.mockMvc.perform(get("/")
-                .with(authentication(mock(Authentication::class.java)))
-                .session(session))
-                .andExpect(status().isFound)
-                .andExpect(redirectedUrl("/session-auth-error"))
+            .with(authentication(authentication))
+            .session(session))
+            .andExpect(status().isFound)
+            .andExpect(redirectedUrl("/session-auth-error"))
     }
 
     @EnableWebSecurity
@@ -134,14 +138,16 @@ class SessionManagementDslTests {
     @Test
     fun `session management when session authentication failure handler then handler used`() {
         this.spring.register(SessionAuthenticationFailureHandlerConfig::class.java).autowire()
-        val session = mock(MockHttpSession::class.java)
-        `when`(session.changeSessionId()).thenThrow(SessionAuthenticationException::class.java)
+        val authentication: Authentication = mockk()
+        val session: MockHttpSession = mockk(relaxed = true)
+        every { session.changeSessionId() } throws SessionAuthenticationException("any SessionAuthenticationException")
+        every<Any?> { session.getAttribute(any()) } returns null
 
         this.mockMvc.perform(get("/")
-                .with(authentication(mock(Authentication::class.java)))
-                .session(session))
-                .andExpect(status().isFound)
-                .andExpect(redirectedUrl("/session-auth-error"))
+            .with(authentication(authentication))
+            .session(session))
+            .andExpect(status().isFound)
+            .andExpect(redirectedUrl("/session-auth-error"))
     }
 
     @EnableWebSecurity
@@ -163,7 +169,7 @@ class SessionManagementDslTests {
         this.spring.register(StatelessSessionManagementConfig::class.java).autowire()
 
         val result = this.mockMvc.perform(get("/"))
-                .andReturn()
+            .andReturn()
 
         assertThat(result.request.getSession(false)).isNull()
     }
@@ -185,19 +191,26 @@ class SessionManagementDslTests {
     @Test
     fun `session management when session authentication strategy then strategy used`() {
         this.spring.register(SessionAuthenticationStrategyConfig::class.java).autowire()
+        mockkObject(SessionAuthenticationStrategyConfig.STRATEGY)
+        val authentication: Authentication = mockk(relaxed = true)
+        val session: MockHttpSession = mockk(relaxed = true)
+        every { session.changeSessionId() } throws SessionAuthenticationException("any SessionAuthenticationException")
+        every<Any?> { session.getAttribute(any()) } returns null
+        justRun {  SessionAuthenticationStrategyConfig.STRATEGY.onAuthentication(any(), any(), any()) }
 
         this.mockMvc.perform(get("/")
-                .with(authentication(mock(Authentication::class.java)))
-                .session(mock(MockHttpSession::class.java)))
+            .with(authentication(authentication))
+            .session(session))
 
-        verify(this.spring.getContext().getBean(SessionAuthenticationStrategy::class.java))
-                .onAuthentication(any(Authentication::class.java),
-                        any(HttpServletRequest::class.java), any(HttpServletResponse::class.java))
+        verify(exactly = 1) { SessionAuthenticationStrategyConfig.STRATEGY.onAuthentication(any(), any(), any()) }
     }
 
     @EnableWebSecurity
     open class SessionAuthenticationStrategyConfig : WebSecurityConfigurerAdapter() {
-        var mockSessionAuthenticationStrategy: SessionAuthenticationStrategy = mock(SessionAuthenticationStrategy::class.java)
+
+        companion object {
+            val STRATEGY: SessionAuthenticationStrategy = SessionAuthenticationStrategy { _, _, _ ->  }
+        }
 
         override fun configure(http: HttpSecurity) {
             http {
@@ -205,14 +218,12 @@ class SessionManagementDslTests {
                     authorize(anyRequest, authenticated)
                 }
                 sessionManagement {
-                    sessionAuthenticationStrategy = mockSessionAuthenticationStrategy
+                    sessionAuthenticationStrategy = STRATEGY
                 }
             }
         }
 
         @Bean
-        open fun sessionAuthenticationStrategy(): SessionAuthenticationStrategy {
-            return this.mockSessionAuthenticationStrategy
-        }
+        open fun sessionAuthenticationStrategy(): SessionAuthenticationStrategy = STRATEGY
     }
 }
