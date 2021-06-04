@@ -37,8 +37,11 @@ String lastName = userDetails.getLastName();
 ----
 ====
 
-NOTE: It is typically bad practice to perform logic throughout your application.
+[NOTE]
+====
+It is typically bad practice to perform logic throughout your application.
 Instead, you should centralize it to reduce any coupling of Spring Security and the Servlet API.
+====
 
 [[servletapi-user-in-role]]
 ==== HttpServletRequest.isUserInRole(String)
@@ -83,7 +86,10 @@ httpServletRequest.login("user","password");
 ----
 ====
 
-NOTE: You need not catch the `ServletException` if you want Spring Security to process the failed authentication attempt.
+[NOTE]
+====
+You need not catch the `ServletException` if you want Spring Security to process the failed authentication attempt.
+====
 
 [[servletapi-logout]]
 ==== HttpServletRequest.logout()

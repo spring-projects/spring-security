@@ -15,7 +15,10 @@ While the CAS web site contains documents that detail the architecture of CAS, w
 Spring Security 3.x (and later) supports CAS 3 (and later).
 At the time of writing, the CAS server is at version 6.3.3.
 
-NOTE: This section was written about CAS version 3.4, but the material is still current.
+[NOTE]
+====
+This section was written about CAS version 3.4, but the material is still current.
+====
 
 Somewhere in your enterprise, you need to setup a CAS server.
 The CAS server runs from a standard WAR file.

@@ -73,8 +73,11 @@ By default, `SecurityContextLogoutHandler` is added as the last `LogoutHandler`.
 <7> Lets specifying the names of cookies be removed on logout success.
 This is a shortcut for adding a `CookieClearingLogoutHandler` explicitly.
 
-NOTE: Logouts can also be configured by using the XML Namespace notation.
+[NOTE]
+====
+Logouts can also be configured by using the XML Namespace notation.
 See the documentation for the <<nsa-logout,logout element>> in the Spring Security XML Namespace section for further details.
+====
 
 Generally, to customize logout functionality, you can add
 `{security-api-url}org/springframework/security/web/authentication/logout/LogoutHandler.html[LogoutHandler]`

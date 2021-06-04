@@ -7,7 +7,10 @@ Spring Security provides <<servlet-authentication-inmemory,in-memory>> and <<ser
 You can define custom authentication by exposing a custom `UserDetailsService` as a bean.
 For example, the following listing customizes authentication, assuming that `CustomUserDetailsService` implements `UserDetailsService`:
 
-NOTE: This is only used if the `AuthenticationManagerBuilder` has not been populated and no `AuthenticationProviderBean` is defined.
+[NOTE]
+====
+This is only used if the `AuthenticationManagerBuilder` has not been populated and no `AuthenticationProviderBean` is defined.
+====
 
 .Custom UserDetailsService Bean
 ====

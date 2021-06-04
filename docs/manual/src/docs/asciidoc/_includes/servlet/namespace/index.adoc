@@ -150,9 +150,12 @@ We see later how the interpretation can vary. The interpretation of the comma-se
 Since Spring Security 3.0, you can also populate the attribute with an <<el-access,EL expression>>.
 
 
-NOTE: You can use multiple `<intercept-url>` elements to define different access requirements for different sets of URLs, but they are evaluated in the order listed and the first match is used.
+[NOTE]
+====
+You can use multiple `<intercept-url>` elements to define different access requirements for different sets of URLs, but they are evaluated in the order listed and the first match is used.
 So you must put the most specific matches at the top.
 You can also add a `method` attribute to limit the match to a particular HTTP method (`GET`, `POST`, `PUT`, and so on).
+====
 
 To add users, you can define a set of test data directly in the namespace:
 
@@ -252,9 +255,12 @@ How can you do this with namespace configuration, since the filter chain is not 
 The order of the filters is always strictly enforced when you use the namespace.
 When the application context is being created, the filter beans are sorted by the namespace handling code, and the standard Spring Security filters each have an alias in the namespace and a well-known position.
 
-NOTE: In previous versions, the sorting took place after the filter instances had been created, during post-processing of the application context.
+[NOTE]
+====
+In previous versions, the sorting took place after the filter instances had been created, during post-processing of the application context.
 In version 3.0+, the sorting is now done at the bean metadata level, before the classes have been instantiated.
 This has implications for how you add your own filters to the stack, as the entire filter list must be known during the parsing of the `<http>` element. As a result, the syntax changed slightly in version 3.0.
+====
 
 The filters, aliases, and namespace elements and attributes that create the filters are shown in the following table, in the order in which they occur in the filter chain:
 

@@ -145,8 +145,11 @@ The easiest way to resolve this is to use the `spring-framework-bom` within the 
 
 The preceding example ensures that all the transitive dependencies of Spring Security use the Spring {spring-core-version} modules.
 
-NOTE: This approach uses Maven's "`bill of materials`" (BOM) concept and is only available in Maven 2.0.9+.
+[NOTE]
+====
+This approach uses Maven's "`bill of materials`" (BOM) concept and is only available in Maven 2.0.9+.
 For additional details about how dependencies are resolved, see https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html[Maven's Introduction to the Dependency Mechanism documentation].
+====
 
 [[maven-repositories]]
 === Maven Repositories

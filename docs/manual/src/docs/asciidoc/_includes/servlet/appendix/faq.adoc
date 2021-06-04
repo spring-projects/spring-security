@@ -259,10 +259,13 @@ This happens because sessions created under HTTPS, for which the session cookie 
 However, Spring Security's https://docs.spring.io/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ns-session-fixation[Session Fixation Protection] can interfere with this because it results in a new session ID cookie being sent back to the user's browser, usually with the secure flag.
 To get around this, you can disable session fixation protection. However, in newer Servlet containers, you can also configure session cookies to never use the secure flag.
 
-IMPORTANT: Switching between HTTP and HTTPS is not a good idea in general, as any application that uses HTTP at all is vulnerable to man-in-the-middle attacks.
+[IMPORTANT]
+====
+Switching between HTTP and HTTPS is not a good idea in general, as any application that uses HTTP at all is vulnerable to man-in-the-middle attacks.
 To be truly secure, the user should begin accessing your site in HTTPS and continue using it until they log out.
 Even clicking on an HTTPS link from a page accessed over HTTP is potentially risky.
 If you need more convincing, check out a tool such as https://www.thoughtcrime.org/software/sslstrip/[sslstrip].
+====
 
 
 ==== I am not switching between HTTP and HTTPS, but my session is still lost. What happened?

@@ -4,8 +4,11 @@
 Spring Security supports method security by using https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context], which is set up by `ReactiveSecurityContextHolder`.
 The following example shows how to retrieve the currently logged in user's message:
 
-NOTE: For this example to work, the return type of the method must be a `org.reactivestreams.Publisher` (that is, a `Mono` or a `Flux`) or the function must be a Kotlin coroutine function.
+[NOTE]
+====
+For this example to work, the return type of the method must be a `org.reactivestreams.Publisher` (that is, a `Mono` or a `Flux`) or the function must be a Kotlin coroutine function.
 This is necessary to integrate with Reactor's `Context`.
+====
 
 ====
 .Java

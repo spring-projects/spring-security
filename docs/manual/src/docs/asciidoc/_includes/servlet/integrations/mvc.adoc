@@ -7,13 +7,19 @@ This section covers the integration in further detail.
 [[mvc-enablewebmvcsecurity]]
 === @EnableWebMvcSecurity
 
-NOTE: As of Spring Security 4.0, `@EnableWebMvcSecurity` is deprecated.
+[NOTE]
+====
+As of Spring Security 4.0, `@EnableWebMvcSecurity` is deprecated.
 The replacement is `@EnableWebSecurity`, which adds the Spring MVC features, based upon the classpath.
+====
 
 To enable Spring Security integration with Spring MVC, add the `@EnableWebSecurity` annotation to your configuration.
 
-NOTE: Spring Security provides the configuration by using Spring MVC's https://docs.spring.io/spring/docs/5.0.0.RELEASE/spring-framework-reference/web.html#mvc-config-customize[`WebMvcConfigurer`].
+[NOTE]
+====
+Spring Security provides the configuration by using Spring MVC's https://docs.spring.io/spring/docs/5.0.0.RELEASE/spring-framework-reference/web.html#mvc-config-customize[`WebMvcConfigurer`].
 This means that, if you use more advanced options, such as integrating with `WebMvcConfigurationSupport` directly, you need to manually provide the Spring Security configuration.
+====
 
 [[mvc-requestmatcher]]
 === MvcRequestMatcher
@@ -273,8 +279,11 @@ public ModelAndView updateName(@AuthenticationPrincipal(expression = "@jpaEntity
 We can further remove our dependency on Spring Security by making `@AuthenticationPrincipal` a meta-annotation on our own annotation.
 The next example demonstrates how we could do so on an annotation named `@CurrentUser`.
 
-NOTE: To remove the dependency on Spring Security, it is the consuming application that would create `@CurrentUser`.
+[NOTE]
+====
+To remove the dependency on Spring Security, it is the consuming application that would create `@CurrentUser`.
 This step is not strictly required but assists in isolating your dependency to Spring Security to a more central location.
+====
 
 ====
 [source,java]
@@ -325,8 +334,12 @@ return new Callable<String>() {
 ====
 
 .Associating SecurityContext to Callable's
-NOTE: More technically speaking, Spring Security integrates with `WebAsyncManager`.
+
+[NOTE]
+====
+More technically speaking, Spring Security integrates with `WebAsyncManager`.
 The `SecurityContext` that is used to process the `Callable` is the `SecurityContext` that exists on the `SecurityContextHolder` when `startCallableProcessing` is invoked.
+====
 
 There is no automatic integration with a `DeferredResult` that is returned by controllers.
 This is because `DeferredResult` is processed by the users and, thus, there is no way of automatically integrating with it.

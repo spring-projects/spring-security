@@ -9,7 +9,10 @@ Spring Security supports protecting endpoints by offering two forms of OAuth 2.0
 This is handy in circumstances where an application has delegated its authority management to an https://tools.ietf.org/html/rfc6749[authorization server] (for example, Okta or Ping Identity).
 Resource serves can consult this authorization server to authorize requests.
 
-NOTE: A complete working example for {gh-samples-url}/boot/oauth2resourceserver-webflux[JWT]  is available in the {gh-samples-url}[Spring Security repository].
+[NOTE]
+====
+A complete working example for {gh-samples-url}/boot/oauth2resourceserver-webflux[JWT]  is available in the {gh-samples-url}[Spring Security repository].
+====
 
 [[webflux-oauth2resourceserver-jwt-minimaldependencies]]
 == Minimal Dependencies for JWT
@@ -42,8 +45,11 @@ spring:
 Where `https://idp.example.com/issuer` is the value contained in the `iss` claim for JWT tokens that the authorization server issues.
 This resource server uses this property to further self-configure, discover the authorization server's public keys, and subsequently validate incoming JWTs.
 
-NOTE: To use the `issuer-uri` property, it must also be true that one of `https://idp.example.com/issuer/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/issuer`, or `https://idp.example.com/.well-known/oauth-authorization-server/issuer` is a supported endpoint for the authorization server.
+[NOTE]
+====
+To use the `issuer-uri` property, it must also be true that one of `https://idp.example.com/issuer/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/issuer`, or `https://idp.example.com/.well-known/oauth-authorization-server/issuer` is a supported endpoint for the authorization server.
 This endpoint is referred to as a https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Provider Configuration] endpoint or a https://tools.ietf.org/html/rfc8414#section-3[Authorization Server Metadata] endpoint.
+====
 
 === Startup Expectations
 
@@ -57,7 +63,10 @@ It achieves this through a deterministic startup process:
 
 A consequence of this process is that the authorization server must be receiving requests in order for Resource Server to successfully start up.
 
-NOTE: If the authorization server is down when Resource Server queries it (given appropriate timeouts), then startup fails.
+[NOTE]
+====
+If the authorization server is down when Resource Server queries it (given appropriate timeouts), then startup fails.
+====
 
 === Runtime Expectations
 
@@ -79,7 +88,10 @@ Given a well-formed JWT, Resource Server:
 2. Validates the JWTs `exp` and `nbf` timestamps and the JWTs `iss` claim.
 3. Maps each scope to an authority with the prefix `SCOPE_`.
 
-NOTE: As the authorization server makes available new keys, Spring Security automatically rotates the keys used to validate the JWT tokens.
+[NOTE]
+====
+As the authorization server makes available new keys, Spring Security automatically rotates the keys used to validate the JWT tokens.
+====
 
 By default, the resulting `Authentication#getPrincipal` is a Spring Security `Jwt` object, and `Authentication#getName` maps to the JWT's `sub` property, if one is present.
 
@@ -106,12 +118,18 @@ spring:
 ----
 ====
 
-NOTE: The JWK Set uri is not standardized, but you can typically find it in the authorization server's documentation.
+[NOTE]
+====
+The JWK Set uri is not standardized, but you can typically find it in the authorization server's documentation.
+====
 
 Consequently, Resource Server does not ping the authorization server at startup.
 We still specify the `issuer-uri` so that Resource Server still validates the `iss` claim on incoming JWTs.
 
-NOTE: You can supply this property directly on the <<webflux-oauth2resourceserver-jwt-jwkseturi-dsl,DSL>>.
+[NOTE]
+====
+You can supply this property directly on the <<webflux-oauth2resourceserver-jwt-jwkseturi-dsl,DSL>>.
+====
 
 [[webflux-oauth2resourceserver-jwt-sansboot]]
 === Overriding or Replacing Boot Auto Configuration
@@ -221,8 +239,11 @@ fun jwtDecoder(): ReactiveJwtDecoder {
 ----
 ====
 
-NOTE: Calling `{security-api-url}org/springframework/security/oauth2/jwt/ReactiveJwtDecoders.html#fromIssuerLocation-java.lang.String-[ReactiveJwtDecoders#fromIssuerLocation]` invokes the Provider Configuration or Authorization Server Metadata endpoint to derive the JWK Set URI.
+[NOTE]
+====
+Calling `{security-api-url}org/springframework/security/oauth2/jwt/ReactiveJwtDecoders.html#fromIssuerLocation-java.lang.String-[ReactiveJwtDecoders#fromIssuerLocation]` invokes the Provider Configuration or Authorization Server Metadata endpoint to derive the JWK Set URI.
 If the application does not expose a `ReactiveJwtDecoder` bean, Spring Boot exposes the above default one.
+====
 
 Its configuration can be overridden by using `jwkSetUri()` or replaced by using `decoder()`.
 
@@ -939,8 +960,11 @@ Where `https://idp.example.com/introspect` is the introspection endpoint hosted 
 
 Resource Server uses these properties to further self-configure and subsequently validate incoming JWTs.
 
-NOTE: When using introspection, the authorization server's word is the law.
+[NOTE]
+====
+When using introspection, the authorization server's word is the law.
 If the authorization server responses that the token is valid, it is.
+====
 
 ==== Startup Expectations
 
@@ -1796,8 +1820,11 @@ return http {
 In this case, you construct `JwtIssuerReactiveAuthenticationManagerResolver` with a strategy for obtaining the `ReactiveAuthenticationManager` given to the issuer.
 This approach lets us add and remove elements from the repository (shown as a `Map` in the preceding snippet) at runtime.
 
-NOTE: It would be unsafe to simply take any issuer and construct an `ReactiveAuthenticationManager` from it.
+[NOTE]
+====
+It would be unsafe to simply take any issuer and construct an `ReactiveAuthenticationManager` from it.
 The issuer should be one that the code can verify from a trusted source, such as an allowed list of issuers.
+====
 
 [[webflux-oauth2resourceserver-bearertoken-resolver]]
 == Bearer Token Resolution
@@ -1914,5 +1941,8 @@ rest.get()
 
 In this case, the filter falls back and forwards the request onto the rest of the web filter chain.
 
-NOTE: Unlike the https://docs.spring.io/spring-security/site/docs/current-SNAPSHOT/api/org/springframework/security/oauth2/client/web/reactive/function/client/ServerOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
+[NOTE]
+====
+Unlike the https://docs.spring.io/spring-security/site/docs/current-SNAPSHOT/api/org/springframework/security/oauth2/client/web/reactive/function/client/ServerOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
 To obtain this level of support, use the OAuth 2.0 Client filter.
+====

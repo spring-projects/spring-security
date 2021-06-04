@@ -18,7 +18,10 @@ To use any of the tags, you must have the security taglib declared in your JSP:
 This tag is used to determine whether its contents should be evaluated or not.
 In Spring Security 3.0, it can be used in two ways.
 
-NOTE: The legacy options from Spring Security 2.0 are also supported, but discouraged.
+[NOTE]
+====
+The legacy options from Spring Security 2.0 are also supported, but discouraged.
+====
 
 The first approach uses a <<el-access-web,web-security expression>>, which is specified in the `access` attribute of the tag.
 The expression evaluation is delegated to the `SecurityExpressionHandler<FilterInvocation>` defined in the application context (you should have web expressions enabled in your `<http>` namespace configuration to make sure this service is available).
@@ -100,8 +103,11 @@ It checks a comma-separated list of required permissions for a specified domain 
 If the current user has all of those permissions, the tag body is evaluated.
 If they do not, it is skipped.
 
-CAUTION: In general this tag should be considered deprecated.
-Instead use the <<taglibs-authorize>>.
+[CAUTION]
+====
+In general, this tag should be considered deprecated.
+Instead, use the <<taglibs-authorize>>.
+====
 
 The following listing shows an example:
 

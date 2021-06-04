@@ -100,8 +100,12 @@ This mechanism is supported by the `RequestHeaderAuthenticationFilter` class, wh
 It defaults to using a name of `SM_USER` as the header name.
 See the Javadoc for more details.
 
-TIP: When using a system like this, the framework performs no authentication checks at all, and it is _extremely_ important that the external system is configured properly and protects all access to the application.
+[TIP]
+====
+When using a system like this, the framework performs no authentication checks at all, and it is _extremely_ important that the external system is configured properly and protects all access to the application.
 If an attacker is able to forge the headers in their original request without this being detected, they could potentially choose any username they wished.
+====
+
 
 ===== Siteminder Example Configuration
 The following example shows a typical configuration that uses this filter:

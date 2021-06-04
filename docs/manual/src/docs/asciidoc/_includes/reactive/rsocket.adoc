@@ -82,8 +82,11 @@ This means that individual users can make requests but not make additional conne
 
 Spring Security has support for the https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Simple.md[Simple Authentication Metadata Extension].
 
-NOTE: Basic Authentication evolved into Simple Authentication and is only supported for backward compatibility.
+[NOTE]
+====
+Basic Authentication evolved into Simple Authentication and is only supported for backward compatibility.
 See `RSocketSecurity.basicAuthentication(Customizer)` for setting it up.
+====
 
 The RSocket receiver can decode the credentials by using `AuthenticationPayloadExchangeConverter`, which is automatically setup by using the `simpleAuthentication` portion of the DSL.
 The following example shows an explicit configuration:

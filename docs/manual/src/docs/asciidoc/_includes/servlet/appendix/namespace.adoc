@@ -554,7 +554,11 @@ The policy value to write for the `Permissions-Policy` header
 [[nsa-xss-protection]]
 ==== <xss-protection>
 The `<xss-protection>` adds the https://blogs.msdn.com/b/ie/archive/2008/07/02/ie8-security-part-iv-the-xss-filter.aspx[X-XSS-Protection header] to the response, to assist in protecting against https://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] attacks.
-NOTE: Full protection against XSS attacks is not possible.
+
+[NOTE]
+====
+Full protection against XSS attacks is not possible.
+====
 
 
 [[nsa-xss-protection-attributes]]
@@ -803,8 +807,11 @@ This always takes precedence over other namespace-created entry points.
 If no attributes are supplied, a login page is generated automatically at the `/login` URL.
 You can customize this behavior by setting the <<nsa-form-login-attributes, `<form-login>` Attributes>>.
 
-NOTE: This feature is provided for convenience and is not intended for production (where a view technology should have been chosen and can be used to render a customized login page).
+[NOTE]
+====
+This feature is provided for convenience and is not intended for production (where a view technology should have been chosen and can be used to render a customized login page).
 The class `DefaultLoginPageGeneratingFilter` class is responsible for rendering the login page and provide login forms for both normal form login and OpenID if required.
+====
 
 
 [[nsa-form-login-parents]]
@@ -1370,7 +1377,10 @@ If this attribute is present on any `<intercept-url>` element, a `ChannelProcess
 
 If a `<port-mappings>` configuration is added, it is used by the `SecureChannelProcessor` and `InsecureChannelProcessor` beans to determine the ports used for redirecting to HTTP and HTTPS.
 
-NOTE: This property is invalid for <<nsa-filter-security-metadata-source,`filter-security-metadata-source`>>
+[NOTE]
+====
+This property is invalid for <<nsa-filter-security-metadata-source,`filter-security-metadata-source`>>
+====
 
 [[nsa-intercept-url-servlet-path]]
 `servlet-path`::
@@ -1380,7 +1390,10 @@ In addition, the value is only required in the following two use cases:
 * Two or more `HttpServlet` instances that have mappings starting with `/` and are different are registered in the `ServletContext`.
 * The pattern starts with the same value of a registered `HttpServlet` path, excluding the default (root) `HttpServlet` `/`.
 
-NOTE: This property is invalid for <<nsa-filter-security-metadata-source,`filter-security-metadata-source`>>
+[NOTE]
+====
+This property is invalid for <<nsa-filter-security-metadata-source,`filter-security-metadata-source`>>
+====
 
 
 [[nsa-jee]]
@@ -2316,8 +2329,11 @@ The `<password-encoder>` element has the following attributes:
 [[nsa-password-encoder-hash]]
 `hash`::
 Defines the hashing algorithm for user passwords.
-IMPORTANT: We recommend strongly against using MD4, as it is a very weak hashing algorithm.
 
+[IMPORTANT]
+====
+We recommend strongly against using MD4, as it is a very weak hashing algorithm.
+====
 
 [[nsa-password-encoder-ref]]
 `ref`::
@@ -2473,9 +2489,13 @@ mode::
 You can set this attribute to `aspectj` to specify that AspectJ should be used instead of the default Spring AOP.
 You must weave secured methods with the `AnnotationSecurityAspect` from the `spring-security-aspects` module.
 +
-NOTE: AspectJ follows Java's rule that annotations on interfaces are not inherited.
+[NOTE]
+====
+AspectJ follows Java's rule that annotations on interfaces are not inherited.
 This means that methods that define the Security annotations on the interface are not secured.
 Instead, you must place the Security annotation on the class when you use AspectJ.
+====
+
 
 [[nsa-global-method-security-order]]
 `order`::

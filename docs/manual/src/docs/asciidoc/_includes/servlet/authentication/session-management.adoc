@@ -127,8 +127,11 @@ See the <<session-mgmt,Session Management>> chapter for additional information.
 === SessionManagementFilter
 The `SessionManagementFilter` checks the contents of the `SecurityContextRepository` against the current contents of the `SecurityContextHolder` to determine whether a user has been authenticated during the current request, typically by a non-interactive authentication mechanism, such as pre-authentication or remember-me
 
-NOTE: Authentication by mechanisms that perform a redirect after authenticating (such as form-login) are not detected by `SessionManagementFilter`, as the filter is not invoked during the authenticating request.
+[NOTE]
+====
+Authentication by mechanisms that perform a redirect after authenticating (such as form-login) are not detected by `SessionManagementFilter`, as the filter is not invoked during the authenticating request.
 Session-management functionality has to be handled separately in these cases.
+====
 
 If the repository contains a security context, the filter does nothing.
 If it does not and the thread-local `SecurityContext` contains a (non-anonymous) `Authentication` object, the filter assumes they have been authenticated by a previous filter in the stack.
@@ -179,10 +182,13 @@ Sometimes, though, you need to customize things.
 
 The implementation uses a specialized version of `SessionAuthenticationStrategy`, called `ConcurrentSessionControlAuthenticationStrategy`.
 
-NOTE: Previously, the concurrent authentication check was made by the `ProviderManager`, which could be injected with a `ConcurrentSessionController`.
+[NOTE]
+====
+Previously, the concurrent authentication check was made by the `ProviderManager`, which could be injected with a `ConcurrentSessionController`.
 The latter would check if the user was attempting to exceed the number of permitted sessions.
 However, this approach required that an HTTP session be created in advance, which is undesirable.
 In Spring Security 3 and later, the user is first authenticated by the `AuthenticationManager` and once they are successfully authenticated, a session is created and the check is made whether they are allowed to have another session open.
+====
 
 To use concurrent session support, you need to add the following to `web.xml`:
 

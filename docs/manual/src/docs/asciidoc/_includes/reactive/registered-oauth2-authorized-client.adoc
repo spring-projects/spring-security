@@ -3,7 +3,10 @@
 
 Spring Security allows resolving an access token by using `@RegisteredOAuth2AuthorizedClient`.
 
-NOTE: You can find a working example in the {gh-samples-url}/boot/oauth2webclient-webflux[OAuth 2.0 WebClient WebFlux sample].
+[NOTE]
+====
+You can find a working example in the {gh-samples-url}/boot/oauth2webclient-webflux[OAuth 2.0 WebClient WebFlux sample].
+====
 
 After configuring Spring Security for <<webflux-oauth2-login,OAuth2 Login>> or as an <<webflux-oauth2-client,OAuth2 Client>>, you can resolve an `OAuth2AuthorizedClient` by using the following:
 

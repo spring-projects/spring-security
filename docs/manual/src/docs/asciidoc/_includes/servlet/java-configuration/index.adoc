@@ -6,7 +6,11 @@ Spring Security 3.2 introduced Java configuration to let users configure Spring 
 
 If you are familiar with the <<ns-config>>, you should find quite a few similarities between it and Spring Security Java configuration.
 
-NOTE: Spring Security provides https://github.com/spring-projects/spring-security-samples/tree/main/servlet/java-configuration[lots of sample applications] to demonstrate the use of Spring Security Java Configuration.
+[NOTE]
+====
+Spring Security provides https://github.com/spring-projects/spring-security-samples/tree/main/servlet/java-configuration[lots of sample applications] to demonstrate the use of Spring Security Java Configuration.
+====
+
 
 [[jc-hello-wsca]]
 == Hello Web Security Java Configuration
@@ -273,7 +277,10 @@ public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurit
 ----
 ====
 
-NOTE: This is actually how methods like `HttpSecurity.authorizeRequests()` are implemented.
+[NOTE]
+====
+This is actually how methods like `HttpSecurity.authorizeRequests()` are implemented.
+====
 
 You can then use the custom DSL:
 

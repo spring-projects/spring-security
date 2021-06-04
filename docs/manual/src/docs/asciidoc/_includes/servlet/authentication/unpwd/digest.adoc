@@ -3,10 +3,13 @@
 
 This section provides details on how Spring Security provides support for https://tools.ietf.org/html/rfc2617[Digest Authentication], which is provided `DigestAuthenticationFilter`.
 
-WARNING: You should not use Digest Authentication in modern applications, because it is not considered to be secure.
+[WARNING]
+====
+You should not use Digest Authentication in modern applications, because it is not considered to be secure.
 The most obvious problem is that you must store your passwords in plaintext or an encrypted or MD5 format.
 All of these storage formats are considered insecure.
 Instead, you should store credentials by using a one way adaptive password hash (bCrypt, PBKDF2, SCrypt, and others), which is not supported by Digest Authentication.
+====
 
 Digest Authentication tries to solve many of the weaknesses of <<servlet-authentication-basic,Basic authentication>>, specifically by ensuring credentials are never sent in clear text across the wire.
 Many https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Digest#Browser_compatibility[browsers support Digest Authentication].

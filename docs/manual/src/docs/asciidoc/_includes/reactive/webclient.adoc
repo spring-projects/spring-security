@@ -1,8 +1,11 @@
 [[webclient]]
 = WebClient
 
-NOTE: The documentation in this section is for use within Reactive environments.
+[NOTE]
+====
+The documentation in this section is for use within Reactive environments.
 For Servlet environments, see <<oauth2Client-webclient-servlet, WebClient for Servlet>>.
+====
 
 Spring Framework has built-in support for setting a Bearer token:
 

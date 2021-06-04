@@ -14,7 +14,11 @@ This class lets you create {security-api-url}org/springframework/security/crypto
 You can also construct {security-api-url}org/springframework/security/crypto/encrypt/TextEncryptor.html[TextEncryptor] instances to encrypt text strings.
 Encryptors are thread-safe.
 
-NOTE: Both `BytesEncryptor` and `TextEncryptor` are interfaces. `BytesEncryptor` has multiple implementations.
+[NOTE]
+====
+Both `BytesEncryptor` and `TextEncryptor` are interfaces. `BytesEncryptor` has multiple implementations.
+====
+
 
 [[spring-security-crypto-encryption-bytes]]
 === BytesEncryptor

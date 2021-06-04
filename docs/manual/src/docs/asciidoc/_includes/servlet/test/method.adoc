@@ -47,11 +47,14 @@ public class WithMockUserTests {
 <2> `@ContextConfiguration` instructs the Spring test configuration to use to create the `ApplicationContext`. Since no configuration is specified, the default configuration locations are tried. This is no different than using the existing Spring test support. For additional information, see the https://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#testcontext-ctx-management[Spring Reference].
 ====
 
-NOTE: Spring Security hooks into Spring Test support through the `WithSecurityContextTestExecutionListener`, which ensures that our tests are run with the correct user.
+[NOTE]
+====
+Spring Security hooks into Spring Test support through the `WithSecurityContextTestExecutionListener`, which ensures that our tests are run with the correct user.
 It does this by populating the `SecurityContextHolder` prior to running our tests.
 If you use reactive method security, you also need `ReactorContextTestExecutionListener`, which populates `ReactiveSecurityContextHolder`.
 After the test is done, it clears out the `SecurityContextHolder`.
 If you need only Spring Security related support, you can replace `@ContextConfiguration` with `@SecurityTestExecutionListeners`.
+====
 
 Remember, we added the `@PreAuthorize` annotation to our `HelloMessageService`, so it requires an authenticated user to invoke it.
 If we run the tests, we expect the following test will pass:

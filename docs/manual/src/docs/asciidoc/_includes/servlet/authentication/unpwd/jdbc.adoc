@@ -23,7 +23,10 @@ You need to adjust the schema to match any customizations to the queries and the
 
 `JdbcDaoImpl` requires tables to load the password, account status (enabled or disabled) and a list of authorities (roles) for the user.
 
-NOTE: The default schema is also exposed as a classpath resource named `org/springframework/security/core/userdetails/jdbc/users.ddl`.
+[NOTE]
+====
+The default schema is also exposed as a classpath resource named `org/springframework/security/core/userdetails/jdbc/users.ddl`.
+====
 
 .Default User Schema
 ====

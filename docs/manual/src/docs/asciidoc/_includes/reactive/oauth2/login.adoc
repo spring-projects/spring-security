@@ -5,7 +5,10 @@ The OAuth 2.0 Login feature provides an application with the ability to have use
 GitHub) or OpenID Connect 1.0 Provider (such as Google).
 OAuth 2.0 Login implements the "Login with Google" or "Login with GitHub" use cases.
 
-NOTE: OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework] and https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0].
+[NOTE]
+====
+OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework] and https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0].
+====
 
 [[webflux-oauth2-login-sample]]
 == Spring Boot 2.0 Sample
@@ -25,7 +28,10 @@ This section shows how to configure the {gh-samples-url}/boot/oauth2login-webflu
 
 To use Google's OAuth 2.0 authentication system for login, you must set up a project in the Google API Console to obtain OAuth 2.0 credentials.
 
-NOTE: https://developers.google.com/identity/protocols/OpenIDConnect[Google's OAuth 2.0 implementation] for authentication conforms to the  https://openid.net/connect/[OpenID Connect 1.0] specification and is https://openid.net/certification/[OpenID Certified].
+[NOTE]
+====
+https://developers.google.com/identity/protocols/OpenIDConnect[Google's OAuth 2.0 implementation] for authentication conforms to the  https://openid.net/connect/[OpenID Connect 1.0] specification and is https://openid.net/certification/[OpenID Certified].
+====
 
 Follow the instructions on the https://developers.google.com/identity/protocols/OpenIDConnect[OpenID Connect] page, starting in the "`Setting up OAuth 2.0`" section.
 
@@ -38,12 +44,19 @@ The redirect URI is the path in the application that the end-user's user-agent i
 
 In the "`Set a redirect URI`" sub-section, ensure that the *Authorized redirect URIs* field is set to `http://localhost:8080/login/oauth2/code/google`.
 
-TIP: The default redirect URI template is `+{baseUrl}/login/oauth2/code/{registrationId}+`.
+[TIP]
+====
+The default redirect URI template is `+{baseUrl}/login/oauth2/code/{registrationId}+`.
 The *_registrationId_* is a unique identifier for the <<oauth2Client-client-registration,ClientRegistration>>.
 For our example, the `registrationId` is `google`.
+====
 
-IMPORTANT: If the OAuth Client runs behind a proxy server, we recommend checking the <<http-proxy-server,Proxy Server Configuration>> to ensure the application is correctly configured.
+[IMPORTANT]
+====
+If the OAuth Client runs behind a proxy server, we recommend checking the <<http-proxy-server,Proxy Server Configuration>> to ensure the application is correctly configured.
 Also, see the supported <<oauth2Client-auth-code-redirect-uri,`URI` template variables>> for the `redirect-uri`.
+====
+
 
 [[webflux-oauth2-login-sample-config]]
 === Configure `application.yml`
@@ -111,7 +124,10 @@ spring:
 
 The `issuer-uri` instructs Spring Security to query, in series, the following endpoints to discover the configuration: `https://idp.example.com/auth/realms/demo/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/auth/realms/demo`, or `https://idp.example.com/.well-known/oauth-authorization-server/auth/realms/demo`.
 
-NOTE: Spring Security queries the endpoints one at a time, stopping at the first that gives a 200 response.
+[NOTE]
+====
+Spring Security queries the endpoints one at a time, stopping at the first that gives a 200 response.
+====
 
 The `client-id` and `client-secret` are linked to the provider because `keycloak` is used for both the provider and the registration.
 

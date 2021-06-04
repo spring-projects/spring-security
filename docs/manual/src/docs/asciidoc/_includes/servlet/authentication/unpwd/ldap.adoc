@@ -155,9 +155,12 @@ fun ldapContainer(): UnboundIdContainer {
 [[servlet-authentication-ldap-apacheds]]
 === Embedded ApacheDS Server
 
-NOTE: Spring Security uses ApacheDS 1.x, which is no longer maintained.
+[NOTE]
+====
+Spring Security uses ApacheDS 1.x, which is no longer maintained.
 Unfortunately, ApacheDS 2.x has only released milestone versions with no stable release.
 Once a stable release of ApacheDS 2.x is available, we will consider updating.
+====
 
 If you wish to use https://directory.apache.org/apacheds/[Apache DS], specify the following dependencies:
 
@@ -543,8 +546,11 @@ To make this easier, Spring Security has an authentication provider, which is cu
 Configuring `ActiveDirectoryLdapAuthenticationProvider` is quite straightforward.
 You need only supply the domain name and an LDAP URL that supplies the address of the server.
 
-NOTE: It is also possible to obtain the server's IP address byusing a DNS lookup.
+[NOTE]
+====
+It is also possible to obtain the server's IP address byusing a DNS lookup.
 This is not currently supported, but hopefully will be in a future version.
+====
 
 The following example configures Active Directory:
 

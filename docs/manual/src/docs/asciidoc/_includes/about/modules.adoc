@@ -277,7 +277,11 @@ This is the basis of the Spring Security integration.
 
 [[spring-security-openid]]
 == OpenID -- `spring-security-openid.jar`
-NOTE: The OpenID 1.0 and 2.0 protocols have been deprecated and users are encouraged to migrate to OpenID Connect, which is supported by spring-security-oauth2.
+
+[NOTE]
+====
+The OpenID 1.0 and 2.0 protocols have been deprecated and users are encouraged to migrate to OpenID Connect, which is supported by spring-security-oauth2.
+====
 
 This module contains OpenID web authentication support.
 It is used to authenticate users against an external OpenID server.

@@ -20,7 +20,10 @@ This simplifies reuse and customization.
 5. Complies with JSR-250
 6. Enables `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter` by default
 
-NOTE: For earlier versions, please read about similar support with <<jc-enable-global-method-security, @EnableGlobalMethodSecurity>>.
+[NOTE]
+====
+For earlier versions, please read about similar support with <<jc-enable-global-method-security, @EnableGlobalMethodSecurity>>.
+====
 
 For example, the following would enable Spring Security's `@PreAuthorize` annotation:
 
@@ -772,11 +775,17 @@ public Account post(Account account, double amount);
 
 Expression-based annotations are a good choice if you need to define simple rules that go beyond checking the role names against the user's list of authorities.
 
-NOTE: The annotated methods will only be secured for instances which are defined as Spring beans (in the same application context in which method-security is enabled).
+[NOTE]
+====
+The annotated methods will only be secured for instances which are defined as Spring beans (in the same application context in which method-security is enabled).
 If you want to secure instances which are not created by Spring (using the `new` operator, for example) then you need to use AspectJ.
+====
 
-NOTE: You can enable more than one type of annotation in the same application, but only one type should be used for any interface or class as the behaviour will not be well-defined otherwise.
+[NOTE]
+====
+You can enable more than one type of annotation in the same application, but only one type should be used for any interface or class as the behaviour will not be well-defined otherwise.
 If two annotations are found which apply to a particular method, then only one of them will be applied.
+====
 
 [[ns-protect-pointcut]]
 === Adding Security Pointcuts by using protect-pointcut

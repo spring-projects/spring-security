@@ -25,7 +25,10 @@ For example, it might redirect to a log in page or send a `WWW-Authenticate` hea
 The `AccessDeniedHandler` is invoked to handle access denied.
 // FIXME: link to AccessDeniedHandler
 
-NOTE: If the application does not throw an `AccessDeniedException` or an `AuthenticationException`, `ExceptionTranslationFilter` does not do anything.
+[NOTE]
+====
+If the application does not throw an `AccessDeniedException` or an `AuthenticationException`, `ExceptionTranslationFilter` does not do anything.
+====
 
 The pseudocode for `ExceptionTranslationFilter` looks something like this:
 

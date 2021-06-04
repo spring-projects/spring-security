@@ -6,7 +6,10 @@ Spring Security provides comprehensive integration with https://docs.spring.io/s
 [[test-mockmvc-setup]]
 === Setting Up MockMvc and Spring Security
 
-NOTE: Spring Security's testing support requires spring-test-4.1.3.RELEASE or greater.
+[NOTE]
+====
+Spring Security's testing support requires spring-test-4.1.3.RELEASE or greater.
+====
 
 To use Spring Security with Spring MVC Test, add the Spring Security `FilterChainProxy` as a `Filter`.
 You also need to add Spring Security's `TestSecurityContextHolderPostProcessor` to support <<running-as-a-user-in-spring-mvc-test-with-annotations,running as a user in Spring MVC test with annotations>>.

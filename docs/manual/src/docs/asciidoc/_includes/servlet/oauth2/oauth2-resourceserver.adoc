@@ -13,7 +13,10 @@ This authorization server can be consulted by resource servers to authorize requ
 
 This section details how Spring Security provides support for OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens].
 
-NOTE: Working samples for both {gh-samples-url}/boot/oauth2resourceserver[JWTs] and {gh-samples-url}/boot/oauth2resourceserver-opaque[Opaque Tokens] are available in the {gh-samples-url}[Spring Security repository].
+[NOTE]
+====
+Working samples for both {gh-samples-url}/boot/oauth2resourceserver[JWTs] and {gh-samples-url}/boot/oauth2resourceserver-opaque[Opaque Tokens] are available in the {gh-samples-url}[Spring Security repository].
+====
 
 Now we can consider how Bearer Token Authentication works within Spring Security.
 First, we see that, as with <<servlet-authentication-basic,Basic Authentication>>, the https://tools.ietf.org/html/rfc7235#section-4.1[WWW-Authenticate] header is sent back to an unauthenticated client:
@@ -29,7 +32,10 @@ image:{icondir}/number_3.png[] Since the user is not authenticated, <<servlet-ex
 The configured <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>> is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/authentication/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`], which sends a `WWW-Authenticate` header.
 The `RequestCache` is typically a `NullRequestCache` that does not save the request, since the client is capable of replaying the requests it originally requested.
 
-NOTE: The preceding figure builds off of our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+[NOTE]
+====
+The preceding figure builds off of our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+====
 
 When a client receives the `WWW-Authenticate: Bearer` header, it knows it should retry with a bearer token.
 The following image shows the flow for the bearer token being processed:
@@ -53,7 +59,10 @@ image:{icondir}/number_4.png[] If authentication is successful, then __Success__
 * The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
 * The `BearerTokenAuthenticationFilter` invokes `FilterChain.doFilter(request,response)` to continue with the rest of the application logic.
 
-NOTE: The preceding figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+[NOTE]
+====
+The preceding figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+====
 
 [[oauth2resourceserver-jwt-minimaldependencies]]
 === Minimal Dependencies for JWT
@@ -88,8 +97,11 @@ spring:
 
 Resource Server uses this property to further self-configure, discover the authorization server's public keys, and, subsequently, validate incoming JWTs.
 
-NOTE: To use the `issuer-uri` property, it must also be true that one of `https://idp.example.com/issuer/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/issuer`, or `https://idp.example.com/.well-known/oauth-authorization-server/issuer` is a supported endpoint for the authorization server.
+[NOTE]
+====
+To use the `issuer-uri` property, it must also be true that one of `https://idp.example.com/issuer/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/issuer`, or `https://idp.example.com/.well-known/oauth-authorization-server/issuer` is a supported endpoint for the authorization server.
 This endpoint is referred to as a https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Provider Configuration] endpoint or a https://tools.ietf.org/html/rfc8414#section-3[Authorization Server Metadata] endpoint.
+====
 
 ==== Startup Expectations
 
@@ -104,7 +116,10 @@ It achieves this through a deterministic startup process:
 
 A consequence of this process is that the authorization server must be up and receiving requests for Resource Server to successfully start up.
 
-NOTE: If the authorization server is down when Resource Server queries it (given appropriate timeouts), startup fails.
+[NOTE]
+====
+If the authorization server is down when Resource Server queries it (given appropriate timeouts), startup fails.
+====
 
 ==== Runtime Expectations
 
@@ -126,7 +141,10 @@ Given a well-formed JWT, Resource Server:
 . Validates the JWT's `exp` and `nbf` timestamps and the JWT's `iss` claim.
 . Maps each scope to an authority with the prefix `SCOPE_`.
 
-NOTE: As the authorization server makes available new keys, Spring Security automatically rotates the keys used to validate JWTs.
+[NOTE]
+====
+As the authorization server makes available new keys, Spring Security automatically rotates the keys used to validate JWTs.
+====
 
 The resulting `Authentication#getPrincipal`, by default, is a Spring Security `Jwt` object, and `Authentication#getName` maps to the JWT's `sub` property, if one is present.
 
@@ -180,12 +198,19 @@ spring:
 ----
 ====
 
-NOTE: The JWK Set URI is not standardized, but you can typically find it in the authorization server's documentation.
+[NOTE]
+====
+The JWK Set URI is not standardized, but you can typically find it in the authorization server's documentation.
+====
 
 Consequently, Resource Server does not ping the authorization server at startup.
 We still specify the `issuer-uri` so that Resource Server still validates the `iss` claim on incoming JWTs.
 
-NOTE: You can also supply this property directly on the <<oauth2resourceserver-jwt-jwkseturi-dsl,DSL>>.
+[NOTE]
+====
+You can also supply this property directly on the <<oauth2resourceserver-jwt-jwkseturi-dsl,DSL>>.
+====
+
 
 [[oauth2resourceserver-jwt-sansboot]]
 === Overriding or Replacing Boot Auto Configuration
@@ -300,7 +325,10 @@ fun jwtDecoder(): JwtDecoder {
 ----
 ====
 
-NOTE: Calling `{security-api-url}org/springframework/security/oauth2/jwt/JwtDecoders.html#fromIssuerLocation-java.lang.String-[JwtDecoders#fromIssuerLocation]` invokes the Provider Configuration or Authorization Server Metadata endpoint, to derive the JWK Set URI.
+[NOTE]
+====
+Calling `{security-api-url}org/springframework/security/oauth2/jwt/JwtDecoders.html#fromIssuerLocation-java.lang.String-[JwtDecoders#fromIssuerLocation]` invokes the Provider Configuration or Authorization Server Metadata endpoint, to derive the JWK Set URI.
+====
 
 If the application does not expose a `JwtDecoder` bean, Spring Boot exposes the earlier default one.
 
@@ -1074,6 +1102,8 @@ fun jwtDecoder(): JwtDecoder {
 
 [NOTE]
 By default, Resource Server configures a clock skew of 60 seconds.
+====
+
 
 [[oauth2resourceserver-jwt-validation-custom]]
 ==== Configuring a Custom Validator
@@ -1426,10 +1456,17 @@ fun jwtDecoder(cacheManager: CacheManager): JwtDecoder {
 
 When given a `Cache`, Resource Server uses the JWK Set URI as the key and the JWK Set JSON as the value.
 
-NOTE: Spring is not a cache provider, so you need to make sure to include the appropriate dependencies, such as `spring-boot-starter-cache` and your favorite caching provider.
+[NOTE]
+====
+Spring is not a cache provider, so you need to make sure to include the appropriate dependencies, such as `spring-boot-starter-cache` and your favorite caching provider.
+====
 
-NOTE: Whether it is socket or cache timeouts, you may instead want to work with Nimbus directly.
+[NOTE]
+====
+Whether it is socket or cache timeouts, you may instead want to work with Nimbus directly.
 To do so, remember that `NimbusJwtDecoder` ships with a constructor that takes Nimbus's `JWTProcessor`.
+====
+
 
 [[oauth2resourceserver-opaque-minimaldependencies]]
 === Minimal Dependencies for Introspection
@@ -1471,8 +1508,12 @@ Where `https://idp.example.com/introspect` is the introspection endpoint hosted 
 
 Resource Server uses these properties to further self-configure and subsequently validate incoming JWTs.
 
-NOTE: When using introspection, the authorization server's word is law.
+[NOTE]
+====
+When using introspection, the authorization server's word is law.
 If the authorization server responsed that the token is valid, it is.
+====
+
 
 ==== Startup Expectations
 
@@ -2377,7 +2418,10 @@ fun tokenAuthenticationManagerResolver(): AuthenticationManagerResolver<HttpServ
 ----
 ====
 
-NOTE: The implementation of `useJwt(HttpServletRequest)` likely depends on custom request material, such as the path.
+[NOTE]
+====
+The implementation of `useJwt(HttpServletRequest)` likely depends on custom request material, such as the path.
+====
 
 Then you can specify this `AuthenticationManagerResolver` in the DSL:
 
@@ -2546,8 +2590,12 @@ http {
 In this case, you construct `JwtIssuerAuthenticationManagerResolver` with a strategy for obtaining the `AuthenticationManager`, given the issuer.
 This approach lets you add and remove elements from the repository (shown as a `Map` in the snippet) at runtime.
 
-NOTE: It would be unsafe to take any issuer and construct an `AuthenticationManager` from it.
+[NOTE]
+====
+It would be unsafe to take any issuer and construct an `AuthenticationManager` from it.
 The issuer should be one that the code can verify from a trusted source, such as a list of allowed issuers.
+====
+
 
 ===== Parsing the Claim Only Once
 
@@ -2644,8 +2692,11 @@ class TenantJWSKeySelector(tenants: TenantRepository) : JWTClaimSetAwareJWSKeySe
 The preceding key selector is a composition of many key selectors.
 It chooses which key selector to use based on the `iss` claim in the JWT.
 
-NOTE: To use this approach, make sure that the authorization server is configured to include the claim set as part of the token's signature.
+[NOTE]
+====
+To use this approach, make sure that the authorization server is configured to include the claim set as part of the token's signature.
 Without this, you have no guarantee that the issuer has not been altered by a bad actor.
+====
 
 Next, we can construct a `JWTProcessor`:
 
@@ -2956,8 +3007,11 @@ this.rest.get()
 
 In this case, the filter falls back and forwards the request onto the rest of the web filter chain.
 
-NOTE: Unlike the {security-api-url}org/springframework/security/oauth2/client/web/reactive/function/client/ServletOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
+[NOTE]
+====
+Unlike the {security-api-url}org/springframework/security/oauth2/client/web/reactive/function/client/ServletOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
 To obtain this level of support, use the OAuth 2.0 Client filter.
+====
 
 ==== `RestTemplate` support
 
@@ -3014,8 +3068,11 @@ fun rest(): RestTemplate {
 ====
 
 
-NOTE: Unlike the {security-api-url}org/springframework/security/oauth2/client/OAuth2AuthorizedClientManager.html[OAuth 2.0 Authorized Client Manager], this filter interceptor makes no attempt to renew the token, should it be expired.
+[NOTE]
+====
+Unlike the {security-api-url}org/springframework/security/oauth2/client/OAuth2AuthorizedClientManager.html[OAuth 2.0 Authorized Client Manager], this filter interceptor makes no attempt to renew the token, should it be expired.
 To obtain this level of support, create an interceptor by using the <<oauth2client,OAuth 2.0 Authorized Client Manager>>.
+====
 
 [[oauth2resourceserver-bearertoken-failure]]
 === Bearer Token Failure
