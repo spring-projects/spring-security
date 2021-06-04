@@ -1,7 +1,7 @@
 [[servlet-delegatingfilterproxy]]
 = DelegatingFilterProxy
 
-Spring provides a `Filter` implementation named {security-api-url}org/springframework/web/filter/DelegatingFilterProxy.html/[`DelegatingFilterProxy`] that allows bridging between the Servlet container's lifecycle and Spring's `ApplicationContext`.
+Spring provides a `Filter` implementation named {spring-framework-api-url}org/springframework/web/filter/DelegatingFilterProxy.html[`DelegatingFilterProxy`] that allows bridging between the Servlet container's lifecycle and Spring's `ApplicationContext`.
 The Servlet container allows registering ``Filter``s using its own standards, but it is not aware of Spring defined Beans.
 `DelegatingFilterProxy` can be registered via standard Servlet container mechanisms, but delegate all the work to a Spring Bean that implements `Filter`.
 

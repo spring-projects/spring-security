@@ -20,7 +20,7 @@ This is much simpler than wiring up the equivalent Apache Directory Server beans
 The most common alternative configuration requirements are supported by attributes on the `ldap-server` element and the user is isolated from worrying about which beans they need to create and what the bean property names are.
 footnote:[You can find out more about the use of the `ldap-server` element in the chapter on pass:specialcharacters,macros[<<servlet-authentication-ldap>>].].
 Use of a good XML editor while editing the application context file should provide information on the attributes and elements that are available.
-We would recommend that you try out the https://spring.io/tools/sts[Spring Tool Suite] as it has special features for working with standard Spring namespaces.
+We would recommend that you try out the https://spring.io/tools[Eclipse IDE with Spring Tools] as it has special features for working with standard Spring namespaces.
 
 
 To start using the security namespace in your application context, you need to have the `spring-security-config` jar on your classpath.
