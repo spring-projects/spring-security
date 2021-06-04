@@ -14,35 +14,29 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.annotation.method.configuration;
+package org.springframework.security.authorization.method;
 
-import reactor.core.publisher.Mono;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
+import org.aopalliance.intercept.MethodInvocation;
+import reactor.core.Exceptions;
 
 /**
- * @author Rob Winch
+ * For internal use only, as this contract is likely to change.
+ *
  * @author Evgeniy Cheban
- * @since 5.0
+ * @since 5.8
  */
-@Component
-public class Authz {
+final class ReactiveMethodInvocationUtils {
 
-	public boolean check(boolean result) {
-		return result;
+	static <T> T proceed(MethodInvocation mi) {
+		try {
+			return (T) mi.proceed();
+		}
+		catch (Throwable ex) {
+			throw Exceptions.propagate(ex);
+		}
 	}
 
-	public boolean check(long id) {
-		return id % 2 == 0;
-	}
-
-	public Mono<Boolean> checkReactive(long id) {
-		return Mono.defer(() -> Mono.just(id % 2 == 0));
-	}
-
-	public boolean check(Authentication authentication, String message) {
-		return message != null && message.contains(authentication.getName());
+	private ReactiveMethodInvocationUtils() {
 	}
 
 }
