@@ -117,7 +117,7 @@ class="org.springframework.security.authentication.jaas.DefaultJaasAuthenticatio
 
 [[jaas-jaasauthenticationprovider]]
 === JaasAuthenticationProvider
-The `JaasAuthenticationProvider` assumes the default `Configuration` is an instance of https://download.oracle.com/javase/1.4.2/docs/guide/security/jaas/spec/com/sun/security/auth/login/ConfigFile.html[ ConfigFile].
+The `JaasAuthenticationProvider` assumes the default `Configuration` is an instance of https://docs.oracle.com/javase/8/docs/jre/api/security/jaas/spec/com/sun/security/auth/login/ConfigFile.html[ ConfigFile].
 This assumption is made in order to attempt to update the `Configuration`.
 The `JaasAuthenticationProvider` then uses the default `Configuration` to create the `LoginContext`.
 

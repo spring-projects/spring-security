@@ -14,16 +14,27 @@ asciidoctor {
 }
 
 asciidoctorj {
+	def docsTag = snapshotBuild ? 'current' : project.version
 	def ghTag = snapshotBuild ? 'main' : project.version
 	def ghUrl = "https://github.com/spring-projects/spring-security/tree/$ghTag"
 	def ghOldSamplesUrl = "https://github.com/spring-projects/spring-security/tree/5.4.x/samples"
 	def ghSamplesUrl = "https://github.com/spring-projects/spring-security-samples/tree/$ghTag"
+	def securityDocsUrl = "https://docs.spring.io/spring-security/site/docs/$docsTag"
+	def oldSecurityApiUrl = "https://docs.spring.io/spring-security/site/docs/5.4.x/api/"
+	def springVersion = "5.3.x"
+	def securityApiUrl = "$securityDocsUrl/api/"
+	def securityReferenceUrl = "$securityDocsUrl/reference/html5/"
+	def springFrameworkApiUrl = "https://docs.spring.io/spring-framework/docs/$springVersion/javadoc-api/"
 	attributes 'spring-security-version' : project.version,
 		'spring-boot-version' : springBootVersion,
 		revnumber : project.version,
 		'gh-url': ghUrl,
 		'gh-samples-url': ghSamplesUrl,
-		'gh-old-samples-url': ghOldSamplesUrl
+		'gh-old-samples-url': ghOldSamplesUrl,
+		'old-security-api-url': oldSecurityApiUrl,
+		'security-api-url': securityApiUrl,
+		'security-reference-url': securityReferenceUrl,
+		'spring-framework-api-url': springFrameworkApiUrl
 	attributeProvider resolvedVersions(project.configurations.testRuntimeClasspath)
 }
 

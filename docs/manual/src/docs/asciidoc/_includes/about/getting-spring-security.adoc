@@ -24,7 +24,7 @@ The topics in this section provide detail on how to consume Spring Security when
 === Spring Boot with Maven
 
 Spring Boot provides a `spring-boot-starter-security` starter that aggregates Spring Security-related dependencies together.
-The simplest and preferred way to use the starter is to use https://docs.spring.io/initializr/docs/current/reference/htmlsingle/[Spring Initializr] by using an IDE integration (https://joshlong.com/jl/blogPost/tech_tip_geting_started_with_spring_boot.html[Eclipse], https://www.jetbrains.com/help/idea/spring-boot.html#d1489567e2[IntelliJ], https://github.com/AlexFalappa/nb-springboot/wiki/Quick-Tour[NetBeans]) or through https://start.spring.io.
+The simplest and preferred way to use the starter is to use https://docs.spring.io/initializr/docs/current/reference/html/[Spring Initializr] by using an IDE integration (https://joshlong.com/jl/blogPost/tech_tip_geting_started_with_spring_boot.html[Eclipse], https://www.jetbrains.com/help/idea/spring-boot.html#d1489567e2[IntelliJ], https://github.com/AlexFalappa/nb-springboot/wiki/Quick-Tour[NetBeans]) or through https://start.spring.io.
 
 Alternatively, you can manually add the starter, as the following example shows:
 
@@ -196,7 +196,7 @@ The following topics provide detail on how to consume Spring Security when using
 === Spring Boot with Gradle
 
 Spring Boot provides a `spring-boot-starter-security` starter that aggregates Spring Security related dependencies together.
-The simplest and preferred method to use the starter is to use https://docs.spring.io/initializr/docs/current/reference/htmlsingle/[Spring Initializr] by using an IDE integration (https://joshlong.com/jl/blogPost/tech_tip_geting_started_with_spring_boot.html[Eclipse], https://www.jetbrains.com/help/idea/spring-boot.html#d1489567e2[IntelliJ], https://github.com/AlexFalappa/nb-springboot/wiki/Quick-Tour[NetBeans]) or through https://start.spring.io.
+The simplest and preferred method to use the starter is to use https://docs.spring.io/initializr/docs/current/reference/html/[Spring Initializr] by using an IDE integration (https://joshlong.com/jl/blogPost/tech_tip_geting_started_with_spring_boot.html[Eclipse], https://www.jetbrains.com/help/idea/spring-boot.html#d1489567e2[IntelliJ], https://github.com/AlexFalappa/nb-springboot/wiki/Quick-Tour[NetBeans]) or through https://start.spring.io.
 
 Alternatively, you can manually add the starter, as the following example shows:
 

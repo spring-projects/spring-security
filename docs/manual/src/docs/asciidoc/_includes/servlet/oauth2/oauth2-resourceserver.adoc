@@ -31,7 +31,7 @@ image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to
 image:{icondir}/number_2.png[] Spring Security's <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
 
 image:{icondir}/number_3.png[] Since the user is not authenticated, <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> initiates __Start Authentication__.
-The configured <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>> is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/authentication/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`] which sends a WWW-Authenticate header.
+The configured <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>> is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/web/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`] which sends a WWW-Authenticate header.
 The `RequestCache` is typically a `NullRequestCache` that does not save the request since the client is capable of replaying the requests it originally requested.
 
 When a client receives the `WWW-Authenticate: Bearer` header, it knows it should retry with a bearer token.
