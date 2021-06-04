@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,19 @@
 
 package org.springframework.security.config.web.server
 
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.verify
+import java.math.BigInteger
+import java.security.KeyFactory
+import java.security.interfaces.RSAPublicKey
+import java.security.spec.RSAPublicKeySpec
+import javax.annotation.PreDestroy
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
@@ -40,11 +47,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.config.EnableWebFlux
 import reactor.core.publisher.Mono
-import java.math.BigInteger
-import java.security.KeyFactory
-import java.security.interfaces.RSAPublicKey
-import java.security.spec.RSAPublicKeySpec
-import javax.annotation.PreDestroy
 
 /**
  * Tests for [ServerJwtDsl]
@@ -125,20 +127,25 @@ class ServerJwtDslTests {
     @Test
     fun `jwt when using custom JWT decoded then custom decoded used`() {
         this.spring.register(CustomDecoderConfig::class.java).autowire()
+        mockkObject(CustomDecoderConfig.JWT_DECODER)
+        every {
+            CustomDecoderConfig.JWT_DECODER.decode("token")
+        } returns Mono.empty()
 
         this.client.get()
                 .uri("/")
                 .headers { headers: HttpHeaders -> headers.setBearerAuth("token") }
                 .exchange()
 
-        verify(CustomDecoderConfig.JWT_DECODER).decode("token")
+        verify(exactly = 1) { CustomDecoderConfig.JWT_DECODER.decode("token") }
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomDecoderConfig {
+
         companion object {
-            var JWT_DECODER: ReactiveJwtDecoder = mock(ReactiveJwtDecoder::class.java)
+            val JWT_DECODER: ReactiveJwtDecoder = ReactiveJwtDecoder { Mono.empty() }
         }
 
         @Bean
@@ -174,6 +181,7 @@ class ServerJwtDslTests {
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomJwkSetUriConfig {
+
         companion object {
             var MOCK_WEB_SERVER: MockWebServer = MockWebServer()
         }
@@ -207,28 +215,33 @@ class ServerJwtDslTests {
     @Test
     fun `opaque token when custom JWT authentication converter then converter used`() {
         this.spring.register(CustomJwtAuthenticationConverterConfig::class.java).autowire()
-        `when`(CustomJwtAuthenticationConverterConfig.DECODER.decode(anyString())).thenReturn(
-                Mono.just(Jwt.withTokenValue("token")
-                        .header("alg", "none")
-                        .claim(IdTokenClaimNames.SUB, "user")
-                        .build()))
-        `when`(CustomJwtAuthenticationConverterConfig.CONVERTER.convert(any()))
-                .thenReturn(Mono.just(TestingAuthenticationToken("test", "this", "ROLE")))
+        mockkObject(CustomJwtAuthenticationConverterConfig.CONVERTER)
+        mockkObject(CustomJwtAuthenticationConverterConfig.DECODER)
+        every {
+            CustomJwtAuthenticationConverterConfig.DECODER.decode(any())
+        } returns Mono.just(Jwt.withTokenValue("token")
+            .header("alg", "none")
+            .claim(IdTokenClaimNames.SUB, "user")
+            .build())
+        every {
+            CustomJwtAuthenticationConverterConfig.CONVERTER.convert(any())
+        } returns Mono.just(TestingAuthenticationToken("test", "this", "ROLE"))
 
         this.client.get()
                 .uri("/")
                 .headers { headers: HttpHeaders -> headers.setBearerAuth("token") }
                 .exchange()
 
-        verify(CustomJwtAuthenticationConverterConfig.CONVERTER).convert(any())
+        verify(exactly = 1) { CustomJwtAuthenticationConverterConfig.CONVERTER.convert(any()) }
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomJwtAuthenticationConverterConfig {
+
         companion object {
-            var CONVERTER: Converter<Jwt, out Mono<AbstractAuthenticationToken>> = mock(Converter::class.java) as Converter<Jwt, out Mono<AbstractAuthenticationToken>>
-            var DECODER: ReactiveJwtDecoder = mock(ReactiveJwtDecoder::class.java)
+            val CONVERTER: Converter<Jwt, out Mono<AbstractAuthenticationToken>> = Converter { Mono.empty() }
+            val DECODER: ReactiveJwtDecoder = ReactiveJwtDecoder { Mono.empty() }
         }
 
         @Bean
@@ -246,9 +259,7 @@ class ServerJwtDslTests {
         }
 
         @Bean
-        open fun jwtDecoder(): ReactiveJwtDecoder {
-            return DECODER
-        }
+        open fun jwtDecoder(): ReactiveJwtDecoder = DECODER
     }
 
     @RestController

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 
 package org.springframework.security.config.web.servlet
 
+import io.mockk.mockk
+import java.security.cert.Certificate
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.core.io.ClassPathResource
@@ -36,9 +39,6 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import java.security.cert.Certificate
-import java.security.cert.CertificateFactory
-import java.security.cert.X509Certificate
 
 /**
  * Tests for [X509Dsl]
@@ -140,9 +140,7 @@ class X509DslTests {
         }
 
         @Bean
-        override fun userDetailsService(): UserDetailsService {
-            return mock(UserDetailsService::class.java)
-        }
+        override fun userDetailsService(): UserDetailsService = mockk()
     }
 
     @Test
@@ -174,9 +172,7 @@ class X509DslTests {
         }
 
         @Bean
-        override fun userDetailsService(): UserDetailsService {
-            return mock(UserDetailsService::class.java)
-        }
+        override fun userDetailsService(): UserDetailsService = mockk()
     }
 
     @Test

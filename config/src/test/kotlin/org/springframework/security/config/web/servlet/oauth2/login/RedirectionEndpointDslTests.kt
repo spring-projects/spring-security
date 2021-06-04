@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
 
 package org.springframework.security.config.web.servlet.oauth2.login
 
+import io.mockk.every
+import io.mockk.mockkObject
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
-import org.mockito.Mockito.mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -29,15 +28,17 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider
 import org.springframework.security.config.test.SpringTestRule
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.config.web.servlet.invoke
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository
 import org.springframework.security.oauth2.core.OAuth2AccessToken
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
@@ -46,7 +47,6 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
-import java.util.*
 
 /**
  * Tests for [RedirectionEndpointDsl]
@@ -64,6 +64,9 @@ class RedirectionEndpointDslTests {
     @Test
     fun `oauth2Login when redirection endpoint configured then custom redirection endpoing used`() {
         this.spring.register(UserServiceConfig::class.java, ClientConfig::class.java).autowire()
+        mockkObject(UserServiceConfig.REPOSITORY)
+        mockkObject(UserServiceConfig.CLIENT)
+        mockkObject(UserServiceConfig.USER_SERVICE)
 
         val registrationId = "registrationId"
         val attributes = HashMap<String, Any>()
@@ -76,15 +79,18 @@ class RedirectionEndpointDslTests {
                 .redirectUri("http://localhost/callback")
                 .attributes(attributes)
                 .build()
-        Mockito.`when`(UserServiceConfig.REPOSITORY.removeAuthorizationRequest(ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .thenReturn(authorizationRequest)
-        Mockito.`when`(UserServiceConfig.CLIENT.getTokenResponse(ArgumentMatchers.any()))
-                .thenReturn(OAuth2AccessTokenResponse
-                        .withToken("token")
-                        .tokenType(OAuth2AccessToken.TokenType.BEARER)
-                        .build())
-        Mockito.`when`(UserServiceConfig.USER_SERVICE.loadUser(ArgumentMatchers.any()))
-                .thenReturn(DefaultOAuth2User(listOf(SimpleGrantedAuthority("ROLE_USER")), mapOf(Pair("user", "user")), "user"))
+        every {
+            UserServiceConfig.REPOSITORY.removeAuthorizationRequest(any(), any())
+        } returns authorizationRequest
+        every {
+            UserServiceConfig.CLIENT.getTokenResponse(any())
+        } returns OAuth2AccessTokenResponse
+            .withToken("token")
+            .tokenType(OAuth2AccessToken.TokenType.BEARER)
+            .build()
+        every {
+            UserServiceConfig.USER_SERVICE.loadUser(any())
+        } returns DefaultOAuth2User(listOf(SimpleGrantedAuthority("ROLE_USER")), mapOf(Pair("user", "user")), "user")
 
         this.mockMvc.get("/callback") {
             param("code", "auth-code")
@@ -96,10 +102,15 @@ class RedirectionEndpointDslTests {
 
     @EnableWebSecurity
     open class UserServiceConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            var USER_SERVICE: OAuth2UserService<OAuth2UserRequest, OAuth2User> = mock(OAuth2UserService::class.java) as OAuth2UserService<OAuth2UserRequest, OAuth2User>
-            var CLIENT: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> = mock(OAuth2AccessTokenResponseClient::class.java) as OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>
-            var REPOSITORY: AuthorizationRequestRepository<OAuth2AuthorizationRequest> = mock(AuthorizationRequestRepository::class.java) as AuthorizationRequestRepository<OAuth2AuthorizationRequest>
+            val REPOSITORY: AuthorizationRequestRepository<OAuth2AuthorizationRequest> =
+                HttpSessionOAuth2AuthorizationRequestRepository()
+            val CLIENT: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> =
+                OAuth2AccessTokenResponseClient {
+                    OAuth2AccessTokenResponse.withToken("some tokenValue").build()
+                }
+            val USER_SERVICE: OAuth2UserService<OAuth2UserRequest, OAuth2User> = DefaultOAuth2UserService()
         }
 
         override fun configure(http: HttpSecurity) {

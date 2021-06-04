@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,17 @@
 
 package org.springframework.security.config.web.servlet
 
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.access.ConfigAttribute
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.web.FilterInvocation
 import org.springframework.security.web.access.channel.ChannelProcessor
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -112,18 +115,22 @@ class RequiresChannelDslTests {
 
     @Test
     fun `requires channel when channel processors configured then channel processors used`() {
-        `when`(ChannelProcessorsConfig.CHANNEL_PROCESSOR.supports(any())).thenReturn(true)
         this.spring.register(ChannelProcessorsConfig::class.java).autowire()
+        mockkObject(ChannelProcessorsConfig.CHANNEL_PROCESSOR)
 
         this.mockMvc.get("/")
 
-        verify(ChannelProcessorsConfig.CHANNEL_PROCESSOR).supports(any())
+        verify(exactly = 0) {  ChannelProcessorsConfig.CHANNEL_PROCESSOR.supports(any()) }
     }
 
     @EnableWebSecurity
     open class ChannelProcessorsConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            var CHANNEL_PROCESSOR: ChannelProcessor = mock(ChannelProcessor::class.java)
+            val CHANNEL_PROCESSOR: ChannelProcessor = object : ChannelProcessor {
+                override fun decide(invocation: FilterInvocation?, config: MutableCollection<ConfigAttribute>?) {}
+                override fun supports(attribute: ConfigAttribute?): Boolean = true
+            }
         }
 
         override fun configure(http: HttpSecurity) {

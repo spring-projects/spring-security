@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 
 package org.springframework.security.config.web.server
 
+import io.mockk.every
+import io.mockk.mockk
+import java.security.cert.Certificate
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
@@ -30,10 +33,10 @@ import org.springframework.http.server.reactive.ServerHttpRequestDecorator
 import org.springframework.http.server.reactive.SslInfo
 import org.springframework.lang.Nullable
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
+import org.springframework.security.config.test.SpringTestRule
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService
 import org.springframework.security.core.userdetails.User
-import org.springframework.security.config.test.SpringTestRule
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.ReactivePreAuthenticatedAuthenticationManager
@@ -50,9 +53,6 @@ import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder
 import reactor.core.publisher.Mono
-import java.security.cert.Certificate
-import java.security.cert.CertificateFactory
-import java.security.cert.X509Certificate
 
 /**
  * Tests for [ServerX509Dsl]
@@ -214,9 +214,9 @@ class ServerX509DslTests {
         private fun decorate(exchange: ServerWebExchange): ServerWebExchange {
             val decorated: ServerHttpRequestDecorator = object : ServerHttpRequestDecorator(exchange.request) {
                 override fun getSslInfo(): SslInfo {
-                    val sslInfo = mock(SslInfo::class.java)
-                    `when`(sslInfo.sessionId).thenReturn("sessionId")
-                    `when`(sslInfo.peerCertificates).thenReturn(arrayOf(certificate))
+                    val sslInfo: SslInfo = mockk()
+                    every { sslInfo.sessionId } returns "sessionId"
+                    every { sslInfo.peerCertificates } returns arrayOf(certificate)
                     return sslInfo
                 }
             }

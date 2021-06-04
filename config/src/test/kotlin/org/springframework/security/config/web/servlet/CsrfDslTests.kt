@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 
 package org.springframework.security.config.web.servlet
 
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestRule
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
@@ -34,14 +35,13 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.security.web.csrf.CsrfTokenRepository
 import org.springframework.security.web.csrf.DefaultCsrfToken
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 /**
  * Tests for [CsrfDsl]
@@ -110,20 +110,22 @@ class CsrfDslTests {
 
     @Test
     fun `CSRF when custom CSRF token repository then repo used`() {
-        `when`(CustomRepositoryConfig.REPO.loadToken(any<HttpServletRequest>()))
-                .thenReturn(DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token"))
-
         this.spring.register(CustomRepositoryConfig::class.java).autowire()
+        mockkObject(CustomRepositoryConfig.REPO)
+        every {
+            CustomRepositoryConfig.REPO.loadToken(any())
+        } returns DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token")
 
         this.mockMvc.get("/test1")
 
-        verify(CustomRepositoryConfig.REPO).loadToken(any<HttpServletRequest>())
+        verify(exactly = 1) { CustomRepositoryConfig.REPO.loadToken(any()) }
     }
 
     @EnableWebSecurity
     open class CustomRepositoryConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            var REPO: CsrfTokenRepository = mock(CsrfTokenRepository::class.java)
+            val REPO: CsrfTokenRepository = HttpSessionCsrfTokenRepository()
         }
 
         override fun configure(http: HttpSecurity) {
@@ -164,18 +166,20 @@ class CsrfDslTests {
     @Test
     fun `CSRF when custom session authentication strategy then strategy used`() {
         this.spring.register(CustomStrategyConfig::class.java).autowire()
+        mockkObject(CustomStrategyConfig.STRATEGY)
+        every { CustomStrategyConfig.STRATEGY.onAuthentication(any(), any(), any()) } returns Unit
 
         this.mockMvc.perform(formLogin())
 
-        verify(CustomStrategyConfig.STRATEGY, atLeastOnce())
-                .onAuthentication(any(Authentication::class.java), any(HttpServletRequest::class.java), any(HttpServletResponse::class.java))
+        verify(exactly = 1) { CustomStrategyConfig.STRATEGY.onAuthentication(any(), any(), any()) }
 
     }
 
     @EnableWebSecurity
     open class CustomStrategyConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            var STRATEGY: SessionAuthenticationStrategy = mock(SessionAuthenticationStrategy::class.java)
+            val STRATEGY: SessionAuthenticationStrategy = SessionAuthenticationStrategy { _, _, _ -> }
         }
 
         override fun configure(http: HttpSecurity) {

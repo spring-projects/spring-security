@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,23 @@
 
 package org.springframework.security.config.web.servlet.oauth2.resourceserver
 
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
-import org.springframework.http.*
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal
 import org.springframework.security.oauth2.jwt.JwtClaimNames
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector
@@ -41,6 +42,7 @@ import org.springframework.test.web.servlet.get
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestTemplate
 
 /**
  * Tests for [OpaqueTokenDsl]
@@ -58,16 +60,19 @@ class OpaqueTokenDslTests {
     @Test
     fun `opaque token when defaults then uses introspection`() {
         this.spring.register(DefaultOpaqueConfig::class.java, AuthenticationController::class.java).autowire()
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
+        mockkObject(DefaultOpaqueConfig.REST)
+        val headers = HttpHeaders().apply {
+            contentType = MediaType.APPLICATION_JSON
+        }
         val entity = ResponseEntity("{\n" +
                 "  \"active\" : true,\n" +
                 "  \"sub\": \"test-subject\",\n" +
                 "  \"scope\": \"message:read\",\n" +
                 "  \"exp\": 4683883211\n" +
                 "}", headers, HttpStatus.OK)
-        `when`(DefaultOpaqueConfig.REST.exchange(any(RequestEntity::class.java), eq(String::class.java)))
-                .thenReturn(entity)
+        every {
+            DefaultOpaqueConfig.REST.exchange(any(), eq(String::class.java))
+        } returns entity
 
         this.mockMvc.get("/authenticated") {
             header("Authorization", "Bearer token")
@@ -79,8 +84,9 @@ class OpaqueTokenDslTests {
 
     @EnableWebSecurity
     open class DefaultOpaqueConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            var REST: RestOperations = mock(RestOperations::class.java)
+            val REST: RestOperations = RestTemplate()
         }
 
         override fun configure(http: HttpSecurity) {
@@ -95,9 +101,7 @@ class OpaqueTokenDslTests {
         }
 
         @Bean
-        open fun rest(): RestOperations {
-            return REST
-        }
+        open fun rest(): RestOperations = REST
 
         @Bean
         open fun tokenIntrospectionClient(): NimbusOpaqueTokenIntrospector {
@@ -108,20 +112,26 @@ class OpaqueTokenDslTests {
     @Test
     fun `opaque token when custom introspector set then introspector used`() {
         this.spring.register(CustomIntrospectorConfig::class.java, AuthenticationController::class.java).autowire()
-        `when`(CustomIntrospectorConfig.INTROSPECTOR.introspect(ArgumentMatchers.anyString()))
-                .thenReturn(DefaultOAuth2AuthenticatedPrincipal(mapOf(Pair(JwtClaimNames.SUB, "mock-subject")), emptyList()))
+        mockkObject(CustomIntrospectorConfig.INTROSPECTOR)
+
+        every {
+            CustomIntrospectorConfig.INTROSPECTOR.introspect(any())
+        } returns DefaultOAuth2AuthenticatedPrincipal(mapOf(Pair(JwtClaimNames.SUB, "mock-subject")), emptyList())
 
         this.mockMvc.get("/authenticated") {
             header("Authorization", "Bearer token")
         }
 
-        verify(CustomIntrospectorConfig.INTROSPECTOR).introspect("token")
+        verify(exactly = 1) { CustomIntrospectorConfig.INTROSPECTOR.introspect("token") }
     }
 
     @EnableWebSecurity
     open class CustomIntrospectorConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            var INTROSPECTOR: OpaqueTokenIntrospector = mock(OpaqueTokenIntrospector::class.java)
+            val INTROSPECTOR: OpaqueTokenIntrospector = OpaqueTokenIntrospector {
+                DefaultOAuth2AuthenticatedPrincipal(emptyMap(), emptyList())
+            }
         }
 
         override fun configure(http: HttpSecurity) {
@@ -141,20 +151,25 @@ class OpaqueTokenDslTests {
     @Test
     fun `opaque token when custom introspector set after client credentials then introspector used`() {
         this.spring.register(IntrospectorAfterClientCredentialsConfig::class.java, AuthenticationController::class.java).autowire()
-        `when`(IntrospectorAfterClientCredentialsConfig.INTROSPECTOR.introspect(ArgumentMatchers.anyString()))
-                .thenReturn(DefaultOAuth2AuthenticatedPrincipal(mapOf(Pair(JwtClaimNames.SUB, "mock-subject")), emptyList()))
+        mockkObject(IntrospectorAfterClientCredentialsConfig.INTROSPECTOR)
+        every {
+            IntrospectorAfterClientCredentialsConfig.INTROSPECTOR.introspect(any())
+        } returns DefaultOAuth2AuthenticatedPrincipal(mapOf(Pair(JwtClaimNames.SUB, "mock-subject")), emptyList())
 
         this.mockMvc.get("/authenticated") {
             header("Authorization", "Bearer token")
         }
 
-        verify(IntrospectorAfterClientCredentialsConfig.INTROSPECTOR).introspect("token")
+        verify(exactly = 1) { IntrospectorAfterClientCredentialsConfig.INTROSPECTOR.introspect("token") }
     }
 
     @EnableWebSecurity
     open class IntrospectorAfterClientCredentialsConfig : WebSecurityConfigurerAdapter() {
+
         companion object {
-            var INTROSPECTOR: OpaqueTokenIntrospector = mock(OpaqueTokenIntrospector::class.java)
+            val INTROSPECTOR: OpaqueTokenIntrospector = OpaqueTokenIntrospector {
+                DefaultOAuth2AuthenticatedPrincipal(emptyMap(), emptyList())
+            }
         }
 
         override fun configure(http: HttpSecurity) {
