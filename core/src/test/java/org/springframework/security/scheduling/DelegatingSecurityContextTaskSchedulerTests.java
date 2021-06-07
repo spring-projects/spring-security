@@ -80,12 +80,12 @@ public class DelegatingSecurityContextTaskSchedulerTests {
 	}
 
 	@Test
-	public void testSchedulerIsNotNull() {
+	public void constructorWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new DelegatingSecurityContextTaskScheduler(null));
 	}
 
 	@Test
-	public void testSchedulerCurrentSecurityContext() throws Exception {
+	public void scheduleWhenDefaultThenCurrentSecurityContextPropagated() throws Exception {
 		willAnswer((invocation) -> {
 			assertThat(SecurityContextHolder.getContext()).isEqualTo(this.originalSecurityContext);
 			return null;
@@ -96,7 +96,7 @@ public class DelegatingSecurityContextTaskSchedulerTests {
 	}
 
 	@Test
-	public void testSchedulerExplicitSecurityContext() throws Exception {
+	public void scheduleWhenSecurityContextThenSecurityContextPropagated() throws Exception {
 		willAnswer((invocation) -> {
 			assertThat(SecurityContextHolder.getContext()).isEqualTo(this.securityContext);
 			return null;
@@ -115,27 +115,27 @@ public class DelegatingSecurityContextTaskSchedulerTests {
 	}
 
 	@Test
-	public void testSchedulerWithRunnableAndTrigger() {
+	public void scheduleWhenRunnableTriggerThenDelegates() {
 		this.delegatingSecurityContextTaskScheduler.schedule(this.runnable, this.trigger);
 		verify(this.scheduler).schedule(any(Runnable.class), any(Trigger.class));
 	}
 
 	@Test
-	public void testSchedulerWithRunnableAndInstant() {
+	public void scheduleWhenRunnableDateThenDelegates() {
 		Instant date = Instant.now();
 		this.delegatingSecurityContextTaskScheduler.schedule(this.runnable, date);
 		verify(this.scheduler).schedule(any(Runnable.class), any(Date.class));
 	}
 
 	@Test
-	public void testScheduleAtFixedRateWithRunnableAndDate() {
+	public void scheduleAtFixedRateWhenRunnableDateLongThenDelegates() {
 		Date date = new Date(1544751374L);
 		this.delegatingSecurityContextTaskScheduler.scheduleAtFixedRate(this.runnable, date, 1000L);
 		verify(this.scheduler).scheduleAtFixedRate(isA(Runnable.class), isA(Date.class), eq(1000L));
 	}
 
 	@Test
-	public void testScheduleAtFixedRateWithRunnableAndLong() {
+	public void scheduleAtFixedRateWhenRunnableLongThenDelegates() {
 		this.delegatingSecurityContextTaskScheduler.scheduleAtFixedRate(this.runnable, 1000L);
 		verify(this.scheduler).scheduleAtFixedRate(isA(Runnable.class), eq(1000L));
 	}
