@@ -48,6 +48,7 @@ public class DelegatingSecurityContextTaskScheduler implements TaskScheduler {
 	 * @param securityContext the {@link SecurityContext} to use for each
 	 * {@link DelegatingSecurityContextRunnable} or null to default to the current
 	 * {@link SecurityContext}
+	 * @since 5.6
 	 */
 	public DelegatingSecurityContextTaskScheduler(TaskScheduler delegateTaskScheduler,
 			SecurityContext securityContext) {
