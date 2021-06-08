@@ -100,3 +100,47 @@ This is an example of the use of the `AuthenticatedVoter` which we will see in t
 It uses an `AuthenticationTrustResolver` to process this particular configuration attribute and grant access to anonymous users.
 The `AuthenticatedVoter` approach is more powerful, since it allows you to differentiate between anonymous, remember-me and fully-authenticated users.
 If you don't need this functionality though, then you can stick with `ROLE_ANONYMOUS`, which will be processed by Spring Security's standard `RoleVoter`.
+
+[[anonymous-auth-mvc-controller]]
+=== Getting Anonymous Authentications with Spring MVC
+
+https://docs.spring.io/spring-framework/docs/5.2.x/spring-framework-reference/web.html#mvc-ann-arguments[Spring MViC resolves parameters of type `Principal`] using its own argument resolver.
+
+This means that a construct like this one:
+
+[source,java]
+----
+@GetMapping("/")
+public String method(Authentication authentication) {
+	if (authentication instanceof AnonymousAuthenticationToken) {
+		return "anonymous";
+	} else {
+		return "not anonymous";
+	}
+}
+----
+
+will always return "not anonymous", even for anonymous requests.
+The reason is that Spring MVC resolves the parameter using `HttpServletRequest#getPrincipal`, which is `null` when the request is anonymous.
+
+If you'd like to obtain the `Authentication` in anonymous requests, use `@CurrentSecurityContext` instead:
+
+.Use CurrentSecurityContext for Anonymous requests
+====
+.Java
+[source,java,role="primary"]
+----
+@GetMapping("/")
+public String method(@CurrentSecurityContext SecurityContext context) {
+	return context.getAuthentication().getName();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/")
+fun method(@CurrentSecurityContext context : SecurityContext) : String =
+		context!!.authentication!!.name
+----
+====
