@@ -16,12 +16,25 @@
 
 package org.springframework.security.cas.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+
+import java.io.IOException;
+
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.junit.After;
 import org.junit.Test;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -34,15 +47,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 
 /**
  * Tests {@link CasAuthenticationFilter}.
@@ -196,4 +201,32 @@ public class CasAuthenticationFilterTests {
 		verifyZeroInteractions(chain);
 	}
 
+	// SEC-977
+    @Test
+    public void testCasGatewayWithNoSSOSession() throws IOException, ServletException {
+        HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
+        MockHttpServletRequest initialRequest = new MockHttpServletRequest("GET", "/some_path");
+        requestCache.saveRequest(initialRequest, null);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setMethod("GET");
+        request.setServletPath("/login/cas");
+        request.setSession(initialRequest.getSession());
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = mock(FilterChain.class);
+
+        CasAuthenticationFilter filter = new CasAuthenticationFilter();
+        filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
+        filter.setAuthenticationManager(new AuthenticationManager() {
+            public Authentication authenticate(Authentication a) {
+                throw new BadCredentialsException("No ticket found");
+            }
+        });
+
+        filter.doFilter(request,response,chain);
+        verify(chain, never()).doFilter(request, response);
+        assertEquals("Should redirect to saved url", "http://localhost/some_path", response.getRedirectedUrl());
+
+    }
+	
 }

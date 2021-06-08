@@ -16,16 +16,16 @@
 
 package org.springframework.security.cas.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
 import java.net.URLEncoder;
 
 import org.junit.Test;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.cas.ServiceProperties;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import org.springframework.security.cas.authentication.TriggerCasGatewayException;
 
 /**
  * Tests {@link CasAuthenticationEntryPoint}.
@@ -95,4 +95,46 @@ public class CasAuthenticationEntryPointTests {
 						.isEqualTo(response.getRedirectedUrl());
 	}
 
+	 public void testNormalOperationWithRenewFalseAndGateway() throws Exception {
+	        ServiceProperties sp = new ServiceProperties();
+	        sp.setSendRenew(false);
+	        sp.setService("https://mycompany.com/bigWebApp/j_spring_cas_security_check");
+
+	        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
+	        ep.setLoginUrl("https://cas/login");
+	        ep.setServiceProperties(sp);
+
+	        MockHttpServletRequest request = new MockHttpServletRequest();
+	        request.setRequestURI("/some_path");
+
+	        MockHttpServletResponse response = new MockHttpServletResponse();
+
+	        ep.afterPropertiesSet();
+	        ep.commence(request, response, new TriggerCasGatewayException(""));
+			assertThat("https://cas/login?service="
+					+ URLEncoder.encode("https://mycompany.com/bigWebApp/j_spring_cas_security_check", "UTF-8")
+					+ "&gateway=true").isEqualTo(response.getRedirectedUrl());
+	    }
+
+	    public void testNormalOperationWithRenewTrueAndGateway() throws Exception {
+	        ServiceProperties sp = new ServiceProperties();
+	        sp.setSendRenew(true);
+	        sp.setService("https://mycompany.com/bigWebApp/j_spring_cas_security_check");
+
+	        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
+	        ep.setLoginUrl("https://cas/login");
+	        ep.setServiceProperties(sp);
+
+	        MockHttpServletRequest request = new MockHttpServletRequest();
+	        request.setRequestURI("/some_path");
+
+	        MockHttpServletResponse response = new MockHttpServletResponse();
+
+	        ep.afterPropertiesSet();
+	        ep.commence(request, response, new TriggerCasGatewayException(""));
+			assertThat("https://cas/login?service="
+					+ URLEncoder.encode("https://mycompany.com/bigWebApp/j_spring_cas_security_check", "UTF-8")
+					+ "&renew=true&gateway=true").isEqualTo(response.getRedirectedUrl());
+	    }
+	
 }
