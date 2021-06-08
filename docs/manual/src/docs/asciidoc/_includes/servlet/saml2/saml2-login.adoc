@@ -228,7 +228,7 @@ static {
             }
 
             private void configureAuthnRequest(AuthnRequest authnRequest) {
-				authnRequest.setForceAuthN(true);
+				authnRequest.setForceAuthn(true);
             }
 		}
 
@@ -447,11 +447,12 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.wit
         .entityId("{baseUrl}/{registrationId}")
         .decryptionX509Credentials(c -> c.add(relyingPartyDecryptingCredential()))
         .assertionConsumerServiceLocation("/my-login-endpoint/{registrationId}")
-        .assertingParty(party -> party
+        .assertingPartyDetails(party -> party
                 .entityId("https://ap.example.org")
                 .verificationX509Credentials(c -> c.add(assertingPartyVerifyingCredential()))
                 .singleSignOnServiceLocation("https://ap.example.org/SSO.saml2")
-        );
+        )
+        .build();
 ----
 
 [TIP]
@@ -622,12 +623,12 @@ private RelyingPartyRegistration.Builder
 @Bean
 public RelyingPartyRegistrationRepository relyingPartyRegistrations() {
     RelyingPartyRegistration okta = addRelyingPartyDetails(
-            RelyingPartyRegistration
+            RelyingPartyRegistrations
                 .fromMetadataLocation(oktaMetadataUrl)
                 .registrationId("okta")).build();
 
     RelyingPartyRegistration azure = addRelyingPartyDetails(
-            RelyingPartyRegistration
+            RelyingPartyRegistrations
                 .fromMetadataLocation(oktaMetadataUrl)
                 .registrationId("azure")).build();
 
@@ -752,7 +753,7 @@ public class AuthnRequestConverter implements
 		issuer.setValue(myContext.getIssuer());
 
 		AuthnRequest authnRequest = authnRequestBuilder.buildObject();
-		authnRequest.setIssuer(iss);
+		authnRequest.setIssuer(issuer);
         authnRequest.setDestination(myContext.getDestination());
 		authnRequest.setAssertionConsumerServiceURL(myContext.getAssertionConsumerServiceUrl());
 
@@ -913,7 +914,7 @@ provider.setAssertionValidator(assertionToken -> {
     } catch (Exception e) {
     	return result.concat(new Saml2Error(INVALID_ASSERTION, e.getMessage()));
     }
-    return result.contact(new Saml2Error(INVALID_ASSERTION, context.getValidationFailureMessage()));
+    return result.concat(new Saml2Error(INVALID_ASSERTION, context.getValidationFailureMessage()));
 });
 ----
 
@@ -1019,7 +1020,7 @@ Saml2MetadataFilter filter = new Saml2MetadataFilter(
 http
     // ...
     .saml2Login(withDefaults())
-    .addFilterBefore(new Saml2MetadataFilter(r), Saml2WebSsoAuthenticationFilter.class);
+    .addFilterBefore(filter, Saml2WebSsoAuthenticationFilter.class);
 ----
 
 You can use this metadata endpoint to register your relying party with your asserting party.
