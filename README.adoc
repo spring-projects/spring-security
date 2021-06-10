@@ -22,7 +22,7 @@ Be sure to read the https://docs.spring.io/spring-security/site/docs/current/ref
 Extensive JavaDoc for the Spring Security code is also available in the https://docs.spring.io/spring-security/site/docs/current/api/[Spring Security API Documentation].
 
 == Quick Start
-See https://docs.spring.io/spring-security/site/docs/5.5.x/reference/html5/#servlet-hello[Hello Spring Security] to get started with a "Hello, World" application.
+See https://docs.spring.io/spring-security/site/docs/current/reference/html5/#servlet-hello[Hello Spring Security] to get started with a "Hello, World" application.
 
 == Building from Source
 Spring Security uses a https://gradle.org[Gradle]-based build system.
