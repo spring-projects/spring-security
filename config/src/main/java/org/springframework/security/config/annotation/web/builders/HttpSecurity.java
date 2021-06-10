@@ -97,20 +97,18 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 /**
- * A {@link HttpSecurity} is similar to Spring Security's XML &lt;http&gt;
- * element in the namespace configuration. It allows configuring web based
- * security for specific http requests. By default it will be applied to all
- * requests, but can be restricted using {@link #requestMatcher(RequestMatcher)}
- * or other similar methods.
+ * A {@link HttpSecurity} is similar to Spring Security's XML &lt;http&gt; element in the
+ * namespace configuration. It allows configuring web based security for specific http
+ * requests. By default it will be applied to all requests, but can be restricted using
+ * {@link #requestMatcher(RequestMatcher)} or other similar methods.
  *
  * <h2>Example Usage</h2>
  *
- * The most basic form based configuration can be seen below. The configuration
- * will require that any URL that is requested will require a User with the role
- * "ROLE_USER". It also defines an in memory authentication scheme with a user
- * that has the username "user", the password "password", and the role
- * "ROLE_USER". For additional examples, refer to the Java Doc of individual
- * methods on {@link HttpSecurity}.
+ * The most basic form based configuration can be seen below. The configuration will
+ * require that any URL that is requested will require a User with the role "ROLE_USER".
+ * It also defines an in memory authentication scheme with a user that has the username
+ * "user", the password "password", and the role "ROLE_USER". For additional examples,
+ * refer to the Java Doc of individual methods on {@link HttpSecurity}.
  *
  * <pre>
  * &#064;Configuration
