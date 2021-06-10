@@ -75,7 +75,7 @@ public class HttpSecurityAddFilterTest {
 		this.spring.register(MyFiltersRelativelyToEachOthersConfig.class).autowire();
 
 		assertThatFilters().containsSubsequence(MyFilterBefore.class, MyFilter.class, MyFilterAfter.class,
-				ChannelProcessingFilter.class);
+				WebAsyncManagerIntegrationFilter.class);
 	}
 
 	private ListAssert<Class<?>> assertThatFilters() {
@@ -164,7 +164,7 @@ public class HttpSecurityAddFilterTest {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.addFilterBefore(new MyFilter(), ChannelProcessingFilter.class)
+					.addFilterBefore(new MyFilter(), WebAsyncManagerIntegrationFilter.class)
 					.addFilterBefore(new MyFilterBefore(), MyFilter.class)
 					.addFilterAfter(new MyFilterAfter(), MyFilter.class);
 			// @formatter:on

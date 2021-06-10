@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.builders;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
@@ -141,6 +143,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
 
 	private FilterOrderRegistration filterOrders = new FilterOrderRegistration();
+	
+	private Map<Class<? extends Filter>, Class<? extends Filter>> filtersRegistredBefore = new HashMap<>();
+	
+	private Map<Class<? extends Filter>, Class<? extends Filter>> filtersRegistredAfter = new HashMap<>();
 
 	/**
 	 * Creates a new instance
@@ -2642,12 +2648,44 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	@Override
 	public HttpSecurity addFilterAfter(Filter filter, Class<? extends Filter> afterFilter) {
-		return addFilterAtOffsetOf(filter, 1, afterFilter);
+		if(this.filterOrders.getOrder(afterFilter) != null) {
+			this.filtersRegistredAfter.put(filter.getClass(), afterFilter);
+			return addFilterAtOffsetOf(filter, 1, afterFilter);
+			
+		} else if (this.filtersRegistredAfter.containsKey(afterFilter)) {
+			final Class<? extends Filter> registeredFilter = this.filtersRegistredAfter.get(afterFilter);
+			this.filtersRegistredAfter.put(filter.getClass(), registeredFilter);
+			return addFilterAtOffsetOf(filter, 1, registeredFilter);
+			
+		} else if (this.filtersRegistredBefore.containsKey(afterFilter)) {
+			final Class<? extends Filter> registeredFilter = this.filtersRegistredBefore.get(afterFilter);
+			this.filtersRegistredBefore.put(filter.getClass(), registeredFilter);
+			return addFilterAtOffsetOf(filter, -1, registeredFilter);
+		}
+		
+		throw new IllegalArgumentException(afterFilter.getClass().getName()
+				+ " is not registered in filter chain. Consider adding your filter after a registered filter.");
 	}
 
 	@Override
 	public HttpSecurity addFilterBefore(Filter filter, Class<? extends Filter> beforeFilter) {
-		return addFilterAtOffsetOf(filter, -1, beforeFilter);
+		if(this.filterOrders.getOrder(beforeFilter) != null) {
+			this.filtersRegistredBefore.put(filter.getClass(), beforeFilter);
+			return addFilterAtOffsetOf(filter, -1, beforeFilter);
+			
+		} else if (this.filtersRegistredAfter.containsKey(beforeFilter)) {
+			final Class<? extends Filter> registeredFilter = this.filtersRegistredAfter.get(beforeFilter);
+			this.filtersRegistredAfter.put(filter.getClass(), registeredFilter);
+			return addFilterAtOffsetOf(filter, -1, registeredFilter);
+			
+		} else if (this.filtersRegistredBefore.containsKey(beforeFilter)) {
+			final Class<? extends Filter> registeredFilter = this.filtersRegistredBefore.get(beforeFilter);
+			this.filtersRegistredBefore.put(filter.getClass(), registeredFilter);
+			return addFilterAtOffsetOf(filter, -2, registeredFilter);
+		}
+		
+		throw new IllegalArgumentException(beforeFilter.getClass().getName()
+				+ " is not registered in filter chain. Consider adding your filter before a registered filter.");
 	}
 
 	private HttpSecurity addFilterAtOffsetOf(Filter filter, int offset, Class<? extends Filter> registeredFilter) {
