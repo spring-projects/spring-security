@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipals;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 
@@ -61,16 +61,16 @@ public class OpaqueTokenAuthenticationProviderTests {
 		// @formatter:off
 		assertThat(attributes)
 				.isNotNull()
-				.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
-				.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE,
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.ACTIVE, true)
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.AUD,
 						Arrays.asList("https://protected.example.net/resource"))
-				.containsEntry(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
-				.containsEntry(OAuth2IntrospectionClaimNames.EXPIRES_AT, Instant.ofEpochSecond(1419356238))
-				.containsEntry(OAuth2IntrospectionClaimNames.ISSUER, new URL("https://server.example.com/"))
-				.containsEntry(OAuth2IntrospectionClaimNames.NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
-				.containsEntry(OAuth2IntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"))
-				.containsEntry(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis")
-				.containsEntry(OAuth2IntrospectionClaimNames.USERNAME, "jdoe")
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.EXP, Instant.ofEpochSecond(1419356238))
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.ISS, new URL("https://server.example.com/"))
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.NBF, Instant.ofEpochSecond(29348723984L))
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"))
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.SUB, "Z5O3upPC88QrAjx00dis")
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.USERNAME, "jdoe")
 				.containsEntry("extension_field", "twenty-seven");
 		assertThat(result.getAuthorities())
 				.extracting("authority")
@@ -92,7 +92,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 		// @formatter:off
 		assertThat(attributes)
 				.isNotNull()
-				.doesNotContainKey(OAuth2IntrospectionClaimNames.SCOPE);
+				.doesNotContainKey(OAuth2TokenIntrospectionClaimNames.SCOPE);
 		// @formatter:on
 		assertThat(result.getAuthorities()).isEmpty();
 	}
