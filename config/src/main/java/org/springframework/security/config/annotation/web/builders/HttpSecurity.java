@@ -2653,6 +2653,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	private HttpSecurity addFilterAtOffsetOf(Filter filter, int offset, Class<? extends Filter> registeredFilter) {
 		int order = this.filterOrders.getOrder(registeredFilter) + offset;
 		this.filters.add(new OrderedFilter(filter, order));
+		this.filterOrders.put(filter.getClass(), order);
 		return this;
 	}
 
