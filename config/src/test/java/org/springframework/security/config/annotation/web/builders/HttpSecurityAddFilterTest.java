@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,14 +30,18 @@ import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
 import org.junit.Test;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import org.springframework.security.web.header.HeaderWriterFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,6 +74,46 @@ public class HttpSecurityAddFilterTest {
 				ExceptionTranslationFilter.class);
 	}
 
+	@Test
+	public void addFilterAfterWhenAfterCustomFilterThenOrderCorrect() {
+		this.spring.register(MyOtherFilterRelativeToMyFilterAfterConfig.class).autowire();
+
+		assertThatFilters().containsSubsequence(WebAsyncManagerIntegrationFilter.class, MyFilter.class,
+				MyOtherFilter.class);
+	}
+
+	@Test
+	public void addFilterBeforeWhenBeforeCustomFilterThenOrderCorrect() {
+		this.spring.register(MyOtherFilterRelativeToMyFilterBeforeConfig.class).autowire();
+
+		assertThatFilters().containsSubsequence(MyOtherFilter.class, MyFilter.class,
+				WebAsyncManagerIntegrationFilter.class);
+	}
+
+	@Test
+	public void addFilterAtWhenAtCustomFilterThenOrderCorrect() {
+		this.spring.register(MyOtherFilterRelativeToMyFilterAtConfig.class).autowire();
+
+		assertThatFilters().containsSubsequence(WebAsyncManagerIntegrationFilter.class, MyFilter.class,
+				MyOtherFilter.class, SecurityContextPersistenceFilter.class);
+	}
+
+	@Test
+	public void addFilterBeforeWhenCustomFilterDifferentPlacesThenOrderCorrect() {
+		this.spring.register(MyOtherFilterBeforeToMyFilterMultipleAfterConfig.class).autowire();
+
+		assertThatFilters().containsSubsequence(WebAsyncManagerIntegrationFilter.class, MyOtherFilter.class,
+				MyFilter.class, ExceptionTranslationFilter.class);
+	}
+
+	@Test
+	public void addFilterBeforeAndAfterWhenCustomFiltersDifferentPlacesThenOrderCorrect() {
+		this.spring.register(MyAnotherFilterRelativeToMyCustomFiltersMultipleConfig.class).autowire();
+
+		assertThatFilters().containsSubsequence(HeaderWriterFilter.class, MyFilter.class, MyOtherFilter.class,
+				MyOtherFilter.class, MyAnotherFilter.class, MyFilter.class, ExceptionTranslationFilter.class);
+	}
+
 	private ListAssert<Class<?>> assertThatFilters() {
 		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
 		List<Class<?>> filters = filterChain.getFilters("/").stream().map(Object::getClass)
@@ -78,6 +122,26 @@ public class HttpSecurityAddFilterTest {
 	}
 
 	public static class MyFilter implements Filter {
+
+		@Override
+		public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+				throws IOException, ServletException {
+			filterChain.doFilter(servletRequest, servletResponse);
+		}
+
+	}
+
+	static class MyOtherFilter implements Filter {
+
+		@Override
+		public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+				throws IOException, ServletException {
+			filterChain.doFilter(servletRequest, servletResponse);
+		}
+
+	}
+
+	static class MyAnotherFilter implements Filter {
 
 		@Override
 		public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -125,6 +189,85 @@ public class HttpSecurityAddFilterTest {
 					.addFilterAt(new MyFilter(), ChannelProcessingFilter.class)
 					.addFilterAt(new MyFilter(), UsernamePasswordAuthenticationFilter.class);
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class MyOtherFilterRelativeToMyFilterAfterConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.addFilterAfter(new MyFilter(), WebAsyncManagerIntegrationFilter.class)
+					.addFilterAfter(new MyOtherFilter(), MyFilter.class);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class MyOtherFilterRelativeToMyFilterBeforeConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.addFilterBefore(new MyFilter(), WebAsyncManagerIntegrationFilter.class)
+					.addFilterBefore(new MyOtherFilter(), MyFilter.class);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class MyOtherFilterRelativeToMyFilterAtConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.addFilterAt(new MyFilter(), WebAsyncManagerIntegrationFilter.class)
+					.addFilterAt(new MyOtherFilter(), MyFilter.class);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class MyOtherFilterBeforeToMyFilterMultipleAfterConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.addFilterAfter(new MyFilter(), WebAsyncManagerIntegrationFilter.class)
+					.addFilterAfter(new MyFilter(), ExceptionTranslationFilter.class)
+					.addFilterBefore(new MyOtherFilter(), MyFilter.class);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class MyAnotherFilterRelativeToMyCustomFiltersMultipleConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.addFilterAfter(new MyFilter(), HeaderWriterFilter.class)
+					.addFilterBefore(new MyOtherFilter(), ExceptionTranslationFilter.class)
+					.addFilterAfter(new MyOtherFilter(), MyFilter.class)
+					.addFilterAt(new MyAnotherFilter(), MyOtherFilter.class)
+					.addFilterAfter(new MyFilter(), MyAnotherFilter.class);
+			// @formatter:on
+			return http.build();
 		}
 
 	}
