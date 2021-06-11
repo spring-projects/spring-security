@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import java.util.function.Consumer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 
 /**
  * Test values of {@link OAuth2AuthenticatedPrincipal}s
@@ -48,15 +47,15 @@ public final class TestOAuth2AuthenticatedPrincipals {
 
 	public static OAuth2AuthenticatedPrincipal active(Consumer<Map<String, Object>> attributesConsumer) {
 		Map<String, Object> attributes = new HashMap<>();
-		attributes.put(OAuth2IntrospectionClaimNames.ACTIVE, true);
-		attributes.put(OAuth2IntrospectionClaimNames.AUDIENCE, Arrays.asList("https://protected.example.net/resource"));
-		attributes.put(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4");
-		attributes.put(OAuth2IntrospectionClaimNames.EXPIRES_AT, Instant.ofEpochSecond(1419356238));
-		attributes.put(OAuth2IntrospectionClaimNames.NOT_BEFORE, Instant.ofEpochSecond(29348723984L));
-		attributes.put(OAuth2IntrospectionClaimNames.ISSUER, url("https://server.example.com/"));
-		attributes.put(OAuth2IntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"));
-		attributes.put(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis");
-		attributes.put(OAuth2IntrospectionClaimNames.USERNAME, "jdoe");
+		attributes.put(OAuth2TokenIntrospectionClaimNames.ACTIVE, true);
+		attributes.put(OAuth2TokenIntrospectionClaimNames.AUD, Arrays.asList("https://protected.example.net/resource"));
+		attributes.put(OAuth2TokenIntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4");
+		attributes.put(OAuth2TokenIntrospectionClaimNames.EXP, Instant.ofEpochSecond(1419356238));
+		attributes.put(OAuth2TokenIntrospectionClaimNames.NBF, Instant.ofEpochSecond(29348723984L));
+		attributes.put(OAuth2TokenIntrospectionClaimNames.ISS, url("https://server.example.com/"));
+		attributes.put(OAuth2TokenIntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"));
+		attributes.put(OAuth2TokenIntrospectionClaimNames.SUB, "Z5O3upPC88QrAjx00dis");
+		attributes.put(OAuth2TokenIntrospectionClaimNames.USERNAME, "jdoe");
 		attributesConsumer.accept(attributes);
 		Collection<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("SCOPE_read"),
 				new SimpleGrantedAuthority("SCOPE_write"), new SimpleGrantedAuthority("SCOPE_dolphin"));
