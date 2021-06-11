@@ -27,6 +27,7 @@
 	<suppress files="OidcParameterNames\.java" checks="InterfaceIsType"/>
 	<suppress files="BearerTokenErrorCodes\.java" checks="InterfaceIsType"/>
 	<suppress files="OAuth2IntrospectionClaimNames\.java" checks="InterfaceIsType"/>
+	<suppress files="OAuth2TokenIntrospectionClaimNames\.java" checks="InterfaceIsType"/>
 	<suppress files="Saml2ErrorCodes\.java" checks="InterfaceIsType"/>
 
 	<!-- Method Visibility that we can't reduce -->

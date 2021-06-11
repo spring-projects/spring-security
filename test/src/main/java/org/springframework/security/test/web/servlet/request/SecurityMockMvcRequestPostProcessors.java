@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,7 @@ import org.springframework.security.oauth2.client.web.method.annotation.OAuth2Au
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -85,7 +86,6 @@ import org.springframework.security.oauth2.server.resource.authentication.Bearer
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
@@ -1191,14 +1191,14 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private Map<String, Object> defaultAttributes() {
 			Map<String, Object> attributes = new HashMap<>();
-			attributes.put(OAuth2IntrospectionClaimNames.SUBJECT, "user");
-			attributes.put(OAuth2IntrospectionClaimNames.SCOPE, "read");
+			attributes.put(OAuth2TokenIntrospectionClaimNames.SUB, "user");
+			attributes.put(OAuth2TokenIntrospectionClaimNames.SCOPE, "read");
 			return attributes;
 		}
 
 		private Collection<GrantedAuthority> defaultAuthorities() {
 			Map<String, Object> attributes = this.attributes.get();
-			Object scope = attributes.get(OAuth2IntrospectionClaimNames.SCOPE);
+			Object scope = attributes.get(OAuth2TokenIntrospectionClaimNames.SCOPE);
 			if (scope == null) {
 				return Collections.emptyList();
 			}

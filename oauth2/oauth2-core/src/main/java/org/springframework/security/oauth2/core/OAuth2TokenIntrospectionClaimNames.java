@@ -14,57 +14,83 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.server.resource.introspection;
-
-import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
+package org.springframework.security.oauth2.core;
 
 /**
  * The names of the &quot;Introspection Claims&quot; defined by an
  * <a target="_blank" href="https://tools.ietf.org/html/rfc7662#section-2.2">Introspection
  * Response</a>.
  *
- * @deprecated Use {@link OAuth2TokenIntrospectionClaimNames} instead
  * @author Josh Cummings
- * @since 5.2
+ * @since 5.6
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7662#section-2.2">OAuth
+ * 2.0 Token Introspection (RFC7662)</a>
+ * @see <a target="_blank" href=
+ * "https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-introspection-response">OAuth
+ * Parameters (IANA)</a>
  */
-@Deprecated
-public interface OAuth2IntrospectionClaimNames extends OAuth2TokenIntrospectionClaimNames {
+public interface OAuth2TokenIntrospectionClaimNames {
+
+	/**
+	 * {@code active} - Indicator whether or not the token is currently active
+	 */
+	String ACTIVE = "active";
+
+	/**
+	 * {@code username} - A human-readable identifier for the resource owner that
+	 * authorized the token
+	 */
+	String USERNAME = "username";
+
+	/**
+	 * {@code client_id} - The Client identifier for the token
+	 */
+	String CLIENT_ID = "client_id";
+
+	/**
+	 * {@code scope} - The scopes for the token
+	 */
+	String SCOPE = "scope";
+
+	/**
+	 * {@code token_type} - The type of the token, for example {@code bearer}.
+	 */
+	String TOKEN_TYPE = "token_type";
 
 	/**
 	 * {@code exp} - A timestamp indicating when the token expires
-	 * @deprecated use {@link #EXP} instead
 	 */
-	String EXPIRES_AT = EXP;
+	String EXP = "exp";
 
 	/**
 	 * {@code iat} - A timestamp indicating when the token was issued
-	 * @deprecated use {@link #IAT} instead
 	 */
-	String ISSUED_AT = IAT;
+	String IAT = "iat";
 
 	/**
 	 * {@code nbf} - A timestamp indicating when the token is not to be used before
-	 * @deprecated use {@link #NBF} instead
 	 */
-	String NOT_BEFORE = NBF;
+	String NBF = "nbf";
 
 	/**
 	 * {@code sub} - Usually a machine-readable identifier of the resource owner who
 	 * authorized the token
-	 * @deprecated use {@link #SUB} instead
 	 */
-	String SUBJECT = SUB;
+	String SUB = "sub";
 
 	/**
 	 * {@code aud} - The intended audience for the token
-	 * @deprecated use {@link #AUD} instead
 	 */
-	String AUDIENCE = AUD;
+	String AUD = "aud";
 
 	/**
 	 * {@code iss} - The issuer of the token
-	 * @deprecated use {@link #ISS} instead
 	 */
-	String ISSUER = ISS;
+	String ISS = "iss";
+
+	/**
+	 * {@code jti} - The identifier for the token
+	 */
+	String JTI = "jti";
 
 }
