@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,9 +108,19 @@ final class FilterOrderRegistration {
 		put(SwitchUserFilter.class, order.next());
 	}
 
-	private void put(Class<? extends Filter> filter, int position) {
+	/**
+	 * Register a {@link Filter} with its specific position. If the {@link Filter} was
+	 * already registered before, the position previously defined is not going to be
+	 * overriden
+	 * @param filter the {@link Filter} to register
+	 * @param position the position to associate with the {@link Filter}
+	 */
+	void put(Class<? extends Filter> filter, int position) {
 		String className = filter.getName();
-		filterToOrder.put(className, position);
+		if (this.filterToOrder.containsKey(className)) {
+			return;
+		}
+		this.filterToOrder.put(className, position);
 	}
 
 	/**
