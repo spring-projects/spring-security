@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.servlet
 
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LoginConfigurer
@@ -41,6 +42,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
  * @property loginProcessingUrl the URL to validate the credentials
  * @property permitAll whether to grant access to the urls for [failureUrl] as well as
  * for the [HttpSecurityBuilder], the [loginPage] and [loginProcessingUrl] for every user
+ * @property authenticationSuccessHandler the [AuthenticationManager] to be used during SAML 2
+ * authentication.
  */
 @SecurityMarker
 class Saml2Dsl {
@@ -51,6 +54,7 @@ class Saml2Dsl {
     var failureUrl: String? = null
     var loginProcessingUrl: String? = null
     var permitAll: Boolean? = null
+    var authenticationManager: AuthenticationManager? = null
 
     private var defaultSuccessUrlOption: Pair<String, Boolean>? = null
 
@@ -87,6 +91,7 @@ class Saml2Dsl {
             }
             authenticationSuccessHandler?.also { saml2Login.successHandler(authenticationSuccessHandler) }
             authenticationFailureHandler?.also { saml2Login.failureHandler(authenticationFailureHandler) }
+            authenticationManager?.also { saml2Login.authenticationManager(authenticationManager) }
         }
     }
 }
