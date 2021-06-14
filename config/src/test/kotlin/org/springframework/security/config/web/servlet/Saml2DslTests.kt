@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,20 @@
 
 package org.springframework.security.config.web.servlet
 
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.assertj.core.api.Assertions
 import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
 import org.springframework.core.io.ClassPathResource
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.ProviderManager
+import org.springframework.security.authentication.TestingAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -30,11 +38,15 @@ import org.springframework.security.saml2.credentials.Saml2X509Credential
 import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import java.security.cert.Certificate
 import java.security.cert.CertificateFactory
+import java.util.Base64
 
 /**
  * Tests for [Saml2Dsl]
@@ -100,6 +112,40 @@ class Saml2DslTests {
                 val certFactory = CertificateFactory.getInstance("X.509")
                 return certFactory.generateCertificate(inputStream) as T
             }
+        }
+    }
+
+    @Test
+    fun `authenticate when custom AuthenticationManager then used`() {
+        this.spring.register(Saml2LoginCustomAuthenticationManagerConfig::class.java).autowire()
+        mockkObject(Saml2LoginCustomAuthenticationManagerConfig.AUTHENTICATION_MANAGER)
+        val  request = MockMvcRequestBuilders.post("/login/saml2/sso/id")
+            .param("SAMLResponse", Base64.getEncoder().encodeToString("saml2-xml-response-object".toByteArray()))
+        this.mockMvc.perform(request)
+        verify(exactly = 1) { Saml2LoginCustomAuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
+    }
+
+    @EnableWebSecurity
+    open class Saml2LoginCustomAuthenticationManagerConfig : WebSecurityConfigurerAdapter() {
+        companion object {
+            val AUTHENTICATION_MANAGER: AuthenticationManager = ProviderManager(TestingAuthenticationProvider())
+        }
+
+        override fun configure(http: HttpSecurity) {
+            http {
+                saml2Login {
+                    authenticationManager = AUTHENTICATION_MANAGER
+                }
+            }
+        }
+
+        @Bean
+        open fun relyingPartyRegistrationRepository(): RelyingPartyRegistrationRepository? {
+            val repository: RelyingPartyRegistrationRepository = mockk()
+            every {
+                repository.findByRegistrationId(any())
+            } returns TestRelyingPartyRegistrations.relyingPartyRegistration().build()
+            return repository
         }
     }
 }
