@@ -91,10 +91,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenReactiveAuthenticationManager;
-import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusReactiveOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.access.server.BearerTokenServerAccessDeniedHandler;
@@ -1495,6 +1494,13 @@ public class ServerHttpSecurity {
 			return (T) this.context.getBean(names[0]);
 		}
 		return null;
+	}
+
+	private <T> String[] getBeanNamesForTypeOrEmpty(Class<T> beanClass) {
+		if (this.context == null) {
+			return new String[0];
+		}
+		return this.context.getBeanNamesForType(beanClass);
 	}
 
 	protected void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -3813,8 +3819,7 @@ public class ServerHttpSecurity {
 
 			private ReactiveJwtDecoder jwtDecoder;
 
-			private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter = new ReactiveJwtAuthenticationConverterAdapter(
-					new JwtAuthenticationConverter());
+			private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter;
 
 			/**
 			 * Configures the {@link ReactiveAuthenticationManager} to use
@@ -3892,7 +3897,16 @@ public class ServerHttpSecurity {
 			}
 
 			protected Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> getJwtAuthenticationConverter() {
-				return this.jwtAuthenticationConverter;
+				if (this.jwtAuthenticationConverter != null) {
+					return this.jwtAuthenticationConverter;
+				}
+
+				if (getBeanNamesForTypeOrEmpty(ReactiveJwtAuthenticationConverter.class).length > 0) {
+					return getBean(ReactiveJwtAuthenticationConverter.class);
+				}
+				else {
+					return new ReactiveJwtAuthenticationConverter();
+				}
 			}
 
 			private ReactiveAuthenticationManager getAuthenticationManager() {

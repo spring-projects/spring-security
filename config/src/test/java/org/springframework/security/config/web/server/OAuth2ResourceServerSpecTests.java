@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
@@ -476,6 +477,58 @@ public class OAuth2ResourceServerSpecTests {
 		http.setApplicationContext(context);
 		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
 		assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() -> jwt.getJwtDecoder());
+	}
+
+	@Test
+	public void getJwtAuthenticationConverterWhenBeanWiredAndDslWiredThenDslTakesPrecedence() {
+		GenericWebApplicationContext context = autowireWebServerGenericWebApplicationContext();
+		ServerHttpSecurity http = new ServerHttpSecurity();
+		http.setApplicationContext(context);
+		ReactiveJwtAuthenticationConverter beanWiredJwtAuthenticationConverter = new ReactiveJwtAuthenticationConverter();
+		ReactiveJwtAuthenticationConverter dslWiredJwtAuthenticationConverter = new ReactiveJwtAuthenticationConverter();
+		context.registerBean(ReactiveJwtAuthenticationConverter.class, () -> beanWiredJwtAuthenticationConverter);
+		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
+		jwt.jwtAuthenticationConverter(dslWiredJwtAuthenticationConverter);
+		assertThat(jwt.getJwtAuthenticationConverter()).isEqualTo(dslWiredJwtAuthenticationConverter);
+	}
+
+	@Test
+	public void getJwtAuthenticationConverterWhenTwoBeansWiredAndDslWiredThenDslTakesPrecedence() {
+		GenericWebApplicationContext context = autowireWebServerGenericWebApplicationContext();
+		ServerHttpSecurity http = new ServerHttpSecurity();
+		http.setApplicationContext(context);
+		ReactiveJwtAuthenticationConverter beanWiredJwtAuthenticationConverter = new ReactiveJwtAuthenticationConverter();
+		ReactiveJwtAuthenticationConverter dslWiredJwtAuthenticationConverter = new ReactiveJwtAuthenticationConverter();
+		context.registerBean("firstJwtAuthenticationConverter", ReactiveJwtAuthenticationConverter.class,
+				() -> beanWiredJwtAuthenticationConverter);
+		context.registerBean("secondJwtAuthenticationConverter", ReactiveJwtAuthenticationConverter.class,
+				() -> beanWiredJwtAuthenticationConverter);
+		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
+		jwt.jwtAuthenticationConverter(dslWiredJwtAuthenticationConverter);
+		assertThat(jwt.getJwtAuthenticationConverter()).isEqualTo(dslWiredJwtAuthenticationConverter);
+	}
+
+	@Test
+	public void getJwtAuthenticationConverterWhenTwoBeansWiredThenThrowsWiringException() {
+		GenericWebApplicationContext context = autowireWebServerGenericWebApplicationContext();
+		ServerHttpSecurity http = new ServerHttpSecurity();
+		http.setApplicationContext(context);
+		ReactiveJwtAuthenticationConverter beanWiredJwtAuthenticationConverter = new ReactiveJwtAuthenticationConverter();
+		context.registerBean("firstJwtAuthenticationConverter", ReactiveJwtAuthenticationConverter.class,
+				() -> beanWiredJwtAuthenticationConverter);
+		context.registerBean("secondJwtAuthenticationConverter", ReactiveJwtAuthenticationConverter.class,
+				() -> beanWiredJwtAuthenticationConverter);
+		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
+		assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(jwt::getJwtAuthenticationConverter);
+	}
+
+	@Test
+	public void getJwtAuthenticationConverterWhenNoBeansAndNoDslWiredThenDefaultConverter() {
+		GenericWebApplicationContext context = autowireWebServerGenericWebApplicationContext();
+		ServerHttpSecurity http = new ServerHttpSecurity();
+		http.setApplicationContext(context);
+		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
+		assertThat(jwt.getJwtAuthenticationConverter()).isInstanceOf(ReactiveJwtAuthenticationConverter.class);
 	}
 
 	@Test
