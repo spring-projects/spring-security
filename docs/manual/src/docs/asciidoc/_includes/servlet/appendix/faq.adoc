@@ -545,17 +545,18 @@ To use JDBC instead, you can implement the interface yourself, using whatever SQ
 		JdbcTemplate template;
 
 		List<GrantedAuthority> getGrantedAuthorities(DirContextOperations userData, String username) {
-			List<GrantedAuthority> = template.query("select role from roles where username = ?",
-																									new String[] {username},
-																									new RowMapper<GrantedAuthority>() {
-				/**
+			return template.query("select role from roles where username = ?",
+					new String[] {username},
+					new RowMapper<GrantedAuthority>() {
+				 /**
 				 *  We're assuming here that you're using the standard convention of using the role
 				 *  prefix "ROLE_" to mark attributes which are supported by Spring Security's RoleVoter.
 				 */
+				@Override
 				public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
-					return new SimpleGrantedAuthority("ROLE_" + rs.getString(1);
+					return new SimpleGrantedAuthority("ROLE_" + rs.getString(1));
 				}
-			}
+			});
 		}
 	}
 
@@ -580,7 +581,7 @@ The processor class would look like this:
 [source,java]
 ----
 
-public class BeanPostProcessor implements BeanPostProcessor {
+public class CustomBeanPostProcessor implements BeanPostProcessor {
 
 		public Object postProcessAfterInitialization(Object bean, String name) {
 				if (bean instanceof UsernamePasswordAuthenticationFilter) {
