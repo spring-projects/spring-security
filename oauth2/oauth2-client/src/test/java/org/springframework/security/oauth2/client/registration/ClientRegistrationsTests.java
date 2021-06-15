@@ -240,24 +240,22 @@ public class ClientRegistrationsTests {
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
 
-	/**
-	 * We currently only support authorization_code, so verify we have a meaningful error
-	 * until we add support.
-	 */
+	// gh-9828
 	@Test
-	public void issuerWhenGrantTypesSupportedInvalidThenException() {
+	public void issuerWhenImplicitGrantTypeThenSuccess() throws Exception {
 		this.response.put("grant_types_supported", Arrays.asList("implicit"));
-		assertThatIllegalArgumentException().isThrownBy(() -> registration(""))
-				.withMessageContaining("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \""
-						+ this.issuer + "\" returned a configuration of [implicit]");
+		ClientRegistration registration = registration("").build();
+		// The authorization_code grant type is still the default
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
 
+	// gh-9828
 	@Test
-	public void issuerWhenOAuth2GrantTypesSupportedInvalidThenException() {
-		this.response.put("grant_types_supported", Arrays.asList("implicit"));
-		assertThatIllegalArgumentException().isThrownBy(() -> registrationOAuth2("", null))
-				.withMessageContaining("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \""
-						+ this.issuer + "\" returned a configuration of [implicit]");
+	public void issuerWhenOAuth2JwtBearerGrantTypeThenSuccess() throws Exception {
+		this.response.put("grant_types_supported", Arrays.asList("urn:ietf:params:oauth:grant-type:jwt-bearer"));
+		ClientRegistration registration = registrationOAuth2("", null).build();
+		// The authorization_code grant type is still the default
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
 
 	@Test

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
@@ -242,13 +241,6 @@ public final class ClientRegistrations {
 		String name = URI.create(issuer).getHost();
 		ClientAuthenticationMethod method = getClientAuthenticationMethod(issuer,
 				metadata.getTokenEndpointAuthMethods());
-		List<GrantType> grantTypes = metadata.getGrantTypes();
-		// If null, the default includes authorization_code
-		if (grantTypes != null && !grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
-			throw new IllegalArgumentException(
-					"Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \"" + issuer
-							+ "\" returned a configuration of " + grantTypes);
-		}
 		Map<String, Object> configurationMetadata = new LinkedHashMap<>(metadata.toJSONObject());
 		// @formatter:off
 		return ClientRegistration.withRegistrationId(name)
