@@ -29,7 +29,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Rob Winch
