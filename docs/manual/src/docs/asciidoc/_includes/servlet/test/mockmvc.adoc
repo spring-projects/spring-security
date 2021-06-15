@@ -379,7 +379,7 @@ In that case, you can configure an `OidcUser` by hand:
 ----
 OidcUser oidcUser = new DefaultOidcUser(
         AuthorityUtils.createAuthorityList("SCOPE_message:read"),
-        Collections.singletonMap("user_name", "foo_user"),
+        OidcIdToken.withTokenValue("id-token").claim("user_name", "foo_user").build(),
         "user_name");
 
 mvc
@@ -668,8 +668,6 @@ And the resulting `Jwt`, were it tested, would pass in the following way:
 assertThat(jwt.getTokenValue()).isEqualTo("token");
 assertThat(jwt.getHeaders().get("alg")).isEqualTo("none");
 assertThat(jwt.getSubject()).isEqualTo("sub");
-GrantedAuthority authority = jwt.getAuthorities().iterator().next();
-assertThat(authority.getAuthority()).isEqualTo("read");
 ----
 
 These values can, of course be configured.
@@ -716,7 +714,8 @@ You can also specify a complete `Jwt`, for which `{security-api-url}org/springfr
 Jwt jwt = Jwt.withTokenValue("token")
     .header("alg", "none")
     .claim("sub", "user")
-    .claim("scope", "read");
+    .claim("scope", "read")
+    .build();
 
 mvc
     .perform(get("/endpoint")
@@ -756,7 +755,7 @@ Let's say that we've got a controller that retrieves the authentication as a `Be
 ----
 @GetMapping("/endpoint")
 public String foo(BearerTokenAuthentication authentication) {
-    return (String) authentication.getTokenAttributes("sub");
+    return (String) authentication.getTokenAttributes().get("sub");
 }
 ----
 
@@ -984,8 +983,8 @@ We can also combine the assertions:
 [source,java]
 ----
 mvc
-	.perform(formLogin().user("admin").roles("USER","ADMIN"))
-	.andExpect(authenticated().withUsername("admin"));
+	.perform(formLogin().user("admin"))
+	.andExpect(authenticated().withUsername("admin").withRoles("USER", "ADMIN"));
 ----
 
 We can also make arbitrary assertions on the authentication
