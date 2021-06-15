@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
@@ -54,14 +55,40 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 			+ "</authentication-manager>";
 	// @formatter:on
 
+	// Issue #7282
+	// @formatter:off
+	private static final String CONTEXT_MULTI = "<authentication-manager id='amSecondary'>"
+			+ "    <authentication-provider>"
+			+ "        <user-service>"
+			+ "            <user name='john' password='{noop}doe' authorities='ROLE_C,ROLE_D' />"
+			+ "        </user-service>"
+			+ "    </authentication-provider>"
+			+ "</authentication-manager>";
+	// @formatter:on
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
+
+	@Autowired
+	MockMvc mockMvc;
 
 	@Test
 	// SEC-1225
 	public void providersAreRegisteredAsTopLevelBeans() {
 		ConfigurableApplicationContext context = this.spring.context(CONTEXT).getContext();
 		assertThat(context.getBeansOfType(AuthenticationProvider.class)).hasSize(1);
+	}
+
+	@Test
+	public void eventPublishersAreRegisteredAsTopLevelBeans() {
+		ConfigurableApplicationContext context = this.spring.context(CONTEXT).getContext();
+		assertThat(context.getBeansOfType(AuthenticationEventPublisher.class)).hasSize(1);
+	}
+
+	@Test
+	public void onlyOneEventPublisherIsRegisteredForMultipleAuthenticationManagers() {
+		ConfigurableApplicationContext context = this.spring.context(CONTEXT + '\n' + CONTEXT_MULTI).getContext();
+		assertThat(context.getBeansOfType(AuthenticationEventPublisher.class)).hasSize(1);
 	}
 
 	@Test
@@ -91,9 +118,6 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 		ProviderManager pm = (ProviderManager) appContext.getBeansOfType(ProviderManager.class).values().toArray()[0];
 		assertThat(pm.isEraseCredentialsAfterAuthentication()).isFalse();
 	}
-
-	@Autowired
-	MockMvc mockMvc;
 
 	@Test
 	public void passwordEncoderBeanUsed() throws Exception {
