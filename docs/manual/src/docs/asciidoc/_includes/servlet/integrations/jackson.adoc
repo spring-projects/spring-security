@@ -6,7 +6,9 @@ This can improve the performance of serializing Spring Security related classes 
 
 To use it, register the `SecurityJackson2Modules.getModules(ClassLoader)` with `ObjectMapper` (https://github.com/FasterXML/jackson-databind[jackson-databind]):
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 ObjectMapper mapper = new ObjectMapper();
 ClassLoader loader = getClass().getClassLoader();
@@ -18,6 +20,21 @@ SecurityContext context = new SecurityContextImpl();
 // ...
 String json = mapper.writeValueAsString(context);
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val mapper = ObjectMapper()
+val loader = javaClass.classLoader
+val modules: MutableList<Module> = SecurityJackson2Modules.getModules(loader)
+mapper.registerModules(modules)
+
+// ... use ObjectMapper as normally ...
+val context: SecurityContext = SecurityContextImpl()
+// ...
+val json: String = mapper.writeValueAsString(context)
+----
+====
 
 [NOTE]
 ====

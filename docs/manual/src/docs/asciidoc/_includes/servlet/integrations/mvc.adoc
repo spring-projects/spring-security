@@ -56,7 +56,9 @@ For a `web.xml` this means that you should place your configuration in the `Disp
 
 Below `WebSecurityConfiguration` in placed in the ``DispatcherServlet``s `ApplicationContext`.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class SecurityInitializer extends
     AbstractAnnotationConfigDispatcherServletInitializer {
@@ -79,6 +81,28 @@ public class SecurityInitializer extends
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class SecurityInitializer : AbstractAnnotationConfigDispatcherServletInitializer() {
+    override fun getRootConfigClasses(): Array<Class<*>>? {
+        return null
+    }
+
+    override fun getServletConfigClasses(): Array<Class<*>> {
+        return arrayOf(
+            RootConfiguration::class.java,
+            WebMvcConfiguration::class.java
+        )
+    }
+
+    override fun getServletMappings(): Array<String> {
+        return arrayOf("/")
+    }
+}
+----
+====
+
 [NOTE]
 ====
 It is always recommended to provide authorization rules by matching on the `HttpServletRequest` and method security.
@@ -90,15 +114,27 @@ This is what is known as https://en.wikipedia.org/wiki/Defense_in_depth_(computi
 
 Consider a controller that is mapped as follows:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @RequestMapping("/admin")
 public String admin() {
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RequestMapping("/admin")
+fun admin(): String {
+----
+====
+
 If we wanted to restrict access to this controller method to admin users, a developer can provide authorization rules by matching on the `HttpServletRequest` with the following:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 protected configure(HttpSecurity http) throws Exception {
 	http
@@ -107,6 +143,19 @@ protected configure(HttpSecurity http) throws Exception {
 		);
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+override fun configure(http: HttpSecurity) {
+    http {
+        authorizeRequests {
+            authorize(AntPathRequestMatcher("/admin"), hasRole("ADMIN"))
+        }
+    }
+}
+----
+====
 
 or in XML
 
@@ -128,7 +177,9 @@ Instead, we can leverage Spring Security's `MvcRequestMatcher`.
 The following configuration will protect the same URLs that Spring MVC will match on by using Spring MVC to match on the URL.
 
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 protected configure(HttpSecurity http) throws Exception {
 	http
@@ -137,6 +188,19 @@ protected configure(HttpSecurity http) throws Exception {
 		);
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+override fun configure(http: HttpSecurity) {
+    http {
+        authorizeRequests {
+            authorize("/admin", hasRole("ADMIN"))
+        }
+    }
+}
+----
+====
 
 or in XML
 
@@ -168,7 +232,9 @@ Once `AuthenticationPrincipalArgumentResolver` is properly configured, you can b
 
 Consider a situation where a custom `UserDetailsService` that returns an `Object` that implements `UserDetails` and your own `CustomUser` `Object`. The `CustomUser` of the currently authenticated user could be accessed using the following code:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @RequestMapping("/messages/inbox")
 public ModelAndView findMessagesForUser() {
@@ -180,9 +246,24 @@ public ModelAndView findMessagesForUser() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RequestMapping("/messages/inbox")
+open fun findMessagesForUser(): ModelAndView {
+    val authentication: Authentication = SecurityContextHolder.getContext().authentication
+    val custom: CustomUser? = if (authentication as CustomUser == null) null else authentication.principal
+
+    // .. find messages for this user and return them ...
+}
+----
+====
+
 As of Spring Security 3.2 we can resolve the argument more directly by adding an annotation. For example:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
@@ -195,12 +276,25 @@ public ModelAndView findMessagesForUser(@AuthenticationPrincipal CustomUser cust
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RequestMapping("/messages/inbox")
+open fun findMessagesForUser(@AuthenticationPrincipal customUser: CustomUser?): ModelAndView {
+
+    // .. find messages for this user and return them ...
+}
+----
+====
+
 Sometimes it may be necessary to transform the principal in some way.
 For example, if `CustomUser` needed to be final it could not be extended.
 In this situation the `UserDetailsService` might returns an `Object` that implements `UserDetails` and provides a method named `getCustomUser` to access `CustomUser`.
 For example, it might look like:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class CustomUserUserDetails extends User {
 		// ...
@@ -210,9 +304,25 @@ public class CustomUserUserDetails extends User {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class CustomUserUserDetails(
+    username: String?,
+    password: String?,
+    authorities: MutableCollection<out GrantedAuthority>?
+) : User(username, password, authorities) {
+    // ...
+    val customUser: CustomUser? = null
+}
+----
+====
+
 We could then access the `CustomUser` using a https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[SpEL expression] that uses `Authentication.getPrincipal()` as the root object:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
@@ -225,10 +335,27 @@ public ModelAndView findMessagesForUser(@AuthenticationPrincipal(expression = "c
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+
+// ...
+
+@RequestMapping("/messages/inbox")
+open fun findMessagesForUser(@AuthenticationPrincipal(expression = "customUser") customUser: CustomUser?): ModelAndView {
+
+    // .. find messages for this user and return them ...
+}
+----
+====
+
 We can also refer to Beans in our SpEL expressions.
 For example, the following could be used if we were using JPA to manage our Users and we wanted to modify and save a property on the current user.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
@@ -245,13 +372,36 @@ public ModelAndView updateName(@AuthenticationPrincipal(expression = "@jpaEntity
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+
+// ...
+
+@PutMapping("/users/self")
+open fun updateName(
+    @AuthenticationPrincipal(expression = "@jpaEntityManager.merge(#this)") attachedCustomUser: CustomUser,
+    @RequestParam firstName: String?
+): ModelAndView {
+
+    // change the firstName on an attached instance which will be persisted to the database
+    attachedCustomUser.setFirstName(firstName)
+
+    // ...
+}
+----
+====
+
 We can further remove our dependency on Spring Security by making `@AuthenticationPrincipal` a meta annotation on our own annotation.
 Below we demonstrate how we could do this on an annotation named `@CurrentUser`.
 
 NOTE: It is important to realize that in order to remove the dependency on Spring Security, it is the consuming application that would create `@CurrentUser`.
 This step is not strictly required, but assists in isolating your dependency to Spring Security to a more central location.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Target({ElementType.PARAMETER, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -260,10 +410,23 @@ This step is not strictly required, but assists in isolating your dependency to 
 public @interface CurrentUser {}
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
+@Retention(AnnotationRetention.RUNTIME)
+@MustBeDocumented
+@AuthenticationPrincipal
+annotation class CurrentUser
+----
+====
+
 Now that `@CurrentUser` has been specified, we can use it to signal to resolve our `CustomUser` of the currently authenticated user.
 We have also isolated our dependency on Spring Security to a single file.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @RequestMapping("/messages/inbox")
 public ModelAndView findMessagesForUser(@CurrentUser CustomUser customUser) {
@@ -271,6 +434,17 @@ public ModelAndView findMessagesForUser(@CurrentUser CustomUser customUser) {
 	// .. find messages for this user and return them ...
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RequestMapping("/messages/inbox")
+open fun findMessagesForUser(@CurrentUser customUser: CustomUser?): ModelAndView {
+
+    // .. find messages for this user and return them ...
+}
+----
+====
 
 
 [[mvc-async]]
@@ -280,7 +454,9 @@ Spring Web MVC 3.2+ has excellent support for https://docs.spring.io/spring/docs
 With no additional configuration, Spring Security will automatically setup the `SecurityContext` to the `Thread` that invokes a `Callable` returned by your controllers.
 For example, the following method will automatically have its `Callable` invoked with the `SecurityContext` that was available when the `Callable` was created:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @RequestMapping(method=RequestMethod.POST)
 public Callable<String> processUpload(final MultipartFile file) {
@@ -293,6 +469,19 @@ return new Callable<String>() {
 };
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RequestMapping(method = [RequestMethod.POST])
+open fun processUpload(file: MultipartFile?): Callable<String> {
+    return Callable {
+        // ...
+        "someView"
+    }
+}
+----
+====
 
 [NOTE]
 .Associating SecurityContext to Callable's
@@ -360,7 +549,9 @@ If you use XML based configuration, you must add this yourself.
 
 Once `CsrfTokenArgumentResolver` is properly configured, you can expose the `CsrfToken` to your static HTML based application.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @RestController
 public class CsrfController {
@@ -371,6 +562,19 @@ public class CsrfController {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RestController
+class CsrfController {
+    @RequestMapping("/csrf")
+    fun csrf(token: CsrfToken): CsrfToken {
+        return token
+    }
+}
+----
+====
 
 It is important to keep the `CsrfToken` a secret from other domains.
 This means if you are using https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS[Cross Origin Sharing (CORS)], you should **NOT** expose the `CsrfToken` to any external domains.
