@@ -80,7 +80,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 
 	private final Function<ClientRegistration, JWK> jwkResolver;
 
-	private final Map<String, NimbusJwsEncoder> jwsEncoders = new ConcurrentHashMap<>();
+	private final Map<String, JwsEncoderHolder> jwsEncoders = new ConcurrentHashMap<>();
 
 	/**
 	 * Constructs a {@code NimbusJwtClientAuthenticationParametersConverter} using the
@@ -140,12 +140,16 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 		JoseHeader joseHeader = headersBuilder.build();
 		JwtClaimsSet jwtClaimsSet = claimsBuilder.build();
 
-		NimbusJwsEncoder jwsEncoder = this.jwsEncoders.computeIfAbsent(clientRegistration.getRegistrationId(),
-				(clientRegistrationId) -> {
+		JwsEncoderHolder jwsEncoderHolder = this.jwsEncoders.compute(clientRegistration.getRegistrationId(),
+				(clientRegistrationId, currentJwsEncoderHolder) -> {
+					if (currentJwsEncoderHolder != null && currentJwsEncoderHolder.getJwk().equals(jwk)) {
+						return currentJwsEncoderHolder;
+					}
 					JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
-					return new NimbusJwsEncoder(jwkSource);
+					return new JwsEncoderHolder(new NimbusJwsEncoder(jwkSource), jwk);
 				});
 
+		NimbusJwsEncoder jwsEncoder = jwsEncoderHolder.getJwsEncoder();
 		Jwt jws = jwsEncoder.encode(joseHeader, jwtClaimsSet);
 
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
@@ -178,6 +182,27 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 		}
 
 		return jwsAlgorithm;
+	}
+
+	private static final class JwsEncoderHolder {
+
+		private final NimbusJwsEncoder jwsEncoder;
+
+		private final JWK jwk;
+
+		private JwsEncoderHolder(NimbusJwsEncoder jwsEncoder, JWK jwk) {
+			this.jwsEncoder = jwsEncoder;
+			this.jwk = jwk;
+		}
+
+		private NimbusJwsEncoder getJwsEncoder() {
+			return this.jwsEncoder;
+		}
+
+		private JWK getJwk() {
+			return this.jwk;
+		}
+
 	}
 
 }
