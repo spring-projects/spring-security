@@ -23,6 +23,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests {@link SecurityContextHolder}.
@@ -56,6 +60,19 @@ public class SecurityContextHolderTests {
 	@Test
 	public void testRejectsNulls() {
 		assertThatIllegalArgumentException().isThrownBy(() -> SecurityContextHolder.setContext(null));
+	}
+
+	@Test
+	public void addListenerWhenInvokedThenListenersAreNotified() {
+		SecurityContextChangedListener one = mock(SecurityContextChangedListener.class);
+		SecurityContextChangedListener two = mock(SecurityContextChangedListener.class);
+		SecurityContextHolder.addListener(one);
+		SecurityContextHolder.addListener(two);
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		SecurityContextHolder.setContext(context);
+		SecurityContextHolder.clearContext();
+		verify(one, times(2)).securityContextChanged(any(SecurityContextChangedEvent.class));
+		verify(two, times(2)).securityContextChanged(any(SecurityContextChangedEvent.class));
 	}
 
 }

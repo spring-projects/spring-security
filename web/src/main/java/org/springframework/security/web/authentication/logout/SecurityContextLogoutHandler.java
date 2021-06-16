@@ -68,13 +68,10 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 				}
 			}
 		}
+		SecurityContext context = SecurityContextHolder.getContext();
+		SecurityContextHolder.clearContext();
 		if (this.clearAuthentication) {
-			SecurityContext context = SecurityContextHolder.getContext();
-			SecurityContextHolder.clearContext();
 			context.setAuthentication(null);
-		}
-		else {
-			SecurityContextHolder.clearContext();
 		}
 	}
 
