@@ -248,7 +248,7 @@ public final class ClientRegistrations {
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.clientAuthenticationMethod(method)
 				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
-				.authorizationUri(metadata.getAuthorizationEndpointURI().toASCIIString())
+				.authorizationUri((metadata.getAuthorizationEndpointURI() != null) ? metadata.getAuthorizationEndpointURI().toASCIIString() : null)
 				.providerConfigurationMetadata(configurationMetadata)
 				.tokenUri(metadata.getTokenEndpointURI().toASCIIString())
 				.issuerUri(issuer)
