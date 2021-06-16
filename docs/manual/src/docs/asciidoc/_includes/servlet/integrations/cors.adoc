@@ -8,7 +8,9 @@ If the request does not contain any cookies and Spring Security is first, the re
 The easiest way to ensure that CORS is handled first is to use the `CorsFilter`.
 Users can integrate the `CorsFilter` with Spring Security by providing a `CorsConfigurationSource` using the following:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -33,6 +35,32 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http {
+            // by default uses a Bean by the name of corsConfigurationSource
+            cors { }
+            // ...
+        }
+    }
+
+    @Bean
+    open fun corsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration()
+        configuration.allowedOrigins = listOf("https://example.com")
+        configuration.allowedMethods = listOf("GET", "POST")
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", configuration)
+        return source
+    }
+}
+----
+====
+
 or in XML
 
 [source,xml]
@@ -48,7 +76,9 @@ or in XML
 
 If you are using Spring MVC's CORS support, you can omit specifying the `CorsConfigurationSource` and Spring Security will leverage the CORS configuration provided to Spring MVC.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -63,6 +93,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http {
+            // if Spring MVC is on classpath and no CorsConfigurationSource is provided,
+            // Spring Security will use CORS configuration provided to Spring MVC
+            cors { }
+            // ...
+        }
+    }
+}
+----
+====
 
 or in XML
 

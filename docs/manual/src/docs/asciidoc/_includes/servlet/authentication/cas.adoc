@@ -340,7 +340,9 @@ Now that Spring Security obtains PGTs, you can use them to create proxy tickets 
 The CAS <<samples,sample application>> contains a working example in the `ProxyTicketSampleServlet`.
 Example code can be found below:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 protected void doGet(HttpServletRequest request, HttpServletResponse response)
 	throws ServletException, IOException {
@@ -357,6 +359,24 @@ String proxyResponse = CommonUtils.getResponseFromServer(serviceUrl, "UTF-8");
 ...
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+protected fun doGet(request: HttpServletRequest, response: HttpServletResponse?) {
+    // NOTE: The CasAuthenticationToken can also be obtained using
+    // SecurityContextHolder.getContext().getAuthentication()
+    val token = request.userPrincipal as CasAuthenticationToken
+    // proxyTicket could be reused to make calls to the CAS service even if the
+    // target url differs
+    val proxyTicket = token.assertion.principal.getProxyTicketFor(targetUrl)
+
+    // Make a remote call using the proxy ticket
+    val serviceUrl: String = targetUrl + "?ticket=" + URLEncoder.encode(proxyTicket, "UTF-8")
+    val proxyResponse = CommonUtils.getResponseFromServer(serviceUrl, "UTF-8")
+}
+----
+====
 
 [[cas-pt]]
 ==== Proxy Ticket Authentication

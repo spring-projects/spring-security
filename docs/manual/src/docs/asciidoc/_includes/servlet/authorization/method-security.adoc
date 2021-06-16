@@ -603,7 +603,9 @@ and it will be invoked after the `@PostAuthorize` interceptor.
 We can enable annotation-based security using the `@EnableGlobalMethodSecurity` annotation on any `@Configuration` instance.
 For example, the following would enable Spring Security's `@Secured` annotation.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class MethodSecurityConfig {
@@ -611,11 +613,23 @@ public class MethodSecurityConfig {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableGlobalMethodSecurity(securedEnabled = true)
+open class MethodSecurityConfig {
+	// ...
+}
+----
+====
+
 Adding an annotation to a method (on a class or interface) would then limit the access to that method accordingly.
 Spring Security's native annotation support defines a set of attributes for the method.
 These will be passed to the AccessDecisionManager for it to make the actual decision:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public interface BankService {
 
@@ -630,9 +644,27 @@ public Account post(Account account, double amount);
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+interface BankService {
+    @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+    fun readAccount(id: Long): Account
+
+    @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+    fun findAccounts(): Array<Account>
+
+    @Secured("ROLE_TELLER")
+    fun post(account: Account, amount: Double): Account
+}
+----
+====
+
 Support for JSR-250 annotations can be enabled using
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 public class MethodSecurityConfig {
@@ -640,10 +672,22 @@ public class MethodSecurityConfig {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableGlobalMethodSecurity(jsr250Enabled = true)
+open class MethodSecurityConfig {
+	// ...
+}
+----
+====
+
 These are standards-based and allow simple role-based constraints to be applied but do not have the power Spring Security's native annotations.
 To use the new expression-based syntax, you would use
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig {
@@ -651,9 +695,21 @@ public class MethodSecurityConfig {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+open class MethodSecurityConfig {
+	// ...
+}
+----
+====
+
 and the equivalent Java code would be
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public interface BankService {
 
@@ -668,13 +724,31 @@ public Account post(Account account, double amount);
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+interface BankService {
+    @PreAuthorize("isAnonymous()")
+    fun readAccount(id: Long): Account
+
+    @PreAuthorize("isAnonymous()")
+    fun findAccounts(): Array<Account>
+
+    @PreAuthorize("hasAuthority('ROLE_TELLER')")
+    fun post(account: Account, amount: Double): Account
+}
+----
+====
+
 === GlobalMethodSecurityConfiguration
 
 Sometimes you may need to perform operations that are more complicated than are possible with the `@EnableGlobalMethodSecurity` annotation allow.
 For these instances, you can extend the `GlobalMethodSecurityConfiguration` ensuring that the `@EnableGlobalMethodSecurity` annotation is present on your subclass.
 For example, if you wanted to provide a custom `MethodSecurityExpressionHandler`, you could use the following configuration:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
@@ -685,6 +759,19 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+open class MethodSecurityConfig : GlobalMethodSecurityConfiguration() {
+    override fun createExpressionHandler(): MethodSecurityExpressionHandler {
+        // ... create and return custom MethodSecurityExpressionHandler ...
+        return expressionHandler
+    }
+}
+----
+====
 
 For additional information about methods that can be overridden, refer to the `GlobalMethodSecurityConfiguration` Javadoc.
 
@@ -703,7 +790,9 @@ Adding an annotation to a method (on an class or interface) would then limit the
 Spring Security's native annotation support defines a set of attributes for the method.
 These will be passed to the `AccessDecisionManager` for it to make the actual decision:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public interface BankService {
 
@@ -717,6 +806,23 @@ public Account[] findAccounts();
 public Account post(Account account, double amount);
 }
 ----
+
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+interface BankService {
+    @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+    fun readAccount(id: Long): Account
+
+    @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+    fun findAccounts(): Array<Account>
+
+    @Secured("ROLE_TELLER")
+    fun post(account: Account, amount: Double): Account
+}
+----
+====
 
 Support for JSR-250 annotations can be enabled using
 
@@ -735,7 +841,9 @@ To use the new expression-based syntax, you would use
 
 and the equivalent Java code would be
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public interface BankService {
 
@@ -749,6 +857,22 @@ public Account[] findAccounts();
 public Account post(Account account, double amount);
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+interface BankService {
+    @PreAuthorize("isAnonymous()")
+    fun readAccount(id: Long): Account
+
+    @PreAuthorize("isAnonymous()")
+    fun findAccounts(): Array<Account>
+
+    @PreAuthorize("hasAuthority('ROLE_TELLER')")
+    fun post(account: Account, amount: Double): Account
+}
+----
+====
 
 Expression-based annotations are a good choice if you need to define simple rules that go beyond checking the role names against the user's list of authorities.
 

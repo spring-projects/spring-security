@@ -502,6 +502,51 @@ public class OAuth2LoginConfig {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class OAuth2LoginConfig {
+    @EnableWebSecurity
+    open class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                oauth2Login { }
+            }
+        }
+    }
+
+    @Bean
+    open fun clientRegistrationRepository(): ClientRegistrationRepository {
+        return InMemoryClientRegistrationRepository(googleClientRegistration())
+    }
+
+    @Bean
+    open fun authorizedClientService(
+        clientRegistrationRepository: ClientRegistrationRepository?
+    ): OAuth2AuthorizedClientService {
+        return InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository)
+    }
+
+    @Bean
+    open fun authorizedClientRepository(
+        authorizedClientService: OAuth2AuthorizedClientService?
+    ): OAuth2AuthorizedClientRepository {
+        return AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService)
+    }
+
+    private fun googleClientRegistration(): ClientRegistration {
+        return CommonOAuth2Provider.GOOGLE.getBuilder("google")
+            .clientId("google-client-id")
+            .clientSecret("google-client-secret")
+            .build()
+    }
+}
+----
+
 .Xml
 [source,xml,role="secondary"]
 ----

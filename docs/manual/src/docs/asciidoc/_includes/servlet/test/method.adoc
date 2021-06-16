@@ -30,12 +30,23 @@ Hello org.springframework.security.authentication.UsernamePasswordAuthentication
 
 Before we can use Spring Security Test support, we must perform some setup. An example can be seen below:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @RunWith(SpringJUnit4ClassRunner.class) // <1>
 @ContextConfiguration // <2>
 public class WithMockUserTests {
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RunWith(SpringJUnit4ClassRunner::class)
+@ContextConfiguration
+class WithMockUserTests {
+----
+====
 
 This is a basic example of how to setup Spring Security Test. The highlights are:
 
@@ -51,13 +62,25 @@ If you only need Spring Security related support, you can replace `@ContextConfi
 Remember we added the `@PreAuthorize` annotation to our `HelloMessageService` and so it requires an authenticated user to invoke it.
 If we ran the following test, we would expect the following test will pass:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Test(expected = AuthenticationCredentialsNotFoundException.class)
 public void getMessageUnauthenticated() {
 	messageService.getMessage();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Test(expected = AuthenticationCredentialsNotFoundException::class)
+fun getMessageUnauthenticated() {
+    messageService.getMessage()
+}
+----
+====
 
 [[test-method-withmockuser]]
 === @WithMockUser
@@ -66,7 +89,9 @@ The question is "How could we most easily run the test as a specific user?"
 The answer is to use `@WithMockUser`.
 The following test will be run as a user with the username "user", the password "password", and the roles "ROLE_USER".
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Test
 @WithMockUser
@@ -75,6 +100,18 @@ String message = messageService.getMessage();
 ...
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Test
+@WithMockUser
+fun getMessageWithMockUser() {
+    val message: String = messageService.getMessage()
+    // ...
+}
+----
+====
 
 Specifically the following is true:
 
@@ -87,7 +124,9 @@ Our example is nice because we are able to leverage a lot of defaults.
 What if we wanted to run the test with a different username?
 The following test would run with the username "customUser". Again, the user does not need to actually exist.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Test
 @WithMockUser("customUsername")
@@ -97,10 +136,24 @@ public void getMessageWithMockUserCustomUsername() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Test
+@WithMockUser("customUsername")
+fun getMessageWithMockUserCustomUsername() {
+    val message: String = messageService.getMessage()
+    // ...
+}
+----
+====
+
 We can also easily customize the roles.
 For example, this test will be invoked with the username "admin" and the roles "ROLE_USER" and "ROLE_ADMIN".
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Test
 @WithMockUser(username="admin",roles={"USER","ADMIN"})
@@ -110,10 +163,24 @@ public void getMessageWithMockUserCustomUser() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Test
+@WithMockUser(username="admin",roles=["USER","ADMIN"])
+fun getMessageWithMockUserCustomUser() {
+    val message: String = messageService.getMessage()
+    // ...
+}
+----
+====
+
 If we do not want the value to automatically be prefixed with ROLE_ we can leverage the authorities attribute.
 For example, this test will be invoked with the username "admin" and the authorities "USER" and "ADMIN".
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Test
 @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
@@ -123,11 +190,25 @@ public void getMessageWithMockUserCustomAuthorities() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Test
+@WithMockUser(username = "admin", authorities = ["ADMIN", "USER"])
+fun getMessageWithMockUserCustomUsername() {
+    val message: String = messageService.getMessage()
+    // ...
+}
+----
+====
+
 Of course it can be a bit tedious placing the annotation on every test method.
 Instead, we can place the annotation at the class level and every test will use the specified user.
 For example, the following would run every test with a user with the username "admin", the password "password", and the roles "ROLE_USER" and "ROLE_ADMIN".
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -135,10 +216,22 @@ For example, the following would run every test with a user with the username "a
 public class WithMockUserTests {
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RunWith(SpringJUnit4ClassRunner::class)
+@ContextConfiguration
+@WithMockUser(username="admin",roles=["USER","ADMIN"])
+class WithMockUserTests {
+----
+====
+
 If you are using JUnit 5's `@Nested` test support, you can also place the annotation on the enclosing class to apply to all nested classes.
 For example, the following would run every test with a user with the username "admin", the password "password", and the roles "ROLE_USER" and "ROLE_ADMIN" for both test methods.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
@@ -157,6 +250,24 @@ public class WithMockUserTests {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@ExtendWith(SpringExtension::class)
+@ContextConfiguration
+@WithMockUser(username = "admin", roles = ["USER", "ADMIN"])
+class WithMockUserTests {
+    @Nested
+    inner class TestSuite1 { // ... all test methods use admin user
+    }
+
+    @Nested
+    inner class TestSuite2 { // ... all test methods use admin user
+    }
+}
+----
+====
+
 By default the `SecurityContext` is set during the `TestExecutionListener.beforeTestMethod` event.
 This is the equivalent of happening before JUnit's `@Before`.
 You can change this to happen during the `TestExecutionListener.beforeTestExecution` event which is after JUnit's `@Before` but before the test method is invoked.
@@ -174,7 +285,9 @@ Using `@WithAnonymousUser` allows running as an anonymous user.
 This is especially convenient when you wish to run most of your tests with a specific user, but want to run a few tests as an anonymous user.
 For example, the following will run withMockUser1 and withMockUser2 using <<test-method-withmockuser,@WithMockUser>> and anonymous as an anonymous user.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @RunWith(SpringJUnit4ClassRunner.class)
 @WithMockUser
@@ -195,6 +308,29 @@ public class WithUserClassLevelAuthenticationTests {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RunWith(SpringJUnit4ClassRunner::class)
+@WithMockUser
+class WithUserClassLevelAuthenticationTests {
+    @Test
+    fun withMockUser1() {
+    }
+
+    @Test
+    fun withMockUser2() {
+    }
+
+    @Test
+    @WithAnonymousUser
+    fun anonymous() {
+        // override default to run as anonymous user
+    }
+}
+----
+====
 
 By default the `SecurityContext` is set during the `TestExecutionListener.beforeTestMethod` event.
 This is the equivalent of happening before JUnit's `@Before`.
@@ -219,7 +355,9 @@ That is exactly what `@WithUserDetails` does.
 
 Assuming we have a `UserDetailsService` exposed as a bean, the following test will be invoked with an `Authentication` of type `UsernamePasswordAuthenticationToken` and a principal that is returned from the `UserDetailsService` with the username of "user".
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Test
 @WithUserDetails
@@ -229,10 +367,24 @@ public void getMessageWithUserDetails() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Test
+@WithUserDetails
+fun getMessageWithUserDetails() {
+    val message: String = messageService.getMessage()
+    // ...
+}
+----
+====
+
 We can also customize the username used to lookup the user from our `UserDetailsService`.
 For example, this test would be run with a principal that is returned from the `UserDetailsService` with the username of "customUsername".
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Test
 @WithUserDetails("customUsername")
@@ -242,10 +394,24 @@ public void getMessageWithUserDetailsCustomUsername() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Test
+@WithUserDetails("customUsername")
+fun getMessageWithUserDetailsCustomUsername() {
+    val message: String = messageService.getMessage()
+    // ...
+}
+----
+====
+
 We can also provide an explicit bean name to look up the `UserDetailsService`.
 For example, this test would look up the username of "customUsername" using the `UserDetailsService` with the bean name "myUserDetailsService".
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Test
 @WithUserDetails(value="customUsername", userDetailsServiceBeanName="myUserDetailsService")
@@ -254,6 +420,18 @@ public void getMessageWithUserDetailsServiceBeanName() {
 	...
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Test
+@WithUserDetails(value="customUsername", userDetailsServiceBeanName="myUserDetailsService")
+fun getMessageWithUserDetailsServiceBeanName() {
+    val message: String = messageService.getMessage()
+    // ...
+}
+----
+====
 
 Like `@WithMockUser` we can also place our annotation at the class level so that every test uses the same user.
 However unlike `@WithMockUser`, `@WithUserDetails` requires the user to exist.
@@ -278,7 +456,9 @@ We will now see an option that allows the most flexibility.
 We can create our own annotation that uses the `@WithSecurityContext` to create any `SecurityContext` we want.
 For example, we might create an annotation named `@WithMockCustomUser` as shown below:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Retention(RetentionPolicy.RUNTIME)
 @WithSecurityContext(factory = WithMockCustomUserSecurityContextFactory.class)
@@ -290,12 +470,23 @@ public @interface WithMockCustomUser {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Retention(AnnotationRetention.RUNTIME)
+@WithSecurityContext(factory = WithMockCustomUserSecurityContextFactory::class)
+annotation class WithMockCustomUser(val username: String = "rob", val name: String = "Rob Winch")
+----
+====
+
 You can see that `@WithMockCustomUser` is annotated with the `@WithSecurityContext` annotation.
 This is what signals to Spring Security Test support that we intend to create a `SecurityContext` for the test.
 The `@WithSecurityContext` annotation requires we specify a `SecurityContextFactory` that will create a new `SecurityContext` given our `@WithMockCustomUser` annotation.
 You can find our `WithMockCustomUserSecurityContextFactory` implementation below:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class WithMockCustomUserSecurityContextFactory
 	implements WithSecurityContextFactory<WithMockCustomUser> {
@@ -313,12 +504,30 @@ public class WithMockCustomUserSecurityContextFactory
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class WithMockCustomUserSecurityContextFactory : WithSecurityContextFactory<WithMockCustomUser> {
+    override fun createSecurityContext(customUser: WithMockCustomUser): SecurityContext {
+        val context = SecurityContextHolder.createEmptyContext()
+        val principal = CustomUserDetails(customUser.name, customUser.username)
+        val auth: Authentication =
+            UsernamePasswordAuthenticationToken(principal, "password", principal.authorities)
+        context.authentication = auth
+        return context
+    }
+}
+----
+====
+
 We can now annotate a test class or a test method with our new annotation and Spring Security's `WithSecurityContextTestExecutionListener` will ensure that our `SecurityContext` is populated appropriately.
 
 When creating your own `WithSecurityContextFactory` implementations, it is nice to know that they can be annotated with standard Spring annotations.
 For example, the `WithUserDetailsSecurityContextFactory` uses the `@Autowired` annotation to acquire the `UserDetailsService`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 final class WithUserDetailsSecurityContextFactory
 	implements WithSecurityContextFactory<WithUserDetails> {
@@ -342,6 +551,25 @@ final class WithUserDetailsSecurityContextFactory
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class WithUserDetailsSecurityContextFactory @Autowired constructor(private val userDetailsService: UserDetailsService) :
+    WithSecurityContextFactory<WithUserDetails> {
+    override fun createSecurityContext(withUser: WithUserDetails): SecurityContext {
+        val username: String = withUser.value
+        Assert.hasLength(username, "value() must be non-empty String")
+        val principal = userDetailsService.loadUserByUsername(username)
+        val authentication: Authentication =
+            UsernamePasswordAuthenticationToken(principal, principal.password, principal.authorities)
+        val context = SecurityContextHolder.createEmptyContext()
+        context.authentication = authentication
+        return context
+    }
+}
+----
+====
+
 By default the `SecurityContext` is set during the `TestExecutionListener.beforeTestMethod` event.
 This is the equivalent of happening before JUnit's `@Before`.
 You can change this to happen during the `TestExecutionListener.beforeTestExecution` event which is after JUnit's `@Before` but before the test method is invoked.
@@ -358,20 +586,40 @@ You can change this to happen during the `TestExecutionListener.beforeTestExecut
 If you reuse the same user within your tests often, it is not ideal to have to repeatedly specify the attributes.
 For example, if there are many tests related to an administrative user with the username "admin" and the roles `ROLE_USER` and `ROLE_ADMIN` you would have to write:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @WithMockUser(username="admin",roles={"USER","ADMIN"})
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@WithMockUser(username="admin",roles=["USER","ADMIN"])
+----
+====
+
 Rather than repeating this everywhere, we can use a meta annotation.
 For example, we could create a meta annotation named `WithMockAdmin`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Retention(RetentionPolicy.RUNTIME)
 @WithMockUser(value="rob",roles="ADMIN")
 public @interface WithMockAdmin { }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Retention(AnnotationRetention.RUNTIME)
+@WithMockUser(value = "rob", roles = ["ADMIN"])
+annotation class WithMockAdmin
+----
+====
 
 Now we can use `@WithMockAdmin` in the same way as the more verbose `@WithMockUser`.
 
