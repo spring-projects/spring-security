@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.nimbusds.oauth2.sdk.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
@@ -74,6 +73,7 @@ import org.springframework.test.web.reactive.server.MockServerConfigurer;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -648,7 +648,7 @@ public class SecurityMockServerConfigurers {
 				return getAuthorities((Collection) scope);
 			}
 			String scopes = scope.toString();
-			if (StringUtils.isBlank(scopes)) {
+			if (!StringUtils.hasText(scopes)) {
 				return Collections.emptyList();
 			}
 			return getAuthorities(Arrays.asList(scopes.split(" ")));
