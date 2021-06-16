@@ -258,6 +258,30 @@ public class ClientRegistrationsTests {
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
 
+	// gh-9795
+	@Test
+	public void issuerWhenResponseAuthorizationEndpointIsNullThenSuccess() throws Exception {
+		this.response.put("grant_types_supported", Arrays.asList("urn:ietf:params:oauth:grant-type:jwt-bearer"));
+		this.response.remove("authorization_endpoint");
+		ClientRegistration registration = registration("").authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+				.build();
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.JWT_BEARER);
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertThat(provider.getAuthorizationUri()).isNull();
+	}
+
+	// gh-9795
+	@Test
+	public void issuerWhenOAuth2ResponseAuthorizationEndpointIsNullThenSuccess() throws Exception {
+		this.response.put("grant_types_supported", Arrays.asList("urn:ietf:params:oauth:grant-type:jwt-bearer"));
+		this.response.remove("authorization_endpoint");
+		ClientRegistration registration = registrationOAuth2("", null)
+				.authorizationGrantType(AuthorizationGrantType.JWT_BEARER).build();
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.JWT_BEARER);
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertThat(provider.getAuthorizationUri()).isNull();
+	}
+
 	@Test
 	public void issuerWhenTokenEndpointAuthMethodsNullThenDefaulted() throws Exception {
 		this.response.remove("token_endpoint_auth_methods_supported");
