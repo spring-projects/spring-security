@@ -18,6 +18,7 @@ package org.springframework.security.core.context;
 
 import java.lang.reflect.Constructor;
 
+import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -73,13 +74,16 @@ public class SecurityContextHolder {
 			strategyName = MODE_THREADLOCAL;
 		}
 		if (strategyName.equals(MODE_THREADLOCAL)) {
-			strategy = new ThreadLocalSecurityContextHolderStrategy();
+			ThreadLocalSecurityContextHolderStrategy delegate = new ThreadLocalSecurityContextHolderStrategy();
+			strategy = new ListeningSecurityContextHolderStrategy(delegate::peek, delegate);
 		}
 		else if (strategyName.equals(MODE_INHERITABLETHREADLOCAL)) {
-			strategy = new InheritableThreadLocalSecurityContextHolderStrategy();
+			InheritableThreadLocalSecurityContextHolderStrategy delegate = new InheritableThreadLocalSecurityContextHolderStrategy();
+			strategy = new ListeningSecurityContextHolderStrategy(delegate::peek, delegate);
 		}
 		else if (strategyName.equals(MODE_GLOBAL)) {
-			strategy = new GlobalSecurityContextHolderStrategy();
+			GlobalSecurityContextHolderStrategy delegate = new GlobalSecurityContextHolderStrategy();
+			strategy = new ListeningSecurityContextHolderStrategy(delegate::peek, delegate);
 		}
 		else {
 			// Try to load a custom strategy
@@ -153,6 +157,35 @@ public class SecurityContextHolder {
 	 */
 	public static SecurityContext createEmptyContext() {
 		return strategy.createEmptyContext();
+	}
+
+	/**
+	 * Register a listener to be notified when the {@link SecurityContext} changes.
+	 *
+	 * Note that this does not notify when the underlying authentication changes. To get
+	 * notified about authentication changes, ensure that you are using
+	 * {@link #setContext} when changing the authentication like so:
+	 *
+	 * <pre>
+	 *	SecurityContext context = SecurityContextHolder.createEmptyContext();
+	 *	context.setAuthentication(authentication);
+	 *	SecurityContextHolder.setContext(context);
+	 * </pre>
+	 *
+	 * To integrate this with Spring's
+	 * {@link org.springframework.context.ApplicationEvent} support, you can add a
+	 * listener like so:
+	 *
+	 * <pre>
+	 *	SecurityContextHolder.addListener(this.applicationContext::publishEvent);
+	 * </pre>
+	 * @param listener a listener to be notified when the {@link SecurityContext} changes
+	 * @since 5.6
+	 */
+	public static void addListener(SecurityContextChangedListener listener) {
+		Assert.isInstanceOf(ListeningSecurityContextHolderStrategy.class, strategy,
+				"strategy must be of type ListeningSecurityContextHolderStrategy to add listeners");
+		((ListeningSecurityContextHolderStrategy) strategy).addListener(listener);
 	}
 
 	@Override
