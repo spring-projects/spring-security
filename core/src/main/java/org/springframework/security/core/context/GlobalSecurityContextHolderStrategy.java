@@ -45,6 +45,11 @@ final class GlobalSecurityContextHolderStrategy implements SecurityContextHolder
 	}
 
 	@Override
+	public SecurityContext peekContext() {
+		return contextHolder;
+	}
+
+	@Override
 	public void setContext(SecurityContext context) {
 		Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
 		contextHolder = context;
