@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -239,8 +239,7 @@ public final class ClientRegistrations {
 				() -> "The Issuer \"" + metadataIssuer + "\" provided in the configuration metadata did "
 						+ "not match the requested issuer \"" + issuer + "\"");
 		String name = URI.create(issuer).getHost();
-		ClientAuthenticationMethod method = getClientAuthenticationMethod(issuer,
-				metadata.getTokenEndpointAuthMethods());
+		ClientAuthenticationMethod method = getClientAuthenticationMethod(metadata.getTokenEndpointAuthMethods());
 		Map<String, Object> configurationMetadata = new LinkedHashMap<>(metadata.toJSONObject());
 		// @formatter:off
 		return ClientRegistration.withRegistrationId(name)
@@ -256,7 +255,7 @@ public final class ClientRegistrations {
 		// @formatter:on
 	}
 
-	private static ClientAuthenticationMethod getClientAuthenticationMethod(String issuer,
+	private static ClientAuthenticationMethod getClientAuthenticationMethod(
 			List<com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod> metadataAuthMethods) {
 		if (metadataAuthMethods == null || metadataAuthMethods
 				.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)) {
@@ -269,10 +268,7 @@ public final class ClientRegistrations {
 		if (metadataAuthMethods.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.NONE)) {
 			return ClientAuthenticationMethod.NONE;
 		}
-		throw new IllegalArgumentException(
-				"Only ClientAuthenticationMethod.CLIENT_SECRET_BASIC, ClientAuthenticationMethod.CLIENT_SECRET_POST and "
-						+ "ClientAuthenticationMethod.NONE are supported. The issuer \"" + issuer
-						+ "\" returned a configuration of " + metadataAuthMethods);
+		return null;
 	}
 
 	private interface ThrowingFunction<S, T, E extends Throwable> {
