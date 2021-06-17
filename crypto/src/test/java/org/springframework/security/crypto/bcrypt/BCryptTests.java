@@ -456,4 +456,11 @@ public class BCryptTests {
 		assertThat(BCrypt.equalsNoEarlyReturn("test", "pass")).isFalse();
 	}
 
+	@Test
+	public void checkpwWhenZeroRoundsThenMatches() {
+		String password = "$2a$00$9N8N35BVs5TLqGL3pspAte5OWWA2a2aZIs.EGp7At7txYakFERMue";
+		assertThat(BCrypt.checkpw("password", password)).isTrue();
+		assertThat(BCrypt.checkpw("wrong", password)).isFalse();
+	}
+
 }
