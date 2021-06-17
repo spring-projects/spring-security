@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,10 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> 
 		if (loginPageGeneratingFilter.isEnabled() && authenticationEntryPoint == null) {
 			loginPageGeneratingFilter = postProcess(loginPageGeneratingFilter);
 			http.addFilter(loginPageGeneratingFilter);
-			http.addFilter(this.logoutPageGeneratingFilter);
+			LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
+			if (logoutConfigurer != null) {
+				http.addFilter(this.logoutPageGeneratingFilter);
+			}
 		}
 	}
 
