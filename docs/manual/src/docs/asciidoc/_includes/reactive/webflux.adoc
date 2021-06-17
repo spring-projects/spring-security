@@ -158,7 +158,7 @@ static class MultiSecurityHttpConfig {
             .authorizeExchange((exchanges) -> exchanges
                 .anyExchange().authenticated()
             )
-            .httpBasic(withDefaults())                                                      <5>
+            .httpBasic(withDefaults());                                                     <5>
         return http.build();
     }
 
