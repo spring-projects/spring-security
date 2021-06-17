@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,11 +44,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Tests for {@link DefaultLoginPageConfigurer}
@@ -215,6 +218,18 @@ public class DefaultLoginPageConfigurerTests {
 								"</div>\n" +
 								"</body></html>"
 				));
+	}
+
+	@Test
+	public void formLoginWhenLogoutEnabledThenCreatesDefaultLogoutPage() throws Exception {
+		this.spring.register(DefaultLogoutPageConfig.class).autowire();
+		this.mvc.perform(get("/logout").with(user("user"))).andExpect(status().isOk());
+	}
+
+	@Test
+	public void formLoginWhenLogoutDisabledThenDefaultLogoutPageDoesNotExist() throws Exception {
+		this.spring.register(LogoutDisabledConfig.class).autowire();
+		this.mvc.perform(get("/logout").with(user("user"))).andExpect(status().isNotFound());
 	}
 
 	@EnableWebSecurity
@@ -550,6 +565,41 @@ public class DefaultLoginPageConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+	}
+
+	@EnableWebSecurity
+	static class DefaultLogoutPageConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests((authorize) -> authorize
+					.anyRequest().authenticated()
+				)
+				.formLogin(withDefaults());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class LogoutDisabledConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeRequests((authorize) -> authorize
+							.anyRequest().authenticated()
+					)
+					.formLogin(withDefaults())
+					.logout((logout) -> logout
+							.disable()
+					);
+			// @formatter:on
+		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {

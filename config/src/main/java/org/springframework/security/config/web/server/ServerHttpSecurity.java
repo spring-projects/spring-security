@@ -3264,7 +3264,10 @@ public class ServerHttpSecurity {
 			}
 			if (loginPage != null) {
 				http.addFilterAt(loginPage, SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING);
-				http.addFilterAt(new LogoutPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGOUT_PAGE_GENERATING);
+				if (http.logout != null) {
+					http.addFilterAt(new LogoutPageGeneratingWebFilter(),
+							SecurityWebFiltersOrder.LOGOUT_PAGE_GENERATING);
+				}
 			}
 		}
 
