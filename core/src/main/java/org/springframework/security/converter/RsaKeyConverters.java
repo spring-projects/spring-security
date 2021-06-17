@@ -72,8 +72,8 @@ public final class RsaKeyConverters {
 		return (source) -> {
 			List<String> lines = readAllLines(source);
 			Assert.isTrue(!lines.isEmpty() && lines.get(0).startsWith(PKCS8_PEM_HEADER),
-					"Key is not in PEM-encoded PKCS#8 format, please check that the header begins with -----"
-							+ PKCS8_PEM_HEADER + "-----");
+					"Key is not in PEM-encoded PKCS#8 format, please check that the header begins with "
+							+ PKCS8_PEM_HEADER);
 			StringBuilder base64Encoded = new StringBuilder();
 			for (String line : lines) {
 				if (RsaKeyConverters.isNotPkcs8Wrapper(line)) {
@@ -104,8 +104,8 @@ public final class RsaKeyConverters {
 		return (source) -> {
 			List<String> lines = readAllLines(source);
 			Assert.isTrue(!lines.isEmpty() && lines.get(0).startsWith(X509_PEM_HEADER),
-					"Key is not in PEM-encoded X.509 format, please check that the header begins with -----"
-							+ X509_PEM_HEADER + "-----");
+					"Key is not in PEM-encoded X.509 format, please check that the header begins with "
+							+ X509_PEM_HEADER);
 			StringBuilder base64Encoded = new StringBuilder();
 			for (String line : lines) {
 				if (RsaKeyConverters.isNotX509Wrapper(line)) {
