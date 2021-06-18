@@ -215,7 +215,7 @@ An example configuration can be found below:
 [[source,java]]
 ----
 rsocket
-	.authorizePayload(authorize ->
+	.authorizePayload(authz ->
 		authz
 			.setup().hasRole("SETUP") // <1>
 			.route("fetch.profile.me").authenticated() // <2>
@@ -225,7 +225,7 @@ rsocket
 				.access((authentication, context) -> checkFriends(authentication, context))
 			.anyRequest().authenticated() // <5>
 			.anyExchange().permitAll() // <6>
-	)
+	);
 ----
 <1> Setting up a connection requires the authority `ROLE_SETUP`
 <2> If the route is `fetch.profile.me` authorization only requires the user be authenticated
