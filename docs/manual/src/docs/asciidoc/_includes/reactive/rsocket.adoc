@@ -43,9 +43,8 @@ In a Spring Boot application this is done automatically using `RSocketSecurityAu
 [source,java]
 ----
 @Bean
-ServerRSocketFactoryProcessor springSecurityRSocketSecurity(
-		SecuritySocketAcceptorInterceptor interceptor) {
-	return builder -> builder.addSocketAcceptorPlugin(interceptor);
+RSocketServerCustomizer springSecurityRSocketSecurity(SecuritySocketAcceptorInterceptor interceptor) {
+    return (server) -> server.interceptors((registry) -> registry.forSocketAcceptor(interceptor));
 }
 ----
 
