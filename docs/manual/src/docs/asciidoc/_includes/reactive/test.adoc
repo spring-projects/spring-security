@@ -287,7 +287,7 @@ In that case, you can configure an `OidcUser` by hand:
 ----
 OidcUser oidcUser = new DefaultOidcUser(
         AuthorityUtils.createAuthorityList("SCOPE_message:read"),
-        Collections.singletonMap("user_name", "foo_user"),
+        OidcIdToken.withTokenValue("id-token").claim("user_name", "foo_user").build(),
         "user_name");
 
 client
@@ -494,7 +494,7 @@ then you can configure the scope using the `accessToken()` method:
 ----
 client
     .mutateWith(mockOAuth2Client("my-app")
-        .accessToken(new OAuth2AccessToken(BEARER, "token", null, null, Collections.singleton("message:read"))))
+        .accessToken(new OAuth2AccessToken(BEARER, "token", null, null, Collections.singleton("message:read")))
     )
     .get().uri("/endpoint").exchange();
 ----
@@ -523,7 +523,7 @@ ReactiveClientRegistrationRepository clientRegistrationRepository;
 
 client
     .mutateWith(mockOAuth2Client()
-        .clientRegistration(this.clientRegistrationRepository.findByRegistrationId("facebook"))
+        .clientRegistration(this.clientRegistrationRepository.findByRegistrationId("facebook").block())
     )
     .get().uri("/exchange").exchange();
 ----
@@ -571,8 +571,6 @@ And the resulting `Jwt`, were it tested, would pass in the following way:
 assertThat(jwt.getTokenValue()).isEqualTo("token");
 assertThat(jwt.getHeaders().get("alg")).isEqualTo("none");
 assertThat(jwt.getSubject()).isEqualTo("sub");
-GrantedAuthority authority = jwt.getAuthorities().iterator().next();
-assertThat(authority.getAuthority()).isEqualTo("read");
 ----
 
 These values can, of course be configured.
@@ -600,7 +598,7 @@ However, this can be overridden simply by providing the list of `GrantedAuthorit
 [source,java]
 ----
 client
-	.mutateWith(jwt().authorities(new SimpleGrantedAuthority("SCOPE_messages")))
+	.mutateWith(mockJwt().authorities(new SimpleGrantedAuthority("SCOPE_messages")))
 	.get().uri("/endpoint").exchange();
 ----
 
@@ -609,7 +607,7 @@ Or, if you have a custom `Jwt` to `Collection<GrantedAuthority>` converter, you 
 [source,java]
 ----
 client
-	.mutateWith(jwt().authorities(new MyConverter()))
+	.mutateWith(mockJwt().authorities(new MyConverter()))
 	.get().uri("/endpoint").exchange();
 ----
 
@@ -620,7 +618,8 @@ You can also specify a complete `Jwt`, for which `{security-api-url}org/springfr
 Jwt jwt = Jwt.withTokenValue("token")
     .header("alg", "none")
     .claim("sub", "user")
-    .claim("scope", "read");
+    .claim("scope", "read")
+    .build();
 
 client
 	.mutateWith(mockJwt().jwt(jwt))
@@ -642,7 +641,7 @@ Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("S
 JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
 
 client
-	.mutateWith(authentication(token))
+	.mutateWith(mockAuthentication(token))
 	.get().uri("/endpoint").exchange();
 ----
 
@@ -660,7 +659,7 @@ Let's say that we've got a controller that retrieves the authentication as a `Be
 ----
 @GetMapping("/endpoint")
 public Mono<String> foo(BearerTokenAuthentication authentication) {
-    return Mono.just((String) authentication.getTokenAttributes("sub"));
+    return Mono.just((String) authentication.getTokenAttributes().get("sub"));
 }
 ----
 
