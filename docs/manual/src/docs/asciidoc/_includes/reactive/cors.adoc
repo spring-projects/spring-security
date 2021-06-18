@@ -1,6 +1,6 @@
 
 [[webflux-cors]]
-== CORS
+= CORS
 
 Spring Framework provides https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-cors-intro[first class support for CORS].
 CORS must be processed before Spring Security because the pre-flight request will not contain any cookies (i.e. the `JSESSIONID`).
