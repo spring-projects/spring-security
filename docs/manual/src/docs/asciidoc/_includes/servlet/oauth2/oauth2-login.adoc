@@ -12,7 +12,7 @@ NOTE: OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as
 
 Spring Boot 2.x brings full auto-configuration capabilities for OAuth 2.0 Login.
 
-This section shows how to configure the {gh-samples-url}/boot/oauth2login[*OAuth 2.0 Login sample*] using _Google_ as the _Authentication Provider_ and covers the following topics:
+This section shows how to configure the {gh-samples-url}/servlet/spring-boot/java/oauth2/login[*OAuth 2.0 Login sample*] using _Google_ as the _Authentication Provider_ and covers the following topics:
 
 * <<oauth2login-sample-initial-setup,Initial setup>>
 * <<oauth2login-sample-redirect-uri,Setting the redirect URI>>

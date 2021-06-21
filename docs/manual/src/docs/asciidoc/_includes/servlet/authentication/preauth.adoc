@@ -147,5 +147,4 @@ It's also assumed that you have added a `UserDetailsService` (called "userDetail
 The class `J2eePreAuthenticatedProcessingFilter` will extract the username from the `userPrincipal` property of the `HttpServletRequest`.
 Use of this filter would usually be combined with the use of Java EE roles as described above in <<j2ee-preauth-details>>.
 
-There is a sample application in the codebase which uses this approach, so get hold of the code from github and have a look at the application context file if you are interested.
-The code is in the `samples/xml/preauth` directory.
+There is a {gh-old-samples-url}/xml/preauth[sample application] in the samples project which uses this approach, so get hold of the code from GitHub and have a look at the application context file if you are interested.
