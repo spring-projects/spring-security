@@ -1,0 +1,19 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+io.netty:netty-buffer:4.1.59.Final
+io.netty:netty-common:4.1.59.Final
+io.projectreactor:reactor-bom:Dysprosium-SR20
+io.projectreactor:reactor-core:3.3.17.RELEASE
+io.rsocket:rsocket-core:1.0.5
+org.jetbrains.kotlin:kotlin-bom:1.4.30
+org.reactivestreams:reactive-streams:1.0.3
+org.slf4j:slf4j-api:1.7.31
+org.springframework.data:spring-data-releasetrain:Neumann-SR9
+org.springframework:spring-aop:5.2.15.RELEASE
+org.springframework:spring-beans:5.2.15.RELEASE
+org.springframework:spring-context:5.2.15.RELEASE
+org.springframework:spring-core:5.2.15.RELEASE
+org.springframework:spring-expression:5.2.15.RELEASE
+org.springframework:spring-framework-bom:5.2.15.RELEASE
+org.springframework:spring-jcl:5.2.15.RELEASE
