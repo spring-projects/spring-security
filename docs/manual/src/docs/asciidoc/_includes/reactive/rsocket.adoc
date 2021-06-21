@@ -6,7 +6,7 @@ The main entry point into security is found in the `PayloadSocketAcceptorInterce
 
 You can find a few sample applications that demonstrate the code below:
 
-* Hello RSocket {gh-samples-url}/boot/hellorsocket[hellorsocket]
+* Hello RSocket {gh-samples-url}/reactive/rsocket/hello-security[hellorsocket]
 * https://github.com/rwinch/spring-flights/tree/security[Spring Flights]
 
 

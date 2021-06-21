@@ -234,4 +234,4 @@ class SecurityConfig {
 ----
 ====
 
-You can find a complete sample in {gh-samples-url}/javaconfig/hellowebflux-method[hellowebflux-method]
+You can find a complete sample in {gh-samples-url}/reactive/webflux/java/method[hellowebflux-method]

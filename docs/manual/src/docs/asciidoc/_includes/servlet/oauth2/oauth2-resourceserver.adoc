@@ -15,7 +15,7 @@ This section provides details on how Spring Security provides support for OAuth 
 
 [NOTE]
 ====
-Working samples for both {gh-samples-url}/boot/oauth2resourceserver[JWTs] and {gh-samples-url}/boot/oauth2resourceserver-opaque[Opaque Tokens] are available in the {gh-samples-url}[Spring Security repository].
+Working samples for both {gh-samples-url}/servlet/spring-boot/java/oauth2/resource-server/jwe[JWTs] and {gh-samples-url}/servlet/spring-boot/java/oauth2/resource-server/opaque[Opaque Tokens] are available in the {gh-samples-url}[Spring Security Samples repository].
 ====
 
 Let's take a look at how Bearer Token Authentication works within Spring Security.

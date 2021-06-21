@@ -17,7 +17,6 @@ asciidoctor {
 			idseparator: '-',
 			doctype: 'book',
 			'spring-security-version' : project.version,
-			'download-url' : getDownloadUrl(),
 			'include-maven-repository' : getMavenRepositoryInclude(),
 			revnumber : project.version,
 			'gh-samples-url': ghSamplesUrl,
@@ -30,11 +29,6 @@ ext.spec = copySpec {
 		exclude 'build', 'Guardfile'
 	}
 }
-
-def getDownloadUrl() {
-	snapshotBuild ? "https://github.com/spring-projects/spring-security/archive/main.zip" : "https://github.com/spring-projects/spring-security/archive/${project.version}.zip"
-}
-
 
 def getMavenRepositoryInclude() {
 	if(snapshotBuild) {
