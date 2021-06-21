@@ -149,7 +149,7 @@ dependencyManagement {
 		dependency 'org.apache.tomcat.embed:tomcat-embed-el:9.0.45'
 		dependency 'org.apache.tomcat.embed:tomcat-embed-jasper:9.0.45'
 		dependency 'org.apache.tomcat.embed:tomcat-embed-logging-log4j:9.0.45'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-websocket:8.5.57'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-websocket:8.5.68'
 		dependency 'org.apache.tomcat:tomcat-annotations-api:9.0.45'
 		dependency "org.aspectj:aspectjrt:$aspectjVersion"
 		dependency "org.aspectj:aspectjtools:$aspectjVersion"
