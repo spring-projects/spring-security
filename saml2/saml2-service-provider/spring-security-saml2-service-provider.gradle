@@ -43,9 +43,9 @@ dependencies {
 	api "org.opensaml:opensaml-core"
 	api "org.opensaml:opensaml-saml-api"
 	api "org.opensaml:opensaml-saml-impl"
-	opensaml4MainCompile "org.opensaml:opensaml-core:4.1.0"
-	opensaml4MainCompile "org.opensaml:opensaml-saml-api:4.1.0"
-	opensaml4MainCompile "org.opensaml:opensaml-saml-impl:4.1.0"
+	opensaml4MainCompile "org.opensaml:opensaml-core:4.1.1"
+	opensaml4MainCompile "org.opensaml:opensaml-saml-api:4.1.1"
+	opensaml4MainCompile "org.opensaml:opensaml-saml-impl:4.1.1"
 
 	provided 'javax.servlet:javax.servlet-api'
 
