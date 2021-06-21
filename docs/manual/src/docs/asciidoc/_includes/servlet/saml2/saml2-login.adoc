@@ -16,7 +16,7 @@ This process is similar to the one started in 2017 for <<oauth2,Spring Security'
 
 [NOTE]
 ====
-A working sample for {gh-samples-url}/boot/saml2login[SAML 2.0 Login] is available in the {gh-samples-url}[Spring Security repository].
+A working sample for {gh-samples-url}/servlet/spring-boot/java/saml2-login[SAML 2.0 Login] is available in the {gh-samples-url}[Spring Security Samples repository].
 ====
 
 Let's take a look at how SAML 2.0 Relying Party Authentication works within Spring Security.

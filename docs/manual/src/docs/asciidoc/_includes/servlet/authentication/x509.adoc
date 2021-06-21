@@ -52,7 +52,7 @@ This means that you can easily use X.509 authentication with other options such 
 
 [[x509-ssl-config]]
 === Setting up SSL in Tomcat
-There are some pre-generated certificates in the `samples/certificate` directory in the Spring Security project.
+There are some pre-generated certificates in the {gh-samples-url}/servlet/java-configuration/authentication/x509/server[Spring Security Samples repository].
 You can use these to enable SSL for testing if you don't want to generate your own.
 The file `server.jks` contains the server certificate, private key and the issuing certificate authority certificate.
 There are also some client certificate files for the users from the sample applications.

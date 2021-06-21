@@ -11,7 +11,7 @@ This authorization server can be consulted by resource servers to authorize requ
 
 [NOTE]
 ====
-A complete working example for {gh-samples-url}/boot/oauth2resourceserver-webflux[*JWTs*]  is available in the {gh-samples-url}[Spring Security repository].
+A complete working example for {gh-samples-url}/reactive/webflux/java/oauth2/resource-server[*JWTs*]  is available in the {gh-samples-url}[Spring Security repository].
 ====
 
 [[webflux-oauth2resourceserver-jwt-minimaldependencies]]
