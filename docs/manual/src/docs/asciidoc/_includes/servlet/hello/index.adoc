@@ -5,7 +5,7 @@ This section covers the minimum setup for how to use Spring Security with Spring
 
 [NOTE]
 ====
-The completed application can be found at {gh-samples-url}/boot/helloworld[samples/boot/helloworld]
+The completed application can be found {gh-samples-url}/servlet/spring-boot/java/hello-security[in our samples repository].
 For your convenience, you can download a minimal Spring Boot + Spring Security application by https://start.spring.io/starter.zip?type=maven-project&language=java&packaging=jar&jvmVersion=1.8&groupId=example&artifactId=hello-security&name=hello-security&description=Hello%20Security&packageName=example.hello-security&dependencies=web,security[clicking here].
 ====
 
