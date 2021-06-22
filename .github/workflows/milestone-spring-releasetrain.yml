@@ -1,0 +1,20 @@
+on:
+  milestone:
+    types: [created, opened, edited]
+env:
+  DUE_ON: ${{ github.event.milestone.due_on }}
+  TITLE: ${{ github.event.milestone.title }}
+jobs:
+  spring-releasetrain-checks:    
+    name: Check DueOn is on a Release Date
+    runs-on: ubuntu-latest
+    steps:
+    - name: Print Milestone Being Checked
+      run: echo "Validating DueOn '$DUE_ON' for milestone '$TITLE'"
+    - name: Validate DueOn
+      if: env.DUE_ON != ''
+      run: |
+        export TOOL_VERSION=0.1.1
+        wget "https://repo.maven.apache.org/maven2/io/spring/releasetrain/spring-release-train-tools/$TOOL_VERSION/spring-release-train-tools-$TOOL_VERSION.jar"
+        java -cp "spring-release-train-tools-$TOOL_VERSION.jar" io.spring.releasetrain.CheckMilestoneDueOnMain --dueOn "$DUE_ON" --expectedDayOfWeek MONDAY --expectedMondayCount 3
+
