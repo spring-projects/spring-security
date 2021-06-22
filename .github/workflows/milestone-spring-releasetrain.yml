@@ -1,3 +1,4 @@
+name: Check Milestone
 on:
   milestone:
     types: [created, opened, edited]
