@@ -9,7 +9,7 @@ The picture below shows the typical layering of the handlers for a single HTTP r
 image::{figures}/filterchain.png[]
 
 The client sends a request to the application, and the container creates a `FilterChain` which contains the ``Filter``s and `Servlet` that should process the `HttpServletRequest` based on the path of the request URI.
-In a Spring MVC application the `Servlet` is an instance of https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-servlet[`DispatcherServlet`].
+In a Spring MVC application the `Servlet` is an instance of {spring-framework-reference-url}web.html#mvc-servlet[`DispatcherServlet`].
 At most one `Servlet` can handle a single `HttpServletRequest` and `HttpServletResponse`.
 However, more than one `Filter` can be used to:
 
