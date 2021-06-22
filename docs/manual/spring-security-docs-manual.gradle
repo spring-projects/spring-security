@@ -21,10 +21,10 @@ asciidoctorj {
 	def ghSamplesUrl = "https://github.com/spring-projects/spring-security-samples/tree/$ghTag"
 	def securityDocsUrl = "https://docs.spring.io/spring-security/site/docs/$docsTag"
 	def oldSecurityApiUrl = "https://docs.spring.io/spring-security/site/docs/5.4.x/api/"
-	def springVersion = "5.3.x"
 	def securityApiUrl = "$securityDocsUrl/api/"
 	def securityReferenceUrl = "$securityDocsUrl/reference/html5/"
-	def springFrameworkApiUrl = "https://docs.spring.io/spring-framework/docs/$springVersion/javadoc-api/"
+	def springFrameworkApiUrl = "https://docs.spring.io/spring-framework/docs/$springFrameworkVersion/javadoc-api/"
+	def springFrameworkReferenceUrl = "https://docs.spring.io/spring-framework/docs/$springFrameworkVersion/reference/html/"
 	attributes 'spring-security-version' : project.version,
 		'spring-boot-version' : springBootVersion,
 		revnumber : project.version,
@@ -34,7 +34,8 @@ asciidoctorj {
 		'old-security-api-url': oldSecurityApiUrl,
 		'security-api-url': securityApiUrl,
 		'security-reference-url': securityReferenceUrl,
-		'spring-framework-api-url': springFrameworkApiUrl
+		'spring-framework-api-url': springFrameworkApiUrl,
+		'spring-framework-reference-url': springFrameworkReferenceUrl
 	attributeProvider resolvedVersions(project.configurations.testRuntimeClasspath)
 }
 
