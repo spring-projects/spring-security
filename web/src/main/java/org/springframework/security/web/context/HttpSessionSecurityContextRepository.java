@@ -233,6 +233,9 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	}
 
 	private boolean isTransientAuthentication(Authentication authentication) {
+		if (authentication == null) {
+			return false;
+		}
 		return AnnotationUtils.getAnnotation(authentication.getClass(), Transient.class) != null;
 	}
 
@@ -327,6 +330,9 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		@Override
 		protected void saveContext(SecurityContext context) {
 			final Authentication authentication = context.getAuthentication();
+			if (isTransientAuthentication(authentication)) {
+				return;
+			}
 			HttpSession httpSession = this.request.getSession(false);
 			String springSecurityContextKey = HttpSessionSecurityContextRepository.this.springSecurityContextKey;
 			// See SEC-776
@@ -348,7 +354,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 				}
 				return;
 			}
-			httpSession = (httpSession != null) ? httpSession : createNewSessionIfAllowed(context, authentication);
+			httpSession = (httpSession != null) ? httpSession : createNewSessionIfAllowed(context);
 			// If HttpSession exists, store current SecurityContext but only if it has
 			// actually changed in this thread (see SEC-37, SEC-1307, SEC-1528)
 			if (httpSession != null) {
@@ -369,10 +375,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 					|| context.getAuthentication() != this.authBeforeExecution;
 		}
 
-		private HttpSession createNewSessionIfAllowed(SecurityContext context, Authentication authentication) {
-			if (isTransientAuthentication(authentication)) {
-				return null;
-			}
+		private HttpSession createNewSessionIfAllowed(SecurityContext context) {
 			if (this.httpSessionExistedAtStartOfRequest) {
 				this.logger.debug("HttpSession is now null, but was not null at start of request; "
 						+ "session was invalidated, so do not create a new session");
