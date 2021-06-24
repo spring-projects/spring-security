@@ -187,6 +187,18 @@ public class HttpSecurityConfigurationTests {
 		this.mockMvc.perform(get("/login")).andExpect(status().isOk());
 	}
 
+	@Test
+	public void loginWhenUsingDefaultsThenDefaultLoginFailurePageGenerated() throws Exception {
+		this.spring.register(SecurityEnabledConfig.class).autowire();
+		this.mockMvc.perform(get("/login?error")).andExpect(status().isOk());
+	}
+
+	@Test
+	public void loginWhenUsingDefaultsThenDefaultLogoutSuccessPageGenerated() throws Exception {
+		this.spring.register(SecurityEnabledConfig.class).autowire();
+		this.mockMvc.perform(get("/login?logout")).andExpect(status().isOk());
+	}
+
 	@RestController
 	static class NameController {
 
