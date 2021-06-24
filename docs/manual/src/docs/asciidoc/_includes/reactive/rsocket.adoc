@@ -14,7 +14,9 @@ You can find a few sample applications that demonstrate the code below:
 
 You can find a minimal RSocket Security configuration below:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 -----
 @Configuration
 @EnableRSocketSecurity
@@ -31,6 +33,25 @@ public class HelloRSocketSecurityConfig {
 	}
 }
 -----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableRSocketSecurity
+open class HelloRSocketSecurityConfig {
+    @Bean
+    open fun userDetailsService(): MapReactiveUserDetailsService {
+        val user = User.withDefaultPasswordEncoder()
+            .username("user")
+            .password("user")
+            .roles("USER")
+            .build()
+        return MapReactiveUserDetailsService(user)
+    }
+}
+----
+====
 
 This configuration enables <<rsocket-authentication-simple,simple authentication>> and sets up <<rsocket-authorization,rsocket-authorization>> to require an authenticated user for any request.
 
@@ -86,7 +107,9 @@ See `RSocketSecurity.basicAuthentication(Customizer)` for setting it up.
 The RSocket receiver can decode the credentials using `AuthenticationPayloadExchangeConverter` which is automatically setup using the `simpleAuthentication` portion of the DSL.
 An explicit configuration can be found below.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
@@ -101,17 +124,45 @@ PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun rsocketInterceptor(rsocket: RSocketSecurity): PayloadSocketAcceptorInterceptor {
+    rsocket
+        .authorizePayload { authorize -> authorize
+                .anyRequest().authenticated()
+                .anyExchange().permitAll()
+        }
+        .simpleAuthentication(withDefaults())
+    return rsocket.build()
+}
+----
+====
+
 The RSocket sender can send credentials using `SimpleAuthenticationEncoder` which can be added to Spring's `RSocketStrategies`.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 RSocketStrategies.Builder strategies = ...;
 strategies.encoder(new SimpleAuthenticationEncoder());
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+var strategies: RSocketStrategies.Builder = ...
+strategies.encoder(SimpleAuthenticationEncoder())
+----
+====
+
 It can then be used to send a username and password to the receiver in the setup:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 MimeType authenticationMimeType =
 	MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
@@ -122,9 +173,24 @@ Mono<RSocketRequester> requester = RSocketRequester.builder()
 	.connectTcp(host, port);
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val authenticationMimeType: MimeType =
+    MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.string)
+val credentials = UsernamePasswordMetadata("user", "password")
+val requester: Mono<RSocketRequester> = RSocketRequester.builder()
+    .setupMetadata(credentials, authenticationMimeType)
+    .rsocketStrategies(strategies.build())
+    .connectTcp(host, port)
+----
+====
+
 Alternatively or additionally, a username and password can be sent in a request.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 Mono<RSocketRequester> requester;
 UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
@@ -138,6 +204,26 @@ public Mono<AirportLocation> findRadar(String code) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.springframework.messaging.rsocket.retrieveMono
+
+// ...
+
+var requester: Mono<RSocketRequester>? = null
+var credentials = UsernamePasswordMetadata("user", "password")
+
+open fun findRadar(code: String): Mono<AirportLocation> {
+    return requester!!.flatMap { req ->
+        req.route("find.radar.{code}", code)
+            .metadata(credentials, authenticationMimeType)
+            .retrieveMono<AirportLocation>()
+    }
+}
+----
+====
+
 [[rsocket-authentication-jwt]]
 === JWT
 
@@ -147,7 +233,9 @@ The support comes in the form of authenticating a JWT (determining the JWT is va
 The RSocket receiver can decode the credentials using `BearerPayloadExchangeConverter` which is automatically setup using the `jwt` portion of the DSL.
 An example configuration can be found below:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
@@ -162,10 +250,28 @@ PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun rsocketInterceptor(rsocket: RSocketSecurity): PayloadSocketAcceptorInterceptor {
+    rsocket
+        .authorizePayload { authorize -> authorize
+            .anyRequest().authenticated()
+            .anyExchange().permitAll()
+        }
+        .jwt(withDefaults())
+    return rsocket.build()
+}
+----
+====
+
 The configuration above relies on the existence of a `ReactiveJwtDecoder` `@Bean` being present.
 An example of creating one from the issuer can be found below:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
@@ -174,10 +280,23 @@ ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): ReactiveJwtDecoder {
+    return ReactiveJwtDecoders
+        .fromIssuerLocation("https://example.com/auth/realms/demo")
+}
+----
+====
+
 The RSocket sender does not need to do anything special to send the token because the value is just a simple String.
 For example, the token can be sent at setup time:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 MimeType authenticationMimeType =
 	MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
@@ -187,9 +306,24 @@ Mono<RSocketRequester> requester = RSocketRequester.builder()
 	.connectTcp(host, port);
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val authenticationMimeType: MimeType =
+    MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.string)
+val token: BearerTokenMetadata = ...
+
+val requester = RSocketRequester.builder()
+    .setupMetadata(token, authenticationMimeType)
+    .connectTcp(host, port)
+----
+====
+
 Alternatively or additionally, the token can be sent in a request.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 MimeType authenticationMimeType =
 	MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
@@ -205,6 +339,24 @@ public Mono<AirportLocation> findRadar(String code) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val authenticationMimeType: MimeType =
+    MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.string)
+var requester: Mono<RSocketRequester>? = null
+val token: BearerTokenMetadata = ...
+
+open fun findRadar(code: String): Mono<AirportLocation> {
+    return this.requester!!.flatMap { req ->
+        req.route("find.radar.{code}", code)
+            .metadata(token, authenticationMimeType)
+            .retrieveMono<AirportLocation>()
+    }
+}
+----
+====
+
 [[rsocket-authorization]]
 == RSocket Authorization
 
@@ -212,7 +364,9 @@ RSocket authorization is performed with `AuthorizationPayloadInterceptor` which 
 The DSL can be used to setup authorization rules based upon the `PayloadExchange`.
 An example configuration can be found below:
 
-[[source,java]]
+====
+.Java
+[source,java,role="primary"]
 ----
 rsocket
 	.authorizePayload(authz ->
@@ -227,6 +381,23 @@ rsocket
 			.anyExchange().permitAll() // <6>
 	);
 ----
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+rsocket
+    .authorizePayload { authz ->
+        authz
+            .setup().hasRole("SETUP") // <1>
+            .route("fetch.profile.me").authenticated() // <2>
+            .matcher { payloadExchange -> isMatch(payloadExchange) } // <3>
+            .hasRole("CUSTOM")
+            .route("fetch.profile.{username}") // <4>
+            .access { authentication, context -> checkFriends(authentication, context) }
+            .anyRequest().authenticated() // <5>
+            .anyExchange().permitAll()
+    } // <6>
+----
+====
 <1> Setting up a connection requires the authority `ROLE_SETUP`
 <2> If the route is `fetch.profile.me` authorization only requires the user be authenticated
 <3> In this rule we setup a custom matcher where authorization requires the user to have the authority `ROLE_CUSTOM`
