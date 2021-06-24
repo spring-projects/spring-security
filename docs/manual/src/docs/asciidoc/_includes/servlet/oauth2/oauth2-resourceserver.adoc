@@ -820,11 +820,21 @@ class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
 
 Or similarly with method security:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 public List<Message> getMessages(...) {}
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize("hasAuthority('SCOPE_messages')")
+fun getMessages(): List<Message> { }
+----
+====
 
 [[oauth2resourceserver-jwt-authorization-extraction]]
 ==== Extracting Authorities Manually

@@ -7,7 +7,9 @@
 For example, we can test our example from <<jc-erms>> using the same setup and annotations we did in <<test-method>>.
 Here is a minimal sample of what we can do:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = HelloWebfluxMethodApplication.class)
@@ -39,6 +41,41 @@ public class HelloWorldMessageServiceTests {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RunWith(SpringRunner::class)
+@ContextConfiguration(classes = [HelloWebfluxMethodApplication::class])
+class HelloWorldMessageServiceTests {
+    @Autowired
+    lateinit var messages: HelloWorldMessageService
+
+    @Test
+    fun messagesWhenNotAuthenticatedThenDenied() {
+        StepVerifier.create(messages.findMessage())
+            .expectError(AccessDeniedException::class.java)
+            .verify()
+    }
+
+    @Test
+    @WithMockUser
+    fun messagesWhenUserThenDenied() {
+        StepVerifier.create(messages.findMessage())
+            .expectError(AccessDeniedException::class.java)
+            .verify()
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun messagesWhenAdminThenOk() {
+        StepVerifier.create(messages.findMessage())
+            .expectNext("Hello World!")
+            .verifyComplete()
+    }
+}
+----
+====
 
 [[test-webtestclient]]
 == WebTestClientSupport
@@ -75,7 +112,9 @@ public class HelloWebfluxMethodApplicationTests {
 After applying the Spring Security support to `WebTestClient` we can use either annotations or `mutateWith` support.
 For example:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Test
 public void messageWhenNotAuthenticated() throws Exception {
@@ -133,13 +172,63 @@ public void messageWhenMutateWithMockAdminThenOk() throws Exception {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.springframework.test.web.reactive.server.expectBody
+
+//...
+
+@Test
+@WithMockUser
+fun messageWhenWithMockUserThenForbidden() {
+    this.rest.get().uri("/message")
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.FORBIDDEN)
+}
+
+@Test
+@WithMockUser(roles = ["ADMIN"])
+fun messageWhenWithMockAdminThenOk() {
+    this.rest.get().uri("/message")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<String>().isEqualTo("Hello World!")
+
+}
+
+// --- mutateWith mockUser ---
+
+@Test
+fun messageWhenMutateWithMockUserThenForbidden() {
+    this.rest
+        .mutateWith(mockUser())
+        .get().uri("/message")
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.FORBIDDEN)
+}
+
+@Test
+fun messageWhenMutateWithMockAdminThenOk() {
+    this.rest
+        .mutateWith(mockUser().roles("ADMIN"))
+        .get().uri("/message")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<String>().isEqualTo("Hello World!")
+}
+----
+====
+
 
 === CSRF Support
 
 Spring Security also provides support for CSRF testing with `WebTestClient`.
 For example:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 this.rest
 	// provide a valid CSRF token
@@ -149,6 +238,18 @@ this.rest
 	...
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+this.rest
+    // provide a valid CSRF token
+    .mutateWith(csrf())
+    .post()
+    .uri("/login")
+    ...
+----
+====
+
 [[webflux-testing-oauth2]]
 === Testing OAuth 2.0
 
@@ -156,7 +257,9 @@ When it comes to OAuth 2.0, the same principles covered earlier still apply: Ult
 
 For example, for a controller that looks like this:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/endpoint")
 public Mono<String> foo(Principal user) {
@@ -164,17 +267,39 @@ public Mono<String> foo(Principal user) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(user: Principal): Mono<String> {
+    return Mono.just(user.name)
+}
+----
+====
+
 There's nothing OAuth2-specific about it, so you will likely be able to simply <<test-erms,use `@WithMockUser`>> and be fine.
 
 But, in cases where your controllers are bound to some aspect of Spring Security's OAuth 2.0 support, like the following:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/endpoint")
 public Mono<String> foo(@AuthenticationPrincipal OidcUser user) {
     return Mono.just(user.getIdToken().getSubject());
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(@AuthenticationPrincipal user: OidcUser): Mono<String> {
+    return Mono.just(user.idToken.subject)
+}
+----
+====
 
 then Spring Security's test support can come in handy.
 
@@ -186,35 +311,75 @@ Certainly this would be a daunting task, which is why Spring Security ships with
 
 For example, we can tell Spring Security to include a default `OidcUser` using the `SecurityMockServerConfigurers#oidcLogin` method, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
     .mutateWith(mockOidcLogin()).get().uri("/endpoint").exchange();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockOidcLogin())
+    .get().uri("/endpoint")
+    .exchange()
+----
+====
+
 What this will do is configure the associated `MockServerRequest` with an `OidcUser` that includes a simple `OidcIdToken`, `OidcUserInfo`, and `Collection` of granted authorities.
 
 Specifically, it will include an `OidcIdToken` with a `sub` claim set to `user`:
 
-[source,json]
+====
+.Java
+[source,java,role="primary"]
 ----
 assertThat(user.getIdToken().getClaim("sub")).isEqualTo("user");
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(user.idToken.getClaim<String>("sub")).isEqualTo("user")
+----
+====
+
 an `OidcUserInfo` with no claims set:
 
-[source,json]
+====
+.Java
+[source,java,role="primary"]
 ----
 assertThat(user.getUserInfo().getClaims()).isEmpty();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(user.userInfo.claims).isEmpty()
+----
+====
+
 and a `Collection` of authorities with just one authority, `SCOPE_read`:
 
-[source,json]
+====
+.Java
+[source,java,role="primary"]
 ----
 assertThat(user.getAuthorities()).hasSize(1);
 assertThat(user.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_read"));
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(user.authorities).hasSize(1)
+assertThat(user.authorities).containsExactly(SimpleGrantedAuthority("SCOPE_read"))
+----
+====
 
 Spring Security does the necessary work to make sure that the `OidcUser` instance is available for <<mvc-authentication-principal,the `@AuthenticationPrincipal` annotation>>.
 
@@ -228,7 +393,9 @@ In many circumstances, your method is protected by filter or method security and
 
 In this case, you can supply what granted authorities you need using the `authorities()` method:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
     .mutateWith(mockOidcLogin()
@@ -236,6 +403,17 @@ client
     )
     .get().uri("/endpoint").exchange();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockOidcLogin()
+        .authorities(SimpleGrantedAuthority("SCOPE_message:read"))
+    )
+    .get().uri("/endpoint").exchange()
+----
+====
 
 [[webflux-testing-oidc-login-claims]]
 ==== Configuring Claims
@@ -245,7 +423,9 @@ And while granted authorities are quite common across all of Spring Security, we
 Let's say, for example, that you've got a `user_id` claim that indicates the user's id in your system.
 You might access it like so in a controller:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/endpoint")
 public Mono<String> foo(@AuthenticationPrincipal OidcUser oidcUser) {
@@ -254,9 +434,22 @@ public Mono<String> foo(@AuthenticationPrincipal OidcUser oidcUser) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(@AuthenticationPrincipal oidcUser: OidcUser): Mono<String> {
+    val userId = oidcUser.idToken.getClaim<String>("user_id")
+    // ...
+}
+----
+====
+
 In that case, you'd want to specify that claim with the `idToken()` method:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
     .mutateWith(mockOidcLogin()
@@ -264,6 +457,17 @@ client
     )
     .get().uri("/endpoint").exchange();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockOidcLogin()
+        .idToken { token -> token.claim("user_id", "1234") }
+    )
+    .get().uri("/endpoint").exchange()
+----
+====
 
 since `OidcUser` collects its claims from `OidcIdToken`.
 
@@ -283,7 +487,9 @@ That last one is handy if you:
 For example, let's say that your authorization server sends the principal name in the `user_name` claim instead of the `sub` claim.
 In that case, you can configure an `OidcUser` by hand:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 OidcUser oidcUser = new DefaultOidcUser(
         AuthorityUtils.createAuthorityList("SCOPE_message:read"),
@@ -295,6 +501,21 @@ client
     .get().uri("/endpoint").exchange();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val oidcUser: OidcUser = DefaultOidcUser(
+    AuthorityUtils.createAuthorityList("SCOPE_message:read"),
+    OidcIdToken.withTokenValue("id-token").claim("user_name", "foo_user").build(),
+    "user_name"
+)
+
+client
+    .mutateWith(mockOidcLogin().oidcUser(oidcUser))
+    .get().uri("/endpoint").exchange()
+----
+====
+
 [[webflux-testing-oauth2-login]]
 === Testing OAuth 2.0 Login
 
@@ -303,7 +524,9 @@ And because of that, Spring Security also has test support for non-OIDC use case
 
 Let's say that we've got a controller that gets the logged-in user as an `OAuth2User`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/endpoint")
 public Mono<String> foo(@AuthenticationPrincipal OAuth2User oauth2User) {
@@ -311,31 +534,71 @@ public Mono<String> foo(@AuthenticationPrincipal OAuth2User oauth2User) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(@AuthenticationPrincipal oauth2User: OAuth2User): Mono<String> {
+    return Mono.just(oauth2User.getAttribute("sub"))
+}
+----
+====
+
 In that case, we can tell Spring Security to include a default `OAuth2User` using the `SecurityMockServerConfigurers#oauth2User` method, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
     .mutateWith(mockOAuth2Login())
     .get().uri("/endpoint").exchange();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockOAuth2Login())
+    .get().uri("/endpoint").exchange()
+----
+====
+
 What this will do is configure the associated `MockServerRequest` with an `OAuth2User` that includes a simple `Map` of attributes and `Collection` of granted authorities.
 
 Specifically, it will include a `Map` with a key/value pair of `sub`/`user`:
 
-[source,json]
+====
+.Java
+[source,java,role="primary"]
 ----
 assertThat((String) user.getAttribute("sub")).isEqualTo("user");
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(user.getAttribute<String>("sub")).isEqualTo("user")
+----
+====
+
 and a `Collection` of authorities with just one authority, `SCOPE_read`:
 
-[source,json]
+====
+.Java
+[source,java,role="primary"]
 ----
 assertThat(user.getAuthorities()).hasSize(1);
 assertThat(user.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_read"));
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(user.authorities).hasSize(1)
+assertThat(user.authorities).containsExactly(SimpleGrantedAuthority("SCOPE_read"))
+----
+====
 
 Spring Security does the necessary work to make sure that the `OAuth2User` instance is available for <<mvc-authentication-principal,the `@AuthenticationPrincipal` annotation>>.
 
@@ -349,7 +612,9 @@ In many circumstances, your method is protected by filter or method security and
 
 In this case, you can supply what granted authorities you need using the `authorities()` method:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
     .mutateWith(mockOAuth2Login()
@@ -357,6 +622,17 @@ client
     )
     .get().uri("/endpoint").exchange();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockOAuth2Login()
+        .authorities(SimpleGrantedAuthority("SCOPE_message:read"))
+    )
+    .get().uri("/endpoint").exchange()
+----
+====
 
 [[webflux-testing-oauth2-login-claims]]
 ==== Configuring Claims
@@ -366,7 +642,9 @@ And while granted authorities are quite common across all of Spring Security, we
 Let's say, for example, that you've got a `user_id` attribute that indicates the user's id in your system.
 You might access it like so in a controller:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/endpoint")
 public Mono<String> foo(@AuthenticationPrincipal OAuth2User oauth2User) {
@@ -375,9 +653,22 @@ public Mono<String> foo(@AuthenticationPrincipal OAuth2User oauth2User) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(@AuthenticationPrincipal oauth2User: OAuth2User): Mono<String> {
+    val userId = oauth2User.getAttribute<String>("user_id")
+    // ...
+}
+----
+====
+
 In that case, you'd want to specify that attribute with the `attributes()` method:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
     .mutateWith(mockOAuth2Login()
@@ -385,6 +676,17 @@ client
     )
     .get().uri("/endpoint").exchange();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockOAuth2Login()
+        .attributes { attrs -> attrs["user_id"] = "1234" }
+    )
+    .get().uri("/endpoint").exchange()
+----
+====
 
 [[webflux-testing-oauth2-login-user]]
 ==== Additional Configurations
@@ -401,7 +703,9 @@ That last one is handy if you:
 For example, let's say that your authorization server sends the principal name in the `user_name` claim instead of the `sub` claim.
 In that case, you can configure an `OAuth2User` by hand:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 OAuth2User oauth2User = new DefaultOAuth2User(
         AuthorityUtils.createAuthorityList("SCOPE_message:read"),
@@ -413,13 +717,30 @@ client
     .get().uri("/endpoint").exchange();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val oauth2User: OAuth2User = DefaultOAuth2User(
+    AuthorityUtils.createAuthorityList("SCOPE_message:read"),
+    mapOf(Pair("user_name", "foo_user")),
+    "user_name"
+)
+
+client
+    .mutateWith(mockOAuth2Login().oauth2User(oauth2User))
+    .get().uri("/endpoint").exchange()
+----
+====
+
 [[webflux-testing-oauth2-client]]
 === Testing OAuth 2.0 Clients
 
 Independent of how your user authenticates, you may have other tokens and client registrations that are in play for the request you are testing.
 For example, your controller may be relying on the client credentials grant to get a token that isn't associated with the user at all:
 
-[source,json]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/endpoint")
 public Mono<String> foo(@RegisteredOAuth2AuthorizedClient("my-app") OAuth2AuthorizedClient authorizedClient) {
@@ -430,40 +751,97 @@ public Mono<String> foo(@RegisteredOAuth2AuthorizedClient("my-app") OAuth2Author
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.springframework.web.reactive.function.client.bodyToMono
+
+// ...
+
+@GetMapping("/endpoint")
+fun foo(@RegisteredOAuth2AuthorizedClient("my-app") authorizedClient: OAuth2AuthorizedClient?): Mono<String> {
+    return this.webClient.get()
+        .attributes(oauth2AuthorizedClient(authorizedClient))
+        .retrieve()
+        .bodyToMono()
+}
+----
+====
+
 Simulating this handshake with the authorization server could be cumbersome.
 Instead, you can use `SecurityMockServerConfigurers#oauth2Client` to add a `OAuth2AuthorizedClient` into a mock `ServerOAuth2AuthorizedClientRepository`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
     .mutateWith(mockOAuth2Client("my-app"))
     .get().uri("/endpoint").exchange();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockOAuth2Client("my-app"))
+    .get().uri("/endpoint").exchange()
+----
+====
+
 What this will do is create an `OAuth2AuthorizedClient` that has a simple `ClientRegistration`, `OAuth2AccessToken`, and resource owner name.
 
 Specifically, it will include a `ClientRegistration` with a client id of "test-client" and client secret of "test-secret":
 
-[source,json]
+====
+.Java
+[source,java,role="primary"]
 ----
 assertThat(authorizedClient.getClientRegistration().getClientId()).isEqualTo("test-client");
 assertThat(authorizedClient.getClientRegistration().getClientSecret()).isEqualTo("test-secret");
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(authorizedClient.clientRegistration.clientId).isEqualTo("test-client")
+assertThat(authorizedClient.clientRegistration.clientSecret).isEqualTo("test-secret")
+----
+====
+
 a resource owner name of "user":
 
-[source,json]
+====
+.Java
+[source,java,role="primary"]
 ----
 assertThat(authorizedClient.getPrincipalName()).isEqualTo("user");
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(authorizedClient.principalName).isEqualTo("user")
+----
+====
+
 and an `OAuth2AccessToken` with just one scope, `read`:
 
-[source,json]
+====
+.Java
+[source,java,role="primary"]
 ----
 assertThat(authorizedClient.getAccessToken().getScopes()).hasSize(1);
 assertThat(authorizedClient.getAccessToken().getScopes()).containsExactly("read");
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(authorizedClient.accessToken.scopes).hasSize(1)
+assertThat(authorizedClient.accessToken.scopes).containsExactly("read")
+----
+====
 
 The client can then be retrieved as normal using `@RegisteredOAuth2AuthorizedClient` in a controller method.
 
@@ -473,7 +851,9 @@ The client can then be retrieved as normal using `@RegisteredOAuth2AuthorizedCli
 In many circumstances, the OAuth 2.0 access token comes with a set of scopes.
 If your controller inspects these, say like so:
 
-[source,json]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/endpoint")
 public Mono<String> foo(@RegisteredOAuth2AuthorizedClient("my-app") OAuth2AuthorizedClient authorizedClient) {
@@ -488,9 +868,32 @@ public Mono<String> foo(@RegisteredOAuth2AuthorizedClient("my-app") OAuth2Author
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.springframework.web.reactive.function.client.bodyToMono
+
+// ...
+
+@GetMapping("/endpoint")
+fun foo(@RegisteredOAuth2AuthorizedClient("my-app") authorizedClient: OAuth2AuthorizedClient): Mono<String> {
+    val scopes = authorizedClient.accessToken.scopes
+    if (scopes.contains("message:read")) {
+        return webClient.get()
+            .attributes(oauth2AuthorizedClient(authorizedClient))
+            .retrieve()
+            .bodyToMono()
+    }
+    // ...
+}
+----
+====
+
 then you can configure the scope using the `accessToken()` method:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
     .mutateWith(mockOAuth2Client("my-app")
@@ -498,6 +901,17 @@ client
     )
     .get().uri("/endpoint").exchange();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockOAuth2Client("my-app")
+        .accessToken(OAuth2AccessToken(BEARER, "token", null, null, setOf("message:read")))
+)
+.get().uri("/endpoint").exchange()
+----
+====
 
 [[webflux-testing-oauth2-client-registration]]
 ==== Additional Configurations
@@ -514,7 +928,9 @@ For example, let's say that you are wanting to use one of your app's `ClientRegi
 
 In that case, your test can autowire the `ReactiveClientRegistrationRepository` and look up the one your test needs:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Autowired
 ReactiveClientRegistrationRepository clientRegistrationRepository;
@@ -527,6 +943,22 @@ client
     )
     .get().uri("/exchange").exchange();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Autowired
+lateinit var clientRegistrationRepository: ReactiveClientRegistrationRepository
+
+// ...
+
+client
+    .mutateWith(mockOAuth2Client()
+        .clientRegistration(this.clientRegistrationRepository.findByRegistrationId("facebook").block())
+    )
+    .get().uri("/exchange").exchange()
+----
+====
 
 [[webflux-testing-jwt]]
 === Testing JWT Authentication
@@ -543,11 +975,21 @@ We'll look at two of them now:
 The first way is via a `WebTestClientConfigurer`.
 The simplest of these would look something like this:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
     .mutateWith(mockJwt()).get().uri("/endpoint").exchange();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockJwt()).get().uri("/endpoint").exchange()
+----
+====
 
 What this will do is create a mock `Jwt`, passing it correctly through any authentication APIs so that it's available for your authorization mechanisms to verify.
 
@@ -566,18 +1008,31 @@ By default, the `JWT` that it creates has the following characteristics:
 
 And the resulting `Jwt`, were it tested, would pass in the following way:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 assertThat(jwt.getTokenValue()).isEqualTo("token");
 assertThat(jwt.getHeaders().get("alg")).isEqualTo("none");
 assertThat(jwt.getSubject()).isEqualTo("sub");
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(jwt.tokenValue).isEqualTo("token")
+assertThat(jwt.headers["alg"]).isEqualTo("none")
+assertThat(jwt.subject).isEqualTo("sub")
+----
+====
+
 These values can, of course be configured.
 
 Any headers or claims can be configured with their corresponding methods:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
 	.mutateWith(mockJwt().jwt(jwt -> jwt.header("kid", "one")
@@ -585,35 +1040,83 @@ client
 	.get().uri("/endpoint").exchange();
 ----
 
-[source,java]
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockJwt().jwt { jwt -> jwt.header("kid", "one")
+        .claim("iss", "https://idp.example.org")
+    })
+    .get().uri("/endpoint").exchange()
+----
+====
+
+====
+.Java
+[source,java,role="primary"]
 ----
 client
 	.mutateWith(mockJwt().jwt(jwt -> jwt.claims(claims -> claims.remove("scope"))))
 	.get().uri("/endpoint").exchange();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockJwt().jwt { jwt ->
+        jwt.claims { claims -> claims.remove("scope") }
+    })
+    .get().uri("/endpoint").exchange()
+----
+====
+
 The `scope` and `scp` claims are processed the same way here as they are in a normal bearer token request.
 However, this can be overridden simply by providing the list of `GrantedAuthority` instances that you need for your test:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
 	.mutateWith(mockJwt().authorities(new SimpleGrantedAuthority("SCOPE_messages")))
 	.get().uri("/endpoint").exchange();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockJwt().authorities(SimpleGrantedAuthority("SCOPE_messages")))
+    .get().uri("/endpoint").exchange()
+----
+====
+
 Or, if you have a custom `Jwt` to `Collection<GrantedAuthority>` converter, you can also use that to derive the authorities:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
 	.mutateWith(mockJwt().authorities(new MyConverter()))
 	.get().uri("/endpoint").exchange();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockJwt().authorities(MyConverter()))
+    .get().uri("/endpoint").exchange()
+----
+====
+
 You can also specify a complete `Jwt`, for which `{security-api-url}org/springframework/security/oauth2/jwt/Jwt.Builder.html[Jwt.Builder]` comes quite handy:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 Jwt jwt = Jwt.withTokenValue("token")
     .header("alg", "none")
@@ -626,12 +1129,29 @@ client
 	.get().uri("/endpoint").exchange();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val jwt: Jwt = Jwt.withTokenValue("token")
+    .header("alg", "none")
+    .claim("sub", "user")
+    .claim("scope", "read")
+    .build()
+
+client
+    .mutateWith(mockJwt().jwt(jwt))
+    .get().uri("/endpoint").exchange()
+----
+====
+
 ==== `authentication()` `WebTestClientConfigurer`
 
 The second way is by using the `authentication()` `Mutator`.
 Essentially, you can instantiate your own `JwtAuthenticationToken` and provide it in your test, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 Jwt jwt = Jwt.withTokenValue("token")
     .header("alg", "none")
@@ -645,6 +1165,22 @@ client
 	.get().uri("/endpoint").exchange();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val jwt = Jwt.withTokenValue("token")
+    .header("alg", "none")
+    .claim("sub", "user")
+    .build()
+val authorities: Collection<GrantedAuthority> = AuthorityUtils.createAuthorityList("SCOPE_read")
+val token = JwtAuthenticationToken(jwt, authorities)
+
+client
+    .mutateWith(mockAuthentication<JwtMutator>(token))
+    .get().uri("/endpoint").exchange()
+----
+====
+
 Note that as an alternative to these, you can also mock the `ReactiveJwtDecoder` bean itself with a `@MockBean` annotation.
 
 [[webflux-testing-opaque-token]]
@@ -655,7 +1191,9 @@ To help with that, Spring Security has test support for opaque tokens.
 
 Let's say that we've got a controller that retrieves the authentication as a `BearerTokenAuthentication`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/endpoint")
 public Mono<String> foo(BearerTokenAuthentication authentication) {
@@ -663,31 +1201,71 @@ public Mono<String> foo(BearerTokenAuthentication authentication) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(authentication: BearerTokenAuthentication): Mono<String?> {
+    return Mono.just(authentication.tokenAttributes["sub"] as String?)
+}
+----
+====
+
 In that case, we can tell Spring Security to include a default `BearerTokenAuthentication` using the `SecurityMockServerConfigurers#opaqueToken` method, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
     .mutateWith(mockOpaqueToken())
     .get().uri("/endpoint").exchange();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockOpaqueToken())
+    .get().uri("/endpoint").exchange()
+----
+====
+
 What this will do is configure the associated `MockHttpServletRequest` with a `BearerTokenAuthentication` that includes a simple `OAuth2AuthenticatedPrincipal`, `Map` of attributes, and `Collection` of granted authorities.
 
 Specifically, it will include a `Map` with a key/value pair of `sub`/`user`:
 
-[source,json]
+====
+.Java
+[source,java,role="primary"]
 ----
 assertThat((String) token.getTokenAttributes().get("sub")).isEqualTo("user");
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(token.tokenAttributes["sub"] as String?).isEqualTo("user")
+----
+====
+
 and a `Collection` of authorities with just one authority, `SCOPE_read`:
 
-[source,json]
+====
+.Java
+[source,java,role="primary"]
 ----
 assertThat(token.getAuthorities()).hasSize(1);
 assertThat(token.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_read"));
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(token.authorities).hasSize(1)
+assertThat(token.authorities).containsExactly(SimpleGrantedAuthority("SCOPE_read"))
+----
+====
 
 Spring Security does the necessary work to make sure that the `BearerTokenAuthentication` instance is available for your controller methods.
 
@@ -698,7 +1276,9 @@ In many circumstances, your method is protected by filter or method security and
 
 In this case, you can supply what granted authorities you need using the `authorities()` method:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
     .mutateWith(mockOpaqueToken()
@@ -706,6 +1286,17 @@ client
     )
     .get().uri("/endpoint").exchange();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockOpaqueToken()
+        .authorities(SimpleGrantedAuthority("SCOPE_message:read"))
+    )
+    .get().uri("/endpoint").exchange()
+----
+====
 
 [[webflux-testing-opaque-token-attributes]]
 ==== Configuring Claims
@@ -715,7 +1306,9 @@ And while granted authorities are quite common across all of Spring Security, we
 Let's say, for example, that you've got a `user_id` attribute that indicates the user's id in your system.
 You might access it like so in a controller:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/endpoint")
 public Mono<String> foo(BearerTokenAuthentication authentication) {
@@ -724,9 +1317,22 @@ public Mono<String> foo(BearerTokenAuthentication authentication) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(authentication: BearerTokenAuthentication): Mono<String?> {
+    val userId = authentication.tokenAttributes["user_id"] as String?
+    // ...
+}
+----
+====
+
 In that case, you'd want to specify that attribute with the `attributes()` method:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 client
     .mutateWith(mockOpaqueToken()
@@ -734,6 +1340,17 @@ client
     )
     .get().uri("/endpoint").exchange();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockOpaqueToken()
+        .attributes { attrs -> attrs["user_id"] = "1234" }
+    )
+    .get().uri("/endpoint").exchange()
+----
+====
 
 [[webflux-testing-opaque-token-principal]]
 ==== Additional Configurations
@@ -749,7 +1366,9 @@ It's handy if you:
 For example, let's say that your authorization server sends the principal name in the `user_name` attribute instead of the `sub` attribute.
 In that case, you can configure an `OAuth2AuthenticatedPrincipal` by hand:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 Map<String, Object> attributes = Collections.singletonMap("user_name", "foo_user");
 OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(
@@ -761,5 +1380,21 @@ client
     .mutateWith(mockOpaqueToken().principal(principal))
     .get().uri("/endpoint").exchange();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val attributes: Map<String, Any> = mapOf(Pair("user_name", "foo_user"))
+val principal: OAuth2AuthenticatedPrincipal = DefaultOAuth2AuthenticatedPrincipal(
+    attributes["user_name"] as String?,
+    attributes,
+    AuthorityUtils.createAuthorityList("SCOPE_message:read")
+)
+
+client
+    .mutateWith(mockOpaqueToken().principal(principal))
+    .get().uri("/endpoint").exchange()
+----
+====
 
 Note that as an alternative to using `mockOpaqueToken()` test support, you can also mock the `OpaqueTokenIntrospector` bean itself with a `@MockBean` annotation.

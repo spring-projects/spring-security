@@ -4,7 +4,9 @@
 Similar to <<servlet-x509,Servlet X.509 authentication>>, reactive x509 authentication filter allows extracting an authentication token from a certificate provided by a client.
 
 Below is an example of a reactive x509 security configuration:
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -17,11 +19,28 @@ public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        x509 { }
+        authorizeExchange {
+            authorize(anyExchange, authenticated)
+        }
+    }
+}
+----
+====
+
 In the configuration above, when neither `principalExtractor` nor `authenticationManager` is provided defaults will be used. The default principal extractor is `SubjectDnX509PrincipalExtractor` which extracts the CN (common name) field from a certificate provided by a client. The default authentication manager is `ReactivePreAuthenticatedAuthenticationManager` which performs user account validation, checking that user account with a name extracted by `principalExtractor` exists and it is not locked, disabled, or expired.
 
 The next example demonstrates how these defaults can be overridden.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -46,6 +65,30 @@ public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 	return http.build();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain? {
+    val customPrincipalExtractor = SubjectDnX509PrincipalExtractor()
+    customPrincipalExtractor.setSubjectDnRegex("OU=(.*?)(?:,|$)")
+    val customAuthenticationManager = ReactiveAuthenticationManager { authentication: Authentication ->
+        authentication.isAuthenticated = "Trusted Org Unit" == authentication.name
+        Mono.just(authentication)
+    }
+    return http {
+        x509 {
+            principalExtractor = customPrincipalExtractor
+            authenticationManager = customAuthenticationManager
+        }
+        authorizeExchange {
+            authorize(anyExchange, authenticated)
+        }
+    }
+}
+----
+====
 
 In this example, a username is extracted from the OU field of a client certificate instead of CN, and account lookup using `ReactiveUserDetailsService` is not performed at all. Instead, if the provided certificate issued to an OU named "Trusted Org Unit", a request will be authenticated.
 

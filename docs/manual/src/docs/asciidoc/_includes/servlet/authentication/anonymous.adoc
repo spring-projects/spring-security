@@ -108,7 +108,9 @@ https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc
 
 This means that a construct like this one:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/")
 public String method(Authentication authentication) {
@@ -119,6 +121,20 @@ public String method(Authentication authentication) {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/")
+fun method(authentication: Authentication?): String {
+    return if (authentication is AnonymousAuthenticationToken) {
+        "anonymous"
+    } else {
+        "not anonymous"
+    }
+}
+----
+====
 
 will always return "not anonymous", even for anonymous requests.
 The reason is that Spring MVC resolves the parameter using `HttpServletRequest#getPrincipal`, which is `null` when the request is anonymous.
