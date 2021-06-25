@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,9 +69,6 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
-	@Autowired
-	MockMvc mockMvc;
-
 	@Test
 	// SEC-1225
 	public void providersAreRegisteredAsTopLevelBeans() {
@@ -118,6 +115,9 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 		ProviderManager pm = (ProviderManager) appContext.getBeansOfType(ProviderManager.class).values().toArray()[0];
 		assertThat(pm.isEraseCredentialsAfterAuthentication()).isFalse();
 	}
+
+	@Autowired
+	MockMvc mockMvc;
 
 	@Test
 	public void passwordEncoderBeanUsed() throws Exception {

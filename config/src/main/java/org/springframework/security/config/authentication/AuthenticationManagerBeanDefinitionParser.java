@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
@@ -58,7 +57,7 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 
 	private static final String ATT_ERASE_CREDENTIALS = "erase-credentials";
 
-	private static final String AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME = "authenticationEventPublisher";
+	private static final String AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME = "defaultAuthenticationEventPublisher";
 
 	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
@@ -92,9 +91,8 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 
 		if (!pc.getRegistry().containsBeanDefinition(AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME)) {
 			// Add the default event publisher to the context
-			GenericBeanDefinition publisher = new GenericBeanDefinition();
-			publisher.setBeanClass(DefaultAuthenticationEventPublisher.class);
-			pc.getRegistry().registerBeanDefinition(AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME, publisher);
+			BeanDefinition publisher = new RootBeanDefinition(DefaultAuthenticationEventPublisher.class);
+			pc.registerBeanComponent(new BeanComponentDefinition(publisher, AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME));
 		}
 
 		providerManagerBldr.addPropertyReference("authenticationEventPublisher",
