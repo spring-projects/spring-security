@@ -133,6 +133,7 @@ import org.springframework.security.web.server.authorization.AuthorizationContex
 import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
 import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
 import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
+import org.springframework.security.web.server.authorization.IpAddressReactiveAuthorizationManager;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import org.springframework.security.web.server.authorization.ServerWebExchangeDelegatingServerAccessDeniedHandler;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
@@ -1680,6 +1681,17 @@ public class ServerHttpSecurity {
 			 */
 			public AuthorizeExchangeSpec authenticated() {
 				return access(AuthenticatedReactiveAuthorizationManager.authenticated());
+			}
+
+			/**
+			 * Require a specific IP address or range using an IP/Netmask (e.g.
+			 * 192.168.1.0/24).
+			 * @param ipAddress the address or range of addresses from which the request
+			 * must come.
+			 * @return the {@link AuthorizeExchangeSpec} to configure
+			 */
+			public AuthorizeExchangeSpec hasIpAddress(String ipAddress) {
+				return access(IpAddressReactiveAuthorizationManager.hasIpAddress(ipAddress));
 			}
 
 			/**
