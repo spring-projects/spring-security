@@ -230,26 +230,26 @@ In that case, you can register your own `AuthnRequestMarshaller`, like so:
 [source,java,role="primary"]
 ----
 static {
-	OpenSamlInitializationService.requireInitialize(factory -> {
-		AuthnRequestMarshaller marshaller = new AuthnRequestMarshaller() {
-			@Override
+    OpenSamlInitializationService.requireInitialize(factory -> {
+        AuthnRequestMarshaller marshaller = new AuthnRequestMarshaller() {
+            @Override
             public Element marshall(XMLObject object, Element element) throws MarshallingException {
-				configureAuthnRequest((AuthnRequest) object);
-				return super.marshall(object, element);
+                configureAuthnRequest((AuthnRequest) object);
+                return super.marshall(object, element);
             }
 
             public Element marshall(XMLObject object, Document document) throws MarshallingException {
-				configureAuthnRequest((AuthnRequest) object);
-				return super.marshall(object, document);
+                configureAuthnRequest((AuthnRequest) object);
+                return super.marshall(object, document);
             }
 
             private void configureAuthnRequest(AuthnRequest authnRequest) {
-				authnRequest.setForceAuthn(true);
+                authnRequest.setForceAuthn(true);
             }
-		}
+        }
 
-	    factory.getMarshallerFactory().registerMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME, marshaller);
-	});
+        factory.getMarshallerFactory().registerMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME, marshaller);
+    });
 }
 ----
 
@@ -379,7 +379,7 @@ String assertingPartyMetadataLocation;
 
 @Bean
 public RelyingPartyRegistrationRepository relyingPartyRegistrations() {
-	RelyingPartyRegistration registration = RelyingPartyRegistrations
+    RelyingPartyRegistration registration = RelyingPartyRegistrations
             .fromMetadataLocation(assertingPartyMetadataLocation)
             .registrationId("example")
             .build();
@@ -641,9 +641,9 @@ the `CertificateFactory` like so:
 ----
 Resource resource = new ClassPathResource("ap.crt");
 try (InputStream is = resource.getInputStream()) {
-	X509Certificate certificate = (X509Certificate)
+    X509Certificate certificate = (X509Certificate)
             CertificateFactory.getInstance("X.509").generateCertificate(is);
-	return Saml2X509Credential.verification(certificate);
+    return Saml2X509Credential.verification(certificate);
 }
 ----
 
@@ -672,8 +672,8 @@ You can load the first using Spring Security's `RsaKeyConverters` utility class 
 X509Certificate certificate = relyingPartyDecryptionCertificate();
 Resource resource = new ClassPathResource("rp.crt");
 try (InputStream is = resource.getInputStream()) {
-	RSAPrivateKey rsa = RsaKeyConverters.pkcs8().convert(is);
-	return Saml2X509Credential.decryption(rsa, certificate);
+    RSAPrivateKey rsa = RsaKeyConverters.pkcs8().convert(is);
+    return Saml2X509Credential.decryption(rsa, certificate);
 }
 ----
 
@@ -714,9 +714,9 @@ You can provide a simpler resolver that, for example, always returns the same re
 public class SingleRelyingPartyRegistrationResolver
         implements Converter<HttpServletRequest, RelyingPartyRegistration> {
 
-	@Override
+    @Override
     public RelyingPartyRegistration convert(HttpServletRequest request) {
-		return this.relyingParty;
+        return this.relyingParty;
     }
 }
 ----
@@ -781,9 +781,9 @@ Third, in Java, you can create a custom configuration method, like so:
 private RelyingPartyRegistration.Builder
         addRelyingPartyDetails(RelyingPartyRegistration.Builder builder) {
 
-	Saml2X509Credential signingCredential = ...
-	builder.signingX509Credentials(c -> c.addAll(signingCredential));
-	// ... other relying party configurations
+    Saml2X509Credential signingCredential = ...
+    builder.signingX509Credentials(c -> c.addAll(signingCredential));
+    // ... other relying party configurations
 }
 
 @Bean
@@ -992,26 +992,26 @@ But, if you do need something from the request, then you can use create a custom
 public class AuthnRequestConverter implements
         Converter<MySaml2AuthenticationRequestContext, AuthnRequest> {
 
-	private final AuthnRequestBuilder authnRequestBuilder;
-	private final IssuerBuilder issuerBuilder;
+    private final AuthnRequestBuilder authnRequestBuilder;
+    private final IssuerBuilder issuerBuilder;
 
-	// ... constructor
+    // ... constructor
 
-	public AuthnRequest convert(Saml2AuthenticationRequestContext context) {
-		MySaml2AuthenticationRequestContext myContext = (MySaml2AuthenticationRequestContext) context;
-		Issuer issuer = issuerBuilder.buildObject();
-		issuer.setValue(myContext.getIssuer());
+    public AuthnRequest convert(Saml2AuthenticationRequestContext context) {
+        MySaml2AuthenticationRequestContext myContext = (MySaml2AuthenticationRequestContext) context;
+        Issuer issuer = issuerBuilder.buildObject();
+        issuer.setValue(myContext.getIssuer());
 
-		AuthnRequest authnRequest = authnRequestBuilder.buildObject();
-		authnRequest.setIssuer(issuer);
+        AuthnRequest authnRequest = authnRequestBuilder.buildObject();
+        authnRequest.setIssuer(issuer);
         authnRequest.setDestination(myContext.getDestination());
-		authnRequest.setAssertionConsumerServiceURL(myContext.getAssertionConsumerServiceUrl());
+        authnRequest.setAssertionConsumerServiceURL(myContext.getAssertionConsumerServiceUrl());
 
-		// ... additional settings
+        // ... additional settings
 
-		authRequest.setForceAuthn(myContext.getForceAuthn());
-		return authnRequest;
-	}
+        authRequest.setForceAuthn(myContext.getForceAuthn());
+        return authnRequest;
+    }
 }
 ----
 
@@ -1049,22 +1049,22 @@ Then, you can construct your own `Saml2AuthenticationRequestContextResolver` and
 ----
 @Bean
 Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver() {
-	Saml2AuthenticationRequestContextResolver resolver =
+    Saml2AuthenticationRequestContextResolver resolver =
             new DefaultSaml2AuthenticationRequestContextResolver();
-	return request -> {
+    return request -> {
         Saml2AuthenticationRequestContext context = resolver.resolve(request);
         return new MySaml2AuthenticationRequestContext(context, request.getParameter("force") != null);
-	};
+    };
 }
 
 @Bean
 Saml2AuthenticationRequestFactory authenticationRequestFactory(
-		AuthnRequestConverter authnRequestConverter) {
+        AuthnRequestConverter authnRequestConverter) {
 
-	OpenSamlAuthenticationRequestFactory authenticationRequestFactory =
+    OpenSamlAuthenticationRequestFactory authenticationRequestFactory =
             new OpenSamlAuthenticationRequestFactory();
-	authenticationRequestFactory.setAuthenticationRequestContextConverter(authnRequestConverter);
-	return authenticationRequestFactory;
+    authenticationRequestFactory.setAuthenticationRequestContextConverter(authnRequestConverter);
+    return authenticationRequestFactory;
 }
 ----
 
@@ -1126,11 +1126,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         OpenSamlAuthenticationProvider authenticationProvider = new OpenSamlAuthenticationProvider();
         authenticationProvider.setAssertionValidator(OpenSamlAuthenticationProvider
                 .createDefaultAssertionValidator(assertionToken -> {
-        			Map<String, Object> params = new HashMap<>();
-        			params.put(CLOCK_SKEW, Duration.ofMinutes(10).toMillis());
-        			// ... other validation parameters
-        			return new ValidationContext(params);
-        		})
+                    Map<String, Object> params = new HashMap<>();
+                    params.put(CLOCK_SKEW, Duration.ofMinutes(10).toMillis());
+                    // ... other validation parameters
+                    return new ValidationContext(params);
+                })
         );
 
         http
@@ -1192,10 +1192,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         OpenSamlAuthenticationProvider authenticationProvider = new OpenSamlAuthenticationProvider();
         authenticationProvider.setResponseAuthenticationConverter(responseToken -> {
-        	Saml2Authentication authentication = OpenSamlAuthenticationProvider
+            Saml2Authentication authentication = OpenSamlAuthenticationProvider
                     .createDefaultResponseAuthenticationConverter() <1>
                     .convert(responseToken);
-        	Assertion assertion = responseToken.getResponse().getAssertions().get(0);
+            Assertion assertion = responseToken.getResponse().getAssertions().get(0);
             String username = assertion.getSubject().getNameID().getValue();
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username); <2>
             return MySaml2Authentication(userDetails, authentication); <3>
@@ -1279,11 +1279,11 @@ provider.setAssertionValidator(assertionToken -> {
     OneTimeUse oneTimeUse = assertion.getConditions().getOneTimeUse();
     ValidationContext context = new ValidationContext();
     try {
-    	if (validator.validate(oneTimeUse, assertion, context) == ValidationResult.VALID) {
-    		return result;
-    	}
+        if (validator.validate(oneTimeUse, assertion, context) == ValidationResult.VALID) {
+            return result;
+        }
     } catch (Exception e) {
-    	return result.concat(new Saml2Error(INVALID_ASSERTION, e.getMessage()));
+        return result.concat(new Saml2Error(INVALID_ASSERTION, e.getMessage()));
     }
     return result.concat(new Saml2Error(INVALID_ASSERTION, context.getValidationFailureMessage()));
 });
@@ -1470,7 +1470,7 @@ You can publish a metadata endpoint by adding the `Saml2MetadataFilter` to the f
 Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver =
         new DefaultRelyingPartyRegistrationResolver(this.relyingPartyRegistrationRepository);
 Saml2MetadataFilter filter = new Saml2MetadataFilter(
-		relyingPartyRegistrationResolver,
+        relyingPartyRegistrationResolver,
         new OpenSamlMetadataResolver());
 
 http
