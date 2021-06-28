@@ -63,6 +63,7 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
+import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
@@ -76,9 +77,11 @@ import org.springframework.security.saml2.provider.service.authentication.TestSa
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
+import org.springframework.security.saml2.provider.service.servlet.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
@@ -237,6 +240,29 @@ public class Saml2LoginConfigurerTests {
 		assertThat(exception.getCause()).isInstanceOf(IOException.class);
 	}
 
+	@Test
+	public void authenticationRequestWhenCustomAuthnRequestRepositoryThenUses() throws Exception {
+		this.spring.register(CustomAuthenticationRequestRepository.class).autowire();
+		MockHttpServletRequestBuilder request = get("/saml2/authenticate/registration-id");
+		this.mvc.perform(request).andExpect(status().isFound());
+		Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> repository = this.spring.getContext()
+				.getBean(Saml2AuthenticationRequestRepository.class);
+		verify(repository).saveAuthenticationRequest(any(AbstractSaml2AuthenticationRequest.class),
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
+	@Test
+	public void authenticateWhenCustomAuthnRequestRepositoryThenUses() throws Exception {
+		this.spring.register(CustomAuthenticationRequestRepository.class).autowire();
+		MockHttpServletRequestBuilder request = post("/login/saml2/sso/registration-id").param("SAMLResponse",
+				SIGNED_RESPONSE);
+		Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> repository = this.spring.getContext()
+				.getBean(Saml2AuthenticationRequestRepository.class);
+		this.mvc.perform(request);
+		verify(repository).loadAuthenticationRequest(any(HttpServletRequest.class));
+		verify(repository).removeAuthenticationRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
 	private void validateSaml2WebSsoAuthenticationFilterConfiguration() {
 		// get the OpenSamlAuthenticationProvider
 		Saml2WebSsoAuthenticationFilter filter = getSaml2SsoFilter(this.springSecurityFilterChain);
@@ -371,7 +397,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		Saml2AuthenticationRequestContextResolver resolver() {
-			return resolver;
+			return this.resolver;
 		}
 
 	}
@@ -416,6 +442,27 @@ public class Saml2LoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			http.authorizeRequests((authz) -> authz.anyRequest().authenticated())
 					.saml2Login((saml2) -> saml2.authenticationConverter(authenticationConverter));
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
+	static class CustomAuthenticationRequestRepository {
+
+		private static final Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> repository = mock(
+				Saml2AuthenticationRequestRepository.class);
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			http.authorizeRequests((authz) -> authz.anyRequest().authenticated());
+			http.saml2Login(withDefaults());
+			return http.build();
+		}
+
+		@Bean
+		Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository() {
+			return this.repository;
 		}
 
 	}
