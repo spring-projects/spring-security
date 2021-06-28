@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
@@ -54,6 +55,17 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 			+ "</authentication-manager>";
 	// @formatter:on
 
+	// Issue #7282
+	// @formatter:off
+	private static final String CONTEXT_MULTI = "<authentication-manager id='amSecondary'>"
+			+ "    <authentication-provider>"
+			+ "        <user-service>"
+			+ "            <user name='john' password='{noop}doe' authorities='ROLE_C,ROLE_D' />"
+			+ "        </user-service>"
+			+ "    </authentication-provider>"
+			+ "</authentication-manager>";
+	// @formatter:on
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -62,6 +74,18 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 	public void providersAreRegisteredAsTopLevelBeans() {
 		ConfigurableApplicationContext context = this.spring.context(CONTEXT).getContext();
 		assertThat(context.getBeansOfType(AuthenticationProvider.class)).hasSize(1);
+	}
+
+	@Test
+	public void eventPublishersAreRegisteredAsTopLevelBeans() {
+		ConfigurableApplicationContext context = this.spring.context(CONTEXT).getContext();
+		assertThat(context.getBeansOfType(AuthenticationEventPublisher.class)).hasSize(1);
+	}
+
+	@Test
+	public void onlyOneEventPublisherIsRegisteredForMultipleAuthenticationManagers() {
+		ConfigurableApplicationContext context = this.spring.context(CONTEXT + '\n' + CONTEXT_MULTI).getContext();
+		assertThat(context.getBeansOfType(AuthenticationEventPublisher.class)).hasSize(1);
 	}
 
 	@Test

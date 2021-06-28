@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,8 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 
 	private static final String ATT_ERASE_CREDENTIALS = "erase-credentials";
 
+	private static final String AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME = "defaultAuthenticationEventPublisher";
+
 	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		String id = element.getAttribute("id");
@@ -86,11 +88,15 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 		if ("false".equals(element.getAttribute(ATT_ERASE_CREDENTIALS))) {
 			providerManagerBldr.addPropertyValue("eraseCredentialsAfterAuthentication", false);
 		}
-		// Add the default event publisher
-		BeanDefinition publisher = new RootBeanDefinition(DefaultAuthenticationEventPublisher.class);
-		String pubId = pc.getReaderContext().generateBeanName(publisher);
-		pc.registerBeanComponent(new BeanComponentDefinition(publisher, pubId));
-		providerManagerBldr.addPropertyReference("authenticationEventPublisher", pubId);
+
+		if (!pc.getRegistry().containsBeanDefinition(AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME)) {
+			// Add the default event publisher to the context
+			BeanDefinition publisher = new RootBeanDefinition(DefaultAuthenticationEventPublisher.class);
+			pc.registerBeanComponent(new BeanComponentDefinition(publisher, AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME));
+		}
+
+		providerManagerBldr.addPropertyReference("authenticationEventPublisher",
+				AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME);
 		pc.registerBeanComponent(new BeanComponentDefinition(providerManagerBldr.getBeanDefinition(), id));
 		if (StringUtils.hasText(alias)) {
 			pc.getRegistry().registerAlias(id, alias);
