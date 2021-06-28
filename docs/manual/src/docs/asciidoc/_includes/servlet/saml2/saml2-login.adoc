@@ -1610,3 +1610,33 @@ http {
 The success handler will send logout requests to the asserting party.
 
 The request matcher will detect logout requests from the asserting party.
+
+[[servlet-saml2login-store-authn-request]]
+=== Storing the `AuthnRequest`
+
+The `Saml2AuthenticationRequestRepository` is responsible for the persistence of the `AuthnRequest` from the time the `AuthnRequest` <<servlet-saml2login-sp-initiated-factory,is initiated>> to the time the `SAMLResponse` <<servlet-saml2login-authenticate-responses,is received>>.
+The `Saml2AuthenticationTokenConverter` is responsible for loading the `AuthnRequest` from the `Saml2AuthenticationRequestRepository` and saving it into the `Saml2AuthenticationToken`.
+
+The default implementation of `Saml2AuthenticationRequestRepository` is `HttpSessionSaml2AuthenticationRequestRepository`, which stores the `AuthnRequest` in the `HttpSession`.
+
+If you have a custom implementation of `Saml2AuthenticationRequestRepository`, you may configure it by exposing it as a `@Bean` as shown in the following example:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository() {
+	return new CustomSaml2AuthenticationRequestRepository();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun authenticationRequestRepository(): Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> {
+    return CustomSaml2AuthenticationRequestRepository()
+}
+----
+====

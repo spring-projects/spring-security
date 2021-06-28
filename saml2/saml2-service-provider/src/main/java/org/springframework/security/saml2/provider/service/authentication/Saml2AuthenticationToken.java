@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,32 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 
 	private final String saml2Response;
 
+	private final AbstractSaml2AuthenticationRequest authenticationRequest;
+
+	/**
+	 * Creates a {@link Saml2AuthenticationToken} with the provided parameters.
+	 *
+	 * Note that the given {@link RelyingPartyRegistration} should have all its templates
+	 * resolved at this point. See
+	 * {@link org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter}
+	 * for an example of performing that resolution.
+	 * @param relyingPartyRegistration the resolved {@link RelyingPartyRegistration} to
+	 * use
+	 * @param saml2Response the SAML 2.0 response to authenticate
+	 * @param authenticationRequest the {@code AuthNRequest} sent to the asserting party
+	 *
+	 * @since 5.6
+	 */
+	public Saml2AuthenticationToken(RelyingPartyRegistration relyingPartyRegistration, String saml2Response,
+			AbstractSaml2AuthenticationRequest authenticationRequest) {
+		super(Collections.emptyList());
+		Assert.notNull(relyingPartyRegistration, "relyingPartyRegistration cannot be null");
+		Assert.notNull(saml2Response, "saml2Response cannot be null");
+		this.relyingPartyRegistration = relyingPartyRegistration;
+		this.saml2Response = saml2Response;
+		this.authenticationRequest = authenticationRequest;
+	}
+
 	/**
 	 * Creates a {@link Saml2AuthenticationToken} with the provided parameters
 	 *
@@ -52,11 +78,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	 * @since 5.4
 	 */
 	public Saml2AuthenticationToken(RelyingPartyRegistration relyingPartyRegistration, String saml2Response) {
-		super(Collections.emptyList());
-		Assert.notNull(relyingPartyRegistration, "relyingPartyRegistration cannot be null");
-		Assert.notNull(saml2Response, "saml2Response cannot be null");
-		this.relyingPartyRegistration = relyingPartyRegistration;
-		this.saml2Response = saml2Response;
+		this(relyingPartyRegistration, saml2Response, null);
 	}
 
 	/**
@@ -81,6 +103,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 						.entityId(idpEntityId).singleSignOnServiceLocation(idpEntityId))
 				.build();
 		this.saml2Response = saml2Response;
+		this.authenticationRequest = null;
 	}
 
 	/**
@@ -177,6 +200,16 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	@Deprecated
 	public String getIdpEntityId() {
 		return this.relyingPartyRegistration.getAssertingPartyDetails().getEntityId();
+	}
+
+	/**
+	 * Returns the authentication request sent to the assertion party or {@code null} if
+	 * no authentication request is present
+	 * @return the authentication request sent to the assertion party
+	 * @since 5.6
+	 */
+	public AbstractSaml2AuthenticationRequest getAuthenticationRequest() {
+		return this.authenticationRequest;
 	}
 
 }

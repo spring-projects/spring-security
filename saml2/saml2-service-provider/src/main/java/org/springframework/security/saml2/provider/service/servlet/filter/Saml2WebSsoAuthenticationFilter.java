@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
+import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.saml2.provider.service.servlet.HttpSessionSaml2AuthenticationRequestRepository;
+import org.springframework.security.saml2.provider.service.servlet.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -41,6 +44,8 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/saml2/sso/{registrationId}";
 
 	private final AuthenticationConverter authenticationConverter;
+
+	private Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository = new HttpSessionSaml2AuthenticationRequestRepository();
 
 	/**
 	 * Creates a {@code Saml2WebSsoAuthenticationFilter} authentication filter that is
@@ -100,7 +105,33 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 					"No relying party registration found");
 			throw new Saml2AuthenticationException(saml2Error);
 		}
+		this.authenticationRequestRepository.removeAuthenticationRequest(request, response);
 		return getAuthenticationManager().authenticate(authentication);
+	}
+
+	/**
+	 * Use the given {@link Saml2AuthenticationRequestRepository} to remove the saved
+	 * authentication request. If the {@link #authenticationConverter} is of the type
+	 * {@link Saml2AuthenticationTokenConverter}, the
+	 * {@link Saml2AuthenticationRequestRepository} will also be set into the
+	 * {@link #authenticationConverter}.
+	 * @param authenticationRequestRepository the
+	 * {@link Saml2AuthenticationRequestRepository} to use
+	 * @since 5.6
+	 */
+	public void setAuthenticationRequestRepository(
+			Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository) {
+		Assert.notNull(authenticationRequestRepository, "authenticationRequestRepository cannot be null");
+		this.authenticationRequestRepository = authenticationRequestRepository;
+		setAuthenticationRequestRepositoryIntoAuthenticationConverter(authenticationRequestRepository);
+	}
+
+	private void setAuthenticationRequestRepositoryIntoAuthenticationConverter(
+			Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository) {
+		if (this.authenticationConverter instanceof Saml2AuthenticationTokenConverter) {
+			Saml2AuthenticationTokenConverter authenticationTokenConverter = (Saml2AuthenticationTokenConverter) this.authenticationConverter;
+			authenticationTokenConverter.setAuthenticationRequestRepository(authenticationRequestRepository);
+		}
 	}
 
 }
