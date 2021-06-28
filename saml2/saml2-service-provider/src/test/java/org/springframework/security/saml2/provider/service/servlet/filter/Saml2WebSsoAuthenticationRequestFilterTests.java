@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.saml2.credentials.TestSaml2X509Credentials;
+import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
@@ -36,6 +37,7 @@ import org.springframework.security.saml2.provider.service.authentication.TestSa
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.security.saml2.provider.service.servlet.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriUtils;
@@ -43,6 +45,7 @@ import org.springframework.web.util.UriUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -59,6 +62,9 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	private Saml2AuthenticationRequestFactory factory = mock(Saml2AuthenticationRequestFactory.class);
 
 	private Saml2AuthenticationRequestContextResolver resolver = mock(Saml2AuthenticationRequestContextResolver.class);
+
+	private Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository = mock(
+			Saml2AuthenticationRequestRepository.class);
 
 	private MockHttpServletRequest request;
 
@@ -79,6 +85,7 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 				.providerDetails((c) -> c.entityId("idp-entity-id")).providerDetails((c) -> c.webSsoUrl(IDP_SSO_URL))
 				.assertionConsumerServiceUrlTemplate("template")
 				.credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartyPrivateCredential()));
+		this.filter.setAuthenticationRequestRepository(this.authenticationRequestRepository);
 	}
 
 	@Test
@@ -214,6 +221,39 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 				this.factory);
 		filter.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getStatus()).isEqualTo(401);
+	}
+
+	@Test
+	public void setAuthenticationRequestRepositoryWhenNullThenException() {
+		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(this.resolver,
+				this.factory);
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setAuthenticationRequestRepository(null));
+	}
+
+	@Test
+	public void doFilterWhenRedirectThenSaveRedirectRequest() throws ServletException, IOException {
+		Saml2AuthenticationRequestContext context = authenticationRequestContext().build();
+		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest(context).build();
+		given(this.resolver.resolve(any())).willReturn(context);
+		given(this.factory.createRedirectAuthenticationRequest(any())).willReturn(request);
+		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
+		verify(this.authenticationRequestRepository).saveAuthenticationRequest(
+				any(Saml2RedirectAuthenticationRequest.class), eq(this.request), eq(this.response));
+	}
+
+	@Test
+	public void doFilterWhenPostThenSaveRedirectRequest() throws ServletException, IOException {
+		RelyingPartyRegistration registration = this.rpBuilder
+				.assertingPartyDetails((asserting) -> asserting.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+				.build();
+		Saml2AuthenticationRequestContext context = authenticationRequestContext()
+				.relyingPartyRegistration(registration).build();
+		Saml2PostAuthenticationRequest request = postAuthenticationRequest(context).build();
+		given(this.resolver.resolve(any())).willReturn(context);
+		given(this.factory.createPostAuthenticationRequest(any())).willReturn(request);
+		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
+		verify(this.authenticationRequestRepository).saveAuthenticationRequest(
+				any(Saml2PostAuthenticationRequest.class), eq(this.request), eq(this.response));
 	}
 
 }
