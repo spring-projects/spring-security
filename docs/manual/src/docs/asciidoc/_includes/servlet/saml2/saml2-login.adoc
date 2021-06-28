@@ -154,6 +154,12 @@ Instead, classes like `OpenSaml4AuthenticationRequestFactory` and `OpenSaml4Auth
 
 For example, once your application receives a `SAMLResponse` and delegates to `Saml2WebSsoAuthenticationFilter`, the filter will delegate to `OpenSaml4AuthenticationProvider`.
 
+[NOTE]
+For backward compatibility, Spring Security will use the latest OpenSAML 3 by default.
+Note, though that OpenSAML 3 has reached it's end-of-life and updating to OpenSAML 4.x is recommended.
+For that reason, Spring Security supports both OpenSAML 3.x and 4.x.
+If you manage your OpenSAML dependency to 4.x, then Spring Security will select its OpenSAML 4.x implementations.
+
 .Authenticating an OpenSAML `Response`
 image:{figures}/opensamlauthenticationprovider.png[]
 
