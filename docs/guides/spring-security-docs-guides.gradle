@@ -5,8 +5,7 @@ asciidoctor {
 	baseDir = file('src/docs/asciidoc')
 	options eruby: 'erubis'
 
-	def ghTag = snapshotBuild ? 'main' : project.version
-	def ghSamplesUrl = "https://github.com/spring-projects/spring-security-samples/tree/$ghTag"
+	def ghSamplesUrl = "https://github.com/spring-projects/spring-security-samples/tree/$samplesBranch"
 	attributes copycss : '',
 			icons : 'font',
 			'source-highlighter': 'prettify',

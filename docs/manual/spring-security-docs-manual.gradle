@@ -18,7 +18,7 @@ asciidoctorj {
 	def ghTag = snapshotBuild ? 'main' : project.version
 	def ghUrl = "https://github.com/spring-projects/spring-security/tree/$ghTag"
 	def ghOldSamplesUrl = "https://github.com/spring-projects/spring-security/tree/5.4.x/samples"
-	def ghSamplesUrl = "https://github.com/spring-projects/spring-security-samples/tree/$ghTag"
+	def ghSamplesUrl = "https://github.com/spring-projects/spring-security-samples/tree/$samplesBranch"
 	def securityDocsUrl = "https://docs.spring.io/spring-security/site/docs/$docsTag"
 	def oldSecurityApiUrl = "https://docs.spring.io/spring-security/site/docs/5.4.x/api/"
 	def securityApiUrl = "$securityDocsUrl/api/"
