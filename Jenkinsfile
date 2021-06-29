@@ -15,7 +15,7 @@ def GRADLE_ENTERPRISE_SECRET_ACCESS_KEY = string(credentialsId: 'gradle_enterpri
 		variable: 'GRADLE_ENTERPRISE_ACCESS_KEY')
 def SPRING_SIGNING_SECRING = file(credentialsId: 'spring-signing-secring.gpg', variable: 'SIGNING_KEYRING_FILE')
 def SPRING_GPG_PASSPHRASE = string(credentialsId: 'spring-gpg-passphrase', variable: 'SIGNING_PASSWORD')
-def OSSRH_CREDENTIALS = usernamePassword(credentialsId: 'oss-token', passwordVariable: 'OSSRH_PASSWORD', usernameVariable: 'OSSRH_USERNAME')
+def OSSRH_S01_CREDENTIALS = usernamePassword(credentialsId: 'oss-s01-token', passwordVariable: 'OSSRH_S01_TOKEN_PASSWORD', usernameVariable: 'OSSRH_S01_TOKEN_USERNAME')
 def ARTIFACTORY_CREDENTIALS = usernamePassword(credentialsId: '02bd1690-b54f-4c9f-819d-a77cb7a9822c', usernameVariable: 'ARTIFACTORY_USERNAME', passwordVariable: 'ARTIFACTORY_PASSWORD')
 def JENKINS_PRIVATE_SSH_KEY = file(credentialsId: 'docs.spring.io-jenkins_private_ssh_key', variable: 'DEPLOY_SSH_KEY')
 def SONAR_LOGIN_CREDENTIALS = string(credentialsId: 'spring-sonar.login', variable: 'SONAR_LOGIN')
@@ -158,7 +158,7 @@ try {
 					sh "git clean -dfx"
 					withCredentials([SPRING_SIGNING_SECRING,
 						 SPRING_GPG_PASSPHRASE,
-						 OSSRH_CREDENTIALS,
+						 OSSRH_S01_CREDENTIALS,
 						 ARTIFACTORY_CREDENTIALS,
 						 GRADLE_ENTERPRISE_CACHE_USER,
 						 GRADLE_ENTERPRISE_SECRET_ACCESS_KEY]) {
@@ -166,8 +166,8 @@ try {
 							 "GRADLE_ENTERPRISE_CACHE_USERNAME=${GRADLE_ENTERPRISE_CACHE_USERNAME}",
 							 "GRADLE_ENTERPRISE_CACHE_PASSWORD=${GRADLE_ENTERPRISE_CACHE_PASSWORD}",
 							 "GRADLE_ENTERPRISE_ACCESS_KEY=${GRADLE_ENTERPRISE_ACCESS_KEY}"]) {
-							sh "./gradlew deployArtifacts -Psigning.secretKeyRingFile=$SIGNING_KEYRING_FILE -Psigning.keyId=$SPRING_SIGNING_KEYID -Psigning.password='$SIGNING_PASSWORD' -PossrhUsername=$OSSRH_USERNAME -PossrhPassword=$OSSRH_PASSWORD -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --stacktrace --no-parallel"
-							sh "./gradlew finalizeDeployArtifacts -Psigning.secretKeyRingFile=$SIGNING_KEYRING_FILE -Psigning.keyId=$SPRING_SIGNING_KEYID -Psigning.password='$SIGNING_PASSWORD' -PossrhUsername=$OSSRH_USERNAME -PossrhPassword=$OSSRH_PASSWORD -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --stacktrace --no-parallel"
+							sh "./gradlew deployArtifacts -Psigning.secretKeyRingFile=$SIGNING_KEYRING_FILE -Psigning.keyId=$SPRING_SIGNING_KEYID -Psigning.password='$SIGNING_PASSWORD' -PossrhTokenUsername=$OSSRH_S01_TOKEN_USERNAME -PossrhTokenPassword=$OSSRH_S01_TOKEN_PASSWORD -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --stacktrace --no-parallel"
+							sh "./gradlew finalizeDeployArtifacts -Psigning.secretKeyRingFile=$SIGNING_KEYRING_FILE -Psigning.keyId=$SPRING_SIGNING_KEYID -Psigning.password='$SIGNING_PASSWORD' -PossrhTokenUsername=$OSSRH_S01_TOKEN_USERNAME -PossrhTokenPassword=$OSSRH_S01_TOKEN_PASSWORD -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --stacktrace --no-parallel"
 						}
 					}
 				}
@@ -180,7 +180,7 @@ try {
 					sh "git clean -dfx"
 					withCredentials([JENKINS_PRIVATE_SSH_KEY,
 						 SPRING_GPG_PASSPHRASE,
-						 OSSRH_CREDENTIALS,
+						 OSSRH_S01_CREDENTIALS,
 						 ARTIFACTORY_CREDENTIALS,
 						 GRADLE_ENTERPRISE_CACHE_USER,
 						 GRADLE_ENTERPRISE_SECRET_ACCESS_KEY]) {
@@ -201,7 +201,7 @@ try {
 					sh "git clean -dfx"
 					withCredentials([JENKINS_PRIVATE_SSH_KEY,
 						 SPRING_GPG_PASSPHRASE,
-						 OSSRH_CREDENTIALS,
+						 OSSRH_S01_CREDENTIALS,
 						 ARTIFACTORY_CREDENTIALS,
 						 GRADLE_ENTERPRISE_CACHE_USER,
 						 GRADLE_ENTERPRISE_SECRET_ACCESS_KEY]) {
