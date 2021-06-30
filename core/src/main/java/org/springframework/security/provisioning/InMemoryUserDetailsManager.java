@@ -79,7 +79,8 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 			String name = (String) names.nextElement();
 			editor.setAsText(users.getProperty(name));
 			UserAttribute attr = (UserAttribute) editor.getValue();
-			Assert.notNull(attr, "The entry with username '" + name + "' could not be converted to an UserDetails");
+			Assert.notNull(attr,
+					() -> "The entry with username '" + name + "' could not be converted to an UserDetails");
 			createUser(createUserDetails(name, attr));
 		}
 	}
