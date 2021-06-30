@@ -59,7 +59,7 @@ import org.springframework.web.util.UriUtils;
  *
  * <p>
  * By default, this {@code Filter} responds to authentication requests at the {@code URI}
- * {@code /oauth2/authorization/{registrationId}}. The {@code URI} template variable
+ * {@code /saml2/authenticate/{registrationId}}. The {@code URI} template variable
  * {@code {registrationId}} represents the
  * {@link RelyingPartyRegistration#getRegistrationId() registration identifier} of the
  * relying party that is used for initiating the authentication request.
