@@ -15,6 +15,7 @@ buildscript {
 apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
 apply plugin: 'io.spring.convention.root'
+apply plugin: 'io.spring.convention.include-check-remote'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.update-dependencies'
 apply plugin: 'org.springframework.security.sagan'
@@ -145,4 +146,12 @@ nohttp {
 	allowlistFile = project.file("etc/nohttp/allowlist.lines")
 	source.exclude "buildSrc/build/**"
 
+}
+
+tasks.register('checkSamples') {
+	includeCheckRemote {
+		repository = 'spring-projects/spring-security-samples'
+		ref = samplesBranch
+	}
+	dependsOn checkRemote
 }
