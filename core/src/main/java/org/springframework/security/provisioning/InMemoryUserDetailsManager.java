@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 			String name = (String) names.nextElement();
 			editor.setAsText(users.getProperty(name));
 			UserAttribute attr = (UserAttribute) editor.getValue();
+			Assert.notNull(attr, "The entry with username '" + name + "' could not be converted to an UserDetails");
 			createUser(createUserDetails(name, attr));
 		}
 	}
