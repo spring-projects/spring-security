@@ -77,7 +77,12 @@ public class DependencySetPlugin implements Plugin<Project> {
 			"junit:junit",
 			"org.mockito:mockito-core",
 			"org.springframework:spring-test",
-			"org.assertj:assertj-core"
+			"org.assertj:assertj-core",
+			"org.junit.jupiter:junit-jupiter-api",
+			"org.junit.jupiter:junit-jupiter-params",
+			"org.junit.jupiter:junit-jupiter-engine",
+			"org.mockito:mockito-core",
+			"org.mockito:mockito-junit-jupiter"
 		]
 
 		project.ext.jstlDependencies = [

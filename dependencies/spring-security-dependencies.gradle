@@ -10,6 +10,7 @@ dependencies {
 	api platform("org.springframework:spring-framework-bom:$springFrameworkVersion")
 	api platform("io.projectreactor:reactor-bom:2020.0.7")
 	api platform("io.rsocket:rsocket-bom:1.1.0")
+	api platform("org.junit:junit-bom:5.7.2")
 	api platform("org.springframework.data:spring-data-bom:2021.0.1")
 	api platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion")
 	api platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.5.0")
@@ -57,6 +58,7 @@ dependencies {
 		api "org.jasig.cas.client:cas-client-core:3.6.2"
 		api "org.mockito:mockito-core:3.11.2"
 		api "org.mockito:mockito-inline:3.11.2"
+		api "org.mockito:mockito-junit-jupiter:3.11.2"
 		api "org.openid4java:openid4java-nodeps:0.9.6"
 		api "org.opensaml:opensaml-core:$openSamlVersion"
 		api "org.opensaml:opensaml-saml-api:$openSamlVersion"
