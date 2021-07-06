@@ -21,6 +21,17 @@ apply plugin: 'org.springframework.security.sagan'
 apply plugin: 'org.springframework.github.milestone'
 apply plugin: 'org.springframework.github.changelog'
 
+apply plugin: 'org.openrewrite.rewrite'
+
+rewrite {
+	activeRecipe("org.openrewrite.java.spring.boot2.SpringBoot2JUnit4to5Migration")
+	activeStyle("io.moderne.spring.style")
+}
+
+dependencies {
+	rewrite("org.openrewrite.recipe:rewrite-spring:4.6.1")
+}
+
 group = 'org.springframework.security'
 description = 'Spring Security'
 
