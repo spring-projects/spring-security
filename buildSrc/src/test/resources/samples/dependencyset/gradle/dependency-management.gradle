@@ -704,7 +704,11 @@ def deps = [
 	"xml-apis:xml-apis" : "1.4.01",
 	"xmlunit:xmlunit" : "1.6",
 	"xom:xom" : "1.2.5",
-	"org.gebish:geb-spock" : "1.1.1"
+	"org.gebish:geb-spock" : "1.1.1",
+	"org.junit.jupiter:junit-jupiter-api" : "5.7.2",
+	"org.junit.jupiter:junit-jupiter-params" : "5.7.2",
+	"org.junit.jupiter:junit-jupiter-engine" : "5.7.2",
+	"org.mockito:mockito-junit-jupiter" : "3.11.2"
 ]
 
 configurations.all {
