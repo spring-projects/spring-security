@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.config.web.servlet
 
 import org.springframework.context.ApplicationContext
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
@@ -63,10 +64,13 @@ operator fun HttpSecurity.invoke(httpConfiguration: HttpSecurityDsl.() -> Unit) 
  * @since 5.3
  * @param http the [HttpSecurity] which all configurations will be applied to
  * @param init the configurations to apply to the provided [HttpSecurity]
+ * @property authenticationManager the default [AuthenticationManager] to use
  */
 @SecurityMarker
 class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecurityDsl.() -> Unit) {
     private val HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector"
+
+    var authenticationManager: AuthenticationManager? = null
 
     /**
      * Allows configuring the [HttpSecurity] to only be invoked when matching the
@@ -858,5 +862,6 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      */
     internal fun build() {
         init()
+        authenticationManager?.also { this.http.authenticationManager(authenticationManager) }
     }
 }
