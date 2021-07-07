@@ -22,11 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.springframework.context.MessageSource;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -40,7 +36,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,9 +50,6 @@ import static org.mockito.Mockito.verify;
  * @author Luke Taylor
  */
 @SuppressWarnings("unchecked")
-@RunWith(PowerMockRunner.class)
-@PrepareOnlyThisForTest(ReflectionUtils.class)
-@PowerMockIgnore("javax.security.auth.*")
 public class AbstractRememberMeServicesTests {
 
 	static User joe = new User("joe", "password", true, true, true, true, AuthorityUtils.createAuthorityList("ROLE_A"));

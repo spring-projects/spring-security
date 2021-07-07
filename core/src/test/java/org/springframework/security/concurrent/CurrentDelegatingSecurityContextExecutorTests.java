@@ -32,7 +32,7 @@ public class CurrentDelegatingSecurityContextExecutorTests extends AbstractDeleg
 
 	@Before
 	public void setUp() throws Exception {
-		super.currentSecurityContextPowermockSetup();
+		super.currentSecurityContextSetup();
 	}
 
 	@Override

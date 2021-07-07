@@ -41,7 +41,7 @@ public class CurrentDelegatingSecurityContextTaskExecutorTests extends AbstractD
 
 	@Before
 	public void setUp() throws Exception {
-		currentSecurityContextPowermockSetup();
+		currentSecurityContextSetup();
 	}
 
 	@Override

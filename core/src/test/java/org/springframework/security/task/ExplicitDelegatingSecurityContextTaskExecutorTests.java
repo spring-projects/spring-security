@@ -41,7 +41,7 @@ public class ExplicitDelegatingSecurityContextTaskExecutorTests extends Abstract
 
 	@Before
 	public void setUp() throws Exception {
-		explicitSecurityContextPowermockSetup();
+		explicitSecurityContextSetup();
 	}
 
 	@Override

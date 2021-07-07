@@ -10,5 +10,5 @@ dependencies {
 	optional 'com.nimbusds:oauth2-oidc-sdk'
 	optional 'org.springframework:spring-webflux'
 
-	testImplementation powerMock2Dependencies
+	testImplementation 'org.mockito:mockito-core'
 }

@@ -33,7 +33,7 @@ public class DelegatingSecurityContextSupportTests extends AbstractDelegatingSec
 
 	@Test
 	public void wrapCallable() throws Exception {
-		explicitSecurityContextPowermockSetup();
+		explicitSecurityContextSetup();
 		this.support = new ConcreteDelegatingSecurityContextSupport(this.securityContext);
 		assertThat(this.support.wrap(this.callable)).isSameAs(this.wrappedCallable);
 		assertThat(this.securityContextCaptor.getValue()).isSameAs(this.securityContext);
@@ -41,14 +41,14 @@ public class DelegatingSecurityContextSupportTests extends AbstractDelegatingSec
 
 	@Test
 	public void wrapCallableNullSecurityContext() throws Exception {
-		currentSecurityContextPowermockSetup();
+		currentSecurityContextSetup();
 		this.support = new ConcreteDelegatingSecurityContextSupport(null);
 		assertThat(this.support.wrap(this.callable)).isSameAs(this.wrappedCallable);
 	}
 
 	@Test
 	public void wrapRunnable() throws Exception {
-		explicitSecurityContextPowermockSetup();
+		explicitSecurityContextSetup();
 		this.support = new ConcreteDelegatingSecurityContextSupport(this.securityContext);
 		assertThat(this.support.wrap(this.runnable)).isSameAs(this.wrappedRunnable);
 		assertThat(this.securityContextCaptor.getValue()).isSameAs(this.securityContext);
@@ -56,7 +56,7 @@ public class DelegatingSecurityContextSupportTests extends AbstractDelegatingSec
 
 	@Test
 	public void wrapRunnableNullSecurityContext() throws Exception {
-		currentSecurityContextPowermockSetup();
+		currentSecurityContextSetup();
 		this.support = new ConcreteDelegatingSecurityContextSupport(null);
 		assertThat(this.support.wrap(this.runnable)).isSameAs(this.wrappedRunnable);
 	}

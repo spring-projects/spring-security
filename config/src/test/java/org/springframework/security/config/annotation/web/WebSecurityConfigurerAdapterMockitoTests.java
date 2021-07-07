@@ -23,10 +23,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.support.SpringFactoriesLoader;
@@ -56,11 +55,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author Rob Winch
  *
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ SpringFactoriesLoader.class, WebAsyncManager.class })
-@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*",
-		"javax.xml.transform.*" })
-public class WebSecurityConfigurerAdapterPowermockTests {
+@RunWith(MockitoJUnitRunner.class)
+public class WebSecurityConfigurerAdapterMockitoTests {
 
 	ConfigurableWebApplicationContext context;
 
@@ -69,6 +65,9 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	@Mock
+	private MockedStatic<SpringFactoriesLoader> springFactoriesLoader;
 
 	@After
 	public void close() {
@@ -79,11 +78,10 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 
 	@Test
 	public void loadConfigWhenDefaultConfigurerAsSpringFactoryhenDefaultConfigurerApplied() {
-		PowerMockito.spy(SpringFactoriesLoader.class);
 		DefaultConfigurer configurer = new DefaultConfigurer();
-		PowerMockito
-				.when(SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, getClass().getClassLoader()))
-				.thenReturn(Arrays.<AbstractHttpConfigurer>asList(configurer));
+		this.springFactoriesLoader.when(
+				() -> SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, getClass().getClassLoader()))
+				.thenReturn(Arrays.asList(configurer));
 		loadConfig(Config.class);
 		assertThat(configurer.init).isTrue();
 		assertThat(configurer.configure).isTrue();

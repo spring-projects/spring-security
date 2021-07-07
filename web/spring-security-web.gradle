@@ -23,10 +23,11 @@ dependencies {
 	testImplementation 'commons-codec:commons-codec'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'javax.xml.bind:jaxb-api'
+	testImplementation 'org.mockito:mockito-core'
+	testImplementation 'org.mockito:mockito-inline'
 	testImplementation 'org.skyscreamer:jsonassert'
 	testImplementation 'org.springframework:spring-webflux'
 	testImplementation 'org.synchronoss.cloud:nio-multipart-parser'
-	testImplementation powerMock2Dependencies
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }

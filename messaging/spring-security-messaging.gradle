@@ -16,7 +16,7 @@ dependencies {
 
 	testImplementation project(path: ':spring-security-core', configuration: 'tests')
 	testImplementation 'commons-codec:commons-codec'
-	testImplementation powerMock2Dependencies
+	testImplementation 'org.mockito:mockito-core'
 	testImplementation slf4jDependencies
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'

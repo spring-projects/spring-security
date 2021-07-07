@@ -16,17 +16,11 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import java.lang.reflect.Method;
-
 import javax.servlet.Filter;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -50,12 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Rob Winch
  */
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class SessionManagementConfigurerServlet31Tests {
-
-	@Mock
-	Method method;
 
 	MockHttpServletRequest request;
 

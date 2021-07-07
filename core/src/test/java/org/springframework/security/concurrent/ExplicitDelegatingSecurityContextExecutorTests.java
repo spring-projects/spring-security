@@ -32,7 +32,7 @@ public class ExplicitDelegatingSecurityContextExecutorTests extends AbstractDele
 
 	@Before
 	public void setUp() throws Exception {
-		super.explicitSecurityContextPowermockSetup();
+		super.explicitSecurityContextSetup();
 	}
 
 	@Override
