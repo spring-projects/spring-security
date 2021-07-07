@@ -143,6 +143,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	private FilterOrderRegistration filterOrders = new FilterOrderRegistration();
 
+	private AuthenticationManager authenticationManager;
+
 	/**
 	 * Creates a new instance
 	 * @param objectPostProcessor the {@link ObjectPostProcessor} that should be used
@@ -2722,6 +2724,18 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		return HttpSecurity.this;
 	}
 
+	/**
+	 * Configure the default {@link AuthenticationManager}.
+	 * @param authenticationManager the {@link AuthenticationManager} to use
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @since 5.6
+	 */
+	public HttpSecurity authenticationManager(AuthenticationManager authenticationManager) {
+		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+		this.authenticationManager = authenticationManager;
+		return HttpSecurity.this;
+	}
+
 	@Override
 	public <C> void setSharedObject(Class<C> sharedType, C object) {
 		super.setSharedObject(sharedType, object);
@@ -2729,7 +2743,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	@Override
 	protected void beforeConfigure() throws Exception {
-		setSharedObject(AuthenticationManager.class, getAuthenticationRegistry().build());
+		if (this.authenticationManager != null) {
+			setSharedObject(AuthenticationManager.class, this.authenticationManager);
+		}
+		else {
+			setSharedObject(AuthenticationManager.class, getAuthenticationRegistry().build());
+		}
 	}
 
 	@Override

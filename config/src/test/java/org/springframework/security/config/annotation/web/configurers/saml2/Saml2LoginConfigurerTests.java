@@ -164,6 +164,12 @@ public class Saml2LoginConfigurerTests {
 	}
 
 	@Test
+	public void saml2LoginWhenDefaultAndSamlAuthenticationManagerThenSamlManagerIsUsed() throws Exception {
+		this.spring.register(Saml2LoginConfigWithDefaultAndCustomAuthenticationManager.class).autowire();
+		performSaml2Login("ROLE_AUTH_MANAGER");
+	}
+
+	@Test
 	public void saml2LoginWhenConfiguringAuthenticationDefaultsUsingCustomizerThenTheProviderIsConfigured()
 			throws Exception {
 		// setup application context
@@ -286,6 +292,24 @@ public class Saml2LoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			http.saml2Login().authenticationManager(getAuthenticationManagerMock("ROLE_AUTH_MANAGER"));
 			super.configure(http);
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
+	static class Saml2LoginConfigWithDefaultAndCustomAuthenticationManager extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authenticationManager(getAuthenticationManagerMock("DEFAULT_AUTH_MANAGER"))
+				.saml2Login((saml) -> saml
+					.authenticationManager(getAuthenticationManagerMock("ROLE_AUTH_MANAGER"))
+				);
+			super.configure(http);
+			// @formatter:on
 		}
 
 	}

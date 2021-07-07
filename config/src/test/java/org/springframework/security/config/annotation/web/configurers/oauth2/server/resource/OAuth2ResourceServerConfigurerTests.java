@@ -997,6 +997,24 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
+	public void getWhenDefaultAndCustomJwtAuthenticationManagerThenCustomUsed() throws Exception {
+		this.spring.register(DefaultAndJwtAuthenticationManagerConfig.class, BasicController.class).autowire();
+		DefaultAndJwtAuthenticationManagerConfig config = this.spring.getContext()
+				.getBean(DefaultAndJwtAuthenticationManagerConfig.class);
+		AuthenticationManager defaultAuthenticationManager = config.defaultAuthenticationManager();
+		AuthenticationManager jwtAuthenticationManager = config.jwtAuthenticationManager();
+		given(defaultAuthenticationManager.authenticate(any()))
+				.willThrow(new RuntimeException("should not interact with default auth manager"));
+		given(jwtAuthenticationManager.authenticate(any())).willReturn(JWT_AUTHENTICATION_TOKEN);
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
+				.andExpect(status().isOk())
+				.andExpect(content().string("mock-test-subject"));
+		// @formatter:on
+		verify(jwtAuthenticationManager).authenticate(any(Authentication.class));
+	}
+
+	@Test
 	public void getWhenIntrospectingThenOk() throws Exception {
 		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class, BasicController.class).autowire();
 		mockRestOperations(json("Active"));
@@ -1052,6 +1070,24 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(content().string("mock-test-subject"));
 		// @formatter:on
 		verifyBean(AuthenticationProvider.class).authenticate(any(Authentication.class));
+	}
+
+	@Test
+	public void getWhenDefaultAndCustomIntrospectionAuthenticationManagerThenCustomUsed() throws Exception {
+		this.spring.register(DefaultAndOpaqueTokenAuthenticationManagerConfig.class, BasicController.class).autowire();
+		DefaultAndOpaqueTokenAuthenticationManagerConfig config = this.spring.getContext()
+				.getBean(DefaultAndOpaqueTokenAuthenticationManagerConfig.class);
+		AuthenticationManager defaultAuthenticationManager = config.defaultAuthenticationManager();
+		AuthenticationManager opaqueTokenAuthenticationManager = config.opaqueTokenAuthenticationManager();
+		given(defaultAuthenticationManager.authenticate(any()))
+				.willThrow(new RuntimeException("should not interact with default auth manager"));
+		given(opaqueTokenAuthenticationManager.authenticate(any())).willReturn(INTROSPECTION_AUTHENTICATION_TOKEN);
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
+				.andExpect(status().isOk())
+				.andExpect(content().string("mock-test-subject"));
+		// @formatter:on
+		verify(opaqueTokenAuthenticationManager).authenticate(any(Authentication.class));
 	}
 
 	@Test
@@ -2018,6 +2054,39 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	static class DefaultAndJwtAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
+
+		AuthenticationManager defaultAuthenticationManager = mock(AuthenticationManager.class);
+
+		AuthenticationManager jwtAuthenticationManager = mock(AuthenticationManager.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authenticationManager(this.defaultAuthenticationManager)
+					.authorizeRequests((authz) -> authz
+							.anyRequest().authenticated()
+					)
+					.oauth2ResourceServer((oauth2) -> oauth2
+							.jwt((jwt) -> jwt
+									.authenticationManager(this.jwtAuthenticationManager)
+							)
+					);
+			// @formatter:on
+		}
+
+		AuthenticationManager defaultAuthenticationManager() {
+			return this.defaultAuthenticationManager;
+		}
+
+		AuthenticationManager jwtAuthenticationManager() {
+			return this.jwtAuthenticationManager;
+		}
+
+	}
+
+	@EnableWebSecurity
 	static class CustomJwtValidatorConfig extends WebSecurityConfigurerAdapter {
 
 		@Autowired
@@ -2226,6 +2295,39 @@ public class OAuth2ResourceServerConfigurerTests {
 		@Bean
 		AuthenticationProvider authenticationProvider() {
 			return mock(AuthenticationProvider.class);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DefaultAndOpaqueTokenAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
+
+		AuthenticationManager defaultAuthenticationManager = mock(AuthenticationManager.class);
+
+		AuthenticationManager opaqueTokenAuthenticationManager = mock(AuthenticationManager.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authenticationManager(this.defaultAuthenticationManager)
+					.authorizeRequests((authz) -> authz
+							.anyRequest().authenticated()
+					)
+					.oauth2ResourceServer((oauth2) -> oauth2
+							.opaqueToken((opaque) -> opaque
+									.authenticationManager(this.opaqueTokenAuthenticationManager)
+							)
+					);
+			// @formatter:on
+		}
+
+		AuthenticationManager defaultAuthenticationManager() {
+			return this.defaultAuthenticationManager;
+		}
+
+		AuthenticationManager opaqueTokenAuthenticationManager() {
+			return this.opaqueTokenAuthenticationManager;
 		}
 
 	}
