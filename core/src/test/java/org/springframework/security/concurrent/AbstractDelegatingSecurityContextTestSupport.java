@@ -24,9 +24,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,8 +40,7 @@ import static org.mockito.ArgumentMatchers.eq;
  * @since 3.2
  *
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ DelegatingSecurityContextRunnable.class, DelegatingSecurityContextCallable.class })
+@RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractDelegatingSecurityContextTestSupport {
 
 	@Mock
@@ -66,22 +64,26 @@ public abstract class AbstractDelegatingSecurityContextTestSupport {
 	@Mock
 	protected Runnable wrappedRunnable;
 
-	public final void explicitSecurityContextPowermockSetup() throws Exception {
-		PowerMockito.spy(DelegatingSecurityContextCallable.class);
-		PowerMockito.doReturn(this.wrappedCallable).when(DelegatingSecurityContextCallable.class, "create",
-				eq(this.callable), this.securityContextCaptor.capture());
-		PowerMockito.spy(DelegatingSecurityContextRunnable.class);
-		PowerMockito.doReturn(this.wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create",
-				eq(this.runnable), this.securityContextCaptor.capture());
+	@Mock
+	protected MockedStatic<DelegatingSecurityContextCallable> delegatingSecurityContextCallable;
+
+	@Mock
+	protected MockedStatic<DelegatingSecurityContextRunnable> delegatingSecurityContextRunnable;
+
+	public final void explicitSecurityContextSetup() throws Exception {
+		this.delegatingSecurityContextCallable.when(
+				() -> DelegatingSecurityContextCallable.create(eq(this.callable), this.securityContextCaptor.capture()))
+				.thenReturn(this.wrappedCallable);
+		this.delegatingSecurityContextRunnable.when(
+				() -> DelegatingSecurityContextRunnable.create(eq(this.runnable), this.securityContextCaptor.capture()))
+				.thenReturn(this.wrappedRunnable);
 	}
 
-	public final void currentSecurityContextPowermockSetup() throws Exception {
-		PowerMockito.spy(DelegatingSecurityContextCallable.class);
-		PowerMockito.doReturn(this.wrappedCallable).when(DelegatingSecurityContextCallable.class, "create",
-				this.callable, null);
-		PowerMockito.spy(DelegatingSecurityContextRunnable.class);
-		PowerMockito.doReturn(this.wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create",
-				this.runnable, null);
+	public final void currentSecurityContextSetup() throws Exception {
+		this.delegatingSecurityContextCallable.when(() -> DelegatingSecurityContextCallable.create(this.callable, null))
+				.thenReturn(this.wrappedCallable);
+		this.delegatingSecurityContextRunnable.when(() -> DelegatingSecurityContextRunnable.create(this.runnable, null))
+				.thenReturn(this.wrappedRunnable);
 	}
 
 	@Before

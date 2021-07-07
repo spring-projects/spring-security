@@ -16,18 +16,22 @@
 
 package org.springframework.security.core;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.core.SpringVersion;
+import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,21 +46,29 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Luke Taylor
  * @author Rob Winch
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ SpringSecurityCoreVersion.class, SpringVersion.class })
+@RunWith(MockitoJUnitRunner.class)
 public class SpringSecurityCoreVersionTests {
 
 	@Mock
 	private Log logger;
 
+	@Mock(answer = Answers.CALLS_REAL_METHODS)
+	private MockedStatic<SpringVersion> springVersion;
+
+	@Mock(answer = Answers.CALLS_REAL_METHODS)
+	private MockedStatic<SpringSecurityCoreVersion> springSecurityCoreVersion;
+
 	@Before
-	public void setup() {
-		Whitebox.setInternalState(SpringSecurityCoreVersion.class, this.logger);
+	public void setup() throws Exception {
+		Field logger = ReflectionUtils.findField(SpringSecurityCoreVersion.class, "logger");
+		StaticFinalReflectionUtils.setField(logger, this.logger);
 	}
 
 	@After
 	public void cleanup() throws Exception {
 		System.clearProperty(getDisableChecksProperty());
+		Field logger = ReflectionUtils.findField(SpringSecurityCoreVersion.class, "logger");
+		StaticFinalReflectionUtils.setField(logger, LogFactory.getLog(SpringSecurityCoreVersion.class));
 	}
 
 	@Test
@@ -79,40 +91,34 @@ public class SpringSecurityCoreVersionTests {
 	@Test
 	public void noLoggingIfVersionsAreEqual() throws Exception {
 		String version = "1";
-		PowerMockito.spy(SpringSecurityCoreVersion.class);
-		PowerMockito.spy(SpringVersion.class);
-		PowerMockito.doReturn(version).when(SpringSecurityCoreVersion.class, "getVersion");
-		PowerMockito.doReturn(version).when(SpringVersion.class, "getVersion");
+		expectSpringSecurityVersionThenReturn(version);
+		expectSpringVersionThenReturn(version);
 		performChecks();
 		verifyZeroInteractions(this.logger);
 	}
 
 	@Test
 	public void noLoggingIfSpringVersionNull() throws Exception {
-		PowerMockito.spy(SpringSecurityCoreVersion.class);
-		PowerMockito.spy(SpringVersion.class);
-		PowerMockito.doReturn("1").when(SpringSecurityCoreVersion.class, "getVersion");
-		PowerMockito.doReturn(null).when(SpringVersion.class, "getVersion");
+		String version = "1";
+		expectSpringSecurityVersionThenReturn(version);
+		expectSpringVersionThenReturn(null);
 		performChecks();
 		verifyZeroInteractions(this.logger);
 	}
 
 	@Test
 	public void warnIfSpringVersionTooSmall() throws Exception {
-		PowerMockito.spy(SpringSecurityCoreVersion.class);
-		PowerMockito.spy(SpringVersion.class);
-		PowerMockito.doReturn("3").when(SpringSecurityCoreVersion.class, "getVersion");
-		PowerMockito.doReturn("2").when(SpringVersion.class, "getVersion");
+		expectSpringSecurityVersionThenReturn("3");
+		expectSpringVersionThenReturn("2");
 		performChecks();
 		verify(this.logger, times(1)).warn(any());
 	}
 
 	@Test
 	public void noWarnIfSpringVersionLarger() throws Exception {
-		PowerMockito.spy(SpringSecurityCoreVersion.class);
-		PowerMockito.spy(SpringVersion.class);
-		PowerMockito.doReturn("4.0.0.RELEASE").when(SpringSecurityCoreVersion.class, "getVersion");
-		PowerMockito.doReturn("4.0.0.RELEASE").when(SpringVersion.class, "getVersion");
+		String version = "4.0.0.RELEASE";
+		expectSpringSecurityVersionThenReturn(version);
+		expectSpringVersionThenReturn(version);
 		performChecks();
 		verify(this.logger, never()).warn(any());
 	}
@@ -121,20 +127,16 @@ public class SpringSecurityCoreVersionTests {
 	@Test
 	public void noWarnIfSpringPatchVersionDoubleDigits() throws Exception {
 		String minSpringVersion = "3.2.8.RELEASE";
-		PowerMockito.spy(SpringSecurityCoreVersion.class);
-		PowerMockito.spy(SpringVersion.class);
-		PowerMockito.doReturn("3.2.0.RELEASE").when(SpringSecurityCoreVersion.class, "getVersion");
-		PowerMockito.doReturn("3.2.10.RELEASE").when(SpringVersion.class, "getVersion");
+		expectSpringSecurityVersionThenReturn("3.2.0.RELEASE");
+		expectSpringVersionThenReturn("3.2.10.RELEASE");
 		performChecks(minSpringVersion);
 		verify(this.logger, never()).warn(any());
 	}
 
 	@Test
 	public void noLoggingIfPropertySet() throws Exception {
-		PowerMockito.spy(SpringSecurityCoreVersion.class);
-		PowerMockito.spy(SpringVersion.class);
-		PowerMockito.doReturn("3").when(SpringSecurityCoreVersion.class, "getVersion");
-		PowerMockito.doReturn("2").when(SpringVersion.class, "getVersion");
+		expectSpringSecurityVersionThenReturn("3");
+		expectSpringVersionThenReturn("2");
 		System.setProperty(getDisableChecksProperty(), Boolean.TRUE.toString());
 		performChecks();
 		verifyZeroInteractions(this.logger);
@@ -144,12 +146,25 @@ public class SpringSecurityCoreVersionTests {
 		return SpringSecurityCoreVersion.class.getName().concat(".DISABLE_CHECKS");
 	}
 
-	private void performChecks() throws Exception {
-		Whitebox.invokeMethod(SpringSecurityCoreVersion.class, "performVersionChecks");
+	private void performChecks() {
+		Method method = ReflectionUtils.findMethod(SpringSecurityCoreVersion.class, "performVersionChecks");
+		ReflectionUtils.makeAccessible(method);
+		ReflectionUtils.invokeMethod(method, null);
 	}
 
-	private void performChecks(String minSpringVersion) throws Exception {
-		Whitebox.invokeMethod(SpringSecurityCoreVersion.class, "performVersionChecks", minSpringVersion);
+	private void performChecks(String minSpringVersion) {
+		Method method = ReflectionUtils.findMethod(SpringSecurityCoreVersion.class, "performVersionChecks",
+				String.class);
+		ReflectionUtils.makeAccessible(method);
+		ReflectionUtils.invokeMethod(method, null, minSpringVersion);
+	}
+
+	private void expectSpringSecurityVersionThenReturn(String version) {
+		this.springSecurityCoreVersion.when(SpringSecurityCoreVersion::getVersion).thenReturn(version);
+	}
+
+	private void expectSpringVersionThenReturn(String version) {
+		this.springVersion.when(SpringVersion::getVersion).thenReturn(version);
 	}
 
 }

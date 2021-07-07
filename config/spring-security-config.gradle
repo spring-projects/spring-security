@@ -52,7 +52,6 @@ dependencies {
 	testImplementation project(path: ':spring-security-saml2-service-provider', configuration: 'opensaml4MainCompile')
 	testImplementation project(path : ':spring-security-web', configuration : 'tests')
 	testImplementation apachedsDependencies
-	testImplementation powerMock2Dependencies
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation 'ch.qos.logback:logback-classic'
 	testImplementation 'io.projectreactor.netty:reactor-netty'
@@ -66,6 +65,8 @@ dependencies {
 	testImplementation 'org.eclipse.persistence:javax.persistence'
 	testImplementation 'org.hibernate:hibernate-entitymanager'
 	testImplementation 'org.hsqldb:hsqldb'
+	testImplementation 'org.mockito:mockito-core'
+	testImplementation "org.mockito:mockito-inline"
 	testImplementation ('org.openid4java:openid4java-nodeps') {
 		exclude group: 'com.google.code.guice', module: 'guice'
 	}

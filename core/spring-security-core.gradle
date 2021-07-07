@@ -20,9 +20,10 @@ dependencies {
 	optional 'org.springframework:spring-tx'
 	optional 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
 
-	testImplementation powerMock2Dependencies
 	testImplementation 'commons-collections:commons-collections'
 	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.mockito:mockito-core'
+	testImplementation 'org.mockito:mockito-inline'
 	testImplementation 'org.skyscreamer:jsonassert'
 	testImplementation 'org.slf4j:jcl-over-slf4j'
 	testImplementation 'org.springframework:spring-test'

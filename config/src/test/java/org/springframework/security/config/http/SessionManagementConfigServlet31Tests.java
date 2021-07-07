@@ -16,18 +16,11 @@
 
 package org.springframework.security.config.http;
 
-import java.lang.reflect.Method;
-
 import javax.servlet.Filter;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.mock.web.MockFilterChain;
@@ -38,7 +31,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,9 +38,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  *
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ ReflectionUtils.class, Method.class })
-@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class SessionManagementConfigServlet31Tests {
 
 	// @formatter:off
@@ -60,9 +49,6 @@ public class SessionManagementConfigServlet31Tests {
 			+ "  </authentication-provider>"
 			+ "</authentication-manager>";
 	// @formatter:on
-
-	@Mock
-	Method method;
 
 	MockHttpServletRequest request;
 

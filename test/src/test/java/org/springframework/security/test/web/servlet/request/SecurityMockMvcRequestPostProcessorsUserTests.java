@@ -28,10 +28,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,10 +46,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
-@RunWith(PowerMockRunner.class)
-@PrepareOnlyThisForTest(WebTestUtils.class)
-@PowerMockIgnore({ "javax.security.auth.*", "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*",
-		"javax.xml.parsers.*" })
+@RunWith(MockitoJUnitRunner.class)
 public class SecurityMockMvcRequestPostProcessorsUserTests {
 
 	@Captor
@@ -68,10 +63,14 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	@Mock
 	private GrantedAuthority authority2;
 
+	@Mock
+	private MockedStatic<WebTestUtils> webTestUtils;
+
 	@Before
 	public void setup() {
 		this.request = new MockHttpServletRequest();
-		mockWebTestUtils();
+		this.webTestUtils.when(() -> WebTestUtils.getSecurityContextRepository(this.request))
+				.thenReturn(this.repository);
 	}
 
 	@After
@@ -132,11 +131,6 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 		SecurityContext context = this.contextCaptor.getValue();
 		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(this.authority1,
 				this.authority2);
-	}
-
-	private void mockWebTestUtils() {
-		PowerMockito.spy(WebTestUtils.class);
-		PowerMockito.when(WebTestUtils.getSecurityContextRepository(this.request)).thenReturn(this.repository);
 	}
 
 }

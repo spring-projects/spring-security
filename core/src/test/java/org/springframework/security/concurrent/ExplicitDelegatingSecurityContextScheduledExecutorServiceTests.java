@@ -33,7 +33,7 @@ public class ExplicitDelegatingSecurityContextScheduledExecutorServiceTests
 
 	@Before
 	public void setUp() throws Exception {
-		this.explicitSecurityContextPowermockSetup();
+		this.explicitSecurityContextSetup();
 	}
 
 	@Override

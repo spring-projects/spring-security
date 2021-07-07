@@ -704,13 +704,7 @@ def deps = [
 	"xml-apis:xml-apis" : "1.4.01",
 	"xmlunit:xmlunit" : "1.6",
 	"xom:xom" : "1.2.5",
-	"org.gebish:geb-spock" : "1.1.1",
-	"org.powermock:powermock-core" : "1.6.2",
-	"org.powermock:powermock-api-support" : "1.6.2",
-	"org.powermock:powermock-module-junit4-common" : "1.6.2",
-	"org.powermock:powermock-module-junit4" : "1.6.2",
-	"org.powermock:powermock-api-mockito" : "1.6.2",
-	"org.powermock:powermock-reflect" : "1.6.2"
+	"org.gebish:geb-spock" : "1.1.1"
 ]
 
 configurations.all {

@@ -22,8 +22,9 @@ dependencies {
 	testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'javax.xml.bind:jaxb-api'
+	testImplementation 'org.mockito:mockito-core'
+	testImplementation 'org.mockito:mockito-inline'
 	testImplementation 'org.skyscreamer:jsonassert'
 	testImplementation 'org.springframework:spring-webmvc'
 	testImplementation 'org.springframework:spring-tx'
-	testImplementation powerMock2Dependencies
 }

@@ -12,7 +12,6 @@ repositories {
 dependencies {
 	testCompile spockDependencies
 	testCompile gebDependencies
-	testCompile powerMockDependencies
 	testCompile seleniumDependencies
 	testCompile slf4jDependencies
 	testCompile springCoreDependency

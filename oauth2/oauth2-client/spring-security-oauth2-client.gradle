@@ -18,7 +18,6 @@ dependencies {
 
 	testImplementation project(path: ':spring-security-oauth2-core', configuration: 'tests')
 	testImplementation project(path: ':spring-security-oauth2-jose', configuration: 'tests')
-	testImplementation powerMock2Dependencies
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation 'io.projectreactor.netty:reactor-netty'
 	testImplementation 'io.projectreactor:reactor-test'
@@ -26,6 +25,7 @@ dependencies {
 	testImplementation 'org.skyscreamer:jsonassert'
 	testImplementation 'io.r2dbc:r2dbc-h2:0.8.4.RELEASE'
 	testImplementation 'io.r2dbc:r2dbc-spi-test:0.8.5.RELEASE'
+	testImplementation 'org.mockito:mockito-core'
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 

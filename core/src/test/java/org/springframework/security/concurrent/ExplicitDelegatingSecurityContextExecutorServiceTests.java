@@ -33,7 +33,7 @@ public class ExplicitDelegatingSecurityContextExecutorServiceTests
 
 	@Before
 	public void setUp() throws Exception {
-		super.explicitSecurityContextPowermockSetup();
+		super.explicitSecurityContextSetup();
 	}
 
 	@Override

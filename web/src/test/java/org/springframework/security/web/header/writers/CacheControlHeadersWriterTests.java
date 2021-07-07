@@ -18,14 +18,10 @@ package org.springframework.security.web.header.writers;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,8 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  *
  */
-@RunWith(PowerMockRunner.class)
-@PrepareOnlyThisForTest(ReflectionUtils.class)
 public class CacheControlHeadersWriterTests {
 
 	private MockHttpServletRequest request;
