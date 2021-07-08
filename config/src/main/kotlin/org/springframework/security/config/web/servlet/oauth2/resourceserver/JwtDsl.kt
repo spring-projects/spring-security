@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package org.springframework.security.config.web.servlet.oauth2.resourceserver
 
 import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
+import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
 
@@ -33,11 +35,15 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
  * @property jwtDecoder the [JwtDecoder] to use.
  * @property jwkSetUri configures a [JwtDecoder] using a
  * <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key (JWK)</a> URL
+ * @property authenticationManager the [AuthenticationManager] used to determine if the provided
+ * [Authentication] can be authenticated.
  */
 @OAuth2ResourceServerSecurityMarker
 class JwtDsl {
     private var _jwtDecoder: JwtDecoder? = null
     private var _jwkSetUri: String? = null
+
+    var authenticationManager: AuthenticationManager? = null
 
     var jwtAuthenticationConverter: Converter<Jwt, out AbstractAuthenticationToken>? = null
     var jwtDecoder: JwtDecoder?
@@ -58,6 +64,7 @@ class JwtDsl {
             jwtAuthenticationConverter?.also { jwt.jwtAuthenticationConverter(jwtAuthenticationConverter) }
             jwtDecoder?.also { jwt.decoder(jwtDecoder) }
             jwkSetUri?.also { jwt.jwkSetUri(jwkSetUri) }
+            authenticationManager?.also { jwt.authenticationManager(authenticationManager) }
         }
     }
 }

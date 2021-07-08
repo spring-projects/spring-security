@@ -26,17 +26,24 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.ProviderManager
+import org.springframework.security.authentication.TestingAuthenticationProvider
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestRule
 import org.springframework.security.config.web.servlet.invoke
+import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
 
 /**
  * Tests for [JwtDsl]
@@ -44,6 +51,16 @@ import org.springframework.test.web.servlet.get
  * @author Eleftheria Stein
  */
 class JwtDslTests {
+
+    private val jwtAuthenticationToken: Authentication = JwtAuthenticationToken(
+        Jwt.withTokenValue("token")
+            .header("alg", "none")
+            .claim(IdTokenClaimNames.SUB, "user")
+            .subject("mock-test-subject")
+            .build(),
+        emptyList()
+    )
+
     @Rule
     @JvmField
     val spring = SpringTestRule()
@@ -174,4 +191,52 @@ class JwtDslTests {
             }
         }
     }
+
+    @Test
+    fun `JWT when custom authentication manager configured then used`() {
+        this.spring.register(AuthenticationManagerConfig::class.java, AuthenticationController::class.java).autowire()
+        mockkObject(AuthenticationManagerConfig.AUTHENTICATION_MANAGER)
+        every {
+            AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any())
+        } returns this.jwtAuthenticationToken
+
+        this.mockMvc.get("/authenticated") {
+            header("Authorization", "Bearer token")
+        }.andExpect {
+            status { isOk() }
+            content { string("mock-test-subject") }
+        }
+
+        verify(exactly = 1) { AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
+    }
+
+    @EnableWebSecurity
+    open class AuthenticationManagerConfig : WebSecurityConfigurerAdapter() {
+
+        companion object {
+            val AUTHENTICATION_MANAGER: AuthenticationManager = ProviderManager(TestingAuthenticationProvider())
+        }
+
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                oauth2ResourceServer {
+                    jwt {
+                        authenticationManager = AUTHENTICATION_MANAGER
+                    }
+                }
+            }
+        }
+    }
+
+    @RestController
+    class AuthenticationController {
+        @GetMapping("/authenticated")
+        fun authenticated(authentication: Authentication): String {
+            return authentication.name
+        }
+    }
+
 }
