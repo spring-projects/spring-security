@@ -27,6 +27,9 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.ProviderManager
+import org.springframework.security.authentication.TestingAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -34,7 +37,9 @@ import org.springframework.security.config.test.SpringTestRule
 import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens
 import org.springframework.security.oauth2.jwt.JwtClaimNames
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector
 import org.springframework.test.web.servlet.MockMvc
@@ -56,6 +61,18 @@ class OpaqueTokenDslTests {
 
     @Autowired
     lateinit var mockMvc: MockMvc
+
+    private val introspectionAuthenticationToken = BearerTokenAuthentication(
+        DefaultOAuth2AuthenticatedPrincipal(
+            mapOf(
+                Pair(
+                    JwtClaimNames.SUB,
+                    "mock-test-subject"
+                )
+            ), emptyList()
+        ),
+        TestOAuth2AccessTokens.noScopes(), emptyList()
+    )
 
     @Test
     fun `opaque token when defaults then uses introspection`() {
@@ -182,6 +199,45 @@ class OpaqueTokenDslTests {
                         introspectionUri = "/introspect"
                         introspectionClientCredentials("clientId", "clientSecret")
                         introspector = INTROSPECTOR
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `opaque token when custom authentication manager configured then used`() {
+        this.spring.register(AuthenticationManagerConfig::class.java, AuthenticationController::class.java).autowire()
+        mockkObject(AuthenticationManagerConfig.AUTHENTICATION_MANAGER)
+        every {
+            AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any())
+        } returns this.introspectionAuthenticationToken
+
+        this.mockMvc.get("/authenticated") {
+            header("Authorization", "Bearer token")
+        }.andExpect {
+            status { isOk() }
+            content { string("mock-test-subject") }
+        }
+
+        verify(exactly = 1) { AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
+    }
+
+    @EnableWebSecurity
+    open class AuthenticationManagerConfig : WebSecurityConfigurerAdapter() {
+
+        companion object {
+            val AUTHENTICATION_MANAGER: AuthenticationManager = ProviderManager(TestingAuthenticationProvider())
+        }
+
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                oauth2ResourceServer {
+                    opaqueToken {
+                        authenticationManager = AUTHENTICATION_MANAGER
                     }
                 }
             }

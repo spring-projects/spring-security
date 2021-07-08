@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 
 package org.springframework.security.config.web.servlet.oauth2.resourceserver
 
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
+import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector
 
 /**
@@ -27,12 +29,16 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
  * @since 5.3
  * @property introspectionUri the URI of the Introspection endpoint.
  * @property introspector the [OpaqueTokenIntrospector] to use.
+ * @property authenticationManager the [AuthenticationManager] used to determine if the provided
+ * [Authentication] can be authenticated.
  */
 @OAuth2ResourceServerSecurityMarker
 class OpaqueTokenDsl {
     private var _introspectionUri: String? = null
     private var _introspector: OpaqueTokenIntrospector? = null
     private var clientCredentials: Pair<String, String>? = null
+
+    var authenticationManager: AuthenticationManager? = null
 
     var introspectionUri: String?
         get() = _introspectionUri
@@ -65,6 +71,7 @@ class OpaqueTokenDsl {
             introspectionUri?.also { opaqueToken.introspectionUri(introspectionUri) }
             introspector?.also { opaqueToken.introspector(introspector) }
             clientCredentials?.also { opaqueToken.introspectionClientCredentials(clientCredentials!!.first, clientCredentials!!.second) }
+            authenticationManager?.also { opaqueToken.authenticationManager(authenticationManager) }
         }
     }
 }
