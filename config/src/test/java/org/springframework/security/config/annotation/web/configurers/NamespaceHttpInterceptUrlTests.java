@@ -121,12 +121,12 @@ HttpMethod.POST, "/admin/post", "/admin/another-post/**").hasRole("ADMIN")
 					.antMatchers("/signup").permitAll()
 					.anyRequest().hasRole("USER")
 					.and()
-				.requiresChannel().antMatchers(
+				.requiresChannel().antMatchers("/login", "/secured/**")
 					// NOTE: channel security is configured separately of authorization (i.e. intercept-url@access
 					// the line below is similar to intercept-url@requires-channel="https":
 					//    <intercept-url pattern="/login" requires-channel="https"/>
 					//" requires-channel="https"/>
-"/login", "/secured/**").requiresSecure().anyRequest()..requiresInsecure();
+				.requiresSecure().anyRequest().requiresInsecure();
 			// @formatter:on
 		}
 
