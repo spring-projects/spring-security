@@ -23,7 +23,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -76,8 +75,7 @@ public class AuthenticationFilterTests {
 	@Mock
 	private RequestMatcher requestMatcher;
 
-	@BeforeEach
-	public void setup() {
+	private void givenResolveWillReturnAuthenticationManager() {
 		given(this.authenticationManagerResolver.resolve(any())).willReturn(this.authenticationManager);
 	}
 
@@ -131,6 +129,7 @@ public class AuthenticationFilterTests {
 	@Test
 	public void filterWhenAuthenticationManagerResolverDefaultsAndAuthenticationSuccessThenContinues()
 			throws Exception {
+		givenResolveWillReturnAuthenticationManager();
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE");
 		given(this.authenticationConverter.convert(any())).willReturn(authentication);
 		given(this.authenticationManager.authenticate(any())).willReturn(authentication);
@@ -163,6 +162,7 @@ public class AuthenticationFilterTests {
 	@Test
 	public void filterWhenAuthenticationManagerResolverDefaultsAndAuthenticationFailThenUnauthorized()
 			throws Exception {
+		givenResolveWillReturnAuthenticationManager();
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE");
 		given(this.authenticationConverter.convert(any())).willReturn(authentication);
 		given(this.authenticationManager.authenticate(any())).willThrow(new BadCredentialsException("failed"));
@@ -191,6 +191,7 @@ public class AuthenticationFilterTests {
 
 	@Test
 	public void filterWhenConvertAndAuthenticationSuccessThenSuccess() throws Exception {
+		givenResolveWillReturnAuthenticationManager();
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE_USER");
 		given(this.authenticationConverter.convert(any())).willReturn(authentication);
 		given(this.authenticationManager.authenticate(any())).willReturn(authentication);
@@ -208,6 +209,7 @@ public class AuthenticationFilterTests {
 
 	@Test
 	public void filterWhenConvertAndAuthenticationEmptyThenServerError() throws Exception {
+		givenResolveWillReturnAuthenticationManager();
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE_USER");
 		given(this.authenticationConverter.convert(any())).willReturn(authentication);
 		given(this.authenticationManager.authenticate(any())).willReturn(null);

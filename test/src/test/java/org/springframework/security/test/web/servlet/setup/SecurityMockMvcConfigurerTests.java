@@ -19,7 +19,6 @@ package org.springframework.security.test.web.servlet.setup;
 import javax.servlet.Filter;
 import javax.servlet.ServletContext;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -55,14 +54,9 @@ public class SecurityMockMvcConfigurerTests {
 	@Mock
 	private ServletContext servletContext;
 
-	@BeforeEach
-	public void setup() {
-		given(this.context.getServletContext()).willReturn(this.servletContext);
-	}
-
 	@Test
 	public void beforeMockMvcCreatedOverrideBean() throws Exception {
-		returnFilterBean();
+		given(this.context.getServletContext()).willReturn(this.servletContext);
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer(this.filter);
 		configurer.afterConfigurerAdded(this.builder);
 		configurer.beforeMockMvcCreated(this.builder, this.context);
@@ -72,6 +66,7 @@ public class SecurityMockMvcConfigurerTests {
 
 	@Test
 	public void beforeMockMvcCreatedBean() throws Exception {
+		given(this.context.getServletContext()).willReturn(this.servletContext);
 		returnFilterBean();
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer();
 		configurer.afterConfigurerAdded(this.builder);
@@ -81,6 +76,7 @@ public class SecurityMockMvcConfigurerTests {
 
 	@Test
 	public void beforeMockMvcCreatedNoBean() throws Exception {
+		given(this.context.getServletContext()).willReturn(this.servletContext);
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer(this.filter);
 		configurer.afterConfigurerAdded(this.builder);
 		configurer.beforeMockMvcCreated(this.builder, this.context);

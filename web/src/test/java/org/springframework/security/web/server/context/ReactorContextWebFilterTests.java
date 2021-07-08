@@ -67,7 +67,6 @@ public class ReactorContextWebFilterTests {
 	public void setup() {
 		this.filter = new ReactorContextWebFilter(this.repository);
 		this.handler = WebTestHandler.bindToWebFilters(this.filter);
-		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 	}
 
 	@Test
@@ -77,12 +76,14 @@ public class ReactorContextWebFilterTests {
 
 	@Test
 	public void filterWhenNoPrincipalAccessThenNoInteractions() {
+		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 		this.handler.exchange(this.exchange);
 		this.securityContext.assertWasNotSubscribed();
 	}
 
 	@Test
 	public void filterWhenGetPrincipalMonoThenNoInteractions() {
+		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 		this.handler = WebTestHandler.bindToWebFilters(this.filter, (e, c) -> {
 			ReactiveSecurityContextHolder.getContext();
 			return c.filter(e);
@@ -105,6 +106,7 @@ public class ReactorContextWebFilterTests {
 	@Test
 	// gh-4962
 	public void filterWhenMainContextThenDoesNotOverride() {
+		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 		String contextKey = "main";
 		WebFilter mainContextWebFilter = (e, c) -> c.filter(e).subscriberContext(Context.of(contextKey, true));
 		WebFilterChain chain = new DefaultWebFilterChain((e) -> Mono.empty(), mainContextWebFilter, this.filter);

@@ -56,8 +56,6 @@ public class LazyCsrfTokenRepositoryTests {
 	@BeforeEach
 	public void setup() {
 		this.token = new DefaultCsrfToken("header", "param", "token");
-		given(this.delegate.generateToken(this.request)).willReturn(this.token);
-		given(this.request.getAttribute(HttpServletResponse.class.getName())).willReturn(this.response);
 	}
 
 	@Test
@@ -73,6 +71,8 @@ public class LazyCsrfTokenRepositoryTests {
 
 	@Test
 	public void generateTokenGetTokenSavesToken() {
+		given(this.delegate.generateToken(this.request)).willReturn(this.token);
+		given(this.request.getAttribute(HttpServletResponse.class.getName())).willReturn(this.response);
 		CsrfToken newToken = this.repository.generateToken(this.request);
 		newToken.getToken();
 		verify(this.delegate).saveToken(this.token, this.request, this.response);

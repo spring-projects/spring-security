@@ -57,7 +57,6 @@ public class CsrfServerLogoutHandlerTests {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 		this.filterExchange = new WebFilterExchange(this.exchange, this.filterChain);
 		this.handler = new CsrfServerLogoutHandler(this.csrfTokenRepository);
-		given(this.csrfTokenRepository.saveToken(this.exchange, null)).willReturn(Mono.empty());
 	}
 
 	@Test
@@ -68,6 +67,7 @@ public class CsrfServerLogoutHandlerTests {
 
 	@Test
 	public void logoutRemovesCsrfToken() {
+		given(this.csrfTokenRepository.saveToken(this.exchange, null)).willReturn(Mono.empty());
 		this.handler.logout(this.filterExchange, new TestingAuthenticationToken("user", "password", "ROLE_USER"))
 				.block();
 		verify(this.csrfTokenRepository).saveToken(this.exchange, null);

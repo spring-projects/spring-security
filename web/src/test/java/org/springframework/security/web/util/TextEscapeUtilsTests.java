@@ -57,12 +57,12 @@ public class TextEscapeUtilsTests {
 	 */
 	@Test
 	public void validSurrogatePairIsAccepted() {
-		assertThat(TextEscapeUtils.escapeEntities("abc\uD801a")).isEqualTo("abc&#66560;a");
+		assertThat(TextEscapeUtils.escapeEntities("abc\uD801\uDC00a")).isEqualTo("abc&#66560;a");
 	}
 
 	@Test
 	public void undefinedSurrogatePairIsIgnored() {
-		assertThat(TextEscapeUtils.escapeEntities("abc\uD888a")).isEqualTo("abca");
+		assertThat(TextEscapeUtils.escapeEntities("abc\uD888\uDC00a")).isEqualTo("abca");
 	}
 
 }

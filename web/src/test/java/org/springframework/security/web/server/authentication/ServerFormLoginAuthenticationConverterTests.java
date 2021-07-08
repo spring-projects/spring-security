@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.server.authentication;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -46,13 +45,13 @@ public class ServerFormLoginAuthenticationConverterTests {
 
 	private ServerFormLoginAuthenticationConverter converter = new ServerFormLoginAuthenticationConverter();
 
-	@BeforeEach
-	public void setup() {
+	public void setupMocks() {
 		given(this.exchange.getFormData()).willReturn(Mono.just(this.data));
 	}
 
 	@Test
 	public void applyWhenUsernameAndPasswordThenCreatesTokenSuccess() {
+		setupMocks();
 		String username = "username";
 		String password = "password";
 		this.data.add("username", username);
@@ -65,6 +64,7 @@ public class ServerFormLoginAuthenticationConverterTests {
 
 	@Test
 	public void applyWhenCustomParametersAndUsernameAndPasswordThenCreatesTokenSuccess() {
+		setupMocks();
 		String usernameParameter = "j_username";
 		String passwordParameter = "j_password";
 		String username = "username";
@@ -81,6 +81,7 @@ public class ServerFormLoginAuthenticationConverterTests {
 
 	@Test
 	public void applyWhenNoDataThenCreatesTokenSuccess() {
+		setupMocks();
 		Authentication authentication = this.converter.convert(this.exchange).block();
 		assertThat(authentication.getName()).isNullOrEmpty();
 		assertThat(authentication.getCredentials()).isNull();

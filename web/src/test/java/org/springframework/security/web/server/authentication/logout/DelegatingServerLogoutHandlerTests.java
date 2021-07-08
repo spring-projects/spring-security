@@ -22,7 +22,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -61,10 +60,12 @@ public class DelegatingServerLogoutHandlerTests {
 	@Mock
 	private Authentication authentication;
 
-	@BeforeEach
-	public void setup() {
+	private void givenDelegate1WillReturn() {
 		given(this.delegate1.logout(any(WebFilterExchange.class), any(Authentication.class)))
 				.willReturn(this.delegate1Result.mono());
+	}
+
+	private void givenDelegate2WillReturn() {
 		given(this.delegate2.logout(any(WebFilterExchange.class), any(Authentication.class)))
 				.willReturn(this.delegate2Result.mono());
 	}
@@ -92,6 +93,7 @@ public class DelegatingServerLogoutHandlerTests {
 
 	@Test
 	public void logoutWhenSingleThenExecuted() {
+		givenDelegate1WillReturn();
 		DelegatingServerLogoutHandler handler = new DelegatingServerLogoutHandler(this.delegate1);
 		handler.logout(this.exchange, this.authentication).block();
 		this.delegate1Result.assertWasSubscribed();
@@ -99,6 +101,8 @@ public class DelegatingServerLogoutHandlerTests {
 
 	@Test
 	public void logoutWhenMultipleThenExecuted() {
+		givenDelegate1WillReturn();
+		givenDelegate2WillReturn();
 		DelegatingServerLogoutHandler handler = new DelegatingServerLogoutHandler(this.delegate1, this.delegate2);
 		handler.logout(this.exchange, this.authentication).block();
 		this.delegate1Result.assertWasSubscribed();
