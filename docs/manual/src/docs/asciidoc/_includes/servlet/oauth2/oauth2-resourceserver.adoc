@@ -2537,7 +2537,7 @@ The issuer should be one that the code can verify from a trusted source like a l
 
 You may have observed that this strategy, while simple, comes with the trade-off that the JWT is parsed once by the `AuthenticationManagerResolver` and then again by the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> later on in the request.
 
-This extra parsing can be alleviated by configuring the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> directly with a `JWTClaimSetAwareJWSKeySelector` from Nimbus:
+This extra parsing can be alleviated by configuring the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> directly with a `JWTClaimsSetAwareJWSKeySelector` from Nimbus:
 
 ====
 .Java
@@ -2545,7 +2545,7 @@ This extra parsing can be alleviated by configuring the <<oauth2resourceserver-j
 ----
 @Component
 public class TenantJWSKeySelector
-    implements JWTClaimSetAwareJWSKeySelector<SecurityContext> {
+    implements JWTClaimsSetAwareJWSKeySelector<SecurityContext> {
 
 	private final TenantRepository tenants; <1>
 	private final Map<String, JWSKeySelector<SecurityContext>> selectors = new ConcurrentHashMap<>(); <2>
@@ -2586,7 +2586,7 @@ public class TenantJWSKeySelector
 [source,kotlin,role="secondary"]
 ----
 @Component
-class TenantJWSKeySelector(tenants: TenantRepository) : JWTClaimSetAwareJWSKeySelector<SecurityContext> {
+class TenantJWSKeySelector(tenants: TenantRepository) : JWTClaimsSetAwareJWSKeySelector<SecurityContext> {
     private val tenants: TenantRepository <1>
     private val selectors: MutableMap<String, JWSKeySelector<SecurityContext>> = ConcurrentHashMap() <2>
 
