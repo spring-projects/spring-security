@@ -76,18 +76,15 @@ public class JdbcAclServiceTests {
 
 	@BeforeEach
 	public void setUp() {
-		this.aclService = new JdbcAclService(this.jdbcOperations, this.lookupStrategy);
-		this.aclServiceIntegration = new JdbcAclService(this.embeddedDatabase, this.lookupStrategy);
-	}
-
-	@BeforeEach
-	public void setUpEmbeddedDatabase() {
 		// @formatter:off
 		this.embeddedDatabase = new EmbeddedDatabaseBuilder()
 			.addScript("createAclSchemaWithAclClassIdType.sql")
 			.addScript("db/sql/test_data_hierarchy.sql")
 			.build();
 		// @formatter:on
+
+		this.aclService = new JdbcAclService(this.jdbcOperations, this.lookupStrategy);
+		this.aclServiceIntegration = new JdbcAclService(this.embeddedDatabase, this.lookupStrategy);
 	}
 
 	@AfterEach
