@@ -63,6 +63,9 @@ public class CorsSpecTests {
 	@BeforeEach
 	public void setup() {
 		this.http = new TestingServerHttpSecurity().applicationContext(this.context);
+	}
+
+	private void givenGetCorsConfigurationWillReturnWildcard() {
 		CorsConfiguration value = new CorsConfiguration();
 		value.setAllowedOrigins(Arrays.asList("*"));
 		given(this.source.getCorsConfiguration(any())).willReturn(value);
@@ -70,6 +73,7 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenEnabledThenAccessControlAllowOriginAndSecurityHeaders() {
+		givenGetCorsConfigurationWillReturnWildcard();
 		this.http.cors().configurationSource(this.source);
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");
@@ -78,6 +82,7 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenEnabledInLambdaThenAccessControlAllowOriginAndSecurityHeaders() {
+		givenGetCorsConfigurationWillReturnWildcard();
 		this.http.cors((cors) -> cors.configurationSource(this.source));
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");
@@ -86,6 +91,7 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenCorsConfigurationSourceBeanThenAccessControlAllowOriginAndSecurityHeaders() {
+		givenGetCorsConfigurationWillReturnWildcard();
 		given(this.context.getBeanNamesForType(any(ResolvableType.class))).willReturn(new String[] { "source" },
 				new String[0]);
 		given(this.context.getBean("source")).willReturn(this.source);

@@ -78,10 +78,6 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	@BeforeEach
 	public void setup() {
 		this.manager = new UserDetailsRepositoryReactiveAuthenticationManager(this.userDetailsService);
-		given(this.scheduler.schedule(any())).willAnswer((a) -> {
-			Runnable r = a.getArgument(0);
-			return Schedulers.immediate().schedule(r);
-		});
 	}
 
 	@Test
@@ -91,6 +87,10 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authentiateWhenCustomSchedulerThenUsed() {
+		given(this.scheduler.schedule(any())).willAnswer((a) -> {
+			Runnable r = a.getArgument(0);
+			return Schedulers.immediate().schedule(r);
+		});
 		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(this.user));
 		given(this.encoder.matches(any(), any())).willReturn(true);
 		this.manager.setScheduler(this.scheduler);

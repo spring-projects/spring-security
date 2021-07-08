@@ -74,9 +74,6 @@ public class ExceptionTranslationWebFilterTests {
 
 	@BeforeEach
 	public void setup() {
-		given(this.exchange.getResponse()).willReturn(new MockServerHttpResponse());
-		given(this.deniedHandler.handle(any(), any())).willReturn(this.deniedPublisher.mono());
-		given(this.entryPoint.commence(any(), any())).willReturn(this.entryPointPublisher.mono());
 		this.filter.setAuthenticationEntryPoint(this.entryPoint);
 		this.filter.setAccessDeniedHandler(this.deniedHandler);
 	}
@@ -100,6 +97,7 @@ public class ExceptionTranslationWebFilterTests {
 
 	@Test
 	public void filterWhenAccessDeniedExceptionAndNotAuthenticatedThenHandled() {
+		given(this.entryPoint.commence(any(), any())).willReturn(this.entryPointPublisher.mono());
 		given(this.exchange.getPrincipal()).willReturn(Mono.empty());
 		given(this.chain.filter(this.exchange)).willReturn(Mono.error(new AccessDeniedException("Not Authorized")));
 		StepVerifier.create(this.filter.filter(this.exchange, this.chain)).verifyComplete();
@@ -109,6 +107,7 @@ public class ExceptionTranslationWebFilterTests {
 
 	@Test
 	public void filterWhenDefaultsAndAccessDeniedExceptionAndAuthenticatedThenForbidden() {
+		given(this.exchange.getResponse()).willReturn(new MockServerHttpResponse());
 		this.filter = new ExceptionTranslationWebFilter();
 		given(this.exchange.getPrincipal()).willReturn(Mono.just(this.principal));
 		given(this.chain.filter(this.exchange)).willReturn(Mono.error(new AccessDeniedException("Not Authorized")));
@@ -118,6 +117,7 @@ public class ExceptionTranslationWebFilterTests {
 
 	@Test
 	public void filterWhenDefaultsAndAccessDeniedExceptionAndNotAuthenticatedThenUnauthorized() {
+		given(this.exchange.getResponse()).willReturn(new MockServerHttpResponse());
 		this.filter = new ExceptionTranslationWebFilter();
 		given(this.exchange.getPrincipal()).willReturn(Mono.empty());
 		given(this.chain.filter(this.exchange)).willReturn(Mono.error(new AccessDeniedException("Not Authorized")));
@@ -127,6 +127,8 @@ public class ExceptionTranslationWebFilterTests {
 
 	@Test
 	public void filterWhenAccessDeniedExceptionAndAuthenticatedThenHandled() {
+		given(this.deniedHandler.handle(any(), any())).willReturn(this.deniedPublisher.mono());
+		given(this.entryPoint.commence(any(), any())).willReturn(this.entryPointPublisher.mono());
 		given(this.exchange.getPrincipal()).willReturn(Mono.just(this.principal));
 		given(this.chain.filter(this.exchange)).willReturn(Mono.error(new AccessDeniedException("Not Authorized")));
 		StepVerifier.create(this.filter.filter(this.exchange, this.chain)).expectComplete().verify();
@@ -136,6 +138,7 @@ public class ExceptionTranslationWebFilterTests {
 
 	@Test
 	public void filterWhenAccessDeniedExceptionAndAnonymousAuthenticatedThenHandled() {
+		given(this.entryPoint.commence(any(), any())).willReturn(this.entryPointPublisher.mono());
 		given(this.exchange.getPrincipal()).willReturn(Mono.just(this.anonymousPrincipal));
 		given(this.chain.filter(this.exchange)).willReturn(Mono.error(new AccessDeniedException("Not Authorized")));
 		StepVerifier.create(this.filter.filter(this.exchange, this.chain)).expectComplete().verify();

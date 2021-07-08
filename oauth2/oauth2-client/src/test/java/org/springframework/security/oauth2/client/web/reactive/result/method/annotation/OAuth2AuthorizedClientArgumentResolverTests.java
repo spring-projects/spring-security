@@ -95,8 +95,6 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration, this.authentication.getName(),
 				TestOAuth2AccessTokens.noScopes());
-		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any()))
-				.willReturn(Mono.just(this.authorizedClient));
 	}
 
 	@Test
@@ -146,6 +144,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	@Test
 	public void resolveArgumentWhenRegistrationIdEmptyAndOAuth2AuthenticationThenResolves() {
+		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any()))
+				.willReturn(Mono.just(this.authorizedClient));
 		this.authentication = mock(OAuth2AuthenticationToken.class);
 		given(((OAuth2AuthenticationToken) this.authentication).getAuthorizedClientRegistrationId())
 				.willReturn("client1");
@@ -155,6 +155,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	@Test
 	public void resolveArgumentWhenParameterTypeOAuth2AuthorizedClientAndCurrentAuthenticationNullThenResolves() {
+		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any()))
+				.willReturn(Mono.just(this.authorizedClient));
 		this.authentication = null;
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient",
 				OAuth2AuthorizedClient.class);
@@ -163,6 +165,10 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	@Test
 	public void resolveArgumentWhenOAuth2AuthorizedClientFoundThenResolves() {
+		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any()))
+				.willReturn(Mono.just(this.authorizedClient));
+		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any()))
+				.willReturn(Mono.just(this.authorizedClient));
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient",
 				OAuth2AuthorizedClient.class);
 		assertThat(resolveArgument(methodParameter)).isSameAs(this.authorizedClient);

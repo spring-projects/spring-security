@@ -176,7 +176,18 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		this.authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientManager);
+	}
+
+	private void setupMocks() {
+		setupMockSaveAuthorizedClient();
+		setupMockHeaders();
+	}
+
+	private void setupMockSaveAuthorizedClient() {
 		given(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
+	}
+
+	private void setupMockHeaders() {
 		given(this.exchange.getResponse().headers()).willReturn(mock(ClientResponse.Headers.class));
 	}
 
@@ -250,6 +261,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenClientCredentialsTokenExpiredThenGetNewToken() {
+		setupMocks();
 		// @formatter:off
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse
 				.withToken("new-token")
@@ -314,6 +326,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenRefreshRequiredThenRefresh() {
+		setupMocks();
 		OAuth2AccessTokenResponse response = OAuth2AccessTokenResponse.withToken("token-1")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600).refreshToken("refresh-1").build();
 		given(this.refreshTokenTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(response));
@@ -353,6 +366,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenRefreshRequiredAndEmptyReactiveSecurityContextThenSaved() {
+		setupMocks();
 		OAuth2AccessTokenResponse response = OAuth2AccessTokenResponse.withToken("token-1")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600).refreshToken("refresh-1").build();
 		given(this.refreshTokenTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(response));
@@ -427,6 +441,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenUnauthorizedThenInvokeFailureHandler() {
+		setupMockHeaders();
 		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
 		given(this.authorizationFailureHandler.onAuthorizationFailure(any(), any(), any()))
@@ -501,6 +516,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenForbiddenThenInvokeFailureHandler() {
+		setupMockHeaders();
 		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
 		given(this.authorizationFailureHandler.onAuthorizationFailure(any(), any(), any()))
@@ -636,6 +652,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenOtherHttpStatusShouldNotInvokeFailureHandler() {
+		setupMockHeaders();
 		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
@@ -650,6 +667,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenPasswordClientNotAuthorizedThenGetNewToken() {
+		setupMocks();
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("test", "this");
 		ClientRegistration registration = TestClientRegistrations.password().build();
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("new-token")
@@ -798,6 +816,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	// gh-7544
 	@Test
 	public void filterWhenClientCredentialsClientNotAuthorizedAndOutsideRequestContextThenGetNewToken() {
+		setupMockHeaders();
 		// Use UnAuthenticatedServerOAuth2AuthorizedClientRepository when operating
 		// outside of a request context
 		ServerOAuth2AuthorizedClientRepository unauthenticatedAuthorizedClientRepository = spy(
