@@ -28,10 +28,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import reactor.blockhound.BlockHound;
 import reactor.util.context.Context;
@@ -89,7 +89,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 
 	private MockHttpServletResponse response;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBlockingChecks() {
 		// IMPORTANT:
 		// Before enabling BlockHound, we need to white-list
@@ -106,7 +106,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		// @formatter:on
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.clientRegistrationRepository = mock(ClientRegistrationRepository.class);
 		final OAuth2AuthorizedClientRepository delegate = new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(
@@ -143,7 +143,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(this.request, this.response));
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		this.server.shutdown();
 		SecurityContextHolder.clearContext();

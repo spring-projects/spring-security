@@ -18,7 +18,7 @@ package org.springframework.security.oauth2.jwt;
 
 import java.util.function.Predicate;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 

@@ -24,9 +24,9 @@ import java.util.Map;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -60,7 +60,7 @@ public class CustomUserTypesOAuth2UserServiceTests {
 
 	private MockWebServer server;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
@@ -75,7 +75,7 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		this.userService = new CustomUserTypesOAuth2UserService(customUserTypes);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		this.server.shutdown();
 	}

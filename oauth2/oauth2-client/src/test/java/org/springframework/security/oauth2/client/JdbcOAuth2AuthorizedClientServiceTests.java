@@ -27,9 +27,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
@@ -86,7 +86,7 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 
 	private JdbcOAuth2AuthorizedClientService authorizedClientService;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.clientRegistrationRepository = mock(ClientRegistrationRepository.class);
@@ -97,7 +97,7 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 				this.clientRegistrationRepository);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		this.db.shutdown();
 	}

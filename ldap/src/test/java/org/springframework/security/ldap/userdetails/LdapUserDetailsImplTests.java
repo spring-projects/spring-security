@@ -16,7 +16,7 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.core.CredentialsContainer;
 

@@ -24,9 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -80,7 +80,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		return request;
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 		this.successHandler.setDefaultTargetUrl("/logged_in.jsp");
@@ -89,7 +89,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

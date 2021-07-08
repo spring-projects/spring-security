@@ -23,7 +23,7 @@ import java.util.Locale;
 
 import javax.servlet.http.Cookie;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.PortResolverImpl;

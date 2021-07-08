@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -54,7 +54,7 @@ public class HpkpHeaderWriterTests {
 
 	private static final String HPKP_RO_HEADER_NAME = "Public-Key-Pins-Report-Only";
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();

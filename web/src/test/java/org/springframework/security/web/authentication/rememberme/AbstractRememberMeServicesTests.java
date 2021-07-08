@@ -20,8 +20,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import org.springframework.context.MessageSource;
@@ -56,7 +56,7 @@ public class AbstractRememberMeServicesTests {
 
 	MockUserDetailsService uds;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.uds = new MockUserDetailsService(joe, false);
 	}

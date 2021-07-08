@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;

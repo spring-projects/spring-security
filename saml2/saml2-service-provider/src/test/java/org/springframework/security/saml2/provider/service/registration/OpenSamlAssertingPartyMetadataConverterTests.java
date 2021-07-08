@@ -22,8 +22,8 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
 import org.springframework.security.saml2.Saml2Exception;
@@ -58,7 +58,7 @@ public class OpenSamlAssertingPartyMetadataConverterTests {
 
 	private OpenSamlAssertingPartyMetadataConverter converter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.converter = new OpenSamlAssertingPartyMetadataConverter();
 	}

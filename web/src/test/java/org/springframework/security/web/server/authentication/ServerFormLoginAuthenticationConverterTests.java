@@ -16,11 +16,11 @@
 
 package org.springframework.security.web.server.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
@@ -36,7 +36,7 @@ import static org.mockito.BDDMockito.given;
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ServerFormLoginAuthenticationConverterTests {
 
 	@Mock
@@ -46,7 +46,7 @@ public class ServerFormLoginAuthenticationConverterTests {
 
 	private ServerFormLoginAuthenticationConverter converter = new ServerFormLoginAuthenticationConverter();
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		given(this.exchange.getFormData()).willReturn(Mono.just(this.data));
 	}

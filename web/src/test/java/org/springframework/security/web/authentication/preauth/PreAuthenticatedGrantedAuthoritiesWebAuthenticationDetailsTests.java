@@ -23,7 +23,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.GrantedAuthority;

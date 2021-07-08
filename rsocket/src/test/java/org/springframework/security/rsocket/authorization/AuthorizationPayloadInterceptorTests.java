@@ -16,10 +16,10 @@
 
 package org.springframework.security.rsocket.authorization;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.test.publisher.PublisherProbe;
@@ -41,7 +41,7 @@ import static org.mockito.BDDMockito.given;
 /**
  * @author Rob Winch
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthorizationPayloadInterceptorTests {
 
 	@Mock

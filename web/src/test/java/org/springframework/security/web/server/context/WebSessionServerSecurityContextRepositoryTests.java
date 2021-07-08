@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.server.context;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;

@@ -18,7 +18,7 @@ package org.springframework.security.access.intercept;
 
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

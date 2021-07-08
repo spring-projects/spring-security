@@ -27,8 +27,8 @@ import org.jasig.cas.client.authentication.AttributePrincipalImpl;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
 import org.json.JSONException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
@@ -92,7 +92,7 @@ public class CasAuthenticationTokenMixinTests {
 
 	protected ObjectMapper mapper;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.mapper = new ObjectMapper();
 		ClassLoader loader = getClass().getClassLoader();

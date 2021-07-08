@@ -18,8 +18,8 @@ package org.springframework.security.config.ldap;
 
 import java.text.MessageFormat;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.ApplicationContextException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,7 +39,7 @@ public class LdapProviderBeanDefinitionParserTests {
 
 	InMemoryXmlApplicationContext appCtx;
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		if (this.appCtx != null) {
 			this.appCtx.close();

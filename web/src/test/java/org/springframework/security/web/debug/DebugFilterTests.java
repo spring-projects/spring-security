@@ -23,13 +23,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.FilterChainProxy;
@@ -47,7 +47,7 @@ import static org.mockito.Mockito.verify;
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DebugFilterTests {
 
 	@Captor
@@ -75,7 +75,7 @@ public class DebugFilterTests {
 
 	private DebugFilter filter;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		given(this.request.getHeaderNames()).willReturn(Collections.enumeration(Collections.<String>emptyList()));
 		given(this.request.getServletPath()).willReturn("/login");

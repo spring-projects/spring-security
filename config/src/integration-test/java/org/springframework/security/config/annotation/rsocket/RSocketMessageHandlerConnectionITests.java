@@ -25,10 +25,10 @@ import io.rsocket.exceptions.RejectedSetupException;
 import io.rsocket.frame.decoder.PayloadDecoder;
 import io.rsocket.transport.netty.server.CloseableChannel;
 import io.rsocket.transport.netty.server.TcpServerTransport;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -47,7 +47,7 @@ import org.springframework.security.rsocket.metadata.BasicAuthenticationEncoder;
 import org.springframework.security.rsocket.metadata.UsernamePasswordMetadata;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -60,7 +60,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Ebert Toribio
  */
 @ContextConfiguration
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class RSocketMessageHandlerConnectionITests {
 
 	@Autowired
@@ -76,7 +76,7 @@ public class RSocketMessageHandlerConnectionITests {
 
 	private RSocketRequester requester;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		// @formatter:off
 		this.server = RSocketServer.create()
@@ -90,7 +90,7 @@ public class RSocketMessageHandlerConnectionITests {
 		// @formatter:on
 	}
 
-	@After
+	@AfterEach
 	public void dispose() {
 		this.requester.rsocket().dispose();
 		this.server.dispose();

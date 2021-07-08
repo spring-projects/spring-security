@@ -16,9 +16,9 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.server.UnboundIdContainer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Josh Cummings
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = LdapUserDetailsManagerModifyPasswordTests.UnboundIdContainerConfiguration.class)
 public class LdapUserDetailsManagerModifyPasswordTests {
 
@@ -52,7 +52,7 @@ public class LdapUserDetailsManagerModifyPasswordTests {
 	@Autowired
 	ContextSource contextSource;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.userDetailsManager = new LdapUserDetailsManager(this.contextSource);
 		this.userDetailsManager.setUsePasswordModifyExtensionOperation(true);

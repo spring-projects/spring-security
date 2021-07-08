@@ -21,8 +21,8 @@ import java.util.function.Supplier;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -53,7 +53,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  */
 public class AuthorizationFilterTests {
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

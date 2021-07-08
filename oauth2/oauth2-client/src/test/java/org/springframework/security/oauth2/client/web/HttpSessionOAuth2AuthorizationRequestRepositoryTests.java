@@ -19,9 +19,9 @@ package org.springframework.security.oauth2.client.web;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Joe Grandja
  * @author Craig Andrews
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public abstract class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 
 	protected HttpSessionOAuth2AuthorizationRequestRepository authorizationRequestRepository;

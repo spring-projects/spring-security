@@ -16,8 +16,8 @@
 
 package org.springframework.security.acls.domain;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.acls.model.Permission;
 
@@ -32,7 +32,7 @@ public class PermissionTests {
 
 	private DefaultPermissionFactory permissionFactory;
 
-	@Before
+	@BeforeEach
 	public void createPermissionfactory() {
 		this.permissionFactory = new DefaultPermissionFactory();
 	}

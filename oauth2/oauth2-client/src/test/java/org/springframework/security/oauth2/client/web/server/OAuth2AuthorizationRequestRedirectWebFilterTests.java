@@ -19,11 +19,11 @@ package org.springframework.security.oauth2.client.web.server;
 import java.net.URI;
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
@@ -47,7 +47,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  * @author Rob Winch
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 
 	@Mock
@@ -65,7 +65,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 
 	private WebTestClient client;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.filter = new OAuth2AuthorizationRequestRedirectWebFilter(this.clientRepository);
 		this.filter.setAuthorizationRequestRepository(this.authzRequestRepository);

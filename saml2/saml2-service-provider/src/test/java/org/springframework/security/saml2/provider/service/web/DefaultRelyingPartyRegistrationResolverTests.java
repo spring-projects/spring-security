@@ -16,7 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.web;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository;

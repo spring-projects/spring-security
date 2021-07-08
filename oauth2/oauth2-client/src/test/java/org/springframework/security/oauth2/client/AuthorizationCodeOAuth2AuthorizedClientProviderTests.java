@@ -16,8 +16,8 @@
 
 package org.springframework.security.oauth2.client;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -44,7 +44,7 @@ public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
 
 	private Authentication principal;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.authorizedClientProvider = new AuthorizationCodeOAuth2AuthorizedClientProvider();
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();

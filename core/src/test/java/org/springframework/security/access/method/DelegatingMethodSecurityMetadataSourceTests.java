@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
 import org.springframework.security.access.ConfigAttribute;

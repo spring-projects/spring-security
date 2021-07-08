@@ -21,11 +21,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Dan Zheng
  * @since 5.2
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CurrentSecurityContextArgumentResolverTests {
 
 	@Mock
@@ -74,7 +74,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 
 	CurrentSecurityContextArgumentResolver resolver;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.resolver = new CurrentSecurityContextArgumentResolver(new ReactiveAdapterRegistry());
 		this.resolver.setBeanResolver(this.beanResolver);

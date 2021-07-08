@@ -18,11 +18,11 @@ package org.springframework.security.web.method.annotation;
 
 import java.lang.reflect.Method;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CsrfTokenArgumentResolverTests {
 
 	@Mock
@@ -57,7 +57,7 @@ public class CsrfTokenArgumentResolverTests {
 
 	private CsrfTokenArgumentResolver resolver;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.token = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "secret");
 		this.resolver = new CsrfTokenArgumentResolver();

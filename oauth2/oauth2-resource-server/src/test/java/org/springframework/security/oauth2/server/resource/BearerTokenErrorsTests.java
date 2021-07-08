@@ -16,7 +16,7 @@
 
 package org.springframework.security.oauth2.server.resource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;
 

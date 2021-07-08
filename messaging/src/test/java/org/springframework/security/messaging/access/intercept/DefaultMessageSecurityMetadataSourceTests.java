@@ -20,11 +20,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.messaging.Message;
 import org.springframework.security.access.ConfigAttribute;
@@ -35,7 +35,7 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultMessageSecurityMetadataSourceTests {
 
 	@Mock
@@ -58,7 +58,7 @@ public class DefaultMessageSecurityMetadataSourceTests {
 
 	MessageSecurityMetadataSource source;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.messageMap = new LinkedHashMap<>();
 		this.messageMap.put(this.matcher1, Arrays.<ConfigAttribute>asList(this.config1));

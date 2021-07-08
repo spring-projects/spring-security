@@ -19,7 +19,7 @@ package org.springframework.security.config.annotation.authentication.ldap;
 import java.util.Collections;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;

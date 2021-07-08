@@ -18,8 +18,8 @@ package org.springframework.security.web.jackson2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -46,7 +46,7 @@ public class PreAuthenticatedAuthenticationTokenMixinTests extends AbstractMixin
 	// @formatter:on
 	PreAuthenticatedAuthenticationToken expected;
 
-	@Before
+	@BeforeEach
 	public void setupExpected() {
 		this.expected = new PreAuthenticatedAuthenticationToken("principal", "credentials",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));

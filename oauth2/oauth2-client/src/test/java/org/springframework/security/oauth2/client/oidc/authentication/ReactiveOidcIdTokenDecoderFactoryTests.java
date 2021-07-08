@@ -19,8 +19,8 @@ package org.springframework.security.oauth2.client.oidc.authentication;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -57,7 +57,7 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 	private ReactiveOidcIdTokenDecoderFactory idTokenDecoderFactory;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.idTokenDecoderFactory = new ReactiveOidcIdTokenDecoderFactory();
 	}

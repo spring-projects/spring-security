@@ -21,9 +21,9 @@ import java.time.Instant;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -56,7 +56,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 
 	private MockWebServer server;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
@@ -64,7 +64,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		this.clientRegistrationBuilder = TestClientRegistrations.password().tokenUri(tokenUri);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		this.server.shutdown();
 	}

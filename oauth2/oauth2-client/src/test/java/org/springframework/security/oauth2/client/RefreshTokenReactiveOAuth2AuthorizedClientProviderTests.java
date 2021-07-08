@@ -21,8 +21,8 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import reactor.core.publisher.Mono;
 
@@ -62,7 +62,7 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 
 	private OAuth2AuthorizedClient authorizedClient;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.authorizedClientProvider = new RefreshTokenReactiveOAuth2AuthorizedClientProvider();
 		this.accessTokenResponseClient = mock(ReactiveOAuth2AccessTokenResponseClient.class);

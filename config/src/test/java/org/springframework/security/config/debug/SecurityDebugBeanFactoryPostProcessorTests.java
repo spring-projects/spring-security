@@ -17,7 +17,7 @@
 package org.springframework.security.config.debug;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.test.SpringTestRule;

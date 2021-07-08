@@ -16,7 +16,7 @@
 
 package org.springframework.security.concurrent;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.core.context.SecurityContext;
 

@@ -19,12 +19,12 @@ package org.springframework.security.test.web.servlet.setup;
 import javax.servlet.Filter;
 import javax.servlet.ServletContext;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
@@ -37,7 +37,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SecurityMockMvcConfigurerTests {
 
 	@Mock
@@ -55,7 +55,7 @@ public class SecurityMockMvcConfigurerTests {
 	@Mock
 	private ServletContext servletContext;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		given(this.context.getServletContext()).willReturn(this.servletContext);
 	}

@@ -21,14 +21,14 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.core.SpringVersion;
 import org.springframework.util.ReflectionUtils;
@@ -46,7 +46,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Luke Taylor
  * @author Rob Winch
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SpringSecurityCoreVersionTests {
 
 	@Mock
@@ -58,13 +58,13 @@ public class SpringSecurityCoreVersionTests {
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private MockedStatic<SpringSecurityCoreVersion> springSecurityCoreVersion;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		Field logger = ReflectionUtils.findField(SpringSecurityCoreVersion.class, "logger");
 		StaticFinalReflectionUtils.setField(logger, this.logger);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		System.clearProperty(getDisableChecksProperty());
 		Field logger = ReflectionUtils.findField(SpringSecurityCoreVersion.class, "logger");

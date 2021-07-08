@@ -18,11 +18,11 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.function.Predicate;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.AuthenticationException;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Josh Cummings
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class JwtAuthenticationProviderTests {
 
 	@Mock
@@ -56,7 +56,7 @@ public class JwtAuthenticationProviderTests {
 
 	JwtAuthenticationProvider provider;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.provider = new JwtAuthenticationProvider(this.jwtDecoder);
 		this.provider.setJwtAuthenticationConverter(this.jwtAuthenticationConverter);

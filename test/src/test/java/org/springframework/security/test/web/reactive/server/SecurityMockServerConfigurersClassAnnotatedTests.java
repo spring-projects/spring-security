@@ -18,8 +18,8 @@ package org.springframework.security.test.web.reactive.server;
 
 import java.security.Principal;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -28,7 +28,7 @@ import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0
  */
 @WithMockUser
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SecurityTestExecutionListeners
 public class SecurityMockServerConfigurersClassAnnotatedTests extends AbstractMockServerConfigurersTests {
 

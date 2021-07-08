@@ -19,7 +19,7 @@ package org.springframework.security.config.annotation.web.configuration;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;

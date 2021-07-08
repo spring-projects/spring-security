@@ -19,8 +19,8 @@ package org.springframework.security.oauth2.client;
 import java.time.Duration;
 import java.time.Instant;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -55,7 +55,7 @@ public class PasswordReactiveOAuth2AuthorizedClientProviderTests {
 
 	private Authentication principal;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.authorizedClientProvider = new PasswordReactiveOAuth2AuthorizedClientProvider();
 		this.accessTokenResponseClient = mock(ReactiveOAuth2AccessTokenResponseClient.class);

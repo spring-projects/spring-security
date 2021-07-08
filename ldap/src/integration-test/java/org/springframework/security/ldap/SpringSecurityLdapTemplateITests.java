@@ -26,16 +26,16 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.UncategorizedLdapException;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Luke Taylor
  * @author Eddú Meléndez
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
 public class SpringSecurityLdapTemplateITests {
 
@@ -53,7 +53,7 @@ public class SpringSecurityLdapTemplateITests {
 
 	private SpringSecurityLdapTemplate template;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.template = new SpringSecurityLdapTemplate(this.contextSource);
 	}

@@ -19,9 +19,9 @@ package org.springframework.security.access.intercept.aopalliance;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -84,7 +84,7 @@ public class MethodSecurityInterceptorTests {
 
 	private ApplicationEventPublisher eventPublisher;
 
-	@Before
+	@BeforeEach
 	public final void setUp() {
 		SecurityContextHolder.clearContext();
 		this.token = new TestingAuthenticationToken("Test", "Password");
@@ -100,7 +100,7 @@ public class MethodSecurityInterceptorTests {
 		createTarget(false);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

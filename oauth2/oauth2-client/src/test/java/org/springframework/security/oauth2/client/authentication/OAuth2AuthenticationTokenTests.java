@@ -19,8 +19,8 @@ package org.springframework.security.oauth2.client.authentication;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -42,7 +42,7 @@ public class OAuth2AuthenticationTokenTests {
 
 	private String authorizedClientRegistrationId;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.principal = mock(OAuth2User.class);
 		this.authorities = Collections.emptyList();

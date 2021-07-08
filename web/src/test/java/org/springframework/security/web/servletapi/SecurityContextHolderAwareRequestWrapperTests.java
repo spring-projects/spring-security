@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.servletapi;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.verify;
  */
 public class SecurityContextHolderAwareRequestWrapperTests {
 
-	@Before
+	@BeforeEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

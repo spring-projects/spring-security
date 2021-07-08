@@ -16,8 +16,8 @@
 
 package org.springframework.security.core.context;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 public class SecurityContextHolderTests {
 
-	@Before
+	@BeforeEach
 	public final void setUp() {
 		SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
 	}

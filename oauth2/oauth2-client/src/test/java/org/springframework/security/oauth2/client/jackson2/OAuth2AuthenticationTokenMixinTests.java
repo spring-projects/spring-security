@@ -27,8 +27,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.DecimalUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -60,7 +60,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 
 	private ObjectMapper mapper;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		ClassLoader loader = getClass().getClassLoader();
 		this.mapper = new ObjectMapper();

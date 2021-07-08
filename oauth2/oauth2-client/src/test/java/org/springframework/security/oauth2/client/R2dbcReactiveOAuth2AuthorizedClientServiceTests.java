@@ -24,8 +24,8 @@ import java.util.HashSet;
 import io.r2dbc.h2.H2ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Result;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -71,7 +71,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 
 	private R2dbcReactiveOAuth2AuthorizedClientService authorizedClientService;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		final ConnectionFactory connectionFactory = createDb();
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();

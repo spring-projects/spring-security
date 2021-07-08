@@ -22,9 +22,9 @@ import java.util.Base64;
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import org.springframework.context.ConfigurableApplicationContext;
@@ -53,7 +53,7 @@ public class NamespaceHttpBasicTests {
 
 	Filter springSecurityFilterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest("GET", "");
 		this.request.setMethod("GET");
@@ -61,7 +61,7 @@ public class NamespaceHttpBasicTests {
 		this.chain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void teardown() {
 		if (this.context != null) {
 			this.context.close();

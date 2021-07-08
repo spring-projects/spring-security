@@ -18,14 +18,14 @@ package org.springframework.security.config.annotation.web;
 
 import java.util.Arrays;
 
-import org.junit.After;
 import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.support.SpringFactoriesLoader;
@@ -55,7 +55,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WebSecurityConfigurerAdapterMockitoTests {
 
 	ConfigurableWebApplicationContext context;
@@ -69,7 +69,7 @@ public class WebSecurityConfigurerAdapterMockitoTests {
 	@Mock
 	private MockedStatic<SpringFactoriesLoader> springFactoriesLoader;
 
-	@After
+	@AfterEach
 	public void close() {
 		if (this.context != null) {
 			this.context.close();

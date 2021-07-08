@@ -21,14 +21,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.internal.stubbing.answers.Returns;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verify;
  * @author Rob Winch
  * @since 3.2
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DelegatingSecurityContextCallableTests {
 
 	@Mock
@@ -60,7 +60,7 @@ public class DelegatingSecurityContextCallableTests {
 
 	private SecurityContext originalSecurityContext;
 
-	@Before
+	@BeforeEach
 	@SuppressWarnings("serial")
 	public void setUp() throws Exception {
 		this.originalSecurityContext = SecurityContextHolder.createEmptyContext();
@@ -75,7 +75,7 @@ public class DelegatingSecurityContextCallableTests {
 		this.executor = Executors.newFixedThreadPool(1);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

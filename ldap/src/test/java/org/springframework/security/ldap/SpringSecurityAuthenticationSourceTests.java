@@ -16,9 +16,9 @@
 
 package org.springframework.security.ldap;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.ldap.core.AuthenticationSource;
 import org.springframework.ldap.core.DistinguishedName;
@@ -37,8 +37,8 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 public class SpringSecurityAuthenticationSourceTests {
 
-	@Before
-	@After
+	@BeforeEach
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}

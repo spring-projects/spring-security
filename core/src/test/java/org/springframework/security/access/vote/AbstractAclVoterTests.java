@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;

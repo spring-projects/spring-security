@@ -25,9 +25,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -64,8 +64,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  */
 public class ExceptionTranslationFilterTests {
 
-	@After
-	@Before
+	@AfterEach
+	@BeforeEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}

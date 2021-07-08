@@ -22,9 +22,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
@@ -83,7 +83,7 @@ public class AclImplTests {
 
 	private DefaultPermissionFactory permissionFactory;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		SecurityContextHolder.getContext().setAuthentication(this.auth);
 		this.authzStrategy = mock(AclAuthorizationStrategy.class);
@@ -93,7 +93,7 @@ public class AclImplTests {
 		this.permissionFactory = new DefaultPermissionFactory();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

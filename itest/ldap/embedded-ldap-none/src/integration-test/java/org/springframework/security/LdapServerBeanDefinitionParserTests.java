@@ -16,8 +16,8 @@
 
 package org.springframework.security;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -31,7 +31,7 @@ public class LdapServerBeanDefinitionParserTests {
 
 	private ClassPathXmlApplicationContext context;
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		if (this.context != null) {
 			this.context.close();

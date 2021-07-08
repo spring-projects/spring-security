@@ -22,8 +22,8 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.client.MockClientHttpResponse;
@@ -56,7 +56,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 
 	private OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter converter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.converter = new OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter();
 	}

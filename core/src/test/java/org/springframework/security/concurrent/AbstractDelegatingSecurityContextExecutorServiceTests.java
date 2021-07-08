@@ -22,8 +22,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +52,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
 
 	protected DelegatingSecurityContextExecutorService executor;
 
-	@Before
+	@BeforeEach
 	public final void setUpExecutorService() {
 		this.executor = create();
 	}

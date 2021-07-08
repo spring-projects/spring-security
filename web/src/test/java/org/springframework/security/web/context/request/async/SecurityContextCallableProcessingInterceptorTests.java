@@ -18,11 +18,11 @@ package org.springframework.security.web.context.request.async;
 
 import java.util.concurrent.Callable;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SecurityContextCallableProcessingInterceptorTests {
 
 	@Mock
@@ -47,7 +47,7 @@ public class SecurityContextCallableProcessingInterceptorTests {
 	@Mock
 	private NativeWebRequest webRequest;
 
-	@After
+	@AfterEach
 	public void clearSecurityContext() {
 		SecurityContextHolder.clearContext();
 	}

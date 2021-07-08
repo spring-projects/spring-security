@@ -21,11 +21,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.publisher.PublisherProbe;
 
@@ -41,7 +41,7 @@ import static org.mockito.BDDMockito.given;
  * @author Rob Winch
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DelegatingServerAuthenticationSuccessHandlerTests {
 
 	@Mock
@@ -60,7 +60,7 @@ public class DelegatingServerAuthenticationSuccessHandlerTests {
 	@Mock
 	private Authentication authentication;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		given(this.delegate1.onAuthenticationSuccess(any(), any())).willReturn(this.delegate1Result.mono());
 		given(this.delegate2.onAuthenticationSuccess(any(), any())).willReturn(this.delegate2Result.mono());

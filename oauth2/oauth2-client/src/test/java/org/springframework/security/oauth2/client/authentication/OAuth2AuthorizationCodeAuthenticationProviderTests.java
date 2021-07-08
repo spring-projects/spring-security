@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
@@ -59,7 +59,7 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 
 	private OAuth2AuthorizationCodeAuthenticationProvider authenticationProvider;
 
-	@Before
+	@BeforeEach
 	@SuppressWarnings("unchecked")
 	public void setUp() {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();

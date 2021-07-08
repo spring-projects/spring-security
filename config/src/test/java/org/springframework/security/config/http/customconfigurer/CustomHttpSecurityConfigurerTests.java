@@ -20,9 +20,9 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
@@ -57,7 +57,7 @@ public class CustomHttpSecurityConfigurerTests {
 
 	MockFilterChain chain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest("GET", "");
 		this.response = new MockHttpServletResponse();
@@ -65,7 +65,7 @@ public class CustomHttpSecurityConfigurerTests {
 		this.request.setMethod("GET");
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		if (this.context != null) {
 			this.context.close();

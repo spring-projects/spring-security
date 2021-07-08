@@ -21,11 +21,11 @@ import java.util.LinkedHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.csrf.CsrfException;
@@ -36,7 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DelegatingAccessDeniedHandlerTests {
 
 	@Mock
@@ -58,7 +58,7 @@ public class DelegatingAccessDeniedHandlerTests {
 
 	private DelegatingAccessDeniedHandler handler;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.handlers = new LinkedHashMap<>();
 	}

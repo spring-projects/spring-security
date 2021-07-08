@@ -16,7 +16,7 @@
 
 package org.springframework.security.crypto.password;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

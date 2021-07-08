@@ -16,9 +16,9 @@
 
 package org.springframework.security.acls.domain;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.acls.model.Acl;
@@ -43,12 +43,12 @@ public class AclImplementationSecurityCheckTests {
 
 	private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		SecurityContextHolder.clearContext();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

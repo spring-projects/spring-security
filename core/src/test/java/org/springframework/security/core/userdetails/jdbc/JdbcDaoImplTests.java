@@ -16,7 +16,7 @@
 
 package org.springframework.security.core.userdetails.jdbc;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.MessageSource;
 import org.springframework.security.PopulatedDatabase;

@@ -18,9 +18,9 @@ package org.springframework.security.config.annotation.web.socket;
 
 import java.util.HashMap;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,14 +57,14 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 
 	String sessionAttr;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.token = new DefaultCsrfToken("header", "param", "token");
 		this.sessionAttr = "sessionAttr";
 		this.messageUser = new TestingAuthenticationToken("user", "pass", "ROLE_USER");
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		if (this.context != null) {
 			this.context.close();

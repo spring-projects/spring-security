@@ -25,9 +25,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -54,8 +54,8 @@ public class AnonymousAuthenticationFilterTests {
 		filter.doFilter(request, response, filterChain);
 	}
 
-	@Before
-	@After
+	@BeforeEach
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}

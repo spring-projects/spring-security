@@ -24,8 +24,8 @@ import java.lang.annotation.Target;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.expression.Expression;
 import org.springframework.security.access.ConfigAttribute;
@@ -67,7 +67,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	private MockMethodInvocation annotatedAtMethodLevel;
 
-	@Before
+	@BeforeEach
 	public void setUpData() throws Exception {
 		this.voidImpl1 = new MockMethodInvocation(new ReturnVoidImpl1(), ReturnVoid.class, "doSomething", List.class);
 		this.voidImpl2 = new MockMethodInvocation(new ReturnVoidImpl2(), ReturnVoid.class, "doSomething", List.class);

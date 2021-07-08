@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import reactor.core.publisher.Mono;
 import reactor.test.publisher.PublisherProbe;
@@ -97,7 +97,7 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 	private PublisherProbe<Void> removeAuthorizedClientProbe;
 
 	@SuppressWarnings("unchecked")
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.clientRegistrationRepository = mock(ReactiveClientRegistrationRepository.class);
 		given(this.clientRegistrationRepository.findByRegistrationId(anyString())).willReturn(Mono.empty());

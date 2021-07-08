@@ -16,8 +16,8 @@
 
 package org.springframework.security.messaging.util.matcher;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -31,7 +31,7 @@ public class SimpMessageTypeMatcherTests {
 
 	private SimpMessageTypeMatcher matcher;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.matcher = new SimpMessageTypeMatcher(SimpMessageType.MESSAGE);
 	}

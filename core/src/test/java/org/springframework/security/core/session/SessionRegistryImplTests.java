@@ -19,8 +19,8 @@ package org.springframework.security.core.session;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.core.context.SecurityContext;
 
@@ -35,7 +35,7 @@ public class SessionRegistryImplTests {
 
 	private SessionRegistryImpl sessionRegistry;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.sessionRegistry = new SessionRegistryImpl();
 	}

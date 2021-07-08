@@ -23,9 +23,9 @@ import java.util.Base64;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -57,7 +57,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 
 	private ClientRegistration.Builder clientRegistration;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
@@ -65,7 +65,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 				.tokenUri(this.server.url("/oauth2/token").uri().toASCIIString());
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		validateMockitoUsage();
 		this.server.shutdown();

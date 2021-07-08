@@ -23,10 +23,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import reactor.core.CoreSubscriber;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Mono;
@@ -74,14 +74,14 @@ public class SecurityReactorContextConfigurationTests {
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.servletRequest = new MockHttpServletRequest();
 		this.servletResponse = new MockHttpServletResponse();
 		this.authentication = new TestingAuthenticationToken("principal", "password");
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		SecurityContextHolder.clearContext();
 		RequestContextHolder.resetRequestAttributes();

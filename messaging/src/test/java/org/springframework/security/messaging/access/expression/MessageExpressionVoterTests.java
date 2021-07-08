@@ -19,11 +19,11 @@ package org.springframework.security.messaging.access.expression;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -43,7 +43,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MessageExpressionVoterTests {
 
 	@Mock
@@ -68,7 +68,7 @@ public class MessageExpressionVoterTests {
 
 	MessageExpressionVoter voter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.attributes = Arrays
 				.<ConfigAttribute>asList(new MessageExpressionConfigAttribute(this.expression, this.matcher));

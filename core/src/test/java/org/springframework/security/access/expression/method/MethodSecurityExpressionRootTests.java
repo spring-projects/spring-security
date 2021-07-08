@@ -16,8 +16,8 @@
 
 package org.springframework.security.access.expression.method;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -50,7 +50,7 @@ public class MethodSecurityExpressionRootTests {
 
 	private Authentication user;
 
-	@Before
+	@BeforeEach
 	public void createContext() {
 		this.user = mock(Authentication.class);
 		this.root = new MethodSecurityExpressionRoot(this.user);

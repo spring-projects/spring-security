@@ -16,9 +16,9 @@
 
 package org.springframework.security.data.repository.query;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -31,12 +31,12 @@ public class SecurityEvaluationContextExtensionTests {
 
 	SecurityEvaluationContextExtension securityExtension;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.securityExtension = new SecurityEvaluationContextExtension();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		SecurityContextHolder.clearContext();
 	}

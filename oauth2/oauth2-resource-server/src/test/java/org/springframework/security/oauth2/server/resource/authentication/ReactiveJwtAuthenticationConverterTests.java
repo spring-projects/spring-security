@@ -18,7 +18,7 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 
 import org.springframework.core.convert.converter.Converter;

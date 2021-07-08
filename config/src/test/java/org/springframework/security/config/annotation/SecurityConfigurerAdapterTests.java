@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.annotation;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.Ordered;
 
@@ -27,7 +27,7 @@ public class SecurityConfigurerAdapterTests {
 
 	ConcereteSecurityConfigurerAdapter adapter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.adapter = new ConcereteSecurityConfigurerAdapter();
 	}

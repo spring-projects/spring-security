@@ -24,12 +24,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WithSecurityContextTestExcecutionListenerTests {
 
 	private ConfigurableApplicationContext context;
@@ -60,13 +60,13 @@ public class WithSecurityContextTestExcecutionListenerTests {
 
 	private WithSecurityContextTestExecutionListener listener;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.listener = new WithSecurityContextTestExecutionListener();
 		this.context = new AnnotationConfigApplicationContext(Config.class);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		TestSecurityContextHolder.clearContext();
 		if (this.context != null) {

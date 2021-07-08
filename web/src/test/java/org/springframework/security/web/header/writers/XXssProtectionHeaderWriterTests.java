@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.header.writers;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -40,7 +40,7 @@ public class XXssProtectionHeaderWriterTests {
 
 	private static final String XSS_PROTECTION_HEADER = "X-XSS-Protection";
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();

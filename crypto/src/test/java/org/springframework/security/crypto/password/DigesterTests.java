@@ -16,7 +16,7 @@
 
 package org.springframework.security.crypto.password;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;

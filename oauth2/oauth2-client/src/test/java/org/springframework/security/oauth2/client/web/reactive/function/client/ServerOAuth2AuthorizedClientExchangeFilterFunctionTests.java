@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.publisher.PublisherProbe;
 import reactor.util.context.Context;
@@ -113,7 +113,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Rob Winch
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Mock
@@ -159,7 +159,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	private DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		// @formatter:off
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder

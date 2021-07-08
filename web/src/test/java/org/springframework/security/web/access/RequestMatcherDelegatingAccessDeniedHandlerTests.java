@@ -20,8 +20,8 @@ import java.util.LinkedHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -44,7 +44,7 @@ public class RequestMatcherDelegatingAccessDeniedHandlerTests {
 
 	private HttpServletRequest request;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.accessDeniedHandler = mock(AccessDeniedHandler.class);
 		this.deniedHandlers = new LinkedHashMap<>();

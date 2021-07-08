@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.method.sec2499;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.support.GenericXmlApplicationContext;
 
@@ -31,7 +31,7 @@ public class Sec2499Tests {
 
 	private GenericXmlApplicationContext child;
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		if (this.parent != null) {
 			this.parent.close();

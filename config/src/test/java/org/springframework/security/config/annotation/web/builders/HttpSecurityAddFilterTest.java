@@ -28,7 +28,7 @@ import javax.servlet.ServletResponse;
 
 import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;

@@ -19,7 +19,7 @@ package org.springframework.security.messaging.handler.invocation.reactive;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.MethodParameter;

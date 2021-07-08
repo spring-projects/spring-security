@@ -16,7 +16,7 @@
 
 package org.springframework.security.saml2.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 

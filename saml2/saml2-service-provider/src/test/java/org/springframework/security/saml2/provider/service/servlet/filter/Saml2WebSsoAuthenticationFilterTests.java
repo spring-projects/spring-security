@@ -18,9 +18,9 @@ package org.springframework.security.saml2.provider.service.servlet.filter;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -41,7 +41,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 
 	private HttpServletResponse response = new MockHttpServletResponse();
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository);
 		this.request.setPathInfo("/login/saml2/sso/idp-registration-id");
@@ -62,7 +62,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 
 	@Test
 	public void requiresAuthenticationWhenHappyPathThenReturnsTrue() {
-		Assert.assertTrue(this.filter.requiresAuthentication(this.request, this.response));
+		Assertions.assertTrue(this.filter.requiresAuthentication(this.request, this.response));
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
 		this.request.setPathInfo("/some/other/path/idp-registration-id");
 		this.request.setParameter("SAMLResponse", "xml-data-goes-here");
-		Assert.assertTrue(this.filter.requiresAuthentication(this.request, this.response));
+		Assertions.assertTrue(this.filter.requiresAuthentication(this.request, this.response));
 	}
 
 	@Test

@@ -19,12 +19,12 @@ package org.springframework.security.taglibs.authz;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -49,7 +49,7 @@ import static org.mockito.BDDMockito.given;
  * @author Francois Beausoleil
  * @author Luke Taylor
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthorizeTagTests {
 
 	@Mock
@@ -62,7 +62,7 @@ public class AuthorizeTagTests {
 	private final TestingAuthenticationToken currentUser = new TestingAuthenticationToken("abc", "123",
 			"ROLE SUPERVISOR", "ROLE_TELLER");
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		SecurityContextHolder.getContext().setAuthentication(this.currentUser);
 		StaticWebApplicationContext ctx = new StaticWebApplicationContext();
@@ -77,7 +77,7 @@ public class AuthorizeTagTests {
 		this.authorizeTag.setPageContext(new MockPageContext(servletCtx, this.request, new MockHttpServletResponse()));
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

@@ -18,14 +18,14 @@ package org.springframework.security.concurrent;
 
 import java.util.concurrent.Callable;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,7 +40,7 @@ import static org.mockito.ArgumentMatchers.eq;
  * @since 3.2
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public abstract class AbstractDelegatingSecurityContextTestSupport {
 
 	@Mock
@@ -86,12 +86,12 @@ public abstract class AbstractDelegatingSecurityContextTestSupport {
 				.thenReturn(this.wrappedRunnable);
 	}
 
-	@Before
+	@BeforeEach
 	public final void setContext() {
 		SecurityContextHolder.setContext(this.currentSecurityContext);
 	}
 
-	@After
+	@AfterEach
 	public final void clearContext() {
 		SecurityContextHolder.clearContext();
 	}

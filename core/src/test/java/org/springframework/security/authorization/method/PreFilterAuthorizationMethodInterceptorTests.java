@@ -21,9 +21,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.MethodMatcher;
 import org.springframework.core.annotation.AnnotationConfigurationException;
@@ -46,12 +46,12 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 public class PreFilterAuthorizationMethodInterceptorTests {
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		SecurityContextHolder.getContext().setAuthentication(TestAuthentication.authenticatedUser());
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

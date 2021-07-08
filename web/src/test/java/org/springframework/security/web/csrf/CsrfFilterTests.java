@@ -26,11 +26,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.api.ObjectAssert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -54,7 +54,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CsrfFilterTests {
 
 	@Mock
@@ -77,7 +77,7 @@ public class CsrfFilterTests {
 
 	private CsrfFilter filter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.token = new DefaultCsrfToken("headerName", "paramName", "csrfTokenValue");
 		resetRequestResponse();

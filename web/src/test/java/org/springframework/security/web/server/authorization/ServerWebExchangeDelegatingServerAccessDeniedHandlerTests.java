@@ -19,8 +19,8 @@ package org.springframework.security.web.server.authorization;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.web.server.authorization.ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry;
@@ -43,7 +43,7 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
 
 	private ServerWebExchange exchange;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.accessDeniedHandler = mock(ServerAccessDeniedHandler.class);
 		this.entries = new ArrayList<>();

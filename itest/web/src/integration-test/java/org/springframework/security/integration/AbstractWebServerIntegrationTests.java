@@ -16,7 +16,7 @@
 
 package org.springframework.security.integration;
 
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.mock.web.MockServletContext;
@@ -38,7 +38,7 @@ public abstract class AbstractWebServerIntegrationTests {
 
 	protected ConfigurableApplicationContext context;
 
-	@After
+	@AfterEach
 	public void close() {
 		if (this.context != null) {
 			this.context.close();

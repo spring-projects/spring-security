@@ -18,7 +18,7 @@ package org.springframework.security.web.server;
 
 import java.util.Collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;

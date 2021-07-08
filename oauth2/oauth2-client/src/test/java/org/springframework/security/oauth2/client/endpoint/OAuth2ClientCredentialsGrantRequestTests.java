@@ -16,8 +16,8 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -35,7 +35,7 @@ public class OAuth2ClientCredentialsGrantRequestTests {
 
 	private ClientRegistration clientRegistration;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		// @formatter:off
 		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1")

@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 
@@ -99,7 +99,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 	private String nonceHash;
 
-	@Before
+	@BeforeEach
 	@SuppressWarnings("unchecked")
 	public void setUp() {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().clientId("client1").build();

@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatObject;
@@ -40,7 +40,7 @@ public class ClaimAccessorTests {
 
 	private ClaimAccessor claimAccessor = (() -> this.claims);
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.claims.clear();
 	}

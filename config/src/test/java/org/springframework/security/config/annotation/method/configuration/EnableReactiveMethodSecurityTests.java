@@ -16,9 +16,9 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,7 +32,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.reset;
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class EnableReactiveMethodSecurityTests {
 
@@ -61,7 +61,7 @@ public class EnableReactiveMethodSecurityTests {
 	Context withUser = ReactiveSecurityContextHolder
 			.withAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		reset(this.delegate);
 	}

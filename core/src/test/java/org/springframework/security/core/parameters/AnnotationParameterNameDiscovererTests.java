@@ -16,8 +16,8 @@
 
 package org.springframework.security.core.parameters;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.access.method.P;
 import org.springframework.util.ReflectionUtils;
@@ -28,7 +28,7 @@ public class AnnotationParameterNameDiscovererTests {
 
 	private AnnotationParameterNameDiscoverer discoverer;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.discoverer = new AnnotationParameterNameDiscoverer(P.class.getName());
 	}

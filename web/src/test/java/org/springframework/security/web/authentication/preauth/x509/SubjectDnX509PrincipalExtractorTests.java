@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.authentication.preauth.x509;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -37,7 +37,7 @@ public class SubjectDnX509PrincipalExtractorTests {
 
 	SubjectDnX509PrincipalExtractor extractor;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.extractor = new SubjectDnX509PrincipalExtractor();
 	}
