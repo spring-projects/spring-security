@@ -69,6 +69,9 @@ public abstract class AbstractSpringJavaPlugin implements Plugin<Project> {
 			manifest.attributes["Implementation-Version"] = project.version
 			manifest.attributes["Automatic-Module-Name"] = project.name.replace('-', '.')
 		}
+        project.test {
+            useJUnitPlatform()
+        }
 		additionalPlugins(project);
 	}
 
