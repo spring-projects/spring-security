@@ -42,7 +42,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
  * @property loginProcessingUrl the URL to validate the credentials
  * @property permitAll whether to grant access to the urls for [failureUrl] as well as
  * for the [HttpSecurityBuilder], the [loginPage] and [loginProcessingUrl] for every user
- * @property authenticationSuccessHandler the [AuthenticationManager] to be used during SAML 2
+ * @property authenticationManager the [AuthenticationManager] to be used during SAML 2
  * authentication.
  */
 @SecurityMarker
