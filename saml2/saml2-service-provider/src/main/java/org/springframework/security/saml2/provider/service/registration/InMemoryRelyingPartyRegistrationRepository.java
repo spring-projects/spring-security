@@ -48,7 +48,7 @@ public class InMemoryRelyingPartyRegistrationRepository
 		for (RelyingPartyRegistration rp : rps) {
 			Assert.notNull(rp, "relying party collection cannot contain null values");
 			String key = rp.getRegistrationId();
-			Assert.notNull(rp, "relying party identifier cannot be null");
+			Assert.notNull(key, "relying party identifier cannot be null");
 			Assert.isNull(result.get(key), () -> "relying party duplicate identifier '" + key + "' detected.");
 			result.put(key, rp);
 		}
