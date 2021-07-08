@@ -16,8 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.web;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.saml2.credentials.TestSaml2X509Credentials;
@@ -52,7 +52,7 @@ public class DefaultSaml2AuthenticationRequestContextResolverTests {
 	private Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver = new DefaultSaml2AuthenticationRequestContextResolver(
 			new DefaultRelyingPartyRegistrationResolver((id) -> this.relyingPartyBuilder.build()));
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.request.setPathInfo("/saml2/authenticate/registration-id");

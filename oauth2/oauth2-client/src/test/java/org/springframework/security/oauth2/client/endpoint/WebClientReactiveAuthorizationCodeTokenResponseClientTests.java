@@ -22,9 +22,9 @@ import java.util.Map;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -60,7 +60,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	private MockWebServer server;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
@@ -68,7 +68,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().tokenUri(tokenUri);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		this.server.shutdown();
 	}

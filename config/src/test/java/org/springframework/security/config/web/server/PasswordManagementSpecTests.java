@@ -17,7 +17,7 @@
 package org.springframework.security.config.web.server;
 
 import org.apache.http.HttpHeaders;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.config.web.server.ServerHttpSecurity.PasswordManagementSpec;

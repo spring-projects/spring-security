@@ -21,8 +21,8 @@ import java.nio.charset.StandardCharsets;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -67,7 +67,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 
 	private DefaultOAuth2AuthorizationRequestResolver resolver;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.registration1 = TestClientRegistrations.clientRegistration().build();
 		this.registration2 = TestClientRegistrations.clientRegistration2().build();

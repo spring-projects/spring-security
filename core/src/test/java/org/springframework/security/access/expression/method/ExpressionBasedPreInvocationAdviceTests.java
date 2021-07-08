@@ -19,11 +19,11 @@ package org.springframework.security.access.expression.method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.access.prepost.PreInvocationAttribute;
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Maksim Vinogradov
  * @since 5.2
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ExpressionBasedPreInvocationAdviceTests {
 
 	@Mock
@@ -46,7 +46,7 @@ public class ExpressionBasedPreInvocationAdviceTests {
 
 	private ExpressionBasedPreInvocationAdvice expressionBasedPreInvocationAdvice;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.expressionBasedPreInvocationAdvice = new ExpressionBasedPreInvocationAdvice();
 	}

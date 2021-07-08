@@ -16,8 +16,8 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 import org.springframework.core.convert.converter.Converter;
@@ -46,7 +46,7 @@ public class OAuth2PasswordGrantRequestEntityConverterTests {
 
 	private OAuth2PasswordGrantRequestEntityConverter converter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.converter = new OAuth2PasswordGrantRequestEntityConverter();
 	}

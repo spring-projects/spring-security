@@ -31,7 +31,7 @@ import com.nimbusds.jwt.PlainJWT;
 import net.minidev.json.JSONObject;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager;

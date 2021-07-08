@@ -28,8 +28,8 @@ import java.util.Set;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -65,7 +65,7 @@ public class JaasAuthenticationProviderTests {
 
 	private JaasEventCheck eventCheck;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
 		this.context = new ClassPathXmlApplicationContext(resName);

@@ -19,8 +19,8 @@ package org.springframework.security.config.method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
@@ -86,7 +86,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		this.target = (BusinessService) this.appContext.getBean("target");
 	}
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		if (this.appContext != null) {
 			this.appContext.close();

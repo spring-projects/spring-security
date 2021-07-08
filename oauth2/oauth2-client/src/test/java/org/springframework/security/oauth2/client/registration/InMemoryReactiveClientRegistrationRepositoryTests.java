@@ -19,8 +19,8 @@ package org.springframework.security.oauth2.client.registration;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +37,7 @@ public class InMemoryReactiveClientRegistrationRepositoryTests {
 
 	private InMemoryReactiveClientRegistrationRepository repository;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.repository = new InMemoryReactiveClientRegistrationRepository(this.registration);
 	}

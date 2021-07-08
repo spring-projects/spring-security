@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.csrf;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Rob Winch

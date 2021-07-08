@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -56,7 +56,7 @@ public class OidcIdTokenValidatorTests {
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.headers.put("alg", JwsAlgorithms.RS256);
 		this.claims.put(IdTokenClaimNames.ISS, "https://example.com");

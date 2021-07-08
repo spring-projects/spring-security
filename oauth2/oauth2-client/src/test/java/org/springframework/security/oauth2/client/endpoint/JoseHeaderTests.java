@@ -16,7 +16,7 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.jose.JwaAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;

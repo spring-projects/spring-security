@@ -18,7 +18,7 @@ package org.springframework.security.ldap.authentication;
 
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.ldap.CommunicationException;
 import org.springframework.ldap.core.DirContextAdapter;

@@ -18,7 +18,7 @@ package org.springframework.security.web.server.authentication;
 
 import java.util.Collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.AccountExpiredException;

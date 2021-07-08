@@ -16,8 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.xmlsec.signature.Signature;
 
@@ -33,7 +33,7 @@ public class OpenSamlSigningUtilsTests {
 
 	private RelyingPartyRegistration registration;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.registration = RelyingPartyRegistration.withRegistrationId("saml-idp")
 				.entityId("https://some.idp.example.com/entity-id").signingX509Credentials((c) -> {

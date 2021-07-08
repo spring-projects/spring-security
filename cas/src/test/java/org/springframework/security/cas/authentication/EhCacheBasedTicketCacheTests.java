@@ -19,9 +19,9 @@ package org.springframework.security.cas.authentication;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -35,13 +35,13 @@ public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTe
 
 	private static CacheManager cacheManager;
 
-	@BeforeClass
+	@BeforeAll
 	public static void initCacheManaer() {
 		cacheManager = CacheManager.create();
 		cacheManager.addCache(new Cache("castickets", 500, false, false, 30, 30));
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void shutdownCacheManager() {
 		cacheManager.removalAll();
 		cacheManager.shutdown();

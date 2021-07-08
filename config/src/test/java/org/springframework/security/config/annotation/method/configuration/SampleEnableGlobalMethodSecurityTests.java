@@ -18,9 +18,9 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import java.io.Serializable;
 
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -51,7 +51,7 @@ public class SampleEnableGlobalMethodSecurityTests {
 	@Autowired
 	private MethodSecurityService methodSecurityService;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));

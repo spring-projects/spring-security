@@ -16,8 +16,8 @@
 
 package org.springframework.security.oauth2.client.web.server;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -55,7 +55,7 @@ public class UnAuthenticatedServerOAuth2AuthorizedClientRepositoryTests {
 
 	private OAuth2AuthorizedClient authorizedClient;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		OAuth2AccessToken token = TestOAuth2AccessTokens.noScopes();
 		this.authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration, "anonymousUser", token);

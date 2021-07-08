@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.openqa.selenium.WebDriver;
 import reactor.core.publisher.Mono;

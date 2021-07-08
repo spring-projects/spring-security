@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.util.matcher;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 

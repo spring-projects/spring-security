@@ -18,12 +18,12 @@ package org.springframework.security.web.context;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContext;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SaveContextOnUpdateOrErrorResponseWrapperTests {
 
 	@Mock
@@ -45,14 +45,14 @@ public class SaveContextOnUpdateOrErrorResponseWrapperTests {
 
 	private SaveContextOnUpdateOrErrorResponseWrapperStub wrappedResponse;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.response = new MockHttpServletResponse();
 		this.wrappedResponse = new SaveContextOnUpdateOrErrorResponseWrapperStub(this.response, true);
 		SecurityContextHolder.setContext(this.securityContext);
 	}
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}

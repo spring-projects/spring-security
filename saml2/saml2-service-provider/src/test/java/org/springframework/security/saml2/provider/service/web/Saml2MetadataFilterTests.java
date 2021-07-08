@@ -21,8 +21,8 @@ import java.nio.charset.StandardCharsets;
 
 import javax.servlet.FilterChain;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -59,7 +59,7 @@ public class Saml2MetadataFilterTests {
 
 	FilterChain chain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.repository = mock(RelyingPartyRegistrationRepository.class);
 		this.resolver = mock(Saml2MetadataResolver.class);

@@ -25,7 +25,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;

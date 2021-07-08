@@ -26,14 +26,14 @@ import java.util.List;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
@@ -62,7 +62,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Andrei Stefan
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EhCacheBasedAclCacheTests {
 
 	private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
@@ -77,7 +77,7 @@ public class EhCacheBasedAclCacheTests {
 
 	private MutableAcl acl;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.myCache = new EhCacheBasedAclCache(this.cache,
 				new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()),
@@ -89,7 +89,7 @@ public class EhCacheBasedAclCacheTests {
 		this.acl = new AclImpl(identity, 1L, aclAuthorizationStrategy, new ConsoleAuditLogger());
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		SecurityContextHolder.clearContext();
 	}

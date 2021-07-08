@@ -20,9 +20,9 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -63,7 +63,7 @@ public class OpenSaml4AuthenticationRequestFactoryTests {
 
 	private AuthnRequestUnmarshaller unmarshaller;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.relyingPartyRegistrationBuilder = RelyingPartyRegistration.withRegistrationId("id")
 				.assertionConsumerServiceLocation("template")
@@ -181,7 +181,7 @@ public class OpenSaml4AuthenticationRequestFactoryTests {
 	@Test
 	public void createAuthenticationRequestWhenDefaultThenReturnsPostBinding() {
 		AuthnRequest authn = getAuthNRequest(Saml2MessageBinding.POST);
-		Assert.assertEquals(SAMLConstants.SAML2_POST_BINDING_URI, authn.getProtocolBinding());
+		Assertions.assertEquals(SAMLConstants.SAML2_POST_BINDING_URI, authn.getProtocolBinding());
 	}
 
 	@Test

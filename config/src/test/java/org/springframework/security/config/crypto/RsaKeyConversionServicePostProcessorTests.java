@@ -19,9 +19,9 @@ package org.springframework.security.config.crypto;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -94,7 +94,7 @@ public class RsaKeyConversionServicePostProcessorTests {
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		ConfigurableListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 		beanFactory.setConversionService(new GenericConversionService());

@@ -18,10 +18,10 @@ package org.springframework.security.ldap.userdetails;
 
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.ContextSource;
@@ -36,7 +36,7 @@ import org.springframework.security.ldap.ApacheDsContainerConfig;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Luke Taylor
  * @author Eddú Meléndez
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
 public class LdapUserDetailsManagerTests {
 
@@ -59,7 +59,7 @@ public class LdapUserDetailsManagerTests {
 
 	private SpringSecurityLdapTemplate template;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.mgr = new LdapUserDetailsManager(this.contextSource);
 		this.template = new SpringSecurityLdapTemplate(this.contextSource);
@@ -89,7 +89,7 @@ public class LdapUserDetailsManagerTests {
 		this.mgr.setUserDetailsMapper(new PersonContextMapper());
 	}
 
-	@After
+	@AfterEach
 	public void onTearDown() {
 		// Iterator people = template.list("ou=testpeople").iterator();
 

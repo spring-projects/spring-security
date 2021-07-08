@@ -19,7 +19,7 @@ package org.springframework.security.ldap;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;

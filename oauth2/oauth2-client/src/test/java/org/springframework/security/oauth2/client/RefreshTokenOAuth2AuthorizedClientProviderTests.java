@@ -21,8 +21,8 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -61,7 +61,7 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 
 	private OAuth2AuthorizedClient authorizedClient;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.authorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider();
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);

@@ -16,8 +16,8 @@
 
 package org.springframework.security.oauth2.client.web;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -53,7 +53,7 @@ public class AuthenticatedPrincipalOAuth2AuthorizedClientRepositoryTests {
 
 	private MockHttpServletResponse response;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.authorizedClientService = mock(OAuth2AuthorizedClientService.class);
 		this.anonymousAuthorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);

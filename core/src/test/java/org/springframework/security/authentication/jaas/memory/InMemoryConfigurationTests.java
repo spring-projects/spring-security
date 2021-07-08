@@ -23,8 +23,8 @@ import java.util.Map;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.jaas.TestLoginModule;
 
@@ -42,7 +42,7 @@ public class InMemoryConfigurationTests {
 
 	private Map<String, AppConfigurationEntry[]> mappedEntries;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.defaultEntries = new AppConfigurationEntry[] { new AppConfigurationEntry(TestLoginModule.class.getName(),
 				LoginModuleControlFlag.REQUIRED, Collections.<String, Object>emptyMap()) };

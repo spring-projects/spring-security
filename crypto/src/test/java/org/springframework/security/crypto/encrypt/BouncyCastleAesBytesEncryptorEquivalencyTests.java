@@ -20,9 +20,9 @@ import java.security.SecureRandom;
 import java.util.Random;
 import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
@@ -39,7 +39,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 
 	private SecureRandom secureRandom = new SecureRandom();
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		// generate random password, salt, and test data
 		this.password = UUID.randomUUID().toString();
@@ -96,11 +96,11 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 			// and can decrypt back to the original input
 			byte[] leftEncrypted = left.encrypt(this.testData);
 			byte[] rightEncrypted = right.encrypt(this.testData);
-			Assert.assertArrayEquals(leftEncrypted, rightEncrypted);
+			Assertions.assertArrayEquals(leftEncrypted, rightEncrypted);
 			byte[] leftDecrypted = left.decrypt(leftEncrypted);
 			byte[] rightDecrypted = right.decrypt(rightEncrypted);
-			Assert.assertArrayEquals(this.testData, leftDecrypted);
-			Assert.assertArrayEquals(this.testData, rightDecrypted);
+			Assertions.assertArrayEquals(this.testData, leftDecrypted);
+			Assertions.assertArrayEquals(this.testData, rightDecrypted);
 		}
 	}
 
@@ -114,8 +114,8 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 			byte[] rightEncrypted = right.encrypt(this.testData);
 			byte[] leftDecrypted = left.decrypt(rightEncrypted);
 			byte[] rightDecrypted = right.decrypt(leftEncrypted);
-			Assert.assertArrayEquals(this.testData, leftDecrypted);
-			Assert.assertArrayEquals(this.testData, rightDecrypted);
+			Assertions.assertArrayEquals(this.testData, leftDecrypted);
+			Assertions.assertArrayEquals(this.testData, rightDecrypted);
 		}
 	}
 

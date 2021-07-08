@@ -16,8 +16,8 @@
 
 package org.springframework.security.task;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import org.springframework.core.task.AsyncTaskExecutor;
@@ -43,7 +43,7 @@ public abstract class AbstractDelegatingSecurityContextAsyncTaskExecutorTests
 
 	private DelegatingSecurityContextAsyncTaskExecutor executor;
 
-	@Before
+	@BeforeEach
 	public final void setUpExecutor() {
 		this.executor = create();
 	}

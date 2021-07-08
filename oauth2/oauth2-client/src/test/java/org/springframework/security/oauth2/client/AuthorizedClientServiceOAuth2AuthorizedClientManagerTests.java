@@ -19,8 +19,8 @@ package org.springframework.security.oauth2.client;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -76,7 +76,7 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 	private ArgumentCaptor<OAuth2AuthorizationContext> authorizationContextCaptor;
 
 	@SuppressWarnings("unchecked")
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.clientRegistrationRepository = mock(ClientRegistrationRepository.class);
 		this.authorizedClientService = mock(OAuth2AuthorizedClientService.class);

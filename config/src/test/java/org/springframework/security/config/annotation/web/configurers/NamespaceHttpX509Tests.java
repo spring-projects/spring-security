@@ -24,7 +24,7 @@ import java.security.cert.X509Certificate;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import sun.security.x509.X500Name;
 
 import org.springframework.beans.factory.annotation.Autowired;

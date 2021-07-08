@@ -16,10 +16,10 @@
 
 package org.springframework.security.ldap.server;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
@@ -42,7 +42,7 @@ public class ApacheDSEmbeddedLdifTests {
 
 	private SpringSecurityLdapTemplate ldapTemplate;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		// TODO: InMemoryXmlApplicationContext would be useful here, but it is not visible
 		this.server = new ApacheDSContainer(LDAP_ROOT, "classpath:test-server-custom-attribute-types.ldif");
@@ -60,14 +60,14 @@ public class ApacheDSEmbeddedLdifTests {
 		return ldapContextSource;
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		if (this.server != null) {
 			this.server.destroy();
 		}
 	}
 
-	@Ignore // Not fixed yet
+	@Disabled // Not fixed yet
 	@Test // SEC-2387
 	public void customAttributeTypesShouldBeProperlyCreatedWhenLoadedFromLdif() {
 		assertThat(this.ldapTemplate.compare("uid=objectWithCustomAttribute1", "uid", "objectWithCustomAttribute1"))

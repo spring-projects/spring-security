@@ -27,8 +27,8 @@ import java.util.function.Function;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -63,7 +63,7 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 
 	private NimbusJwtClientAuthenticationParametersConverter<OAuth2ClientCredentialsGrantRequest> converter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.jwkResolver = mock(Function.class);
 		this.converter = new NimbusJwtClientAuthenticationParametersConverter<>(this.jwkResolver);

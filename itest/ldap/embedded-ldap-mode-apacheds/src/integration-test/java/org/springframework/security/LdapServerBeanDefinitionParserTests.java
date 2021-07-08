@@ -16,9 +16,9 @@
 
 package org.springframework.security;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.config.BeanIds;
@@ -33,12 +33,12 @@ public class LdapServerBeanDefinitionParserTests {
 
 	private ClassPathXmlApplicationContext context;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.context = new ClassPathXmlApplicationContext("applicationContext-security.xml");
 	}
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		if (this.context != null) {
 			this.context.close();

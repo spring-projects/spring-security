@@ -21,11 +21,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,7 +40,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StopWatch;
 
 /**
@@ -48,7 +48,7 @@ import org.springframework.util.StopWatch;
  * @since 2.0
  */
 @ContextConfiguration(locations = { "/filter-chain-performance-app-context.xml" })
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class FilterChainPerformanceTests {
 
 	// Adjust as required
@@ -71,7 +71,7 @@ public class FilterChainPerformanceTests {
 	@Qualifier("fcpFullStack")
 	private FilterChainProxy fullStack;
 
-	@Before
+	@BeforeEach
 	public void createAuthenticatedSession() {
 		this.session = new MockHttpSession();
 		SecurityContextHolder.getContext().setAuthentication(this.user);
@@ -80,12 +80,12 @@ public class FilterChainPerformanceTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void dumpStopWatch() {
 		System.out.println(sw.prettyPrint());
 	}

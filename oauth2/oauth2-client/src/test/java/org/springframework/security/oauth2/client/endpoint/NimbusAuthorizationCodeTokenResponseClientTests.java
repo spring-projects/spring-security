@@ -20,8 +20,8 @@ import java.time.Instant;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -58,7 +58,7 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 
 	private NimbusAuthorizationCodeTokenResponseClient tokenResponseClient = new NimbusAuthorizationCodeTokenResponseClient();
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration()
 				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);

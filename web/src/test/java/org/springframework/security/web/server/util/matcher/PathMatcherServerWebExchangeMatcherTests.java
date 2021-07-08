@@ -18,11 +18,11 @@ package org.springframework.security.web.server.util.matcher;
 
 import java.util.HashMap;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PathMatcherServerWebExchangeMatcherTests {
 
 	@Mock
@@ -56,7 +56,7 @@ public class PathMatcherServerWebExchangeMatcherTests {
 
 	String path;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		MockServerHttpRequest request = MockServerHttpRequest.post("/path").build();
 		MockServerHttpResponse response = new MockServerHttpResponse();

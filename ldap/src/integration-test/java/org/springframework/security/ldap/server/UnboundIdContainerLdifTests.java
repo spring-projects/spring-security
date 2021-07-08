@@ -16,8 +16,8 @@
 
 package org.springframework.security.ldap.server;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -39,7 +39,7 @@ public class UnboundIdContainerLdifTests {
 
 	AnnotationConfigApplicationContext appCtx;
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		if (this.appCtx != null) {
 			this.appCtx.close();

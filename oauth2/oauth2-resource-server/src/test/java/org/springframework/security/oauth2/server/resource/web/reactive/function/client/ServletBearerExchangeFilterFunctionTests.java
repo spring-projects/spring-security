@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.util.context.Context;
 
 import org.springframework.http.HttpHeaders;
@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Josh Cummings
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ServletBearerExchangeFilterFunctionTests {
 
 	private ServletBearerExchangeFilterFunction function = new ServletBearerExchangeFilterFunction();

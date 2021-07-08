@@ -23,8 +23,8 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -44,7 +44,7 @@ public class JndiDnsResolverTests {
 
 	private DirContext context;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.contextFactory = mock(InitialContextFactory.class);
 		this.context = mock(DirContext.class);

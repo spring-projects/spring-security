@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import net.minidev.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -56,7 +56,7 @@ public class BearerTokenAuthenticationTests {
 
 	private final Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("USER");
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.attributesMap.put(OAuth2IntrospectionClaimNames.SUBJECT, this.name);
 		this.attributesMap.put(OAuth2IntrospectionClaimNames.CLIENT_ID, "client_id");

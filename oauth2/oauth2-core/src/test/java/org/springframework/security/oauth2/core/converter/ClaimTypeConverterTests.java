@@ -27,8 +27,8 @@ import com.nimbusds.jose.shaded.json.JSONArray;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import org.assertj.core.util.Lists;
 import org.assertj.core.util.Maps;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
@@ -64,7 +64,7 @@ public class ClaimTypeConverterTests {
 
 	private ClaimTypeConverter claimTypeConverter;
 
-	@Before
+	@BeforeEach
 	@SuppressWarnings("unchecked")
 	public void setup() {
 		Converter<Object, ?> stringConverter = getConverter(TypeDescriptor.valueOf(String.class));

@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.server.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -41,7 +41,7 @@ public class HttpStatusServerEntryPointTests {
 
 	private HttpStatusServerEntryPoint entryPoint;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = MockServerHttpRequest.get("/").build();
 		this.exchange = MockServerWebExchange.from(this.request);

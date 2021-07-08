@@ -20,9 +20,9 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockFilterChain;
@@ -75,7 +75,7 @@ public class FilterSecurityInterceptorTests {
 
 	private ApplicationEventPublisher publisher;
 
-	@Before
+	@BeforeEach
 	public final void setUp() {
 		this.interceptor = new FilterSecurityInterceptor();
 		this.am = mock(AuthenticationManager.class);
@@ -91,7 +91,7 @@ public class FilterSecurityInterceptorTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

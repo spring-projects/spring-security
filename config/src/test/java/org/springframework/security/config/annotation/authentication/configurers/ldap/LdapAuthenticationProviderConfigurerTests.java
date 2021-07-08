@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.annotation.authentication.configurers.ldap;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
@@ -29,7 +29,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 	private LdapAuthenticationProviderConfigurer<AuthenticationManagerBuilder> configurer;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.configurer = new LdapAuthenticationProviderConfigurer<>();
 	}

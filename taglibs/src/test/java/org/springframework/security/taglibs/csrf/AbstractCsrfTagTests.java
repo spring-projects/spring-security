@@ -21,8 +21,8 @@ import java.io.UnsupportedEncodingException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -44,7 +44,7 @@ public class AbstractCsrfTagTests {
 
 	private MockHttpServletResponse response;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		MockServletContext servletContext = new MockServletContext();
 		this.request = new MockHttpServletRequest(servletContext);

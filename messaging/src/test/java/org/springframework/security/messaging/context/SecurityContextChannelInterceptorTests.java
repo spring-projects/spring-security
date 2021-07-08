@@ -18,12 +18,12 @@ package org.springframework.security.messaging.context;
 
 import java.security.Principal;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
@@ -38,7 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SecurityContextChannelInterceptorTests {
 
 	@Mock
@@ -58,7 +58,7 @@ public class SecurityContextChannelInterceptorTests {
 
 	AnonymousAuthenticationToken expectedAnonymous;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.authentication = new TestingAuthenticationToken("user", "pass", "ROLE_USER");
 		this.messageBuilder = MessageBuilder.withPayload("payload");
@@ -67,7 +67,7 @@ public class SecurityContextChannelInterceptorTests {
 		this.interceptor = new SecurityContextChannelInterceptor();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		SecurityContextHolder.clearContext();
 	}

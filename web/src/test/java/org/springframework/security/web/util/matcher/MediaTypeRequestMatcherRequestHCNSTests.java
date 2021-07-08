@@ -18,8 +18,8 @@ package org.springframework.security.web.util.matcher;
 
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -42,7 +42,7 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 
 	private ContentNegotiationStrategy negotiationStrategy;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.negotiationStrategy = new HeaderContentNegotiationStrategy();
 		this.request = new MockHttpServletRequest();

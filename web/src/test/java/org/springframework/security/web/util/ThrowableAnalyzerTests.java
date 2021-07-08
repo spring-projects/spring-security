@@ -18,8 +18,8 @@ package org.springframework.security.web.util;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -49,7 +49,7 @@ public class ThrowableAnalyzerTests {
 	 */
 	private ThrowableAnalyzer nonstandardAnalyzer;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		// Set up test trace
 		this.testTrace = new Throwable[7];

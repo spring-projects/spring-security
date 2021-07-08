@@ -19,11 +19,11 @@ package org.springframework.security.config.http;
 import java.util.Collection;
 
 import org.apache.commons.logging.Log;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.core.Authentication;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Rob Winch
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultFilterChainValidatorTests {
 
 	private DefaultFilterChainValidator validator;
@@ -66,7 +66,7 @@ public class DefaultFilterChainValidatorTests {
 
 	private FilterSecurityInterceptor fsi;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		AnonymousAuthenticationFilter aaf = new AnonymousAuthenticationFilter("anonymous");
 		this.fsi = new FilterSecurityInterceptor();

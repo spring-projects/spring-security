@@ -16,9 +16,9 @@
 
 package org.springframework.security.core.userdetails.cache;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -41,13 +41,13 @@ public class SpringCacheBasedUserCacheTests {
 
 	private static CacheManager cacheManager;
 
-	@BeforeClass
+	@BeforeAll
 	public static void initCacheManaer() {
 		cacheManager = new ConcurrentMapCacheManager();
 		cacheManager.getCache("springbasedusercachetests");
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void shutdownCacheManager() {
 	}
 

@@ -27,9 +27,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -71,7 +71,7 @@ public class FilterChainProxyTests {
 
 	private Filter filter;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.matcher = mock(RequestMatcher.class);
 		this.filter = mock(Filter.class);
@@ -90,7 +90,7 @@ public class FilterChainProxyTests {
 		this.chain = mock(FilterChain.class);
 	}
 
-	@After
+	@AfterEach
 	public void teardown() {
 		SecurityContextHolder.clearContext();
 	}

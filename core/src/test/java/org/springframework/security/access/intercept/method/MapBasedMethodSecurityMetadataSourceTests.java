@@ -19,8 +19,8 @@ package org.springframework.security.access.intercept.method;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
@@ -46,7 +46,7 @@ public class MapBasedMethodSecurityMetadataSourceTests {
 
 	private Method someMethodInteger;
 
-	@Before
+	@BeforeEach
 	public void initialize() throws Exception {
 		this.mds = new MapBasedMethodSecurityMetadataSource();
 		this.someMethodString = MockService.class.getMethod("someMethod", String.class);

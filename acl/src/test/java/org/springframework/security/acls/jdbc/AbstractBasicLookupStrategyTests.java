@@ -26,11 +26,11 @@ import javax.sql.DataSource;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.acls.TargetObject;
@@ -81,19 +81,19 @@ public abstract class AbstractBasicLookupStrategyTests {
 
 	public abstract DataSource getDataSource();
 
-	@BeforeClass
+	@BeforeAll
 	public static void initCacheManaer() {
 		cacheManager = CacheManager.create();
 		cacheManager.addCache(new Cache("basiclookuptestcache", 500, false, false, 30, 30));
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void shutdownCacheManager() {
 		cacheManager.removalAll();
 		cacheManager.shutdown();
 	}
 
-	@Before
+	@BeforeEach
 	public void populateDatabase() {
 		String query = "INSERT INTO acl_sid(ID,PRINCIPAL,SID) VALUES (1,1,'ben');"
 				+ "INSERT INTO acl_class(ID,CLASS) VALUES (2,'" + TARGET_CLASS + "');"
@@ -107,7 +107,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 		getJdbcTemplate().execute(query);
 	}
 
-	@Before
+	@BeforeEach
 	public void initializeBeans() {
 		this.strategy = new BasicLookupStrategy(getDataSource(), aclCache(), aclAuthStrategy(),
 				new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()));
@@ -123,7 +123,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 				new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_USER")));
 	}
 
-	@After
+	@AfterEach
 	public void emptyDatabase() {
 		String query = "DELETE FROM acl_entry;" + "DELETE FROM acl_object_identity WHERE ID = 9;"
 				+ "DELETE FROM acl_object_identity WHERE ID = 8;" + "DELETE FROM acl_object_identity WHERE ID = 7;"

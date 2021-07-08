@@ -18,11 +18,11 @@ package org.springframework.security.oauth2.client.web.reactive.result.method.an
 
 import java.lang.reflect.Method;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -59,7 +59,7 @@ import static org.mockito.Mockito.mock;
  * @author Rob Winch
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	@Mock
@@ -78,7 +78,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	private Authentication authentication = new TestingAuthenticationToken("test", "this");
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		// @formatter:off
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder

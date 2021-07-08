@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpHeaders;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
@@ -157,7 +157,7 @@ public class OAuth2LoginConfigurerTests {
 
 	private MockFilterChain filterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest("GET", "");
 		this.request.setServletPath("/login/oauth2/code/google");
@@ -165,7 +165,7 @@ public class OAuth2LoginConfigurerTests {
 		this.filterChain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		if (this.context != null) {
 			this.context.close();

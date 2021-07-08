@@ -19,8 +19,8 @@ package org.springframework.security.web.firewall;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
@@ -39,7 +39,7 @@ public class FirewalledResponseTests {
 
 	private FirewalledResponse fwResponse;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.response = mock(HttpServletResponse.class);
 		this.fwResponse = new FirewalledResponse(this.response);

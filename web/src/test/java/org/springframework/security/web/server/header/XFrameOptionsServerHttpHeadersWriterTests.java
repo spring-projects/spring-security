@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.server.header;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -36,7 +36,7 @@ public class XFrameOptionsServerHttpHeadersWriterTests {
 
 	XFrameOptionsServerHttpHeadersWriter writer;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.writer = new XFrameOptionsServerHttpHeadersWriter();
 	}

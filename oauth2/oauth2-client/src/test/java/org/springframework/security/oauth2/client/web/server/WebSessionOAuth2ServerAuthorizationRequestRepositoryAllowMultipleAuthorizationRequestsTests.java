@@ -19,8 +19,8 @@ package org.springframework.security.oauth2.client.web.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -54,7 +54,7 @@ import static org.mockito.Mockito.verify;
 public class WebSessionOAuth2ServerAuthorizationRequestRepositoryAllowMultipleAuthorizationRequestsTests
 		extends WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.repository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
 		this.repository.setAllowMultipleAuthorizationRequests(true);

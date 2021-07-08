@@ -21,8 +21,8 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 
-import org.junit.Assume;
 import org.junit.AssumptionViolatedException;
+import org.junit.jupiter.api.Assumptions;
 
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 
@@ -51,7 +51,7 @@ public final class CryptoAssumptions {
 		catch (NoSuchPaddingException ex) {
 			throw new AssumptionViolatedException(cipherAlgorithm + " padding not available, skipping test", ex);
 		}
-		Assume.assumeTrue("AES key length of 256 not allowed, skipping test", aes256Available);
+		Assumptions.assumeTrue(aes256Available, "AES key length of 256 not allowed, skipping test");
 	}
 
 }

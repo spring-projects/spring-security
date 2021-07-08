@@ -18,12 +18,12 @@ package org.springframework.security.web.server.authentication;
 
 import java.security.cert.X509Certificate;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.server.reactive.SslInfo;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ServerX509AuthenticationConverterTests {
 
 	@Mock
@@ -49,7 +49,7 @@ public class ServerX509AuthenticationConverterTests {
 
 	private MockServerHttpRequest.BaseBuilder<?> request;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.request = MockServerHttpRequest.get("/");
 		this.certificate = X509TestUtils.buildTestCertificate();

@@ -23,9 +23,9 @@ import java.util.HashSet;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
@@ -86,7 +86,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 
 	private MockServerWebExchange exchange;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.clientRegistrationRepository = mock(ReactiveClientRegistrationRepository.class);
 		final ServerOAuth2AuthorizedClientRepository delegate = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(
@@ -124,7 +124,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		this.exchange = MockServerWebExchange.builder(MockServerHttpRequest.get("/").build()).build();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		this.server.shutdown();
 	}

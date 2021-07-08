@@ -20,12 +20,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -46,7 +46,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ChannelSecurityInterceptorTests {
 
 	@Mock
@@ -73,7 +73,7 @@ public class ChannelSecurityInterceptorTests {
 
 	ChannelSecurityInterceptor interceptor;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.attrs = Arrays.<ConfigAttribute>asList(new SecurityConfig("ROLE_USER"));
 		this.interceptor = new ChannelSecurityInterceptor(this.source);
@@ -83,7 +83,7 @@ public class ChannelSecurityInterceptorTests {
 		SecurityContextHolder.getContext().setAuthentication(this.originalAuth);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		SecurityContextHolder.clearContext();
 	}

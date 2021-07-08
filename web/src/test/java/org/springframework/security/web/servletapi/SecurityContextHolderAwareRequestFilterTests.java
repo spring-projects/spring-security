@@ -25,14 +25,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -67,7 +67,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Rob Winch
  * @author Eddú Meléndez
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SecurityContextHolderAwareRequestFilterTests {
 
 	@Captor
@@ -95,7 +95,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 
 	private SecurityContextHolderAwareRequestFilter filter;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.logoutHandlers = Arrays.asList(this.logoutHandler);
 		this.filter = new SecurityContextHolderAwareRequestFilter();
@@ -105,7 +105,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		this.filter.afterPropertiesSet();
 	}
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}

@@ -16,9 +16,9 @@
 
 package org.springframework.security.web.authentication.logout;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -42,7 +42,7 @@ public class SecurityContextLogoutHandlerTests {
 
 	private SecurityContextLogoutHandler handler;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
@@ -53,7 +53,7 @@ public class SecurityContextLogoutHandlerTests {
 		SecurityContextHolder.setContext(context);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

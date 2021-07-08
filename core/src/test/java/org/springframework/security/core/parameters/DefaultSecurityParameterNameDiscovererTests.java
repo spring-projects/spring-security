@@ -20,8 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
@@ -39,7 +39,7 @@ public class DefaultSecurityParameterNameDiscovererTests {
 
 	private DefaultSecurityParameterNameDiscoverer discoverer;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.discoverer = new DefaultSecurityParameterNameDiscoverer();
 	}

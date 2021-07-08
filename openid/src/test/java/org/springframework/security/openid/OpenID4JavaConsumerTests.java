@@ -19,7 +19,7 @@ package org.springframework.security.openid;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.openid4java.association.AssociationException;
 import org.openid4java.consumer.ConsumerException;

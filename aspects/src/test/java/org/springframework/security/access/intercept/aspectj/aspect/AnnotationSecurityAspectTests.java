@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -74,7 +74,7 @@ public class AnnotationSecurityAspectTests {
 
 	private PrePostSecured prePostSecured = new PrePostSecured();
 
-	@Before
+	@BeforeEach
 	public final void setUp() {
 		MockitoAnnotations.initMocks(this);
 		this.interceptor = new AspectJMethodSecurityInterceptor();
@@ -88,7 +88,7 @@ public class AnnotationSecurityAspectTests {
 		secAspect.setSecurityInterceptor(this.interceptor);
 	}
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}

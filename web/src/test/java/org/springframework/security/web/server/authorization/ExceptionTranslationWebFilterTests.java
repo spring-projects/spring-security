@@ -18,11 +18,11 @@ package org.springframework.security.web.server.authorization;
 
 import java.security.Principal;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.test.publisher.PublisherProbe;
@@ -45,7 +45,7 @@ import static org.mockito.BDDMockito.given;
  * @author César Revert
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ExceptionTranslationWebFilterTests {
 
 	@Mock
@@ -72,7 +72,7 @@ public class ExceptionTranslationWebFilterTests {
 
 	private ExceptionTranslationWebFilter filter = new ExceptionTranslationWebFilter();
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		given(this.exchange.getResponse()).willReturn(new MockServerHttpResponse());
 		given(this.deniedHandler.handle(any(), any())).willReturn(this.deniedPublisher.mono());

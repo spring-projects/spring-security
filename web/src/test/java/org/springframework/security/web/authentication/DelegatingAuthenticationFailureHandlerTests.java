@@ -21,11 +21,11 @@ import java.util.LinkedHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AccountStatusException;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Kazuki shimizu
  * @since 4.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DelegatingAuthenticationFailureHandlerTests {
 
 	@Mock
@@ -66,7 +66,7 @@ public class DelegatingAuthenticationFailureHandlerTests {
 
 	private DelegatingAuthenticationFailureHandler handler;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.handlers = new LinkedHashMap<>();
 	}

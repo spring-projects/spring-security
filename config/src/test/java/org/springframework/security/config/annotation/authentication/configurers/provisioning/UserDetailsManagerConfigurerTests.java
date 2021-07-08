@@ -18,8 +18,8 @@ package org.springframework.security.config.annotation.authentication.configurer
 
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -36,7 +36,7 @@ public class UserDetailsManagerConfigurerTests {
 
 	private InMemoryUserDetailsManager userDetailsManager;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.userDetailsManager = new InMemoryUserDetailsManager();
 	}

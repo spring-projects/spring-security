@@ -20,11 +20,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -51,7 +51,7 @@ import static org.mockito.Mockito.verify;
  * @author Rob Winch
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OAuth2LoginAuthenticationWebFilterTests {
 
 	@Mock
@@ -69,7 +69,7 @@ public class OAuth2LoginAuthenticationWebFilterTests {
 	private OAuth2AuthorizationResponse.Builder authorizationResponseBldr = OAuth2AuthorizationResponse.success("code")
 			.state("state");
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.filter = new OAuth2LoginAuthenticationWebFilter(this.authenticationManager,
 				this.authorizedClientRepository);

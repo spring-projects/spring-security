@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.saml2.Saml2Exception;
@@ -41,7 +41,7 @@ public class RelyingPartyRegistrationsTests {
 
 	private String metadata;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		ClassPathResource resource = new ClassPathResource("test-metadata.xml");
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {

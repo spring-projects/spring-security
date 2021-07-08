@@ -23,7 +23,7 @@ import java.util.Set;
 
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.Assertion;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;

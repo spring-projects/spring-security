@@ -16,8 +16,8 @@
 
 package org.springframework.security.oauth2.server.resource.web;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -39,7 +39,7 @@ public class BearerTokenAuthenticationEntryPointTests {
 
 	private BearerTokenAuthenticationEntryPoint authenticationEntryPoint;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.authenticationEntryPoint = new BearerTokenAuthenticationEntryPoint();
 	}

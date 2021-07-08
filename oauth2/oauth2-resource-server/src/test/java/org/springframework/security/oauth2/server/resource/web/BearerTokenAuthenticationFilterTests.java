@@ -21,12 +21,12 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockFilterChain;
@@ -56,7 +56,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  *
  * @author Josh Cummings
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class BearerTokenAuthenticationFilterTests {
 
 	@Mock
@@ -83,7 +83,7 @@ public class BearerTokenAuthenticationFilterTests {
 
 	MockFilterChain filterChain;
 
-	@Before
+	@BeforeEach
 	public void httpMocks() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();

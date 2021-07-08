@@ -16,7 +16,7 @@
 
 package org.springframework.security.access.vote;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.SecurityConfig;

@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 
@@ -37,7 +37,7 @@ public class LdapAuthorityTests {
 
 	LdapAuthority authority;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		Map<String, List<String>> attributes = new HashMap<>();
 		attributes.put(SpringSecurityLdapTemplate.DN_KEY, Arrays.asList(DN));

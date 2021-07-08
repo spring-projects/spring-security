@@ -47,10 +47,10 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -114,12 +114,12 @@ public class NimbusReactiveJwtDecoderTests {
 
 	private static KeyFactory kf;
 
-	@BeforeClass
+	@BeforeAll
 	public static void keyFactory() throws NoSuchAlgorithmException {
 		kf = KeyFactory.getInstance("RSA");
 	}
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
@@ -127,7 +127,7 @@ public class NimbusReactiveJwtDecoderTests {
 		this.decoder = new NimbusReactiveJwtDecoder(this.server.url("/certs").toString());
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		this.server.shutdown();
 	}
