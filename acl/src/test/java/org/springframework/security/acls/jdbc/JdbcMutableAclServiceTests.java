@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -49,7 +50,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.transaction.AfterTransaction;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,8 +67,10 @@ import static org.mockito.Mockito.spy;
  * @author Ben Alex
  * @author Andrei Stefan
  */
+@Transactional
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = { "/jdbcMutableAclServiceTests-context.xml" })
-public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
+public class JdbcMutableAclServiceTests {
 
 	private static final String TARGET_CLASS = TargetObject.class.getName();
 
