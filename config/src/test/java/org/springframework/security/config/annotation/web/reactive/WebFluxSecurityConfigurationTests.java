@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration;
 import org.springframework.security.web.server.WebFilterChainProxy;
 

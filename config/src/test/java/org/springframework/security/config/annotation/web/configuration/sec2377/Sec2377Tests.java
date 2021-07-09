@@ -22,6 +22,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.security.config.annotation.web.configuration.sec2377.a.Sec2377AConfig;
 import org.springframework.security.config.annotation.web.configuration.sec2377.b.Sec2377BConfig;
 import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 
 /**
  * @author Rob Winch

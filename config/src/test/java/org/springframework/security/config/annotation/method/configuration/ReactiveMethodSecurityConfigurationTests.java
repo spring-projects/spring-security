@@ -28,6 +28,7 @@ import org.springframework.security.access.intercept.method.MockMethodInvocation
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
