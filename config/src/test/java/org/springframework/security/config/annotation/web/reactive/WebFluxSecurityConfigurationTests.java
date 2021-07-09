@@ -17,6 +17,7 @@
 package org.springframework.security.config.annotation.web.reactive;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.test.SpringTestContext;

@@ -22,6 +22,7 @@ import java.util.Map;
 import javax.servlet.ServletRegistration;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.stubbing.Answer;
 
 import org.springframework.beans.factory.annotation.Autowired;

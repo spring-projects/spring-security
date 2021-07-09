@@ -17,6 +17,7 @@
 package org.springframework.security.config.debug;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.test.SpringTestContext;
