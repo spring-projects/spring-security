@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.security.Principal;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

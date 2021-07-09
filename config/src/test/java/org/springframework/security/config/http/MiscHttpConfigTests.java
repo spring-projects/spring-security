@@ -45,6 +45,7 @@ import org.apache.http.HttpStatus;
 import org.assertj.core.api.iterable.Extractor;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.stubbing.Answer;
 import org.slf4j.LoggerFactory;
 

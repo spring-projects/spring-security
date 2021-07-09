@@ -20,6 +20,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.annotation.Bean;
