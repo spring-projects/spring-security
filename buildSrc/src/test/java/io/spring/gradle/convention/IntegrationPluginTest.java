@@ -19,10 +19,9 @@ package io.spring.gradle.convention;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.testfixtures.ProjectBuilder;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
@@ -34,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IntegrationPluginTest {
 	Project rootProject;
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		if (rootProject != null) {
 			FileUtils.deleteDirectory(rootProject.getProjectDir());
