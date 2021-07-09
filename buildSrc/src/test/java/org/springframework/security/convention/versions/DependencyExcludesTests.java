@@ -20,10 +20,9 @@ import com.github.benmanes.gradle.versions.updates.resolutionstrategy.ComponentS
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ComponentSelection;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;

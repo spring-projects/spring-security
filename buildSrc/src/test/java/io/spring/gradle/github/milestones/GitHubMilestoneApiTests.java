@@ -3,9 +3,9 @@ package io.spring.gradle.github.milestones;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.gradle.github.milestones.GitHubMilestoneApi;
 import org.springframework.gradle.github.milestones.RepositoryRef;
 
@@ -24,7 +24,7 @@ public class GitHubMilestoneApiTests {
 
 	private String baseUrl;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
@@ -33,7 +33,7 @@ public class GitHubMilestoneApiTests {
 		this.github.setBaseUrl(this.baseUrl);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		this.server.shutdown();
 	}

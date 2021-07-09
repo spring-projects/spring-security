@@ -13,42 +13,25 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.spring.gradle.testkit.junit.rules;
+package io.spring.gradle;
+
+import org.apache.commons.io.FileUtils;
+import org.gradle.testkit.runner.GradleRunner;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Enumeration;
 
-import org.apache.commons.io.FileUtils;
-import org.gradle.testkit.runner.GradleRunner;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+public class TestKit {
+	final File buildDir;
 
-public class TestKit implements TestRule {
-	final TemporaryFolder testProjectDir = new TemporaryFolder();
-	File buildDir;
-
-	@Override
-	public Statement apply(Statement base, Description description) {
-		Statement wrapped = new Statement() {
-
-			@Override
-			public void evaluate() throws Throwable {
-				try {
-					buildDir = testProjectDir.newFolder();
-				} catch(IOException e) {
-					throw new RuntimeException(e);
-				}
-				base.evaluate();
-			}
-		};
-		return testProjectDir.apply(wrapped, description);
+	public TestKit(File buildDir) {
+		this.buildDir = buildDir;
 	}
 
 	public File getRootDir() {

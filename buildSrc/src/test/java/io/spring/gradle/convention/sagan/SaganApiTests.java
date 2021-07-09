@@ -19,9 +19,9 @@ package io.spring.gradle.convention.sagan;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.gradle.sagan.Release;
 import org.springframework.gradle.sagan.SaganApi;
 
@@ -38,7 +38,7 @@ public class SaganApiTests {
 
 	private String baseUrl;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
@@ -47,7 +47,7 @@ public class SaganApiTests {
 		this.sagan.setBaseUrl(this.baseUrl);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		this.server.shutdown();
 	}

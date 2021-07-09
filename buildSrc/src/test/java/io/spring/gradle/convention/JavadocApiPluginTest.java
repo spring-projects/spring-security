@@ -23,8 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.testfixtures.ProjectBuilder;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Rob Winch
@@ -32,7 +32,7 @@ import org.junit.Test;
 public class JavadocApiPluginTest {
 	Project rootProject;
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		if (rootProject != null) {
 			FileUtils.deleteDirectory(rootProject.getProjectDir());
