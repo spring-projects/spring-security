@@ -23,7 +23,7 @@ import java.math.BigInteger
 import java.security.KeyFactory
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.RSAPublicKeySpec
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean

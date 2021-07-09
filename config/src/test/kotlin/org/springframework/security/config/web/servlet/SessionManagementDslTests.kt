@@ -22,7 +22,7 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.mock.web.MockHttpSession
