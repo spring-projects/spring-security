@@ -29,7 +29,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.config.web.servlet.invoke
-import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
 import org.springframework.test.web.servlet.MockMvc
@@ -43,7 +43,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 class SessionFixationDslTests {
     @Rule
     @JvmField
-    var spring = SpringTestRule()
+    var spring = SpringTestContext(this)
 
     @Autowired
     lateinit var mockMvc: MockMvc

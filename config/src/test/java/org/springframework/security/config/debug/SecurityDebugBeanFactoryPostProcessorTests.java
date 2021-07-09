@@ -20,7 +20,7 @@ import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.debug.DebugFilter;
 
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SecurityDebugBeanFactoryPostProcessorTests {
 
 	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test
 	public void contextRefreshWhenInDebugModeAndDependencyHasAutowiredConstructorThenDebugModeStillWorks() {

@@ -28,7 +28,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ReactiveMethodSecurityConfigurationTests {
 
 	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler;

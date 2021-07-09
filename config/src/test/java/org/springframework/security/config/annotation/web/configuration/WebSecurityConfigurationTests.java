@@ -54,7 +54,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -87,10 +87,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class WebSecurityConfigurationTests {
 
 	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Rule
-	public SpringTestRule child = new SpringTestRule();
+	public SpringTestContext child = new SpringTestContext(this);
 
 	@Autowired
 	private MockMvc mockMvc;

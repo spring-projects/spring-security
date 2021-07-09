@@ -25,7 +25,7 @@ import org.springframework.security.access.ConfigAttribute
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.web.FilterInvocation
 import org.springframework.security.web.access.channel.ChannelProcessor
 import org.springframework.test.web.servlet.MockMvc
@@ -46,7 +46,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc
 class RequiresChannelDslTests {
     @Rule
     @JvmField
-    val spring = SpringTestRule()
+    val spring = SpringTestContext(this)
 
     @Autowired
     lateinit var mockMvc: MockMvc
