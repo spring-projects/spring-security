@@ -21,7 +21,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import junit.framework.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +36,7 @@ import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.ObjectIdentity;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
@@ -99,8 +99,8 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, OBJECT_IDENTITY_UUID);
 		Map<ObjectIdentity, Acl> foundAcls = this.uuidEnabledStrategy.readAclsById(Arrays.asList(oid),
 				Arrays.asList(BEN_SID));
-		Assert.assertEquals(1, foundAcls.size());
-		Assert.assertNotNull(foundAcls.get(oid));
+		assertThat(foundAcls).hasSize(1);
+		assertThat(foundAcls.get(oid)).isNotNull();
 	}
 
 	@Test
@@ -108,8 +108,8 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		Map<ObjectIdentity, Acl> foundAcls = this.uuidEnabledStrategy.readAclsById(Arrays.asList(oid),
 				Arrays.asList(BEN_SID));
-		Assert.assertEquals(1, foundAcls.size());
-		Assert.assertNotNull(foundAcls.get(oid));
+		assertThat(foundAcls).hasSize(1);
+		assertThat(foundAcls.get(oid)).isNotNull();
 	}
 
 	@Test
