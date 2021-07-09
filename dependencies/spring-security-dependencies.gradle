@@ -33,7 +33,6 @@ dependencies {
 		api "javax.servlet.jsp:javax.servlet.jsp-api:2.3.3"
 		api "javax.servlet:javax.servlet-api:4.0.1"
 		api "javax.xml.bind:jaxb-api:2.3.1"
-		api "junit:junit:4.13.2"
 		api "ldapsdk:ldapsdk:4.1"
 		api "net.sf.ehcache:ehcache:2.10.9.2"
 		api "net.sourceforge.htmlunit:htmlunit:2.49.1"
