@@ -74,7 +74,6 @@ public class DependencySetPlugin implements Plugin<Project> {
 		]
 
 		project.ext.testDependencies = [
-			"junit:junit",
 			"org.mockito:mockito-core",
 			"org.springframework:spring-test",
 			"org.assertj:assertj-core",
