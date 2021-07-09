@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.server
 
+import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
@@ -57,9 +58,12 @@ operator fun ServerHttpSecurity.invoke(httpConfiguration: ServerHttpSecurityDsl.
  * @author Eleftheria Stein
  * @since 5.4
  * @param init the configurations to apply to the provided [ServerHttpSecurity]
+ * @property authenticationManager the default [ReactiveAuthenticationManager] to use
  */
 @ServerSecurityMarker
 class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val init: ServerHttpSecurityDsl.() -> Unit) {
+
+    var authenticationManager: ReactiveAuthenticationManager? = null
 
     /**
      * Allows configuring the [ServerHttpSecurity] to only be invoked when matching the
@@ -630,6 +634,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      */
     internal fun build(): SecurityWebFilterChain {
         init()
+        authenticationManager?.also { this.http.authenticationManager(authenticationManager) }
         return this.http.build()
     }
 }
