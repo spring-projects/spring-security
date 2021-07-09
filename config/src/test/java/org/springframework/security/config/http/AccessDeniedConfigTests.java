@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.test.SpringTestContext;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -54,7 +54,7 @@ public class AccessDeniedConfigTests {
 	MockMvc mvc;
 
 	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test
 	public void configureWhenAccessDeniedHandlerIsMissingLeadingSlashThenException() {

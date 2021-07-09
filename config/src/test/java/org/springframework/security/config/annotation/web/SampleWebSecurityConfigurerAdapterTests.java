@@ -35,7 +35,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -53,7 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SampleWebSecurityConfigurerAdapterTests {
 
 	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;

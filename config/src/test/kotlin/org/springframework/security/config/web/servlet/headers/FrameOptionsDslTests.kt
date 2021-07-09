@@ -23,7 +23,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.web.servlet.invoke
-import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter
 import org.springframework.test.web.servlet.MockMvc
@@ -37,7 +37,7 @@ import org.springframework.test.web.servlet.get
 class FrameOptionsDslTests {
     @Rule
     @JvmField
-    var spring = SpringTestRule()
+    val spring = SpringTestContext(this)
 
     @Autowired
     lateinit var mockMvc: MockMvc

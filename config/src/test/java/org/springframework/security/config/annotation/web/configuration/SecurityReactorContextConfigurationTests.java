@@ -41,7 +41,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration.SecurityReactorContextSubscriber;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.web.reactive.function.client.MockExchangeFunction;
@@ -72,7 +72,7 @@ public class SecurityReactorContextConfigurationTests {
 	private SecurityReactorContextConfiguration.SecurityReactorContextSubscriberRegistrar subscriberRegistrar = new SecurityReactorContextConfiguration.SecurityReactorContextSubscriberRegistrar();
 
 	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@BeforeEach
 	public void setup() {

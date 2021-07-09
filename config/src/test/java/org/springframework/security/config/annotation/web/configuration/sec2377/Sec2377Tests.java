@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.security.config.annotation.web.configuration.sec2377.a.Sec2377AConfig;
 import org.springframework.security.config.annotation.web.configuration.sec2377.b.Sec2377BConfig;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
 
 /**
  * @author Rob Winch
@@ -31,10 +31,10 @@ import org.springframework.security.config.test.SpringTestRule;
 public class Sec2377Tests {
 
 	@Rule
-	public final SpringTestRule parent = new SpringTestRule();
+	public final SpringTestContext parent = new SpringTestContext(this);
 
 	@Rule
-	public final SpringTestRule child = new SpringTestRule();
+	public final SpringTestContext child = new SpringTestContext(this);
 
 	@Test
 	public void refreshContextWhenParentAndChildRegisteredThenNoException() {

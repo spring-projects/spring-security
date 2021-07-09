@@ -28,7 +28,7 @@ import org.springframework.mock.web.MockHttpSession
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.core.session.SessionInformation
 import org.springframework.security.core.session.SessionRegistry
@@ -52,7 +52,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 class SessionConcurrencyDslTests {
     @Rule
     @JvmField
-    var spring = SpringTestRule()
+    val spring = SpringTestContext(this)
 
     @Autowired
     lateinit var mockMvc: MockMvc
