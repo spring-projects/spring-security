@@ -29,8 +29,6 @@ import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.config.test.SpringTestContext;
-import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.access.AccessDeniedHandler;
