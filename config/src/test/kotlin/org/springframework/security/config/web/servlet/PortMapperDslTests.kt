@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.web.servlet
 
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -34,7 +33,6 @@ import java.util.*
  * @author Eleftheria Stein
  */
 class PortMapperDslTests  {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

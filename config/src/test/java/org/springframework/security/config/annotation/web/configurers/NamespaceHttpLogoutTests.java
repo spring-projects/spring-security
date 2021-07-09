@@ -23,7 +23,6 @@ import java.util.function.Predicate;
 import javax.servlet.http.HttpSession;
 
 import org.assertj.core.api.Condition;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -60,7 +59,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SecurityTestExecutionListeners
 public class NamespaceHttpLogoutTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.openid4java.consumer.ConsumerManager;
 import org.openid4java.discovery.yadis.YadisResolver;
@@ -68,7 +67,6 @@ public class OpenIDConfigTests {
 	@Autowired
 	MockMvc mvc;
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test

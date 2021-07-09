@@ -27,7 +27,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.assertj.core.api.ListAssert;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.context.annotation.Bean;
@@ -47,7 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class HttpSecurityAddFilterTest {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test

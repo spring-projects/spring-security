@@ -23,7 +23,6 @@ import java.security.cert.X509Certificate;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import sun.security.x509.X500Name;
 
@@ -65,7 +64,6 @@ public class NamespaceHttpX509Tests {
 	private static final User USER = new User("customuser", "password",
 			AuthorityUtils.createAuthorityList("ROLE_USER"));
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

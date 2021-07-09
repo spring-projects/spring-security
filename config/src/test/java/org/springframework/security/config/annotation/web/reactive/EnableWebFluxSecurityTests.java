@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.reactive;
 
 import java.nio.charset.StandardCharsets;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Mono;
@@ -81,7 +80,6 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 @SecurityTestExecutionListeners
 public class EnableWebFluxSecurityTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

@@ -17,7 +17,6 @@
 package org.springframework.security.config.web.servlet.headers
 
 import org.assertj.core.api.Assertions
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -34,7 +33,6 @@ import org.springframework.test.web.servlet.get
  * @author Eleftheria Stein
  */
 class HttpPublicKeyPinningDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

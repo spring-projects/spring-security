@@ -17,7 +17,6 @@
 package org.springframework.security.config.web.server
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
@@ -37,7 +36,6 @@ import java.util.*
  * @author Eleftheria Stein
  */
 class ServerHttpsRedirectDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

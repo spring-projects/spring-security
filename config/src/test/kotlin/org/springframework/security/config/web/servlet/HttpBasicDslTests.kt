@@ -20,7 +20,6 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
 import javax.servlet.http.HttpServletRequest
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -46,7 +45,6 @@ import org.springframework.web.bind.annotation.RestController
  * @author Eleftheria Stein
  */
 class HttpBasicDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

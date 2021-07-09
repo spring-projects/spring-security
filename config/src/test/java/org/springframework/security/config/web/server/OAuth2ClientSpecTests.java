@@ -18,7 +18,6 @@ package org.springframework.security.config.web.server;
 
 import java.net.URI;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Mono;
@@ -73,7 +72,6 @@ import static org.mockito.Mockito.verify;
 @SecurityTestExecutionListeners
 public class OAuth2ClientSpecTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	private WebTestClient client;

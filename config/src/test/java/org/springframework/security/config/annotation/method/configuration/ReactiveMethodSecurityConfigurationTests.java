@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ReactiveMethodSecurityConfigurationTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

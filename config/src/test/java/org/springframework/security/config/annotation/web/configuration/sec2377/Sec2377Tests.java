@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.web.configuration.sec2377;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
@@ -30,10 +29,8 @@ import org.springframework.security.config.test.SpringTestContext;
  */
 public class Sec2377Tests {
 
-	@Rule
 	public final SpringTestContext parent = new SpringTestContext(this);
 
-	@Rule
 	public final SpringTestContext child = new SpringTestContext(this);
 
 	@Test

@@ -20,7 +20,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +46,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 public class NamespaceDebugTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

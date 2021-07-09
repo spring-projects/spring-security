@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.openqa.selenium.WebDriver;
@@ -120,7 +119,6 @@ import static org.mockito.Mockito.verify;
  */
 public class OAuth2LoginTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	private WebTestClient client;

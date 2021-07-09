@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import java.io.Serializable;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +44,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class SampleEnableGlobalMethodSecurityTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

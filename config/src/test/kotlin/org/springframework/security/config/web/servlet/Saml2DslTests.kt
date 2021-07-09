@@ -21,7 +21,6 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import org.assertj.core.api.Assertions
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
@@ -54,7 +53,6 @@ import java.util.Base64
  * @author Eleftheria Stein
  */
 class Saml2DslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

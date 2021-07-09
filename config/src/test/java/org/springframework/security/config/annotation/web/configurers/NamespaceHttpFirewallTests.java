@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 public class NamespaceHttpFirewallTests {
 
-	@Rule
 	public final SpringTestContext rule = new SpringTestContext(this);
 
 	@Autowired

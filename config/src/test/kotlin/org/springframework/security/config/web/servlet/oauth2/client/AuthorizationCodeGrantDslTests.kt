@@ -20,7 +20,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -51,7 +50,6 @@ import org.springframework.test.web.servlet.get
  * @author Eleftheria Stein
  */
 class AuthorizationCodeGrantDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

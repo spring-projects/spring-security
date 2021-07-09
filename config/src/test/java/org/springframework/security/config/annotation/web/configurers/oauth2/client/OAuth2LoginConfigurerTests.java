@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpHeaders;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -145,7 +144,6 @@ public class OAuth2LoginConfigurerTests {
 	@Autowired
 	SecurityContextRepository securityContextRepository;
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired(required = false)

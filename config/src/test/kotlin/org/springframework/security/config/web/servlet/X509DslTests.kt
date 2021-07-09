@@ -20,7 +20,6 @@ import io.mockk.mockk
 import java.security.cert.Certificate
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -46,7 +45,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
  * @author Eleftheria Stein
  */
 class X509DslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

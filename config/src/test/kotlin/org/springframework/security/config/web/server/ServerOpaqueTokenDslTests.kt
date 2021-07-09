@@ -19,7 +19,6 @@ package org.springframework.security.config.web.server
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
@@ -40,7 +39,6 @@ import javax.annotation.PreDestroy
  * @author Eleftheria Stein
  */
 class ServerOpaqueTokenDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

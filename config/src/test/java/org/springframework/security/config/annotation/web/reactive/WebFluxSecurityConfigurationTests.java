@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class WebFluxSecurityConfigurationTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test

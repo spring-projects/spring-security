@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.authentication.configuration;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class EnableGlobalAuthenticationTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	// gh-4086

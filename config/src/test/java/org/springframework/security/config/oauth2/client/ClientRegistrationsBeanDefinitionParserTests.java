@@ -18,7 +18,6 @@ package org.springframework.security.config.oauth2.client;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -125,7 +124,6 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 	@Autowired
 	private ClientRegistrationRepository clientRegistrationRepository;
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	private MockWebServer server;

@@ -44,7 +44,6 @@ import ch.qos.logback.core.Appender;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.iterable.Extractor;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.slf4j.LoggerFactory;
@@ -142,7 +141,6 @@ public class MiscHttpConfigTests {
 	@Autowired
 	MockMvc mvc;
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test

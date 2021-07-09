@@ -20,7 +20,6 @@ import java.util.Base64;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +51,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SampleWebSecurityConfigurerAdapterTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

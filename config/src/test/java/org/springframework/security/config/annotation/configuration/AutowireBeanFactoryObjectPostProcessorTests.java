@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.configuration;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
@@ -45,7 +44,6 @@ import static org.mockito.Mockito.verify;
  */
 public class AutowireBeanFactoryObjectPostProcessorTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

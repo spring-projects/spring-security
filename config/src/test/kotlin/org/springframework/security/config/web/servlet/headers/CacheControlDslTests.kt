@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.web.servlet.headers
 
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
@@ -34,7 +33,6 @@ import org.springframework.test.web.servlet.get
  * @author Eleftheria Stein
  */
 class CacheControlDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

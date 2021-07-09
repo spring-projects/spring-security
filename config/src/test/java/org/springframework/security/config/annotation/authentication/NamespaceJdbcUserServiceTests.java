@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.authentication;
 
 import javax.sql.DataSource;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,6 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
  */
 public class NamespaceJdbcUserServiceTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

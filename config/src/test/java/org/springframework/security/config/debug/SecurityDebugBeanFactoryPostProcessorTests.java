@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.debug;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.config.BeanIds;
@@ -32,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SecurityDebugBeanFactoryPostProcessorTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test

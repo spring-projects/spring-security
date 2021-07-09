@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.web.servlet
 
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -39,7 +38,6 @@ import org.springframework.web.bind.annotation.RestController
  * @author Eleftheria Stein
  */
 class OAuth2LoginDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

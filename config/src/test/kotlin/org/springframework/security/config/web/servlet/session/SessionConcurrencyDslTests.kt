@@ -19,7 +19,6 @@ package org.springframework.security.config.web.servlet.session
 import io.mockk.every
 import io.mockk.mockkObject
 import java.util.Date
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -50,7 +49,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
  * @author Eleftheria Stein
  */
 class SessionConcurrencyDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

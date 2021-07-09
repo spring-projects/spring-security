@@ -21,7 +21,6 @@ import java.util.List;
 
 import javax.servlet.Filter;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.context.annotation.Bean;
@@ -48,7 +47,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class Issue55Tests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test

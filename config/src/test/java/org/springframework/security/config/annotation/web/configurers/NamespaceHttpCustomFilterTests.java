@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.assertj.core.api.ListAssert;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.context.annotation.Bean;
@@ -58,7 +57,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class NamespaceHttpCustomFilterTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test
