@@ -18,7 +18,7 @@ package org.springframework.security.config.web.servlet
 
 import io.mockk.mockkObject
 import io.mockk.verify
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.ConfigAttribute
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
