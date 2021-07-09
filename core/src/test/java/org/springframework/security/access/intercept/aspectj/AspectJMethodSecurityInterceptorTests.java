@@ -24,9 +24,9 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.CodeSignature;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -82,7 +82,7 @@ public class AspectJMethodSecurityInterceptorTests {
 
 	private ProceedingJoinPoint joinPoint;
 
-	@Before
+	@BeforeEach
 	public final void setUp() {
 		MockitoAnnotations.initMocks(this);
 		SecurityContextHolder.clearContext();
@@ -108,7 +108,7 @@ public class AspectJMethodSecurityInterceptorTests {
 		given(this.authman.authenticate(this.token)).willReturn(this.token);
 	}
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}

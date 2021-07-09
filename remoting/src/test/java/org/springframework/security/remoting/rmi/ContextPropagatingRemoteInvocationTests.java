@@ -19,8 +19,8 @@ package org.springframework.security.remoting.rmi;
 import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.TargetObject;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 public class ContextPropagatingRemoteInvocationTests {
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

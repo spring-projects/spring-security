@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;

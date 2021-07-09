@@ -18,9 +18,9 @@ package org.springframework.security.acls.jdbc;
 
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -56,7 +56,7 @@ public class SpringCacheBasedAclCacheTests {
 
 	private static CacheManager cacheManager;
 
-	@BeforeClass
+	@BeforeAll
 	public static void initCacheManaer() {
 		cacheManager = new ConcurrentMapCacheManager();
 		// Use disk caching immediately (to test for serialization issue reported in
@@ -64,7 +64,7 @@ public class SpringCacheBasedAclCacheTests {
 		cacheManager.getCache("springcasebasedacltests");
 	}
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}

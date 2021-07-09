@@ -25,12 +25,12 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.RowMapper;
@@ -56,7 +56,7 @@ import static org.mockito.BDDMockito.given;
  *
  * @author Nena Raab
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class JdbcAclServiceTests {
 
 	private EmbeddedDatabase embeddedDatabase;
@@ -74,23 +74,20 @@ public class JdbcAclServiceTests {
 
 	private JdbcAclService aclService;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
-		this.aclService = new JdbcAclService(this.jdbcOperations, this.lookupStrategy);
-		this.aclServiceIntegration = new JdbcAclService(this.embeddedDatabase, this.lookupStrategy);
-	}
-
-	@Before
-	public void setUpEmbeddedDatabase() {
 		// @formatter:off
 		this.embeddedDatabase = new EmbeddedDatabaseBuilder()
 			.addScript("createAclSchemaWithAclClassIdType.sql")
 			.addScript("db/sql/test_data_hierarchy.sql")
 			.build();
 		// @formatter:on
+
+		this.aclService = new JdbcAclService(this.jdbcOperations, this.lookupStrategy);
+		this.aclServiceIntegration = new JdbcAclService(this.embeddedDatabase, this.lookupStrategy);
 	}
 
-	@After
+	@AfterEach
 	public void tearDownEmbeddedDatabase() {
 		this.embeddedDatabase.shutdown();
 	}

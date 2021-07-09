@@ -24,7 +24,7 @@ import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;

@@ -25,10 +25,10 @@ import io.rsocket.frame.decoder.PayloadDecoder;
 import io.rsocket.metadata.WellKnownMimeType;
 import io.rsocket.transport.netty.server.CloseableChannel;
 import io.rsocket.transport.netty.server.TcpServerTransport;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ import org.springframework.security.rsocket.metadata.BearerTokenAuthenticationEn
 import org.springframework.security.rsocket.metadata.BearerTokenMetadata;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 
@@ -62,7 +62,7 @@ import static org.mockito.Mockito.mock;
  * @author Rob Winch
  */
 @ContextConfiguration
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class JwtITests {
 
 	@Autowired
@@ -81,7 +81,7 @@ public class JwtITests {
 
 	private RSocketRequester requester;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		// @formatter:off
 		this.server = RSocketServer.create()
@@ -95,7 +95,7 @@ public class JwtITests {
 		// @formatter:on
 	}
 
-	@After
+	@AfterEach
 	public void dispose() {
 		this.requester.rsocket().dispose();
 		this.server.dispose();

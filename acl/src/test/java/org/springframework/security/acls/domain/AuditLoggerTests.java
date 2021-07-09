@@ -19,9 +19,9 @@ package org.springframework.security.acls.domain;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.AuditableAccessControlEntry;
@@ -45,7 +45,7 @@ public class AuditLoggerTests {
 
 	private AuditableAccessControlEntry ace;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.logger = new ConsoleAuditLogger();
 		this.ace = mock(AuditableAccessControlEntry.class);
@@ -53,7 +53,7 @@ public class AuditLoggerTests {
 		System.setOut(new PrintStream(this.bytes));
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		System.setOut(this.console);
 		this.bytes.reset();

@@ -22,11 +22,11 @@ package org.springframework.security.test.context.support;
  */
 import java.util.concurrent.ForkJoinPool;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -42,7 +42,7 @@ import org.springframework.test.context.TestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ReactorContextTestExecutionListenerTests {
 
 	@Mock
@@ -50,7 +50,7 @@ public class ReactorContextTestExecutionListenerTests {
 
 	private ReactorContextTestExecutionListener listener = new ReactorContextTestExecutionListener();
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		TestSecurityContextHolder.clearContext();
 		Hooks.resetOnLastOperator();

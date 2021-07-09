@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpHeaders;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
@@ -46,7 +46,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -111,6 +112,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Joe Grandja
  * @since 5.0.1
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class OAuth2LoginConfigurerTests {
 
 	// @formatter:off
@@ -145,8 +147,7 @@ public class OAuth2LoginConfigurerTests {
 	@Autowired
 	SecurityContextRepository securityContextRepository;
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired(required = false)
 	MockMvc mvc;
@@ -157,7 +158,7 @@ public class OAuth2LoginConfigurerTests {
 
 	private MockFilterChain filterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest("GET", "");
 		this.request.setServletPath("/login/oauth2/code/google");
@@ -165,7 +166,7 @@ public class OAuth2LoginConfigurerTests {
 		this.filterChain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		if (this.context != null) {
 			this.context.close();

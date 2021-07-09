@@ -18,7 +18,7 @@ package org.springframework.security.web.server.savedrequest;
 
 import java.net.URI;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;

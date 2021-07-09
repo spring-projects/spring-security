@@ -18,14 +18,13 @@ package org.springframework.security.config.annotation.web;
 
 import java.util.Arrays;
 
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.support.SpringFactoriesLoader;
@@ -34,7 +33,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.web.context.request.async.SecurityContextCallableProcessingInterceptor;
 import org.springframework.test.web.servlet.MockMvc;
@@ -55,13 +55,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith({ MockitoExtension.class, SpringTestContextExtension.class })
 public class WebSecurityConfigurerAdapterMockitoTests {
 
 	ConfigurableWebApplicationContext context;
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -69,7 +68,7 @@ public class WebSecurityConfigurerAdapterMockitoTests {
 	@Mock
 	private MockedStatic<SpringFactoriesLoader> springFactoriesLoader;
 
-	@After
+	@AfterEach
 	public void close() {
 		if (this.context != null) {
 			this.context.close();

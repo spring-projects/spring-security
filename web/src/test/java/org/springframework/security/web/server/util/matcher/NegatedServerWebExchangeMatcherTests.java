@@ -16,11 +16,11 @@
 
 package org.springframework.security.web.server.util.matcher;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.web.server.ServerWebExchange;
 
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
  * @author Tao Qian
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NegatedServerWebExchangeMatcherTests {
 
 	@Mock
@@ -43,7 +43,7 @@ public class NegatedServerWebExchangeMatcherTests {
 
 	NegatedServerWebExchangeMatcher matcher;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.matcher = new NegatedServerWebExchangeMatcher(this.matcher1);
 	}

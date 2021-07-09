@@ -23,7 +23,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;

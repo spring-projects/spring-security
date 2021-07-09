@@ -16,8 +16,8 @@
 
 package org.springframework.security.oauth2.client.web;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class HttpSessionOAuth2AuthorizationRequestRepositoryDoNotAllowMultipleAuthorizationRequestsTests
 		extends HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
 		this.authorizationRequestRepository.setAllowMultipleAuthorizationRequests(false);

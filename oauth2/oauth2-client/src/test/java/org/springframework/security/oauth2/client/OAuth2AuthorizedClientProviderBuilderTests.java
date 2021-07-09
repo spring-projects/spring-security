@@ -19,8 +19,8 @@ package org.springframework.security.oauth2.client;
 import java.time.Duration;
 import java.time.Instant;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
@@ -66,7 +66,7 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	private Authentication principal;
 
 	@SuppressWarnings("unchecked")
-	@Before
+	@BeforeEach
 	public void setup() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		this.accessTokenClient = mock(RestOperations.class);

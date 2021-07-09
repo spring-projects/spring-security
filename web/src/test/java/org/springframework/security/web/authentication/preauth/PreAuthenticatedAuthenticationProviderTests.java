@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.authentication.preauth;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

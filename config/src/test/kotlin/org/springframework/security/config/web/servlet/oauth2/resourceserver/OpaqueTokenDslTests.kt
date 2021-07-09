@@ -19,8 +19,8 @@ package org.springframework.security.config.web.servlet.oauth2.resourceserver
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpHeaders
@@ -33,7 +33,8 @@ import org.springframework.security.authentication.TestingAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.test.SpringTestContext
+import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal
@@ -54,10 +55,10 @@ import org.springframework.web.client.RestTemplate
  *
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension::class)
 class OpaqueTokenDslTests {
-    @Rule
     @JvmField
-    val spring = SpringTestRule()
+    val spring = SpringTestContext(this)
 
     @Autowired
     lateinit var mockMvc: MockMvc

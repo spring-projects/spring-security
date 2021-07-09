@@ -23,9 +23,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -104,7 +104,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	private MockHttpServletResponse response;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.authentication = new TestingAuthenticationToken(this.principalName, "password");
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
@@ -157,7 +157,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		this.response = new MockHttpServletResponse();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		SecurityContextHolder.clearContext();
 	}

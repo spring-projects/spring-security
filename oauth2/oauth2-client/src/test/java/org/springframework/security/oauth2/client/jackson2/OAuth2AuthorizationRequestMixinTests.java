@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.security.jackson2.SecurityJackson2Modules;
@@ -47,7 +47,7 @@ public class OAuth2AuthorizationRequestMixinTests {
 
 	private OAuth2AuthorizationRequest.Builder authorizationRequestBuilder;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		ClassLoader loader = getClass().getClassLoader();
 		this.mapper = new ObjectMapper();

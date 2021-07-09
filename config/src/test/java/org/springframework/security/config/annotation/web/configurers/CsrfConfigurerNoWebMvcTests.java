@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -40,7 +40,7 @@ public class CsrfConfigurerNoWebMvcTests {
 
 	ConfigurableApplicationContext context;
 
-	@After
+	@AfterEach
 	public void teardown() {
 		if (this.context != null) {
 			this.context.close();

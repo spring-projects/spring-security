@@ -16,8 +16,8 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -39,7 +39,7 @@ public class OAuth2AuthorizationCodeGrantRequestTests {
 
 	private OAuth2AuthorizationExchange authorizationExchange;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.authorizationExchange = TestOAuth2AuthorizationExchanges.success();

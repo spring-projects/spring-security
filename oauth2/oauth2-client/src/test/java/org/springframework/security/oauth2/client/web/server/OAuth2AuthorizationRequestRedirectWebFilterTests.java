@@ -19,11 +19,11 @@ package org.springframework.security.oauth2.client.web.server;
 import java.net.URI;
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
@@ -47,7 +47,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  * @author Rob Winch
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 
 	@Mock
@@ -65,16 +65,13 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 
 	private WebTestClient client;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.filter = new OAuth2AuthorizationRequestRedirectWebFilter(this.clientRepository);
 		this.filter.setAuthorizationRequestRepository(this.authzRequestRepository);
 		FilteringWebHandler webHandler = new FilteringWebHandler((e) -> e.getResponse().setComplete(),
 				Arrays.asList(this.filter));
 		this.client = WebTestClient.bindToWebHandler(webHandler).build();
-		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
-				.willReturn(Mono.just(this.registration));
-		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 	}
 
 	@Test
@@ -96,6 +93,9 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 
 	@Test
 	public void filterWhenDoesMatchThenClientRegistrationRepositoryNotSubscribed() {
+		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
+				.willReturn(Mono.just(this.registration));
+		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 		// @formatter:off
 		FluxExchangeResult<String> result = this.client.get()
 				.uri("https://example.com/oauth2/authorization/registration-id")
@@ -116,6 +116,9 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	// gh-5520
 	@Test
 	public void filterWhenDoesMatchThenResolveRedirectUriExpandedExcludesQueryString() {
+		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
+				.willReturn(Mono.just(this.registration));
+		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 		// @formatter:off
 		FluxExchangeResult<String> result = this.client.get()
 				.uri("https://example.com/oauth2/authorization/registration-id?foo=bar").exchange().expectStatus()
@@ -137,6 +140,9 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 
 	@Test
 	public void filterWhenExceptionThenRedirected() {
+		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
+				.willReturn(Mono.just(this.registration));
+		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 		FilteringWebHandler webHandler = new FilteringWebHandler(
 				(e) -> Mono.error(new ClientAuthorizationRequiredException(this.registration.getRegistrationId())),
 				Arrays.asList(this.filter));
@@ -153,6 +159,9 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 
 	@Test
 	public void filterWhenExceptionThenSaveRequestSessionAttribute() {
+		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
+				.willReturn(Mono.just(this.registration));
+		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 		this.filter.setRequestCache(this.requestCache);
 		given(this.requestCache.saveRequest(any())).willReturn(Mono.empty());
 		FilteringWebHandler webHandler = new FilteringWebHandler(
@@ -172,6 +181,9 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 
 	@Test
 	public void filterWhenPathMatchesThenRequestSessionAttributeNotSaved() {
+		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
+				.willReturn(Mono.just(this.registration));
+		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 		this.filter.setRequestCache(this.requestCache);
 		// @formatter:off
 		this.client.get()

@@ -22,9 +22,9 @@ import java.util.Collections;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -60,7 +60,7 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 
 	private MockWebServer server;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
@@ -70,7 +70,7 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 		this.refreshToken = TestOAuth2RefreshTokens.refreshToken();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		this.server.shutdown();
 	}

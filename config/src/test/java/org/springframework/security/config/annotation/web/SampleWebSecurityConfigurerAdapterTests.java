@@ -20,9 +20,9 @@ import java.util.Base64;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +35,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -50,10 +51,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  * @author Joe Grandja
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class SampleWebSecurityConfigurerAdapterTests {
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
@@ -64,7 +65,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 
 	private MockFilterChain chain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest("GET", "");
 		this.response = new MockHttpServletResponse();

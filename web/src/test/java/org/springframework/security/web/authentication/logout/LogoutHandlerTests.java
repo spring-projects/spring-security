@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.authentication.logout;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -32,7 +32,7 @@ public class LogoutHandlerTests {
 
 	LogoutFilter filter;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.filter = new LogoutFilter("/success", new SecurityContextLogoutHandler());
 	}

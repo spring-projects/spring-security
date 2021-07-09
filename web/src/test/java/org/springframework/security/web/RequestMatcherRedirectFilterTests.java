@@ -18,7 +18,7 @@ package org.springframework.security.web;
 
 import javax.servlet.FilterChain;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;

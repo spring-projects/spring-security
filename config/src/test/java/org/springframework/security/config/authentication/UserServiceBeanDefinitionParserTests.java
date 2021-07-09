@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.authentication;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
@@ -35,7 +35,7 @@ public class UserServiceBeanDefinitionParserTests {
 
 	private AbstractXmlApplicationContext appContext;
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		if (this.appContext != null) {
 			this.appContext.close();

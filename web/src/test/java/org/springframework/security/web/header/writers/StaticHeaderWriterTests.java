@@ -19,8 +19,8 @@ package org.springframework.security.web.header.writers;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -43,7 +43,7 @@ public class StaticHeaderWriterTests {
 
 	private MockHttpServletResponse response;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();

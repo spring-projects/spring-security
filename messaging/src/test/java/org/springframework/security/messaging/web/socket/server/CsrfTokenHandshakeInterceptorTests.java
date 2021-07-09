@@ -19,11 +19,11 @@ package org.springframework.security.messaging.web.socket.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Rob Winch
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CsrfTokenHandshakeInterceptorTests {
 
 	@Mock
@@ -55,7 +55,7 @@ public class CsrfTokenHandshakeInterceptorTests {
 
 	CsrfTokenHandshakeInterceptor interceptor;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.httpRequest = new MockHttpServletRequest();
 		this.attributes = new HashMap<>();

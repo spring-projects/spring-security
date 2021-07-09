@@ -34,8 +34,8 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.util.Base64URL;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -82,7 +82,7 @@ public class NimbusJwsEncoderTests {
 
 	private NimbusJwsEncoder jwsEncoder;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.jwkList = new ArrayList<>();
 		this.jwkSource = (jwkSelector, securityContext) -> jwkSelector.select(new JWKSet(this.jwkList));

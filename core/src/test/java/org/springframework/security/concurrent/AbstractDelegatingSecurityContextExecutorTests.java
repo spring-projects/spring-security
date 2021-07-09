@@ -19,7 +19,7 @@ package org.springframework.security.concurrent;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -28,17 +28,18 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Tadaya Tsuyukubo
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class ReactiveMethodSecurityConfigurationTests {
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler;

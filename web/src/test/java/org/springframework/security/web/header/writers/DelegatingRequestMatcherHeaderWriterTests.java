@@ -16,11 +16,11 @@
 
 package org.springframework.security.web.header.writers;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verify;
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DelegatingRequestMatcherHeaderWriterTests {
 
 	@Mock
@@ -51,7 +51,7 @@ public class DelegatingRequestMatcherHeaderWriterTests {
 
 	private DelegatingRequestMatcherHeaderWriter headerWriter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();

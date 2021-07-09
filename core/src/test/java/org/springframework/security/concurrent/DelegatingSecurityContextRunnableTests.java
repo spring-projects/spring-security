@@ -20,12 +20,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import org.springframework.core.task.SyncTaskExecutor;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verify;
  * @author Rob Winch
  * @since 3.2
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DelegatingSecurityContextRunnableTests {
 
 	@Mock
@@ -60,17 +60,20 @@ public class DelegatingSecurityContextRunnableTests {
 
 	private SecurityContext originalSecurityContext;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.originalSecurityContext = SecurityContextHolder.createEmptyContext();
+		this.executor = Executors.newFixedThreadPool(1);
+	}
+
+	private void givenDelegateRunWillAnswerWithCurrentSecurityContext() {
 		willAnswer((Answer<Object>) (invocation) -> {
 			assertThat(SecurityContextHolder.getContext()).isEqualTo(this.securityContext);
 			return null;
 		}).given(this.delegate).run();
-		this.executor = Executors.newFixedThreadPool(1);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
@@ -99,12 +102,14 @@ public class DelegatingSecurityContextRunnableTests {
 
 	@Test
 	public void call() throws Exception {
+		givenDelegateRunWillAnswerWithCurrentSecurityContext();
 		this.runnable = new DelegatingSecurityContextRunnable(this.delegate, this.securityContext);
 		assertWrapped(this.runnable);
 	}
 
 	@Test
 	public void callDefaultSecurityContext() throws Exception {
+		givenDelegateRunWillAnswerWithCurrentSecurityContext();
 		SecurityContextHolder.setContext(this.securityContext);
 		this.runnable = new DelegatingSecurityContextRunnable(this.delegate);
 		SecurityContextHolder.clearContext(); // ensure runnable is what sets up the
@@ -115,6 +120,7 @@ public class DelegatingSecurityContextRunnableTests {
 	// SEC-3031
 	@Test
 	public void callOnSameThread() throws Exception {
+		givenDelegateRunWillAnswerWithCurrentSecurityContext();
 		this.originalSecurityContext = this.securityContext;
 		SecurityContextHolder.setContext(this.originalSecurityContext);
 		this.executor = synchronousExecutor();
@@ -135,6 +141,7 @@ public class DelegatingSecurityContextRunnableTests {
 
 	@Test
 	public void createNullSecurityContext() throws Exception {
+		givenDelegateRunWillAnswerWithCurrentSecurityContext();
 		SecurityContextHolder.setContext(this.securityContext);
 		this.runnable = DelegatingSecurityContextRunnable.create(this.delegate, null);
 		SecurityContextHolder.clearContext(); // ensure runnable is what sets up the
@@ -144,6 +151,7 @@ public class DelegatingSecurityContextRunnableTests {
 
 	@Test
 	public void create() throws Exception {
+		givenDelegateRunWillAnswerWithCurrentSecurityContext();
 		this.runnable = DelegatingSecurityContextRunnable.create(this.delegate, this.securityContext);
 		assertWrapped(this.runnable);
 	}

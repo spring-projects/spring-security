@@ -16,9 +16,9 @@
 
 package org.springframework.security.test.context;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -31,12 +31,12 @@ public class TestSecurityContextHolderTests {
 
 	private SecurityContext context;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.context = SecurityContextHolder.createEmptyContext();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		TestSecurityContextHolder.clearContext();
 	}

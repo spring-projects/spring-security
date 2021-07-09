@@ -18,7 +18,7 @@ package org.springframework.security.rsocket.metadata;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.ResolvableType;

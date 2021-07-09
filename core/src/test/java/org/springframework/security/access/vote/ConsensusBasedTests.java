@@ -19,7 +19,7 @@ package org.springframework.security.access.vote;
 import java.util.List;
 import java.util.Vector;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;

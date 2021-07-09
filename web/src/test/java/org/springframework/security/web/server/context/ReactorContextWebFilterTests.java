@@ -16,11 +16,11 @@
 
 package org.springframework.security.web.server.context;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.test.publisher.TestPublisher;
@@ -46,7 +46,7 @@ import static org.mockito.BDDMockito.given;
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ReactorContextWebFilterTests {
 
 	@Mock
@@ -63,11 +63,10 @@ public class ReactorContextWebFilterTests {
 
 	private WebTestHandler handler;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.filter = new ReactorContextWebFilter(this.repository);
 		this.handler = WebTestHandler.bindToWebFilters(this.filter);
-		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 	}
 
 	@Test
@@ -77,12 +76,14 @@ public class ReactorContextWebFilterTests {
 
 	@Test
 	public void filterWhenNoPrincipalAccessThenNoInteractions() {
+		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 		this.handler.exchange(this.exchange);
 		this.securityContext.assertWasNotSubscribed();
 	}
 
 	@Test
 	public void filterWhenGetPrincipalMonoThenNoInteractions() {
+		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 		this.handler = WebTestHandler.bindToWebFilters(this.filter, (e, c) -> {
 			ReactiveSecurityContextHolder.getContext();
 			return c.filter(e);
@@ -105,6 +106,7 @@ public class ReactorContextWebFilterTests {
 	@Test
 	// gh-4962
 	public void filterWhenMainContextThenDoesNotOverride() {
+		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 		String contextKey = "main";
 		WebFilter mainContextWebFilter = (e, c) -> c.filter(e).subscriberContext(Context.of(contextKey, true));
 		WebFilterChain chain = new DefaultWebFilterChain((e) -> Mono.empty(), mainContextWebFilter, this.filter);

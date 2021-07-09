@@ -18,13 +18,13 @@ package org.springframework.security.test.web.servlet.request;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.context.SecurityContext;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.testSecurityContext;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 
 	@Mock
@@ -52,14 +52,14 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 
 	private MockHttpServletRequest request;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.webTestUtils.when(() -> WebTestUtils.getSecurityContextRepository(this.request))
 				.thenReturn(this.repository);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		TestSecurityContextHolder.clearContext();
 	}

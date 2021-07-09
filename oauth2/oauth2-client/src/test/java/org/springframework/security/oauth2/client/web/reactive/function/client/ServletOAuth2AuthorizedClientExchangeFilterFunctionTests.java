@@ -31,14 +31,14 @@ import java.util.function.Consumer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -127,7 +127,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  * @author Rob Winch
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Mock
@@ -187,7 +187,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token-0",
 			Instant.now(), Instant.now().plus(Duration.ofDays(1)));
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.authentication = new TestingAuthenticationToken("test", "this");
 		JwtBearerOAuth2AuthorizedClientProvider jwtBearerAuthorizedClientProvider = new JwtBearerOAuth2AuthorizedClientProvider();
@@ -209,7 +209,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientManager);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		SecurityContextHolder.clearContext();
 		RequestContextHolder.resetRequestAttributes();

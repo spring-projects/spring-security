@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.server.authorization;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import reactor.core.publisher.Mono;
@@ -65,7 +65,7 @@ public class DelegatingReactiveAuthorizationManagerTests {
 
 	DelegatingReactiveAuthorizationManager manager;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		this.manager = DelegatingReactiveAuthorizationManager.builder()

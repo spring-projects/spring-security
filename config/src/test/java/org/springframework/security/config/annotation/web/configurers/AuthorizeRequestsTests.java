@@ -18,9 +18,9 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -73,7 +73,7 @@ public class AuthorizeRequestsTests {
 	@Autowired
 	FilterChainProxy springSecurityFilterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.servletContext = spy(new MockServletContext());
 		this.request = new MockHttpServletRequest("GET", "");
@@ -82,7 +82,7 @@ public class AuthorizeRequestsTests {
 		this.chain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		if (this.context != null) {
 			this.context.close();

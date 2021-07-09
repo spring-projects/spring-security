@@ -21,8 +21,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 import org.springframework.core.convert.converter.Converter;
@@ -51,7 +51,7 @@ public class OAuth2ClientCredentialsGrantRequestEntityConverterTests {
 
 	private OAuth2ClientCredentialsGrantRequestEntityConverter converter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.converter = new OAuth2ClientCredentialsGrantRequestEntityConverter();
 	}

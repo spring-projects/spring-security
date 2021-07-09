@@ -19,8 +19,8 @@ package org.springframework.security.access.intercept.method;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.ITargetObject;
 import org.springframework.security.OtherTargetObject;
@@ -61,7 +61,7 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 
 	private final List<ConfigAttribute> role = SecurityConfig.createList("ROLE_IGNORED");
 
-	@Before
+	@BeforeEach
 	public final void setUp() {
 		SecurityContextHolder.clearContext();
 		this.interceptor = new MethodSecurityInterceptor();

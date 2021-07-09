@@ -54,8 +54,8 @@ import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.cache.Cache;
@@ -121,7 +121,7 @@ public class NimbusJwtDecoderTests {
 
 	NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withoutSigning());
 
-	@BeforeClass
+	@BeforeAll
 	public static void keyFactory() throws NoSuchAlgorithmException {
 		kf = KeyFactory.getInstance("RSA");
 	}

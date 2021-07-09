@@ -22,10 +22,10 @@ import java.util.Collections;
 
 import javax.servlet.ServletException;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -46,7 +46,7 @@ import static org.mockito.Mockito.mock;
 /**
  * Tests for {@link OidcClientInitiatedLogoutSuccessHandler}
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OidcClientInitiatedLogoutSuccessHandlerTests {
 
 	// @formatter:off
@@ -64,7 +64,7 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 
 	OidcClientInitiatedLogoutSuccessHandler handler;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();

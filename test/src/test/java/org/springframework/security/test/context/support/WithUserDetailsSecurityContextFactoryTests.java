@@ -16,11 +16,11 @@
 
 package org.springframework.security.test.context.support;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WithUserDetailsSecurityContextFactoryTests {
 
 	@Mock
@@ -57,7 +57,7 @@ public class WithUserDetailsSecurityContextFactoryTests {
 
 	private WithUserDetailsSecurityContextFactory factory;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.factory = new WithUserDetailsSecurityContextFactory(this.beans);
 	}

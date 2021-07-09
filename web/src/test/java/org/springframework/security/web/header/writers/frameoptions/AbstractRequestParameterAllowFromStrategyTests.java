@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.header.writers.frameoptions;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -31,7 +31,7 @@ public class AbstractRequestParameterAllowFromStrategyTests {
 
 	private MockHttpServletRequest request;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 	}

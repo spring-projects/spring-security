@@ -23,13 +23,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.FilterChainProxy;
@@ -47,7 +47,7 @@ import static org.mockito.Mockito.verify;
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DebugFilterTests {
 
 	@Captor
@@ -75,17 +75,21 @@ public class DebugFilterTests {
 
 	private DebugFilter filter;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
-		given(this.request.getHeaderNames()).willReturn(Collections.enumeration(Collections.<String>emptyList()));
-		given(this.request.getServletPath()).willReturn("/login");
 		this.filter = new DebugFilter(this.fcp);
 		ReflectionTestUtils.setField(this.filter, "logger", this.logger);
 		this.requestAttr = DebugFilter.ALREADY_FILTERED_ATTR_NAME;
 	}
 
+	private void setupMocks() {
+		given(this.request.getHeaderNames()).willReturn(Collections.enumeration(Collections.<String>emptyList()));
+		given(this.request.getServletPath()).willReturn("/login");
+	}
+
 	@Test
 	public void doFilterProcessesRequests() throws Exception {
+		setupMocks();
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 		verify(this.logger).info(anyString());
 		verify(this.request).setAttribute(this.requestAttr, Boolean.TRUE);
@@ -97,6 +101,7 @@ public class DebugFilterTests {
 	// SEC-1901
 	@Test
 	public void doFilterProcessesForwardedRequests() throws Exception {
+		setupMocks();
 		given(this.request.getAttribute(this.requestAttr)).willReturn(Boolean.TRUE);
 		HttpServletRequest request = new DebugRequestWrapper(this.request);
 		this.filter.doFilter(request, this.response, this.filterChain);
@@ -107,6 +112,7 @@ public class DebugFilterTests {
 
 	@Test
 	public void doFilterDoesNotWrapWithDebugRequestWrapperAgain() throws Exception {
+		setupMocks();
 		given(this.request.getAttribute(this.requestAttr)).willReturn(Boolean.TRUE);
 		HttpServletRequest fireWalledRequest = new HttpServletRequestWrapper(new DebugRequestWrapper(this.request));
 		this.filter.doFilter(fireWalledRequest, this.response, this.filterChain);

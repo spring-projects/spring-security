@@ -16,14 +16,16 @@
 
 package org.springframework.security.config.web.servlet
 
-import org.junit.Rule
-import org.junit.Test
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.test.SpringTestContext
+import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User.withUsername
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user
 import org.springframework.security.web.access.AccessDeniedHandlerImpl
@@ -38,10 +40,10 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc
  *
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension::class)
 class ExceptionHandlingDslTests {
-    @Rule
     @JvmField
-    val spring = SpringTestRule()
+    val spring = SpringTestContext(this)
 
     @Autowired
     lateinit var mockMvc: MockMvc
@@ -69,11 +71,13 @@ class ExceptionHandlingDslTests {
         }
     }
 
-    @Test(expected = AccessDeniedException::class)
+    @Test
     fun `request when exception handling disabled then throws exception`() {
         this.spring.register(ExceptionHandlingDisabledConfig::class.java).autowire()
 
-        this.mockMvc.get("/")
+        assertThatExceptionOfType(AccessDeniedException::class.java).isThrownBy {
+            this.mockMvc.get("/")
+        }
     }
 
     @EnableWebSecurity

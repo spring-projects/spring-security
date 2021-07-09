@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.config.http.SecurityFiltersAssertions;
@@ -68,7 +68,7 @@ public class XsdDocumentedTests {
 
 	XmlSupport xml = new XmlSupport();
 
-	@After
+	@AfterEach
 	public void close() throws IOException {
 		this.xml.close();
 	}

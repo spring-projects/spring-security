@@ -16,11 +16,11 @@
 
 package org.springframework.security.messaging.access.expression;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -36,7 +36,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MessageExpressionConfigAttributeTests {
 
 	@Mock
@@ -47,7 +47,7 @@ public class MessageExpressionConfigAttributeTests {
 
 	MessageExpressionConfigAttribute attribute;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.attribute = new MessageExpressionConfigAttribute(this.expression, this.matcher);
 	}

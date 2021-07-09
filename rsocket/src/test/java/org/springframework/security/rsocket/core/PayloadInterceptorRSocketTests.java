@@ -28,12 +28,12 @@ import io.rsocket.metadata.WellKnownMimeType;
 import io.rsocket.util.ByteBufPayload;
 import io.rsocket.util.DefaultPayload;
 import io.rsocket.util.RSocketProxy;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
@@ -71,7 +71,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 /**
  * @author Rob Winch
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PayloadInterceptorRSocketTests {
 
 	static final MimeType COMPOSITE_METADATA = MimeTypeUtils

@@ -17,7 +17,7 @@
 package org.springframework.security.jackson2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
@@ -30,7 +30,7 @@ public abstract class AbstractMixinTests {
 
 	protected ObjectMapper mapper;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.mapper = new ObjectMapper();
 		ClassLoader loader = getClass().getClassLoader();

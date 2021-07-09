@@ -49,8 +49,8 @@ import org.hamcrest.core.AllOf;
 import org.hamcrest.core.StringContains;
 import org.hamcrest.core.StringEndsWith;
 import org.hamcrest.core.StringStartsWith;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
@@ -88,7 +88,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -170,6 +171,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  * @author Evgeniy Cheban
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class OAuth2ResourceServerConfigurerTests {
 
 	private static final String JWT_TOKEN = "token";
@@ -201,8 +203,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	@Autowired(required = false)
 	MockWebServer web;
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test
 	public void getWhenUsingDefaultsWithValidBearerTokenThenAcceptsRequest() throws Exception {

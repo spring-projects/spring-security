@@ -16,13 +16,13 @@
 
 package org.springframework.security.web.server.savedrequest;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Eleftheria Stein
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ServerRequestCacheWebFilterTests {
 
 	private ServerRequestCacheWebFilter requestCacheFilter;
@@ -57,7 +57,7 @@ public class ServerRequestCacheWebFilterTests {
 	@Captor
 	private ArgumentCaptor<ServerWebExchange> exchangeCaptor;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.requestCacheFilter = new ServerRequestCacheWebFilter();
 		this.requestCacheFilter.setRequestCache(this.requestCache);

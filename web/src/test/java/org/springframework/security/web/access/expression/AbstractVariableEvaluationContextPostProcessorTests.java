@@ -21,8 +21,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -52,7 +52,7 @@ public class AbstractVariableEvaluationContextPostProcessorTests {
 
 	EvaluationContext context;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.processor = new VariableEvaluationContextPostProcessor();
 		this.request = new MockHttpServletRequest();

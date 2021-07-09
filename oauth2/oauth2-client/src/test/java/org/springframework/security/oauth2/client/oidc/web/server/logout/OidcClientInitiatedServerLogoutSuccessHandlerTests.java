@@ -22,8 +22,8 @@ import java.util.Collections;
 
 import javax.servlet.ServletException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -67,7 +67,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 
 	OidcClientInitiatedServerLogoutSuccessHandler handler;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.exchange = mock(ServerWebExchange.class);
 		given(this.exchange.getResponse()).willReturn(new MockServerHttpResponse());

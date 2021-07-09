@@ -26,9 +26,9 @@ import javax.servlet.ServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -108,12 +108,12 @@ public class DigestAuthenticationFilterTests {
 		return new String(Base64.encodeBase64(nonceValue.getBytes()));
 	}
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		SecurityContextHolder.clearContext();
 		// Create User Details Service

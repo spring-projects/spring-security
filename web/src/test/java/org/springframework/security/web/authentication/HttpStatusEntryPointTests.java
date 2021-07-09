@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -42,7 +42,7 @@ public class HttpStatusEntryPointTests {
 	HttpStatusEntryPoint entryPoint;
 
 	@SuppressWarnings("serial")
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();

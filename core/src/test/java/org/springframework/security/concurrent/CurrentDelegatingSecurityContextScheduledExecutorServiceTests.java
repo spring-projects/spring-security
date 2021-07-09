@@ -16,7 +16,7 @@
 
 package org.springframework.security.concurrent;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.security.core.context.SecurityContext;
 
@@ -31,7 +31,7 @@ import org.springframework.security.core.context.SecurityContext;
 public class CurrentDelegatingSecurityContextScheduledExecutorServiceTests
 		extends AbstractDelegatingSecurityContextScheduledExecutorServiceTests {
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.currentSecurityContextSetup();
 	}

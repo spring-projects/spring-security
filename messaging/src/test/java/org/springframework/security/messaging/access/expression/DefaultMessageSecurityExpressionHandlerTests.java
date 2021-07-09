@@ -16,11 +16,11 @@
 
 package org.springframework.security.messaging.access.expression;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultMessageSecurityExpressionHandlerTests {
 
 	@Mock
@@ -54,7 +54,7 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 
 	Authentication authentication;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.handler = new DefaultMessageSecurityExpressionHandler<>();
 		this.message = new GenericMessage<>("");

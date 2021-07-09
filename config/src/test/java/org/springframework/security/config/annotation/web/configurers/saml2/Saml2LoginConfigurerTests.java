@@ -28,11 +28,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -53,7 +53,8 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -105,6 +106,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Tests for different Java configuration for {@link Saml2LoginConfigurer}
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class Saml2LoginConfigurerTests {
 
 	private static final Converter<Assertion, Collection<? extends GrantedAuthority>> AUTHORITIES_EXTRACTOR = (
@@ -129,8 +131,7 @@ public class Saml2LoginConfigurerTests {
 	@Autowired
 	SecurityContextRepository securityContextRepository;
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired(required = false)
 	MockMvc mvc;
@@ -141,7 +142,7 @@ public class Saml2LoginConfigurerTests {
 
 	private MockFilterChain filterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest("POST", "");
 		this.request.setServletPath("/login/saml2/sso/test-rp");
@@ -149,7 +150,7 @@ public class Saml2LoginConfigurerTests {
 		this.filterChain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		if (this.context != null) {
 			this.context.close();
@@ -261,7 +262,7 @@ public class Saml2LoginConfigurerTests {
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
-		Assert.assertNotNull("Expected a valid authentication object.", authentication);
+		Assertions.assertNotNull(authentication, "Expected a valid authentication object.");
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first().isInstanceOf(SimpleGrantedAuthority.class)
 				.hasToString(expected);

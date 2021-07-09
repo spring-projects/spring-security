@@ -22,8 +22,8 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.mock.web.MockHttpSession
@@ -31,7 +31,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.test.SpringTestContext
+import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.Authentication
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
@@ -48,10 +49,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
  *
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension::class)
 class SessionManagementDslTests {
-    @Rule
     @JvmField
-    val spring = SpringTestRule()
+    val spring = SpringTestContext(this)
 
     @Autowired
     lateinit var mockMvc: MockMvc

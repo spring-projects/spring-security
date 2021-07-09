@@ -16,7 +16,7 @@
 
 package org.springframework.security.config.web.server;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
 
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;

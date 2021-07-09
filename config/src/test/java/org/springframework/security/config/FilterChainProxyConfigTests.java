@@ -23,9 +23,9 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -55,14 +55,14 @@ public class FilterChainProxyConfigTests {
 
 	private ClassPathXmlApplicationContext appCtx;
 
-	@Before
+	@BeforeEach
 	public void loadContext() {
 		System.setProperty("sec1235.pattern1", "/login");
 		System.setProperty("sec1235.pattern2", "/logout");
 		this.appCtx = new ClassPathXmlApplicationContext("org/springframework/security/util/filtertest-valid.xml");
 	}
 
-	@After
+	@AfterEach
 	public void closeContext() {
 		if (this.appCtx != null) {
 			this.appCtx.close();

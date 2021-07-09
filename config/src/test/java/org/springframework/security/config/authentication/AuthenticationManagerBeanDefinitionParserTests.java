@@ -19,8 +19,8 @@ package org.springframework.security.config.authentication;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -31,7 +31,8 @@ import org.springframework.security.authentication.DefaultAuthenticationEventPub
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -43,6 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * @author Luke Taylor
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class AuthenticationManagerBeanDefinitionParserTests {
 
 	// @formatter:off
@@ -66,8 +68,7 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 			+ "</authentication-manager>";
 	// @formatter:on
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test
 	// SEC-1225

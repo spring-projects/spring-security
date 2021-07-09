@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.header.writers;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -43,7 +43,7 @@ public class FeaturePolicyHeaderWriterTests {
 
 	private static final String FEATURE_POLICY_HEADER = "Feature-Policy";
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();

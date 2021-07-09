@@ -17,12 +17,12 @@
 package org.springframework.security.config;
 
 import org.apache.commons.logging.Log;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Rob Winch
  * @since 3.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SecurityNamespaceHandlerTests {
 
 	// @formatter:off

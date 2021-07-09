@@ -18,11 +18,11 @@ package org.springframework.security.config.annotation.web.messaging;
 
 import java.util.Collection;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MessageSecurityMetadataSourceRegistryTests {
 
 	@Mock
@@ -47,7 +47,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
 
 	private Message<String> message;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.messages = new MessageSecurityMetadataSourceRegistry();
 		// @formatter:off

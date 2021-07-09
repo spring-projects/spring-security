@@ -22,8 +22,8 @@ import javax.servlet.http.Cookie;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -58,7 +58,7 @@ public class TokenBasedRememberMeServicesTests {
 
 	private TokenBasedRememberMeServices services;
 
-	@Before
+	@BeforeEach
 	public void createTokenBasedRememberMeServices() {
 		this.uds = mock(UserDetailsService.class);
 		this.services = new TokenBasedRememberMeServices("key", this.uds);

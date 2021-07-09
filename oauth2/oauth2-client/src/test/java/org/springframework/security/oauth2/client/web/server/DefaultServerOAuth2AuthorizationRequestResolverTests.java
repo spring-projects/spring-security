@@ -16,11 +16,11 @@
 
 package org.springframework.security.oauth2.client.web.server;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpStatus;
@@ -48,7 +48,7 @@ import static org.mockito.BDDMockito.given;
  * @author Rob Winch
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	@Mock
@@ -58,7 +58,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	private ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.resolver = new DefaultServerOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository);
 	}

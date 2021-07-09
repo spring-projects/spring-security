@@ -16,8 +16,8 @@
 
 package org.springframework.security.oauth2.client;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -40,7 +40,7 @@ public class OAuth2AuthorizedClientTests {
 
 	private OAuth2AccessToken accessToken;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.principalName = "principal";

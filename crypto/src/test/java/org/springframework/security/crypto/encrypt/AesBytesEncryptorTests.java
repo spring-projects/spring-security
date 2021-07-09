@@ -19,8 +19,8 @@ package org.springframework.security.crypto.encrypt;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.PBEKeySpec;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
@@ -44,7 +44,7 @@ public class AesBytesEncryptorTests {
 
 	private BytesKeyGenerator generator;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.generator = mock(BytesKeyGenerator.class);
 		given(this.generator.generateKey()).willReturn(Hex.decode("4b0febebd439db7ca77153cb254520c3"));

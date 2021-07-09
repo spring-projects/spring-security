@@ -20,8 +20,8 @@ import java.util.List;
 
 import javax.servlet.DispatcherType;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -40,7 +40,7 @@ public class AbstractRequestMatcherRegistryTests {
 
 	private TestRequestMatcherRegistry matcherRegistry;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.matcherRegistry = new TestRequestMatcherRegistry();
 	}

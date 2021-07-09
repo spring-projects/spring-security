@@ -16,10 +16,10 @@
 
 package org.springframework.security.integration;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -29,7 +29,7 @@ import org.springframework.security.integration.multiannotation.MultiAnnotationS
 import org.springframework.security.integration.multiannotation.PreAuthorizeService;
 import org.springframework.security.integration.multiannotation.SecuredService;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Luke Taylor
  */
 @ContextConfiguration(locations = { "/multi-sec-annotation-app-context.xml" })
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class MultiAnnotationTests {
 
 	private final TestingAuthenticationToken joe_a = new TestingAuthenticationToken("joe", "pass", "ROLE_A");
@@ -53,8 +53,8 @@ public class MultiAnnotationTests {
 	@Autowired
 	SecuredService secService;
 
-	@After
-	@Before
+	@AfterEach
+	@BeforeEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}

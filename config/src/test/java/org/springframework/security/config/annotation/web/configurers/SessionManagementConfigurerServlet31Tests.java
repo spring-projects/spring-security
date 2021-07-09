@@ -18,9 +18,9 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import javax.servlet.Filter;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -56,14 +56,14 @@ public class SessionManagementConfigurerServlet31Tests {
 
 	Filter springSecurityFilterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest("GET", "");
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void teardown() {
 		if (this.context != null) {
 			this.context.close();

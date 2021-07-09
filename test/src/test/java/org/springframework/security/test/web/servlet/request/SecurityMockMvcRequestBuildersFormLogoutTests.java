@@ -18,8 +18,8 @@ package org.springframework.security.test.web.servlet.request;
 
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -44,7 +44,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 
 	private MockServletContext servletContext;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.servletContext = new MockServletContext();
 	}

@@ -20,9 +20,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.ContextSource;
@@ -34,7 +34,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.ldap.ApacheDsContainerConfig;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Luke Taylor
  * @author Eddú Meléndez
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
 @SuppressWarnings({ "deprecation" })
 public class DefaultLdapAuthoritiesPopulatorTests {
@@ -53,7 +53,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 
 	private DefaultLdapAuthoritiesPopulator populator;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, "ou=groups");
 		this.populator.setIgnorePartialResultException(false);

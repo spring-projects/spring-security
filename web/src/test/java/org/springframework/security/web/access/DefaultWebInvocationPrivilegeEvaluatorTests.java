@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.access;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDecisionManager;
@@ -54,7 +54,7 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 
 	private FilterSecurityInterceptor interceptor;
 
-	@Before
+	@BeforeEach
 	public final void setUp() {
 		this.interceptor = new FilterSecurityInterceptor();
 		this.ods = mock(FilterInvocationSecurityMetadataSource.class);

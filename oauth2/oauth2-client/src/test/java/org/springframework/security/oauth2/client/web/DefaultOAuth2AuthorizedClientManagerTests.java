@@ -23,8 +23,8 @@ import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -95,7 +95,7 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 	private ArgumentCaptor<OAuth2AuthorizationContext> authorizationContextCaptor;
 
 	@SuppressWarnings("unchecked")
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.clientRegistrationRepository = mock(ClientRegistrationRepository.class);
 		this.authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);

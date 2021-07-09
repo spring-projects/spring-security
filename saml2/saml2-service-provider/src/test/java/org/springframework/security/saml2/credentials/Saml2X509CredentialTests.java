@@ -22,8 +22,8 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.converter.RsaKeyConverters;
 import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType;
@@ -39,7 +39,7 @@ public class Saml2X509CredentialTests {
 
 	private X509Certificate certificate;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		String keyData = "-----BEGIN PRIVATE KEY-----\n"
 				+ "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBANG7v8QjQGU3MwQE\n"

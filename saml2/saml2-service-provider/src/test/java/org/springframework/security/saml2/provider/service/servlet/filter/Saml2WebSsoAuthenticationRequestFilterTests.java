@@ -21,8 +21,8 @@ import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -68,7 +68,7 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 
 	private RelyingPartyRegistration.Builder rpBuilder;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.filter = new Saml2WebSsoAuthenticationRequestFilter(this.resolver, this.factory);
 		this.request = new MockHttpServletRequest();

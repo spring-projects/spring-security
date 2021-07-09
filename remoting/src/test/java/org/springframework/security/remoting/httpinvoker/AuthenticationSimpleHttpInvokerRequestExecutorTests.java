@@ -21,8 +21,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

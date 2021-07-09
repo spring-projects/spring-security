@@ -18,8 +18,8 @@ package org.springframework.security.config.http;
 
 import javax.servlet.Filter;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -38,7 +38,7 @@ public class HttpInterceptUrlTests {
 
 	MockMvc mockMvc;
 
-	@After
+	@AfterEach
 	public void close() {
 		if (this.context != null) {
 			this.context.close();

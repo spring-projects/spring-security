@@ -16,8 +16,8 @@
 
 package org.springframework.security.cas.authentication;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -36,7 +36,7 @@ public class SpringCacheBasedTicketCacheTests extends AbstractStatelessTicketCac
 
 	private static CacheManager cacheManager;
 
-	@BeforeClass
+	@BeforeAll
 	public static void initCacheManaer() {
 		cacheManager = new ConcurrentMapCacheManager();
 		cacheManager.getCache("castickets");

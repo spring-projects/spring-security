@@ -19,7 +19,7 @@ package org.springframework.security.htmlunit.server;
 import java.net.URI;
 import java.time.Duration;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
 import reactor.core.publisher.Mono;
 

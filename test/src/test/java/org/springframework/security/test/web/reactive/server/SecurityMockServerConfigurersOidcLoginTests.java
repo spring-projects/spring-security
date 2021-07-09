@@ -18,11 +18,11 @@ package org.springframework.security.test.web.reactive.server;
 
 import java.util.Collection;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockServerConfigurersTests {
 
 	private OAuth2LoginController controller = new OAuth2LoginController();
@@ -59,7 +59,7 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 
 	private WebTestClient client;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.client = WebTestClient.bindToController(this.controller)
 				.argumentResolvers((c) -> c.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(

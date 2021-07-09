@@ -22,12 +22,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockFilterChain;
@@ -55,7 +54,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Sergey Bespalov
  * @since 5.2.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthenticationFilterTests {
 
 	@Mock
@@ -76,12 +75,11 @@ public class AuthenticationFilterTests {
 	@Mock
 	private RequestMatcher requestMatcher;
 
-	@Before
-	public void setup() {
+	private void givenResolveWillReturnAuthenticationManager() {
 		given(this.authenticationManagerResolver.resolve(any())).willReturn(this.authenticationManager);
 	}
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
@@ -131,6 +129,7 @@ public class AuthenticationFilterTests {
 	@Test
 	public void filterWhenAuthenticationManagerResolverDefaultsAndAuthenticationSuccessThenContinues()
 			throws Exception {
+		givenResolveWillReturnAuthenticationManager();
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE");
 		given(this.authenticationConverter.convert(any())).willReturn(authentication);
 		given(this.authenticationManager.authenticate(any())).willReturn(authentication);
@@ -163,6 +162,7 @@ public class AuthenticationFilterTests {
 	@Test
 	public void filterWhenAuthenticationManagerResolverDefaultsAndAuthenticationFailThenUnauthorized()
 			throws Exception {
+		givenResolveWillReturnAuthenticationManager();
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE");
 		given(this.authenticationConverter.convert(any())).willReturn(authentication);
 		given(this.authenticationManager.authenticate(any())).willThrow(new BadCredentialsException("failed"));
@@ -191,6 +191,7 @@ public class AuthenticationFilterTests {
 
 	@Test
 	public void filterWhenConvertAndAuthenticationSuccessThenSuccess() throws Exception {
+		givenResolveWillReturnAuthenticationManager();
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE_USER");
 		given(this.authenticationConverter.convert(any())).willReturn(authentication);
 		given(this.authenticationManager.authenticate(any())).willReturn(authentication);
@@ -208,6 +209,7 @@ public class AuthenticationFilterTests {
 
 	@Test
 	public void filterWhenConvertAndAuthenticationEmptyThenServerError() throws Exception {
+		givenResolveWillReturnAuthenticationManager();
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE_USER");
 		given(this.authenticationConverter.convert(any())).willReturn(authentication);
 		given(this.authenticationManager.authenticate(any())).willReturn(null);

@@ -16,7 +16,7 @@
 
 package org.springframework.security.config.annotation.web;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.mock.web.MockServletContext;

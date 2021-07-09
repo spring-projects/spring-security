@@ -18,14 +18,15 @@ package org.springframework.security.config.oauth2.client;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -43,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Ruby Hartono
  * @author Evgeniy Cheban
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class ClientRegistrationsBeanDefinitionParserTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/oauth2/client/ClientRegistrationsBeanDefinitionParserTests";
@@ -125,12 +127,11 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 	@Autowired
 	private ClientRegistrationRepository clientRegistrationRepository;
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	private MockWebServer server;
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		if (this.server != null) {
 			this.server.shutdown();

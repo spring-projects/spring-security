@@ -19,8 +19,8 @@ package org.springframework.security.web.server.csrf;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
@@ -60,7 +60,7 @@ public class CookieServerCsrfTokenRepositoryTests {
 
 	private String expectedCookieValue = "csrfToken";
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.csrfTokenRepository = new CookieServerCsrfTokenRepository();
 		this.request = MockServerHttpRequest.get("/someUri");

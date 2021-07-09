@@ -22,9 +22,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -51,7 +51,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 
 	private DigestAuthenticationEntryPoint entryPoint;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.password = "password";
 		this.request = new MockHttpServletRequest();
@@ -65,7 +65,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 		this.filter.afterPropertiesSet();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		SecurityContextHolder.clearContext();
 	}

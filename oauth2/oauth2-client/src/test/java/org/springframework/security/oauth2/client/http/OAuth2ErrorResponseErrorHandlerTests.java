@@ -18,7 +18,7 @@ package org.springframework.security.oauth2.client.http;
 
 import java.io.IOException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

@@ -18,7 +18,7 @@ package org.springframework.security.authentication;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 

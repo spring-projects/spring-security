@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
@@ -54,7 +54,7 @@ public class AffirmativeBasedTests {
 
 	private AccessDecisionVoter deny;
 
-	@Before
+	@BeforeEach
 	@SuppressWarnings("unchecked")
 	public void setup() {
 		this.grant = mock(AccessDecisionVoter.class);

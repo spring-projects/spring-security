@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.annotation.authentication.configuration;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -29,14 +29,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.MockEventListener;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class AuthenticationConfigurationPublishTests {
 
 	@Autowired

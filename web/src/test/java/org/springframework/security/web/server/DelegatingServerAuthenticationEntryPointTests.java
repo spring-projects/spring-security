@@ -16,10 +16,10 @@
 
 package org.springframework.security.web.server;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpStatus;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DelegatingServerAuthenticationEntryPointTests {
 
 	private ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());

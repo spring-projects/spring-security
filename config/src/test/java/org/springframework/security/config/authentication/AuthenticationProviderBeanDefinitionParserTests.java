@@ -18,8 +18,8 @@ package org.springframework.security.config.authentication;
 
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
@@ -44,7 +44,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 
 	private UsernamePasswordAuthenticationToken bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		if (this.appContext != null) {
 			this.appContext.close();

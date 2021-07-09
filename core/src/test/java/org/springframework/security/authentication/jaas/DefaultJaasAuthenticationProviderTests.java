@@ -26,8 +26,8 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -65,7 +65,7 @@ public class DefaultJaasAuthenticationProviderTests {
 
 	private Log log;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		Configuration configuration = mock(Configuration.class);
 		this.publisher = mock(ApplicationEventPublisher.class);

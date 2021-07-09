@@ -19,8 +19,8 @@ package org.springframework.security.oauth2.client;
 import java.time.Duration;
 import java.time.Instant;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -61,7 +61,7 @@ public class JwtBearerOAuth2AuthorizedClientProviderTests {
 
 	private Authentication principal;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.authorizedClientProvider = new JwtBearerOAuth2AuthorizedClientProvider();
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);

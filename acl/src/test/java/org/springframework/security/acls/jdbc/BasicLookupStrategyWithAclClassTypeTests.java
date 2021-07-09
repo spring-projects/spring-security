@@ -21,11 +21,10 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import junit.framework.Assert;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -37,6 +36,7 @@ import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.ObjectIdentity;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
@@ -60,18 +60,18 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 		return DATABASE_HELPER.getDataSource();
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void createDatabase() throws Exception {
 		DATABASE_HELPER.createDatabase();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void dropDatabase() {
 		DATABASE_HELPER.getDataSource().destroy();
 	}
 
 	@Override
-	@Before
+	@BeforeEach
 	public void initializeBeans() {
 		super.initializeBeans();
 		this.uuidEnabledStrategy = new BasicLookupStrategy(getDataSource(), aclCache(), aclAuthStrategy(),
@@ -81,7 +81,7 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 		this.uuidEnabledStrategy.setConversionService(new DefaultConversionService());
 	}
 
-	@Before
+	@BeforeEach
 	public void populateDatabaseForAclClassTypeTests() {
 		String query = "INSERT INTO acl_class(ID,CLASS,CLASS_ID_TYPE) VALUES (3,'" + TARGET_CLASS_WITH_UUID
 				+ "', 'java.util.UUID');"
@@ -99,8 +99,8 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, OBJECT_IDENTITY_UUID);
 		Map<ObjectIdentity, Acl> foundAcls = this.uuidEnabledStrategy.readAclsById(Arrays.asList(oid),
 				Arrays.asList(BEN_SID));
-		Assert.assertEquals(1, foundAcls.size());
-		Assert.assertNotNull(foundAcls.get(oid));
+		assertThat(foundAcls).hasSize(1);
+		assertThat(foundAcls.get(oid)).isNotNull();
 	}
 
 	@Test
@@ -108,8 +108,8 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		Map<ObjectIdentity, Acl> foundAcls = this.uuidEnabledStrategy.readAclsById(Arrays.asList(oid),
 				Arrays.asList(BEN_SID));
-		Assert.assertEquals(1, foundAcls.size());
-		Assert.assertNotNull(foundAcls.get(oid));
+		assertThat(foundAcls).hasSize(1);
+		assertThat(foundAcls.get(oid)).isNotNull();
 	}
 
 	@Test
