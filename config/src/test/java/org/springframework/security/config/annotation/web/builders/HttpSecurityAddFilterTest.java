@@ -46,6 +46,7 @@ import org.springframework.security.web.header.HeaderWriterFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(SpringTestContextExtension.class)
 public class HttpSecurityAddFilterTest {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

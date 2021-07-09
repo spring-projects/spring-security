@@ -44,6 +44,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Rob Winch
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class AutowireBeanFactoryObjectPostProcessorTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

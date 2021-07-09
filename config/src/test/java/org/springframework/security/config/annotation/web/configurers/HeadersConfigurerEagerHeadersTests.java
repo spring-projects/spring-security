@@ -38,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Ankur Pathak
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class HeadersConfigurerEagerHeadersTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

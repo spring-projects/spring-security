@@ -40,6 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  *
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class PermitAllSupportTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

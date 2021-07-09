@@ -41,6 +41,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
  *
  * @author Josh Cummings
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class HttpsRedirectSpecTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

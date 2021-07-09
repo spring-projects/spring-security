@@ -119,6 +119,7 @@ import static org.mockito.Mockito.verify;
  * @author Eddú Meléndez
  * @since 5.1
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class OAuth2LoginTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

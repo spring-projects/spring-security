@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  * @author Josh Cummings
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class SecurityDebugBeanFactoryPostProcessorTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Tadaya Tsuyukubo
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class ReactiveMethodSecurityConfigurationTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

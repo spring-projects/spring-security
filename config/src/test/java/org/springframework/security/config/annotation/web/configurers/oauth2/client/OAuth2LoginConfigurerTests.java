@@ -112,6 +112,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Joe Grandja
  * @since 5.0.1
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class OAuth2LoginConfigurerTests {
 
 	// @formatter:off

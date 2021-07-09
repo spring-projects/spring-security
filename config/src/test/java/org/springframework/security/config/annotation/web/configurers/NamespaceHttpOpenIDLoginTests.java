@@ -80,6 +80,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Rob Winch
  * @author Josh Cummings
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class NamespaceHttpOpenIDLoginTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

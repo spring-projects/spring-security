@@ -29,6 +29,7 @@ import org.springframework.security.config.test.SpringTestContextExtension;
  * @author Rob Winch
  * @author Josh Cummings
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class Sec2377Tests {
 
 	public final SpringTestContext parent = new SpringTestContext(this);

@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Tests for {@link RsaKeyConversionServicePostProcessor}
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class RsaKeyConversionServicePostProcessorTests {
 
 	// @formatter:off

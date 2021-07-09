@@ -106,6 +106,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Tests for different Java configuration for {@link Saml2LoginConfigurer}
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class Saml2LoginConfigurerTests {
 
 	private static final Converter<Assertion, Collection<? extends GrantedAuthority>> AUTHORITIES_EXTRACTOR = (

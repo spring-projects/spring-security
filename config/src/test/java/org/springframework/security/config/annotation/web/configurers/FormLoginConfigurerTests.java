@@ -60,6 +60,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Eleftheria Stein
  * @since 5.1
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class FormLoginConfigurerTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

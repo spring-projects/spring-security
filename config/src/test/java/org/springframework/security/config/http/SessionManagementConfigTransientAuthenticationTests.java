@@ -36,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 /**
  * @author Josh Cummings
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class SessionManagementConfigTransientAuthenticationTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/SessionManagementConfigTransientAuthenticationTests";

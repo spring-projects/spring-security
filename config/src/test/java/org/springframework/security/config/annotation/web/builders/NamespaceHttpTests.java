@@ -80,6 +80,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Rob Winch
  * @author Joe Grandja
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class NamespaceHttpTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

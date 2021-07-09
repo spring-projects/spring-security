@@ -42,6 +42,7 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
 /**
  * @author Rob Winch
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class NamespacePasswordEncoderTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

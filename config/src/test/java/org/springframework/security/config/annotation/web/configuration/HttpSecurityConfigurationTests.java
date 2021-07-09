@@ -65,6 +65,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class HttpSecurityConfigurationTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);
