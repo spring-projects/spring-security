@@ -17,7 +17,6 @@
 package org.springframework.security.config.web.servlet
 
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
@@ -41,7 +40,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc
  * @author Eleftheria Stein
  */
 class CorsDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

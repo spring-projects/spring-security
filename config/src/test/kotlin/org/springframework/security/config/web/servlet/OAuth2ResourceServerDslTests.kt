@@ -22,7 +22,6 @@ import io.mockk.mockkObject
 import io.mockk.verify
 import javax.servlet.http.HttpServletRequest
 import org.assertj.core.api.Assertions
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
@@ -51,7 +50,6 @@ import org.springframework.test.web.servlet.get
  * @author Eleftheria Stein
  */
 class OAuth2ResourceServerDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

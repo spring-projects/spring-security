@@ -19,7 +19,6 @@ package org.springframework.security.config.annotation.web.configurers;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,6 @@ public class SessionManagementConfigurerSessionAuthenticationStrategyTests {
 	@Autowired
 	private MockMvc mvc;
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	// gh-5763

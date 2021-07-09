@@ -23,7 +23,6 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +52,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 public class SecurityReactorContextConfigurationResourceServerTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

@@ -19,7 +19,6 @@ package org.springframework.security.config.annotation.web.configuration;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.FatalBeanException;
@@ -38,7 +37,6 @@ import static org.mockito.Mockito.mock;
  */
 public class Sec2515Tests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	// SEC-2515

@@ -25,7 +25,6 @@ import java.util.List;
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
@@ -86,10 +85,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 public class WebSecurityConfigurationTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
-	@Rule
 	public SpringTestContext child = new SpringTestContext(this);
 
 	@Autowired

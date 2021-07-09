@@ -23,7 +23,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.aopalliance.intercept.MethodInterceptor;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -77,7 +76,6 @@ import static org.mockito.Mockito.verify;
 @SecurityTestExecutionListeners
 public class GlobalMethodSecurityConfigurationTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired(required = false)

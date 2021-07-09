@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import org.apache.http.HttpHeaders;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
@@ -59,7 +58,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 public class LogoutConfigurerTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

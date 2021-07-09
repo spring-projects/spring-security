@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.web.servlet
 
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
@@ -40,7 +39,6 @@ import org.springframework.test.web.servlet.get
  * @author Eleftheria Stein
  */
 class HeadersDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

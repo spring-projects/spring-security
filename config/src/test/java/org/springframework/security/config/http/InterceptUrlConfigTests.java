@@ -21,7 +21,6 @@ import java.util.Map;
 
 import javax.servlet.ServletRegistration;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
@@ -54,7 +53,6 @@ public class InterceptUrlConfigTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/InterceptUrlConfigTests";
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

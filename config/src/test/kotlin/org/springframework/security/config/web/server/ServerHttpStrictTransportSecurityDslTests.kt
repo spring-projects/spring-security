@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.web.server.headers
 
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
@@ -37,7 +36,6 @@ import java.time.Duration
  * @author Eleftheria Stein
  */
 class ServerHttpStrictTransportSecurityDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

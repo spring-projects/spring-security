@@ -27,7 +27,6 @@ import javax.annotation.PreDestroy
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
@@ -69,7 +68,6 @@ class ServerJwtDslTests {
             "  ]\n" +
             "}\n"
 
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

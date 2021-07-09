@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.assertj.core.api.ThrowableAssert;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -80,7 +79,6 @@ public class WebSocketMessageBrokerConfigTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/websocket/WebSocketMessageBrokerConfigTests";
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired(required = false)

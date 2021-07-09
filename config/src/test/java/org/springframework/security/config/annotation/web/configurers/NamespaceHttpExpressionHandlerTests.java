@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.security.Principal;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -57,7 +56,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SecurityTestExecutionListeners
 public class NamespaceHttpExpressionHandlerTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

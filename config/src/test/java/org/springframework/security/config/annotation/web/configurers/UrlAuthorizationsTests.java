@@ -20,7 +20,6 @@ import java.util.List;
 
 import javax.servlet.Filter;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -51,7 +50,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SecurityTestExecutionListeners
 public class UrlAuthorizationsTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

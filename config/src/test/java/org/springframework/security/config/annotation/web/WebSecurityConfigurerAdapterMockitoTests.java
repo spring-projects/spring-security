@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web;
 
 import java.util.Arrays;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,7 +59,6 @@ public class WebSecurityConfigurerAdapterMockitoTests {
 
 	ConfigurableWebApplicationContext context;
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

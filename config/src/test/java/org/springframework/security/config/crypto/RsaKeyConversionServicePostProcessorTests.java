@@ -19,7 +19,6 @@ package org.springframework.security.config.crypto;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -91,7 +90,6 @@ public class RsaKeyConversionServicePostProcessorTests {
 	@Value("custom:simple.pub")
 	RSAPublicKey samePublicKey;
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@BeforeEach

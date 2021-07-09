@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import com.google.common.net.HttpHeaders;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
@@ -57,7 +56,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 public class CorsConfigurerTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

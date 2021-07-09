@@ -17,7 +17,6 @@
 package org.springframework.security.config.web.servlet.session
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -41,7 +40,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
  * @author Eleftheria Stein
  */
 class SessionFixationDslTests {
-    @Rule
     @JvmField
     var spring = SpringTestContext(this)
 

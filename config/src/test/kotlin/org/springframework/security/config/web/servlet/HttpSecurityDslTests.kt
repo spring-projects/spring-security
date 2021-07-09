@@ -20,7 +20,6 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -59,7 +58,6 @@ import javax.servlet.Filter
  * @author Eleftheria Stein
  */
 class HttpSecurityDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

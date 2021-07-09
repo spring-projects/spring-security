@@ -17,7 +17,6 @@
 package org.springframework.security.config.web.server
 
 import org.apache.http.HttpHeaders
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
@@ -35,7 +34,6 @@ import org.springframework.web.reactive.config.EnableWebFlux
  */
 class ServerPasswordManagementDslTests {
 
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

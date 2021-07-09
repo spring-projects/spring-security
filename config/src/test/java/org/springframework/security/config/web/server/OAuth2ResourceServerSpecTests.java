@@ -35,7 +35,6 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.apache.http.HttpHeaders;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Mono;
@@ -139,7 +138,6 @@ public class OAuth2ResourceServerSpecTests {
 			+ "     }";
 	// @formatter:on
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	WebTestClient client;

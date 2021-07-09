@@ -19,7 +19,6 @@ package org.springframework.security.config.authentication;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +65,6 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 			+ "</authentication-manager>";
 	// @formatter:on
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test

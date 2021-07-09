@@ -23,7 +23,6 @@ import java.util.Collections;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -67,7 +66,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 @SecurityTestExecutionListeners
 public class NamespaceGlobalMethodSecurityTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired(required = false)

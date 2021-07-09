@@ -25,7 +25,6 @@ import io.mockk.mockkObject
 import io.mockk.verify
 import javax.servlet.http.HttpServletRequest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
 import org.junit.Test
 import org.junit.jupiter.api.fail
 import org.springframework.beans.factory.annotation.Autowired
@@ -67,7 +66,6 @@ import org.springframework.test.web.servlet.post
  */
 internal class RememberMeDslTests {
 
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

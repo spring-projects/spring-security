@@ -20,7 +20,6 @@ import java.util.Collections;
 
 import javax.servlet.http.Cookie;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.FatalBeanException;
@@ -64,7 +63,6 @@ public class RememberMeConfigTests {
 	@Autowired
 	MockMvc mvc;
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test

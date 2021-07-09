@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.web.server
 
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
@@ -34,7 +33,6 @@ import org.springframework.web.reactive.config.EnableWebFlux
  * @author Eleftheria Stein
  */
 class ServerContentTypeOptionsDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

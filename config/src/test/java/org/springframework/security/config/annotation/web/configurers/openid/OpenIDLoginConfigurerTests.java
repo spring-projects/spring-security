@@ -20,7 +20,6 @@ import java.util.List;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.openid4java.consumer.ConsumerManager;
 import org.openid4java.discovery.DiscoveryInformation;
@@ -62,7 +61,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 public class OpenIDLoginConfigurerTests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

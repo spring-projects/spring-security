@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.sec2758;
 
 import javax.annotation.security.RolesAllowed;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -55,7 +54,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SecurityTestExecutionListeners
 public class Sec2758Tests {
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

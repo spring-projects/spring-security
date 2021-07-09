@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.naming.directory.SearchControls;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +54,6 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	static Integer port;
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

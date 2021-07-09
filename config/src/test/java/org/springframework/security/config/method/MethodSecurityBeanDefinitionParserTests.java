@@ -25,7 +25,6 @@ import java.util.function.Supplier;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -68,7 +67,6 @@ public class MethodSecurityBeanDefinitionParserTests {
 	@Autowired(required = false)
 	BusinessService businessService;
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@WithMockUser(roles = "ADMIN")

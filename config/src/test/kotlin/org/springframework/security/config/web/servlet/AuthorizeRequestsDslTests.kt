@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.web.servlet
 
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -52,7 +51,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
  * @author Eleftheria Stein
  */
 class AuthorizeRequestsDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

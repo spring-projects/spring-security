@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +58,6 @@ public class NamespaceHttpHeadersTests {
 		defaultHeaders.put("Pragma", "no-cache");
 		defaultHeaders.put("X-XSS-Protection", "1; mode=block");
 	}
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired

@@ -18,7 +18,6 @@ package org.springframework.security.config.web.servlet
 
 import io.mockk.mockkObject
 import io.mockk.verify
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.ConfigAttribute
@@ -44,7 +43,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc
  * @author Eleftheria Stein
  */
 class RequiresChannelDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

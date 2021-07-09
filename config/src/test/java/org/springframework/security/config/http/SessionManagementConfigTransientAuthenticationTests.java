@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.http;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +41,6 @@ public class SessionManagementConfigTransientAuthenticationTests {
 	@Autowired
 	MockMvc mvc;
 
-	@Rule
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test

@@ -20,7 +20,6 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
@@ -42,7 +41,6 @@ import reactor.core.publisher.Mono
  * @author Eleftheria Stein
  */
 class ServerLogoutDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

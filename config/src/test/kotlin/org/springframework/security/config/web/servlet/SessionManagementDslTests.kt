@@ -22,7 +22,6 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -49,7 +48,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
  * @author Eleftheria Stein
  */
 class SessionManagementDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 

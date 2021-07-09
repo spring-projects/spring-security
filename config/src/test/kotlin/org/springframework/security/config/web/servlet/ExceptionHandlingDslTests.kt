@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.web.servlet
 
-import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
@@ -39,7 +38,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc
  * @author Eleftheria Stein
  */
 class ExceptionHandlingDslTests {
-    @Rule
     @JvmField
     val spring = SpringTestContext(this)
 
