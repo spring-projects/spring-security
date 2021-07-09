@@ -20,7 +20,6 @@ asciidoctorj {
 	def ghOldSamplesUrl = "https://github.com/spring-projects/spring-security/tree/5.4.x/samples"
 	def ghSamplesUrl = "https://github.com/spring-projects/spring-security-samples/tree/$samplesBranch"
 	def securityDocsUrl = "https://docs.spring.io/spring-security/site/docs/$docsTag"
-	def oldSecurityApiUrl = "https://docs.spring.io/spring-security/site/docs/5.4.x/api/"
 	def securityApiUrl = "$securityDocsUrl/api/"
 	def securityReferenceUrl = "$securityDocsUrl/reference/html5/"
 	def springFrameworkApiUrl = "https://docs.spring.io/spring-framework/docs/$springFrameworkVersion/javadoc-api/"
@@ -31,7 +30,6 @@ asciidoctorj {
 		'gh-url': ghUrl,
 		'gh-samples-url': ghSamplesUrl,
 		'gh-old-samples-url': ghOldSamplesUrl,
-		'old-security-api-url': oldSecurityApiUrl,
 		'security-api-url': securityApiUrl,
 		'security-reference-url': securityReferenceUrl,
 		'spring-framework-api-url': springFrameworkApiUrl,
