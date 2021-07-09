@@ -39,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Evgeniy Cheban
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class PasswordManagementConfigurerTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

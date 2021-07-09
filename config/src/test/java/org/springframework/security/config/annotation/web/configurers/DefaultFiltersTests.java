@@ -68,6 +68,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  * @author Konstantin Volivach
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class DefaultFiltersTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

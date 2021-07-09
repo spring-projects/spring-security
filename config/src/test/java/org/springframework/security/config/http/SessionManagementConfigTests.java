@@ -82,6 +82,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Onur Kagan Ozcan
  * @author Mazen Aissa
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class SessionManagementConfigTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/SessionManagementConfigTests";

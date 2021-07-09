@@ -37,6 +37,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 
+@ExtendWith(SpringTestContextExtension.class)
 public class LdapAuthenticationProviderConfigurerTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

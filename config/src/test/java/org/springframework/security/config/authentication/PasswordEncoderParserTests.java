@@ -32,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Rob Winch
  * @since 5.0
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class PasswordEncoderParserTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

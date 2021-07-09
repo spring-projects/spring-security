@@ -44,6 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * @author Luke Taylor
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class AuthenticationManagerBeanDefinitionParserTests {
 
 	// @formatter:off

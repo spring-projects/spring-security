@@ -171,6 +171,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  * @author Evgeniy Cheban
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class OAuth2ResourceServerConfigurerTests {
 
 	private static final String JWT_TOKEN = "token";

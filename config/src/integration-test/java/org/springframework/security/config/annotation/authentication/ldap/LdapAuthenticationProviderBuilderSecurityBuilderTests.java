@@ -52,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 
+@ExtendWith(SpringTestContextExtension.class)
 public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	static Integer port;

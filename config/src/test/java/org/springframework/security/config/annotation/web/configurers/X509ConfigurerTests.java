@@ -51,6 +51,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author Rob Winch
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class X509ConfigurerTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

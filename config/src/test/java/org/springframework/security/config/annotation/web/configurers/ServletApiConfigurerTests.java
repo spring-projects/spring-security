@@ -80,6 +80,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Eleftheria Stein
  * @author Onur Kagan Ozcan
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class ServletApiConfigurerTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

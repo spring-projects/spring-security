@@ -85,6 +85,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Michael Vitz
  * @author Sam Simmons
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class CsrfConfigurerTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

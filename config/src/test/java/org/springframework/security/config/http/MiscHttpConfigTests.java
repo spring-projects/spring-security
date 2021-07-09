@@ -136,6 +136,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Luke Taylor
  * @author Rob Winch
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class MiscHttpConfigTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/MiscHttpConfigTests";

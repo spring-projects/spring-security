@@ -44,6 +44,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author Rob Winch
  * @author Josh Cummings
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class NamespaceHttpFirewallTests {
 
 	public final SpringTestContext rule = new SpringTestContext(this);

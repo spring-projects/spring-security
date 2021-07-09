@@ -42,6 +42,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 /**
  * @author Joe Grandja
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class SessionManagementConfigurerSessionAuthenticationStrategyTests {
 
 	@Autowired

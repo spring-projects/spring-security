@@ -48,6 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  *
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class NamespaceHttpHeadersTests {
 
 	static final Map<String, String> defaultHeaders = new LinkedHashMap<>();

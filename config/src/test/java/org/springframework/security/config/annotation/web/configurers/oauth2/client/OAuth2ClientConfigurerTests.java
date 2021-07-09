@@ -85,6 +85,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Joe Grandja
  * @author Parikshit Dutta
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class OAuth2ClientConfigurerTests {
 
 	private static ClientRegistrationRepository clientRegistrationRepository;

@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Rob Winch
  *
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class SampleEnableGlobalMethodSecurityTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

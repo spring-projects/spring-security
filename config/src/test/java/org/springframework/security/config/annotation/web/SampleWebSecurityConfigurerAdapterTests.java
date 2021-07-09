@@ -51,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  * @author Joe Grandja
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class SampleWebSecurityConfigurerAdapterTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

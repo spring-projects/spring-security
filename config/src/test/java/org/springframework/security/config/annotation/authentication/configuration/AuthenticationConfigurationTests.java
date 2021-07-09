@@ -72,6 +72,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(SpringTestContextExtension.class)
 public class AuthenticationConfigurationTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

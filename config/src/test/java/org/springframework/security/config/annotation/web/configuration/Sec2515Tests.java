@@ -37,6 +37,7 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Joe Grandja
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class Sec2515Tests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

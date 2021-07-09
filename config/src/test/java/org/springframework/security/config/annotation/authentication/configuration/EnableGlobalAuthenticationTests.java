@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  *
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class EnableGlobalAuthenticationTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

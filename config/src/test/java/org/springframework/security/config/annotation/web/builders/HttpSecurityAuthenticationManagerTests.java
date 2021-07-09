@@ -39,6 +39,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+@ExtendWith(SpringTestContextExtension.class)
 public class HttpSecurityAuthenticationManagerTests {
 
 	@Autowired

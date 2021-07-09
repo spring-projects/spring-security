@@ -57,6 +57,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Josh Cummings
  *
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class NamespaceHttpCustomFilterTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);

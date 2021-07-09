@@ -62,6 +62,7 @@ import static org.assertj.core.api.Assertions.entry;
  * @author Joe Grandja
  * @since 5.2
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class SecurityReactorContextConfigurationTests {
 
 	private MockHttpServletRequest servletRequest;

@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Ruby Hartono
  * @author Evgeniy Cheban
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class ClientRegistrationsBeanDefinitionParserTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/oauth2/client/ClientRegistrationsBeanDefinitionParserTests";
