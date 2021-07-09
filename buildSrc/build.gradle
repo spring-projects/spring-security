@@ -71,7 +71,6 @@ dependencies {
 	implementation 'net.sourceforge.saxon:saxon:9.1.0.8'
 	implementation localGroovy()
 
-	implementation 'org.openrewrite:plugin:5.2.1'
 	implementation 'io.github.gradle-nexus:publish-plugin:1.1.0'
 	implementation 'io.projectreactor:reactor-core:3.4.6'
 	implementation 'gradle.plugin.org.gretty:gretty:3.0.1'
