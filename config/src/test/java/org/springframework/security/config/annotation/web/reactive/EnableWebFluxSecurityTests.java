@@ -77,7 +77,7 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
  * @author Rob Winch
  * @since 5.0
  */
-@ExtendWith(SpringExtension.class)
+@ExtendWith({ SpringExtension.class, SpringTestContextExtension.class })
 @SecurityTestExecutionListeners
 public class EnableWebFluxSecurityTests {
 

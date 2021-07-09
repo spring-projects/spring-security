@@ -73,7 +73,7 @@ import static org.mockito.Mockito.verify;
  * @author Rob Winch
  * @author Artsiom Yudovin
  */
-@ExtendWith(SpringExtension.class)
+@ExtendWith({ SpringExtension.class, SpringTestContextExtension.class })
 @SecurityTestExecutionListeners
 public class GlobalMethodSecurityConfigurationTests {
 

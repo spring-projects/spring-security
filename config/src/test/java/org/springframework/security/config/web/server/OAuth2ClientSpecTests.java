@@ -69,7 +69,7 @@ import static org.mockito.Mockito.verify;
  * @author Parikshit Dutta
  * @since 5.1
  */
-@ExtendWith(SpringExtension.class)
+@ExtendWith({ SpringExtension.class, SpringTestContextExtension.class })
 @SecurityTestExecutionListeners
 public class OAuth2ClientSpecTests {
 

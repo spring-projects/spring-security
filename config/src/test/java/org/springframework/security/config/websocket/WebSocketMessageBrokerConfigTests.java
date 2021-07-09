@@ -74,7 +74,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author Rob Winch
  * @author Josh Cummings
  */
-@ExtendWith(SpringExtension.class)
+@ExtendWith({ SpringExtension.class, SpringTestContextExtension.class })
 @SecurityTestExecutionListeners
 public class WebSocketMessageBrokerConfigTests {
 

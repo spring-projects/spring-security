@@ -65,7 +65,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Evgeniy Cheban
  * @author Josh Cummings
  */
-@ExtendWith(SpringExtension.class)
+@ExtendWith({ SpringExtension.class, SpringTestContextExtension.class })
 @SecurityTestExecutionListeners
 public class PrePostMethodSecurityConfigurationTests {
 

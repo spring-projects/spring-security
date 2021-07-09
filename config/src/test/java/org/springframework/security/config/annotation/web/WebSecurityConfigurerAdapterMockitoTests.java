@@ -55,7 +55,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author Rob Winch
  *
  */
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({ MockitoExtension.class, SpringTestContextExtension.class })
 public class WebSecurityConfigurerAdapterMockitoTests {
 
 	ConfigurableWebApplicationContext context;
