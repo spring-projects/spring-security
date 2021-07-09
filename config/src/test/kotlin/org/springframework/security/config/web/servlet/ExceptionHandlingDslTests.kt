@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.servlet
 
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
@@ -67,11 +68,13 @@ class ExceptionHandlingDslTests {
         }
     }
 
-    @Test(expected = AccessDeniedException::class)
+    @Test
     fun `request when exception handling disabled then throws exception`() {
         this.spring.register(ExceptionHandlingDisabledConfig::class.java).autowire()
 
-        this.mockMvc.get("/")
+        assertThatExceptionOfType(AccessDeniedException::class.java).isThrownBy {
+            this.mockMvc.get("/")
+        }
     }
 
     @EnableWebSecurity
