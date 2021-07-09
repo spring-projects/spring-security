@@ -20,6 +20,7 @@ import io.mockk.every
 import io.mockk.mockkObject
 import java.util.Date
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -28,6 +29,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
+import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.core.session.SessionInformation
 import org.springframework.security.core.session.SessionRegistry
@@ -48,6 +50,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
  *
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension::class)
 class SessionConcurrencyDslTests {
     @JvmField
     val spring = SpringTestContext(this)

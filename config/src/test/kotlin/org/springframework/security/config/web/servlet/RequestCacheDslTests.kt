@@ -17,11 +17,13 @@
 package org.springframework.security.config.web.servlet
 
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
+import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
 import org.springframework.security.web.savedrequest.NullRequestCache
 import org.springframework.test.web.servlet.MockMvc
@@ -33,6 +35,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirec
  *
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension::class)
 class RequestCacheDslTests {
     @JvmField
     val spring = SpringTestContext(this)

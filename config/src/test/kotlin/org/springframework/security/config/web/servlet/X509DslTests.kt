@@ -21,6 +21,7 @@ import java.security.cert.Certificate
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.core.io.ClassPathResource
@@ -28,6 +29,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
+import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -44,6 +46,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
  *
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension::class)
 class X509DslTests {
     @JvmField
     val spring = SpringTestContext(this)
