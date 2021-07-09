@@ -10,6 +10,7 @@ dependencies {
 	testImplementation project(':spring-security-core')
 	testImplementation project(':spring-security-test')
 	testImplementation project(':spring-security-web')
+	testImplementation 'org.hamcrest:hamcrest'
 	testImplementation 'org.springframework:spring-beans'
 	testImplementation 'org.springframework:spring-test'
 	testImplementation 'org.springframework:spring-webmvc'

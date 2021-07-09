@@ -23,6 +23,7 @@ dependencies {
 	testImplementation 'commons-codec:commons-codec'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'javax.xml.bind:jaxb-api'
+	testImplementation 'org.hamcrest:hamcrest'
 	testImplementation 'org.mockito:mockito-core'
 	testImplementation 'org.mockito:mockito-inline'
 	testImplementation 'org.skyscreamer:jsonassert'
