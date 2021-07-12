@@ -35,11 +35,13 @@ public class DocsPluginITest {
 		assertThat(result.task(":docs").getOutcome()).isEqualTo(SUCCESS);
 		assertThat(result.task(":docsZip").getOutcome()).isEqualTo(SUCCESS);
 		File zip = new File(testKit.getRootDir(), "build/distributions/simple-1.0.0.BUILD-SNAPSHOT-docs.zip");
-		List<? extends ZipEntry> entries = Collections.list(new ZipFile(zip).entries());
-		assertThat(entries)
-				.extracting(ZipEntry::getName)
-				.contains("docs/reference/html5/index.html")
-				.contains("docs/reference/pdf/simple-reference.pdf");
+		try (ZipFile file = new ZipFile(zip)) {
+			List<? extends ZipEntry> entries = Collections.list(file.entries());
+			assertThat(entries)
+					.extracting(ZipEntry::getName)
+					.contains("docs/reference/html5/index.html")
+					.contains("docs/reference/pdf/simple-reference.pdf");
+		}
 	}
 
 	@Test
