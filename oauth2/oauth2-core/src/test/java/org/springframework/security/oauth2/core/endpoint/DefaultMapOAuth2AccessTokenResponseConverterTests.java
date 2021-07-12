@@ -37,7 +37,7 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
  */
 public class DefaultMapOAuth2AccessTokenResponseConverterTests {
 
-	private Converter<Map<String, ?>, OAuth2AccessTokenResponse> messageConverter;
+	private Converter<Map<String, Object>, OAuth2AccessTokenResponse> messageConverter;
 
 	@BeforeEach
 	public void setup() {
@@ -46,7 +46,7 @@ public class DefaultMapOAuth2AccessTokenResponseConverterTests {
 
 	@Test
 	public void shouldConvertFull() {
-		Map<String, String> map = new HashMap<>();
+		Map<String, Object> map = new HashMap<>();
 		map.put("access_token", "access-token-1234");
 		map.put("token_type", "bearer");
 		map.put("expires_in", "3600");
@@ -78,7 +78,7 @@ public class DefaultMapOAuth2AccessTokenResponseConverterTests {
 
 	@Test
 	public void shouldConvertMinimal() {
-		Map<String, String> map = new HashMap<>();
+		Map<String, Object> map = new HashMap<>();
 		map.put("access_token", "access-token-1234");
 		map.put("token_type", "bearer");
 		OAuth2AccessTokenResponse converted = this.messageConverter.convert(map);
@@ -100,7 +100,7 @@ public class DefaultMapOAuth2AccessTokenResponseConverterTests {
 
 	@Test
 	public void shouldConvertWithUnsupportedExpiresIn() {
-		Map<String, String> map = new HashMap<>();
+		Map<String, Object> map = new HashMap<>();
 		map.put("access_token", "access-token-1234");
 		map.put("token_type", "bearer");
 		map.put("expires_in", "2100-01-01-abc");

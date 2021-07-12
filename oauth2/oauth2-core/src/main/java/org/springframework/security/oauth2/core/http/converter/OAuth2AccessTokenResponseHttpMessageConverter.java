@@ -64,7 +64,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 	@Deprecated
 	protected Converter<Map<String, String>, OAuth2AccessTokenResponse> tokenResponseConverter = new MapOAuth2AccessTokenResponseConverter();
 
-	private Converter<Map<String, ?>, OAuth2AccessTokenResponse> accessTokenResponseConverter = new DefaultMapOAuth2AccessTokenResponseConverter();
+	private Converter<Map<String, Object>, OAuth2AccessTokenResponse> accessTokenResponseConverter = new DefaultMapOAuth2AccessTokenResponseConverter();
 
 	/**
 	 * @deprecated This field should no longer be used
@@ -152,7 +152,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 	 * @since 5.6
 	 */
 	public final void setAccessTokenResponseConverter(
-			Converter<Map<String, ?>, OAuth2AccessTokenResponse> accessTokenResponseConverter) {
+			Converter<Map<String, Object>, OAuth2AccessTokenResponse> accessTokenResponseConverter) {
 		Assert.notNull(accessTokenResponseConverter, "accessTokenResponseConverter cannot be null");
 		this.accessTokenResponseConverter = accessTokenResponseConverter;
 	}
