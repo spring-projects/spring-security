@@ -1,7 +1,6 @@
 package io.spring.gradle.convention;
 
 import io.spring.gradle.TestKit;
-import org.codehaus.groovy.runtime.ResourceGroovyMethods;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.BeforeEach;

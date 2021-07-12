@@ -16,8 +16,17 @@ dependencies {
 
 	testImplementation project(path: ':spring-security-core', configuration: 'tests')
 	testImplementation 'commons-codec:commons-codec'
-	testImplementation 'org.mockito:mockito-core'
-	testImplementation slf4jDependencies
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.junit.jupiter:junit-jupiter-params"
+	testImplementation "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation "org.mockito:mockito-junit-jupiter"
+	testImplementation "org.springframework:spring-test"
+	testImplementation "org.slf4j:slf4j-api"
+	testImplementation "org.slf4j:jcl-over-slf4j"
+	testImplementation "org.slf4j:log4j-over-slf4j"
+	testImplementation "ch.qos.logback:logback-classic"
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }

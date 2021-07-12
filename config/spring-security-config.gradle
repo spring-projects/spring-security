@@ -51,7 +51,13 @@ dependencies {
 	testImplementation project(path : ':spring-security-saml2-service-provider', configuration : 'tests')
 	testImplementation project(path: ':spring-security-saml2-service-provider', configuration: 'opensaml4MainCompile')
 	testImplementation project(path : ':spring-security-web', configuration : 'tests')
-	testImplementation apachedsDependencies
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.junit.jupiter:junit-jupiter-params"
+	testImplementation "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation "org.mockito:mockito-junit-jupiter"
+	testImplementation "org.springframework:spring-test"
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation 'ch.qos.logback:logback-classic'
 	testImplementation 'io.projectreactor.netty:reactor-netty'
@@ -62,6 +68,12 @@ dependencies {
 	testImplementation('net.sourceforge.htmlunit:htmlunit') {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
+	testImplementation "org.apache.directory.server:apacheds-core"
+	testImplementation "org.apache.directory.server:apacheds-core-entry"
+	testImplementation "org.apache.directory.server:apacheds-protocol-shared"
+	testImplementation "org.apache.directory.server:apacheds-protocol-ldap"
+	testImplementation "org.apache.directory.server:apacheds-server-jndi"
+	testImplementation 'org.apache.directory.shared:shared-ldap'
 	testImplementation 'org.eclipse.persistence:javax.persistence'
 	testImplementation 'org.hibernate:hibernate-entitymanager'
 	testImplementation 'org.hsqldb:hsqldb'
