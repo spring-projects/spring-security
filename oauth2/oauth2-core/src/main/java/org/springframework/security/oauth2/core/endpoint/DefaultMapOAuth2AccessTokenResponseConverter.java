@@ -35,21 +35,21 @@ import org.springframework.util.StringUtils;
  * @since 5.6
  */
 public final class DefaultMapOAuth2AccessTokenResponseConverter
-		implements Converter<Map<String, ?>, OAuth2AccessTokenResponse> {
+		implements Converter<Map<String, Object>, OAuth2AccessTokenResponse> {
 
 	private static final Set<String> TOKEN_RESPONSE_PARAMETER_NAMES = new HashSet<>(
 			Arrays.asList(OAuth2ParameterNames.ACCESS_TOKEN, OAuth2ParameterNames.EXPIRES_IN,
 					OAuth2ParameterNames.REFRESH_TOKEN, OAuth2ParameterNames.SCOPE, OAuth2ParameterNames.TOKEN_TYPE));
 
 	@Override
-	public OAuth2AccessTokenResponse convert(Map<String, ?> source) {
+	public OAuth2AccessTokenResponse convert(Map<String, Object> source) {
 		String accessToken = getParameterValue(source, OAuth2ParameterNames.ACCESS_TOKEN);
 		OAuth2AccessToken.TokenType accessTokenType = getAccessTokenType(source);
 		long expiresIn = getExpiresIn(source);
 		Set<String> scopes = getScopes(source);
 		String refreshToken = getParameterValue(source, OAuth2ParameterNames.REFRESH_TOKEN);
 		Map<String, Object> additionalParameters = new LinkedHashMap<>();
-		for (Map.Entry<String, ?> entry : source.entrySet()) {
+		for (Map.Entry<String, Object> entry : source.entrySet()) {
 			if (!TOKEN_RESPONSE_PARAMETER_NAMES.contains(entry.getKey())) {
 				additionalParameters.put(entry.getKey(), entry.getValue());
 			}
@@ -65,7 +65,7 @@ public final class DefaultMapOAuth2AccessTokenResponseConverter
 		// @formatter:on
 	}
 
-	private static OAuth2AccessToken.TokenType getAccessTokenType(Map<String, ?> tokenResponseParameters) {
+	private static OAuth2AccessToken.TokenType getAccessTokenType(Map<String, Object> tokenResponseParameters) {
 		if (OAuth2AccessToken.TokenType.BEARER.getValue()
 				.equalsIgnoreCase(getParameterValue(tokenResponseParameters, OAuth2ParameterNames.TOKEN_TYPE))) {
 			return OAuth2AccessToken.TokenType.BEARER;
@@ -73,11 +73,11 @@ public final class DefaultMapOAuth2AccessTokenResponseConverter
 		return null;
 	}
 
-	private static long getExpiresIn(Map<String, ?> tokenResponseParameters) {
+	private static long getExpiresIn(Map<String, Object> tokenResponseParameters) {
 		return getParameterValue(tokenResponseParameters, OAuth2ParameterNames.EXPIRES_IN, 0L);
 	}
 
-	private static Set<String> getScopes(Map<String, ?> tokenResponseParameters) {
+	private static Set<String> getScopes(Map<String, Object> tokenResponseParameters) {
 		if (tokenResponseParameters.containsKey(OAuth2ParameterNames.SCOPE)) {
 			String scope = getParameterValue(tokenResponseParameters, OAuth2ParameterNames.SCOPE);
 			return new HashSet<>(Arrays.asList(StringUtils.delimitedListToStringArray(scope, " ")));
@@ -85,12 +85,12 @@ public final class DefaultMapOAuth2AccessTokenResponseConverter
 		return Collections.emptySet();
 	}
 
-	private static String getParameterValue(Map<String, ?> tokenResponseParameters, String parameterName) {
+	private static String getParameterValue(Map<String, Object> tokenResponseParameters, String parameterName) {
 		Object obj = tokenResponseParameters.get(parameterName);
 		return (obj != null) ? obj.toString() : null;
 	}
 
-	private static long getParameterValue(Map<String, ?> tokenResponseParameters, String parameterName,
+	private static long getParameterValue(Map<String, Object> tokenResponseParameters, String parameterName,
 			long defaultValue) {
 		long parameterValue = defaultValue;
 

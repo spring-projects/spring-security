@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.core.endpoint;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.core.convert.converter.Converter;
@@ -33,11 +34,11 @@ import org.springframework.core.convert.converter.Converter;
 public final class MapOAuth2AccessTokenResponseConverter
 		implements Converter<Map<String, String>, OAuth2AccessTokenResponse> {
 
-	private final Converter<Map<String, ?>, OAuth2AccessTokenResponse> delegate = new DefaultMapOAuth2AccessTokenResponseConverter();
+	private final Converter<Map<String, Object>, OAuth2AccessTokenResponse> delegate = new DefaultMapOAuth2AccessTokenResponseConverter();
 
 	@Override
 	public OAuth2AccessTokenResponse convert(Map<String, String> tokenResponseParameters) {
-		return this.delegate.convert(tokenResponseParameters);
+		return this.delegate.convert(new HashMap<>(tokenResponseParameters));
 	}
 
 }
