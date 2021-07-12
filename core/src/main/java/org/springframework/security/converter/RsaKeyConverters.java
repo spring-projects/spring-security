@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 /**
@@ -110,41 +111,18 @@ public final class RsaKeyConverters {
 	 * return a {@link RSAPublicKey}.
 	 */
 	public static Converter<InputStream, RSAPublicKey> x509() {
-		KeyFactory keyFactory = rsaFactory();
-		CertificateFactory certificateFactory = x509CertificateFactory();
+		X509PemDecoder pemDecoder = new X509PemDecoder(rsaFactory());
+		X509CertificateDecoder certDecoder = new X509CertificateDecoder(x509CertificateFactory());
 		return (source) -> {
 			List<String> lines = readAllLines(source);
-			Assert.isTrue(
-					!lines.isEmpty()
-							&& (lines.get(0).startsWith(X509_PEM_HEADER) || lines.get(0).startsWith(X509_CERT_HEADER)),
+			Assert.notEmpty(lines, "Input stream is empty");
+			String encodingHint = lines.get(0);
+			Converter<List<String>, RSAPublicKey> decoder = encodingHint.startsWith(X509_PEM_HEADER) ? pemDecoder
+					: encodingHint.startsWith(X509_CERT_HEADER) ? certDecoder : null;
+			Assert.notNull(decoder,
 					"Key is not in PEM-encoded X.509 format or a valid X.509 certificate, please check that the header begins with "
 							+ X509_PEM_HEADER + " or " + X509_CERT_HEADER);
-			StringBuilder base64Encoded = new StringBuilder();
-			for (String line : lines) {
-				if (RsaKeyConverters.isNotX509PemWrapper(line) && isNotX509CertificateWrapper(line)) {
-					base64Encoded.append(line);
-				}
-			}
-			byte[] x509 = Base64.getDecoder().decode(base64Encoded.toString());
-			if (lines.get(0).startsWith(X509_PEM_HEADER)) {
-				try {
-					return (RSAPublicKey) keyFactory.generatePublic(new X509EncodedKeySpec(x509));
-				}
-				catch (Exception ex) {
-					throw new IllegalArgumentException(ex);
-				}
-			}
-			if (lines.get(0).startsWith(X509_CERT_HEADER)) {
-				try (InputStream x509CertStream = new ByteArrayInputStream(x509)) {
-					X509Certificate certificate = (X509Certificate) certificateFactory
-							.generateCertificate(x509CertStream);
-					return (RSAPublicKey) certificate.getPublicKey();
-				}
-				catch (CertificateException | IOException ex) {
-					throw new IllegalArgumentException(ex);
-				}
-			}
-			return null;
+			return decoder.convert(lines);
 		};
 	}
 
@@ -175,12 +153,70 @@ public final class RsaKeyConverters {
 		return !PKCS8_PEM_HEADER.equals(line) && !PKCS8_PEM_FOOTER.equals(line);
 	}
 
-	private static boolean isNotX509PemWrapper(String line) {
-		return !X509_PEM_HEADER.equals(line) && !X509_PEM_FOOTER.equals(line);
+	private static class X509PemDecoder implements Converter<List<String>, RSAPublicKey> {
+
+		private final KeyFactory keyFactory;
+
+		X509PemDecoder(KeyFactory keyFactory) {
+			this.keyFactory = keyFactory;
+		}
+
+		@Override
+		@NonNull
+		public RSAPublicKey convert(List<String> lines) {
+			StringBuilder base64Encoded = new StringBuilder();
+			for (String line : lines) {
+				if (isNotX509PemWrapper(line)) {
+					base64Encoded.append(line);
+				}
+			}
+			byte[] x509 = Base64.getDecoder().decode(base64Encoded.toString());
+			try {
+				return (RSAPublicKey) this.keyFactory.generatePublic(new X509EncodedKeySpec(x509));
+			}
+			catch (Exception ex) {
+				throw new IllegalArgumentException(ex);
+			}
+		}
+
+		private boolean isNotX509PemWrapper(String line) {
+			return !X509_PEM_HEADER.equals(line) && !X509_PEM_FOOTER.equals(line);
+		}
+
 	}
 
-	private static boolean isNotX509CertificateWrapper(String line) {
-		return !X509_CERT_HEADER.equals(line) && !X509_CERT_FOOTER.equals(line);
+	private static class X509CertificateDecoder implements Converter<List<String>, RSAPublicKey> {
+
+		private final CertificateFactory certificateFactory;
+
+		X509CertificateDecoder(CertificateFactory certificateFactory) {
+			this.certificateFactory = certificateFactory;
+		}
+
+		@Override
+		@NonNull
+		public RSAPublicKey convert(List<String> lines) {
+			StringBuilder base64Encoded = new StringBuilder();
+			for (String line : lines) {
+				if (isNotX509CertificateWrapper(line)) {
+					base64Encoded.append(line);
+				}
+			}
+			byte[] x509 = Base64.getDecoder().decode(base64Encoded.toString());
+			try (InputStream x509CertStream = new ByteArrayInputStream(x509)) {
+				X509Certificate certificate = (X509Certificate) this.certificateFactory
+						.generateCertificate(x509CertStream);
+				return (RSAPublicKey) certificate.getPublicKey();
+			}
+			catch (CertificateException | IOException ex) {
+				throw new IllegalArgumentException(ex);
+			}
+		}
+
+		private boolean isNotX509CertificateWrapper(String line) {
+			return !X509_CERT_HEADER.equals(line) && !X509_CERT_FOOTER.equals(line);
+		}
+
 	}
 
 }
