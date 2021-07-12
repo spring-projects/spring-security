@@ -4,6 +4,7 @@ dependencies {
 	management platform('org.springframework.boot:spring-boot-dependencies:2.5.2')
 	compile 'org.springframework:spring-web'
 	compile 'org.springframework:spring-core'
-	testCompile 'junit:junit'
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.junit.jupiter:junit-jupiter-engine"
 }
 
