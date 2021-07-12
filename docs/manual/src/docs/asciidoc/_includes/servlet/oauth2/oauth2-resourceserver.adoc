@@ -3027,7 +3027,7 @@ Additionally, it is published as an `AuthenticationFailureBadCredentialsEvent`, 
 @Component
 public class FailureEvents {
 	@EventListener
-    public void onFailure(AuthenticationFailureEvent failure) {
+    public void onFailure(AuthenticationFailureBadCredentialsEvent badCredentials) {
 		if (badCredentials.getAuthentication() instanceof BearerTokenAuthenticationToken) {
 		    // ... handle
         }
