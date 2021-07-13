@@ -233,6 +233,14 @@ public class SecurityReactorContextConfigurationTests {
 		// @formatter:on
 	}
 
+	// gh-9841
+	@Test
+	public void lastOperatorWhenInvokedThenDoesNotCreateSecurityContext() {
+		this.spring.register(SecurityConfig.class).autowire();
+		StepVerifier.create(Mono.just(1)).expectNext(1).verifyComplete();
+		assertThat(SecurityContextHolder.peekContext()).isNull();
+	}
+
 	@EnableWebSecurity
 	static class SecurityConfig extends WebSecurityConfigurerAdapter {
 

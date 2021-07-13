@@ -17,7 +17,11 @@
 package org.springframework.security.core.context;
 
 import java.lang.reflect.Constructor;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -61,6 +65,13 @@ public class SecurityContextHolder {
 
 	private static SecurityContextHolderStrategy strategy;
 
+	private static final BiConsumer<SecurityContext, SecurityContext> NULL_PUBLISHER = (previous, current) -> {
+	};
+
+	private static final SecurityContextEventPublisher SECURITY_CONTEXT_EVENT_PUBLISHER = new SecurityContextEventPublisher();
+
+	private static BiConsumer<SecurityContext, SecurityContext> publisher = NULL_PUBLISHER;
+
 	private static int initializeCount = 0;
 
 	static {
@@ -99,7 +110,9 @@ public class SecurityContextHolder {
 	 * Explicitly clears the context value from the current thread.
 	 */
 	public static void clearContext() {
+		SecurityContext from = strategy.peekContext();
 		strategy.clearContext();
+		publisher.accept(from, null);
 	}
 
 	/**
@@ -108,6 +121,21 @@ public class SecurityContextHolder {
 	 */
 	public static SecurityContext getContext() {
 		return strategy.getContext();
+	}
+
+	/**
+	 * When using a Spring-Security-provided <code>SecurityContextHolderStrategy</code>,
+	 * this method obtains the current <code>SecurityContext</code> without creating one.
+	 *
+	 * When using a custom <code>SecurityContextHolderStrategy</code>, behavior will
+	 * depend on whether or not the {@link SecurityContextHolderStrategy#peekContext()}
+	 * method has been overridden.
+	 * @return the security context (may be <code>null</code>)
+	 * @since 5.6
+	 */
+	@Nullable
+	public static SecurityContext peekContext() {
+		return strategy.peekContext();
 	}
 
 	/**
@@ -125,7 +153,9 @@ public class SecurityContextHolder {
 	 * @param context the new <code>SecurityContext</code> (may not be <code>null</code>)
 	 */
 	public static void setContext(SecurityContext context) {
+		SecurityContext from = strategy.peekContext();
 		strategy.setContext(context);
+		publisher.accept(from, context);
 	}
 
 	/**
@@ -155,9 +185,61 @@ public class SecurityContextHolder {
 		return strategy.createEmptyContext();
 	}
 
+	/**
+	 * Register a listener to be notified when the {@link SecurityContext} changes.
+	 *
+	 * Note that this does not notify when the underlying authentication changes. To get
+	 * notified about authentication changes, ensure that you are using
+	 * {@link #setContext} when changing the authentication like so:
+	 *
+	 * <pre>
+	 *	SecurityContext context = SecurityContextHolder.createEmptyContext();
+	 *	context.setAuthentication(authentication);
+	 *	SecurityContextHolder.setContext(context);
+	 * </pre>
+	 *
+	 * To integrate this with Spring's
+	 * {@link org.springframework.context.ApplicationEvent} support, you can add a
+	 * listener like so:
+	 *
+	 * <pre>
+	 *	SecurityContextHolder.addListener(this.applicationContext::publishEvent);
+	 * </pre>
+	 * @param listener a listener to be notified when the {@link SecurityContext} changes
+	 * @since 5.6
+	 */
+	public static void addListener(Listener listener) {
+		SECURITY_CONTEXT_EVENT_PUBLISHER.listeners.add(listener);
+		publisher = SECURITY_CONTEXT_EVENT_PUBLISHER;
+	}
+
 	@Override
 	public String toString() {
 		return "SecurityContextHolder[strategy='" + strategyName + "'; initializeCount=" + initializeCount + "]";
+	}
+
+	@FunctionalInterface
+	public interface Listener {
+
+		void securityContextChanged(SecurityContextChangedEvent event);
+
+	}
+
+	private static class SecurityContextEventPublisher implements BiConsumer<SecurityContext, SecurityContext> {
+
+		private final List<Listener> listeners = new CopyOnWriteArrayList<>();
+
+		@Override
+		public void accept(SecurityContext previous, SecurityContext current) {
+			if (previous == current) {
+				return;
+			}
+			SecurityContextChangedEvent event = new SecurityContextChangedEvent(previous, current);
+			for (Listener listener : this.listeners) {
+				listener.securityContextChanged(event);
+			}
+		}
+
 	}
 
 }

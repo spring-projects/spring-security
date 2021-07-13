@@ -36,6 +36,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -94,7 +95,7 @@ class SecurityReactorContextConfiguration {
 		}
 
 		private static boolean contextAttributesAvailable() {
-			return SecurityContextHolder.getContext().getAuthentication() != null
+			return getAuthentication() != null
 					|| RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes;
 		}
 
@@ -107,7 +108,7 @@ class SecurityReactorContextConfiguration {
 				servletRequest = servletRequestAttributes.getRequest();
 				servletResponse = servletRequestAttributes.getResponse(); // possible null
 			}
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			Authentication authentication = getAuthentication();
 			if (authentication == null && servletRequest == null) {
 				return Collections.emptyMap();
 			}
@@ -123,6 +124,14 @@ class SecurityReactorContextConfiguration {
 			}
 
 			return contextAttributes;
+		}
+
+		private static Authentication getAuthentication() {
+			SecurityContext context = SecurityContextHolder.peekContext();
+			if (context == null) {
+				return null;
+			}
+			return context.getAuthentication();
 		}
 
 	}

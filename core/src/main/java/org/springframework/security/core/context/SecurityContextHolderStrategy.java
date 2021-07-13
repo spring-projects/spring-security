@@ -16,6 +16,8 @@
 
 package org.springframework.security.core.context;
 
+import org.springframework.lang.Nullable;
+
 /**
  * A strategy for storing security context information against a thread.
  *
@@ -37,6 +39,18 @@ public interface SecurityContextHolderStrategy {
 	 * necessary)
 	 */
 	SecurityContext getContext();
+
+	/**
+	 * Obtain the current context. By default, calls {@link #getContext()}.
+	 *
+	 * Implementations of this method should not create a {@link SecurityContext}.
+	 * @return a context (may be <code>null</code>)
+	 * @since 5.6
+	 */
+	@Nullable
+	default SecurityContext peekContext() {
+		return getContext();
+	}
 
 	/**
 	 * Sets the current context.
