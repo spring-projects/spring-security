@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.www;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
@@ -38,6 +39,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
 import org.springframework.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -362,6 +364,27 @@ public class BasicAuthenticationFilterTests {
 		verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		assertThat(response.getStatus()).isEqualTo(401);
+	}
+
+	@Test
+	public void whenSwitchedCheckOriginalUser() throws Exception {
+		// prepare the saved switch-user token
+		Authentication rodToken = new UsernamePasswordAuthenticationToken("rod", "koala",
+				AuthorityUtils.createAuthorityList("ROLE_1"));
+		UsernamePasswordAuthenticationToken switchedToken = new UsernamePasswordAuthenticationToken("switched", "user",
+				Arrays.asList(new SwitchUserGrantedAuthority("PREVIOUS_ADMINISTRATOR", rodToken)));
+		SecurityContextHolder.getContext().setAuthentication(switchedToken);
+		// setup for test
+		String token = "rod:koala";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.setServletPath("/some_file.html");
+		final MockHttpServletResponse response1 = new MockHttpServletResponse();
+		FilterChain chain = mock(FilterChain.class);
+		this.filter.doFilter(request, response1, chain);
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("switched");
 	}
 
 }
