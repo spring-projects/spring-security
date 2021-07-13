@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -147,6 +148,15 @@ public class ServletApiConfigurerTests {
 		this.spring.register(SharedTrustResolverConfig.class).autowire();
 		this.mvc.perform(get("/"));
 		verify(SharedTrustResolverConfig.TR, atLeastOnce()).isAnonymous(any());
+	}
+
+	@Test
+	public void configureWhenSharedObjectAuthenticationDetailsSourceThenAuthenticationDetailsSourceUsed() {
+		this.spring.register(SharedAuthenticationDetailsSourceConfig.class).autowire();
+		SecurityContextHolderAwareRequestFilter scaFilter = getFilter(SecurityContextHolderAwareRequestFilter.class);
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = getFieldValue(scaFilter,
+				"authenticationDetailsSource");
+		assertThat(authenticationDetailsSource).isEqualTo(SharedAuthenticationDetailsSourceConfig.ADS);
 	}
 
 	@Test
@@ -316,6 +326,22 @@ public class ServletApiConfigurerTests {
 			// @formatter:off
 			http
 				.setSharedObject(AuthenticationTrustResolver.class, TR);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class SharedAuthenticationDetailsSourceConfig extends WebSecurityConfigurerAdapter {
+
+		@SuppressWarnings("unchecked")
+		static AuthenticationDetailsSource<HttpServletRequest, ?> ADS = spy(AuthenticationDetailsSource.class);
+
+		@Override
+		protected void configure(HttpSecurity http) {
+			// @formatter:off
+			http
+				.setSharedObject(AuthenticationDetailsSource.class, ADS);
 			// @formatter:on
 		}
 
