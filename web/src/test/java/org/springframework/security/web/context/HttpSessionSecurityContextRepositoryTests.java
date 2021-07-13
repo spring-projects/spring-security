@@ -21,6 +21,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Collections;
 
 import javax.servlet.Filter;
 import javax.servlet.ServletException;
@@ -612,6 +613,21 @@ public class HttpSessionSecurityContextRepositoryTests {
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
 		MockHttpSession session = (MockHttpSession) request.getSession(false);
 		assertThat(session).isNull();
+	}
+
+	@Test
+	public void saveContextWhenTransientAuthenticationAndSessionExistsThenSkipped() {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.getSession(); // ensure the session exists
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+		SecurityContext context = repo.loadContext(holder);
+		SomeTransientAuthentication authentication = new SomeTransientAuthentication();
+		context.setAuthentication(authentication);
+		repo.saveContext(context, holder.getRequest(), holder.getResponse());
+		MockHttpSession session = (MockHttpSession) request.getSession(false);
+		assertThat(Collections.list(session.getAttributeNames())).isEmpty();
 	}
 
 	@Test
