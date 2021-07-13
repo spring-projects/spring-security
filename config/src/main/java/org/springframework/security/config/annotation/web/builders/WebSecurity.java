@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.config.annotation.web.builders;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.Filter;
@@ -29,6 +30,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
@@ -55,6 +57,7 @@ import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.server.restriction.IgnoreRequestMatcher;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -101,7 +104,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	private WebInvocationPrivilegeEvaluator privilegeEvaluator;
 
-	private DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
+	private final DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
 
 	private SecurityExpressionHandler<FilterInvocation> expressionHandler = this.defaultWebSecurityExpressionHandler;
 
@@ -373,6 +376,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		@Override
 		public MvcMatchersIgnoredRequestConfigurer mvcMatchers(HttpMethod method, String... mvcPatterns) {
 			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
+			Arrays.asList(mvcPatterns).stream().forEach((t) -> printWarnSecurityMessage(method, t));
+			mvcMatchers.stream().forEach((t) -> t.ignore());
 			WebSecurity.this.ignoredRequests.addAll(mvcMatchers);
 			return new MvcMatchersIgnoredRequestConfigurer(getApplicationContext(), mvcMatchers);
 		}
@@ -380,6 +385,38 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		@Override
 		public MvcMatchersIgnoredRequestConfigurer mvcMatchers(String... mvcPatterns) {
 			return mvcMatchers(null, mvcPatterns);
+		}
+
+		/**
+		 * @since 5.5
+		 */
+		@Override
+		public IgnoredRequestConfigurer antMatchers(HttpMethod method) {
+			return antMatchers(method, "/**");
+		}
+
+		/**
+		 * @since 5.5
+		 */
+		@Override
+		public IgnoredRequestConfigurer antMatchers(HttpMethod method, String... antPatterns) {
+			Assert.state(!this.anyRequestConfigured, "Can't configure antMatchers after anyRequest");
+			List<RequestMatcher> antMatchers = RequestMatchers.antMatchers(method, antPatterns);
+			Arrays.asList(antPatterns).stream().forEach((t) -> printWarnSecurityMessage(method, t));
+			antMatchers.stream().forEach((t) -> ((IgnoreRequestMatcher) t).ignore());
+			return chainRequestMatchers(antMatchers);
+		}
+
+		/**
+		 * @since 5.5
+		 */
+		@Override
+		public IgnoredRequestConfigurer antMatchers(String... antPatterns) {
+			Assert.state(!this.anyRequestConfigured, "Can't configure antMatchers after anyRequest");
+			List<RequestMatcher> antMatchers = RequestMatchers.antMatchers(antPatterns);
+			Arrays.asList(antPatterns).stream().forEach((t) -> printWarnSecurityMessage(null, t));
+			antMatchers.stream().forEach((t) -> ((IgnoreRequestMatcher) t).ignore());
+			return chainRequestMatchers(RequestMatchers.antMatchers(antPatterns));
 		}
 
 		@Override
@@ -393,6 +430,33 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		 */
 		public WebSecurity and() {
 			return WebSecurity.this;
+		}
+
+		/**
+		 * @param method the HttpMethod, it could be null too.
+		 * @param pathPattern the path pattern to be ignored
+		 * @since 5.5
+		 */
+		private void printWarnSecurityMessage(HttpMethod method, String pathPattern) {
+			if (pathPattern.equals("/**")) {
+				WebSecurity.this.logger
+						.warn("**********************************************************************************");
+				if (method != null) {
+					WebSecurity.this.logger.warn(LogMessage.format(
+							"Applying explicit instruction to ignore the '/**' path for the HttpMethod: %s", method));
+					WebSecurity.this.logger.warn("You're disabling practically all the paths for that HttpMethod");
+					WebSecurity.this.logger
+							.warn("Therefore any path for that HttpMethod is completely ignored by Spring Security");
+				}
+				else {
+					WebSecurity.this.logger.warn("Applying explicit instruction to ignore the '/**' path");
+					WebSecurity.this.logger.warn("You're disabling practically all the paths");
+					WebSecurity.this.logger.warn("Therefore any path is completely ignored by Spring Security");
+				}
+				WebSecurity.this.logger.warn("It is not recomended for production");
+				WebSecurity.this.logger
+						.warn("**********************************************************************************");
+			}
 		}
 
 	}
