@@ -24,7 +24,7 @@ import org.springframework.security.access.prepost.PostInvocationAttribute;
  * @author Luke Taylor
  * @since 3.0
  */
-class PostInvocationExpressionAttribute extends AbstractExpressionBasedMethodConfigAttribute
+public class PostInvocationExpressionAttribute extends AbstractExpressionBasedMethodConfigAttribute
 		implements PostInvocationAttribute {
 
 	PostInvocationExpressionAttribute(String filterExpression, String authorizeExpression) throws ParseException {

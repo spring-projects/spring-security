@@ -24,7 +24,7 @@ import org.springframework.security.access.prepost.PreInvocationAttribute;
  * @author Luke Taylor
  * @since 3.0
  */
-class PreInvocationExpressionAttribute extends AbstractExpressionBasedMethodConfigAttribute
+public class PreInvocationExpressionAttribute extends AbstractExpressionBasedMethodConfigAttribute
 		implements PreInvocationAttribute {
 
 	private final String filterTarget;
