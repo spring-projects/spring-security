@@ -1,0 +1,21 @@
+== Introduction
+
+This cookbook contains recipes that you can use to configure Spring Security for various scenarios.
+
+It starts with simple scenarios and moves to more complex scenarios.
+
+=== Intended Audiences
+
+This book aims to help both new users of Spring Security and more experienced users who want a quick reference for common tasks.
+The book uses links to introductory and explanatory content, to let new users learn those important details while letting experienced users skip over them.
+If in doubt, follow the link to more detail.
+
+=== The Recipes
+
+This cookbook contains the following recipes:
+
+* <<recipe-basic-auth>>
+* <<recipe-authenticating-with-a-database>>
+* <<recipe-securing-an-angular-web-application>>
+* <<recipe-securing-a-client-application-with-oauth>>
+* <<recipe-creating-an-oauth-resource-server>>

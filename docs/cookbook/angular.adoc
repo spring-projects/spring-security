@@ -1,0 +1,800 @@
+[[recipe-securing-an-angular-web-application]]
+== Recipe: Securing an Angular Web Application
+
+In the previous recipes, we showed how to secure a simple web application.
+However, many web applications do not work in such a simple fashion.
+Many web applications separate the front end from the back end by using one or more libraries to develop the front end.
+One of the more popular of those libraries is Angular.
+This section shows how to use Spring Security to secure an Angular application (with a Spring Boot application as the back end).
+
+NOTE: For this section, we adapted https://spring.io/guides/tutorials/spring-security-and-angular-js/[Dave Syer's Spring Boot with Angular tutorial].
+That tutorial offers more detail, including tests.
+
+For this guide, we work through the following steps:
+
+. <<angular-create-spring-boot-application>>
+. <<angular-create-angular-application>>
+. <<angular-customize-angular-application>>
+. <<angular-adding-dynamic-content>>
+. <<angular-how-it-works>>
+. <<angular-adding-form-based-login>>
+
+[[angular-create-spring-boot-application]]
+=== Create a Spring Boot Application
+
+To get started, you need to create a Spring Boot Application:
+
+. Go to https://start.spring.io (the Spring Initializr).
+. Change the artifact for your application whatever you like.
+(We use `spring-security-angular` and leave the group as `com.example`).
+. Add the Spring Security and Spring Web dependencies.
+
+If you want to use Maven, the following link has all the settings described in the preceding process:
+https://start.spring.io/#!type=maven-project&language=java&platformVersion=2.3.3.RELEASE&packaging=jar&jvmVersion=11&groupId=com.example&artifactId=spring-security-angular%20&name=spring-security-angular%20&description=Demo%20project%20for%20Spring%20Boot&packageName=com.example.spring-security-angular%20&dependencies=security,web
+
+For Gradle, the link is as follows:
+https://start.spring.io/#!type=gradle-project&language=java&platformVersion=2.3.3.RELEASE&packaging=jar&jvmVersion=11&groupId=com.example&artifactId=spring-security-angular%20&name=spring-security-angular%20&description=Demo%20project%20for%20Spring%20Boot&packageName=com.example.spring-security-angular%20&dependencies=security,web
+
+[[angular-create-angular-application]]
+=== Create an Angular Application
+
+NOTE: For this section, we adapted https://github.com/dsyer/spring-boot-angular[Dave Syer's Spring Boot with Angular sample].
+
+Developing an Angular application is sufficiently complex that we have moved it into its own section.
+If you are comfortable with Angular, you can probably skip it.
+If you are new to Angular, you should probably read it before reading the rest of this recipe.
+
+[[angular-customize-angular-application]]
+==== Customize the Angular Application
+
+Now we can customize the Angular application. To do so, we need to modify the `app.component.ts` file:
+
+====
+[source,javascript]
+----
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  title = 'Demo';
+  greeting = {'id': 'XXX', 'content': 'Hello World'};
+}
+----
+====
+
+We also need to modify the corresponding HTML file (`app.component.html`):
+
+====
+[source,html]
+----
+<div style="text-align:center"class="container">
+  <h1>
+    Welcome {{title}}!
+  </h1>
+  <div class="container">
+    <p>Id: <span>{{greeting.id}}</span></p>
+    <p>Message: <span>{{greeting.content}}!</span></p>
+  </div>
+</div>
+----
+====
+
+Now the application shows a greeting.
+
+[[angular-adding-dynamic-content]]
+=== Adding Dynamic Content
+
+So far, the greeting has been hard-coded.
+Most web applications need more functionality than that, so we need to add some dynamic content.
+We start by adjusting the Java application class (`UiApplication.java`):
+
+====
+[source,java]
+----
+@SpringBootApplication
+@RestController
+public class UiApplication {
+
+  @RequestMapping("/resource")
+  public Map<String,Object> home() {
+    Map<String,Object> model = new HashMap<String,Object>();
+    model.put("id", UUID.randomUUID().toString());
+    model.put("content", "Hello World");
+    return model;
+  }
+
+  public static void main(String[] args) {
+    SpringApplication.run(UiApplication.class, args);
+  }
+
+}
+----
+====
+
+The `/resource` endpoint is secure by default.
+If you `curl` to it, you can see that it is secure, as follows:
+
+====
+[source,bash]
+----
+$ curl localhost:8080/resource
+{"timestamp":1420442772928,"status":401,"error":"Unauthorized","message":"Full authentication is required to access this resource","path":"/resource"}
+----
+====
+
+=== Loading a Dynamic Resource with Angular
+
+We want to show that security message in the browser.
+To do so, we need to modify both `app.component.ts` and `app.module.ts`.
+The following listing shows the updated `app.component.ts`:
+
+====
+[source,javascript]
+----
+import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  title = 'Demo';
+  greeting = {};
+  constructor(private http: HttpClient) {
+    http.get('resource').subscribe(data => this.greeting = data); <1>
+  }
+}
+----
+<1> Do a GET against the `resource` endpoint.
+====
+
+The following listing shows the updated `app.module.ts`:
+
+====
+[source,javascript]
+----
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+
+import { AppComponent } from './app.component';
+import { HttpClientModule } from '@angular/common/http';
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    HttpClientModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+----
+====
+
+When you run the application again (or refresh the page in your browser), you can see the dynamic greeting and its unique ID.
+
+[[angular-how-it-works]]
+=== How it Works
+
+If you use the developer tools that are available in some browsers (such as those you see when you press F12 in Chrome), you
+can see the interaction between the server and your browser as it readies the application.
+The following table shows what happens:
+
+.Application-browser Interaction
+[cols="1,1,1,3", options="header"]
+|====
+^|*Verb* ^|*Path* ^|*Status* ^|*Response*
+|`GET`
+|`/`
+|`401`
+|Browser prompts for authentication
+
+|`GET`
+|`/`
+|`200`
+|index.html
+
+|`GET`
+|`/*.js`
+|`200`
+|Loads of third assets from angular
+
+|`GET`
+|`/main.bundle.js`
+|`200`
+|Application logic
+
+|`GET`
+|`/resource`
+|`200`
+|JSON greeting
+|====
+
+[[angular-adding-form-based-login]]
+=== Adding Form-based Login
+
+In the <<angular-create-angular-application>> section, we create a simple Angular application with Spring Boot as its backend.
+The trouble is that it is not as attractive as it could be and (much more importantly for our purposes) not as secure as it could be.
+In particular:
+
+* Basic authentication is restricted to username and password authentication.
+* The authentication UI is ugly (a browser dialog).
+* There is no protection from Cross Site Request Forgery (CSRF).
+
+We can solve those problems by adding form-based login and securing it with Spring Security.
+
+TIP: If you are working through this section with the sample application, be sure to clear your browser cache of cookies and HTTP Basic credentials.
+In Chrome, the best way to do that for a single server is to open a new incognito window.
+
+==== Adding Navigation to the Home Page
+
+For form-based login to make sense, we need to add some simple navigation to our application.
+We want to add *Login*, *Logout*, and *Home* buttons.
+We can do that in `app.component.html`, as follows:
+
+====
+[source,html]
+----
+<div class="container">
+  <ul class="nav nav-pills">
+    <li><a routerLinkActive="active" routerLink="/home">Home</a></li>
+    <li><a routerLinkActive="active" routerLink="/login">Login</a></li>
+    <li><a (click)="logout()">Logout</a></li>
+  </ul>
+</div>
+<div class="container">
+  <router-outlet></router-outlet>
+</div>
+----
+====
+
+Now we have a navigation container with our three options.
+We can style these three elements as we wish, which gives us much more flexibility than a dialog box and the ability to make a much more attractive application.
+
+We also defined a container that holds a `<router-outlet/>` element.
+Angular provides the `<router-outlet/>` element to let us put the content from various routes in that container.
+We need to wire it to a component in the main module. We need one component per route (that is, per menu link), a helper service to glue them together, and the ability to share state (through `AppService`).
+
+A new version of `app.module.ts` can do all that for us:
+
+====
+[source,javascript]
+----
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { RouterModule, Routes } from '@angular/router';
+import { AppService } from './app.service';
+import { HomeComponent } from './home.component';
+import { LoginComponent } from './login.component';
+import { AppComponent } from './app.component';
+
+const routes: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: 'home'},
+  { path: 'home', component: HomeComponent},
+  { path: 'login', component: LoginComponent}
+];
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    LoginComponent
+  ],
+  imports: [
+    RouterModule.forRoot(routes),
+    BrowserModule,
+    HttpClientModule,
+    FormsModule
+  ],
+  providers: [AppService]
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+----
+====
+
+A dependency on the Angular `RouterModule` module lets us inject a router into the constructor of the `AppComponent`.
+We use the routes inside of the imports of the `AppModule` to set up links to `/` (the "`home`" controller) and `login` (the "`login`" controller).
+
+We also included `FormsModule`, because we need it later to bind data to a form.
+
+The UI components are all "`declarations`", and the service glue is a "`provider`".
+The `AppComponent` does not really do much.
+The following listing shows the TypeScript component that goes with the application root:
+
+====
+[source,javascript]
+----
+import { Component } from '@angular/core';
+import { AppService } from './app.service';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import 'rxjs/add/operator/finally';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  constructor(private app: AppService, private http: HttpClient, private router: Router) {
+      this.app.authenticate(undefined, undefined);
+    }
+    logout() {
+      this.http.post('logout', {}).finally(() => {
+          this.app.authenticated = false;
+          this.router.navigateByUrl('/login');
+      }).subscribe();
+    }
+
+}
+----
+====
+
+Consider the following features of the preceding listing:
+
+* There is some more dependency injection, this time of the `AppService`.
+* There is a logout function exposed as a property of the component.
+Later, we can use it to send a logout request to the backend.
+It sets a flag in the app service and sends the user back to the login screen (it does so unconditionally in a finally() callback).
+* We use `templateUrl` to externalize the template HTML into a separate file.
+* The `authenticate()` function is called when the controller is loaded, to see if the user is actually already authenticated (for example, if he had refreshed the browser in the middle of a session).
+We need the `authenticate()` function to make a remote call, because the actual authentication is done by the server, and we do not trust the browser to keep track of it.
+
+The `app` service that we injected needs a boolean flag so that we can tell if the user is currently authenticated.
+It also needs a function called `authenticate()` that we can use to authenticate with the backend server or to query for the user details.
+The following listing shows `app.service.ts`:
+
+====
+[source,javascript]
+----
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+@Injectable()
+export class AppService {
+
+  authenticated = false;
+
+  constructor(private http: HttpClient) {
+  }
+
+  authenticate(credentials, callback) {
+
+        const headers = new HttpHeaders(credentials ? {
+            authorization : 'Basic ' + btoa(credentials.username + ':' + credentials.password)
+        } : {});
+
+        this.http.get('user', {headers: headers}).subscribe(response => {
+            if (response['name']) {
+                this.authenticated = true;
+            } else {
+                this.authenticated = false;
+            }
+            return callback && callback();
+        });
+
+    }
+
+}
+----
+====
+
+If HTTP Basic authentication credentials are provided, the `authenticate()` function sends them.
+Otherwise, it does not.
+It also has an optional `callback` argument that we can use to run some code if the authentication is successful.
+
+=== Setting up the Greeting
+
+The greeting content from the previous home page can go right next to `app.component.html` in `src/app`, as follows:
+
+====
+[source,html]
+----
+<h1>Greeting</h1>
+<div [hidden]="!authenticated()">
+	<p>The ID is {{greeting.id}}</p>
+	<p>The content is {{greeting.content}}</p>
+</div>
+<div [hidden]="authenticated()">
+	<p>Login to see your greeting</p>
+</div>
+----
+====
+
+Since the user now has a choice of whether to login or not (before, it was all controlled by the browser), we need to distinguish in the UI between content that is secure and content that is not.
+We have anticipated this by adding references to an (as yet non-existent) `authenticated()` function.
+
+The `HomeComponent` has to fetch the greeting and provide the `authenticated()` utility function that pulls the flag out of the AppService.
+The following listing shows `home.component.ts`:
+
+====
+[source,javascript]
+----
+import { Component, OnInit } from '@angular/core';
+import { AppService } from './app.service';
+import { HttpClient } from '@angular/common/http';
+
+@Component({
+  templateUrl: './home.component.html'
+})
+export class HomeComponent {
+
+  title = 'Demo';
+  greeting = {};
+
+  constructor(private app: AppService, private http: HttpClient) {
+    http.get('resource').subscribe(data => this.greeting = data);
+  }
+
+  authenticated() { return this.app.authenticated; }
+
+}
+----
+====
+
+
+=== Setting up the Login Form
+
+The login form also gets its own component (in `login.component.html`), as follows:
+
+====
+[source,html]
+----
+<div class="alert alert-danger" [hidden]="!error">
+	There was a problem logging in. Please try again.
+</div>
+<form role="form" (submit)="login()">
+	<div class="form-group">
+		<label for="username">Username:</label> <input type="text"
+			class="form-control" id="username" name="username" [(ngModel)]="credentials.username"/>
+	</div>
+	<div class="form-group">
+		<label for="password">Password:</label> <input type="password"
+			class="form-control" id="password" name="password" [(ngModel)]="credentials.password"/>
+	</div>
+	<button type="submit" class="btn btn-primary">Submit</button>
+</form>
+----
+====
+
+This login form shares a common structure with a lot of Angular login forms.
+It has two inputs (username and password) and a button that submits the form to an Angular event handler.
+We do not need an action on the form tag, so it is probably better not to put one in at all.
+There is also an error message, shown only if the angular model contains an error.
+The form controls use `ngModel` (from the Angular Forms module) to pass data between the HTML and the Angular controller.
+In this case, we use a credentials object to hold the username and password.
+
+=== Supporting the Authentication Process
+
+To support the login form, we need to add some more features.
+On the client side, these are implemented in the login component.
+On the server, it is defined in the Spring Security configuration.
+
+==== Submitting the Login Form
+
+To submit the form, we need to define the `login()` function that we referenced (in the form) with `ng-submit` and the credentials object that we referenced with `ng-model`.
+Now we can flesh out the "`login`" component, as follows:
+
+====
+[source,javascript]
+----
+import { Component, OnInit } from '@angular/core';
+import { AppService } from './app.service';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+
+@Component({
+  templateUrl: './login.component.html'
+})
+export class LoginComponent {
+
+  credentials = {username: '', password: ''};
+
+  constructor(private app: AppService, private http: HttpClient, private router: Router) {
+  }
+
+  login() {
+    this.app.authenticate(this.credentials, () => {
+        this.router.navigateByUrl('/');
+    });
+    return false;
+  }
+
+}
+----
+====
+
+In addition to initializing the credentials object, it defines the `login()` function that we need in the form.
+
+The `authenticate()` call makes a `GET` request to a relative resource (relative to the deployment root of your application): `/user`.
+When called from the `login()` function, it adds the Base64-encoded credentials in the headers so that, on the server, it does an authentication and accepts a cookie in return.
+The `login()` function also sets a local `$scope.error` flag accordingly when we get the result of the authentication.
+This flag is used to control the display of the error message above the login form.
+
+==== Adding the `/user` Endpoint
+
+To service the `authenticate()` function, we need to add a new endpoint to the backend, as follows:
+
+====
+[source,java]
+----
+@SpringBootApplication
+@RestController
+public class UiApplication {
+
+  @RequestMapping("/user")
+  public Principal user(Principal user) {
+    return user;
+  }
+
+  // The rest of the class...
+
+}
+----
+====
+
+This code demonstrates a useful trick that you can use in a Spring Security application.
+If the `/user` resource is reachable, it returns the currently authenticated user (an `Authentication`).
+Otherwise, Spring Security intercepts the request and sends a 401 response through an `AuthenticationEntryPoint`.
+
+==== Handling the Login Request on the Server
+
+Spring Security makes it easy to handle the login request.
+We need to add some configuration to our main application class.
+In this case, we add it as an inner class:
+
+====
+[source,java]
+----
+@SpringBootApplication
+@RestController
+public class UiApplication {
+
+  // The rest of the class...
+
+  @Configuration
+  @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+  protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+      http
+        .httpBasic()
+      .and()
+        .authorizeRequests()
+          .antMatchers("/index.html", "/", "/home", "/login").permitAll()
+          .anyRequest().authenticated();
+    }
+  }
+
+}
+----
+====
+
+This is a standard Spring Boot application with Spring Security customization.
+It allows anonymous access to the static (HTML) resources.
+The HTML resources need to be available to anonymous users, rather than being ignored by Spring Security, for reasons that we cover soon.
+
+The last thing we need to remember is to make the JavaScript components provided by Angular available anonymously to the application.
+We could do that in the `HttpSecurity` configuration (in the preceding listing)
+However, since it is static content, it is better to ignore it.
+We can do so with a bit of configuration in our `application.yml` file, as follows:
+
+====
+[source,yaml]
+----
+	security:
+		ignored:
+		- "*.bundle.*"
+----
+====
+
+==== Adding Default HTTP Request Headers
+
+If you run the application at this point, the browser pops up a Basic authentication dialog (for the username and password).
+It does so because it sees a 401 response from the XHR requests to `/user` and `/resource` with a `WWW-Authenticate` header.
+To suppress this popup, suppress the header, which comes from Spring Security.
+The way to suppress the response header is to send a special, conventional request header named `X-Requested-With=XMLHttpRequest`. (It used to be the default in Angular, but they took it out in 1.3.0.)
+So here is how to set default headers in an Angular XHR request.
+
+First, we need to extend the default `RequestOptions` provided by the Angular HTTP module in `app.module.ts`, as follows:
+
+====
+[source,javascript]
+----
+@Injectable()
+export class XhrInterceptor implements HttpInterceptor {
+
+  intercept(req: HttpRequest<any>, next: HttpHandler) {
+    const xhr = req.clone({
+      headers: req.headers.set('X-Requested-With', 'XMLHttpRequest')
+    });
+    return next.handle(xhr);
+  }
+}
+----
+====
+
+The syntax here is boilerplate.
+The `implements` property of the `Class` is its base class.
+Also, in addition to the constructor, we need to override the `intercept()` function, which is always called by Angular and can be used to add additional headers.
+
+To install this new `RequestOptions` factory, we need to declare it in the providers of the AppModule (in `app.module.ts`), as follows:
+
+====
+[source,javascript]
+----
+@NgModule({
+  ...
+  providers: [AppService, { provide: HTTP_INTERCEPTORS, useClass: XhrInterceptor, multi: true }],
+  ...
+})
+export class AppModule { }
+----
+====
+
+==== Implementing Logout
+
+The application is almost finished, at least functionally.
+(We are not concerned with appearance in this guide.)
+The last thing we need to do is implement the logout feature that we sketched in the home page.
+If the user is authenticated, we show a "`Logout`" link and hook it to a `logout()` function in the `AppComponent`.
+Remember, it sends an HTTP POST to `/logout` which we now need to implement on the server.
+This is straightforward because, it is added for us already by Spring Security (that is, we need not do anything for this simple use case).
+For more control over the logout behavior, you could use the HttpSecurity callbacks in your `WebSecurityAdapter` to, for instance, run some business logic after logout.
+
+==== Adding CSRF Protection
+
+The application is almost ready to use.
+If you run it, you can see that everything we built so far actually works, except for the "`Logout`" link.
+Try using it and look at the responses in the browser to see why it is not yet finished.
+You should see something similar to the following listing:
+
+====
+[source]
+----
+POST /logout HTTP/1.1
+...
+Content-Type: application/x-www-form-urlencoded
+
+username=user&password=password
+
+HTTP/1.1 403 Forbidden
+Set-Cookie: JSESSIONID=3941352C51ABB941781E1DF312DA474E; Path=/; HttpOnly
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+...
+
+{"timestamp":1420467113764,"status":403,"error":"Forbidden","message":"Expected CSRF token not found. Has your session expired?","path":"/login"}
+----
+====
+
+Getting this response is a good sign, because it means that Spring Security’s built-in CSRF protection is working.
+It wants to find a token in a header called `X-CSRF`.
+The value of the CSRF token was available server side in the `HttpRequest` attributes from the initial request that loaded the home page.
+To get it to the client, we could render it by using a dynamic HTML page on the server, expose it through a custom endpoint, or send it as a cookie.
+The last choice is best, because Angular has built-in support for CSRF (which it calls "`XSRF`") based on cookies.
+
+On the server, we need a custom filter to send the cookie.
+Angular wants the cookie name to be `XSRF-TOKEN`, and Spring Security provides it as a request attribute by default, so we only need to transfer the value from a request attribute to a cookie.
+Fortunately, Spring Security (since version 4.1.0) provides a special `CsrfTokenRepository` that does precisely what we need.
+The following listing shows how to use it:
+
+====
+[source,java]
+----
+@Configuration
+@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+      // The other security setup details...
+      .and().csrf()
+        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+  }
+}
+----
+====
+
+We need not do anything on the client side, and the login form now works.
+
+[[angular-how-it-works-login-form]]
+==== How It Works
+
+.Application-browser Interaction
+[cols="1,1,1,3", options="header"]
+|====
+^|*Verb* ^|*Path* ^|*Status* ^|*Response*
+|GET
+|/
+|200
+|index.html
+
+|GET
+|/*.js
+|200
+|Assets from angular
+
+|GET
+|/user
+|401
+|Unauthorized (ignored)
+
+|GET
+|/home
+|200
+|Home page
+
+|GET
+|/user
+|401
+|Unauthorized (ignored)
+
+|GET
+|/resource
+|401
+|Unauthorized (ignored)
+
+|GET
+|/user
+|200
+|Send credentials and get JSON
+
+|GET
+|/resource
+|200
+|JSON greeting
+|====
+
+The responses that are marked "`ignored`" are HTML responses received by Angular in an XHR call.
+Since we are not processing that data, the HTML is dropped.
+We do look for an authenticated user in the case of the `/user` resource.
+However, since it is not present in the first call, that response is dropped.
+
+Look more closely at the requests, and you can see that they all have cookies.
+If you start with a clean browser (for example, by using incognito mode in Chrome), the very first request has no cookies going off to the server, but the server sends back `Set-Cookie` for `JSESSIONID` (the regular `HttpSession`) and `X-XSRF-TOKEN` (the CRSF cookie that we set up earlier).
+Subsequent requests all have those cookies, and they are important.
+The application does not work without them, and they provide some basic security features (authentication and CSRF protection).
+The values of the cookies change when the user authenticates (after the `POST`) and this is another important security feature (preventing https://en.wikipedia.org/wiki/Session_fixation[session fixation attacks]).
+
+IMPORTANT: It is not adequate for CSRF protection to rely on a cookie being sent back to the server, because the browser automatically sends it, even if you are not in a page loaded from your application (a Cross Site Scripting attack, otherwise known as https://en.wikipedia.org/wiki/Cross-site_scripting[XSS]).
+The header is not automatically sent, so the origin is under control.
+You might see that, in our application, the CSRF token is sent to the client as a cookie, so we see it being sent back automatically by the browser, but it is the header that provides the protection.
+
+.Application Scaling
+****
+"`But wait,`" you might say, "`isn’t it Really Bad to use session state in a single-page application?`"
+The answer to that question is going to have to be "`mostly`", because it very definitely is a Good Thing to use the session for authentication and CSRF protection.
+That state has to be stored somewhere, and, if you take it out of the session, you are going to have to put it somewhere else and manage it manually yourself, on both the server and the client.
+That means more code and probably more maintenance and generally re-inventing a perfectly good wheel.
+
+"`But, but,`" you may respond, "`how do I scale my application horizontally now?`"
+This is the "`real`" question you were asking above, but it tends to get shortened to "Session state is bad; I must be stateless". Do not panic.
+Security is stateful.
+You cannot have a secure, stateless application.
+So where are you going to store the state?
+That is all there is to it.
+https://spring.io/team/rwinch[Rob Winch] gave a very useful and insightful talk at https://skillsmatter.com/skillscasts/5398-the-state-of-securing-restful-apis-with-spring[Spring Exchange 2014], in which he explained the need for state (and the ubiquity of it -- TCP and SSL are stateful, so your system is stateful whether you knew it or not), which is probably worth a look if you want to look into this topic in more depth.
+
+The good news is that you have a choice.
+The easiest choice is to store the session data in-memory and rely on sticky sessions in your load balancer to route requests from the same session back to the same JVM (they all support that in some way).
+That is good enough to get you off the ground and works for a really large number of use cases.
+The other choice is to share the session data between instances of your application.
+As long as you are strict and store only the security data, it is small and changes infrequently (only when users log in and out or when their session times out), so there should not be any major infrastructure problems.
+It is also really easy to do with https://github.com/spring-projects/spring-session/[Spring Session].
+It is literally a few lines of code and a Redis server, which is super fast.
+
+Another easy way to set up shared session state is to deploy your application as a WAR file to Cloud Foundry https://run.pivotal.io/[Pivotal Web Services] and bind it to a Redis service.
+****
