@@ -39,6 +39,12 @@ public interface SecurityContextHolderStrategy {
 	SecurityContext getContext();
 
 	/**
+	 * Peeks the current context without creating an empty context.
+	 * @return a context (may be <code>null</code>)
+	 */
+	SecurityContext peekContext();
+
+	/**
 	 * Sets the current context.
 	 * @param context to the new argument (should never be <code>null</code>, although
 	 * implementations must check if <code>null</code> has been passed and throw an

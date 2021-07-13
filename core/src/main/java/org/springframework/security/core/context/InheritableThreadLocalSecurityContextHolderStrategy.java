@@ -45,6 +45,11 @@ final class InheritableThreadLocalSecurityContextHolderStrategy implements Secur
 	}
 
 	@Override
+	public SecurityContext peekContext() {
+		return contextHolder.get();
+	}
+
+	@Override
 	public void setContext(SecurityContext context) {
 		Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
 		contextHolder.set(context);

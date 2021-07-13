@@ -111,6 +111,14 @@ public class SecurityContextHolder {
 	}
 
 	/**
+	 * Peeks the current <code>SecurityContext</code>.
+	 * @return the security context (may be <code>null</code>)
+	 */
+	public static SecurityContext peekContext() {
+		return strategy.peekContext();
+	}
+
+	/**
 	 * Primarily for troubleshooting purposes, this method shows how many times the class
 	 * has re-initialized its <code>SecurityContextHolderStrategy</code>.
 	 * @return the count (should be one unless you've called
