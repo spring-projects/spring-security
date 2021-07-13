@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.servlet
 
+import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.web.servlet.oauth2.login.AuthorizationEndpointDsl
@@ -28,6 +29,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
+import javax.servlet.http.HttpServletRequest
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] OAuth 2.0 login using idiomatic Kotlin code.
@@ -59,6 +61,7 @@ class OAuth2LoginDsl {
     var failureUrl: String? = null
     var loginProcessingUrl: String? = null
     var permitAll: Boolean? = null
+    var authenticationDetailsSource: AuthenticationDetailsSource<HttpServletRequest, *>? = null
 
     private var defaultSuccessUrlOption: Pair<String, Boolean>? = null
     private var authorizationEndpoint: ((OAuth2LoginConfigurer<HttpSecurity>.AuthorizationEndpointConfig) -> Unit)? = null
@@ -221,6 +224,7 @@ class OAuth2LoginDsl {
             tokenEndpoint?.also { oauth2Login.tokenEndpoint(tokenEndpoint) }
             redirectionEndpoint?.also { oauth2Login.redirectionEndpoint(redirectionEndpoint) }
             userInfoEndpoint?.also { oauth2Login.userInfoEndpoint(userInfoEndpoint) }
+            authenticationDetailsSource?.also { oauth2Login.authenticationDetailsSource(authenticationDetailsSource) }
         }
     }
 }
