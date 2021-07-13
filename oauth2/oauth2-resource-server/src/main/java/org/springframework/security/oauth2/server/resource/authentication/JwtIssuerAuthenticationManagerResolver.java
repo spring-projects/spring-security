@@ -86,6 +86,16 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 				new TrustedIssuerJwtAuthenticationManagerResolver(
 						Collections.unmodifiableCollection(trustedIssuers)::contains));
 	}
+	
+	/**
+     * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
+     * parameters
+     * @param trustedIssuer a predicate to determine whether the issuer should be trusted or not
+     */
+    public JwtIssuerAuthenticationManagerResolver(Predicate<String> trustedIssuer) {
+        this.authenticationManager = new ResolvingAuthenticationManager(
+                new TrustedIssuerJwtAuthenticationManagerResolver(trustedIssuer));
+    }
 
 	/**
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
