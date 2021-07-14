@@ -133,6 +133,7 @@ import org.springframework.security.web.server.authorization.AuthorizationContex
 import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
 import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
 import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
+import org.springframework.security.web.server.authorization.IpAddressReactiveAuthorizationManager;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import org.springframework.security.web.server.authorization.ServerWebExchangeDelegatingServerAccessDeniedHandler;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
@@ -1682,6 +1683,16 @@ public class ServerHttpSecurity {
 			 */
 			public AuthorizeExchangeSpec authenticated() {
 				return access(AuthenticatedReactiveAuthorizationManager.authenticated());
+			}
+
+			/**
+			 * Require a specific IP Address or subnet
+			 * @param ipAddressExpression the ipaddress (i.e. 192.168.20.199) or local
+			 * subnet
+			 * @return the {@link AuthorizeExchangeSpec} to configure
+			 */
+			public AuthorizeExchangeSpec hasIpAddress(String ipAddressExpression) {
+				return access(IpAddressReactiveAuthorizationManager.hasIpAddress(ipAddressExpression));
 			}
 
 			/**
