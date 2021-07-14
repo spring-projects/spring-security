@@ -131,8 +131,8 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 
 	/**
 	 * Sets the {@link GrantedAuthoritiesMapper} used for converting the authorities
-	 * loaded from storage to a new set of authorities which will be associated to
-	 * the {@link UsernamePasswordAuthenticationToken}. If not set, defaults to a
+	 * loaded from storage to a new set of authorities which will be associated to the
+	 * {@link UsernamePasswordAuthenticationToken}. If not set, defaults to a
 	 * {@link NullAuthoritiesMapper}.
 	 * @param authoritiesMapper the {@link GrantedAuthoritiesMapper} used for mapping the
 	 * user's authorities
