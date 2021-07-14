@@ -56,6 +56,7 @@ import org.springframework.security.oauth2.client.web.server.WebSessionServerOAu
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.introspection.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -71,7 +72,6 @@ import org.springframework.security.oauth2.server.resource.authentication.Bearer
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -648,14 +648,14 @@ public final class SecurityMockServerConfigurers {
 
 		private Map<String, Object> defaultAttributes() {
 			Map<String, Object> attributes = new HashMap<>();
-			attributes.put(OAuth2IntrospectionClaimNames.SUBJECT, "user");
-			attributes.put(OAuth2IntrospectionClaimNames.SCOPE, "read");
+			attributes.put(OAuth2TokenIntrospectionClaimNames.SUBJECT, "user");
+			attributes.put(OAuth2TokenIntrospectionClaimNames.SCOPE, "read");
 			return attributes;
 		}
 
 		private Collection<GrantedAuthority> defaultAuthorities() {
 			Map<String, Object> attributes = this.attributes.get();
-			Object scope = attributes.get(OAuth2IntrospectionClaimNames.SCOPE);
+			Object scope = attributes.get(OAuth2TokenIntrospectionClaimNames.SCOPE);
 			if (scope == null) {
 				return Collections.emptyList();
 			}

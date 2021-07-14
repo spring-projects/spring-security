@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.introspection.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.util.Assert;
@@ -117,8 +117,8 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 	}
 
 	private AbstractAuthenticationToken convert(OAuth2AuthenticatedPrincipal principal, String token) {
-		Instant iat = principal.getAttribute(OAuth2IntrospectionClaimNames.ISSUED_AT);
-		Instant exp = principal.getAttribute(OAuth2IntrospectionClaimNames.EXPIRES_AT);
+		Instant iat = principal.getAttribute(OAuth2TokenIntrospectionClaimNames.ISSUED_AT);
+		Instant exp = principal.getAttribute(OAuth2TokenIntrospectionClaimNames.EXPIRES_AT);
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
 		return new BearerTokenAuthentication(principal, accessToken, principal.getAuthorities());
 	}

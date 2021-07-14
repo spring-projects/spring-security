@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.introspection.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -140,15 +141,15 @@ public class NimbusOpaqueTokenIntrospectorTests {
 			// @formatter:off
 			assertThat(authority.getAttributes())
 					.isNotNull()
-					.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
-					.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE,
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.ACTIVE, true)
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.AUDIENCE,
 							Arrays.asList("https://protected.example.net/resource"))
-					.containsEntry(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
-					.containsEntry(OAuth2IntrospectionClaimNames.EXPIRES_AT, Instant.ofEpochSecond(1419356238))
-					.containsEntry(OAuth2IntrospectionClaimNames.ISSUER, new URL("https://server.example.com/"))
-					.containsEntry(OAuth2IntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"))
-					.containsEntry(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis")
-					.containsEntry(OAuth2IntrospectionClaimNames.USERNAME, "jdoe")
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.EXPIRES_AT, Instant.ofEpochSecond(1419356238))
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.ISSUER, new URL("https://server.example.com/"))
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"))
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis")
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.USERNAME, "jdoe")
 					.containsEntry("extension_field", "twenty-seven");
 			// @formatter:on
 		}
@@ -182,9 +183,9 @@ public class NimbusOpaqueTokenIntrospectorTests {
 	@Test
 	public void introspectWhenActiveTokenThenParsesValuesInResponse() {
 		Map<String, Object> introspectedValues = new HashMap<>();
-		introspectedValues.put(OAuth2IntrospectionClaimNames.ACTIVE, true);
-		introspectedValues.put(OAuth2IntrospectionClaimNames.AUDIENCE, Arrays.asList("aud"));
-		introspectedValues.put(OAuth2IntrospectionClaimNames.NOT_BEFORE, 29348723984L);
+		introspectedValues.put(OAuth2TokenIntrospectionClaimNames.ACTIVE, true);
+		introspectedValues.put(OAuth2TokenIntrospectionClaimNames.AUDIENCE, Arrays.asList("aud"));
+		introspectedValues.put(OAuth2TokenIntrospectionClaimNames.NOT_BEFORE, 29348723984L);
 		RestOperations restOperations = mock(RestOperations.class);
 		OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL,
 				restOperations);
@@ -194,11 +195,11 @@ public class NimbusOpaqueTokenIntrospectorTests {
 		// @formatter:off
 		assertThat(authority.getAttributes())
 				.isNotNull()
-				.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
-				.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE, Arrays.asList("aud"))
-				.containsEntry(OAuth2IntrospectionClaimNames.NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
-				.doesNotContainKey(OAuth2IntrospectionClaimNames.CLIENT_ID)
-				.doesNotContainKey(OAuth2IntrospectionClaimNames.SCOPE);
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.ACTIVE, true)
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.AUDIENCE, Arrays.asList("aud"))
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
+				.doesNotContainKey(OAuth2TokenIntrospectionClaimNames.CLIENT_ID)
+				.doesNotContainKey(OAuth2TokenIntrospectionClaimNames.SCOPE);
 		// @formatter:on
 	}
 
