@@ -51,7 +51,7 @@ public class PostAuthorizeAuthorizationManagerTests {
 		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		manager.setExpressionHandler(expressionHandler);
-		assertThat(manager).extracting("expressionHandler").isEqualTo(expressionHandler);
+		assertThat(manager).extracting("registry").extracting("expressionHandler").isEqualTo(expressionHandler);
 	}
 
 	@Test

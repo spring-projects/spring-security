@@ -48,7 +48,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 		manager.setExpressionHandler(expressionHandler);
-		assertThat(manager).extracting("expressionHandler").isEqualTo(expressionHandler);
+		assertThat(manager).extracting("registry").extracting("expressionHandler").isEqualTo(expressionHandler);
 	}
 
 	@Test

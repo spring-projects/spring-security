@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,87 +16,75 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import java.util.Arrays;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportAware;
 import org.springframework.context.annotation.Role;
-import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.ExpressionBasedAnnotationAttributeFactory;
-import org.springframework.security.access.expression.method.ExpressionBasedPostInvocationAdvice;
-import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
-import org.springframework.security.access.method.AbstractMethodSecurityMetadataSource;
-import org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource;
-import org.springframework.security.access.prepost.PrePostAdviceReactiveMethodInterceptor;
-import org.springframework.security.access.prepost.PrePostAnnotationSecurityMetadataSource;
+import org.springframework.security.authorization.method.PostAuthorizeReactiveAuthorizationManager;
+import org.springframework.security.authorization.method.PostFilterAuthorizationAfterReactiveMethodInterceptor;
+import org.springframework.security.authorization.method.PreAuthorizeReactiveAuthorizationManager;
+import org.springframework.security.authorization.method.PreFilterAuthorizationBeforeReactiveMethodInterceptor;
+import org.springframework.security.authorization.method.ReactiveAuthorizationManagerAfterMethodInterceptor;
+import org.springframework.security.authorization.method.ReactiveAuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 /**
  * @author Rob Winch
  * @author Tadaya Tsuyukubo
+ * @author Evgeniy Cheban
  * @since 5.0
  */
 @Configuration(proxyBeanMethods = false)
-class ReactiveMethodSecurityConfiguration implements ImportAware {
-
-	private int advisorOrder;
-
-	private GrantedAuthorityDefaults grantedAuthorityDefaults;
+class ReactiveMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	MethodSecurityMetadataSourceAdvisor methodSecurityInterceptor(AbstractMethodSecurityMetadataSource source) {
-		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor(
-				"securityMethodInterceptor", source, "methodMetadataSource");
-		advisor.setOrder(this.advisorOrder);
-		return advisor;
+	PreFilterAuthorizationBeforeReactiveMethodInterceptor preFilterInterceptor(
+			MethodSecurityExpressionHandler expressionHandler) {
+		PreFilterAuthorizationBeforeReactiveMethodInterceptor preFilter = new PreFilterAuthorizationBeforeReactiveMethodInterceptor();
+		preFilter.setExpressionHandler(expressionHandler);
+		return preFilter;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	DelegatingMethodSecurityMetadataSource methodMetadataSource(
-			MethodSecurityExpressionHandler methodSecurityExpressionHandler) {
-		ExpressionBasedAnnotationAttributeFactory attributeFactory = new ExpressionBasedAnnotationAttributeFactory(
-				methodSecurityExpressionHandler);
-		PrePostAnnotationSecurityMetadataSource prePostSource = new PrePostAnnotationSecurityMetadataSource(
-				attributeFactory);
-		return new DelegatingMethodSecurityMetadataSource(Arrays.asList(prePostSource));
-	}
-
-	@Bean
-	PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source,
-			MethodSecurityExpressionHandler handler) {
-		ExpressionBasedPostInvocationAdvice postAdvice = new ExpressionBasedPostInvocationAdvice(handler);
-		ExpressionBasedPreInvocationAdvice preAdvice = new ExpressionBasedPreInvocationAdvice();
-		preAdvice.setExpressionHandler(handler);
-		return new PrePostAdviceReactiveMethodInterceptor(source, preAdvice, postAdvice);
+	ReactiveAuthorizationManagerBeforeMethodInterceptor preAuthorizeInterceptor(
+			MethodSecurityExpressionHandler expressionHandler) {
+		PreAuthorizeReactiveAuthorizationManager authorizationManager = new PreAuthorizeReactiveAuthorizationManager();
+		authorizationManager.setExpressionHandler(expressionHandler);
+		return ReactiveAuthorizationManagerBeforeMethodInterceptor.preAuthorize(authorizationManager);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+	PostFilterAuthorizationAfterReactiveMethodInterceptor postFilterInterceptor(
+			MethodSecurityExpressionHandler expressionHandler) {
+		PostFilterAuthorizationAfterReactiveMethodInterceptor postFilter = new PostFilterAuthorizationAfterReactiveMethodInterceptor();
+		postFilter.setExpressionHandler(expressionHandler);
+		return postFilter;
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	ReactiveAuthorizationManagerAfterMethodInterceptor postAuthorizeInterceptor(
+			MethodSecurityExpressionHandler expressionHandler) {
+		PostAuthorizeReactiveAuthorizationManager authorizationManager = new PostAuthorizeReactiveAuthorizationManager();
+		authorizationManager.setExpressionHandler(expressionHandler);
+		return ReactiveAuthorizationManagerAfterMethodInterceptor.postAuthorize(authorizationManager);
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler(
+			@Autowired(required = false) GrantedAuthorityDefaults grantedAuthorityDefaults) {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
-		if (this.grantedAuthorityDefaults != null) {
-			handler.setDefaultRolePrefix(this.grantedAuthorityDefaults.getRolePrefix());
+		if (grantedAuthorityDefaults != null) {
+			handler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 		}
 		return handler;
-	}
-
-	@Override
-	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		this.advisorOrder = (int) importMetadata.getAnnotationAttributes(EnableReactiveMethodSecurity.class.getName())
-				.get("order");
-	}
-
-	@Autowired(required = false)
-	void setGrantedAuthorityDefaults(GrantedAuthorityDefaults grantedAuthorityDefaults) {
-		this.grantedAuthorityDefaults = grantedAuthorityDefaults;
 	}
 
 }

@@ -49,10 +49,14 @@ import org.springframework.util.Assert;
  * {@link PostAuthorize} for methods that return {@link Mono} or {@link Flux} and Kotlin
  * coroutine functions.
  *
+ * @deprecated use
+ * {@link org.springframework.security.authorization.method.AbstractReactiveMethodInterceptor}
+ * instead.
  * @author Rob Winch
  * @author Eleftheria Stein
  * @since 5.0
  */
+@Deprecated
 public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor {
 
 	private Authentication anonymous = new AnonymousAuthenticationToken("key", "anonymous",

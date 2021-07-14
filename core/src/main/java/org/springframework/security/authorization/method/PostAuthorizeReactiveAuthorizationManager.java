@@ -16,32 +16,29 @@
 
 package org.springframework.security.authorization.method;
 
-import java.util.function.Supplier;
-
 import org.aopalliance.intercept.MethodInvocation;
+import reactor.core.publisher.Mono;
 
-import org.springframework.expression.EvaluationContext;
-import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 
 /**
- * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
- * return the result from an invoked {@link MethodInvocation} by evaluating an expression
- * from the {@link PostAuthorize} annotation.
+ * A {@link ReactiveAuthorizationManager} which can determine if an {@link Authentication}
+ * has access to the returned object from the {@link MethodInvocation} by evaluating an
+ * expression from the {@link PostAuthorize} annotation.
  *
  * @author Evgeniy Cheban
- * @since 5.6
  */
-public final class PostAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocationResult> {
+public final class PostAuthorizeReactiveAuthorizationManager
+		implements ReactiveAuthorizationManager<MethodInvocationResult> {
 
 	private final PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
 	/**
-	 * Use this the {@link MethodSecurityExpressionHandler}.
+	 * Sets the {@link MethodSecurityExpressionHandler}.
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
@@ -49,26 +46,29 @@ public final class PostAuthorizeAuthorizationManager implements AuthorizationMan
 	}
 
 	/**
-	 * Determine if an {@link Authentication} has access to the returned object by
-	 * evaluating the {@link PostAuthorize} annotation that the {@link MethodInvocation}
-	 * specifies.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param mi the {@link MethodInvocationResult} to check
-	 * @return an {@link AuthorizationDecision} or {@code null} if the
+	 * Determines if an {@link Authentication} has access to the returned object from the
+	 * {@link MethodInvocation} by evaluating an expression from the {@link PostAuthorize}
+	 * annotation.
+	 * @param authentication the {@link Mono} of the {@link Authentication} to check
+	 * @param result the {@link MethodInvocationResult} to check
+	 * @return a Mono of the {@link AuthorizationDecision} or an empty {@link Mono} if the
 	 * {@link PostAuthorize} annotation is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocationResult mi) {
-		ExpressionAttribute attribute = this.registry.getAttribute(mi.getMethodInvocation());
+	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, MethodInvocationResult result) {
+		MethodInvocation mi = result.getMethodInvocation();
+		ExpressionAttribute attribute = this.registry.getAttribute(mi);
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
-			return null;
+			return Mono.empty();
 		}
 		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();
-		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication.get(),
-				mi.getMethodInvocation());
-		expressionHandler.setReturnObject(mi.getResult(), ctx);
-		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
-		return new AuthorizationDecision(granted);
+		// @formatter:off
+		return authentication
+				.map((auth) -> expressionHandler.createEvaluationContext(auth, mi))
+				.doOnNext((ctx) -> expressionHandler.setReturnObject(result.getResult(), ctx))
+				.flatMap((ctx) -> ReactiveExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx))
+				.map(AuthorizationDecision::new);
+		// @formatter:on
 	}
 
 }
