@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import javax.servlet.Filter;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.Bean;
@@ -143,19 +142,20 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	 * instances used to create the web configuration.
 	 * @param objectPostProcessor the {@link ObjectPostProcessor} used to create a
 	 * {@link WebSecurity} instance
-	 * @param webSecurityConfigurers the
+	 * @param beanFactory the bean factory to use to retrieve the relevant
 	 * {@code <SecurityConfigurer<FilterChainProxy, WebSecurityBuilder>} instances used to
 	 * create the web configuration
 	 * @throws Exception
 	 */
 	@Autowired(required = false)
 	public void setFilterChainProxySecurityConfigurer(ObjectPostProcessor<Object> objectPostProcessor,
-			@Value("#{@autowiredWebSecurityConfigurersIgnoreParents.getWebSecurityConfigurers()}") List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers)
-			throws Exception {
+			ConfigurableListableBeanFactory beanFactory) throws Exception {
 		this.webSecurity = objectPostProcessor.postProcess(new WebSecurity(objectPostProcessor));
 		if (this.debugEnabled != null) {
 			this.webSecurity.debug(this.debugEnabled);
 		}
+		List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers = new AutowiredWebSecurityConfigurersIgnoreParents(
+				beanFactory).getWebSecurityConfigurers();
 		webSecurityConfigurers.sort(AnnotationAwareOrderComparator.INSTANCE);
 		Integer previousOrder = null;
 		Object previousConfig = null;
@@ -187,12 +187,6 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	@Bean
 	public static BeanFactoryPostProcessor conversionServicePostProcessor() {
 		return new RsaKeyConversionServicePostProcessor();
-	}
-
-	@Bean
-	public static AutowiredWebSecurityConfigurersIgnoreParents autowiredWebSecurityConfigurersIgnoreParents(
-			ConfigurableListableBeanFactory beanFactory) {
-		return new AutowiredWebSecurityConfigurersIgnoreParents(beanFactory);
 	}
 
 	@Override
