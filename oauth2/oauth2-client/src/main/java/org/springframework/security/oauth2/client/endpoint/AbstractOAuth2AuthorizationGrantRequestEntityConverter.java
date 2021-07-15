@@ -42,10 +42,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 abstract class AbstractOAuth2AuthorizationGrantRequestEntityConverter<T extends AbstractOAuth2AuthorizationGrantRequest>
 		implements Converter<T, RequestEntity<?>> {
 
+	private boolean encodeClientCredentials = true;
+
 	// @formatter:off
 	private Converter<T, HttpHeaders> headersConverter =
 			(authorizationGrantRequest) -> OAuth2AuthorizationGrantRequestEntityUtils
-					.getTokenRequestHeaders(authorizationGrantRequest.getClientRegistration());
+					.getTokenRequestHeaders(authorizationGrantRequest.getClientRegistration(), this.encodeClientCredentials);
 	// @formatter:on
 
 	private Converter<T, MultiValueMap<String, String>> parametersConverter = this::createParameters;
@@ -168,6 +170,19 @@ abstract class AbstractOAuth2AuthorizationGrantRequestEntityConverter<T extends 
 			}
 			return parameters;
 		};
+	}
+
+	/**
+	 * Sets the flag that controls whether client credentials are encoded using the
+	 * application/x-www-form-urlencoded algorithm in the headers converter.
+	 * @deprecated Support for non-compliant providers will be removed in Spring Security
+	 * 5.6
+	 * @param encodeClientCredentials {@code false} to disable encoding client credentials
+	 * (default is true)
+	 */
+	@Deprecated
+	public void setEncodeClientCredentials(boolean encodeClientCredentials) {
+		this.encodeClientCredentials = encodeClientCredentials;
 	}
 
 }
