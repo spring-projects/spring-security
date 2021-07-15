@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@ import org.springframework.util.StringUtils;
  *
  * @param <H> the type of {@link HttpSecurityBuilder} that is being configured
  * @author Rob Winch
+ * @author Yanming Zhou
  * @since 3.2
  * @see org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests()
  */
@@ -94,6 +95,8 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 	private static final String rememberMe = "rememberMe";
 
+	private final String rolePrefix;
+
 	private final ExpressionInterceptUrlRegistry REGISTRY;
 
 	private SecurityExpressionHandler<FilterInvocation> expressionHandler;
@@ -103,6 +106,15 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	 * @see HttpSecurity#authorizeRequests()
 	 */
 	public ExpressionUrlAuthorizationConfigurer(ApplicationContext context) {
+		String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
+		if (grantedAuthorityDefaultsBeanNames.length == 1) {
+			GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0],
+					GrantedAuthorityDefaults.class);
+			this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
+		}
+		else {
+			this.rolePrefix = "ROLE_";
+		}
 		this.REGISTRY = new ExpressionInterceptUrlRegistry(context);
 	}
 
@@ -176,16 +188,16 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		return this.expressionHandler;
 	}
 
-	private static String hasAnyRole(String... authorities) {
-		String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','ROLE_");
-		return "hasAnyRole('ROLE_" + anyAuthorities + "')";
+	private static String hasAnyRole(String rolePrefix, String... authorities) {
+		String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','" + rolePrefix);
+		return "hasAnyRole('" + rolePrefix + anyAuthorities + "')";
 	}
 
-	private static String hasRole(String role) {
+	private static String hasRole(String rolePrefix, String role) {
 		Assert.notNull(role, "role cannot be null");
-		Assert.isTrue(!role.startsWith("ROLE_"),
-				() -> "role should not start with 'ROLE_' since it is automatically inserted. Got '" + role + "'");
-		return "hasRole('ROLE_" + role + "')";
+		Assert.isTrue(rolePrefix.isEmpty() || !role.startsWith(rolePrefix), () -> "role should not start with '"
+				+ rolePrefix + "' since it is automatically inserted. Got '" + role + "'");
+		return "hasRole('" + rolePrefix + role + "')";
 	}
 
 	private static String hasAuthority(String authority) {
@@ -308,27 +320,30 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 		/**
 		 * Shortcut for specifying URLs require a particular role. If you do not want to
-		 * have "ROLE_" automatically inserted see {@link #hasAuthority(String)}.
+		 * have role prefix (default "ROLE_") automatically inserted see
+		 * {@link #hasAuthority(String)}.
 		 * @param role the role to require (i.e. USER, ADMIN, etc). Note, it should not
-		 * start with "ROLE_" as this is automatically inserted.
+		 * start with role prefix as this is automatically inserted.
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
 		 */
 		public ExpressionInterceptUrlRegistry hasRole(String role) {
-			return access(ExpressionUrlAuthorizationConfigurer.hasRole(role));
+			return access(ExpressionUrlAuthorizationConfigurer
+					.hasRole(ExpressionUrlAuthorizationConfigurer.this.rolePrefix, role));
 		}
 
 		/**
 		 * Shortcut for specifying URLs require any of a number of roles. If you do not
-		 * want to have "ROLE_" automatically inserted see
+		 * want to have role prefix (default "ROLE_") automatically inserted see
 		 * {@link #hasAnyAuthority(String...)}
 		 * @param roles the roles to require (i.e. USER, ADMIN, etc). Note, it should not
-		 * start with "ROLE_" as this is automatically inserted.
+		 * start with role prefix as this is automatically inserted.
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
 		 */
 		public ExpressionInterceptUrlRegistry hasAnyRole(String... roles) {
-			return access(ExpressionUrlAuthorizationConfigurer.hasAnyRole(roles));
+			return access(ExpressionUrlAuthorizationConfigurer
+					.hasAnyRole(ExpressionUrlAuthorizationConfigurer.this.rolePrefix, roles));
 		}
 
 		/**
