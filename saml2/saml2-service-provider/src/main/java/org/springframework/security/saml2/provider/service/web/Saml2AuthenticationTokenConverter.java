@@ -30,9 +30,12 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
+import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.servlet.HttpSessionSaml2AuthenticationRequestRepository;
+import org.springframework.security.saml2.provider.service.servlet.Saml2AuthenticationRequestRepository;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.util.Assert;
 
@@ -49,6 +52,8 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 	private static Base64 BASE64 = new Base64(0, new byte[] { '\n' }, false, CodecPolicy.STRICT);
 
 	private final Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver;
+
+	private Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository = new HttpSessionSaml2AuthenticationRequestRepository();
 
 	/**
 	 * Constructs a {@link Saml2AuthenticationTokenConverter} given a strategy for
@@ -74,7 +79,27 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 		}
 		byte[] b = samlDecode(saml2Response);
 		saml2Response = inflateIfRequired(request, b);
-		return new Saml2AuthenticationToken(relyingPartyRegistration, saml2Response);
+		AbstractSaml2AuthenticationRequest authenticationRequest = loadAuthenticationRequest(request);
+		return new Saml2AuthenticationToken(relyingPartyRegistration, saml2Response, authenticationRequest);
+	}
+
+	/**
+	 * Use the given {@link Saml2AuthenticationRequestRepository} to load authentication
+	 * request.
+	 * @param authenticationRequestRepository the
+	 * {@link Saml2AuthenticationRequestRepository} to use
+	 * @since 5.6
+	 */
+	public void setAuthenticationRequestRepository(
+			Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository) {
+		this.authenticationRequestRepository = authenticationRequestRepository;
+	}
+
+	private AbstractSaml2AuthenticationRequest loadAuthenticationRequest(HttpServletRequest request) {
+		if (this.authenticationRequestRepository == null) {
+			return null;
+		}
+		return this.authenticationRequestRepository.loadAuthenticationRequest(request);
 	}
 
 	private String inflateIfRequired(HttpServletRequest request, byte[] b) {
