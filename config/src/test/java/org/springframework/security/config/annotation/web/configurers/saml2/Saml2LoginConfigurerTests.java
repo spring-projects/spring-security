@@ -186,7 +186,8 @@ public class Saml2LoginConfigurerTests {
 		this.spring.register(CustomAuthenticationRequestContextResolver.class).autowire();
 		Saml2AuthenticationRequestContext context = TestSaml2AuthenticationRequestContexts
 				.authenticationRequestContext().build();
-		Saml2AuthenticationRequestContextResolver resolver = CustomAuthenticationRequestContextResolver.resolver;
+		Saml2AuthenticationRequestContextResolver resolver = this.spring.getContext()
+				.getBean(Saml2AuthenticationRequestContextResolver.class);
 		given(resolver.resolve(any(HttpServletRequest.class))).willReturn(context);
 		this.mvc.perform(get("/saml2/authenticate/registration-id")).andExpect(status().isFound());
 		verify(resolver).resolve(any(HttpServletRequest.class));
@@ -381,7 +382,7 @@ public class Saml2LoginConfigurerTests {
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomAuthenticationRequestContextResolver extends WebSecurityConfigurerAdapter {
 
-		private static final Saml2AuthenticationRequestContextResolver resolver = mock(
+		private final Saml2AuthenticationRequestContextResolver resolver = mock(
 				Saml2AuthenticationRequestContextResolver.class);
 
 		@Override
@@ -450,7 +451,7 @@ public class Saml2LoginConfigurerTests {
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomAuthenticationRequestRepository {
 
-		private static final Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> repository = mock(
+		private final Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> repository = mock(
 				Saml2AuthenticationRequestRepository.class);
 
 		@Bean
