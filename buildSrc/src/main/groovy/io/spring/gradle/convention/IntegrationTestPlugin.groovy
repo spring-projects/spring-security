@@ -77,6 +77,7 @@ public class IntegrationTestPlugin implements Plugin<Project> {
 			testClassesDirs = project.sourceSets.integrationTest.output.classesDirs
 			classpath = project.sourceSets.integrationTest.runtimeClasspath
 			shouldRunAfter project.tasks.test
+			useJUnitPlatform()
 		}
 		project.tasks.check.dependsOn integrationTestTask
 
