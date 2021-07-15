@@ -121,7 +121,7 @@ public class CsrfWebFilter implements WebFilter {
 		return this.requireCsrfProtectionMatcher.matches(exchange).filter(MatchResult::isMatch)
 				.filter((matchResult) -> !exchange.getAttributes().containsKey(CsrfToken.class.getName()))
 				.flatMap((m) -> validateToken(exchange)).flatMap((m) -> continueFilterChain(exchange, chain))
-				.switchIfEmpty(continueFilterChain(exchange, chain).then(Mono.empty()))
+				.switchIfEmpty(Mono.defer(() -> continueFilterChain(exchange, chain).then(Mono.empty())))
 				.onErrorResume(CsrfException.class, (ex) -> this.accessDeniedHandler.handle(exchange, ex));
 	}
 
@@ -159,11 +159,9 @@ public class CsrfWebFilter implements WebFilter {
 	}
 
 	private Mono<Void> continueFilterChain(ServerWebExchange exchange, WebFilterChain chain) {
-		return Mono.defer(() -> {
-			Mono<CsrfToken> csrfToken = csrfToken(exchange);
-			exchange.getAttributes().put(CsrfToken.class.getName(), csrfToken);
-			return chain.filter(exchange);
-		});
+		Mono<CsrfToken> csrfToken = csrfToken(exchange);
+		exchange.getAttributes().put(CsrfToken.class.getName(), csrfToken);
+		return chain.filter(exchange);
 	}
 
 	private Mono<CsrfToken> csrfToken(ServerWebExchange exchange) {
