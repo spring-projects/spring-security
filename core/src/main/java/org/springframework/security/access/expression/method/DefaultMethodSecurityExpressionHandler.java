@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -94,7 +95,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 
 	/**
 	 * Filters the {@code filterTarget} object (which must be either a collection, array,
-	 * map or stream), by evaluating the supplied expression.
+	 * map, stream or optional), by evaluating the supplied expression.
 	 * <p>
 	 * If a {@code Collection} or {@code Map} is used, the original instance will be
 	 * modified to contain the elements for which the permission expression evaluates to
@@ -117,8 +118,11 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 		if (filterTarget instanceof Stream) {
 			return filterStream((Stream<?>) filterTarget, filterExpression, ctx, rootObject);
 		}
+		if (filterTarget instanceof Optional) {
+			return filterOptional((Optional<?>) filterTarget, filterExpression, ctx, rootObject);
+		}
 		throw new IllegalArgumentException(
-				"Filter target must be a collection, array, map or stream type, but was " + filterTarget);
+				"Filter target must be a collection, array, map, stream or optional type, but was " + filterTarget);
 	}
 
 	private <T> Object filterCollection(Collection<T> filterTarget, Expression filterExpression, EvaluationContext ctx,
@@ -184,6 +188,14 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 			rootObject.setFilterObject(filterObject);
 			return ExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
 		}).onClose(filterTarget::close);
+	}
+
+	private Object filterOptional(final Optional<?> filterTarget, Expression filterExpression, EvaluationContext ctx,
+			MethodSecurityExpressionOperations rootObject) {
+		return filterTarget.filter(filterObject -> {
+			rootObject.setFilterObject(filterObject);
+			return ExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
+		});
 	}
 
 	/**

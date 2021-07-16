@@ -19,6 +19,7 @@ package org.springframework.security.access.expression.method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -165,6 +166,39 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
 		((Stream) this.handler.filter(upstream, expression, context)).close();
 		verify(upstream).close();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void filterMatchingOptional() {
+		final Optional<String> optional = Optional.of("1");
+		Expression expression = this.handler.getExpressionParser().parseExpression("filterObject ne '2'");
+		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
+		Object filtered = this.handler.filter(optional, expression, context);
+		Optional<String> result = ((Optional<String>) filtered);
+		assertThat(result).isPresent().get().isEqualTo("1");
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void filterNotMatchingOptional() {
+		final Optional<String> optional = Optional.of("2");
+		Expression expression = this.handler.getExpressionParser().parseExpression("filterObject ne '2'");
+		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
+		Object filtered = this.handler.filter(optional, expression, context);
+		Optional<String> result = ((Optional<String>) filtered);
+		assertThat(result).isNotPresent();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void filterEmptyOptional() {
+		final Optional<String> optional = Optional.empty();
+		Expression expression = this.handler.getExpressionParser().parseExpression("filterObject ne '2'");
+		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
+		Object filtered = this.handler.filter(optional, expression, context);
+		Optional<String> result = ((Optional<String>) filtered);
+		assertThat(result).isNotPresent();
 	}
 
 	static class Foo {
