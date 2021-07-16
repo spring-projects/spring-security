@@ -117,10 +117,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		String actualToken = request.getHeader(csrfToken.getHeaderName());
-		if (actualToken == null) {
-			actualToken = request.getParameter(csrfToken.getParameterName());
-		}
+		String actualToken = this.tokenRepository.readActualToken(request, csrfToken);
 		if (!equalsConstantTime(csrfToken.getToken(), actualToken)) {
 			this.logger.debug(
 					LogMessage.of(() -> "Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request)));

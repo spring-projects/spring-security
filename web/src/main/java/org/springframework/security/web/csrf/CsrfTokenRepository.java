@@ -55,4 +55,19 @@ public interface CsrfTokenRepository {
 	 */
 	CsrfToken loadToken(HttpServletRequest request);
 
+	/**
+	 * reads actual token from request, by default this method will read header and
+	 * parameter for token value
+	 * @param request
+	 * @param csrfToken
+	 * @return
+	 */
+	default String readActualToken(HttpServletRequest request, CsrfToken csrfToken) {
+		String actualToken = request.getHeader(csrfToken.getHeaderName());
+		if (actualToken == null) {
+			actualToken = request.getParameter(csrfToken.getParameterName());
+		}
+		return actualToken;
+	}
+
 }
