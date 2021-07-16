@@ -129,7 +129,7 @@ import org.springframework.util.StringUtils;
  * StatusResponse</a>
  * @see <a href="https://wiki.shibboleth.net/confluence/display/OS30/Home">OpenSAML 3</a>
  */
-public final class OpenSaml4AuthenticationProvider implements AuthenticationProvider {
+public class OpenSaml4AuthenticationProvider implements AuthenticationProvider {
 
 	static {
 		OpenSamlInitializationService.initialize();
