@@ -1124,7 +1124,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		opaqueTokenConfigurer.introspector(client);
 		opaqueTokenConfigurer.introspectionUri(INTROSPECTION_URI);
 		opaqueTokenConfigurer.introspectionClientCredentials(CLIENT_ID, CLIENT_SECRET);
-		assertThat(opaqueTokenConfigurer.getIntrospector()).isInstanceOf(NimbusOpaqueTokenIntrospector.class);
+		assertThat(opaqueTokenConfigurer.getIntrospector()).isNotSameAs(client);
 	}
 
 	@Test
