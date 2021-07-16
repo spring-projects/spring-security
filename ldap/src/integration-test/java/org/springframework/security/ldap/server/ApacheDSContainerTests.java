@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.springframework.core.io.ClassPathResource;
@@ -117,6 +119,7 @@ public class ApacheDSContainerTests {
 	}
 
 	@Test
+	@DisabledOnOs(OS.WINDOWS)
 	public void startWithLdapOverSslWithWrongPassword() throws Exception {
 		final ClassPathResource keyStoreResource = new ClassPathResource(
 				"/org/springframework/security/ldap/server/spring.keystore");
@@ -150,6 +153,7 @@ public class ApacheDSContainerTests {
 	 * @throws Exception
 	 */
 	@Test
+	@DisabledOnOs(OS.WINDOWS)
 	public void startWithLdapOverSsl() throws Exception {
 
 		final ClassPathResource keyStoreResource = new ClassPathResource(
