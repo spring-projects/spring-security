@@ -135,7 +135,7 @@ import org.springframework.util.StringUtils;
  * @deprecated Because OpenSAML 3 has reached End-of-Life, please update to
  * {@code OpenSaml4AuthenticationProvider}
  */
-public final class OpenSamlAuthenticationProvider implements AuthenticationProvider {
+public class OpenSamlAuthenticationProvider implements AuthenticationProvider {
 
 	static {
 		OpenSamlInitializationService.initialize();
