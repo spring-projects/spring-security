@@ -1,7 +1,7 @@
 [[servlet-events]]
 == Authentication Events
 
-For each authentication that succeeds or fails, a `AuthenticationSuccessEvent` or `AuthenticationFailureEvent` is fired, respectively.
+For each authentication that succeeds or fails, a `AuthenticationSuccessEvent` or `AbstractAuthenticationFailureEvent` is fired, respectively.
 
 To listen for these events, you must first publish an `AuthenticationEventPublisher`.
 Spring Security's `DefaultAuthenticationEventPublisher` will probably do fine:
@@ -42,7 +42,7 @@ public class AuthenticationEvents {
     }
 
     @EventListener
-    public void onFailure(AuthenticationFailureEvent failures) {
+    public void onFailure(AbstractAuthenticationFailureEvent failures) {
 		// ...
     }
 }
@@ -70,7 +70,7 @@ While similar to `AuthenticationSuccessHandler` and `AuthenticationFailureHandle
 
 === Adding Exception Mappings
 
-`DefaultAuthenticationEventPublisher` by default will publish an `AuthenticationFailureEvent` for the following events:
+`DefaultAuthenticationEventPublisher` by default will publish an `AbstractAuthenticationFailureEvent` for the following events:
 
 |============
 | Exception | Event
@@ -97,7 +97,7 @@ To that end, you may want to supply additional mappings to the publisher via the
 public AuthenticationEventPublisher authenticationEventPublisher
         (ApplicationEventPublisher applicationEventPublisher) {
     Map<Class<? extends AuthenticationException>,
-        Class<? extends AuthenticationFailureEvent>> mapping =
+        Class<? extends AbstractAuthenticationFailureEvent>> mapping =
             Collections.singletonMap(FooException.class, FooEvent.class);
     AuthenticationEventPublisher authenticationEventPublisher =
         new DefaultAuthenticationEventPublisher(applicationEventPublisher);
