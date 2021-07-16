@@ -41,6 +41,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
@@ -233,6 +234,28 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	}
 
 	@Test
+	public void getWhenHasAnyRoleUserWithTestRolePrefixConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
+		this.spring.register(RoleUserWithTestRolePrefixConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+				.authorities(new SimpleGrantedAuthority("TEST_USER")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenHasAnyRoleUserWithEmptyRolePrefixConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
+		this.spring.register(RoleUserWithEmptyRolePrefixConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+				.authorities(new SimpleGrantedAuthority("USER")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
 	public void getWhenRoleUserOrAdminConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserOrAdminConfig.class, BasicController.class).autowire();
 		// @formatter:off
@@ -261,6 +284,28 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		MockHttpServletRequestBuilder requestWithRoleOther = get("/").with(user("user").roles("OTHER"));
 		// </editor-fold>
 		this.mvc.perform(requestWithRoleOther).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenRoleUserOrAdminWithTestRolePrefixConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
+		this.spring.register(RoleUserOrAdminWithTestRolePrefixConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+			.with(user("user")
+			.authorities(new SimpleGrantedAuthority("TEST_USER")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenRoleUserOrAdminWithEmptyRolePrefixConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
+		this.spring.register(RoleUserOrAdminWithEmptyRolePrefixConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+			.with(user("user")
+			.authorities(new SimpleGrantedAuthority("USER")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Test
@@ -629,6 +674,44 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	static class RoleUserWithTestRolePrefixConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasAnyRole("USER");
+			// @formatter:on
+		}
+
+		@Bean
+		GrantedAuthorityDefaults grantedAuthorityDefaults() {
+			return new GrantedAuthorityDefaults("TEST_");
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RoleUserWithEmptyRolePrefixConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasAnyRole("USER");
+			// @formatter:on
+		}
+
+		@Bean
+		GrantedAuthorityDefaults grantedAuthorityDefaults() {
+			return new GrantedAuthorityDefaults("");
+		}
+
+	}
+
+	@EnableWebSecurity
 	static class RoleUserOrAdminConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
@@ -638,6 +721,44 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().hasAnyRole("USER", "ADMIN");
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RoleUserOrAdminWithTestRolePrefixConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasAnyRole("USER", "ADMIN");
+			// @formatter:on
+		}
+
+		@Bean
+		GrantedAuthorityDefaults grantedAuthorityDefaults() {
+			return new GrantedAuthorityDefaults("TEST_");
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RoleUserOrAdminWithEmptyRolePrefixConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasAnyRole("USER", "ADMIN");
+			// @formatter:on
+		}
+
+		@Bean
+		GrantedAuthorityDefaults grantedAuthorityDefaults() {
+			return new GrantedAuthorityDefaults("");
 		}
 
 	}
@@ -813,6 +934,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@EnableWebSecurity
 	static class AuthorizedRequestsWithPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
+		@SuppressWarnings("unchecked")
 		static ApplicationListener<AuthorizedEvent> AL = mock(ApplicationListener.class);
 
 		@Override
