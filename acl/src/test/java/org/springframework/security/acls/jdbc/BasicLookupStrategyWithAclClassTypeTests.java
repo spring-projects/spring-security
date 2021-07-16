@@ -29,10 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.acls.domain.ConsoleAuditLogger;
-import org.springframework.security.acls.domain.DefaultPermissionFactory;
-import org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy;
-import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.*;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.ObjectIdentity;
 
@@ -75,7 +72,7 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 	public void initializeBeans() {
 		super.initializeBeans();
 		this.uuidEnabledStrategy = new BasicLookupStrategy(getDataSource(), aclCache(), aclAuthStrategy(),
-				new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()));
+				new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()), new ObjectIdentityRetrievalStrategyImpl());
 		this.uuidEnabledStrategy.setPermissionFactory(new DefaultPermissionFactory());
 		this.uuidEnabledStrategy.setAclClassIdSupported(true);
 		this.uuidEnabledStrategy.setConversionService(new DefaultConversionService());

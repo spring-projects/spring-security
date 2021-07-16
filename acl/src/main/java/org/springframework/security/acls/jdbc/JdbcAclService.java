@@ -32,11 +32,8 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
-import org.springframework.security.acls.model.Acl;
-import org.springframework.security.acls.model.AclService;
-import org.springframework.security.acls.model.NotFoundException;
-import org.springframework.security.acls.model.ObjectIdentity;
-import org.springframework.security.acls.model.Sid;
+import org.springframework.security.acls.domain.ObjectIdentityRetrievalStrategyImpl;
+import org.springframework.security.acls.model.*;
 import org.springframework.util.Assert;
 
 /**
@@ -80,12 +77,14 @@ public class JdbcAclService implements AclService {
 	private String findChildrenSql = DEFAULT_SELECT_ACL_WITH_PARENT_SQL;
 
 	private AclClassIdUtils aclClassIdUtils;
+	private ObjectIdentityGenerator objectIdentityGenerator;
 
 	public JdbcAclService(DataSource dataSource, LookupStrategy lookupStrategy) {
-		this(new JdbcTemplate(dataSource), lookupStrategy);
+		this(new JdbcTemplate(dataSource), lookupStrategy, new ObjectIdentityRetrievalStrategyImpl());
 	}
 
-	public JdbcAclService(JdbcOperations jdbcOperations, LookupStrategy lookupStrategy) {
+	public JdbcAclService(JdbcOperations jdbcOperations, LookupStrategy lookupStrategy, ObjectIdentityGenerator objectIdentityGenerator) {
+		this.objectIdentityGenerator = objectIdentityGenerator;
 		Assert.notNull(jdbcOperations, "JdbcOperations required");
 		Assert.notNull(lookupStrategy, "LookupStrategy required");
 		this.jdbcOperations = jdbcOperations;
@@ -105,7 +104,7 @@ public class JdbcAclService implements AclService {
 		String javaType = rs.getString("class");
 		Serializable identifier = (Serializable) rs.getObject("obj_id");
 		identifier = this.aclClassIdUtils.identifierFrom(identifier, rs);
-		return new ObjectIdentityImpl(javaType, identifier);
+		return objectIdentityGenerator.createObjectIdentity(identifier,javaType);
 	}
 
 	@Override

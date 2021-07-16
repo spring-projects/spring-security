@@ -35,16 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.acls.TargetObject;
 import org.springframework.security.acls.TargetObjectWithUUID;
-import org.springframework.security.acls.domain.AclAuthorizationStrategy;
-import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.domain.ConsoleAuditLogger;
-import org.springframework.security.acls.domain.DefaultPermissionFactory;
-import org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy;
-import org.springframework.security.acls.domain.EhCacheBasedAclCache;
-import org.springframework.security.acls.domain.GrantedAuthoritySid;
-import org.springframework.security.acls.domain.ObjectIdentityImpl;
-import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.domain.*;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AuditableAccessControlEntry;
 import org.springframework.security.acls.model.MutableAcl;
@@ -110,7 +101,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 	@BeforeEach
 	public void initializeBeans() {
 		this.strategy = new BasicLookupStrategy(getDataSource(), aclCache(), aclAuthStrategy(),
-				new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()));
+				new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()), new ObjectIdentityRetrievalStrategyImpl());
 		this.strategy.setPermissionFactory(new DefaultPermissionFactory());
 	}
 
