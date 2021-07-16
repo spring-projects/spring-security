@@ -42,8 +42,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
-import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -454,7 +454,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		public OpaqueTokenConfigurer introspectionUri(String introspectionUri) {
 			Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 			this.introspectionUri = introspectionUri;
-			this.introspector = () -> new NimbusOpaqueTokenIntrospector(this.introspectionUri, this.clientId,
+			this.introspector = () -> new SpringOpaqueTokenIntrospector(this.introspectionUri, this.clientId,
 					this.clientSecret);
 			return this;
 		}
@@ -464,7 +464,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			Assert.notNull(clientSecret, "clientSecret cannot be null");
 			this.clientId = clientId;
 			this.clientSecret = clientSecret;
-			this.introspector = () -> new NimbusOpaqueTokenIntrospector(this.introspectionUri, this.clientId,
+			this.introspector = () -> new SpringOpaqueTokenIntrospector(this.introspectionUri, this.clientId,
 					this.clientSecret);
 			return this;
 		}
