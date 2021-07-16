@@ -221,6 +221,10 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				// Setup auto-redirect to provider login page
 				// when only 1 IDP is configured
 				this.updateAuthenticationDefaults();
+				Saml2LogoutConfigurer<B> logoutConfigurer = http.getConfigurer(Saml2LogoutConfigurer.class);
+				if (logoutConfigurer != null && !logoutConfigurer.isCustomLogoutSuccess()) {
+					logoutConfigurer.logoutSuccessUrl("/login?logout");
+				}
 				this.updateAccessDefaults(http);
 				String loginUrl = providerUrlMap.entrySet().iterator().next().getKey();
 				final LoginUrlAuthenticationEntryPoint entryPoint = new LoginUrlAuthenticationEntryPoint(loginUrl);

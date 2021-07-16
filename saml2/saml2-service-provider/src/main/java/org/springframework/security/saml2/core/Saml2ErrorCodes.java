@@ -38,9 +38,16 @@ public interface Saml2ErrorCodes {
 	String MALFORMED_RESPONSE_DATA = "malformed_response_data";
 
 	/**
+	 * Request is invalid in a general way.
+	 *
+	 * @since 5.6
+	 */
+	String INVALID_REQUEST = "invalid_request";
+
+	/**
 	 * Response is invalid in a general way.
 	 *
-	 * @since 5.5
+	 * @since 5.6
 	 */
 	String INVALID_RESPONSE = "invalid_response";
 
