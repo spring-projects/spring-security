@@ -16,11 +16,13 @@
 
 package org.springframework.security.config.web.servlet
 
+import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
+import javax.servlet.http.HttpServletRequest
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] form login using idiomatic Kotlin code.
@@ -46,6 +48,7 @@ class FormLoginDsl {
     var failureUrl: String? = null
     var loginProcessingUrl: String? = null
     var permitAll: Boolean? = null
+    var authenticationDetailsSource: AuthenticationDetailsSource<HttpServletRequest, *>? = null
 
     private var defaultSuccessUrlOption: Pair<String, Boolean>? = null
 
@@ -81,6 +84,7 @@ class FormLoginDsl {
             }
             authenticationSuccessHandler?.also { login.successHandler(authenticationSuccessHandler) }
             authenticationFailureHandler?.also { login.failureHandler(authenticationFailureHandler) }
+            authenticationDetailsSource?.also { login.authenticationDetailsSource(authenticationDetailsSource) }
         }
     }
 }

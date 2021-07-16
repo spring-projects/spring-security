@@ -16,10 +16,14 @@
 
 package org.springframework.security.config.web.servlet
 
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -36,6 +40,7 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.bind.annotation.GetMapping
+import javax.servlet.http.HttpServletRequest
 
 /**
  * Tests for [FormLoginDsl]
@@ -277,6 +282,42 @@ class FormLoginDslTests {
         class LoginController {
             @GetMapping("/custom/login")
             fun loginPage() {}
+        }
+    }
+
+    @Test
+    fun `form login when custom authentication details source then used`() {
+        this.spring
+            .register(CustomAuthenticationDetailsSourceConfig::class.java, UserConfig::class.java)
+            .autowire()
+        mockkObject(CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE)
+        every {
+            CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE.buildDetails(any())
+        } returns Any()
+
+        this.mockMvc.perform(formLogin())
+            .andExpect {
+                status().isFound
+                redirectedUrl("/")
+            }
+
+        verify(exactly = 1) { CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE.buildDetails(any()) }
+    }
+
+    @EnableWebSecurity
+    open class CustomAuthenticationDetailsSourceConfig : WebSecurityConfigurerAdapter() {
+
+        companion object {
+            val AUTHENTICATION_DETAILS_SOURCE: AuthenticationDetailsSource<HttpServletRequest, *> =
+                AuthenticationDetailsSource<HttpServletRequest, Any> { Any() }
+        }
+
+        override fun configure(http: HttpSecurity) {
+            http {
+                formLogin {
+                    authenticationDetailsSource = AUTHENTICATION_DETAILS_SOURCE
+                }
+            }
         }
     }
 
