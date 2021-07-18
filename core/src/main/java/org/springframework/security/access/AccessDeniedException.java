@@ -16,6 +16,10 @@
 
 package org.springframework.security.access;
 
+import java.util.Locale;
+
+import org.springframework.context.NoSuchMessageException;
+
 /**
  * Thrown if an {@link org.springframework.security.core.Authentication Authentication}
  * object does not hold a required authority.
@@ -40,6 +44,30 @@ public class AccessDeniedException extends RuntimeException {
 	 */
 	public AccessDeniedException(String msg, Throwable cause) {
 		super(msg, cause);
+	}
+
+	/**
+	 * Returns the localized description of this {@code AccessDeniedException}, by making
+	 * use of a {@link org.springframework.security.core.SpringSecurityMessageSource}
+	 * using the exception message as the key.
+	 * @return the localized description of this {@code AccessDeniedException}
+	 */
+	@Override
+	public String getLocalizedMessage() {
+		String message = this.getMessage();
+		String translatedMessage = null;
+		try {
+			translatedMessage = AccessDeniedMessageSourceHolder.getInstance().getMessage(message);
+		}
+		catch (NoSuchMessageException ignore) {
+
+		}
+
+		if (translatedMessage != null) {
+			return translatedMessage;
+		}
+
+		return AccessDeniedMessageSourceHolder.getInstance().getMessage(message, message, Locale.US);
 	}
 
 }
