@@ -125,7 +125,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 				"Filter target must be a collection, array, map, stream or optional type, but was " + filterTarget);
 	}
 
-	private <T> Object filterCollection(Collection<T> filterTarget, Expression filterExpression, EvaluationContext ctx,
+	private <T> Collection<T> filterCollection(final Collection<T> filterTarget, Expression filterExpression, EvaluationContext ctx,
 			MethodSecurityExpressionOperations rootObject) {
 		this.logger.debug(LogMessage.format("Filtering collection with %s elements", filterTarget.size()));
 		List<T> retain = new ArrayList<>(filterTarget.size());
@@ -144,7 +144,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 		return filterTarget;
 	}
 
-	private Object filterArray(Object[] filterTarget, Expression filterExpression, EvaluationContext ctx,
+	private Object[] filterArray(final Object[] filterTarget, Expression filterExpression, EvaluationContext ctx,
 			MethodSecurityExpressionOperations rootObject) {
 		List<Object> retain = new ArrayList<>(filterTarget.length);
 		this.logger.debug(LogMessage.format("Filtering array with %s elements", filterTarget.length));
@@ -166,7 +166,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 		return filtered;
 	}
 
-	private <K, V> Object filterMap(final Map<K, V> filterTarget, Expression filterExpression, EvaluationContext ctx,
+	private <K, V> Map<K, V> filterMap(final Map<K, V> filterTarget, Expression filterExpression, EvaluationContext ctx,
 			MethodSecurityExpressionOperations rootObject) {
 		Map<K, V> retain = new LinkedHashMap<>(filterTarget.size());
 		this.logger.debug(LogMessage.format("Filtering map with %s elements", filterTarget.size()));
@@ -182,16 +182,16 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 		return filterTarget;
 	}
 
-	private Object filterStream(final Stream<?> filterTarget, Expression filterExpression, EvaluationContext ctx,
+	private <T> Stream<T> filterStream(final Stream<T> filterTarget, Expression filterExpression, EvaluationContext ctx,
 			MethodSecurityExpressionOperations rootObject) {
-		return filterTarget.filter((filterObject) -> {
+		return filterTarget.filter(filterObject -> {
 			rootObject.setFilterObject(filterObject);
 			return ExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
 		}).onClose(filterTarget::close);
 	}
 
-	private Object filterOptional(final Optional<?> filterTarget, Expression filterExpression, EvaluationContext ctx,
-			MethodSecurityExpressionOperations rootObject) {
+	private <T> Optional<T> filterOptional(final Optional<T> filterTarget, Expression filterExpression,
+			EvaluationContext ctx, MethodSecurityExpressionOperations rootObject) {
 		return filterTarget.filter(filterObject -> {
 			rootObject.setFilterObject(filterObject);
 			return ExpressionUtils.evaluateAsBoolean(filterExpression, ctx);

@@ -46,7 +46,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class DefaultMethodSecurityExpressionHandlerTests {
+class DefaultMethodSecurityExpressionHandlerTests {
 
 	private DefaultMethodSecurityExpressionHandler handler;
 
@@ -75,12 +75,12 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 	}
 
 	@Test
-	public void setTrustResolverNull() {
+	void setTrustResolverNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setTrustResolver(null));
 	}
 
 	@Test
-	public void createEvaluationContextCustomTrustResolver() {
+	void createEvaluationContextCustomTrustResolver() {
 		setupMocks();
 		this.handler.setTrustResolver(this.trustResolver);
 		Expression expression = this.handler.getExpressionParser().parseExpression("anonymous");
@@ -91,7 +91,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void filterByKeyWhenUsingMapThenFiltersMap() {
+	void filterByKeyWhenUsingMapThenFiltersMap() {
 		setupMocks();
 		final Map<String, String> map = new HashMap<>();
 		map.put("key1", "value1");
@@ -100,16 +100,16 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		Expression expression = this.handler.getExpressionParser().parseExpression("filterObject.key eq 'key2'");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
 		Object filtered = this.handler.filter(map, expression, context);
-		assertThat(filtered == map);
+		assertThat(filtered).isSameAs(map);
 		Map<String, String> result = ((Map<String, String>) filtered);
-		assertThat(result.size() == 1);
-		assertThat(result).containsKey("key2");
-		assertThat(result).containsValue("value2");
+		assertThat(result).hasSize(1)
+				.containsOnlyKeys("key2")
+				.containsValue("value2");
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void filterByValueWhenUsingMapThenFiltersMap() {
+	void filterByValueWhenUsingMapThenFiltersMap() {
 		setupMocks();
 		final Map<String, String> map = new HashMap<>();
 		map.put("key1", "value1");
@@ -118,16 +118,16 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		Expression expression = this.handler.getExpressionParser().parseExpression("filterObject.value eq 'value3'");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
 		Object filtered = this.handler.filter(map, expression, context);
-		assertThat(filtered == map);
+		assertThat(filtered).isSameAs(map);
 		Map<String, String> result = ((Map<String, String>) filtered);
-		assertThat(result.size() == 1);
-		assertThat(result).containsKey("key3");
-		assertThat(result).containsValue("value3");
+		assertThat(result).hasSize(1)
+				.containsOnlyKeys("key3")
+				.containsValue("value3");
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void filterByKeyAndValueWhenUsingMapThenFiltersMap() {
+	void filterByKeyAndValueWhenUsingMapThenFiltersMap() {
 		setupMocks();
 		final Map<String, String> map = new HashMap<>();
 		map.put("key1", "value1");
@@ -137,16 +137,16 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 				.parseExpression("(filterObject.key eq 'key1') or (filterObject.value eq 'value2')");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
 		Object filtered = this.handler.filter(map, expression, context);
-		assertThat(filtered == map);
+		assertThat(filtered).isSameAs(map);
 		Map<String, String> result = ((Map<String, String>) filtered);
-		assertThat(result.size() == 2);
-		assertThat(result).containsKeys("key1", "key2");
-		assertThat(result).containsValues("value1", "value2");
+		assertThat(result).hasSize(2)
+				.containsOnlyKeys("key1", "key2")
+				.containsValues("value1", "value2");
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void filterWhenUsingStreamThenFiltersStream() {
+	void filterWhenUsingStreamThenFiltersStream() {
 		setupMocks();
 		final Stream<String> stream = Stream.of("1", "2", "3");
 		Expression expression = this.handler.getExpressionParser().parseExpression("filterObject ne '2'");
@@ -158,19 +158,19 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 	}
 
 	@Test
-	public void filterStreamWhenClosedThenUpstreamGetsClosed() {
+	void filterStreamWhenClosedThenUpstreamGetsClosed() {
 		setupMocks();
 		final Stream<?> upstream = mock(Stream.class);
 		doReturn(Stream.<String>empty()).when(upstream).filter(any());
 		Expression expression = this.handler.getExpressionParser().parseExpression("true");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
-		((Stream) this.handler.filter(upstream, expression, context)).close();
+		((Stream<?>) this.handler.filter(upstream, expression, context)).close();
 		verify(upstream).close();
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void filterMatchingOptional() {
+	void filterMatchingOptional() {
 		final Optional<String> optional = Optional.of("1");
 		Expression expression = this.handler.getExpressionParser().parseExpression("filterObject ne '2'");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
@@ -181,7 +181,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void filterNotMatchingOptional() {
+	void filterNotMatchingOptional() {
 		final Optional<String> optional = Optional.of("2");
 		Expression expression = this.handler.getExpressionParser().parseExpression("filterObject ne '2'");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
@@ -192,7 +192,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void filterEmptyOptional() {
+	void filterEmptyOptional() {
 		final Optional<String> optional = Optional.empty();
 		Expression expression = this.handler.getExpressionParser().parseExpression("filterObject ne '2'");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
