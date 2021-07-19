@@ -143,7 +143,7 @@ Generate the Release Notes replacing:
 * <next-version> - Replace with the milestone you are releasing now (i.e. 5.5.0-RC1)
 
 ----
-$ ./gradlew generateChangelog -P<next-version>
+$ ./gradlew generateChangelog -PnextVersion=<next-version>
 ----
 
 * Copy the release notes to your clipboard (your mileage may vary with
