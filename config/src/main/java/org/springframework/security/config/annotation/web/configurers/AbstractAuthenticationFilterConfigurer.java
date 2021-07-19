@@ -59,6 +59,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * @see FormLoginConfigurer
  * @see OpenIDLoginConfigurer
  */
+@SuppressWarnings("deprecation")
 public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecurityBuilder<B>, T extends AbstractAuthenticationFilterConfigurer<B, T, F>, F extends AbstractAuthenticationProcessingFilter>
 		extends AbstractHttpConfigurer<T, B> {
 
@@ -104,6 +105,15 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		if (defaultLoginProcessingUrl != null) {
 			loginProcessingUrl(defaultLoginProcessingUrl);
 		}
+	}
+
+	/**
+	 * Sets the customized Authentication Filter if needed
+	 * @param authenticationFilter the Authentication Filter
+	 */
+	public T authenticationFilter(F authenticationFilter) {
+		setAuthenticationFilter(authenticationFilter);
+		return getSelf();
 	}
 
 	/**
@@ -233,7 +243,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		registerDefaultAuthenticationEntryPoint(http);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected final void registerDefaultAuthenticationEntryPoint(B http) {
 		registerAuthenticationEntryPoint(http, this.authenticationEntryPoint);
 	}
@@ -371,6 +380,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * Updates the default values for authentication.
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	protected final void updateAuthenticationDefaults() {
 		if (this.loginProcessingUrl == null) {
 			loginProcessingUrl(this.loginPage);

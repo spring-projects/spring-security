@@ -16,11 +16,16 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,6 +35,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders;
 import org.springframework.security.web.PortMapper;
@@ -351,6 +358,19 @@ public class FormLoginConfigurerTests {
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ExceptionTranslationFilter.class));
 	}
 
+	@Test
+	public void loginWhenCustomizedAuthenticationFilterConfigured() throws Exception {
+		this.spring.register(FormLoginWithCustomizedAuthenticationFilterConfig.class).autowire();
+		// @formatter:off
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder loginRequest = formLogin()
+				.user("username", "anyuser")
+				.password("password", "anypassword");
+		this.mockMvc.perform(loginRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/"));
+		// @formatter:on
+	}
+
 	@EnableWebSecurity
 	static class RequestCacheConfig extends WebSecurityConfigurerAdapter {
 
@@ -591,6 +611,7 @@ public class FormLoginConfigurerTests {
 				.portMapper()
 					.portMapper(PORT_MAPPER);
 			// @formatter:on
+			@SuppressWarnings("unchecked")
 			LoginUrlAuthenticationEntryPoint authenticationEntryPoint = (LoginUrlAuthenticationEntryPoint) http
 					.getConfigurer(FormLoginConfigurer.class).getAuthenticationEntryPoint();
 			authenticationEntryPoint.setForceHttps(true);
@@ -700,6 +721,44 @@ public class FormLoginConfigurerTests {
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class FormLoginWithCustomizedAuthenticationFilterConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.formLogin()
+					.authenticationFilter(new AlwaysSuccessAuthenticationFilter(authenticationManager()))
+					.loginPage("/login");
+			// @formatter:on
+		}
+
+	}
+
+	static class AlwaysSuccessAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
+		AlwaysSuccessAuthenticationFilter(AuthenticationManager authenticationManager) {
+			super(authenticationManager);
+		}
+
+		@Override
+		public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+				throws AuthenticationException {
+			try {
+				return super.attemptAuthentication(request, response);
+			}
+			catch (AuthenticationException ex) {
+				return new UsernamePasswordAuthenticationToken(super.obtainUsername(request),
+						super.obtainPassword(request));
+			}
 		}
 
 	}
