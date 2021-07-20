@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client.endpoint;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collections;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -210,6 +212,66 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		MockResponse response = new MockResponse().setBody(body).setHeader(HttpHeaders.CONTENT_TYPE,
 				MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(response);
+	}
+
+	@Test
+	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.client.setHeadersConverter(null))
+				.withMessage("headersConverter cannot be null");
+	}
+
+	@Test
+	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.client.addHeadersConverter(null))
+				.withMessage("headersConverter cannot be null");
+	}
+
+	@Test
+	public void convertWhenHeadersConverterAddedThenCalled() throws Exception {
+		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration.build());
+		Converter<OAuth2ClientCredentialsGrantRequest, HttpHeaders> addedHeadersConverter = mock(Converter.class);
+		final HttpHeaders headers = new HttpHeaders();
+		headers.put("CUSTOM_AUTHORIZATION", Collections.singletonList("Basic CUSTOM"));
+		given(addedHeadersConverter.convert(request)).willReturn(headers);
+		this.client.addHeadersConverter(addedHeadersConverter);
+		// @formatter:off
+		enqueueJson("{\n"
+				+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
+				+ "  \"token_type\":\"bearer\",\n"
+				+ "  \"expires_in\":3600,\n"
+				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n"
+				+ "}");
+		// @formatter:on
+		this.client.getTokenResponse(request).block();
+		verify(addedHeadersConverter).convert(request);
+		RecordedRequest actualRequest = this.server.takeRequest();
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
+				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+		assertThat(actualRequest.getHeader("CUSTOM_AUTHORIZATION")).isEqualTo("Basic CUSTOM");
+	}
+
+	@Test
+	public void convertWhenHeadersConverterSetThenCalled() throws Exception {
+		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration.build());
+		Converter<OAuth2ClientCredentialsGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
+		final HttpHeaders headers = new HttpHeaders();
+		headers.put(HttpHeaders.AUTHORIZATION, Collections.singletonList("Basic CUSTOM"));
+		given(headersConverter.convert(request)).willReturn(headers);
+		this.client.setHeadersConverter(headersConverter);
+		// @formatter:off
+		enqueueJson("{\n"
+				+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
+				+ "  \"token_type\":\"bearer\",\n"
+				+ "  \"expires_in\":3600,\n"
+				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n"
+				+ "}");
+		// @formatter:on
+		this.client.getTokenResponse(request).block();
+		verify(headersConverter).convert(request);
+		RecordedRequest actualRequest = this.server.takeRequest();
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic CUSTOM");
 	}
 
 }

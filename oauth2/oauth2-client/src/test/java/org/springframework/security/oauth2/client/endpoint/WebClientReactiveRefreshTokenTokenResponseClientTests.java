@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -42,6 +43,9 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link WebClientReactiveRefreshTokenTokenResponseClient}.
@@ -215,6 +219,68 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.setBody(json);
 		// @formatter:on
+	}
+
+	@Test
+	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setHeadersConverter(null))
+				.withMessage("headersConverter cannot be null");
+	}
+
+	@Test
+	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.addHeadersConverter(null))
+				.withMessage("headersConverter cannot be null");
+	}
+
+	@Test
+	public void convertWhenHeadersConverterAddedThenCalled() throws Exception {
+		OAuth2RefreshTokenGrantRequest request = new OAuth2RefreshTokenGrantRequest(
+				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken);
+		Converter<OAuth2RefreshTokenGrantRequest, HttpHeaders> addedHeadersConverter = mock(Converter.class);
+		final HttpHeaders headers = new HttpHeaders();
+		headers.put("CUSTOM_AUTHORIZATION", Collections.singletonList("Basic CUSTOM"));
+		given(addedHeadersConverter.convert(request)).willReturn(headers);
+		this.tokenResponseClient.addHeadersConverter(addedHeadersConverter);
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+				+ "   \"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n"
+				+ "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"read\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.tokenResponseClient.getTokenResponse(request).block();
+		verify(addedHeadersConverter).convert(request);
+		RecordedRequest actualRequest = this.server.takeRequest();
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
+				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+		assertThat(actualRequest.getHeader("CUSTOM_AUTHORIZATION")).isEqualTo("Basic CUSTOM");
+	}
+
+	@Test
+	public void convertWhenHeadersConverterSetThenCalled() throws Exception {
+		OAuth2RefreshTokenGrantRequest request = new OAuth2RefreshTokenGrantRequest(
+				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken);
+		Converter<OAuth2RefreshTokenGrantRequest, HttpHeaders> headersConverter1 = mock(Converter.class);
+		final HttpHeaders headers = new HttpHeaders();
+		headers.put(HttpHeaders.AUTHORIZATION, Collections.singletonList("Basic CUSTOM"));
+		given(headersConverter1.convert(request)).willReturn(headers);
+		this.tokenResponseClient.setHeadersConverter(headersConverter1);
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+				+ "   \"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n"
+				+ "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"read\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.tokenResponseClient.getTokenResponse(request).block();
+		verify(headersConverter1).convert(request);
+		RecordedRequest actualRequest = this.server.takeRequest();
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic CUSTOM");
 	}
 
 }
