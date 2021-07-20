@@ -136,8 +136,9 @@ public interface ClaimAccessor {
 	 * Returns the claim value as a {@code Map<String, Object>} or {@code null} if it does
 	 * not exist or cannot be assigned to a {@code Map}.
 	 * @param claim the name of the claim
-	 * @return the claim value or {@code null} if it does not exist or cannot be assigned
-	 * to a {@code Map}
+	 * @return the claim value or {@code null} if it does not exist
+	 * @throws IllegalArgumentException If the claim exists, but cannot be converted to a
+	 * {@code Map}
 	 */
 	@SuppressWarnings("unchecked")
 	default Map<String, Object> getClaimAsMap(String claim) {
@@ -159,8 +160,9 @@ public interface ClaimAccessor {
 	 * Returns the claim value as a {@code List<String>} or {@code null} if it does not
 	 * exist or cannot be assigned to a {@code List}.
 	 * @param claim the name of the claim
-	 * @return the claim value or {@code null} if it does not exist or cannot be assigned
-	 * to a {@code List}
+	 * @return the claim value or {@code null} if it does not exist
+	 * @throws IllegalArgumentException If the claim exists, but cannot be converted to a
+	 * {@code List}
 	 */
 	@SuppressWarnings("unchecked")
 	default List<String> getClaimAsStringList(String claim) {
