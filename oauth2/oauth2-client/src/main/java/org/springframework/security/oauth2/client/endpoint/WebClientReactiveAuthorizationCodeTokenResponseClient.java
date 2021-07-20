@@ -15,12 +15,6 @@
  */
 package org.springframework.security.oauth2.client.endpoint;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
-import reactor.core.publisher.Mono;
-
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -30,9 +24,10 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExch
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
-import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.util.Assert;
+import reactor.core.publisher.Mono;
 
 import static org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors.oauth2AccessTokenResponse;
 
@@ -79,9 +74,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClient implements Re
 					.accept(MediaType.APPLICATION_JSON)
 					.headers(headers -> {
 						if (ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
-							String clientId = encodeClientCredential(clientRegistration.getClientId());
-							String clientSecret = encodeClientCredential(clientRegistration.getClientSecret());
-							headers.setBasicAuth(clientId, clientSecret);
+							headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
 						}
 					})
 					.body(body)
@@ -96,16 +89,6 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClient implements Re
 						return response;
 					});
 		});
-	}
-
-	private static String encodeClientCredential(String clientCredential) {
-		try {
-			return URLEncoder.encode(clientCredential, StandardCharsets.UTF_8.toString());
-		}
-		catch (UnsupportedEncodingException ex) {
-			// Will not happen since UTF-8 is a standard charset
-			throw new IllegalArgumentException(ex);
-		}
 	}
 
 	private static BodyInserters.FormInserter<String> body(OAuth2AuthorizationExchange authorizationExchange, ClientRegistration clientRegistration) {
