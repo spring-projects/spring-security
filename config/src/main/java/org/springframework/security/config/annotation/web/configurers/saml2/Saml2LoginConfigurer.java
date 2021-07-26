@@ -260,8 +260,17 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		return this.authenticationConverter;
 	}
 
+	private String version() {
+		String version = Version.getVersion();
+		if (version != null) {
+			return version;
+		}
+		return Version.class.getModule().getDescriptor().version().map(Object::toString)
+				.orElseThrow(() -> new IllegalStateException("cannot determine OpenSAML version"));
+	}
+
 	private void registerDefaultAuthenticationProvider(B http) {
-		if (Version.getVersion().startsWith("4")) {
+		if (version().startsWith("4")) {
 			http.authenticationProvider(postProcess(new OpenSaml4AuthenticationProvider()));
 		}
 		else {
@@ -346,7 +355,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		private Saml2AuthenticationRequestFactory getResolver(B http) {
 			Saml2AuthenticationRequestFactory resolver = getSharedOrBean(http, Saml2AuthenticationRequestFactory.class);
 			if (resolver == null) {
-				if (Version.getVersion().startsWith("4")) {
+				if (version().startsWith("4")) {
 					return new OpenSaml4AuthenticationRequestFactory();
 				}
 				return new OpenSamlAuthenticationRequestFactory();
