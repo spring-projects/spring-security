@@ -865,6 +865,37 @@ For example, if you were deployed to `https://rp.example.com` and you gave your 
 
 and the result would be a redirect that included a `SAMLRequest` parameter containing the signed, deflated, and encoded `<saml2:AuthnRequest>`.
 
+[[servlet-saml2login-store-authn-request]]
+==== Changing How the `<saml2:AuthnRequest>` Gets Stored
+
+`Saml2WebSsoAuthenticationRequestFilter` uses an `Saml2AuthenticationRequestRepository` to persist an `AbstractSaml2AuthenticationRequest` instance before <<servlet-saml2login-sp-initiated-factory,sending the `<saml2:AuthnRequest>`>> to the asserting party.
+
+Additionally, `Saml2WebSsoAuthenticationFilter` and `Saml2AuthenticationTokenConverter` use an `Saml2AuthenticationRequestRepository` to load any `AbstractSaml2AuthenticationRequest` as part of <<servlet-saml2login-authenticate-responses,authenticating the `<saml2:Response>`>>.
+
+By default, Spring Security uses an `HttpSessionSaml2AuthenticationRequestRepository`, which stores the `AbstractSaml2AuthenticationRequest` in the `HttpSession`.
+
+If you have a custom implementation of `Saml2AuthenticationRequestRepository`, you may configure it by exposing it as a `@Bean` as shown in the following example:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository() {
+	return new CustomSaml2AuthenticationRequestRepository();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun authenticationRequestRepository(): Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> {
+    return CustomSaml2AuthenticationRequestRepository()
+}
+----
+====
+
 [[servlet-saml2login-sp-initiated-factory-signing]]
 ==== Changing How the `<saml2:AuthnRequest>` Gets Sent
 
@@ -1610,33 +1641,3 @@ http {
 The success handler will send logout requests to the asserting party.
 
 The request matcher will detect logout requests from the asserting party.
-
-[[servlet-saml2login-store-authn-request]]
-=== Storing the `AuthnRequest`
-
-The `Saml2AuthenticationRequestRepository` is responsible for the persistence of the `AuthnRequest` from the time the `AuthnRequest` <<servlet-saml2login-sp-initiated-factory,is initiated>> to the time the `SAMLResponse` <<servlet-saml2login-authenticate-responses,is received>>.
-The `Saml2AuthenticationTokenConverter` is responsible for loading the `AuthnRequest` from the `Saml2AuthenticationRequestRepository` and saving it into the `Saml2AuthenticationToken`.
-
-The default implementation of `Saml2AuthenticationRequestRepository` is `HttpSessionSaml2AuthenticationRequestRepository`, which stores the `AuthnRequest` in the `HttpSession`.
-
-If you have a custom implementation of `Saml2AuthenticationRequestRepository`, you may configure it by exposing it as a `@Bean` as shown in the following example:
-
-====
-.Java
-[source,java,role="primary"]
-----
-@Bean
-Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository() {
-	return new CustomSaml2AuthenticationRequestRepository();
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@Bean
-open fun authenticationRequestRepository(): Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> {
-    return CustomSaml2AuthenticationRequestRepository()
-}
-----
-====

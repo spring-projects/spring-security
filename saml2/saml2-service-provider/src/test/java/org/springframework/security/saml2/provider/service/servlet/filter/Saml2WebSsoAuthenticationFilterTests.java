@@ -114,17 +114,16 @@ public class Saml2WebSsoAuthenticationFilterTests {
 
 	@Test
 	public void setAuthenticationRequestRepositoryWhenExpectedAuthenticationConverterTypeThenSetLoaderIntoConverter() {
-		Saml2AuthenticationTokenConverter authenticationConverterMock = mock(Saml2AuthenticationTokenConverter.class);
+		Saml2AuthenticationTokenConverter authenticationConverter = mock(Saml2AuthenticationTokenConverter.class);
 		Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository = mock(
 				Saml2AuthenticationRequestRepository.class);
-		this.filter = new Saml2WebSsoAuthenticationFilter(authenticationConverterMock,
-				"/some/other/path/{registrationId}");
+		this.filter = new Saml2WebSsoAuthenticationFilter(authenticationConverter, "/some/other/path/{registrationId}");
 		this.filter.setAuthenticationRequestRepository(authenticationRequestRepository);
-		verify(authenticationConverterMock).setAuthenticationRequestRepository(authenticationRequestRepository);
+		verify(authenticationConverter).setAuthenticationRequestRepository(authenticationRequestRepository);
 	}
 
 	@Test
-	public void setAuthenticationRequestRepositoryWhenNotExpectedAuthenticationConverterTypeThenDontSet() {
+	public void setAuthenticationRequestRepositoryWhenNotExpectedAuthenticationConverterTypeThenDoNotSet() {
 		AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
 		Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository = mock(
 				Saml2AuthenticationRequestRepository.class);
