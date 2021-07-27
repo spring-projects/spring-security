@@ -142,11 +142,6 @@ public class Saml2AuthenticationTokenConverterTests {
 	}
 
 	@Test
-	public void constructorWhenResolverIsNullThenIllegalArgument() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new Saml2AuthenticationTokenConverter(null));
-	}
-
-	@Test
 	public void convertWhenUsingSamlUtilsBase64ThenXmlIsValid() throws Exception {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
@@ -177,6 +172,19 @@ public class Saml2AuthenticationTokenConverterTests {
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
 				.isEqualTo(this.relyingPartyRegistration.getRegistrationId());
 		assertThat(token.getAuthenticationRequest()).isEqualTo(authenticationRequest);
+	}
+
+	@Test
+	public void constructorWhenResolverIsNullThenIllegalArgument() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new Saml2AuthenticationTokenConverter(null));
+	}
+
+	@Test
+	public void setAuthenticationRequestRepositoryWhenNullThenIllegalArgument() {
+		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
+				this.relyingPartyRegistrationResolver);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> converter.setAuthenticationRequestRepository(null));
 	}
 
 	private void validateSsoCircleXml(String xml) {
