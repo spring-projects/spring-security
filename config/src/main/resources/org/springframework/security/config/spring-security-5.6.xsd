@@ -1066,7 +1066,7 @@
                   <xs:attributeGroup ref="security:logout.attlist"/>
                </xs:complexType>
             </xs:element>
-			<xs:element ref="security:password-management"/>
+            <xs:element ref="security:password-management"/>
             <xs:element name="session-management">
                <xs:annotation>
                   <xs:documentation>Session-management related functionality is implemented by the addition of a
@@ -2161,16 +2161,15 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
   <xs:element name="password-management">
-	  <xs:annotation>
-		 <xs:documentation>Adds support for the password management.
-		 		</xs:documentation>
-	  </xs:annotation>
-	  <xs:complexType>
-		 <xs:attributeGroup ref="security:password-management.attlist"/>
-	  </xs:complexType>
-  </xs:element>
+      <xs:annotation>
+         <xs:documentation>Adds support for the password management.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:password-management.attlist"/>
+      </xs:complexType>
+   </xs:element>
   <xs:attributeGroup name="password-management.attlist">
       <xs:attribute name="change-password-page" type="xs:string">
          <xs:annotation>
@@ -2179,6 +2178,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
+  
   <xs:attributeGroup name="session-management.attlist">
       <xs:attribute name="session-fixation-protection">
          <xs:annotation>
