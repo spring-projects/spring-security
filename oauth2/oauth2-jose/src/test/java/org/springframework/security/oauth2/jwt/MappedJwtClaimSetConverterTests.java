@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,11 +140,19 @@ public class MappedJwtClaimSetConverterTests {
 		assertThat(target.get(JwtClaimNames.SUB)).isEqualTo("1234");
 	}
 
+	// gh-10135
 	@Test
 	public void convertWhenConverterReturnsNullThenClaimIsRemoved() {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
-				.withDefaults(Collections.emptyMap());
+				.withDefaults(Collections.singletonMap(JwtClaimNames.NBF, (nbfClaimValue) -> null));
+		Map<String, Object> source = Collections.singletonMap(JwtClaimNames.NBF, Instant.now());
+		Map<String, Object> target = converter.convert(source);
+		assertThat(target).doesNotContainKey(JwtClaimNames.NBF);
+	}
 
+	@Test
+	public void convertWhenClaimValueIsNullThenClaimIsRemoved() {
+		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
 		Map<String, Object> source = Collections.singletonMap(JwtClaimNames.ISS, null);
 		Map<String, Object> target = converter.convert(source);
 
