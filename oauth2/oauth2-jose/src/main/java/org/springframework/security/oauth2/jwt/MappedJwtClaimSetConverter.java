@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,18 +52,19 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 
 	private final Map<String, Converter<Object, ?>> claimTypeConverters;
 
-	private final Converter<Map<String, Object>, Map<String, Object>> delegate;
-
 	/**
 	 * Constructs a {@link MappedJwtClaimSetConverter} with the provided arguments
 	 *
 	 * This will completely replace any set of default converters.
+	 *
+	 * A converter that returns {@code null} removes the claim from the claim set. A
+	 * converter that returns a non-{@code null} value adds or replaces that claim in the
+	 * claim set.
 	 * @param claimTypeConverters The {@link Map} of converters to use
 	 */
 	public MappedJwtClaimSetConverter(Map<String, Converter<Object, ?>> claimTypeConverters) {
 		Assert.notNull(claimTypeConverters, "claimTypeConverters cannot be null");
 		this.claimTypeConverters = claimTypeConverters;
-		this.delegate = new ClaimTypeConverter(claimTypeConverters);
 	}
 
 	/**
@@ -87,6 +88,10 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 	 *
 	 * To completely replace the underlying {@link Map} of converters, see
 	 * {@link MappedJwtClaimSetConverter#MappedJwtClaimSetConverter(Map)}.
+	 *
+	 * A converter that returns {@code null} removes the claim from the claim set. A
+	 * converter that returns a non-{@code null} value adds or replaces that claim in the
+	 * claim set.
 	 * @param claimTypeConverters
 	 * @return An instance of {@link MappedJwtClaimSetConverter} that contains the
 	 * converters provided, plus any defaults that were not overridden.
@@ -143,35 +148,22 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 	@Override
 	public Map<String, Object> convert(Map<String, Object> claims) {
 		Assert.notNull(claims, "claims cannot be null");
-		Map<String, Object> mappedClaims = this.delegate.convert(claims);
-		mappedClaims = removeClaims(mappedClaims);
-		mappedClaims = addClaims(mappedClaims);
+		Map<String, Object> mappedClaims = new HashMap<>(claims);
+		for (Map.Entry<String, Converter<Object, ?>> entry : this.claimTypeConverters.entrySet()) {
+			String claimName = entry.getKey();
+			Converter<Object, ?> converter = entry.getValue();
+			if (converter != null) {
+				Object claim = claims.get(claimName);
+				Object mappedClaim = converter.convert(claim);
+				mappedClaims.compute(claimName, (key, value) -> mappedClaim);
+			}
+		}
 		Instant issuedAt = (Instant) mappedClaims.get(JwtClaimNames.IAT);
 		Instant expiresAt = (Instant) mappedClaims.get(JwtClaimNames.EXP);
 		if (issuedAt == null && expiresAt != null) {
 			mappedClaims.put(JwtClaimNames.IAT, expiresAt.minusSeconds(1));
 		}
 		return mappedClaims;
-	}
-
-	private Map<String, Object> removeClaims(Map<String, Object> claims) {
-		Map<String, Object> result = new HashMap<>();
-		for (Map.Entry<String, Object> entry : claims.entrySet()) {
-			if (entry.getValue() != null) {
-				result.put(entry.getKey(), entry.getValue());
-			}
-		}
-		return result;
-	}
-
-	private Map<String, Object> addClaims(Map<String, Object> claims) {
-		Map<String, Object> result = new HashMap<>(claims);
-		for (Map.Entry<String, Converter<Object, ?>> entry : this.claimTypeConverters.entrySet()) {
-			if (!claims.containsKey(entry.getKey()) && entry.getValue().convert(null) != null) {
-				result.put(entry.getKey(), entry.getValue().convert(null));
-			}
-		}
-		return result;
 	}
 
 }
