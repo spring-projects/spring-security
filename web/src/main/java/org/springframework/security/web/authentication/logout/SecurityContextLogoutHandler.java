@@ -70,9 +70,12 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 		}
 		if (this.clearAuthentication) {
 			SecurityContext context = SecurityContextHolder.getContext();
+			SecurityContextHolder.clearContext();
 			context.setAuthentication(null);
 		}
-		SecurityContextHolder.clearContext();
+		else {
+			SecurityContextHolder.clearContext();
+		}
 	}
 
 	public boolean isInvalidateHttpSession() {

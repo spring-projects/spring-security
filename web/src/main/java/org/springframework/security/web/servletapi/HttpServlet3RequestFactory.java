@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -225,7 +225,9 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 				return;
 			}
 			Authentication authentication = getAuthentication(authManager, username, password);
-			SecurityContextHolder.getContext().setAuthentication(authentication);
+			SecurityContext context = SecurityContextHolder.createEmptyContext();
+			context.setAuthentication(authentication);
+			SecurityContextHolder.setContext(context);
 		}
 
 		private Authentication getAuthentication(AuthenticationManager authManager, String username, String password)

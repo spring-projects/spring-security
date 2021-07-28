@@ -27,6 +27,7 @@ import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -97,7 +98,9 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 		if (this.principal != null) {
 			Authentication request = createAuthenticationRequest(this.principal, this.credentials);
 			request.setAuthenticated(false);
-			SecurityContextHolder.getContext().setAuthentication(request);
+			SecurityContext context = SecurityContextHolder.createEmptyContext();
+			context.setAuthentication(request);
+			SecurityContextHolder.setContext(context);
 			logger.debug(LogMessage.format("Set SecurityContextHolder to contain: %s", request));
 		}
 		try {

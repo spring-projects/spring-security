@@ -32,6 +32,7 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -87,7 +88,10 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
-			SecurityContextHolder.getContext().setAuthentication(createAuthentication((HttpServletRequest) req));
+			Authentication authentication = createAuthentication((HttpServletRequest) req);
+			SecurityContext context = SecurityContextHolder.createEmptyContext();
+			context.setAuthentication(authentication);
+			SecurityContextHolder.setContext(context);
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace(LogMessage.of(() -> "Set SecurityContextHolder to "
 						+ SecurityContextHolder.getContext().getAuthentication()));

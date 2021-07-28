@@ -32,6 +32,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
@@ -107,7 +108,9 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 			try {
 				rememberMeAuth = this.authenticationManager.authenticate(rememberMeAuth);
 				// Store to SecurityContextHolder
-				SecurityContextHolder.getContext().setAuthentication(rememberMeAuth);
+				SecurityContext context = SecurityContextHolder.createEmptyContext();
+				context.setAuthentication(rememberMeAuth);
+				SecurityContextHolder.setContext(context);
 				onSuccessfulAuthentication(request, response, rememberMeAuth);
 				this.logger.debug(LogMessage.of(() -> "SecurityContextHolder populated with remember-me token: '"
 						+ SecurityContextHolder.getContext().getAuthentication() + "'"));

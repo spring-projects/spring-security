@@ -217,8 +217,9 @@ public abstract class AbstractSecurityInterceptor
 		Authentication runAs = this.runAsManager.buildRunAs(authenticated, object, attributes);
 		if (runAs != null) {
 			SecurityContext origCtx = SecurityContextHolder.getContext();
-			SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
-			SecurityContextHolder.getContext().setAuthentication(runAs);
+			SecurityContext newCtx = SecurityContextHolder.createEmptyContext();
+			newCtx.setAuthentication(runAs);
+			SecurityContextHolder.setContext(newCtx);
 
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug(LogMessage.format("Switched to RunAs authentication %s", runAs));
@@ -316,7 +317,9 @@ public abstract class AbstractSecurityInterceptor
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(LogMessage.format("Re-authenticated %s before authorizing", authentication));
 		}
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		context.setAuthentication(authentication);
+		SecurityContextHolder.setContext(context);
 		return authentication;
 	}
 
