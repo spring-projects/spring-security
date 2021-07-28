@@ -210,7 +210,8 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 
 	private void fail(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed)
 			throws IOException, ServletException {
-		SecurityContextHolder.getContext().setAuthentication(null);
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		SecurityContextHolder.setContext(context);
 		logger.debug(failed);
 		this.authenticationEntryPoint.commence(request, response, failed);
 	}

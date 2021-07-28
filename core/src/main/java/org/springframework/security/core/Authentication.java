@@ -36,7 +36,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * the code:
  *
  * <pre>
- * SecurityContextHolder.getContext().setAuthentication(anAuthentication);
+ * SecurityContext context = SecurityContextHolder.createEmptyContext();
+ * context.setAuthentication(anAuthentication);
+ * SecurityContextHolder.setContext(context);
  * </pre>
  *
  * Note that unless the <tt>Authentication</tt> has the <tt>authenticated</tt> property

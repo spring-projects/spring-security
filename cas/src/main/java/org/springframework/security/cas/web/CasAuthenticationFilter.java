@@ -37,6 +37,7 @@ import org.springframework.security.cas.web.authentication.ServiceAuthentication
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -219,7 +220,9 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		}
 		this.logger.debug(
 				LogMessage.format("Authentication success. Updating SecurityContextHolder to contain: %s", authResult));
-		SecurityContextHolder.getContext().setAuthentication(authResult);
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		context.setAuthentication(authResult);
+		SecurityContextHolder.setContext(context);
 		if (this.eventPublisher != null) {
 			this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
 		}

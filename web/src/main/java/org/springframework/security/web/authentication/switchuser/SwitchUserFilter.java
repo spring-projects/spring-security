@@ -47,6 +47,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
@@ -174,7 +175,9 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 			try {
 				Authentication targetUser = attemptSwitchUser(request);
 				// update the current context to the new target user
-				SecurityContextHolder.getContext().setAuthentication(targetUser);
+				SecurityContext context = SecurityContextHolder.createEmptyContext();
+				context.setAuthentication(targetUser);
+				SecurityContextHolder.setContext(context);
 				// redirect to target url
 				this.successHandler.onAuthenticationSuccess(request, response, targetUser);
 			}
@@ -188,7 +191,9 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 			// get the original authentication object (if exists)
 			Authentication originalUser = attemptExitUser(request);
 			// update the current context back to the original user
-			SecurityContextHolder.getContext().setAuthentication(originalUser);
+			SecurityContext context = SecurityContextHolder.createEmptyContext();
+			context.setAuthentication(originalUser);
+			SecurityContextHolder.setContext(context);
 			// redirect to target url
 			this.successHandler.onAuthenticationSuccess(request, response, originalUser);
 			return;
