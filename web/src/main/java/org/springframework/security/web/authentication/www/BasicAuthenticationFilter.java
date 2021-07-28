@@ -31,6 +31,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.NullRememberMeServices;
@@ -153,7 +154,9 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			this.logger.trace(LogMessage.format("Found username '%s' in Basic Authorization header", username));
 			if (authenticationIsRequired(username)) {
 				Authentication authResult = this.authenticationManager.authenticate(authRequest);
-				SecurityContextHolder.getContext().setAuthentication(authResult);
+				SecurityContext context = SecurityContextHolder.createEmptyContext();
+				context.setAuthentication(authResult);
+				SecurityContextHolder.setContext(context);
 				if (this.logger.isDebugEnabled()) {
 					this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
 				}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserCache;
@@ -277,7 +278,10 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		}
 		this.logger.debug("Changing password for user '" + username + "'");
 		getJdbcTemplate().update(this.changePasswordSql, newPassword, username);
-		SecurityContextHolder.getContext().setAuthentication(createNewAuthentication(currentUser, newPassword));
+		Authentication authentication = createNewAuthentication(currentUser, newPassword);
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		context.setAuthentication(authentication);
+		SecurityContextHolder.setContext(context);
 		this.userCache.removeUserFromCache(username);
 	}
 
