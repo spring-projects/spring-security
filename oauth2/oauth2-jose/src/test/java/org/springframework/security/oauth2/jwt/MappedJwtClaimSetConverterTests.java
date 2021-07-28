@@ -123,6 +123,7 @@ public class MappedJwtClaimSetConverterTests {
 		assertThat(target.get(JwtClaimNames.SUB)).isEqualTo("1234");
 	}
 
+	// gh-10135
 	@Test
 	public void convertWhenConverterReturnsNullThenClaimIsRemoved() {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
