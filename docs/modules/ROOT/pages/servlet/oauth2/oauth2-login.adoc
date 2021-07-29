@@ -1,5 +1,5 @@
 [[oauth2login]]
-== OAuth 2.0 Login
+= OAuth 2.0 Login
 
 The OAuth 2.0 Login feature provides an application with the capability to have users log in to the application by using their existing account at an OAuth 2.0 Provider (e.g. GitHub) or OpenID Connect 1.0 Provider (such as Google).
 OAuth 2.0 Login implements the use cases: "Login with Google" or "Login with GitHub".
@@ -8,7 +8,7 @@ NOTE: OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as
 
 
 [[oauth2login-sample-boot]]
-=== Spring Boot 2.x Sample
+== Spring Boot 2.x Sample
 
 Spring Boot 2.x brings full auto-configuration capabilities for OAuth 2.0 Login.
 
@@ -21,7 +21,7 @@ This section shows how to configure the {gh-samples-url}/servlet/spring-boot/jav
 
 
 [[oauth2login-sample-initial-setup]]
-==== Initial setup
+=== Initial setup
 
 To use Google's OAuth 2.0 authentication system for login, you must set up a project in the Google API Console to obtain OAuth 2.0 credentials.
 
@@ -33,7 +33,7 @@ After completing the "Obtain OAuth 2.0 credentials" instructions, you should hav
 
 
 [[oauth2login-sample-redirect-uri]]
-==== Setting the redirect URI
+=== Setting the redirect URI
 
 The redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with Google and have granted access to the OAuth Client _(<<oauth2login-sample-initial-setup,created in the previous step>>)_ on the Consent page.
 
@@ -47,7 +47,7 @@ Also, see the supported <<oauth2Client-auth-code-redirect-uri, `URI` template va
 
 
 [[oauth2login-sample-application-config]]
-==== Configure application.yml
+=== Configure application.yml
 
 Now that you have a new OAuth Client with Google, you need to configure the application to use the OAuth Client for the _authentication flow_.
 To do so:
@@ -76,7 +76,7 @@ spring:
 
 
 [[oauth2login-sample-boot-application]]
-==== Boot up the application
+=== Boot up the application
 
 Launch the Spring Boot 2.x sample and go to `http://localhost:8080`.
 You are then redirected to the default _auto-generated_ login page, which displays a link for Google.
@@ -91,7 +91,7 @@ At this point, the OAuth Client retrieves your email address and basic profile i
 
 
 [[oauth2login-boot-property-mappings]]
-=== Spring Boot 2.x Property Mappings
+== Spring Boot 2.x Property Mappings
 
 The following table outlines the mapping of the Spring Boot 2.x OAuth Client properties to the <<oauth2Client-client-registration,ClientRegistration>> properties.
 
@@ -149,7 +149,7 @@ A `ClientRegistration` can be initially configured using discovery of an OpenID 
 
 
 [[oauth2login-common-oauth2-provider]]
-=== CommonOAuth2Provider
+== CommonOAuth2Provider
 
 `CommonOAuth2Provider` pre-defines a set of default client properties for a number of well known providers: Google, GitHub, Facebook, and Okta.
 
@@ -196,7 +196,7 @@ spring:
 
 
 [[oauth2login-custom-provider-properties]]
-=== Configuring Custom Provider Properties
+== Configuring Custom Provider Properties
 
 There are some OAuth 2.0 Providers that support multi-tenancy, which results in different protocol endpoints for each tenant (or sub-domain).
 
@@ -229,7 +229,7 @@ spring:
 
 
 [[oauth2login-override-boot-autoconfig]]
-=== Overriding Spring Boot 2.x Auto-configuration
+== Overriding Spring Boot 2.x Auto-configuration
 
 The Spring Boot 2.x auto-configuration class for OAuth Client support is `OAuth2ClientAutoConfiguration`.
 
@@ -246,7 +246,7 @@ If you need to override the auto-configuration based on your specific requiremen
 
 
 [[oauth2login-register-clientregistrationrepository-bean]]
-==== Register a ClientRegistrationRepository @Bean
+=== Register a ClientRegistrationRepository @Bean
 
 The following example shows how to register a `ClientRegistrationRepository` `@Bean`:
 
@@ -313,7 +313,7 @@ class OAuth2LoginConfig {
 
 
 [[oauth2login-provide-websecurityconfigureradapter]]
-==== Provide a WebSecurityConfigurerAdapter
+=== Provide a WebSecurityConfigurerAdapter
 
 The following example shows how to provide a `WebSecurityConfigurerAdapter` with `@EnableWebSecurity` and enable OAuth 2.0 login through `httpSecurity.oauth2Login()`:
 
@@ -356,7 +356,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
 
 
 [[oauth2login-completely-override-autoconfiguration]]
-==== Completely Override the Auto-configuration
+=== Completely Override the Auto-configuration
 
 The following example shows how to completely override the auto-configuration by registering a `ClientRegistrationRepository` `@Bean` and providing a `WebSecurityConfigurerAdapter`.
 
@@ -451,7 +451,7 @@ class OAuth2LoginConfig {
 
 
 [[oauth2login-javaconfig-wo-boot]]
-=== Java Configuration without Spring Boot 2.x
+== Java Configuration without Spring Boot 2.x
 
 If you are not able to use Spring Boot 2.x and would like to configure one of the pre-defined providers in `CommonOAuth2Provider` (for example, Google), apply the following configuration:
 
@@ -575,7 +575,7 @@ open class OAuth2LoginConfig {
 
 
 [[oauth2login-advanced]]
-=== Advanced Configuration
+== Advanced Configuration
 
 `HttpSecurity.oauth2Login()` provides a number of configuration options for customizing OAuth 2.0 Login.
 The main configuration options are grouped into their protocol endpoint counterparts.
@@ -770,7 +770,7 @@ The following sections go into more detail on each of the configuration options 
 
 
 [[oauth2login-advanced-login-page]]
-==== OAuth 2.0 Login Page
+=== OAuth 2.0 Login Page
 
 By default, the OAuth 2.0 Login Page is auto-generated by the `DefaultLoginPageGeneratingFilter`.
 The default login page shows each configured OAuth Client with its `ClientRegistration.clientName` as a link, which is capable of initiating the Authorization Request (or OAuth 2.0 Login).
@@ -865,7 +865,7 @@ The following line shows an example:
 
 
 [[oauth2login-advanced-redirection-endpoint]]
-==== Redirection Endpoint
+=== Redirection Endpoint
 
 The Redirection Endpoint is used by the Authorization Server for returning the Authorization Response (which contains the authorization credentials) to the client via the Resource Owner user-agent.
 
@@ -956,7 +956,7 @@ return CommonOAuth2Provider.GOOGLE.getBuilder("google")
 
 
 [[oauth2login-advanced-userinfo-endpoint]]
-==== UserInfo Endpoint
+=== UserInfo Endpoint
 
 The UserInfo Endpoint includes a number of configuration options, as described in the following sub-sections:
 
@@ -966,7 +966,7 @@ The UserInfo Endpoint includes a number of configuration options, as described i
 
 
 [[oauth2login-advanced-map-authorities]]
-===== Mapping User Authorities
+==== Mapping User Authorities
 
 After the user successfully authenticates with the OAuth 2.0 Provider, the `OAuth2User.getAuthorities()` (or `OidcUser.getAuthorities()`) may be mapped to a new set of `GrantedAuthority` instances, which will be supplied to `OAuth2AuthenticationToken` when completing the authentication.
 
@@ -980,7 +980,7 @@ There are a couple of options to choose from when mapping user authorities:
 
 
 [[oauth2login-advanced-map-authorities-grantedauthoritiesmapper]]
-====== Using a GrantedAuthoritiesMapper
+===== Using a GrantedAuthoritiesMapper
 
 Provide an implementation of `GrantedAuthoritiesMapper` and configure it as shown in the following example:
 
@@ -1126,7 +1126,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
 ====
 
 [[oauth2login-advanced-map-authorities-oauth2userservice]]
-====== Delegation-based strategy with OAuth2UserService
+===== Delegation-based strategy with OAuth2UserService
 
 This strategy is advanced compared to using a `GrantedAuthoritiesMapper`, however, it's also more flexible as it gives you access to the `OAuth2UserRequest` and `OAuth2User` (when using an OAuth 2.0 UserService) or `OidcUserRequest` and `OidcUser` (when using an OpenID Connect 1.0 UserService).
 
@@ -1228,7 +1228,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
 
 
 [[oauth2login-advanced-oauth2-user-service]]
-===== OAuth 2.0 UserService
+==== OAuth 2.0 UserService
 
 `DefaultOAuth2UserService` is an implementation of an `OAuth2UserService` that supports standard OAuth 2.0 Provider's.
 
@@ -1304,7 +1304,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
 
 
 [[oauth2login-advanced-oidc-user-service]]
-===== OpenID Connect 1.0 UserService
+==== OpenID Connect 1.0 UserService
 
 `OidcUserService` is an implementation of an `OAuth2UserService` that supports OpenID Connect 1.0 Provider's.
 
@@ -1364,7 +1364,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
 
 
 [[oauth2login-advanced-idtoken-verify]]
-==== ID Token Signature Verification
+=== ID Token Signature Verification
 
 OpenID Connect 1.0 Authentication introduces the https://openid.net/specs/openid-connect-core-1_0.html#IDToken[ID Token], which is a security token that contains Claims about the Authentication of an End-User by an Authorization Server when used by a Client.
 
@@ -1409,7 +1409,7 @@ If more than one `ClientRegistration` is configured for OpenID Connect 1.0 Authe
 
 
 [[oauth2login-advanced-oidc-logout]]
-==== OpenID Connect 1.0 Logout
+=== OpenID Connect 1.0 Logout
 
 OpenID Connect Session Management 1.0 allows the ability to log out the End-User at the Provider using the Client.
 One of the strategies available is https://openid.net/specs/openid-connect-session-1_0.html#RPLogout[RP-Initiated Logout].

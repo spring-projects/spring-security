@@ -1,7 +1,8 @@
 = OAuth2
 
-include::oauth2-login.adoc[]
+Spring Security provides comprehensive OAuth 2 support.
+This section discusses how to integrate OAuth 2 into your servlet based application.
 
-include::oauth2-client.adoc[]
-
-include::oauth2-resourceserver.adoc[]
+* xref:servlet/oauth2/oauth2-login.adoc[]
+* xref:servlet/oauth2/oauth2-client.adoc[]
+* xref:servlet/oauth2/oauth2-resourceserver.adoc[]

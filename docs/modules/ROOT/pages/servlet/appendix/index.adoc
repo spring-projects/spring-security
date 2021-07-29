@@ -1,8 +1,8 @@
-
 = Appendix
 
-include::database-schema.adoc[leveloffset=+1]
+This is an appendix for Servlet based Spring Security.
+It has the following sections:
 
-include::namespace.adoc[]
-
-include::faq.adoc[]
+* xref:servlet/appendix/database-schema.adoc[Database Schemas]
+* xref:servlet/appendix/namespace.adoc[XML Namespace]
+* xref:servlet/appendix/faq.adoc[FAQ]

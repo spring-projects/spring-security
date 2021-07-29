@@ -1,22 +1,249 @@
-include::security-context-holder.adoc[leveloffset=+1]
+[[servlet-authentication-architecture]]
+= Servlet Authentication Architecture
+:figures: images/servlet/authentication/architecture
+:icondir: images/icons
 
-include::security-context.adoc[leveloffset=+1]
+This discussion expands on <<servlet-architecture>> to discuss the Servlet Authentication architecture.
 
-include::authentication.adoc[leveloffset=+1]
+[[servlet-authentication-securitycontextholder]]
+== SecurityContextHolder
 
-include::granted-authority.adoc[leveloffset=+1]
 
-include::authentication-manager.adoc[leveloffset=+1]
+At the heart of Spring Security's authentication model is the `SecurityContextHolder`.
+It contains the <<servlet-authentication-securitycontext>>.
 
-include::provider-manager.adoc[leveloffset=+1]
+image::{figures}/securitycontextholder.png[]
 
-include::authentication-provider.adoc[leveloffset=+1]
+The `SecurityContextHolder` is where Spring Security stores the details of who is <<authentication,authenticated>>.
+Spring Security does not care how the `SecurityContextHolder` is populated.
+If it contains a value, then it is used as the currently authenticated user.
 
-include::authentication-entry-point.adoc[leveloffset=+1]
+The simplest way to indicate a user is authenticated is to set the `SecurityContextHolder` directly.
+
+.Setting `SecurityContextHolder`
+====
+.Java
+[source,java,role="primary"]
+----
+SecurityContext context = SecurityContextHolder.createEmptyContext(); // <1>
+Authentication authentication =
+    new TestingAuthenticationToken("username", "password", "ROLE_USER"); // <2>
+context.setAuthentication(authentication);
+
+SecurityContextHolder.setContext(context); // <3>
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val context: SecurityContext = SecurityContextHolder.createEmptyContext() // <1>
+val authentication: Authentication = TestingAuthenticationToken("username", "password", "ROLE_USER") // <2>
+context.authentication = authentication
+
+SecurityContextHolder.setContext(context) // <3>
+----
+====
+
+<1> We start by creating an empty `SecurityContext`.
+It is important to create a new `SecurityContext` instance instead of using `SecurityContextHolder.getContext().setAuthentication(authentication)` to avoid race conditions across multiple threads.
+<2> Next we create a new <<servlet-authentication-authentication,`Authentication`>> object.
+Spring Security does not care what type of `Authentication` implementation is set on the `SecurityContext`.
+Here we use `TestingAuthenticationToken` because it is very simple.
+A more common production scenario is `UsernamePasswordAuthenticationToken(userDetails, password, authorities)`.
+<3> Finally, we set the `SecurityContext` on the `SecurityContextHolder`.
+Spring Security will use this information for <<servlet-authorization,authorization>>.
+
+If you wish to obtain information about the authenticated principal, you can do so by accessing the `SecurityContextHolder`.
+
+.Access Currently Authenticated User
+====
+.Java
+[source,java,role="primary"]
+----
+SecurityContext context = SecurityContextHolder.getContext();
+Authentication authentication = context.getAuthentication();
+String username = authentication.getName();
+Object principal = authentication.getPrincipal();
+Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val context = SecurityContextHolder.getContext()
+val authentication = context.authentication
+val username = authentication.name
+val principal = authentication.principal
+val authorities = authentication.authorities
+----
+====
+
+// FIXME: add links to HttpServletRequest.getRemoteUser() and @CurrentSecurityContext @AuthenticationPrincipal
+
+By default the `SecurityContextHolder` uses a `ThreadLocal` to store these details, which means that the `SecurityContext` is always available to methods in the same thread, even if the `SecurityContext` is not explicitly passed around as an argument to those methods.
+Using a `ThreadLocal` in this way is quite safe if care is taken to clear the thread after the present principal's request is processed.
+Spring Security's <<servlet-filterchainproxy,FilterChainProxy>> ensures that the `SecurityContext` is always cleared.
+
+Some applications aren't entirely suitable for using a `ThreadLocal`, because of the specific way they work with threads.
+For example, a Swing client might want all threads in a Java Virtual Machine to use the same security context.
+`SecurityContextHolder` can be configured with a strategy on startup to specify how you would like the context to be stored.
+For a standalone application you would use the `SecurityContextHolder.MODE_GLOBAL` strategy.
+Other applications might want to have threads spawned by the secure thread also assume the same security identity.
+This is achieved by using `SecurityContextHolder.MODE_INHERITABLETHREADLOCAL`.
+You can change the mode from the default `SecurityContextHolder.MODE_THREADLOCAL` in two ways.
+The first is to set a system property, the second is to call a static method on `SecurityContextHolder`.
+Most applications won't need to change from the default, but if you do, take a look at the Javadoc for `SecurityContextHolder` to learn more.
+
+[[servlet-authentication-securitycontext]]
+== SecurityContext
+
+The {security-api-url}org/springframework/security/core/context/SecurityContext.html[`SecurityContext`] is obtained from the <<servlet-authentication-securitycontextholder>>.
+The `SecurityContext` contains an <<servlet-authentication-authentication>> object.
+
+[[servlet-authentication-authentication]]
+== Authentication
+
+The {security-api-url}org/springframework/security/core/Authentication.html[`Authentication`] serves two main purposes within Spring Security:
+
+* An input to <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> to provide the credentials a user has provided to authenticate.
+When used in this scenario, `isAuthenticated()` returns `false`.
+* Represents the currently authenticated user.
+The current `Authentication` can be obtained from the <<servlet-authentication-securitycontext>>.
+
+The `Authentication` contains:
+
+* `principal` - identifies the user.
+When authenticating with a username/password this is often an instance of <<servlet-authentication-userdetails,`UserDetails`>>.
+* `credentials` - often a password.
+In many cases this will be cleared after the user is authenticated to ensure it is not leaked.
+* `authorities` - the <<servlet-authentication-granted-authority,``GrantedAuthority``s>> are high level permissions the user is granted.
+A few examples are roles or scopes.
+
+[[servlet-authentication-granted-authority]]
+== GrantedAuthority
+{security-api-url}org/springframework/security/core/GrantedAuthority.html[``GrantedAuthority``s] are high level permissions the user is granted. A few examples are roles or scopes.
+
+``GrantedAuthority``s can be obtained from the <<servlet-authentication-authentication,`Authentication.getAuthorities()`>> method.
+This method provides a `Collection` of `GrantedAuthority` objects.
+A `GrantedAuthority` is, not surprisingly, an authority that is granted to the principal.
+Such authorities are usually "roles", such as `ROLE_ADMINISTRATOR` or `ROLE_HR_SUPERVISOR`.
+These roles are later on configured for web authorization, method authorization and domain object authorization.
+Other parts of Spring Security are capable of interpreting these authorities, and expect them to be present.
+When using username/password based authentication ``GrantedAuthority``s are usually loaded by the <<servlet-authentication-userdetailsservice,`UserDetailsService`>>.
+
+Usually the `GrantedAuthority` objects are application-wide permissions.
+They are not specific to a given domain object.
+Thus, you wouldn't likely have a `GrantedAuthority` to represent a permission to `Employee` object number 54, because if there are thousands of such authorities you would quickly run out of memory (or, at the very least, cause the application to take a long time to authenticate a user).
+Of course, Spring Security is expressly designed to handle this common requirement, but you'd instead use the project's domain object security capabilities for this purpose.
+
+[[servlet-authentication-authenticationmanager]]
+== AuthenticationManager
+
+{security-api-url}org/springframework/security/authentication/AuthenticationManager.html[`AuthenticationManager`] is the API that defines how Spring Security's Filters perform  <<authentication,authentication>>.
+The <<servlet-authentication-authentication,`Authentication`>> that is returned is then set on the <<servlet-authentication-securitycontextholder>> by the controller (i.e. <<servlet-security-filters,Spring Security's ``Filters``s>>) that invoked the `AuthenticationManager`.
+If you are not integrating with __Spring Security's ``Filters``s__ you can set the `SecurityContextHolder` directly and are not required to use an `AuthenticationManager`.
+
+While the implementation of `AuthenticationManager` could be anything, the most common implementation is <<servlet-authentication-providermanager,`ProviderManager`>>.
+// FIXME: add configuration
+
+[[servlet-authentication-providermanager]]
+== ProviderManager
+
+{security-api-url}org/springframework/security/authentication/ProviderManager.html[`ProviderManager`] is the most commonly used implementation of <<servlet-authentication-authenticationmanager,`AuthenticationManager`>>.
+`ProviderManager` delegates to a `List` of <<servlet-authentication-authenticationprovider,``AuthenticationProvider``s>>.
+// FIXME: link to AuthenticationProvider
+Each `AuthenticationProvider` has an opportunity to indicate that authentication should be successful, fail, or indicate it cannot make a decision and allow a downstream `AuthenticationProvider` to decide.
+If none of the configured ``AuthenticationProvider``s can authenticate, then authentication will fail with a `ProviderNotFoundException` which is a special `AuthenticationException` that indicates the `ProviderManager` was not configured to support the type of `Authentication` that was passed into it.
+
+image::{figures}/providermanager.png[]
+
+In practice each `AuthenticationProvider` knows how to perform a specific type of authentication.
+For example, one `AuthenticationProvider` might be able to validate a username/password, while another might be able to authenticate a SAML assertion.
+This allows each `AuthenticationProvider` to do a very specific type of authentication, while supporting multiple types of authentication and only exposing a single `AuthenticationManager` bean.
+
+`ProviderManager` also allows configuring an optional parent `AuthenticationManager` which is consulted in the event that no `AuthenticationProvider` can perform authentication.
+The parent can be any type of `AuthenticationManager`, but it is often an instance of `ProviderManager`.
+
+image::{figures}/providermanager-parent.png[]
+
+In fact, multiple `ProviderManager` instances might share the same parent `AuthenticationManager`.
+This is somewhat common in scenarios where there are multiple <<servlet-securityfilterchain,`SecurityFilterChain`>> instances that have some authentication in common (the shared parent `AuthenticationManager`), but also different authentication mechanisms (the different `ProviderManager` instances).
+
+image::{figures}/providermanagers-parent.png[]
+
+[[servlet-authentication-providermanager-erasing-credentials]]
+By default `ProviderManager` will attempt to clear any sensitive credentials information from the `Authentication` object which is returned by a successful authentication request.
+This prevents information like passwords being retained longer than necessary in the `HttpSession`.
+
+This may cause issues when you are using a cache of user objects, for example, to improve performance in a stateless application.
+If the `Authentication` contains a reference to an object in the cache (such as a `UserDetails` instance) and this has its credentials removed, then it will no longer be possible to authenticate against the cached value.
+You need to take this into account if you are using a cache.
+An obvious solution is to make a copy of the object first, either in the cache implementation or in the `AuthenticationProvider` which creates the returned `Authentication` object.
+Alternatively, you can disable the `eraseCredentialsAfterAuthentication` property on `ProviderManager`.
+See the {security-api-url}org/springframework/security/authentication/ProviderManager.html[Javadoc] for more information.
+
+[[servlet-authentication-authenticationprovider]]
+== AuthenticationProvider
+
+Multiple {security-api-url}org/springframework/security/authentication/AuthenticationProvider.html[``AuthenticationProvider``s] can be injected into <<servlet-authentication-providermanager,`ProviderManager`>>.
+Each `AuthenticationProvider` performs a specific type of authentication.
+For example, <<servlet-authentication-daoauthenticationprovider,`DaoAuthenticationProvider`>> supports username/password based authentication while `JwtAuthenticationProvider` supports authenticating a JWT token.
+
+[[servlet-authentication-authenticationentrypoint]]
+== Request Credentials with `AuthenticationEntryPoint`
+
+{security-api-url}org/springframework/security/web/AuthenticationEntryPoint.html[`AuthenticationEntryPoint`] is used to send an HTTP response that requests credentials from a client.
+
+Sometimes a client will proactively include credentials such as a username/password to request a resource.
+In these cases, Spring Security does not need to provide an HTTP response that requests credentials from the client since they are already included.
+
+In other cases, a client will make an unauthenticated request to a resource that they are not authorized to access.
+In this case, an implementation of `AuthenticationEntryPoint` is used to request credentials from the client.
+The `AuthenticationEntryPoint` implementation might perform a <<servlet-authentication-form,redirect to a log in page>>, respond with an <<servlet-authentication-basic,WWW-Authenticate>> header, etc.
+
+
 
 // FIXME: authenticationsuccesshandler
 // FIXME: authenticationfailurehandler
 
-include::abstract-authentication-processing-filter.adoc[leveloffset=+1]
+[[servlet-authentication-abstractprocessingfilter]]
+== AbstractAuthenticationProcessingFilter
+
+{security-api-url}org/springframework/security/web/authentication/AbstractAuthenticationProcessingFilter.html[`AbstractAuthenticationProcessingFilter`] is used as a base `Filter` for authenticating a user's credentials.
+Before the credentials can be authenticated, Spring Security typically requests the credentials using <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>>.
+
+Next, the `AbstractAuthenticationProcessingFilter` can authenticate any authentication requests that are submitted to it.
+
+image::{figures}/abstractauthenticationprocessingfilter.png[]
+
+image:{icondir}/number_1.png[] When the user submits their credentials, the `AbstractAuthenticationProcessingFilter` creates an <<servlet-authentication-authentication,`Authentication`>> from the `HttpServletRequest` to be authenticated.
+The type of `Authentication` created depends on the subclass of `AbstractAuthenticationProcessingFilter`.
+For example, <<servlet-authentication-usernamepasswordauthenticationfilter,`UsernamePasswordAuthenticationFilter`>> creates a `UsernamePasswordAuthenticationToken` from a __username__ and __password__ that are submitted in the `HttpServletRequest`.
+
+image:{icondir}/number_2.png[] Next, the <<servlet-authentication-authentication,`Authentication`>> is passed into the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> to be authenticated.
+
+image:{icondir}/number_3.png[] If authentication fails, then __Failure__
+
+* The <<servlet-authentication-securitycontextholder>> is cleared out.
+* `RememberMeServices.loginFail` is invoked.
+If remember me is not configured, this is a no-op.
+// FIXME: link to rememberme
+* `AuthenticationFailureHandler` is invoked.
+// FIXME: link to AuthenticationFailureHandler
+
+image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
+
+* `SessionAuthenticationStrategy` is notified of a new log in.
+// FIXME: Add link to SessionAuthenticationStrategy
+* The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
+Later the `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession`.
+// FIXME: link securitycontextpersistencefilter
+* `RememberMeServices.loginSuccess` is invoked.
+If remember me is not configured, this is a no-op.
+// FIXME: link to rememberme
+* `ApplicationEventPublisher` publishes an `InteractiveAuthenticationSuccessEvent`.
+* `AuthenticationSuccessHandler` is invoked.
+// FIXME: link to AuthenticationSuccessHandler
+
 
 // daoauthenticationprovider (goes in username/password)

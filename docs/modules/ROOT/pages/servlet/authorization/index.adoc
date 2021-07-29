@@ -6,15 +6,10 @@ Irrespective of how you choose to authenticate - whether using a Spring Security
 In this part we'll explore the different `AbstractSecurityInterceptor` implementations, which were introduced in Part I.
 We then move on to explore how to fine-tune authorization through use of domain access control lists.
 
-include::architecture.adoc[leveloffset=+1]
-
-include::authorize-requests.adoc[leveloffset=+1]
-
-include::expression-based.adoc[]
-
-include::secure-objects.adoc[]
-
-include::method-security.adoc[]
-
-include::acls.adoc[]
+* xref:servlet/authorization/architecture.adoc[leveloffset=+1]
+* xref:servlet/authorization/authorize-requests.adoc[leveloffset=+1]
+* xref:servlet/authorization/expression-based.adoc[]
+* xref:servlet/authorization/secure-objects.adoc[]
+* xref:servlet/authorization/method-security.adoc[]
+* xref:servlet/authorization/acls.adoc[]
 
