@@ -1,5 +1,5 @@
 [[servlet-events]]
-== Authentication Events
+= Authentication Events
 
 For each authentication that succeeds or fails, a `AuthenticationSuccessEvent` or `AbstractAuthenticationFailureEvent` is fired, respectively.
 
@@ -68,7 +68,7 @@ class AuthenticationEvents {
 
 While similar to `AuthenticationSuccessHandler` and `AuthenticationFailureHandler`, these are nice in that they can be used independently from the servlet API.
 
-=== Adding Exception Mappings
+== Adding Exception Mappings
 
 `DefaultAuthenticationEventPublisher` by default will publish an `AbstractAuthenticationFailureEvent` for the following events:
 
@@ -121,7 +121,7 @@ fun authenticationEventPublisher
 ----
 ====
 
-=== Default Event
+== Default Event
 
 And, you can supply a catch-all event to fire in the case of any `AuthenticationException`:
 

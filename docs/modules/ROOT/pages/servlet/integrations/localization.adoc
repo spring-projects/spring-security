@@ -1,5 +1,5 @@
 [[localization]]
-== Localization
+= Localization
 Spring Security supports localization of exception messages that end users are likely to see.
 If your application is designed for English-speaking users, you don't need to do anything as by default all Security messages are in English.
 If you need to support other locales, everything you need to know is contained in this section.

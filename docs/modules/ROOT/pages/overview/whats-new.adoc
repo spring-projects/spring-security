@@ -1,5 +1,5 @@
 [[new]]
-== What's New in Spring Security 5.6
+= What's New in Spring Security 5.6
 
 Spring Security 5.6 provides a number of new features.
 Below are the highlights of the release.

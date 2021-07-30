@@ -1,9 +1,9 @@
 
 [[secure-object-impls]]
-== Secure Object Implementations
+= Secure Object Implementations
 
 [[aop-alliance]]
-=== AOP Alliance (MethodInvocation) Security Interceptor
+== AOP Alliance (MethodInvocation) Security Interceptor
 Prior to Spring Security 2.0, securing ``MethodInvocation``s needed quite a lot of boiler plate configuration.
 Now the recommended approach for method security is to use <<ns-method-security,namespace configuration>>.
 This way the method security infrastructure beans are configured automatically for you so you don't really need to know about the implementation classes.
@@ -15,7 +15,7 @@ The interceptor uses a `MethodSecurityMetadataSource` instance to obtain the con
 `MapBasedMethodSecurityMetadataSource` is used to store configuration attributes keyed by method names (which can be wildcarded) and will be used internally when the attributes are defined in the application context using the `<intercept-methods>` or `<protect-point>` elements.
 Other implementations will be used to handle annotation-based configuration.
 
-==== Explicit MethodSecurityInterceptor Configuration
+=== Explicit MethodSecurityInterceptor Configuration
 You can of course configure a `MethodSecurityInterceptor` directly in your application context for use with one of Spring AOP's proxying mechanisms:
 
 [source,xml]
@@ -36,7 +36,7 @@ You can of course configure a `MethodSecurityInterceptor` directly in your appli
 ----
 
 [[aspectj]]
-=== AspectJ (JoinPoint) Security Interceptor
+== AspectJ (JoinPoint) Security Interceptor
 The AspectJ security interceptor is very similar to the AOP Alliance security interceptor discussed in the previous section.
 Indeed we will only discuss the differences in this section.
 

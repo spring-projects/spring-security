@@ -1,18 +1,18 @@
 
 [[el-access]]
-== Expression-Based Access Control
+= Expression-Based Access Control
 Spring Security 3.0 introduced the ability to use Spring EL expressions as an authorization mechanism in addition to the simple use of configuration attributes and access-decision voters which have been seen before.
 Expression-based access control is built on the same architecture but allows complicated Boolean logic to be encapsulated in a single expression.
 
 
-=== Overview
+== Overview
 Spring Security uses Spring EL for expression support and you should look at how that works if you are interested in understanding the topic in more depth.
 Expressions are evaluated with a "root object" as part of the evaluation context.
 Spring Security uses specific classes for web and method security as the root object, in order to provide built-in expressions and access to values such as the current principal.
 
 
 [[el-common-built-in]]
-==== Common Built-In Expressions
+=== Common Built-In Expressions
 The base class for expression root objects is `SecurityExpressionRoot`.
 This provides some common expressions which are available in both web and method security.
 
@@ -83,7 +83,7 @@ For example, `hasPermission(1, 'com.example.domain.Message', 'read')`
 
 
 [[el-access-web]]
-=== Web Security Expressions
+== Web Security Expressions
 To use expressions to secure individual URLs, you would first need to set the `use-expressions` attribute in the `<http>` element to `true`.
 Spring Security will then expect the `access` attributes of the `<intercept-url>` elements to contain Spring EL expressions.
 The expressions should evaluate to a Boolean, defining whether access should be allowed or not.
@@ -109,7 +109,7 @@ If expressions are being used, a `WebExpressionVoter` will be added to the `Acce
 So if you aren't using the namespace and want to use expressions, you will have to add one of these to your configuration.
 
 [[el-access-web-beans]]
-==== Referring to Beans in Web Security Expressions
+=== Referring to Beans in Web Security Expressions
 
 If you wish to extend the expressions that are available, you can easily refer to any Spring Bean you expose.
 For example, assuming you have a Bean with the name of `webSecurity` that contains the following method signature:
@@ -172,7 +172,7 @@ http {
 ====
 
 [[el-access-web-path-variables]]
-==== Path Variables in Web Security Expressions
+=== Path Variables in Web Security Expressions
 
 At times it is nice to be able to refer to path variables within a URL.
 For example, consider a RESTful application that looks up a user by id from the URL path in the format `+/user/{userId}+`.
@@ -240,13 +240,13 @@ http {
 In this configuration URLs that match would pass in the path variable (and convert it) into checkUserId method.
 For example, if the URL were `/user/123/resource`, then the id passed in would be `123`.
 
-=== Method Security Expressions
+== Method Security Expressions
 Method security is a bit more complicated than a simple allow or deny rule.
 Spring Security 3.0 introduced some new annotations in order to allow comprehensive support for the use of expressions.
 
 
 [[el-pre-post-annotations]]
-==== @Pre and @Post Annotations
+=== @Pre and @Post Annotations
 There are four annotations which support expression attributes to allow pre and post-invocation authorization checks and also to support filtering of submitted collection arguments or return values.
 They are `@PreAuthorize`, `@PreFilter`, `@PostAuthorize` and `@PostFilter`.
 Their use is enabled through the `global-method-security` namespace element:
@@ -256,7 +256,7 @@ Their use is enabled through the `global-method-security` namespace element:
 <global-method-security pre-post-annotations="enabled"/>
 ----
 
-===== Access Control using @PreAuthorize and @PostAuthorize
+==== Access Control using @PreAuthorize and @PostAuthorize
 The most obviously useful annotation is `@PreAuthorize` which decides whether a method can actually be invoked or not.
 For example (from the {gh-samples-url}/servlet/xml/java/contacts[Contacts] sample application)
 
@@ -412,7 +412,7 @@ This can be achieved using the `@PostAuthorize` annotation.
 To access the return value from a method, use the built-in name `returnObject` in the expression.
 --
 
-===== Filtering using @PreFilter and @PostFilter
+==== Filtering using @PreFilter and @PostFilter
 Spring Security supports filtering of collections, arrays, maps and streams using expressions.
 This is most commonly performed on the return value of a method.
 For example:
@@ -447,13 +447,13 @@ If you are filtering large collections and removing many of the entries then thi
 
 
 [[el-method-built-in]]
-==== Built-In Expressions
+=== Built-In Expressions
 There are some built-in expressions which are specific to method security, which we have already seen in use above.
 The `filterTarget` and `returnValue` values are simple enough, but the use of the `hasPermission()` expression warrants a closer look.
 
 
 [[el-permission-evaluator]]
-===== The PermissionEvaluator interface
+==== The PermissionEvaluator interface
 `hasPermission()` expressions are delegated to an instance of `PermissionEvaluator`.
 It is intended to bridge between the expression system and Spring Security's ACL system, allowing you to specify authorization constraints on domain objects, based on abstract permissions.
 It has no explicit dependencies on the ACL module, so you could swap that out for an alternative implementation if required.
@@ -494,7 +494,7 @@ Where `myPermissionEvaluator` is the bean which implements `PermissionEvaluator`
 Usually this will be the implementation from the ACL module which is called `AclPermissionEvaluator`.
 See the {gh-samples-url}/servlet/xml/java/contacts[Contacts] sample application configuration for more details.
 
-===== Method Security Meta Annotations
+==== Method Security Meta Annotations
 
 You can make use of meta annotations for method security to make your code more readable.
 This is especially convenient if you find that you are repeating the same complex expression throughout your code base.

@@ -1,5 +1,5 @@
 [[test-method]]
-== Testing Method Security
+= Testing Method Security
 
 This section demonstrates how to use Spring Security's Test support to test method based security.
 We first introduce a `MessageService` that requires the user to be authenticated in order to access it.
@@ -41,7 +41,7 @@ Hello org.springframework.security.authentication.UsernamePasswordAuthentication
 ----
 
 [[test-method-setup]]
-=== Security Test Setup
+== Security Test Setup
 
 Before we can use Spring Security Test support, we must perform some setup. An example can be seen below:
 
@@ -98,7 +98,7 @@ fun getMessageUnauthenticated() {
 ====
 
 [[test-method-withmockuser]]
-=== @WithMockUser
+== @WithMockUser
 
 The question is "How could we most easily run the test as a specific user?"
 The answer is to use `@WithMockUser`.
@@ -294,7 +294,7 @@ You can change this to happen during the `TestExecutionListener.beforeTestExecut
 
 
 [[test-method-withanonymoususer]]
-=== @WithAnonymousUser
+== @WithAnonymousUser
 
 Using `@WithAnonymousUser` allows running as an anonymous user.
 This is especially convenient when you wish to run most of your tests with a specific user, but want to run a few tests as an anonymous user.
@@ -358,7 +358,7 @@ You can change this to happen during the `TestExecutionListener.beforeTestExecut
 
 
 [[test-method-withuserdetails]]
-=== @WithUserDetails
+== @WithUserDetails
 
 While `@WithMockUser` is a very convenient way to get started, it may not work in all instances.
 For example, it is common for applications to expect that the `Authentication` principal be of a specific type.
@@ -462,7 +462,7 @@ You can change this to happen during the `TestExecutionListener.beforeTestExecut
 
 
 [[test-method-withsecuritycontext]]
-=== @WithSecurityContext
+== @WithSecurityContext
 
 We have seen that `@WithMockUser` is an excellent choice if we are not using a custom `Authentication` principal.
 Next we discovered that `@WithUserDetails` would allow us to use a custom `UserDetailsService` to create our `Authentication` principal but required the user to exist.
@@ -596,7 +596,7 @@ You can change this to happen during the `TestExecutionListener.beforeTestExecut
 
 
 [[test-method-meta-annotations]]
-=== Test Meta Annotations
+== Test Meta Annotations
 
 If you reuse the same user within your tests often, it is not ideal to have to repeatedly specify the attributes.
 For example, if there are many tests related to an administrative user with the username "admin" and the roles `ROLE_USER` and `ROLE_ADMIN` you would have to write:

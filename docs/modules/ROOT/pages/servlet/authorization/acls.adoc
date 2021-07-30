@@ -1,8 +1,8 @@
 [[domain-acls]]
-== Domain Object Security (ACLs)
+= Domain Object Security (ACLs)
 
 [[domain-acls-overview]]
-=== Overview
+== Overview
 Complex applications often will find the need to define access permissions not simply at a web request or method invocation level.
 Instead, security decisions need to comprise both who (`Authentication`), where (`MethodInvocation`) and what (`SomeDomainObject`).
 In other words, authorization decisions also need to consider the actual domain object instance subject of a method invocation.
@@ -37,7 +37,7 @@ Fortunately, there is another alternative, which we'll talk about below.
 
 
 [[domain-acls-key-concepts]]
-=== Key Concepts
+== Key Concepts
 Spring Security's ACL services are shipped in the `spring-security-acl-xxx.jar`.
 You will need to add this JAR to your classpath to use Spring Security's domain object instance security capabilities.
 
@@ -130,7 +130,7 @@ We suggest taking a look over these for examples.
 
 
 [[domain-acls-getting-started]]
-=== Getting Started
+== Getting Started
 To get starting using Spring Security's ACL capability, you will need to store your ACL information somewhere.
 This necessitates the instantiation of a `DataSource` using Spring.
 The `DataSource` is then injected into a `JdbcMutableAclService` and `BasicLookupStrategy` instance.

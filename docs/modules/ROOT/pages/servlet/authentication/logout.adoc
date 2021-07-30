@@ -1,8 +1,8 @@
 [[jc-logout]]
-== Handling Logouts
+= Handling Logouts
 
 [[logout-java-configuration]]
-=== Logout Java/Kotlin Configuration
+== Logout Java/Kotlin Configuration
 
 When using the `{security-api-url}org/springframework/security/config/annotation/web/configuration/WebSecurityConfigurerAdapter.html[WebSecurityConfigurerAdapter]`, logout capabilities are automatically applied.
 The default is that accessing the URL `/logout` will log the user out by:
@@ -86,13 +86,13 @@ For many common scenarios, these handlers are applied under the
 covers when using the fluent API.
 
 [[ns-logout]]
-=== Logout XML Configuration
+== Logout XML Configuration
 The `logout` element adds support for logging out by navigating to a particular URL.
 The default logout URL is `/logout`, but you can set it to something else using the `logout-url` attribute.
 More information on other available attributes may be found in the namespace appendix.
 
 [[jc-logout-handler]]
-=== LogoutHandler
+== LogoutHandler
 
 Generally, `{security-api-url}org/springframework/security/web/authentication/logout/LogoutHandler.html[LogoutHandler]`
 implementations indicate classes that are able to participate in logout handling.
@@ -115,7 +115,7 @@ E.g. `deleteCookies()` allows specifying the names of one or more cookies to be 
 This is a shortcut compared to adding a `CookieClearingLogoutHandler`.
 
 [[jc-logout-success-handler]]
-=== LogoutSuccessHandler
+== LogoutSuccessHandler
 
 The `LogoutSuccessHandler` is called after a successful logout by the `LogoutFilter`, to handle e.g.
 redirection or forwarding to the appropriate destination.
@@ -137,7 +137,7 @@ Instead of redirecting to a URL upon the successful logout, this `LogoutSuccessH
 If not configured a status code 200 will be returned by default.
 
 [[jc-logout-references]]
-=== Further Logout-Related References
+== Further Logout-Related References
 
 - <<ns-logout, Logout Handling>>
 - <<test-logout, Testing Logout>>

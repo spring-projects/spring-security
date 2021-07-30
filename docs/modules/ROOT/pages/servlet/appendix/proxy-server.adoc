@@ -1,5 +1,5 @@
 [[appendix-proxy-server]]
-== Proxy Server Configuration
+= Proxy Server Configuration
 
 When using a proxy server it is important to ensure that you have configured your application properly.
 For example, many applications will have a load balancer that responds to request for https://example.com/ by forwarding the request to an application server at https://192.168.1:8080

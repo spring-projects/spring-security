@@ -1,10 +1,10 @@
 [[test-mockmvc]]
-== Spring MVC Test Integration
+= Spring MVC Test Integration
 
 Spring Security provides comprehensive integration with https://docs.spring.io/spring/docs/current/spring-framework-reference/html/testing.html#spring-mvc-test-framework[Spring MVC Test]
 
 [[test-mockmvc-setup]]
-=== Setting Up MockMvc and Spring Security
+== Setting Up MockMvc and Spring Security
 
 In order to use Spring Security with Spring MVC Test it is necessary to add the Spring Security `FilterChainProxy` as a `Filter`.
 It is also necessary to add Spring Security's `TestSecurityContextHolderPostProcessor` to support <<Running as a User in Spring MVC Test with Annotations,Running as a User in Spring MVC Test with Annotations>>.
@@ -68,7 +68,7 @@ class CsrfShowcaseTests {
 <1> `SecurityMockMvcConfigurers.springSecurity()` will perform all of the initial setup we need to integrate Spring Security with Spring MVC Test
 
 [[test-mockmvc-smmrpp]]
-=== SecurityMockMvcRequestPostProcessors
+== SecurityMockMvcRequestPostProcessors
 
 Spring MVC Test provides a convenient interface called a `RequestPostProcessor` that can be used to modify a request.
 Spring Security provides a number of `RequestPostProcessor` implementations that make testing easier.
@@ -89,7 +89,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 ====
 
 [[test-mockmvc-csrf]]
-==== Testing with CSRF Protection
+=== Testing with CSRF Protection
 
 When testing any non-safe HTTP methods and using Spring Security's CSRF protection, you must be sure to include a valid CSRF Token in the request.
 To specify a valid CSRF token as a request parameter using the following:
@@ -150,7 +150,7 @@ mvc.post("/") {
 ====
 
 [[test-mockmvc-securitycontextholder]]
-==== Running a Test as a User in Spring MVC Test
+=== Running a Test as a User in Spring MVC Test
 
 It is often desirable to run tests as a specific user.
 There are two simple ways of populating the user:
@@ -159,7 +159,7 @@ There are two simple ways of populating the user:
 * <<Running as a User in Spring MVC Test with Annotations,Running as a User in Spring MVC Test with Annotations>>
 
 [[test-mockmvc-securitycontextholder-rpp]]
-==== Running as a User in Spring MVC Test with RequestPostProcessor
+=== Running as a User in Spring MVC Test with RequestPostProcessor
 
 There are a number of options available to associate a user to the current `HttpServletRequest`.
 For example, the following will run as a user (which does not need to exist) with the username "user", the password "password", and the role "ROLE_USER":
@@ -364,7 +364,7 @@ mvc.get("/") {
 ----
 ====
 
-===== Running as a User in Spring MVC Test with Annotations
+==== Running as a User in Spring MVC Test with Annotations
 
 As an alternative to using a `RequestPostProcessor` to create your user, you can use annotations described in <<Testing Method Security>>.
 For example, the following will run the test with the user with username "user", password "password", and role "ROLE_USER":
@@ -423,7 +423,7 @@ fun requestProtectedUrlWithUser() {
 ----
 ====
 
-==== Testing HTTP Basic Authentication
+=== Testing HTTP Basic Authentication
 
 While it has always been possible to authenticate with HTTP Basic, it was a bit tedious to remember the header name, format, and encode the values.
 Now this can be done using Spring Security's `httpBasic` `RequestPostProcessor`.
@@ -454,7 +454,7 @@ Authorization: Basic dXNlcjpwYXNzd29yZA==
 ----
 
 [[testing-oauth2]]
-==== Testing OAuth 2.0
+=== Testing OAuth 2.0
 
 When it comes to OAuth 2.0, the same principles covered earlier still apply: Ultimately, it depends on what your method under test is expecting to be in the `SecurityContextHolder`.
 
@@ -507,7 +507,7 @@ fun foo(@AuthenticationPrincipal user: OidcUser): String {
 then Spring Security's test support can come in handy.
 
 [[testing-oidc-login]]
-==== Testing OIDC Login
+=== Testing OIDC Login
 
 Testing the method above with Spring MVC Test would require simulating some kind of grant flow with an authorization server.
 Certainly this would be a daunting task, which is why Spring Security ships with support for removing this boilerplate.
@@ -589,7 +589,7 @@ Further, it also links that `OidcUser` to a simple instance of `OAuth2Authorized
 This can be handy if your tests <<testing-oauth2-client,use the `@RegisteredOAuth2AuthorizedClient` annotation>>..
 
 [[testing-oidc-login-authorities]]
-===== Configuring Authorities
+==== Configuring Authorities
 
 In many circumstances, your method is protected by filter or method security and needs your `Authentication` to have certain granted authorities to allow the request.
 
@@ -619,7 +619,7 @@ mvc.get("/endpoint") {
 ====
 
 [[testing-oidc-login-claims]]
-===== Configuring Claims
+==== Configuring Claims
 
 And while granted authorities are quite common across all of Spring Security, we also have claims in the case of OAuth 2.0.
 
@@ -678,7 +678,7 @@ mvc.get("/endpoint") {
 since `OidcUser` collects its claims from `OidcIdToken`.
 
 [[testing-oidc-login-user]]
-===== Additional Configurations
+==== Additional Configurations
 
 There are additional methods, too, for further configuring the authentication; it simply depends on what data your controller expects:
 
@@ -724,7 +724,7 @@ mvc.get("/endpoint") {
 ====
 
 [[testing-oauth2-login]]
-==== Testing OAuth 2.0 Login
+=== Testing OAuth 2.0 Login
 
 As with <<testing-oidc-login,testing OIDC login>>, testing OAuth 2.0 Login presents a similar challenge of mocking a grant flow.
 And because of that, Spring Security also has test support for non-OIDC use cases.
@@ -812,7 +812,7 @@ Further, it also links that `OAuth2User` to a simple instance of `OAuth2Authoriz
 This can be handy if your tests <<testing-oauth2-client,use the `@RegisteredOAuth2AuthorizedClient` annotation>>.
 
 [[testing-oauth2-login-authorities]]
-===== Configuring Authorities
+==== Configuring Authorities
 
 In many circumstances, your method is protected by filter or method security and needs your `Authentication` to have certain granted authorities to allow the request.
 
@@ -842,7 +842,7 @@ mvc.get("/endpoint") {
 ====
 
 [[testing-oauth2-login-claims]]
-===== Configuring Claims
+==== Configuring Claims
 
 And while granted authorities are quite common across all of Spring Security, we also have claims in the case of OAuth 2.0.
 
@@ -897,7 +897,7 @@ mvc.get("/endpoint") {
 ====
 
 [[testing-oauth2-login-user]]
-===== Additional Configurations
+==== Additional Configurations
 
 There are additional methods, too, for further configuring the authentication; it simply depends on what data your controller expects:
 
@@ -942,7 +942,7 @@ mvc.get("/endpoint") {
 ====
 
 [[testing-oauth2-client]]
-==== Testing OAuth 2.0 Clients
+=== Testing OAuth 2.0 Clients
 
 Independent of how your user authenticates, you may have other tokens and client registrations that are in play for the request you are testing.
 For example, your controller may be relying on the client credentials grant to get a token that isn't associated with the user at all:
@@ -1054,7 +1054,7 @@ assertThat(authorizedClient.accessToken.scopes).containsExactly("read")
 The client can then be retrieved as normal using `@RegisteredOAuth2AuthorizedClient` in a controller method.
 
 [[testing-oauth2-client-scopes]]
-===== Configuring Scopes
+==== Configuring Scopes
 
 In many circumstances, the OAuth 2.0 access token comes with a set of scopes.
 If your controller inspects these, say like so:
@@ -1121,7 +1121,7 @@ mvc.get("/endpoint") {
 ====
 
 [[testing-oauth2-client-registration]]
-===== Additional Configurations
+==== Additional Configurations
 
 There are additional methods, too, for further configuring the authentication; it simply depends on what data your controller expects:
 
@@ -1167,7 +1167,7 @@ mvc.get("/endpoint") {
 ====
 
 [[testing-jwt]]
-==== Testing JWT Authentication
+=== Testing JWT Authentication
 
 In order to make an authorized request on a resource server, you need a bearer token.
 
@@ -1177,7 +1177,7 @@ All of this can be quite daunting, especially when this isn't the focus of your 
 Fortunately, there are a number of simple ways that you can overcome this difficulty and allow your tests to focus on authorization and not on representing bearer tokens.
 We'll look at two of them now:
 
-===== `jwt() RequestPostProcessor`
+==== `jwt() RequestPostProcessor`
 
 The first way is via a `RequestPostProcessor`.
 The simplest of these would look something like this:
@@ -1357,7 +1357,7 @@ mvc.get("/endpoint") {
 ----
 ====
 
-===== `authentication()` `RequestPostProcessor`
+==== `authentication()` `RequestPostProcessor`
 
 The second way is by using the `authentication()` `RequestPostProcessor`.
 Essentially, you can instantiate your own `JwtAuthenticationToken` and provide it in your test, like so:
@@ -1399,7 +1399,7 @@ mvc.get("/endpoint") {
 Note that as an alternative to these, you can also mock the `JwtDecoder` bean itself with a `@MockBean` annotation.
 
 [[testing-opaque-token]]
-==== Testing Opaque Token Authentication
+=== Testing Opaque Token Authentication
 
 Similar to <<testing-jwt,JWTs>>, opaque tokens require an authorization server in order to verify their validity, which can make testing more difficult.
 To help with that, Spring Security has test support for opaque tokens.
@@ -1484,7 +1484,7 @@ assertThat(token.authorities).containsExactly(SimpleGrantedAuthority("SCOPE_read
 Spring Security does the necessary work to make sure that the `BearerTokenAuthentication` instance is available for your controller methods.
 
 [[testing-opaque-token-authorities]]
-===== Configuring Authorities
+==== Configuring Authorities
 
 In many circumstances, your method is protected by filter or method security and needs your `Authentication` to have certain granted authorities to allow the request.
 
@@ -1514,7 +1514,7 @@ mvc.get("/endpoint") {
 ====
 
 [[testing-opaque-token-attributes]]
-===== Configuring Claims
+==== Configuring Claims
 
 And while granted authorities are quite common across all of Spring Security, we also have attributes in the case of OAuth 2.0.
 
@@ -1569,7 +1569,7 @@ mvc.get("/endpoint") {
 ====
 
 [[testing-opaque-token-principal]]
-===== Additional Configurations
+==== Additional Configurations
 
 There are additional methods, too, for further configuring the authentication; it simply depends on what data your controller expects.
 
@@ -1616,7 +1616,7 @@ mvc.get("/endpoint") {
 
 Note that as an alternative to using `opaqueToken()` test support, you can also mock the `OpaqueTokenIntrospector` bean itself with a `@MockBean` annotation.
 
-=== SecurityMockMvcRequestBuilders
+== SecurityMockMvcRequestBuilders
 
 Spring MVC Test also provides a `RequestBuilder` interface that can be used to create the `MockHttpServletRequest` used in your test.
 Spring Security provides a few `RequestBuilder` implementations that can be used to make testing easier.
@@ -1636,7 +1636,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 ----
 ====
 
-==== Testing Form Based Authentication
+=== Testing Form Based Authentication
 
 You can easily create a request to test a form based authentication using Spring Security's testing support.
 For example, the following will submit a POST to "/login" with the username "user", the password "password", and a valid CSRF token:
@@ -1696,7 +1696,7 @@ mvc
 ====
 
 [[test-logout]]
-==== Testing Logout
+=== Testing Logout
 
 While fairly trivial using standard Spring MVC Test, you can use Spring Security's testing support to make testing log out easier.
 For example, the following will submit a POST to "/logout" with a valid CSRF token:
@@ -1736,7 +1736,7 @@ mvc
 ----
 ====
 
-=== SecurityMockMvcResultMatchers
+== SecurityMockMvcResultMatchers
 
 At times it is desirable to make various security related assertions about a request.
 To accommodate this need, Spring Security Test support implements Spring MVC Test's `ResultMatcher` interface.
@@ -1757,7 +1757,7 @@ import org.springframework.security.test.web.servlet.response.SecurityMockMvcRes
 ----
 ====
 
-==== Unauthenticated Assertion
+=== Unauthenticated Assertion
 
 At times it may be valuable to assert that there is no authenticated user associated with the result of a `MockMvc` invocation.
 For example, you might want to test submitting an invalid username and password and verify that no user is authenticated.
@@ -1781,7 +1781,7 @@ mvc
 ----
 ====
 
-==== Authenticated Assertion
+=== Authenticated Assertion
 
 It is often times that we must assert that an authenticated user exists.
 For example, we may want to verify that we authenticated successfully.

@@ -1,5 +1,5 @@
 [[servlet-openid]]
-== OpenID Support
+= OpenID Support
 
 [NOTE]
 The OpenID 1.0 and 2.0 protocols have been deprecated and users are encouraged to migrate to OpenID Connect, which is supported by spring-security-oauth2.
@@ -27,7 +27,7 @@ Note that we have omitted the password attribute from the above user configurati
 A random password will be generated internally, preventing you from accidentally using this user data as an authentication source elsewhere in your configuration.
 
 
-=== Attribute Exchange
+== Attribute Exchange
 Support for OpenID https://openid.net/specs/openid-attribute-exchange-1_0.html[attribute exchange].
 As an example, the following configuration would attempt to retrieve the email and full name from the OpenID provider, for use by the application:
 
