@@ -51,7 +51,7 @@ This will ensure that:
 <2> The SecurityContextHolder is populated with the user within the simpUser header attribute for any inbound request.
 <3> Our messages require the proper authorization. Specifically, any inbound message that starts with "/user/" will require ROLE_USER. Additional details on authorization can be found in <<websocket-authorization>>
 
-Spring Security also provides <<nsa-websocket-security,XML Namespace>> support for securing WebSockets.
+Spring Security also provides xref:servlet/appendix/namespace.adoc#nsa-websocket-security[XML Namespace] support for securing WebSockets.
 A comparable XML based configuration looks like the following:
 
 [source,xml]
@@ -132,7 +132,7 @@ This will ensure that:
 <5> Any other message of type MESSAGE or SUBSCRIBE is rejected. Due to 6 we do not need this step, but it illustrates how one can match on specific message types.
 <6> Any other Message is rejected. This is a good idea to ensure that you do not miss any messages.
 
-Spring Security also provides <<nsa-websocket-security,XML Namespace>> support for securing WebSockets.
+Spring Security also provides xref:servlet/appendix/namespace.adoc#nsa-websocket-security[XML Namespace] support for securing WebSockets.
 A comparable XML based configuration looks like the following:
 
 [source,xml]
@@ -246,7 +246,7 @@ Spring Security adds an additional layer of protection to provide https://en.wik
 [[websocket-sameorigin-csrf]]
 === Adding CSRF to Stomp Headers
 
-By default Spring Security requires the <<csrf,CSRF token>> in any CONNECT message type.
+By default Spring Security requires the xref:overview/features/exploits/csrf.adoc#csrf[CSRF token] in any CONNECT message type.
 This ensures that only a site that has access to the CSRF token can connect.
 Since only the *Same Origin* can access the CSRF token, external domains are not allowed to make a connection.
 
@@ -254,7 +254,7 @@ Typically we need to include the CSRF token in an HTTP header or an HTTP paramet
 However, SockJS does not allow for these options.
 Instead, we must include the token in the Stomp headers
 
-Applications can <<servlet-csrf-include,obtain a CSRF token>> by accessing the request attribute named _csrf.
+Applications can xref:servlet/exploits/csrf.adoc#servlet-csrf-include[obtain a CSRF token] by accessing the request attribute named _csrf.
 For example, the following will allow accessing the `CsrfToken` in a JSP:
 
 [source,javascript]
@@ -357,10 +357,10 @@ When using the fallback options we need to relax a few security constraints to a
 === SockJS & frame-options
 
 SockJS may use an https://github.com/sockjs/sockjs-client/tree/v0.3.4[transport that leverages an iframe].
-By default Spring Security will <<headers-frame-options,deny>> the site from being framed to prevent Clickjacking attacks.
+By default Spring Security will xref:overview/features/exploits/headers.adoc#headers-frame-options[deny] the site from being framed to prevent Clickjacking attacks.
 To allow SockJS frame based transports to work, we need to configure Spring Security to allow the same origin to frame the content.
 
-You can customize X-Frame-Options with the <<nsa-frame-options,frame-options>> element.
+You can customize X-Frame-Options with the xref:servlet/appendix/namespace.adoc#nsa-frame-options[frame-options] element.
 For example, the following will instruct Spring Security to use "X-Frame-Options: SAMEORIGIN" which allows iframes within the same domain:
 
 [source,xml]
@@ -486,7 +486,7 @@ open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 ----
 ====
 
-If we are using XML based configuration, we can use the <<nsa-csrf-request-matcher-ref,csrf@request-matcher-ref>>.
+If we are using XML based configuration, we can use the xref:servlet/appendix/namespace.adoc#nsa-csrf-request-matcher-ref[csrf@request-matcher-ref].
 For example:
 
 [source,xml]

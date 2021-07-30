@@ -10,4 +10,4 @@ Once authentication is performed we know the identity and can perform authorizat
 
 Spring Security provides built in support for authenticating users.
 This section is dedicated to generic authentication support that applies in both Servlet and WebFlux environments.
-Refer to the sections on authentication for <<servlet-authentication,Servlet>> and WebFlux for details on what is supported for each stack.
+Refer to the sections on authentication for xref:servlet/authentication/index.adoc#servlet-authentication[Servlet] and WebFlux for details on what is supported for each stack.

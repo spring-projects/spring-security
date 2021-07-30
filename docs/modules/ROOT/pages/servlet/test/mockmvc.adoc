@@ -480,7 +480,7 @@ fun foo(user: Principal): String {
 ----
 ====
 
-There's nothing OAuth2-specific about it, so you will likely be able to simply <<test-method-withmockuser,use `@WithMockUser`>> and be fine.
+There's nothing OAuth2-specific about it, so you will likely be able to simply xref:servlet/test/method.adoc#test-method-withmockuser[use `@WithMockUser`] and be fine.
 
 But, in cases where your controllers are bound to some aspect of Spring Security's OAuth 2.0 support, like the following:
 
@@ -583,7 +583,7 @@ assertThat(user.authorities).containsExactly(SimpleGrantedAuthority("SCOPE_read"
 ----
 ====
 
-Spring Security does the necessary work to make sure that the `OidcUser` instance is available for <<mvc-authentication-principal,the `@AuthenticationPrincipal` annotation>>.
+Spring Security does the necessary work to make sure that the `OidcUser` instance is available for xref:servlet/integrations/mvc.adoc#mvc-authentication-principal[the `@AuthenticationPrincipal` annotation].
 
 Further, it also links that `OidcUser` to a simple instance of `OAuth2AuthorizedClient` that it deposits into an mock `OAuth2AuthorizedClientRepository`.
 This can be handy if your tests <<testing-oauth2-client,use the `@RegisteredOAuth2AuthorizedClient` annotation>>..
@@ -806,7 +806,7 @@ assertThat(user.authorities).containsExactly(SimpleGrantedAuthority("SCOPE_read"
 ----
 ====
 
-Spring Security does the necessary work to make sure that the `OAuth2User` instance is available for <<mvc-authentication-principal,the `@AuthenticationPrincipal` annotation>>.
+Spring Security does the necessary work to make sure that the `OAuth2User` instance is available for xref:servlet/integrations/mvc.adoc#mvc-authentication-principal[the `@AuthenticationPrincipal` annotation].
 
 Further, it also links that `OAuth2User` to a simple instance of `OAuth2AuthorizedClient` that it deposits in a mock `OAuth2AuthorizedClientRepository`.
 This can be handy if your tests <<testing-oauth2-client,use the `@RegisteredOAuth2AuthorizedClient` annotation>>.

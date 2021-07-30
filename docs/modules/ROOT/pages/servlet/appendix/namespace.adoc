@@ -1,7 +1,7 @@
 [[appendix-namespace]]
 = The Security Namespace
 This appendix provides a reference to the elements available in the security namespace and information on the underlying beans they create (a knowledge of the individual classes and how they work together is assumed - you can find more information in the project Javadoc and elsewhere in this document).
-If you haven't used the namespace before, please read the <<ns-config,introductory chapter>> on namespace configuration, as this is intended as a supplement to the information there.
+If you haven't used the namespace before, please read the xref:servlet/namespace/index.adoc#ns-config[introductory chapter] on namespace configuration, as this is intended as a supplement to the information there.
 Using a good quality XML editor while editing a configuration based on the schema is recommended as this will provide contextual information on which elements and attributes are available as well as comments explaining their purpose.
 The namespace is written in https://relaxng.org/[RELAX NG] Compact format and later converted into an XSD schema.
 If you are familiar with this format, you may wish to examine the https://raw.githubusercontent.com/spring-projects/spring-security/main/config/src/main/resources/org/springframework/security/config/spring-security-4.1.rnc[schema file] directly.
@@ -19,15 +19,15 @@ This may include sensitive information, such as request parameters or headers, a
 === <http>
 If you use an `<http>` element within your application, a `FilterChainProxy` bean named "springSecurityFilterChain" is created and the configuration within the element is used to build a filter chain within
 `FilterChainProxy`.
-As of Spring Security 3.1, additional `http` elements can be used to add extra filter chains footnote:[See the pass:specialcharacters,macros[<<ns-web-xml,introductory chapter>>] for how to set up the mapping from your `web.xml` ].
+As of Spring Security 3.1, additional `http` elements can be used to add extra filter chains footnote:[See the pass:specialcharacters,macros[xref:servlet/namespace/index.adoc#ns-web-xml[introductory chapter]] for how to set up the mapping from your `web.xml` ].
 Some core filters are always created in a filter chain and others will be added to the stack depending on the attributes and child elements which are present.
 The positions of the standard filters are fixed (see
-<<filter-stack,the filter order table>> in the namespace introduction), removing a common source of errors with previous versions of the framework when users had to configure the filter chain explicitly in the
+xref:servlet/namespace/index.adoc#filter-stack[the filter order table] in the namespace introduction), removing a common source of errors with previous versions of the framework when users had to configure the filter chain explicitly in the
 `FilterChainProxy` bean.
 You can, of course, still do this if you need full control of the configuration.
 
 
-All filters which require a reference to the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> will be automatically injected with the internal instance created by the namespace configuration.
+All filters which require a reference to the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] will be automatically injected with the internal instance created by the namespace configuration.
 
 Each `<http>` namespace block always creates an `SecurityContextPersistenceFilter`, an `ExceptionTranslationFilter` and a `FilterSecurityInterceptor`.
 These are fixed and cannot be replaced with alternatives.
@@ -146,7 +146,7 @@ Defaults to `true`.
 
 [[nsa-http-use-expressions]]
 * **use-expressions**
-Enables EL-expressions in the `access` attribute, as described in the chapter on <<el-access-web,expression-based access-control>>.
+Enables EL-expressions in the `access` attribute, as described in the chapter on xref:servlet/authorization/expression-based.adoc#el-access-web[expression-based access-control].
 The default value is true.
 
 
@@ -179,7 +179,7 @@ The default value is true.
 [[nsa-access-denied-handler]]
 === <access-denied-handler>
 This element allows you to set the `errorPage` property for the default `AccessDeniedHandler` used by the `ExceptionTranslationFilter`, using the <<nsa-access-denied-handler-error-page,error-page>> attribute, or to supply your own implementation using the<<nsa-access-denied-handler-ref,ref>> attribute.
-This is discussed in more detail in the section on the <<servlet-exceptiontranslationfilter,ExceptionTranslationFilter>>.
+This is discussed in more detail in the section on the xref:servlet/architecture/index.adoc#servlet-exceptiontranslationfilter[ExceptionTranslationFilter].
 
 
 [[nsa-access-denied-handler-parents]]
@@ -227,7 +227,7 @@ Optional attribute that specifies the bean name of a `CorsConfigurationSource` t
 === <headers>
 This element allows for configuring additional (security) headers to be send with the response.
 It enables easy configuration for several headers and also allows for setting custom headers through the <<nsa-header,header>> element.
-Additional information, can be found in the <<headers,Security Headers>> section of the reference.
+Additional information, can be found in the xref:overview/features/exploits/headers.adoc#headers[Security Headers] section of the reference.
 
 ** `Cache-Control`, `Pragma`, and `Expires` - Can be set using the <<nsa-cache-control,cache-control>> element.
 This ensures that the browser does not cache your secured pages.
@@ -674,7 +674,7 @@ if unset, defaults to `anonymousUser`.
 === <csrf>
 This element will add https://en.wikipedia.org/wiki/Cross-site_request_forgery[Cross Site Request Forger (CSRF)] protection to the application.
 It also updates the default RequestCache to only replay "GET" requests upon successful authentication.
-Additional information can be found in the <<csrf,Cross Site Request Forgery (CSRF)>> section of the reference.
+Additional information can be found in the xref:overview/features/exploits/csrf.adoc#csrf[Cross Site Request Forgery (CSRF)] section of the reference.
 
 
 [[nsa-csrf-parents]]
@@ -710,7 +710,7 @@ Default is any HTTP method except "GET", "TRACE", "HEAD", "OPTIONS".
 === <custom-filter>
 This element is used to add a filter to the filter chain.
 It doesn't create any additional beans but is used to select a bean of type `javax.servlet.Filter` which is already defined in the application context and add that at a particular position in the filter chain maintained by Spring Security.
-Full details can be found in the <<ns-custom-filters, namespace chapter>>.
+Full details can be found in the xref:servlet/namespace/index.adoc#ns-custom-filters[ namespace chapter].
 
 
 [[nsa-custom-filter-parents]]
@@ -871,7 +871,7 @@ Maps a `ForwardAuthenticationFailureHandler` to `authenticationFailureHandler` p
 
 [[nsa-oauth2-login]]
 === <oauth2-login>
-The <<oauth2login,OAuth 2.0 Login>> feature configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
+The xref:servlet/oauth2/oauth2-login.adoc#oauth2login[OAuth 2.0 Login] feature configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
 
 
 [[nsa-oauth2-login-parents]]
@@ -955,7 +955,7 @@ Reference to the `JwtDecoderFactory` used by `OidcAuthorizationCodeAuthenticatio
 
 [[nsa-oauth2-client]]
 === <oauth2-client>
-Configures <<oauth2client,OAuth 2.0 Client>> support.
+Configures xref:servlet/oauth2/oauth2-client.adoc#oauth2client[OAuth 2.0 Client] support.
 
 
 [[nsa-oauth2-client-parents]]
@@ -990,7 +990,7 @@ Reference to the `OAuth2AuthorizedClientService`.
 
 [[nsa-authorization-code-grant]]
 === <authorization-code-grant>
-Configures <<oauth2Client-auth-grant-support,OAuth 2.0 Authorization Code Grant>>.
+Configures xref:servlet/oauth2/oauth2-client.adoc#oauth2Client-auth-grant-support[OAuth 2.0 Authorization Code Grant].
 
 
 [[nsa-authorization-code-grant-parents]]
@@ -1020,7 +1020,7 @@ Reference to the `OAuth2AccessTokenResponseClient`.
 
 [[nsa-client-registrations]]
 === <client-registrations>
-A container element for client(s) registered (<<oauth2Client-client-registration,ClientRegistration>>) with an OAuth 2.0 or OpenID Connect 1.0 Provider.
+A container element for client(s) registered (xref:servlet/oauth2/oauth2-client.adoc#oauth2Client-client-registration[ClientRegistration]) with an OAuth 2.0 or OpenID Connect 1.0 Provider.
 
 
 [[nsa-client-registrations-children]]
@@ -1522,7 +1522,7 @@ Defaults to "username".
 [[nsa-attribute-exchange]]
 === <attribute-exchange>
 The `attribute-exchange` element defines the list of attributes which should be requested from the identity provider.
-An example can be found in the <<servlet-openid,OpenID Support>> section of the namespace configuration chapter.
+An example can be found in the xref:servlet/authentication/openid.adoc#servlet-openid[OpenID Support] section of the namespace configuration chapter.
 More than one can be used, in which case each must have an `identifier-match` attribute, containing a regular expression which is matched against the supplied OpenID identifier.
 This allows different attribute lists to be fetched from different providers (Google, Yahoo etc).
 
@@ -1616,7 +1616,7 @@ By default, an instance of `PortMapperImpl` will be added to the configuration f
 This element can optionally be used to override the default mappings which that class defines.
 Each child `<port-mapping>` element defines a pair of HTTP:HTTPS ports.
 The default mappings are 80:443 and 8080:8443.
-An example of overriding these can be found in <<servlet-http-redirect>>.
+An example of overriding these can be found in xref:servlet/exploits/http.adoc#servlet-http-redirect[].
 
 
 [[nsa-port-mappings-parents]]
@@ -2124,7 +2124,7 @@ This attribute allows you to define an alias name for the internal instance for 
 [[nsa-authentication-manager-erase-credentials]]
 * **erase-credentials**
 If set to true, the AuthenticationManager will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated.
-Literally it maps to the `eraseCredentialsAfterAuthentication` property of the <<servlet-authentication-providermanager,`ProviderManager`>>.
+Literally it maps to the `eraseCredentialsAfterAuthentication` property of the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-providermanager[`ProviderManager`].
 
 
 [[nsa-authentication-manager-id]]
@@ -2278,7 +2278,7 @@ select username, password, enabled from users where username = ?
 
 [[nsa-password-encoder]]
 === <password-encoder>
-Authentication providers can optionally be configured to use a password encoder as described in the <<authentication-password-storage>>.
+Authentication providers can optionally be configured to use a password encoder as described in the xref:overview/features/authentication/password-storage.adoc#authentication-password-storage[].
 This will result in the bean being injected with the appropriate `PasswordEncoder` instance.
 
 
@@ -2625,7 +2625,7 @@ Defines a reference to a Spring bean Id.
 === Securing Methods using
 `<protect-pointcut>`
 Rather than defining security attributes on an individual method or class basis using the `@Secured` annotation, you can define cross-cutting security constraints across whole sets of methods and interfaces in your service layer using the `<protect-pointcut>` element.
-You can find an example in the <<ns-protect-pointcut,namespace introduction>>.
+You can find an example in the xref:servlet/authorization/method-security.adoc#ns-protect-pointcut[namespace introduction].
 
 
 [[nsa-protect-pointcut-parents]]
@@ -2736,7 +2736,7 @@ A method name
 
 [[nsa-ldap]]
 == LDAP Namespace Options
-LDAP is covered in some details in <<servlet-authentication-ldap,its own chapter>>.
+LDAP is covered in some details in xref:servlet/authentication/unpwd/ldap.adoc#servlet-authentication-ldap[its own chapter].
 We will expand on that here with some explanation of how the namespace options map to Spring beans.
 The LDAP implementation uses Spring LDAP extensively, so some familiarity with that project's API may be useful.
 
@@ -2746,7 +2746,7 @@ The LDAP implementation uses Spring LDAP extensively, so some familiarity with t
 `<ldap-server>` Element
 This element sets up a Spring LDAP `ContextSource` for use by the other LDAP beans, defining the location of the LDAP server and other information (such as a username and password, if it doesn't allow anonymous access) for connecting to it.
 It can also be used to create an embedded server for testing.
-Details of the syntax for both options are covered in the <<servlet-authentication-ldap,LDAP chapter>>.
+Details of the syntax for both options are covered in the xref:servlet/authentication/unpwd/ldap.adoc#servlet-authentication-ldap[LDAP chapter].
 The actual `ContextSource` implementation is `DefaultSpringSecurityContextSource` which extends Spring LDAP's `LdapContextSource` class.
 The `manager-dn` and `manager-password` attributes map to the latter's `userDn` and `password` properties respectively.
 

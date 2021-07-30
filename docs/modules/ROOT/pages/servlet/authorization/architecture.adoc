@@ -6,7 +6,7 @@
 
 [[authz-authorities]]
 == Authorities
-<<servlet-authentication-authentication,`Authentication`>>, discusses how all `Authentication` implementations store a list of `GrantedAuthority` objects.
+xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authentication[`Authentication`], discusses how all `Authentication` implementations store a list of `GrantedAuthority` objects.
 These represent the authorities that have been granted to the principal.
 The `GrantedAuthority` objects are inserted into the `Authentication` object by the `AuthenticationManager` and are later read by ``AccessDecisionManager``s when making authorization decisions.
 

@@ -4,7 +4,7 @@
 LDAP is often used by organizations as a central repository for user information and as an authentication service.
 It can also be used to store the role information for application users.
 
-Spring Security's LDAP based authentication is used by Spring Security when it is configured to <<servlet-authentication-unpwd-input,accept a username/password>> for authentication.
+Spring Security's LDAP based authentication is used by Spring Security when it is configured to xref:servlet/authentication/unpwd/index.adoc#servlet-authentication-unpwd-input[accept a username/password] for authentication.
 However, despite leveraging a username/password for authentication it does not integrate using `UserDetailsService` because in <<servlet-authentication-ldap-bind,bind authentication>> the LDAP server does not return the password so the application cannot perform validation of the password.
 
 There are many different scenarios for how an LDAP server may be configured so Spring Security's LDAP provider is fully configurable.
@@ -258,7 +258,7 @@ fun contextSource(container: UnboundIdContainer): ContextSource {
 [[servlet-authentication-ldap-authentication]]
 == Authentication
 
-Spring Security's LDAP support does not use the <<servlet-authentication-userdetailsservice>> because LDAP bind authentication does not allow clients to read the password or even a hashed version of the password.
+Spring Security's LDAP support does not use the xref:servlet/authentication/unpwd/user-details-service.adoc#servlet-authentication-userdetailsservice[] because LDAP bind authentication does not allow clients to read the password or even a hashed version of the password.
 This means there is no way a password to be read and then authenticated by Spring Security.
 
 For this reason, LDAP support is implemented using the `LdapAuthenticator` interface.

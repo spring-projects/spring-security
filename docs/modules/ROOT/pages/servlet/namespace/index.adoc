@@ -18,7 +18,7 @@ For example, adding the following element from the security namespace to an appl
 
 This is much simpler than wiring up the equivalent Apache Directory Server beans.
 The most common alternative configuration requirements are supported by attributes on the `ldap-server` element and the user is isolated from worrying about which beans they need to create and what the bean property names are.
-footnote:[You can find out more about the use of the `ldap-server` element in the chapter on pass:specialcharacters,macros[<<servlet-authentication-ldap>>].].
+footnote:[You can find out more about the use of the `ldap-server` element in the chapter on pass:specialcharacters,macros[xref:servlet/authentication/unpwd/ldap.adoc#servlet-authentication-ldap[]].].
 Use of a good XML editor while editing the application context file should provide information on the attributes and elements that are available.
 We would recommend that you try out the https://spring.io/tools[Eclipse IDE with Spring Tools] as it has special features for working with standard Spring namespaces.
 
@@ -126,7 +126,7 @@ All you need to enable web security to begin with is
 
 Which says that we want all URLs within our application to be secured, requiring the role `ROLE_USER` to access them, we want to log in to the application using a form with username and password, and that we want a logout URL registered which will allow us to log out of the application.
 `<http>` element is the parent for all web-related namespace functionality.
-The `<intercept-url>` element defines a `pattern` which is matched against the URLs of incoming requests using an ant path style syntax footnote:[See the section on pass:specialcharacters,macros[<<servlet-httpfirewall,`HttpFirewall`>>] for more details on how matches are actually performed.].
+The `<intercept-url>` element defines a `pattern` which is matched against the URLs of incoming requests using an ant path style syntax footnote:[See the section on pass:specialcharacters,macros[xref:servlet/exploits/firewall.adoc#servlet-httpfirewall[`HttpFirewall`]] for more details on how matches are actually performed.].
 You can also use regular-expression matching as an alternative (see the namespace appendix for more details).
 The `access` attribute defines the access requirements for requests matching the given pattern.
 With the default configuration, this is typically a comma-separated list of roles, one of which a user must have to be allowed to make the request.
@@ -134,7 +134,7 @@ The prefix "ROLE_" is a marker which indicates that a simple comparison with the
 In other words, a normal role-based check should be used.
 Access-control in Spring Security is not limited to the use of simple roles (hence the use of the prefix to differentiate between different types of security attributes).
 We'll see later how the interpretation can vary footnote:[The interpretation of the comma-separated values in the `access` attribute depends on the implementation of the <<ns-access-manager,AccessDecisionManager>> which is used.].
-In Spring Security 3.0, the attribute can also be populated with an <<el-access,EL expression>>.
+In Spring Security 3.0, the attribute can also be populated with an xref:servlet/authorization/expression-based.adoc#el-access[EL expression].
 
 
 [NOTE]
@@ -192,13 +192,13 @@ Common problems like incorrect filter ordering are no longer an issue as the fil
 
 The `<authentication-provider>` element creates a `DaoAuthenticationProvider` bean and the `<user-service>` element creates an `InMemoryDaoImpl`.
 All `authentication-provider` elements must be children of the `<authentication-manager>` element, which creates a `ProviderManager` and registers the authentication providers with it.
-You can find more detailed information on the beans that are created in the <<appendix-namespace,namespace appendix>>.
+You can find more detailed information on the beans that are created in the xref:servlet/appendix/namespace.adoc#appendix-namespace[namespace appendix].
 It's worth cross-checking this if you want to start understanding what the important classes in the framework are and how they are used, particularly if you want to customise things later.
 ****
 
 The configuration above defines two users, their passwords and their roles within the application (which will be used for access control).
 It is also possible to load user information from a standard properties file using the `properties` attribute on `user-service`.
-See the section on <<servlet-authentication-inmemory,in-memory authentication>> for more details on the file format.
+See the section on xref:servlet/authentication/unpwd/in-memory.adoc#servlet-authentication-inmemory[in-memory authentication] for more details on the file format.
 Using the `<authentication-provider>` element means that the user information will be used by the authentication manager to process authentication requests.
 You can have multiple `<authentication-provider>` elements to define different authentication sources and each will be consulted in turn.
 
@@ -353,7 +353,7 @@ Remove any elements which create filters whose functionality you want to replace
 
 Note that you can't replace filters which are created by the use of the `<http>` element itself - `SecurityContextPersistenceFilter`, `ExceptionTranslationFilter` or `FilterSecurityInterceptor`.
 Some other filters are added by default, but you can disable them.
-An `AnonymousAuthenticationFilter` is added by default and unless you have <<ns-session-fixation,session-fixation protection>> disabled, a `SessionManagementFilter` will also be added to the filter chain.
+An `AnonymousAuthenticationFilter` is added by default and unless you have xref:servlet/authentication/session-management.adoc#ns-session-fixation[session-fixation protection] disabled, a `SessionManagementFilter` will also be added to the filter chain.
 
 ====
 
@@ -365,7 +365,7 @@ If you're replacing a namespace filter which requires an authentication entry po
 == Method Security
 From version 2.0 onwards Spring Security has improved support substantially for adding security to your service layer methods.
 It provides support for JSR-250 annotation security as well as the framework's original `@Secured` annotation.
-From 3.0 you can also make use of new <<el-access,expression-based annotations>>.
+From 3.0 you can also make use of new xref:servlet/authorization/expression-based.adoc#el-access[expression-based annotations].
 You can apply security to a single bean, using the `intercept-methods` element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
 
 [[ns-access-manager]]
@@ -376,7 +376,7 @@ If you don't you can skip it and come back to it later, as this section is only 
 When you use a namespace configuration, a default instance of `AccessDecisionManager` is automatically registered for you and will be used for making access decisions for method invocations and web URL access, based on the access attributes you specify in your `intercept-url` and `protect-pointcut` declarations (and in annotations if you are using annotation secured methods).
 
 The default strategy is to use an `AffirmativeBased` `AccessDecisionManager` with a `RoleVoter` and an `AuthenticatedVoter`.
-You can find out more about these in the chapter on <<authz-arch,authorization>>.
+You can find out more about these in the chapter on xref:servlet/authorization/architecture.adoc#authz-arch[authorization].
 
 
 [[ns-custom-access-mgr]]

@@ -92,7 +92,7 @@ The web application side of CAS is made easy due to Spring Security.
 It is assumed you already know the basics of using Spring Security, so these are not covered again below.
 We'll assume a namespace based configuration is being used and add in the CAS beans as required.
 Each section builds upon the previous section.
-A full CAS sample application can be found in the Spring Security <<samples,Samples>>.
+A full CAS sample application can be found in the Spring Security xref:overview/samples.adoc#samples[Samples].
 
 
 [[cas-st]]
@@ -139,7 +139,7 @@ The following beans should be configured to commence the CAS authentication proc
 ----
 
 For CAS to operate, the `ExceptionTranslationFilter` must have its `authenticationEntryPoint` property set to the `CasAuthenticationEntryPoint` bean.
-This can easily be done using <<nsa-http-entry-point-ref,entry-point-ref>> as is done in the example above.
+This can easily be done using xref:servlet/appendix/namespace.adoc#nsa-http-entry-point-ref[entry-point-ref] as is done in the example above.
 The `CasAuthenticationEntryPoint` must refer to the `ServiceProperties` bean (discussed above), which provides the URL to the enterprise's CAS login server.
 This is where the user's browser will be redirected.
 
@@ -337,7 +337,7 @@ An example configuration is shown below.
 [[cas-pt-client-sample]]
 ==== Calling a Stateless Service Using a Proxy Ticket
 Now that Spring Security obtains PGTs, you can use them to create proxy tickets which can be used to authenticate to a stateless service.
-The CAS <<samples,sample application>> contains a working example in the `ProxyTicketSampleServlet`.
+The CAS xref:overview/samples.adoc#samples[sample application] contains a working example in the `ProxyTicketSampleServlet`.
 Example code can be found below:
 
 ====

@@ -74,7 +74,7 @@ This is a shortcut for adding a `CookieClearingLogoutHandler` explicitly.
 [NOTE]
 ====
 Logouts can of course also be configured using the XML Namespace notation.
-Please see the documentation for the <<nsa-logout, logout element>> in the Spring Security XML Namespace section for further details.
+Please see the documentation for the xref:servlet/appendix/namespace.adoc#nsa-logout[ logout element] in the Spring Security XML Namespace section for further details.
 ====
 
 Generally, in order to customize logout functionality, you can add
@@ -108,7 +108,7 @@ Various implementations are provided:
 - {security-api-url}org/springframework/security/web/authentication/logout/SecurityContextLogoutHandler.html[SecurityContextLogoutHandler]
 - {security-api-url}org/springframework/security/web/authentication/logout/HeaderWriterLogoutHandler.html[HeaderWriterLogoutHandler]
 
-Please see <<remember-me-impls>> for details.
+Please see xref:servlet/authentication/rememberme.adoc#remember-me-impls[] for details.
 
 Instead of providing `LogoutHandler` implementations directly, the fluent API also provides shortcuts that provide the respective `LogoutHandler` implementations under the covers.
 E.g. `deleteCookies()` allows specifying the names of one or more cookies to be removed on logout success.
@@ -140,9 +140,9 @@ If not configured a status code 200 will be returned by default.
 == Further Logout-Related References
 
 - <<ns-logout, Logout Handling>>
-- <<test-logout, Testing Logout>>
-- <<servletapi-logout, HttpServletRequest.logout()>>
-- <<remember-me-impls>>
-- <<servlet-considerations-csrf-logout, Logging Out>> in section CSRF Caveats
-- Section <<cas-singlelogout, Single Logout>> (CAS protocol)
-- Documentation for the <<nsa-logout, logout element>> in the Spring Security XML Namespace section
+- xref:servlet/test/mockmvc.adoc#test-logout[ Testing Logout]
+- xref:servlet/integrations/servlet-api.adoc#servletapi-logout[ HttpServletRequest.logout()]
+- xref:servlet/authentication/rememberme.adoc#remember-me-impls[]
+- xref:servlet/exploits/csrf.adoc#servlet-considerations-csrf-logout[ Logging Out] in section CSRF Caveats
+- Section xref:servlet/authentication/cas.adoc#cas-singlelogout[ Single Logout] (CAS protocol)
+- Documentation for the xref:servlet/appendix/namespace.adoc#nsa-logout[ logout element] in the Spring Security XML Namespace section

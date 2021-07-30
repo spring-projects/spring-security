@@ -1,8 +1,8 @@
 [[servlet-authentication]]
 = Authentication
 
-Spring Security provides comprehensive support for <<authentication>>.
-We start by discussing the overall <<servlet-architecture,Servlet Authentication Architecture>>.
+Spring Security provides comprehensive support for xref:overview/features/authentication/index.adoc#authentication[].
+We start by discussing the overall xref:servlet/architecture/index.adoc#servlet-architecture[Servlet Authentication Architecture].
 As you might expect, this section is more abstract describing the architecture without much discussion on how it applies to concrete flows.
 
 If you prefer, you can refer to <<servlet-authentication-mechanisms,Authentication Mechanisms>> for concrete ways in which users can authenticate.
@@ -13,12 +13,12 @@ These sections focus on specific ways you may want to authenticate and point bac
 
 // FIXME: brief description
 
-* <<servlet-authentication-unpwd,Username and Password>> - how to authenticate with a username/password
-* <<oauth2login,OAuth 2.0 Login>> - OAuth 2.0 Log In with OpenID Connect and non-standard OAuth 2.0 Login (i.e. GitHub)
-* <<servlet-saml2,SAML 2.0 Login>> - SAML 2.0 Log In
-* <<servlet-cas,Central Authentication Server (CAS)>> - Central Authentication Server (CAS) Support
-* <<servlet-rememberme, Remember Me>> - how to remember a user past session expiration
-* <<servlet-jaas, JAAS Authentication>> - authenticate with JAAS
-* <<servlet-openid,OpenID>> - OpenID Authentication (not to be confused with OpenID Connect)
-* <<servlet-preauth>> - authenticate with an external mechanism such as https://www.siteminder.com/[SiteMinder] or Java EE security but still use Spring Security for authorization and protection against common exploits.
-* <<servlet-x509,X509 Authentication>> - X509 Authentication
+* xref:servlet/authentication/unpwd/index.adoc#servlet-authentication-unpwd[Username and Password] - how to authenticate with a username/password
+* xref:servlet/oauth2/oauth2-login.adoc#oauth2login[OAuth 2.0 Login] - OAuth 2.0 Log In with OpenID Connect and non-standard OAuth 2.0 Login (i.e. GitHub)
+* xref:servlet/saml2/index.adoc#servlet-saml2[SAML 2.0 Login] - SAML 2.0 Log In
+* xref:servlet/authentication/cas.adoc#servlet-cas[Central Authentication Server (CAS)] - Central Authentication Server (CAS) Support
+* xref:servlet/authentication/rememberme.adoc#servlet-rememberme[Remember Me] - how to remember a user past session expiration
+* xref:servlet/authentication/jaas.adoc#servlet-jaas[JAAS Authentication] - authenticate with JAAS
+* xref:servlet/authentication/openid.adoc#servlet-openid[OpenID] - OpenID Authentication (not to be confused with OpenID Connect)
+* xref:servlet/authentication/preauth.adoc#servlet-preauth[] - authenticate with an external mechanism such as https://www.siteminder.com/[SiteMinder] or Java EE security but still use Spring Security for authorization and protection against common exploits.
+* xref:servlet/authentication/x509.adoc#servlet-x509[X509 Authentication] - X509 Authentication

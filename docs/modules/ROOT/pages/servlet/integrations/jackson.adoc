@@ -42,6 +42,6 @@ The following Spring Security modules provide Jackson support:
 
 - spring-security-core (`CoreJackson2Module`)
 - spring-security-web (`WebJackson2Module`, `WebServletJackson2Module`, `WebServerJackson2Module`)
-- <<oauth2client, spring-security-oauth2-client>> (`OAuth2ClientJackson2Module`)
+- xref:servlet/oauth2/oauth2-client.adoc#oauth2client[ spring-security-oauth2-client] (`OAuth2ClientJackson2Module`)
 - spring-security-cas (`CasJackson2Module`)
 ====

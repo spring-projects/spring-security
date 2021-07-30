@@ -78,7 +78,7 @@ If you write your own or choose to implement `AuthenticationProvider` without a 
 
 
 == Persistent Login (Remember-Me) Schema
-This table is used to store data used by the more secure <<remember-me-persistent-token,persistent token>> remember-me implementation.
+This table is used to store data used by the more secure xref:servlet/authentication/rememberme.adoc#remember-me-persistent-token[persistent token] remember-me implementation.
 If you are using `JdbcTokenRepositoryImpl` either directly or through the namespace, then you will need this table.
 Remember to adjust this schema to match the database dialect you are using.
 
@@ -96,7 +96,7 @@ create table persistent_logins (
 
 [[dbschema-acl]]
 == ACL Schema
-There are four tables used by the Spring Security <<domain-acls,ACL>> implementation.
+There are four tables used by the Spring Security xref:servlet/authorization/acls.adoc#domain-acls[ACL] implementation.
 
 . `acl_sid` stores the security identities recognised by the ACL system.
 These can be unique principals or authorities which may apply to multiple principals.
@@ -367,7 +367,7 @@ END;
 
 [[dbschema-oauth2-client]]
 == OAuth 2.0 Client Schema
-The JDBC implementation of <<oauth2Client-authorized-repo-service, OAuth2AuthorizedClientService>> (`JdbcOAuth2AuthorizedClientService`) requires a table for persisting `OAuth2AuthorizedClient`(s).
+The JDBC implementation of xref:servlet/oauth2/oauth2-client.adoc#oauth2Client-authorized-repo-service[ OAuth2AuthorizedClientService] (`JdbcOAuth2AuthorizedClientService`) requires a table for persisting `OAuth2AuthorizedClient`(s).
 You will need to adjust this schema to match the database dialect you are using.
 
 [source,ddl]

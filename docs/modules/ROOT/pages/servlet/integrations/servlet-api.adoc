@@ -270,4 +270,4 @@ The following section describes the Servlet 3.1 methods that Spring Security int
 
 [[servletapi-change-session-id]]
 === HttpServletRequest#changeSessionId()
-The https://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpServletRequest.html#changeSessionId()[HttpServletRequest.changeSessionId()] is the default method for protecting against <<ns-session-fixation,Session Fixation>> attacks in Servlet 3.1 and higher.
+The https://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpServletRequest.html#changeSessionId()[HttpServletRequest.changeSessionId()] is the default method for protecting against xref:servlet/authentication/session-management.adoc#ns-session-fixation[Session Fixation] attacks in Servlet 3.1 and higher.

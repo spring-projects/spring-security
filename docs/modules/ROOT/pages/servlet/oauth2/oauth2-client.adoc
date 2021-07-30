@@ -74,7 +74,7 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
 
 In addition to the `HttpSecurity.oauth2Client()` DSL, XML configuration is also supported.
 
-The following code shows the complete configuration options available in the <<nsa-oauth2-client, security namespace>>:
+The following code shows the complete configuration options available in the xref:servlet/appendix/namespace.adoc#nsa-oauth2-client[ security namespace]:
 
 .OAuth2 Client XML Configuration Options
 ====
@@ -392,7 +392,7 @@ The default implementation of `OAuth2AuthorizedClientService` is `InMemoryOAuth2
 Alternatively, the JDBC implementation `JdbcOAuth2AuthorizedClientService` may be configured for persisting `OAuth2AuthorizedClient`(s) in a database.
 
 [NOTE]
-`JdbcOAuth2AuthorizedClientService` depends on the table definition described in <<dbschema-oauth2-client, OAuth 2.0 Client Schema>>.
+`JdbcOAuth2AuthorizedClientService` depends on the table definition described in xref:servlet/appendix/database-schema.adoc#dbschema-oauth2-client[ OAuth 2.0 Client Schema].
 
 
 [[oauth2Client-authorized-manager-provider]]
@@ -702,7 +702,7 @@ spring:
 [NOTE]
 `+{baseUrl}+` resolves to `+{baseScheme}://{baseHost}{basePort}{basePath}+`
 
-Configuring the `redirect-uri` with `URI` template variables is especially useful when the OAuth 2.0 Client is running behind a <<http-proxy-server,Proxy Server>>.
+Configuring the `redirect-uri` with `URI` template variables is especially useful when the OAuth 2.0 Client is running behind a xref:overview/features/exploits/http.adoc#http-proxy-server[Proxy Server].
 This ensures that the `X-Forwarded-*` headers are used when expanding the `redirect-uri`.
 
 ==== Customizing the Authorization Request

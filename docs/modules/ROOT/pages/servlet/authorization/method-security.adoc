@@ -3,7 +3,7 @@
 
 From version 2.0 onwards Spring Security has improved support substantially for adding security to your service layer methods.
 It provides support for JSR-250 annotation security as well as the framework's original `@Secured` annotation.
-From 3.0 you can also make use of new <<el-access,expression-based annotations>>.
+From 3.0 you can also make use of new xref:servlet/authorization/expression-based.adoc#el-access[expression-based annotations].
 You can apply security to a single bean, using the `intercept-methods` element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
 
 == EnableMethodSecurity

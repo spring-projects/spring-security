@@ -5,7 +5,7 @@ In most environments, Security is stored on a per `Thread` basis.
 This means that when work is done on a new `Thread`, the `SecurityContext` is lost.
 Spring Security provides some infrastructure to help make this much easier for users.
 Spring Security provides low level abstractions for working with Spring Security in multi-threaded environments.
-In fact, this is what Spring Security builds on to integration with <<servletapi-start-runnable>> and <<mvc-async>>.
+In fact, this is what Spring Security builds on to integration with xref:servlet/integrations/servlet-api.adoc#servletapi-start-runnable[] and xref:servlet/integrations/mvc.adoc#mvc-async[].
 
 == DelegatingSecurityContextRunnable
 
@@ -44,7 +44,7 @@ fun run() {
 
 While very simple, it makes it seamless to transfer the SecurityContext from one Thread to another.
 This is important since, in most cases, the SecurityContextHolder acts on a per Thread basis.
-For example, you might have used Spring Security's <<nsa-global-method-security>> support to secure one of your services.
+For example, you might have used Spring Security's xref:servlet/appendix/namespace.adoc#nsa-global-method-security[] support to secure one of your services.
 You can now easily transfer the `SecurityContext` of the current `Thread` to the `Thread` that invokes the secured service.
 An example of how you might do this can be found below:
 

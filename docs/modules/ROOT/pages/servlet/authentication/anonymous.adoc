@@ -96,7 +96,7 @@ If an `AccessDeniedException` is thrown, and the authentication is of an anonymo
 This is a necessary distinction, otherwise principals would always be deemed "authenticated" and never be given an opportunity to login via form, basic, digest or some other normal authentication mechanism.
 
 You will often see the `ROLE_ANONYMOUS` attribute in the above interceptor configuration replaced with `IS_AUTHENTICATED_ANONYMOUSLY`, which is effectively the same thing when defining access controls.
-This is an example of the use of the `AuthenticatedVoter` which we will see in the <<authz-authenticated-voter,authorization chapter>>.
+This is an example of the use of the `AuthenticatedVoter` which we will see in the xref:servlet/authorization/architecture.adoc#authz-authenticated-voter[authorization chapter].
 It uses an `AuthenticationTrustResolver` to process this particular configuration attribute and grant access to anonymous users.
 The `AuthenticatedVoter` approach is more powerful, since it allows you to differentiate between anonymous, remember-me and fully-authenticated users.
 If you don't need this functionality though, then you can stick with `ROLE_ANONYMOUS`, which will be processed by Spring Security's standard `RoleVoter`.

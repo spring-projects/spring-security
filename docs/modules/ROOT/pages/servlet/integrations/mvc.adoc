@@ -492,14 +492,14 @@ The `SecurityContext` that is used to process the `Callable` is the `SecurityCon
 
 There is no automatic integration with a `DeferredResult` that is returned by controllers.
 This is because `DeferredResult` is processed by the users and thus there is no way of automatically integrating with it.
-However, you can still use <<concurrency,Concurrency Support>> to provide transparent integration with Spring Security.
+However, you can still use xref:servlet/integrations/concurrency.adoc#concurrency[Concurrency Support] to provide transparent integration with Spring Security.
 
 [[mvc-csrf]]
 == Spring MVC and CSRF Integration
 
 === Automatic Token Inclusion
 
-Spring Security will automatically <<servlet-csrf-include,include the CSRF Token>> within forms that use the https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag].
+Spring Security will automatically xref:servlet/exploits/csrf.adoc#servlet-csrf-include[include the CSRF Token] within forms that use the https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag].
 For example, the following JSP:
 
 [source,xml]
@@ -544,7 +544,7 @@ Will output HTML that is similar to the following:
 === Resolving the CsrfToken
 
 Spring Security provides `CsrfTokenArgumentResolver` which can automatically resolve the current `CsrfToken` for Spring MVC arguments.
-By using <<jc-hello-wsca,@EnableWebSecurity>> you will automatically have this added to your Spring MVC configuration.
+By using xref:servlet/java-configuration/index.adoc#jc-hello-wsca[@EnableWebSecurity] you will automatically have this added to your Spring MVC configuration.
 If you use XML based configuration, you must add this yourself.
 
 Once `CsrfTokenArgumentResolver` is properly configured, you can expose the `CsrfToken` to your static HTML based application.

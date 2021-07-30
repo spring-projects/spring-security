@@ -1,9 +1,9 @@
 [[servlet-authentication-jdbc]]
 = JDBC Authentication
 
-Spring Security's `JdbcDaoImpl` implements <<servlet-authentication-userdetailsservice,UserDetailsService>> to provide support for username/password based authentication that is retrieved using JDBC.
+Spring Security's `JdbcDaoImpl` implements xref:servlet/authentication/unpwd/user-details-service.adoc#servlet-authentication-userdetailsservice[UserDetailsService] to provide support for username/password based authentication that is retrieved using JDBC.
 `JdbcUserDetailsManager` extends `JdbcDaoImpl` to provide management of `UserDetails` through the `UserDetailsManager` interface.
-`UserDetails` based authentication is used by Spring Security when it is configured to <<servlet-authentication-unpwd-input,accept a username/password>> for authentication.
+`UserDetails` based authentication is used by Spring Security when it is configured to xref:servlet/authentication/unpwd/index.adoc#servlet-authentication-unpwd-input[accept a username/password] for authentication.
 
 In the following sections we will discuss:
 
@@ -147,8 +147,8 @@ In a production environment, you will want to ensure you setup a connection to a
 [[servlet-authentication-jdbc-bean]]
 == JdbcUserDetailsManager Bean
 
-In this sample we use <<authentication-password-storage-boot-cli,Spring Boot CLI>> to encode the password of `password` and get the encoded password of `+{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW+`.
-See the <<authentication-password-storage,PasswordEncoder>> section for more details about how to store passwords.
+In this sample we use xref:overview/features/authentication/password-storage.adoc#authentication-password-storage-boot-cli[Spring Boot CLI] to encode the password of `password` and get the encoded password of `+{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW+`.
+See the xref:overview/features/authentication/password-storage.adoc#authentication-password-storage[PasswordEncoder] section for more details about how to store passwords.
 
 .JdbcUserDetailsManager
 ====

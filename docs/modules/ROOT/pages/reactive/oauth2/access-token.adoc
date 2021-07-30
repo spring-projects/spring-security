@@ -49,4 +49,4 @@ fun webFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
 ----
 ====
 
-You can now leverage Spring Security's <<webclient>> or <<webflux-roac,@RegisteredOAuth2AuthorizedClient>> support to obtain and use the access token.
+You can now leverage Spring Security's <<webclient>> or xref:reactive/registered-oauth2-authorized-client.adoc#webflux-roac[@RegisteredOAuth2AuthorizedClient] support to obtain and use the access token.

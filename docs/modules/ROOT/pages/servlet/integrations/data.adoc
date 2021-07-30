@@ -67,4 +67,4 @@ interface MessageRepository : PagingAndSortingRepository<Message?, Long?> {
 
 This checks to see if the `Authentication.getPrincipal().getId()` is equal to the recipient of the `Message`.
 Note that this example assumes you have customized the principal to be an Object that has an id property.
-By exposing the `SecurityEvaluationContextExtension` bean, all of the <<common-expressions,Common Security Expressions>> are available within the Query.
+By exposing the `SecurityEvaluationContextExtension` bean, all of the xref:servlet/authorization/expression-based.adoc#common-expressions[Common Security Expressions] are available within the Query.

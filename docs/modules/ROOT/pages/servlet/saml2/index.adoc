@@ -24,20 +24,20 @@ A working sample for {gh-samples-url}/servlet/spring-boot/java/saml2-login[SAML 
 ====
 
 Let's take a look at how SAML 2.0 Relying Party Authentication works within Spring Security.
-First, we see that, like <<oauth2login, OAuth 2.0 Login>>, Spring Security takes the user to a third-party for performing authentication.
+First, we see that, like xref:servlet/oauth2/oauth2-login.adoc#oauth2login[ OAuth 2.0 Login], Spring Security takes the user to a third-party for performing authentication.
 It does this through a series of redirects.
 
 .Redirecting to Asserting Party Authentication
 image::{figures}/saml2webssoauthenticationrequestfilter.png[]
 
-The figure above builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> and <<servlet-authentication-abstractprocessingfilter, `AbstractAuthenticationProcessingFilter`>> diagrams:
+The figure above builds off our xref:servlet/architecture/index.adoc#servlet-securityfilterchain[`SecurityFilterChain`] and xref:servlet/authentication/architecture/index.adoc#servlet-authentication-abstractprocessingfilter[ `AbstractAuthenticationProcessingFilter`] diagrams:
 
 image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource `/private` for which it is not authorized.
 
-image:{icondir}/number_2.png[] Spring Security's <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
+image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`] indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
 
-image:{icondir}/number_3.png[] Since the user lacks authorization, the <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> initiates __Start Authentication__.
-The configured <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>> is an instance of {security-api-url}org/springframework/security/web/authentication/LoginUrlAuthenticationEntryPoint.html[`LoginUrlAuthenticationEntryPoint`] which redirects to <<servlet-saml2login-sp-initiated-factory,the `<saml2:AuthnRequest>` generating endpoint>>, `Saml2WebSsoAuthenticationRequestFilter`.
+image:{icondir}/number_3.png[] Since the user lacks authorization, the xref:servlet/architecture/index.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__.
+The configured xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of {security-api-url}org/springframework/security/web/authentication/LoginUrlAuthenticationEntryPoint.html[`LoginUrlAuthenticationEntryPoint`] which redirects to <<servlet-saml2login-sp-initiated-factory,the `<saml2:AuthnRequest>` generating endpoint>>, `Saml2WebSsoAuthenticationRequestFilter`.
 Or, if you've <<servlet-saml2login-relyingpartyregistrationrepository,configured more than one asserting party>>, it will first redirect to a picker page.
 
 image:{icondir}/number_4.png[] Next, the `Saml2WebSsoAuthenticationRequestFilter` creates, signs, serializes, and encodes a `<saml2:AuthnRequest>` using its configured <<servlet-saml2login-sp-initiated-factory,`Saml2AuthenticationRequestFactory`>>.
@@ -52,23 +52,23 @@ image:{icondir}/number_6.png[] The browser then POSTs the `<saml2:Response>` to 
 .Authenticating a `<saml2:Response>`
 image::{figures}/saml2webssoauthenticationfilter.png[]
 
-The figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+The figure builds off our xref:servlet/architecture/index.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
 
 image:{icondir}/number_1.png[] When the browser submits a `<saml2:Response>` to the application, it <<servlet-saml2login-authenticate-responses, delegates to `Saml2WebSsoAuthenticationFilter`>>.
 This filter calls its configured `AuthenticationConverter` to create a `Saml2AuthenticationToken` by extracting the response from the `HttpServletRequest`.
 This converter additionally resolves the <<servlet-saml2login-relyingpartyregistration, `RelyingPartyRegistration`>> and supplies it to `Saml2AuthenticationToken`.
 
-image:{icondir}/number_2.png[] Next, the filter passes the token to its configured <<servlet-authentication-providermanager,`AuthenticationManager`>>.
+image:{icondir}/number_2.png[] Next, the filter passes the token to its configured xref:servlet/authentication/architecture/index.adoc#servlet-authentication-providermanager[`AuthenticationManager`].
 By default, it will use the <<servlet-saml2login-architecture,`OpenSAML authentication provider`>>.
 
 image:{icondir}/number_3.png[] If authentication fails, then __Failure__
 
-* The <<servlet-authentication-securitycontextholder, `SecurityContextHolder`>> is cleared out.
-* The <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>> is invoked to restart the authentication process.
+* The xref:servlet/authentication/architecture/index.adoc#servlet-authentication-securitycontextholder[ `SecurityContextHolder`] is cleared out.
+* The xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is invoked to restart the authentication process.
 
 image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
 
-* The <<servlet-authentication-authentication, `Authentication`>> is set on the <<servlet-authentication-securitycontextholder, `SecurityContextHolder`>>.
+* The xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authentication[ `Authentication`] is set on the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-securitycontextholder[ `SecurityContextHolder`].
 * The `Saml2WebSsoAuthenticationFilter` invokes `FilterChain#doFilter(request,response)` to continue with the rest of the application logic.
 
 [[servlet-saml2login-minimaldependencies]]
@@ -169,9 +169,9 @@ image:{figures}/opensamlauthenticationprovider.png[]
 
 This figure builds off of the <<servlet-saml2login-authentication-saml2webssoauthenticationfilter,`Saml2WebSsoAuthenticationFilter` diagram>>.
 
-image:{icondir}/number_1.png[] The `Saml2WebSsoAuthenticationFilter` formulates the `Saml2AuthenticationToken` and invokes the <<servlet-authentication-providermanager,`AuthenticationManager`>>.
+image:{icondir}/number_1.png[] The `Saml2WebSsoAuthenticationFilter` formulates the `Saml2AuthenticationToken` and invokes the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-providermanager[`AuthenticationManager`].
 
-image:{icondir}/number_2.png[] The <<servlet-authentication-providermanager,`AuthenticationManager`>> invokes the OpenSAML authentication provider.
+image:{icondir}/number_2.png[] The xref:servlet/authentication/architecture/index.adoc#servlet-authentication-providermanager[`AuthenticationManager`] invokes the OpenSAML authentication provider.
 
 image:{icondir}/number_3.png[] The authentication provider deserializes the response into an OpenSAML `Response` and checks its signature.
 If the signature is invalid, authentication fails.
@@ -1267,7 +1267,7 @@ open class SecurityConfig : WebSecurityConfigurerAdapter() {
 ----
 ====
 <1> First, call the default converter, which extracts attributes and authorities from the response
-<2> Second, call the <<servlet-authentication-userdetailsservice, `UserDetailsService`>> using the relevant information
+<2> Second, call the xref:servlet/authentication/unpwd/user-details-service.adoc#servlet-authentication-userdetailsservice[ `UserDetailsService`] using the relevant information
 <3> Third, return a custom authentication that includes the user details
 
 [NOTE]

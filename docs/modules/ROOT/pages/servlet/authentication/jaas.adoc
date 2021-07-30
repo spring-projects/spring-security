@@ -166,5 +166,5 @@ This means that the `Subject` can be accessed using:
 Subject subject = Subject.getSubject(AccessController.getContext());
 ----
 
-This integration can easily be configured using the <<nsa-http-jaas-api-provision,jaas-api-provision>> attribute.
+This integration can easily be configured using the xref:servlet/appendix/namespace.adoc#nsa-http-jaas-api-provision[jaas-api-provision] attribute.
 This feature is useful when integrating with legacy or external API's that rely on the JAAS Subject being populated.
