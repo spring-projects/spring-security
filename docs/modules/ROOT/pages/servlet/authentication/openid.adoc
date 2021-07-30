@@ -53,7 +53,7 @@ OpenIDAuthenticationToken token =
 List<OpenIDAttribute> attributes = token.getAttributes();
 ----
 
-We can obtain the `OpenIDAuthenticationToken` from the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-securitycontextholder[].
+We can obtain the `OpenIDAuthenticationToken` from the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
 The `OpenIDAttribute` contains the attribute type and the retrieved value (or values in the case of multi-valued attributes).
 You can supply multiple `attribute-exchange` elements, using an `identifier-matcher` attribute on each.
 This contains a regular expression which will be matched against the OpenID identifier supplied by the user.

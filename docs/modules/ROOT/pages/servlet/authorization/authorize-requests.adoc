@@ -5,12 +5,12 @@
 This section builds on xref:servlet/architecture/index.adoc#servlet-architecture[Servlet Architecture and Implementation] by digging deeper into how xref:servlet/authorization/index.adoc#servlet-authorization[authorization] works within Servlet based applications.
 
 The {security-api-url}org/springframework/security/web/access/intercept/FilterSecurityInterceptor.html[`FilterSecurityInterceptor`] provides xref:servlet/authorization/index.adoc#servlet-authorization[authorization] for ``HttpServletRequest``s.
-It is inserted into the xref:servlet/architecture/index.adoc#servlet-filterchainproxy[] as one of the xref:servlet/architecture/index.adoc#servlet-security-filters[].
+It is inserted into the xref:servlet/architecture/index.adoc#servlet-filterchainproxy[FilterChainProxy] as one of the xref:servlet/architecture/index.adoc#servlet-security-filters[Security Filters].
 
 .Authorize HttpServletRequest
 image::{figures}/filtersecurityinterceptor.png[]
 
-* image:{icondir}/number_1.png[] First, the `FilterSecurityInterceptor` obtains an  xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authentication[] from the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-securitycontextholder[].
+* image:{icondir}/number_1.png[] First, the `FilterSecurityInterceptor` obtains an  xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authentication[Authentication] from the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
 * image:{icondir}/number_2.png[] Second, `FilterSecurityInterceptor` creates a {security-api-url}org/springframework/security/web/FilterInvocation.html[`FilterInvocation`] from the `HttpServletRequest`, `HttpServletResponse`, and `FilterChain` that are passed into the `FilterSecurityInterceptor`.
 // FIXME: link to FilterInvocation
 * image:{icondir}/number_3.png[] Next, it passes the `FilterInvocation` to `SecurityMetadataSource` to get the ``ConfigAttribute``s.

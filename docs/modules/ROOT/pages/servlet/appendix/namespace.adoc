@@ -1616,7 +1616,7 @@ By default, an instance of `PortMapperImpl` will be added to the configuration f
 This element can optionally be used to override the default mappings which that class defines.
 Each child `<port-mapping>` element defines a pair of HTTP:HTTPS ports.
 The default mappings are 80:443 and 8080:8443.
-An example of overriding these can be found in xref:servlet/exploits/http.adoc#servlet-http-redirect[].
+An example of overriding these can be found in xref:servlet/exploits/http.adoc#servlet-http-redirect[Redirect to HTTPS].
 
 
 [[nsa-port-mappings-parents]]
@@ -2278,7 +2278,7 @@ select username, password, enabled from users where username = ?
 
 [[nsa-password-encoder]]
 === <password-encoder>
-Authentication providers can optionally be configured to use a password encoder as described in the xref:overview/features/authentication/password-storage.adoc#authentication-password-storage[].
+Authentication providers can optionally be configured to use a password encoder as described in the xref:overview/features/authentication/password-storage.adoc#authentication-password-storage[Password Storage].
 This will result in the bean being injected with the appropriate `PasswordEncoder` instance.
 
 

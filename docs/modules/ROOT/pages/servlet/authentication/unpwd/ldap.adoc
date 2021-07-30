@@ -258,7 +258,7 @@ fun contextSource(container: UnboundIdContainer): ContextSource {
 [[servlet-authentication-ldap-authentication]]
 == Authentication
 
-Spring Security's LDAP support does not use the xref:servlet/authentication/unpwd/user-details-service.adoc#servlet-authentication-userdetailsservice[] because LDAP bind authentication does not allow clients to read the password or even a hashed version of the password.
+Spring Security's LDAP support does not use the xref:servlet/authentication/unpwd/user-details-service.adoc#servlet-authentication-userdetailsservice[UserDetailsService] because LDAP bind authentication does not allow clients to read the password or even a hashed version of the password.
 This means there is no way a password to be read and then authenticated by Spring Security.
 
 For this reason, LDAP support is implemented using the `LdapAuthenticator` interface.
