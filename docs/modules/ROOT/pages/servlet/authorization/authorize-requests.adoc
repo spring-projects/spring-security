@@ -1,7 +1,6 @@
 [[servlet-authorization-filtersecurityinterceptor]]
 = Authorize HttpServletRequest with FilterSecurityInterceptor
-:figures: images/servlet/authorization
-:icondir: images/icons
+:figures: servlet/authorization
 
 This section builds on <<servlet-architecture,Servlet Architecture and Implementation>> by digging deeper into how <<servlet-authorization,authorization>> works within Servlet based applications.
 

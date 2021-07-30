@@ -1,13 +1,12 @@
 [[servlet-saml2]]
 = SAML2
+:figures: servlet/saml2
 
 Spring Security provides comprehensive SAML 2 support.
 This section discusses how to integrate SAML 2 into your servlet based application.
 
 [[servlet-saml2login]]
 == SAML 2.0 Login
-:figures: images/servlet/saml2
-:icondir: images/icons
 
 The SAML 2.0 Login feature provides an application with the capability to act as a SAML 2.0 Relying Party, having users https://wiki.shibboleth.net/confluence/display/CONCEPT/FlowsAndConfig[log in] to the application by using their existing account at a SAML 2.0 Asserting Party (Okta, ADFS, etc).
 

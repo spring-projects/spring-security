@@ -1,5 +1,6 @@
 [[servlet-authentication-basic]]
 = Basic Authentication
+:figures: servlet/authentication/unpwd
 
 This section provides details on how Spring Security provides support for https://tools.ietf.org/html/rfc7617[Basic HTTP Authentication] for servlet based applications.
 // FIXME: describe authenticationentrypoint, authenticationfailurehandler, authenticationsuccesshandler

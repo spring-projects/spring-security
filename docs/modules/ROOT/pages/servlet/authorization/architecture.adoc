@@ -2,7 +2,7 @@
 
 [[authz-arch]]
 = Authorization Architecture
-
+:figures: servlet/authorization
 
 [[authz-authorities]]
 == Authorities
@@ -70,7 +70,7 @@ Whilst users can implement their own `AccessDecisionManager` to control all aspe
 
 [[authz-access-voting]]
 .Voting Decision Manager
-image::images/access-decision-voting.png[]
+image::{figures}/access-decision-voting.png[]
 
 
 
@@ -140,7 +140,7 @@ Whilst you could easily implement your own AOP concern to achieve this, Spring S
 
 [[authz-after-invocation]]
 .After Invocation Implementation
-image::images/after-invocation.png[]
+image::{figures}/after-invocation.png[]
 
 Like many other parts of Spring Security, `AfterInvocationManager` has a single concrete implementation, `AfterInvocationProviderManager`, which polls a list of ``AfterInvocationProvider``s.
 Each `AfterInvocationProvider` is allowed to modify the return object or throw an `AccessDeniedException`.

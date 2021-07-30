@@ -1,7 +1,6 @@
 [[servlet-authentication-architecture]]
 = Servlet Authentication Architecture
-:figures: images/servlet/authentication/architecture
-:icondir: images/icons
+:figures: servlet/authentication/architecture
 
 This discussion expands on <<servlet-architecture>> to describe the main architectural components of Spring Security's used in Servlet authentication.
 If you need concrete flows that explain how these pieces fit together, look at the <<servlet-authentication-mechanisms,Authentication Mechanism>> specific sections.
@@ -20,6 +19,7 @@ This also gives a good idea of the high level flow of authentication and how pie
 [[servlet-authentication-securitycontextholder]]
 == SecurityContextHolder
 
+Hi {figures} there
 
 At the heart of Spring Security's authentication model is the `SecurityContextHolder`.
 It contains the <<servlet-authentication-securitycontext>>.

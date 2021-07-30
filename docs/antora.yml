@@ -8,7 +8,6 @@ asciidoc:
     idprefix: ''
     idseparator: '-'
     apacheds-core-version: 1.5.5
-    figures: servlet/architecture
     gh-old-samples-url: https://github.com/spring-projects/spring-security/tree/5.4.x/samples
     gh-samples-url: https://github.com/spring-projects/spring-security-samples/tree/main
     gh-url: https://github.com/spring-projects/spring-security/tree/main

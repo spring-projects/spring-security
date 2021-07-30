@@ -1,5 +1,6 @@
 [[servlet-authentication-daoauthenticationprovider]]
 = DaoAuthenticationProvider
+:figures: servlet/authentication/unpwd
 
 {security-api-url}org/springframework/security/authentication/dao/DaoAuthenticationProvider.html[`DaoAuthenticationProvider`] is an <<servlet-authentication-authenticationprovider,`AuthenticationProvider`>> implementation that leverages a <<servlet-authentication-userdetailsservice,`UserDetailsService`>> and <<servlet-authentication-password-storage,`PasswordEncoder`>> to authenticate a username and password.
 

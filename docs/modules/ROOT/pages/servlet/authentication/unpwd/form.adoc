@@ -1,5 +1,6 @@
 [[servlet-authentication-form]]
 = Form Login
+:figures: servlet/authentication/unpwd
 
 Spring Security provides support for username and password being provided through an html form.
 This section provides details on how form based authentication works within Spring Security.
