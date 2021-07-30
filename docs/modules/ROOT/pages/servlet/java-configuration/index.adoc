@@ -65,7 +65,7 @@ This can be done in Java Configuration with https://docs.spring.io/spring/docs/3
 Not suprisingly, Spring Security provides a base class `AbstractSecurityWebApplicationInitializer` that will ensure the `springSecurityFilterChain` gets registered for you.
 The way in which we use `AbstractSecurityWebApplicationInitializer` differs depending on if we are already using Spring or if Spring Security is the only Spring component in our application.
 
-* xref:servlet/java-configuration/index.adoc#abstractsecuritywebapplicationinitializer-without-existing-spring[] - Use these instructions if you are not using Spring already
+* <<abstractsecuritywebapplicationinitializer-without-existing-spring>> - Use these instructions if you are not using Spring already
 * <<abstractsecuritywebapplicationinitializer-with-spring-mvc>> - Use these instructions if you are already using Spring
 
 === AbstractSecurityWebApplicationInitializer without Existing Spring
