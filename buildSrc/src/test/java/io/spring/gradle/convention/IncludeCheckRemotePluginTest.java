@@ -97,4 +97,15 @@ class IncludeCheckRemotePluginTest {
 		GradleBuild checkRemote = (GradleBuild) this.rootProject.getTasks().named("checkRemote").get();
 		assertThat(checkRemote.getDir()).isEqualTo(includeRepo.getOutputDirectory());
 	}
+
+	@Test
+	void applyWhenNoExtensionPropertiesThenRegisterTasks() {
+		this.rootProject = ProjectBuilder.builder().build();
+		this.rootProject.getPluginManager().apply(IncludeCheckRemotePlugin.class);
+		IncludeRepoTask includeRepo = (IncludeRepoTask) this.rootProject.getTasks().named("includeRepo").get();
+		GradleBuild checkRemote = (GradleBuild) this.rootProject.getTasks().named("checkRemote").get();
+		assertThat(includeRepo).isNotNull();
+		assertThat(checkRemote).isNotNull();
+	}
+
 }
