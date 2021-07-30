@@ -33,8 +33,8 @@ class IncludeCheckRemotePlugin implements Plugin<Project> {
 	void apply(Project project) {
 		IncludeCheckRemoteExtension extension = project.extensions.create('includeCheckRemote', IncludeCheckRemoteExtension)
 		TaskProvider<IncludeRepoTask> includeRepoTask = project.tasks.register('includeRepo', IncludeRepoTask) { IncludeRepoTask it ->
-			it.repository = extension.repository.get()
-			it.ref = extension.ref.get()
+			it.repository = extension.repository
+			it.ref = extension.ref
 		}
 		project.tasks.register('checkRemote', GradleBuild) {
 			it.dependsOn 'includeRepo'
@@ -44,22 +44,22 @@ class IncludeCheckRemotePlugin implements Plugin<Project> {
 	}
 
 	abstract static class IncludeCheckRemoteExtension {
+
 		/**
 		 * Git repository to clone
 		 */
-		abstract Property<String> getRepository();
+		String repository;
+
 		/**
 		 * Git ref to checkout
 		 */
-		abstract Property<String> getRef();
+		String ref
+
 		/**
 		 * Task to run in the repository
 		 */
 		List<String> tasks = ['check']
 
-		void setTask(List<String> tasks) {
-			this.tasks = tasks
-		}
 	}
 
 }
