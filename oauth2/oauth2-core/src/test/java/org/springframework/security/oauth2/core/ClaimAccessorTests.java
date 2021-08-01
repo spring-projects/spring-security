@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatObject;
 
 /**
@@ -133,6 +134,15 @@ public class ClaimAccessorTests {
 		String claimName = "boolean";
 		this.claims.put(claimName, expectedClaimValue);
 		assertThatObject(this.claimAccessor.getClaim(claimName)).isNotInstanceOf(Boolean.class);
+	}
+
+	// gh-10148
+	@Test
+	public void getClaimAsBooleanThrowsIllegalArgumentForNonBooleanType() {
+		String claimName = "boolean";
+		this.claims.put(claimName, new HashMap<>());
+
+		assertThatIllegalArgumentException().isThrownBy(() -> this.claimAccessor.getClaimAsBoolean(claimName));
 	}
 
 }

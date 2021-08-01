@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,8 +96,14 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if it does not exist
 	 */
 	default Boolean getClaimAsBoolean(String claim) {
-		return !hasClaim(claim) ? null
-				: ClaimConversionService.getSharedInstance().convert(getClaims().get(claim), Boolean.class);
+		if (!hasClaim(claim)) {
+			return null;
+		}
+		Object claimValue = getClaims().get(claim);
+		Boolean convertedValue = ClaimConversionService.getSharedInstance().convert(claimValue, Boolean.class);
+		Assert.isTrue(convertedValue != null,
+				() -> "Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to Boolean.");
+		return convertedValue;
 	}
 
 	/**
