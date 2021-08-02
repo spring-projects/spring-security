@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,6 +69,8 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	private String groupSearchFilter = "(uniqueMember={0})";
 
 	private String rolePrefix = "ROLE_";
+
+	private boolean convertToUpperCase = true;
 
 	private String userSearchBase = ""; // only for search
 
@@ -140,6 +142,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		defaultAuthoritiesPopulator.setGroupSearchFilter(this.groupSearchFilter);
 		defaultAuthoritiesPopulator.setSearchSubtree(this.groupSearchSubtree);
 		defaultAuthoritiesPopulator.setRolePrefix(this.rolePrefix);
+		defaultAuthoritiesPopulator.setConvertToUpperCase(this.convertToUpperCase);
 		this.ldapAuthoritiesPopulator = defaultAuthoritiesPopulator;
 		return defaultAuthoritiesPopulator;
 	}
@@ -344,6 +347,17 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 */
 	public LdapAuthenticationProviderConfigurer<B> rolePrefix(String rolePrefix) {
 		this.rolePrefix = rolePrefix;
+		return this;
+	}
+
+	/**
+	 * If true, the role names are converted to uppercase letters. If false, the role
+	 * names remain untouched.
+	 * @param convertToUpperCase set to true to convert the role name to uppercase.
+	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
+	 */
+	public LdapAuthenticationProviderConfigurer<B> convertToUpperCase(boolean convertToUpperCase) {
+		this.convertToUpperCase = convertToUpperCase;
 		return this;
 	}
 

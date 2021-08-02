@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,22 @@ public class LdapAuthenticationProviderConfigurerTests {
 		this.mockMvc.perform(request).andExpect(expectedUser);
 	}
 
+	@Test
+	public void authenticationManagerWhenNotConvertToUpperCaseThen() throws Exception {
+		this.spring.register(NotConvertToUpperCaseConfig.class).autowire();
+
+		// @formatter:off
+		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin()
+				.user("ben")
+				.password("benspassword");
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated()
+				.withUsername("ben")
+				.withAuthorities(
+						AuthorityUtils.createAuthorityList("role_managers", "role_developers"));
+		// @formatter:on
+		this.mockMvc.perform(request).andExpect(expectedUser);
+	}
+
 	@EnableWebSecurity
 	static class MultiLdapAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
 
@@ -188,6 +204,23 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.groupSearchFilter("(member={0})")
 					.groupSearchSubtree(true)
 					.userDnPatterns("uid={0},ou=people");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class NotConvertToUpperCaseConfig extends BaseLdapProviderConfig {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.ldapAuthentication()
+					.groupSearchBase("ou=groups")
+					.groupSearchFilter("(member={0})")
+					.userDnPatterns("uid={0},ou=people")
+					.convertToUpperCase(false);
 			// @formatter:on
 		}
 
