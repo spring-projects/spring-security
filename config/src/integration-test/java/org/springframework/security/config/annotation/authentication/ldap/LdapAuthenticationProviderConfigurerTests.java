@@ -115,7 +115,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 	}
 
 	@Test
-	public void authenticationManagerWhenNotConvertToUpperCaseThen() throws Exception {
+	public void authenticationManagerWhenNotConvertToUpperCaseThenRolesAreLowerCased() throws Exception {
 		this.spring.register(NotConvertToUpperCaseConfig.class).autowire();
 
 		// @formatter:off
