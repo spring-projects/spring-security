@@ -237,8 +237,8 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Gets the default {@link AccessDeniedHandler} from the
-	 * {@link ExceptionHandlingConfigurer#getAccessDeniedHandler()} or create a
-	 * {@link AccessDeniedHandlerImpl} if not available.
+	 * {@link ExceptionHandlingConfigurer#getAccessDeniedHandler(HttpSecurityBuilder)} or
+	 * create a {@link AccessDeniedHandlerImpl} if not available.
 	 * @param http the {@link HttpSecurityBuilder}
 	 * @return the {@link AccessDeniedHandler}
 	 */
@@ -247,7 +247,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		ExceptionHandlingConfigurer<H> exceptionConfig = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		AccessDeniedHandler handler = null;
 		if (exceptionConfig != null) {
-			handler = exceptionConfig.getAccessDeniedHandler();
+			handler = exceptionConfig.getAccessDeniedHandler(http);
 		}
 		if (handler == null) {
 			handler = new AccessDeniedHandlerImpl();

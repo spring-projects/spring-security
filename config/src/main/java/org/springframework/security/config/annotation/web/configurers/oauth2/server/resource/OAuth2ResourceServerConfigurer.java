@@ -18,6 +18,8 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.se
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +53,9 @@ import org.springframework.security.oauth2.server.resource.web.DefaultBearerToke
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
+import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
@@ -153,7 +158,9 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	private OpaqueTokenConfigurer opaqueTokenConfigurer;
 
-	private AccessDeniedHandler accessDeniedHandler = new BearerTokenAccessDeniedHandler();
+	private AccessDeniedHandler accessDeniedHandler = new DelegatingAccessDeniedHandler(
+			new LinkedHashMap<>(Map.of(CsrfException.class, new AccessDeniedHandlerImpl())),
+			new BearerTokenAccessDeniedHandler());
 
 	private AuthenticationEntryPoint authenticationEntryPoint = new BearerTokenAuthenticationEntryPoint();
 
