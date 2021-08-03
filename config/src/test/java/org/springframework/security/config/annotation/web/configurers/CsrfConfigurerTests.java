@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -321,6 +321,17 @@ public class CsrfConfigurerTests {
 	}
 
 	@Test
+	public void getWhenCustomDefaultAccessDeniedHandlerForThenHandlerIsUsed() throws Exception {
+		DefaultAccessDeniedHandlerForConfig.DENIED_HANDLER = mock(AccessDeniedHandler.class);
+		DefaultAccessDeniedHandlerForConfig.MATCHER = mock(RequestMatcher.class);
+		given(DefaultAccessDeniedHandlerForConfig.MATCHER.matches(any())).willReturn(true);
+		this.spring.register(DefaultAccessDeniedHandlerForConfig.class, BasicController.class).autowire();
+		this.mvc.perform(post("/")).andExpect(status().isOk());
+		verify(DefaultAccessDeniedHandlerForConfig.DENIED_HANDLER).handle(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any());
+	}
+
+	@Test
 	public void loginWhenNoCsrfTokenThenRespondsWithForbidden() throws Exception {
 		this.spring.register(FormLoginConfig.class).autowire();
 		// @formatter:off
@@ -603,6 +614,24 @@ public class CsrfConfigurerTests {
 			http
 				.exceptionHandling()
 					.accessDeniedHandler(DENIED_HANDLER);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DefaultAccessDeniedHandlerForConfig extends WebSecurityConfigurerAdapter {
+
+		static AccessDeniedHandler DENIED_HANDLER;
+
+		static RequestMatcher MATCHER;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.exceptionHandling()
+					.defaultAccessDeniedHandlerFor(DENIED_HANDLER, MATCHER);
 			// @formatter:on
 		}
 
