@@ -83,7 +83,7 @@ abstract class StdConverters {
 			if (AuthorizationGrantType.PASSWORD.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.PASSWORD;
 			}
-			return null;
+			return new AuthorizationGrantType(value);
 		}
 
 	}
