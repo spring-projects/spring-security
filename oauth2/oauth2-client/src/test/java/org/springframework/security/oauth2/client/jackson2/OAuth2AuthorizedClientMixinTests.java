@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
@@ -69,6 +70,7 @@ public class OAuth2AuthorizedClientMixinTests {
 		providerConfigurationMetadata.put("config2", "value2");
 		// @formatter:off
 		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration()
+				.authorizationGrantType(new AuthorizationGrantType("custom-grant"))
 				.scope("read", "write")
 				.providerConfigurationMetadata(providerConfigurationMetadata);
 		// @formatter:on
