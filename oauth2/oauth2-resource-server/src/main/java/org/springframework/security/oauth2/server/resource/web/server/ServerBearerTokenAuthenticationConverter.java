@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.resource.web.server;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +31,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenAuthentica
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -65,7 +67,8 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 
 	private String token(ServerHttpRequest request) {
 		String authorizationHeaderToken = resolveFromAuthorizationHeader(request.getHeaders());
-		String parameterToken = request.getQueryParams().getFirst("access_token");
+		String parameterToken = resolveAccessTokenFromRequest(request);
+
 		if (authorizationHeaderToken != null) {
 			if (parameterToken != null) {
 				BearerTokenError error = BearerTokenErrors
@@ -78,6 +81,20 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 			return parameterToken;
 		}
 		return null;
+	}
+
+	private static String resolveAccessTokenFromRequest(ServerHttpRequest request) {
+		List<String> parameterTokens = request.getQueryParams().get("access_token");
+		if (CollectionUtils.isEmpty(parameterTokens)) {
+			return null;
+		}
+		if (parameterTokens.size() == 1) {
+			return parameterTokens.get(0);
+		}
+
+		BearerTokenError error = BearerTokenErrors.invalidRequest("Found multiple bearer tokens in the request");
+		throw new OAuth2AuthenticationException(error);
+
 	}
 
 	/**
