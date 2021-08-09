@@ -218,18 +218,21 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		// @formatter:on
 	}
 
+	// gh-10130
 	@Test
 	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setHeadersConverter(null))
 				.withMessage("headersConverter cannot be null");
 	}
 
+	// gh-10130
 	@Test
 	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.addHeadersConverter(null))
 				.withMessage("headersConverter cannot be null");
 	}
 
+	// gh-10130
 	@Test
 	public void convertWhenHeadersConverterAddedThenCalled() throws Exception {
 		OAuth2PasswordGrantRequest request = new OAuth2PasswordGrantRequest(this.clientRegistrationBuilder.build(),
@@ -256,6 +259,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		assertThat(actualRequest.getHeader("custom-header-name")).isEqualTo("custom-header-value");
 	}
 
+	// gh-10130
 	@Test
 	public void convertWhenHeadersConverterSetThenCalled() throws Exception {
 		OAuth2PasswordGrantRequest request = new OAuth2PasswordGrantRequest(this.clientRegistrationBuilder.build(),

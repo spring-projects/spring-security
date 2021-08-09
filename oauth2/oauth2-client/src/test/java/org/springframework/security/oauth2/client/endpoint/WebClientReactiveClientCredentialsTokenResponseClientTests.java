@@ -214,18 +214,21 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		this.server.enqueue(response);
 	}
 
+	// gh-10130
 	@Test
 	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.client.setHeadersConverter(null))
 				.withMessage("headersConverter cannot be null");
 	}
 
+	// gh-10130
 	@Test
 	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.client.addHeadersConverter(null))
 				.withMessage("headersConverter cannot be null");
 	}
 
+	// gh-10130
 	@Test
 	public void convertWhenHeadersConverterAddedThenCalled() throws Exception {
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
@@ -251,6 +254,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		assertThat(actualRequest.getHeader("custom-header-name")).isEqualTo("custom-header-value");
 	}
 
+	// gh-10130
 	@Test
 	public void convertWhenHeadersConverterSetThenCalled() throws Exception {
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
