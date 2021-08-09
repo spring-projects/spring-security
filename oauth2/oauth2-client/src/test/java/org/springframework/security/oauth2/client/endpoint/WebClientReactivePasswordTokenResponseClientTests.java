@@ -235,8 +235,8 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		OAuth2PasswordGrantRequest request = new OAuth2PasswordGrantRequest(this.clientRegistrationBuilder.build(),
 				this.username, this.password);
 		Converter<OAuth2PasswordGrantRequest, HttpHeaders> addedHeadersConverter = mock(Converter.class);
-		final HttpHeaders headers = new HttpHeaders();
-		headers.put("CUSTOM_AUTHORIZATION", Collections.singletonList("Basic CUSTOM"));
+		HttpHeaders headers = new HttpHeaders();
+		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(addedHeadersConverter.convert(request)).willReturn(headers);
 		this.tokenResponseClient.addHeadersConverter(addedHeadersConverter);
 		// @formatter:off
@@ -253,16 +253,17 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
 				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
-		assertThat(actualRequest.getHeader("CUSTOM_AUTHORIZATION")).isEqualTo("Basic CUSTOM");
+		assertThat(actualRequest.getHeader("custom-header-name")).isEqualTo("custom-header-value");
 	}
 
 	@Test
 	public void convertWhenHeadersConverterSetThenCalled() throws Exception {
 		OAuth2PasswordGrantRequest request = new OAuth2PasswordGrantRequest(this.clientRegistrationBuilder.build(),
 				this.username, this.password);
+		ClientRegistration clientRegistration = request.getClientRegistration();
 		Converter<OAuth2PasswordGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
-		final HttpHeaders headers = new HttpHeaders();
-		headers.put(HttpHeaders.AUTHORIZATION, Collections.singletonList("Basic CUSTOM"));
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
 		given(headersConverter.convert(request)).willReturn(headers);
 		this.tokenResponseClient.setHeadersConverter(headersConverter);
 		// @formatter:off
@@ -277,7 +278,8 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		this.tokenResponseClient.getTokenResponse(request).block();
 		verify(headersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
-		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic CUSTOM");
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
+				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 	}
 
 }
