@@ -221,18 +221,21 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 		// @formatter:on
 	}
 
+	// gh-10130
 	@Test
 	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setHeadersConverter(null))
 				.withMessage("headersConverter cannot be null");
 	}
 
+	// gh-10130
 	@Test
 	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.addHeadersConverter(null))
 				.withMessage("headersConverter cannot be null");
 	}
 
+	// gh-10130
 	@Test
 	public void convertWhenHeadersConverterAddedThenCalled() throws Exception {
 		OAuth2RefreshTokenGrantRequest request = new OAuth2RefreshTokenGrantRequest(
@@ -259,6 +262,7 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 		assertThat(actualRequest.getHeader("custom-header-name")).isEqualTo("custom-header-value");
 	}
 
+	// gh-10130
 	@Test
 	public void convertWhenHeadersConverterSetThenCalled() throws Exception {
 		OAuth2RefreshTokenGrantRequest request = new OAuth2RefreshTokenGrantRequest(
