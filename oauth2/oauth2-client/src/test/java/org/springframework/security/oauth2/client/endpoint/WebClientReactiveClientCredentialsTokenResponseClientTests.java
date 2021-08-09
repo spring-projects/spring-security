@@ -231,8 +231,8 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
 				this.clientRegistration.build());
 		Converter<OAuth2ClientCredentialsGrantRequest, HttpHeaders> addedHeadersConverter = mock(Converter.class);
-		final HttpHeaders headers = new HttpHeaders();
-		headers.put("CUSTOM_AUTHORIZATION", Collections.singletonList("Basic CUSTOM"));
+		HttpHeaders headers = new HttpHeaders();
+		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(addedHeadersConverter.convert(request)).willReturn(headers);
 		this.client.addHeadersConverter(addedHeadersConverter);
 		// @formatter:off
@@ -248,16 +248,17 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
 				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
-		assertThat(actualRequest.getHeader("CUSTOM_AUTHORIZATION")).isEqualTo("Basic CUSTOM");
+		assertThat(actualRequest.getHeader("custom-header-name")).isEqualTo("custom-header-value");
 	}
 
 	@Test
 	public void convertWhenHeadersConverterSetThenCalled() throws Exception {
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
 				this.clientRegistration.build());
+		ClientRegistration clientRegistration = request.getClientRegistration();
 		Converter<OAuth2ClientCredentialsGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
-		final HttpHeaders headers = new HttpHeaders();
-		headers.put(HttpHeaders.AUTHORIZATION, Collections.singletonList("Basic CUSTOM"));
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
 		given(headersConverter.convert(request)).willReturn(headers);
 		this.client.setHeadersConverter(headersConverter);
 		// @formatter:off
@@ -271,7 +272,8 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		this.client.getTokenResponse(request).block();
 		verify(headersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
-		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic CUSTOM");
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
+				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 	}
 
 }
