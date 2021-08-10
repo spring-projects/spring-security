@@ -147,8 +147,8 @@ In a production environment, you will want to ensure you setup a connection to a
 [[servlet-authentication-jdbc-bean]]
 == JdbcUserDetailsManager Bean
 
-In this sample we use xref:overview/features/authentication/password-storage.adoc#authentication-password-storage-boot-cli[Spring Boot CLI] to encode the password of `password` and get the encoded password of `+{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW+`.
-See the xref:overview/features/authentication/password-storage.adoc#authentication-password-storage[PasswordEncoder] section for more details about how to store passwords.
+In this sample we use xref:features/authentication/password-storage.adoc#authentication-password-storage-boot-cli[Spring Boot CLI] to encode the password of `password` and get the encoded password of `+{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW+`.
+See the xref:features/authentication/password-storage.adoc#authentication-password-storage[PasswordEncoder] section for more details about how to store passwords.
 
 .JdbcUserDetailsManager
 ====

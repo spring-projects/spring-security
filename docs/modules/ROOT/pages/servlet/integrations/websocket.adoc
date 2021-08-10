@@ -246,7 +246,7 @@ Spring Security adds an additional layer of protection to provide https://en.wik
 [[websocket-sameorigin-csrf]]
 === Adding CSRF to Stomp Headers
 
-By default Spring Security requires the xref:overview/features/exploits/csrf.adoc#csrf[CSRF token] in any CONNECT message type.
+By default Spring Security requires the xref:features/exploits/csrf.adoc#csrf[CSRF token] in any CONNECT message type.
 This ensures that only a site that has access to the CSRF token can connect.
 Since only the *Same Origin* can access the CSRF token, external domains are not allowed to make a connection.
 
@@ -357,7 +357,7 @@ When using the fallback options we need to relax a few security constraints to a
 === SockJS & frame-options
 
 SockJS may use an https://github.com/sockjs/sockjs-client/tree/v0.3.4[transport that leverages an iframe].
-By default Spring Security will xref:overview/features/exploits/headers.adoc#headers-frame-options[deny] the site from being framed to prevent Clickjacking attacks.
+By default Spring Security will xref:features/exploits/headers.adoc#headers-frame-options[deny] the site from being framed to prevent Clickjacking attacks.
 To allow SockJS frame based transports to work, we need to configure Spring Security to allow the same origin to frame the content.
 
 You can customize X-Frame-Options with the xref:servlet/appendix/namespace.adoc#nsa-frame-options[frame-options] element.

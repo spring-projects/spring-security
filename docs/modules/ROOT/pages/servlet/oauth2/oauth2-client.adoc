@@ -702,7 +702,7 @@ spring:
 [NOTE]
 `+{baseUrl}+` resolves to `+{baseScheme}://{baseHost}{basePort}{basePath}+`
 
-Configuring the `redirect-uri` with `URI` template variables is especially useful when the OAuth 2.0 Client is running behind a xref:overview/features/exploits/http.adoc#http-proxy-server[Proxy Server].
+Configuring the `redirect-uri` with `URI` template variables is especially useful when the OAuth 2.0 Client is running behind a xref:features/exploits/http.adoc#http-proxy-server[Proxy Server].
 This ensures that the `X-Forwarded-*` headers are used when expanding the `redirect-uri`.
 
 ==== Customizing the Authorization Request

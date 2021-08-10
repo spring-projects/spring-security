@@ -5,11 +5,11 @@
 This discussion expands on xref:servlet/architecture/index.adoc#servlet-architecture[Servlet Security: The Big Picture] to describe the main architectural components of Spring Security's used in Servlet authentication.
 If you need concrete flows that explain how these pieces fit together, look at the xref:servlet/authentication/index.adoc#servlet-authentication-mechanisms[Authentication Mechanism] specific sections.
 
-* <<servlet-authentication-securitycontextholder>> - The `SecurityContextHolder` is where Spring Security stores the details of who is xref:overview/features/authentication/index.adoc#authentication[authenticated].
+* <<servlet-authentication-securitycontextholder>> - The `SecurityContextHolder` is where Spring Security stores the details of who is xref:features/authentication/index.adoc#authentication[authenticated].
 * <<servlet-authentication-securitycontext>> - is obtained from the `SecurityContextHolder` and contains the `Authentication` of the currently authenticated user.
 * <<servlet-authentication-authentication>> - Can be the input to `AuthenticationManager` to provide the credentials a user has provided to authenticate or the current user from the `SecurityContext`.
 * <<servlet-authentication-granted-authority>> - An authority that is granted to the principal on the `Authentication` (i.e. roles, scopes, etc.)
-* <<servlet-authentication-authenticationmanager>> -  the API that defines how Spring Security's Filters perform  xref:overview/features/authentication/index.adoc#authentication[authentication].
+* <<servlet-authentication-authenticationmanager>> -  the API that defines how Spring Security's Filters perform  xref:features/authentication/index.adoc#authentication[authentication].
 * <<servlet-authentication-providermanager>> -  the most common implementation of `AuthenticationManager`.
 * <<servlet-authentication-authenticationprovider>> - used by `ProviderManager` to perform a specific type of authentication.
 * <<servlet-authentication-authenticationentrypoint>> - used for requesting credentials from a client (i.e. redirecting to a log in page, sending a `WWW-Authenticate` response, etc.)
@@ -26,7 +26,7 @@ It contains the <<servlet-authentication-securitycontext>>.
 
 image::{figures}/securitycontextholder.png[]
 
-The `SecurityContextHolder` is where Spring Security stores the details of who is xref:overview/features/authentication/index.adoc#authentication[authenticated].
+The `SecurityContextHolder` is where Spring Security stores the details of who is xref:features/authentication/index.adoc#authentication[authenticated].
 Spring Security does not care how the `SecurityContextHolder` is populated.
 If it contains a value, then it is used as the currently authenticated user.
 
@@ -151,7 +151,7 @@ Of course, Spring Security is expressly designed to handle this common requireme
 [[servlet-authentication-authenticationmanager]]
 == AuthenticationManager
 
-{security-api-url}org/springframework/security/authentication/AuthenticationManager.html[`AuthenticationManager`] is the API that defines how Spring Security's Filters perform  xref:overview/features/authentication/index.adoc#authentication[authentication].
+{security-api-url}org/springframework/security/authentication/AuthenticationManager.html[`AuthenticationManager`] is the API that defines how Spring Security's Filters perform  xref:features/authentication/index.adoc#authentication[authentication].
 The <<servlet-authentication-authentication,`Authentication`>> that is returned is then set on the <<servlet-authentication-securitycontextholder>> by the controller (i.e. xref:servlet/architecture/index.adoc#servlet-security-filters[Spring Security's ``Filters``s]) that invoked the `AuthenticationManager`.
 If you are not integrating with __Spring Security's ``Filters``s__ you can set the `SecurityContextHolder` directly and are not required to use an `AuthenticationManager`.
 

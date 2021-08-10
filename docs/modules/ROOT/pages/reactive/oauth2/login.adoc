@@ -42,7 +42,7 @@ TIP: The default redirect URI template is `+{baseUrl}/login/oauth2/code/{registr
 The *_registrationId_* is a unique identifier for the xref:servlet/oauth2/oauth2-client.adoc#oauth2Client-client-registration[ClientRegistration].
 For our example, the `registrationId` is `google`.
 
-IMPORTANT: If the OAuth Client is running behind a proxy server, it is recommended to check xref:overview/features/exploits/http.adoc#http-proxy-server[Proxy Server Configuration] to ensure the application is correctly configured.
+IMPORTANT: If the OAuth Client is running behind a proxy server, it is recommended to check xref:features/exploits/http.adoc#http-proxy-server[Proxy Server Configuration] to ensure the application is correctly configured.
 Also, see the supported xref:servlet/oauth2/oauth2-client.adoc#oauth2Client-auth-code-redirect-uri[ `URI` template variables] for `redirect-uri`.
 
 [[webflux-oauth2-login-sample-config]]

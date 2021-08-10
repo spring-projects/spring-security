@@ -12,7 +12,7 @@ For your convenience, you can download a minimal Spring Boot + Spring Security a
 [[servlet-hello-dependencies]]
 == Updating Dependencies
 
-The only step you need to do is update the dependencies by using xref:overview/getting-spring-security.adoc#getting-maven-boot[Maven] or xref:overview/getting-spring-security.adoc#getting-gradle-boot[Gradle].
+The only step you need to do is update the dependencies by using xref:getting-spring-security.adoc#getting-maven-boot[Maven] or xref:getting-spring-security.adoc#getting-gradle-boot[Gradle].
 
 [[servlet-hello-starting]]
 == Starting Hello Spring Security Boot

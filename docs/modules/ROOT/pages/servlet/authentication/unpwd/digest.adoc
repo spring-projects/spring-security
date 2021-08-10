@@ -18,7 +18,7 @@ The standard governing HTTP Digest Authentication is defined by https://tools.ie
 Most user agents implement RFC 2617.
 Spring Security's Digest Authentication support is compatible with the "`auth`" quality of protection (`qop`) prescribed by RFC 2617, which also provides backward compatibility with RFC 2069.
 Digest Authentication was seen as a more attractive option if you need to use unencrypted HTTP (i.e. no TLS/HTTPS) and wish to maximise security of the authentication process.
-However, everyone should use xref:overview/features/exploits/http.adoc#http[HTTPS].
+However, everyone should use xref:features/exploits/http.adoc#http[HTTPS].
 
 Central to Digest Authentication is a "nonce".
 This is a value the server generates.
@@ -34,7 +34,7 @@ key:              A private key to prevent modification of the nonce token
 ----
 ====
 
-You will need to ensure you xref:overview/features/authentication/password-storage.adoc#authentication-password-storage-configuration[configure] insecure plain text xref:overview/features/authentication/password-storage.adoc#authentication-password-storage[Password Storage] using `NoOpPasswordEncoder`.
+You will need to ensure you xref:features/authentication/password-storage.adoc#authentication-password-storage-configuration[configure] insecure plain text xref:features/authentication/password-storage.adoc#authentication-password-storage[Password Storage] using `NoOpPasswordEncoder`.
 The following provides an example of configuring Digest Authentication with Java Configuration:
 
 .Digest Authentication

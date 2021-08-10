@@ -1,7 +1,7 @@
 [[servlet-authentication]]
 = Authentication
 
-Spring Security provides comprehensive support for xref:overview/features/authentication/index.adoc#authentication[Authentication].
+Spring Security provides comprehensive support for xref:features/authentication/index.adoc#authentication[Authentication].
 We start by discussing the overall xref:servlet/architecture/index.adoc#servlet-architecture[Servlet Authentication Architecture].
 As you might expect, this section is more abstract describing the architecture without much discussion on how it applies to concrete flows.
 

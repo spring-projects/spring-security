@@ -227,7 +227,7 @@ Optional attribute that specifies the bean name of a `CorsConfigurationSource` t
 === <headers>
 This element allows for configuring additional (security) headers to be send with the response.
 It enables easy configuration for several headers and also allows for setting custom headers through the <<nsa-header,header>> element.
-Additional information, can be found in the xref:overview/features/exploits/headers.adoc#headers[Security Headers] section of the reference.
+Additional information, can be found in the xref:features/exploits/headers.adoc#headers[Security Headers] section of the reference.
 
 ** `Cache-Control`, `Pragma`, and `Expires` - Can be set using the <<nsa-cache-control,cache-control>> element.
 This ensures that the browser does not cache your secured pages.
@@ -674,7 +674,7 @@ if unset, defaults to `anonymousUser`.
 === <csrf>
 This element will add https://en.wikipedia.org/wiki/Cross-site_request_forgery[Cross Site Request Forger (CSRF)] protection to the application.
 It also updates the default RequestCache to only replay "GET" requests upon successful authentication.
-Additional information can be found in the xref:overview/features/exploits/csrf.adoc#csrf[Cross Site Request Forgery (CSRF)] section of the reference.
+Additional information can be found in the xref:features/exploits/csrf.adoc#csrf[Cross Site Request Forgery (CSRF)] section of the reference.
 
 
 [[nsa-csrf-parents]]
@@ -2278,7 +2278,7 @@ select username, password, enabled from users where username = ?
 
 [[nsa-password-encoder]]
 === <password-encoder>
-Authentication providers can optionally be configured to use a password encoder as described in the xref:overview/features/authentication/password-storage.adoc#authentication-password-storage[Password Storage].
+Authentication providers can optionally be configured to use a password encoder as described in the xref:features/authentication/password-storage.adoc#authentication-password-storage[Password Storage].
 This will result in the bean being injected with the appropriate `PasswordEncoder` instance.
 
 

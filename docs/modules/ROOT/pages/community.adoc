@@ -11,7 +11,7 @@ If you need help with Spring Security, we are here to help.
 The following are some of the best ways to get help:
 
 * Read through this documentation.
-* Try one of our many xref:overview/samples.adoc#samples[sample applications].
+* Try one of our many xref:samples.adoc#samples[sample applications].
 * Ask a question on https://stackoverflow.com/questions/tagged/spring-security[https://stackoverflow.com] with the `spring-security` tag.
 * Report bugs and enhancement requests at https://github.com/spring-projects/spring-security/issues
 
