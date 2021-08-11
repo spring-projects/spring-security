@@ -1,6 +1,6 @@
 name: security
 title: Spring Security
-version: 5.6
+version: 6.0
 start_page: ROOT:overview/index.adoc
 asciidoc:
   attributes:
@@ -17,7 +17,7 @@ asciidoc:
     spring-core-version: 5.3.8
     spring-framework-api-url: https://docs.spring.io/spring-framework/docs/current/javadoc-api/
     spring-framework-reference-url: https://docs.spring.io/spring-framework/docs/current/reference/html/
-    spring-security-version: 5.6.0
+    spring-security-version: 6.0.0
     unboundid-ldapsdk-version: 4.1
 nav:
 - modules/ROOT/nav.adoc
