@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -64,6 +65,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -305,6 +307,17 @@ public class EnableWebFluxSecurityTests {
 	public void resolveAuthenticationPrincipalArgumentResolverFirstDoesNotCauseBeanCurrentlyInCreationException() {
 		this.spring.register(EnableWebFluxSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
 				DelegatingWebFluxConfiguration.class).autowire();
+	}
+
+	@Test
+	// gh-10076
+	public void webFluxConfigurationSupportAndServerHttpSecurityConfigurationDoNotCauseCircularReference() {
+		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+		context.setAllowCircularReferences(false);
+		context.register(EnableWebFluxSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
+				DelegatingWebFluxConfiguration.class);
+		context.setServletContext(new MockServletContext());
+		context.refresh();
 	}
 
 	@EnableWebFluxSecurity
