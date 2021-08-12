@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,9 @@ import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.PortMapper;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.access.channel.ChannelProcessor;
@@ -75,6 +77,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  *
  * @param <H> the type of {@link HttpSecurityBuilder} that is being configured
  * @author Rob Winch
+ * @author Onur Kagan Ozcan
  * @since 3.2
  */
 public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
@@ -85,6 +88,8 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 	private LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 
 	private List<ChannelProcessor> channelProcessors;
+
+	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	private final ChannelRequestMatcherRegistry REGISTRY;
 
@@ -123,9 +128,11 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		if (portMapper != null) {
 			RetryWithHttpEntryPoint httpEntryPoint = new RetryWithHttpEntryPoint();
 			httpEntryPoint.setPortMapper(portMapper);
+			httpEntryPoint.setRedirectStrategy(this.redirectStrategy);
 			insecureChannelProcessor.setEntryPoint(httpEntryPoint);
 			RetryWithHttpsEntryPoint httpsEntryPoint = new RetryWithHttpsEntryPoint();
 			httpsEntryPoint.setPortMapper(portMapper);
+			httpsEntryPoint.setRedirectStrategy(this.redirectStrategy);
 			secureChannelProcessor.setEntryPoint(httpsEntryPoint);
 		}
 		insecureChannelProcessor = postProcess(insecureChannelProcessor);
@@ -182,6 +189,17 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		 */
 		public ChannelRequestMatcherRegistry channelProcessors(List<ChannelProcessor> channelProcessors) {
 			ChannelSecurityConfigurer.this.channelProcessors = channelProcessors;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link RedirectStrategy} instances to use in
+		 * {@link RetryWithHttpEntryPoint} and {@link RetryWithHttpsEntryPoint}
+		 * @param redirectStrategy
+		 * @return the {@link ChannelSecurityConfigurer} for further customizations
+		 */
+		public ChannelRequestMatcherRegistry redirectStrategy(RedirectStrategy redirectStrategy) {
+			ChannelSecurityConfigurer.this.redirectStrategy = redirectStrategy;
 			return this;
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,11 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -27,6 +32,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.web.PortMapperImpl;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.access.channel.InsecureChannelProcessor;
@@ -44,6 +51,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Rob Winch
  * @author Eleftheria Stein
+ * @author Onur Kagan Ozcan
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class ChannelSecurityConfigurerTests {
@@ -91,6 +99,12 @@ public class ChannelSecurityConfigurerTests {
 	public void requestWhenRequiresChannelConfiguredInLambdaThenRedirectsToHttps() throws Exception {
 		this.spring.register(RequiresChannelInLambdaConfig.class).autowire();
 		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
+	}
+
+	@Test
+	public void requestWhenRequiresChannelConfiguredWithUrlRedirectThenRedirectsToUrlWithHttps() throws Exception {
+		this.spring.register(RequiresChannelWithTestUrlRedirectStrategy.class).autowire();
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/test"));
 	}
 
 	@EnableWebSecurity
@@ -151,6 +165,37 @@ public class ChannelSecurityConfigurerTests {
 						.anyRequest().requiresSecure()
 			);
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RequiresChannelWithTestUrlRedirectStrategy extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.portMapper()
+					.portMapper(new PortMapperImpl())
+					.and()
+				.requiresChannel()
+					.redirectStrategy(new TestUrlRedirectStrategy())
+					.anyRequest()
+					.requiresSecure();
+			// @formatter:on
+		}
+
+	}
+
+	static class TestUrlRedirectStrategy implements RedirectStrategy {
+
+		@Override
+		public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
+				throws IOException {
+			String redirectUrl = url + "test";
+			redirectUrl = response.encodeRedirectURL(redirectUrl);
+			response.sendRedirect(redirectUrl);
 		}
 
 	}
