@@ -62,8 +62,6 @@ public class ClaimTypeConverterTests {
 
 	private static final String JSON_OBJECT_CLAIM = "json-object-claim";
 
-	private static final String NULL_OBJECT_CLAIM = "null-object-claim";
-
 	private ClaimTypeConverter claimTypeConverter;
 
 	@BeforeEach
@@ -79,7 +77,6 @@ public class ClaimTypeConverterTests {
 				TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(String.class)));
 		Converter<Object, ?> mapStringObjectConverter = getConverter(TypeDescriptor.map(Map.class,
 				TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Object.class)));
-		Converter<Object, ?> nullConverter = (value) -> null;
 		Map<String, Converter<Object, ?>> claimTypeConverters = new HashMap<>();
 		claimTypeConverters.put(STRING_CLAIM, stringConverter);
 		claimTypeConverters.put(BOOLEAN_CLAIM, booleanConverter);
@@ -88,7 +85,6 @@ public class ClaimTypeConverterTests {
 		claimTypeConverters.put(COLLECTION_STRING_CLAIM, collectionStringConverter);
 		claimTypeConverters.put(LIST_STRING_CLAIM, listStringConverter);
 		claimTypeConverters.put(MAP_STRING_OBJECT_CLAIM, mapStringObjectConverter);
-		claimTypeConverters.put(NULL_OBJECT_CLAIM, nullConverter);
 		this.claimTypeConverter = new ClaimTypeConverter(claimTypeConverters);
 	}
 
@@ -142,7 +138,6 @@ public class ClaimTypeConverterTests {
 		claims.put(MAP_STRING_OBJECT_CLAIM, mapIntegerObject);
 		claims.put(JSON_ARRAY_CLAIM, jsonArray);
 		claims.put(JSON_OBJECT_CLAIM, jsonObject);
-		claims.put(NULL_OBJECT_CLAIM, instant.toString());
 		claims = this.claimTypeConverter.convert(claims);
 		assertThat(claims.get(STRING_CLAIM)).isEqualTo("true");
 		assertThat(claims.get(BOOLEAN_CLAIM)).isEqualTo(Boolean.TRUE);
@@ -153,7 +148,6 @@ public class ClaimTypeConverterTests {
 		assertThat(claims.get(MAP_STRING_OBJECT_CLAIM)).isEqualTo(mapStringObject);
 		assertThat(claims.get(JSON_ARRAY_CLAIM)).isEqualTo(jsonArrayListString);
 		assertThat(claims.get(JSON_OBJECT_CLAIM)).isEqualTo(jsonObjectMap);
-		assertThat(claims.get(NULL_OBJECT_CLAIM)).isNull();
 	}
 
 	@Test

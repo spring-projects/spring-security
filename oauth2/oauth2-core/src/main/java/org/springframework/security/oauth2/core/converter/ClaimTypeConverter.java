@@ -56,7 +56,10 @@ public final class ClaimTypeConverter implements Converter<Map<String, Object>, 
 		this.claimTypeConverters.forEach((claimName, typeConverter) -> {
 			if (claims.containsKey(claimName)) {
 				Object claim = claims.get(claimName);
-				result.put(claimName, typeConverter.convert(claim));
+				Object mappedClaim = typeConverter.convert(claim);
+				if (mappedClaim != null) {
+					result.put(claimName, mappedClaim);
+				}
 			}
 		});
 		return result;
