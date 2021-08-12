@@ -40,6 +40,7 @@ import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -158,7 +159,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		Map<String, Object> claims = responseEntity.getBody();
 		// relying solely on the authorization server to validate this token (not checking
 		// 'exp', for example)
-		boolean active = (boolean) claims.compute(OAuth2IntrospectionClaimNames.ACTIVE, (k, v) -> {
+		boolean active = (boolean) claims.compute(OAuth2TokenIntrospectionClaimNames.ACTIVE, (k, v) -> {
 			if (v instanceof String) {
 				return Boolean.parseBoolean((String) v);
 			}
@@ -175,22 +176,22 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	}
 
 	private OAuth2AuthenticatedPrincipal convertClaimsSet(Map<String, Object> claims) {
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.AUDIENCE, (k, v) -> {
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.AUD, (k, v) -> {
 			if (v instanceof String) {
 				return Collections.singletonList(v);
 			}
 			return v;
 		});
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.CLIENT_ID, (k, v) -> v.toString());
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.EXPIRES_AT,
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.CLIENT_ID, (k, v) -> v.toString());
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.EXP,
 				(k, v) -> Instant.ofEpochSecond(((Number) v).longValue()));
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.ISSUED_AT,
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.IAT,
 				(k, v) -> Instant.ofEpochSecond(((Number) v).longValue()));
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.ISSUER, (k, v) -> issuer(v.toString()));
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.NOT_BEFORE,
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.ISS, (k, v) -> issuer(v.toString()));
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.NBF,
 				(k, v) -> Instant.ofEpochSecond(((Number) v).longValue()));
 		Collection<GrantedAuthority> authorities = new ArrayList<>();
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.SCOPE, (k, v) -> {
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.SCOPE, (k, v) -> {
 			if (v instanceof String) {
 				Collection<String> scopes = Arrays.asList(((String) v).split(" "));
 				for (String scope : scopes) {
@@ -209,7 +210,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		}
 		catch (Exception ex) {
 			throw new OAuth2IntrospectionException(
-					"Invalid " + OAuth2IntrospectionClaimNames.ISSUER + " value: " + uri);
+					"Invalid " + OAuth2TokenIntrospectionClaimNames.ISS + " value: " + uri);
 		}
 	}
 
