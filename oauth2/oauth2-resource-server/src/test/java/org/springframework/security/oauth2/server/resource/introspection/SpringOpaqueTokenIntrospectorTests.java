@@ -17,7 +17,6 @@
 package org.springframework.security.oauth2.server.resource.introspection;
 
 import java.io.IOException;
-import java.net.URL;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
@@ -150,7 +149,7 @@ public class SpringOpaqueTokenIntrospectorTests {
 							Arrays.asList("https://protected.example.net/resource"))
 					.containsEntry(OAuth2TokenIntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
 					.containsEntry(OAuth2TokenIntrospectionClaimNames.EXP, Instant.ofEpochSecond(1419356238))
-					.containsEntry(OAuth2TokenIntrospectionClaimNames.ISS, new URL("https://server.example.com/"))
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.ISS, "https://server.example.com/")
 					.containsEntry(OAuth2TokenIntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"))
 					.containsEntry(OAuth2TokenIntrospectionClaimNames.SUB, "Z5O3upPC88QrAjx00dis")
 					.containsEntry(OAuth2TokenIntrospectionClaimNames.USERNAME, "jdoe")
