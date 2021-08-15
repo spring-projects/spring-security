@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
@@ -159,11 +160,32 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	}
 
 	private HTTPResponse adaptToNimbusResponse(ResponseEntity<String> responseEntity) {
+		MediaType contentType = responseEntity.getHeaders().getContentType();
+
+		if (contentType == null) {
+			this.logger.trace("Did not receive Content-Type from introspection endpoint in response");
+
+			throw new OAuth2IntrospectionException(
+					"Introspection endpoint response was invalid, as no Content-Type header was provided");
+		}
+
+		// Nimbus expects JSON, but does not appear to validate this header first.
+		if (!contentType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
+			this.logger.trace("Did not receive JSON-compatible Content-Type from introspection endpoint in response");
+
+			throw new OAuth2IntrospectionException("Introspection endpoint response was invalid, as content type '"
+					+ contentType + "' is not compatible with JSON");
+		}
+
 		HTTPResponse response = new HTTPResponse(responseEntity.getStatusCodeValue());
-		response.setHeader(HttpHeaders.CONTENT_TYPE, responseEntity.getHeaders().getContentType().toString());
+		response.setHeader(HttpHeaders.CONTENT_TYPE, contentType.toString());
 		response.setContent(responseEntity.getBody());
+
 		if (response.getStatusCode() != HTTPResponse.SC_OK) {
-			throw new OAuth2IntrospectionException("Introspection endpoint responded with " + response.getStatusCode());
+			this.logger.trace("Introspection endpoint returned non-OK status code");
+
+			throw new OAuth2IntrospectionException(
+					"Introspection endpoint responded with HTTP status code " + response.getStatusCode());
 		}
 		return response;
 	}
@@ -179,7 +201,10 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 	private TokenIntrospectionSuccessResponse castToNimbusSuccess(TokenIntrospectionResponse introspectionResponse) {
 		if (!introspectionResponse.indicatesSuccess()) {
-			throw new OAuth2IntrospectionException("Token introspection failed");
+			ErrorObject errorObject = introspectionResponse.toErrorResponse().getErrorObject();
+			String message = "Token introspection failed with response " + errorObject.toJSONObject().toJSONString();
+			this.logger.trace(message);
+			throw new OAuth2IntrospectionException(message);
 		}
 		return (TokenIntrospectionSuccessResponse) introspectionResponse;
 	}

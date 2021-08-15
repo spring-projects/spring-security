@@ -96,13 +96,6 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 			+ "     }";
 	// @formatter:on
 
-	// @formatter:off
-	private static final String MALFORMED_ISSUER_RESPONSE = "{\n"
-			+ "     \"active\" : \"true\",\n"
-			+ "     \"iss\" : \"badissuer\"\n"
-			+ "    }";
-	// @formatter:on
-
 	private final ObjectMapper mapper = new ObjectMapper();
 
 	@Test
@@ -195,15 +188,6 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
 				.isThrownBy(() -> introspectionClient.introspect("token").block());
 		// @formatter:on
-	}
-
-	@Test
-	public void authenticateWhenIntrospectionTokenReturnsMalformedIssuerResponseThenInvalidToken() {
-		WebClient webClient = mockResponse(MALFORMED_ISSUER_RESPONSE);
-		SpringReactiveOpaqueTokenIntrospector introspectionClient = new SpringReactiveOpaqueTokenIntrospector(
-				INTROSPECTION_URL, webClient);
-		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token").block());
 	}
 
 	@Test

@@ -158,6 +158,10 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		Map<String, Object> claims = responseEntity.getBody();
 		// relying solely on the authorization server to validate this token (not checking
 		// 'exp', for example)
+		if (claims == null) {
+			return Collections.emptyMap();
+		}
+
 		boolean active = (boolean) claims.compute(OAuth2TokenIntrospectionClaimNames.ACTIVE, (k, v) -> {
 			if (v instanceof String) {
 				return Boolean.parseBoolean((String) v);
