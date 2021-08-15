@@ -37,6 +37,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -106,18 +107,19 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 			SpringReactiveOpaqueTokenIntrospector introspectionClient = new SpringReactiveOpaqueTokenIntrospector(
 					introspectUri, CLIENT_ID, CLIENT_SECRET);
 			OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token").block();
+			assertThat(authority).isNotNull();
 			// @formatter:off
 			assertThat(authority.getAttributes())
 					.isNotNull()
-					.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
-					.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE,
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.ACTIVE, true)
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.AUD,
 							Arrays.asList("https://protected.example.net/resource"))
-					.containsEntry(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
-					.containsEntry(OAuth2IntrospectionClaimNames.EXPIRES_AT, Instant.ofEpochSecond(1419356238))
-					.containsEntry(OAuth2IntrospectionClaimNames.ISSUER, "https://server.example.com/")
-					.containsEntry(OAuth2IntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"))
-					.containsEntry(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis")
-					.containsEntry(OAuth2IntrospectionClaimNames.USERNAME, "jdoe")
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.EXP, Instant.ofEpochSecond(1419356238))
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.ISS, "https://server.example.com/")
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"))
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.SUB, "Z5O3upPC88QrAjx00dis")
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.USERNAME, "jdoe")
 					.containsEntry("extension_field", "twenty-seven");
 			// @formatter:on
 		}
@@ -149,21 +151,22 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 	@Test
 	public void authenticateWhenActiveTokenThenParsesValuesInResponse() {
 		Map<String, Object> introspectedValues = new HashMap<>();
-		introspectedValues.put(OAuth2IntrospectionClaimNames.ACTIVE, true);
-		introspectedValues.put(OAuth2IntrospectionClaimNames.AUDIENCE, Arrays.asList("aud"));
-		introspectedValues.put(OAuth2IntrospectionClaimNames.NOT_BEFORE, 29348723984L);
+		introspectedValues.put(OAuth2TokenIntrospectionClaimNames.ACTIVE, true);
+		introspectedValues.put(OAuth2TokenIntrospectionClaimNames.AUD, Arrays.asList("aud"));
+		introspectedValues.put(OAuth2TokenIntrospectionClaimNames.NBF, 29348723984L);
 		WebClient webClient = mockResponse(introspectedValues);
 		SpringReactiveOpaqueTokenIntrospector introspectionClient = new SpringReactiveOpaqueTokenIntrospector(
 				INTROSPECTION_URL, webClient);
 		OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token").block();
+		assertThat(authority).isNotNull();
 		// @formatter:off
 		assertThat(authority.getAttributes())
 				.isNotNull()
-				.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
-				.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE, Arrays.asList("aud"))
-				.containsEntry(OAuth2IntrospectionClaimNames.NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
-				.doesNotContainKey(OAuth2IntrospectionClaimNames.CLIENT_ID)
-				.doesNotContainKey(OAuth2IntrospectionClaimNames.SCOPE);
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.ACTIVE, true)
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.AUD, Arrays.asList("aud"))
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.NBF, Instant.ofEpochSecond(29348723984L))
+				.doesNotContainKey(OAuth2TokenIntrospectionClaimNames.CLIENT_ID)
+				.doesNotContainKey(OAuth2TokenIntrospectionClaimNames.SCOPE);
 		// @formatter:on
 	}
 
@@ -234,6 +237,7 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 		return webClient;
 	}
 
+	@SuppressWarnings("unchecked")
 	private Map<String, Object> toMap(String string) {
 		try {
 			return this.mapper.readValue(string, Map.class);
