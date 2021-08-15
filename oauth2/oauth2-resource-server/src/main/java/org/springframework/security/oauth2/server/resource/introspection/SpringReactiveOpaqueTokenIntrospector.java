@@ -51,14 +51,14 @@ import org.springframework.web.reactive.function.client.WebClient;
  */
 public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
 
+	private static final String AUTHORITY_PREFIX = "SCOPE_";
+
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
 
 	private final URI introspectionUri;
 
 	private final WebClient webClient;
-
-	private String authorityPrefix = "SCOPE_";
 
 	/**
 	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
@@ -171,7 +171,7 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 			if (v instanceof String) {
 				Collection<String> scopes = Arrays.asList(((String) v).split(" "));
 				for (String scope : scopes) {
-					authorities.add(new SimpleGrantedAuthority(this.authorityPrefix + scope));
+					authorities.add(new SimpleGrantedAuthority(AUTHORITY_PREFIX + scope));
 				}
 				return scopes;
 			}

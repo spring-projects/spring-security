@@ -57,16 +57,16 @@ import org.springframework.web.client.RestTemplate;
  */
 public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
-	private final Log logger = LogFactory.getLog(getClass());
+	private static final String AUTHORITY_PREFIX = "SCOPE_";
 
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
 
+	private final Log logger = LogFactory.getLog(getClass());
+
+	private final RestOperations restOperations;
+
 	private Converter<String, RequestEntity<?>> requestEntityConverter;
-
-	private RestOperations restOperations;
-
-	private final String authorityPrefix = "SCOPE_";
 
 	/**
 	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
@@ -216,7 +216,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 			if (v instanceof String) {
 				Collection<String> scopes = Arrays.asList(((String) v).split(" "));
 				for (String scope : scopes) {
-					authorities.add(new SimpleGrantedAuthority(this.authorityPrefix + scope));
+					authorities.add(new SimpleGrantedAuthority(AUTHORITY_PREFIX + scope));
 				}
 				return scopes;
 			}
