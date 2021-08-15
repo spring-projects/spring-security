@@ -66,7 +66,7 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private OpaqueTokenIntrospector introspector;
+	private final OpaqueTokenIntrospector introspector;
 
 	/**
 	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
@@ -104,10 +104,10 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 		}
 		catch (BadOpaqueTokenException failed) {
 			this.logger.debug("Failed to authenticate since token was invalid");
-			throw new InvalidBearerTokenException(failed.getMessage());
+			throw new InvalidBearerTokenException(failed.getMessage(), failed);
 		}
 		catch (OAuth2IntrospectionException failed) {
-			throw new AuthenticationServiceException(failed.getMessage());
+			throw new AuthenticationServiceException(failed.getMessage(), failed);
 		}
 	}
 
