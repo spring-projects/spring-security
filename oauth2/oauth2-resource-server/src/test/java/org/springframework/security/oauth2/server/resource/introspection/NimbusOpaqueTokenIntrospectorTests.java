@@ -31,6 +31,8 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
@@ -45,6 +47,7 @@ import org.springframework.web.client.RestOperations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -306,6 +309,37 @@ public class NimbusOpaqueTokenIntrospectorTests {
 		introspectionClient.setRequestEntityConverter(requestEntityConverter);
 		introspectionClient.introspect(tokenToIntrospect);
 		verify(requestEntityConverter).convert(tokenToIntrospect);
+	}
+
+	@Test
+	public void handleMissingContentType() {
+		RestOperations restOperations = mock(RestOperations.class);
+		ResponseEntity<String> stubResponse = ResponseEntity.ok(ACTIVE_RESPONSE);
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willReturn(stubResponse);
+		OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL,
+				restOperations);
+
+		// Protect against potential regressions where a default content type might be
+		// added by default.
+		assumeThat(stubResponse.getHeaders().getContentType()).isNull();
+
+		assertThatExceptionOfType(OAuth2IntrospectionException.class)
+				.isThrownBy(() -> introspectionClient.introspect("sometokenhere"));
+	}
+
+	@ParameterizedTest(name = "{displayName} when Content-Type={0}")
+	@ValueSource(strings = { MediaType.APPLICATION_CBOR_VALUE, MediaType.TEXT_MARKDOWN_VALUE,
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE })
+	public void handleNonJsonContentType(String type) {
+		RestOperations restOperations = mock(RestOperations.class);
+		ResponseEntity<String> stubResponse = ResponseEntity.ok().contentType(MediaType.parseMediaType(type))
+				.body(ACTIVE_RESPONSE);
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willReturn(stubResponse);
+		OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL,
+				restOperations);
+
+		assertThatExceptionOfType(OAuth2IntrospectionException.class)
+				.isThrownBy(() -> introspectionClient.introspect("sometokenhere"));
 	}
 
 	private static ResponseEntity<String> response(String content) {

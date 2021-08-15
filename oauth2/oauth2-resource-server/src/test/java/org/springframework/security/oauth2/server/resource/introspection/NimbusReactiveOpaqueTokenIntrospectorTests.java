@@ -30,6 +30,8 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
@@ -234,7 +236,35 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 				.isThrownBy(() -> new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, null));
 	}
 
+	@Test
+	public void handleMissingContentType() {
+		WebClient client = mockResponse(ACTIVE_RESPONSE, null);
+
+		ReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
+				INTROSPECTION_URL, client);
+
+		assertThatExceptionOfType(OAuth2IntrospectionException.class)
+				.isThrownBy(() -> introspectionClient.introspect("sometokenhere").block());
+	}
+
+	@ParameterizedTest(name = "{displayName} when Content-Type={0}")
+	@ValueSource(strings = { MediaType.APPLICATION_CBOR_VALUE, MediaType.TEXT_MARKDOWN_VALUE,
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE })
+	public void handleNonJsonContentType(String type) {
+		WebClient client = mockResponse(ACTIVE_RESPONSE, type);
+
+		ReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
+				INTROSPECTION_URL, client);
+
+		assertThatExceptionOfType(OAuth2IntrospectionException.class)
+				.isThrownBy(() -> introspectionClient.introspect("sometokenhere").block());
+	}
+
 	private WebClient mockResponse(String response) {
+		return mockResponse(response, MediaType.APPLICATION_JSON_VALUE);
+	}
+
+	private WebClient mockResponse(String response, String mediaType) {
 		WebClient real = WebClient.builder().build();
 		WebClient.RequestBodyUriSpec spec = spy(real.post());
 		WebClient webClient = spy(WebClient.class);
@@ -244,7 +274,7 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		given(clientResponse.statusCode()).willReturn(HttpStatus.OK);
 		given(clientResponse.bodyToMono(String.class)).willReturn(Mono.just(response));
 		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);
-		given(headers.contentType()).willReturn(Optional.of(MediaType.APPLICATION_JSON));
+		given(headers.contentType()).willReturn(Optional.ofNullable(mediaType).map(MediaType::parseMediaType));
 		given(clientResponse.headers()).willReturn(headers);
 		given(spec.exchange()).willReturn(Mono.just(clientResponse));
 		return webClient;

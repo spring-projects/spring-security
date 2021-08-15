@@ -102,13 +102,6 @@ public class SpringOpaqueTokenIntrospectorTests {
 	// @formatter:on
 
 	// @formatter:off
-	private static final String MALFORMED_ISSUER_RESPONSE = "{\n"
-			+ "     \"active\" : \"true\",\n"
-			+ "     \"iss\" : \"badissuer\"\n"
-			+ "    }";
-	// @formatter:on
-
-	// @formatter:off
 	private static final String MALFORMED_SCOPE_RESPONSE = "{\n"
 			+ "      \"active\": true,\n"
 			+ "      \"client_id\": \"l238j323ds-23ij4\",\n"
@@ -128,8 +121,6 @@ public class SpringOpaqueTokenIntrospectorTests {
 	private static final ResponseEntity<Map<String, Object>> INACTIVE = response(INACTIVE_RESPONSE);
 
 	private static final ResponseEntity<Map<String, Object>> INVALID = response(INVALID_RESPONSE);
-
-	private static final ResponseEntity<Map<String, Object>> MALFORMED_ISSUER = response(MALFORMED_ISSUER_RESPONSE);
 
 	private static final ResponseEntity<Map<String, Object>> MALFORMED_SCOPE = response(MALFORMED_SCOPE_RESPONSE);
 
@@ -236,16 +227,6 @@ public class SpringOpaqueTokenIntrospectorTests {
 		OpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(INTROSPECTION_URL,
 				restOperations);
 		given(restOperations.exchange(any(RequestEntity.class), eq(STRING_OBJECT_MAP))).willReturn(INVALID);
-		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token"));
-	}
-
-	@Test
-	public void introspectWhenIntrospectionTokenReturnsMalformedIssuerResponseThenInvalidToken() {
-		RestOperations restOperations = mock(RestOperations.class);
-		OpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(INTROSPECTION_URL,
-				restOperations);
-		given(restOperations.exchange(any(RequestEntity.class), eq(STRING_OBJECT_MAP))).willReturn(MALFORMED_ISSUER);
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
 				.isThrownBy(() -> introspectionClient.introspect("token"));
 	}

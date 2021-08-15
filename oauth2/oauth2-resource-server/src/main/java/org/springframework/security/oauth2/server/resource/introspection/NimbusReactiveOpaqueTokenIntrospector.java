@@ -24,10 +24,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Audience;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.io.buffer.DataBuffer;
@@ -53,6 +56,8 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @since 5.2
  */
 public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
+
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private final URI introspectionUri;
 
@@ -113,14 +118,31 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	}
 
 	private Mono<HTTPResponse> adaptToNimbusResponse(ClientResponse responseEntity) {
+		MediaType contentType = responseEntity.headers().contentType().orElseThrow(() -> {
+			this.logger.trace("Did not receive Content-Type from introspection endpoint in response");
+
+			throw new OAuth2IntrospectionException(
+					"Introspection endpoint response was invalid, as no Content-Type header was provided");
+		});
+
+		// Nimbus expects JSON, but does not appear to validate this header first.
+		if (!contentType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
+			this.logger.trace("Did not receive JSON-compatible Content-Type from introspection endpoint in response");
+
+			throw new OAuth2IntrospectionException("Introspection endpoint response was invalid, as content type '"
+					+ contentType + "' is not compatible with JSON");
+		}
+
 		HTTPResponse response = new HTTPResponse(responseEntity.rawStatusCode());
-		response.setHeader(HttpHeaders.CONTENT_TYPE, responseEntity.headers().contentType().get().toString());
+		response.setHeader(HttpHeaders.CONTENT_TYPE, contentType.toString());
 		if (response.getStatusCode() != HTTPResponse.SC_OK) {
+			this.logger.trace("Introspection endpoint returned non-OK status code");
+
 			// @formatter:off
 			return responseEntity.bodyToFlux(DataBuffer.class)
 					.map(DataBufferUtils::release)
 					.then(Mono.error(new OAuth2IntrospectionException(
-							"Introspection endpoint responded with " + response.getStatusCode()))
+							"Introspection endpoint responded with HTTP status code " + response.getStatusCode()))
 					);
 			// @formatter:on
 		}
@@ -138,7 +160,10 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 
 	private TokenIntrospectionSuccessResponse castToNimbusSuccess(TokenIntrospectionResponse introspectionResponse) {
 		if (!introspectionResponse.indicatesSuccess()) {
-			throw new OAuth2IntrospectionException("Token introspection failed");
+			ErrorObject errorObject = introspectionResponse.toErrorResponse().getErrorObject();
+			String message = "Token introspection failed with response " + errorObject.toJSONObject().toJSONString();
+			this.logger.trace(message);
+			throw new OAuth2IntrospectionException(message);
 		}
 		return (TokenIntrospectionSuccessResponse) introspectionResponse;
 	}
@@ -147,6 +172,7 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		// relying solely on the authorization server to validate this token (not checking
 		// 'exp', for example)
 		if (!response.isActive()) {
+			this.logger.trace("Did not validate token since it is inactive");
 			throw new BadOpaqueTokenException("Provided token isn't active");
 		}
 	}
