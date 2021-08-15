@@ -35,6 +35,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -122,7 +123,7 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		// relying solely on the authorization server to validate this token (not checking
 		// 'exp', for example)
 		return responseEntity.bodyToMono(STRING_OBJECT_MAP)
-				.filter((body) -> (boolean) body.compute(OAuth2IntrospectionClaimNames.ACTIVE, (k, v) -> {
+				.filter((body) -> (boolean) body.compute(OAuth2TokenIntrospectionClaimNames.ACTIVE, (k, v) -> {
 					if (v instanceof String) {
 						return Boolean.parseBoolean((String) v);
 					}
@@ -134,16 +135,16 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	}
 
 	private OAuth2AuthenticatedPrincipal convertClaimsSet(Map<String, Object> claims) {
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.AUDIENCE, (k, v) -> {
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.AUD, (k, v) -> {
 			if (v instanceof String) {
 				return Collections.singletonList(v);
 			}
 			return v;
 		});
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.CLIENT_ID, (k, v) -> v.toString());
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.EXPIRES_AT,
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.CLIENT_ID, (k, v) -> v.toString());
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.EXP,
 				(k, v) -> Instant.ofEpochSecond(((Number) v).longValue()));
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.ISSUED_AT,
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.IAT,
 				(k, v) -> Instant.ofEpochSecond(((Number) v).longValue()));
 		// RFC-7662 page 7 directs users to RFC-7519 for defining the values of these
 		// issuer fields.
@@ -163,11 +164,11 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		// may be awkward to debug, we do not want to manipulate this value. Previous
 		// versions of Spring Security
 		// would *only* allow valid URLs, which is not what we wish to achieve here.
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.ISSUER, (k, v) -> v.toString());
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.NOT_BEFORE,
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.ISS, (k, v) -> v.toString());
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.NBF,
 				(k, v) -> Instant.ofEpochSecond(((Number) v).longValue()));
 		Collection<GrantedAuthority> authorities = new ArrayList<>();
-		claims.computeIfPresent(OAuth2IntrospectionClaimNames.SCOPE, (k, v) -> {
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.SCOPE, (k, v) -> {
 			if (v instanceof String) {
 				Collection<String> scopes = Arrays.asList(((String) v).split(" "));
 				for (String scope : scopes) {

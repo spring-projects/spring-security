@@ -121,7 +121,7 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		MediaType contentType = responseEntity.headers().contentType().orElseThrow(() -> {
 			this.logger.trace("Did not receive Content-Type from introspection endpoint in response");
 
-			throw new OAuth2IntrospectionException(
+			return new OAuth2IntrospectionException(
 					"Introspection endpoint response was invalid, as no Content-Type header was provided");
 		});
 
