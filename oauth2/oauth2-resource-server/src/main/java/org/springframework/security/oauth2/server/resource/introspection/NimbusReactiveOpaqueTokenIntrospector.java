@@ -57,13 +57,13 @@ import org.springframework.web.reactive.function.client.WebClient;
  */
 public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
 
+	private static final String AUTHORITY_PREFIX = "SCOPE_";
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final URI introspectionUri;
 
 	private final WebClient webClient;
-
-	private String authorityPrefix = "SCOPE_";
 
 	/**
 	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
@@ -227,7 +227,7 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 			claims.put(OAuth2TokenIntrospectionClaimNames.SCOPE, scopes);
 
 			for (String scope : scopes) {
-				authorities.add(new SimpleGrantedAuthority(this.authorityPrefix + scope));
+				authorities.add(new SimpleGrantedAuthority(AUTHORITY_PREFIX + scope));
 			}
 		}
 		return new OAuth2IntrospectionAuthenticatedPrincipal(claims, authorities);

@@ -61,13 +61,13 @@ import org.springframework.web.client.RestTemplate;
  */
 public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
+	private static final String AUTHORITY_PREFIX = "SCOPE_";
+
 	private final Log logger = LogFactory.getLog(getClass());
 
+	private final RestOperations restOperations;
+
 	private Converter<String, RequestEntity<?>> requestEntityConverter;
-
-	private RestOperations restOperations;
-
-	private final String authorityPrefix = "SCOPE_";
 
 	/**
 	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
@@ -258,7 +258,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 			List<String> scopes = Collections.unmodifiableList(response.getScope().toStringList());
 			claims.put(OAuth2TokenIntrospectionClaimNames.SCOPE, scopes);
 			for (String scope : scopes) {
-				authorities.add(new SimpleGrantedAuthority(this.authorityPrefix + scope));
+				authorities.add(new SimpleGrantedAuthority(AUTHORITY_PREFIX + scope));
 			}
 		}
 		return new OAuth2IntrospectionAuthenticatedPrincipal(claims, authorities);
