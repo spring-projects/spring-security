@@ -61,7 +61,7 @@ import org.springframework.util.Assert;
  */
 public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 
-	private ReactiveOpaqueTokenIntrospector introspector;
+	private final ReactiveOpaqueTokenIntrospector introspector;
 
 	/**
 	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
