@@ -87,6 +87,14 @@ updateDependenciesSettings {
 				if (candidate.getGroup().equals("org.opensaml")) {
 					selection.reject("org.opensaml maintains two different versions, so it must be updated manually");
 				}
+				if (candidate.getGroup().equals("org.jetbrains.kotlin")) {
+					if (candidate.getVersion().endsWith("-RC")) {
+						selection.reject("On a maintenance branch, we should not take RC versions")
+					}
+					if (candidate.getVersion().contains("-M")) {
+						selection.reject("On a maintenance branch, we should not take milestone versions")
+					}
+				}
 			}
 		}
 	}
