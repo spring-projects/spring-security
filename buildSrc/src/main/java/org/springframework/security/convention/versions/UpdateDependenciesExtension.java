@@ -166,7 +166,7 @@ public class UpdateDependenciesExtension {
 		}
 
 		public DependencyExcludes releaseCandidatesVersions() {
-			this.actions.add(excludeVersionWithRegex("(?i).*?rc\\d+.*", "a release candidate version"));
+			this.actions.add(excludeVersionWithRegex("(?i).*?rc.*", "a release candidate version"));
 			return this;
 		}
 
