@@ -11,4 +11,4 @@ For example Tomcat uses the https://tomcat.apache.org/tomcat-8.0-doc/api/org/apa
 Alternatively, Spring 4.3+ users can leverage https://github.com/spring-projects/spring-framework/blob/v4.3.3.RELEASE/spring-web/src/main/java/org/springframework/web/filter/ForwardedHeaderFilter.java[ForwardedHeaderFilter].
 
 Spring Boot users may use the `server.use-forward-headers` property to configure the application.
-See the https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-use-tomcat-behind-a-proxy-server[Spring Boot documentation] for further details.
+See the https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto.webserver.use-behind-a-proxy-server[Spring Boot documentation] for further details.
