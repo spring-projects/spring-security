@@ -278,6 +278,18 @@ public class OpenSaml4AuthenticationProviderTests {
 	}
 
 	@Test
+	public void authenticateWhenEncryptedAssertionWithSignatureAndNoResponseSignatureThenItSucceeds() {
+		Response response = response();
+		Assertion assertion = TestOpenSamlObjects.signed(assertion(),
+				TestSaml2X509Credentials.assertingPartySigningCredential(), RELYING_PARTY_ENTITY_ID);
+		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion,
+				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
+		response.getEncryptedAssertions().add(encryptedAssertion);
+		Saml2AuthenticationToken token = token(response, decrypting(verifying(registration())));
+		this.provider.authenticate(token);
+	}
+
+	@Test
 	public void authenticateWhenEncryptedAssertionWithResponseSignatureThenItSucceeds() {
 		Response response = response();
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion(),
