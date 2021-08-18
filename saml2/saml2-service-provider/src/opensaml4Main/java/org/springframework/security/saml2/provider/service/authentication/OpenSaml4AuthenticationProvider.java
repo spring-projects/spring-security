@@ -477,9 +477,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 
 		ResponseToken responseToken = new ResponseToken(response, token);
 		Saml2ResponseValidatorResult result = this.responseSignatureValidator.convert(responseToken);
-		if (responseSigned) {
-			this.responseElementsDecrypter.accept(responseToken);
-		}
+		this.responseElementsDecrypter.accept(responseToken);
 		result = result.concat(this.responseValidator.convert(responseToken));
 		boolean allAssertionsSigned = true;
 		for (Assertion assertion : response.getAssertions()) {
