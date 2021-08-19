@@ -1,6 +1,7 @@
 name: security
 title: Spring Security
-version: 6.0
+version: ~
+display_version: 6.0
 start_page: ROOT:overview/index.adoc
 asciidoc:
   attributes:
