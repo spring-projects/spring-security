@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,12 @@ import org.springframework.security.core.Authentication;
 /**
  * Annotation that is used to resolve {@link Authentication#getPrincipal()} to a method
  * argument.
+ *
+ * If the {@link Authentication} or {@link Authentication#getPrincipal()} is null, it will
+ * return null. For that reason, the argument type cannot be a primitive. If the types do
+ * not match, null will be returned unless
+ * {@link AuthenticationPrincipal#errorOnInvalidType()} is true in which case a
+ * {@link ClassCastException} will be thrown.
  *
  * @author Rob Winch
  * @since 4.0
