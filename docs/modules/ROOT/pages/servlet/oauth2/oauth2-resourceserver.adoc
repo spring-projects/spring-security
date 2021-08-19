@@ -23,13 +23,13 @@ First, we see that, like xref:servlet/authentication/unpwd/basic.adoc#servlet-au
 .Sending WWW-Authenticate Header
 image::{figures}/bearerauthenticationentrypoint.png[]
 
-The figure above builds off our xref:servlet/architecture/index.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
+The figure above builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
 
 image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource `/private` for which it is not authorized.
 
 image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`] indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
 
-image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet/architecture/index.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__.
+image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__.
 The configured xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/web/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`] which sends a WWW-Authenticate header.
 The `RequestCache` is typically a `NullRequestCache` that does not save the request since the client is capable of replaying the requests it originally requested.
 
@@ -40,7 +40,7 @@ Below is the flow for the bearer token being processed.
 .Authenticating Bearer Token
 image::{figures}/bearertokenauthenticationfilter.png[]
 
-The figure builds off our xref:servlet/architecture/index.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
+The figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
 
 image:{icondir}/number_1.png[] When the user submits their bearer token, the `BearerTokenAuthenticationFilter` creates a `BearerTokenAuthenticationToken` which is a type of xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authentication[`Authentication`] by extracting the token from the `HttpServletRequest`.
 

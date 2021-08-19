@@ -12,13 +12,13 @@ First, we see how the user is redirected to the log in form.
 .Redirecting to the Log In Page
 image::{figures}/loginurlauthenticationentrypoint.png[]
 
-The figure builds off our xref:servlet/architecture/index.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
+The figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
 
 image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource `/private` for which it is not authorized.
 
 image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`] indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
 
-image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet/architecture/index.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__ and sends a redirect to the log in page with the configured xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`].
+image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__ and sends a redirect to the log in page with the configured xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`].
 In most cases the `AuthenticationEntryPoint` is an instance of {security-api-url}org/springframework/security/web/authentication/LoginUrlAuthenticationEntryPoint.html[`LoginUrlAuthenticationEntryPoint`].
 
 image:{icondir}/number_4.png[] The browser will then request the log in page that it was redirected to.
@@ -32,7 +32,7 @@ The `UsernamePasswordAuthenticationFilter` extends xref:servlet/authentication/a
 .Authenticating Username and Password
 image::{figures}/usernamepasswordauthenticationfilter.png[]
 
-The figure builds off our xref:servlet/architecture/index.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
+The figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
 
 
 image:{icondir}/number_1.png[] When the user submits their username and password, the `UsernamePasswordAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken` which is a type of xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authentication[`Authentication`] by extracting the username and password from the `HttpServletRequest`.
@@ -59,7 +59,7 @@ image:{icondir}/number_4.png[] If authentication is successful, then __Success__
 If remember me is not configured, this is a no-op.
 // FIXME: link to rememberme
 * `ApplicationEventPublisher` publishes an `InteractiveAuthenticationSuccessEvent`.
-* The `AuthenticationSuccessHandler` is invoked. Typically this is a `SimpleUrlAuthenticationSuccessHandler` which will redirect to a request saved by xref:servlet/architecture/index.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] when we redirect to the log in page.
+* The `AuthenticationSuccessHandler` is invoked. Typically this is a `SimpleUrlAuthenticationSuccessHandler` which will redirect to a request saved by xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] when we redirect to the log in page.
 
 [[servlet-authentication-form-min]]
 Spring Security form log in is enabled by default.

@@ -2,10 +2,10 @@
 = Authorize HttpServletRequest with FilterSecurityInterceptor
 :figures: servlet/authorization
 
-This section builds on xref:servlet/architecture/index.adoc#servlet-architecture[Servlet Architecture and Implementation] by digging deeper into how xref:servlet/authorization/index.adoc#servlet-authorization[authorization] works within Servlet based applications.
+This section builds on xref:servlet/architecture.adoc#servlet-architecture[Servlet Architecture and Implementation] by digging deeper into how xref:servlet/authorization/index.adoc#servlet-authorization[authorization] works within Servlet based applications.
 
 The {security-api-url}org/springframework/security/web/access/intercept/FilterSecurityInterceptor.html[`FilterSecurityInterceptor`] provides xref:servlet/authorization/index.adoc#servlet-authorization[authorization] for ``HttpServletRequest``s.
-It is inserted into the xref:servlet/architecture/index.adoc#servlet-filterchainproxy[FilterChainProxy] as one of the xref:servlet/architecture/index.adoc#servlet-security-filters[Security Filters].
+It is inserted into the xref:servlet/architecture.adoc#servlet-filterchainproxy[FilterChainProxy] as one of the xref:servlet/architecture.adoc#servlet-security-filters[Security Filters].
 
 .Authorize HttpServletRequest
 image::{figures}/filtersecurityinterceptor.png[]
@@ -16,8 +16,8 @@ image::{figures}/filtersecurityinterceptor.png[]
 * image:{icondir}/number_3.png[] Next, it passes the `FilterInvocation` to `SecurityMetadataSource` to get the ``ConfigAttribute``s.
 * image:{icondir}/number_4.png[] Finally, it passes the `Authentication`, `FilterInvocation`, and ``ConfigAttribute``s to the `AccessDecisionManager`.
 ** image:{icondir}/number_5.png[] If authorization is denied, an `AccessDeniedException` is thrown.
-In this case the xref:servlet/architecture/index.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] handles the `AccessDeniedException`.
-** image:{icondir}/number_6.png[] If access is granted, `FilterSecurityInterceptor` continues with the xref:servlet/architecture/index.adoc#servlet-filters-review[FilterChain] which allows the application to process normally.
+In this case the xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] handles the `AccessDeniedException`.
+** image:{icondir}/number_6.png[] If access is granted, `FilterSecurityInterceptor` continues with the xref:servlet/architecture.adoc#servlet-filters-review[FilterChain] which allows the application to process normally.
 
 // configuration (xml/java)
 

@@ -30,13 +30,13 @@ It does this through a series of redirects.
 .Redirecting to Asserting Party Authentication
 image::{figures}/saml2webssoauthenticationrequestfilter.png[]
 
-The figure above builds off our xref:servlet/architecture/index.adoc#servlet-securityfilterchain[`SecurityFilterChain`] and xref:servlet/authentication/architecture/index.adoc#servlet-authentication-abstractprocessingfilter[ `AbstractAuthenticationProcessingFilter`] diagrams:
+The figure above builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] and xref:servlet/authentication/architecture/index.adoc#servlet-authentication-abstractprocessingfilter[ `AbstractAuthenticationProcessingFilter`] diagrams:
 
 image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource `/private` for which it is not authorized.
 
 image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`] indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
 
-image:{icondir}/number_3.png[] Since the user lacks authorization, the xref:servlet/architecture/index.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__.
+image:{icondir}/number_3.png[] Since the user lacks authorization, the xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__.
 The configured xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of {security-api-url}org/springframework/security/web/authentication/LoginUrlAuthenticationEntryPoint.html[`LoginUrlAuthenticationEntryPoint`] which redirects to <<servlet-saml2login-sp-initiated-factory,the `<saml2:AuthnRequest>` generating endpoint>>, `Saml2WebSsoAuthenticationRequestFilter`.
 Or, if you've <<servlet-saml2login-relyingpartyregistrationrepository,configured more than one asserting party>>, it will first redirect to a picker page.
 
@@ -52,7 +52,7 @@ image:{icondir}/number_6.png[] The browser then POSTs the `<saml2:Response>` to 
 .Authenticating a `<saml2:Response>`
 image::{figures}/saml2webssoauthenticationfilter.png[]
 
-The figure builds off our xref:servlet/architecture/index.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
+The figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
 
 image:{icondir}/number_1.png[] When the browser submits a `<saml2:Response>` to the application, it <<servlet-saml2login-authenticate-responses, delegates to `Saml2WebSsoAuthenticationFilter`>>.
 This filter calls its configured `AuthenticationConverter` to create a `Saml2AuthenticationToken` by extracting the response from the `HttpServletRequest`.

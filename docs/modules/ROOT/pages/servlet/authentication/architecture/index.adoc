@@ -2,7 +2,7 @@
 = Servlet Authentication Architecture
 :figures: servlet/authentication/architecture
 
-This discussion expands on xref:servlet/architecture/index.adoc#servlet-architecture[Servlet Security: The Big Picture] to describe the main architectural components of Spring Security's used in Servlet authentication.
+This discussion expands on xref:servlet/architecture.adoc#servlet-architecture[Servlet Security: The Big Picture] to describe the main architectural components of Spring Security's used in Servlet authentication.
 If you need concrete flows that explain how these pieces fit together, look at the xref:servlet/authentication/index.adoc#servlet-authentication-mechanisms[Authentication Mechanism] specific sections.
 
 * <<servlet-authentication-securitycontextholder>> - The `SecurityContextHolder` is where Spring Security stores the details of who is xref:features/authentication/index.adoc#authentication[authenticated].
@@ -94,7 +94,7 @@ val authorities = authentication.authorities
 
 By default the `SecurityContextHolder` uses a `ThreadLocal` to store these details, which means that the `SecurityContext` is always available to methods in the same thread, even if the `SecurityContext` is not explicitly passed around as an argument to those methods.
 Using a `ThreadLocal` in this way is quite safe if care is taken to clear the thread after the present principal's request is processed.
-Spring Security's xref:servlet/architecture/index.adoc#servlet-filterchainproxy[FilterChainProxy] ensures that the `SecurityContext` is always cleared.
+Spring Security's xref:servlet/architecture.adoc#servlet-filterchainproxy[FilterChainProxy] ensures that the `SecurityContext` is always cleared.
 
 Some applications aren't entirely suitable for using a `ThreadLocal`, because of the specific way they work with threads.
 For example, a Swing client might want all threads in a Java Virtual Machine to use the same security context.
@@ -152,7 +152,7 @@ Of course, Spring Security is expressly designed to handle this common requireme
 == AuthenticationManager
 
 {security-api-url}org/springframework/security/authentication/AuthenticationManager.html[`AuthenticationManager`] is the API that defines how Spring Security's Filters perform  xref:features/authentication/index.adoc#authentication[authentication].
-The <<servlet-authentication-authentication,`Authentication`>> that is returned is then set on the <<servlet-authentication-securitycontextholder>> by the controller (i.e. xref:servlet/architecture/index.adoc#servlet-security-filters[Spring Security's ``Filters``s]) that invoked the `AuthenticationManager`.
+The <<servlet-authentication-authentication,`Authentication`>> that is returned is then set on the <<servlet-authentication-securitycontextholder>> by the controller (i.e. xref:servlet/architecture.adoc#servlet-security-filters[Spring Security's ``Filters``s]) that invoked the `AuthenticationManager`.
 If you are not integrating with __Spring Security's ``Filters``s__ you can set the `SecurityContextHolder` directly and are not required to use an `AuthenticationManager`.
 
 While the implementation of `AuthenticationManager` could be anything, the most common implementation is <<servlet-authentication-providermanager,`ProviderManager`>>.
@@ -179,7 +179,7 @@ The parent can be any type of `AuthenticationManager`, but it is often an instan
 image::{figures}/providermanager-parent.png[]
 
 In fact, multiple `ProviderManager` instances might share the same parent `AuthenticationManager`.
-This is somewhat common in scenarios where there are multiple xref:servlet/architecture/index.adoc#servlet-securityfilterchain[`SecurityFilterChain`] instances that have some authentication in common (the shared parent `AuthenticationManager`), but also different authentication mechanisms (the different `ProviderManager` instances).
+This is somewhat common in scenarios where there are multiple xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] instances that have some authentication in common (the shared parent `AuthenticationManager`), but also different authentication mechanisms (the different `ProviderManager` instances).
 
 image::{figures}/providermanagers-parent.png[]
 

@@ -1,7 +1,7 @@
 [[appendix-namespace]]
 = The Security Namespace
 This appendix provides a reference to the elements available in the security namespace and information on the underlying beans they create (a knowledge of the individual classes and how they work together is assumed - you can find more information in the project Javadoc and elsewhere in this document).
-If you haven't used the namespace before, please read the xref:servlet/namespace/index.adoc#ns-config[introductory chapter] on namespace configuration, as this is intended as a supplement to the information there.
+If you haven't used the namespace before, please read the xref:servlet/xml-namespace.adoc#ns-config[introductory chapter] on namespace configuration, as this is intended as a supplement to the information there.
 Using a good quality XML editor while editing a configuration based on the schema is recommended as this will provide contextual information on which elements and attributes are available as well as comments explaining their purpose.
 The namespace is written in https://relaxng.org/[RELAX NG] Compact format and later converted into an XSD schema.
 If you are familiar with this format, you may wish to examine the https://raw.githubusercontent.com/spring-projects/spring-security/main/config/src/main/resources/org/springframework/security/config/spring-security-4.1.rnc[schema file] directly.
@@ -19,10 +19,10 @@ This may include sensitive information, such as request parameters or headers, a
 === <http>
 If you use an `<http>` element within your application, a `FilterChainProxy` bean named "springSecurityFilterChain" is created and the configuration within the element is used to build a filter chain within
 `FilterChainProxy`.
-As of Spring Security 3.1, additional `http` elements can be used to add extra filter chains footnote:[See the pass:specialcharacters,macros[xref:servlet/namespace/index.adoc#ns-web-xml[introductory chapter]] for how to set up the mapping from your `web.xml` ].
+As of Spring Security 3.1, additional `http` elements can be used to add extra filter chains footnote:[See the pass:specialcharacters,macros[xref:servlet/xml-namespace.adoc#ns-web-xml[introductory chapter]] for how to set up the mapping from your `web.xml` ].
 Some core filters are always created in a filter chain and others will be added to the stack depending on the attributes and child elements which are present.
 The positions of the standard filters are fixed (see
-xref:servlet/namespace/index.adoc#filter-stack[the filter order table] in the namespace introduction), removing a common source of errors with previous versions of the framework when users had to configure the filter chain explicitly in the
+xref:servlet/xml-namespace.adoc#filter-stack[the filter order table] in the namespace introduction), removing a common source of errors with previous versions of the framework when users had to configure the filter chain explicitly in the
 `FilterChainProxy` bean.
 You can, of course, still do this if you need full control of the configuration.
 
@@ -179,7 +179,7 @@ The default value is true.
 [[nsa-access-denied-handler]]
 === <access-denied-handler>
 This element allows you to set the `errorPage` property for the default `AccessDeniedHandler` used by the `ExceptionTranslationFilter`, using the <<nsa-access-denied-handler-error-page,error-page>> attribute, or to supply your own implementation using the<<nsa-access-denied-handler-ref,ref>> attribute.
-This is discussed in more detail in the section on the xref:servlet/architecture/index.adoc#servlet-exceptiontranslationfilter[ExceptionTranslationFilter].
+This is discussed in more detail in the section on the xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[ExceptionTranslationFilter].
 
 
 [[nsa-access-denied-handler-parents]]
@@ -710,7 +710,7 @@ Default is any HTTP method except "GET", "TRACE", "HEAD", "OPTIONS".
 === <custom-filter>
 This element is used to add a filter to the filter chain.
 It doesn't create any additional beans but is used to select a bean of type `javax.servlet.Filter` which is already defined in the application context and add that at a particular position in the filter chain maintained by Spring Security.
-Full details can be found in the xref:servlet/namespace/index.adoc#ns-custom-filters[ namespace chapter].
+Full details can be found in the xref:servlet/xml-namespace.adoc#ns-custom-filters[ namespace chapter].
 
 
 [[nsa-custom-filter-parents]]
