@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -170,7 +171,7 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
 			}
 			typeToCheck = genericType;
 		}
-		return !typeToCheck.isAssignableFrom(principal.getClass());
+		return !ClassUtils.isAssignable(typeToCheck, principal.getClass());
 	}
 
 	/**

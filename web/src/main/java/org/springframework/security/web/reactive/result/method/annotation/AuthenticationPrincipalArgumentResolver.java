@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolverSupport;
@@ -114,7 +115,7 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 			}
 			typeToCheck = genericType;
 		}
-		return !typeToCheck.isAssignableFrom(principal.getClass());
+		return !ClassUtils.isAssignable(typeToCheck, principal.getClass());
 	}
 
 	/**
