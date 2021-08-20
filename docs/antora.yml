@@ -2,23 +2,6 @@ name: security
 title: Spring Security
 version: ~
 display_version: 6.0
-start_page: ROOT:overview/index.adoc
-asciidoc:
-  attributes:
-    page-pagination: true
-    idprefix: ''
-    idseparator: '-'
-    apacheds-core-version: 1.5.5
-    gh-old-samples-url: https://github.com/spring-projects/spring-security/tree/5.4.x/samples
-    gh-samples-url: https://github.com/spring-projects/spring-security-samples/tree/main
-    gh-url: https://github.com/spring-projects/spring-security/tree/main
-    icondir: icons
-    security-api-url: https://docs.spring.io/spring-security/site/docs/current/api/
-    security-reference-url: https://docs.spring.io/spring-security/site/docs/reference/html5/
-    spring-core-version: 5.3.8
-    spring-framework-api-url: https://docs.spring.io/spring-framework/docs/current/javadoc-api/
-    spring-framework-reference-url: https://docs.spring.io/spring-framework/docs/current/reference/html/
-    spring-security-version: 6.0.0
-    unboundid-ldapsdk-version: 4.1
+start_page: ROOT:index.adoc
 nav:
 - modules/ROOT/nav.adoc
