@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.SynthesizingMethodParameter;
 import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -106,6 +107,21 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
+	public void resolveArgumentWhenExpressionPrimitiveThenFound() {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		// @formatter:off
+		Mono<Object> result = this.resolver
+				.resolveArgument(arg0("authenticationPrincipalExpressionPrimitive"), null)
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(new TestingAuthenticationToken(principal, "password", "ROLE_USER")));
+		// @formatter:on
+		assertThat(result.block()).isEqualTo(principal.id);
+	}
+
+	@SuppressWarnings("unused")
+	private void authenticationPrincipalExpressionPrimitive(@AuthenticationPrincipal(expression = "id") int username) {
+	}
+
+	@Test
 	public void supportsParameterWhenNotAnnotatedThenFalse() {
 		assertThat(this.resolver.supportsParameter(arg0("monoUserDetails"))).isFalse();
 	}
@@ -122,6 +138,12 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@AuthenticationPrincipal
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface CurrentUser {
+
+	}
+
+	static class CustomUserPrincipal {
+
+		public final int id = 1;
 
 	}
 

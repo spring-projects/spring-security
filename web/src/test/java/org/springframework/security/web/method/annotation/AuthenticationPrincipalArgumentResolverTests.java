@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,6 +158,15 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
+	public void resolveArgumentSpelPrimitive() throws Exception {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		setAuthenticationPrincipal(principal);
+		this.expectedPrincipal = principal.id;
+		assertThat(this.resolver.resolveArgument(showUserSpelPrimitive(), null, null, null))
+				.isEqualTo(this.expectedPrincipal);
+	}
+
+	@Test
 	public void resolveArgumentNullOnInvalidType() throws Exception {
 		setAuthenticationPrincipal(new CustomUserPrincipal());
 		assertThat(this.resolver.resolveArgument(showUserAnnotationString(), null, null, null)).isNull();
@@ -222,6 +231,10 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	private MethodParameter showUserSpelCopy() {
 		return getMethodParameter("showUserSpelCopy", CopyUserPrincipal.class);
+	}
+
+	private MethodParameter showUserSpelPrimitive() {
+		return getMethodParameter("showUserSpelPrimitive", int.class);
 	}
 
 	private MethodParameter showUserAnnotationObject() {
@@ -290,11 +303,16 @@ public class AuthenticationPrincipalArgumentResolverTests {
 				expression = "new org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolverTests$CopyUserPrincipal(#this)") CopyUserPrincipal user) {
 		}
 
+		public void showUserSpelPrimitive(@AuthenticationPrincipal(expression = "id") int id) {
+		}
+
 	}
 
 	static class CustomUserPrincipal {
 
 		public final String property = "property";
+
+		public final int id = 1;
 
 	}
 

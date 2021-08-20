@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	ResolvableMethod authenticationPrincipal = ResolvableMethod.on(getClass()).named("authenticationPrincipal").build();
 
 	ResolvableMethod spel = ResolvableMethod.on(getClass()).named("spel").build();
+
+	ResolvableMethod spelPrimitive = ResolvableMethod.on(getClass()).named("spelPrimitive").build();
 
 	ResolvableMethod meta = ResolvableMethod.on(getClass()).named("meta").build();
 
@@ -137,6 +139,16 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
+	public void resolveArgumentWhenSpelWithPrimitiveThenObtainsPrincipal() {
+		MyUserPrimitive user = new MyUserPrimitive(3);
+		MethodParameter parameter = this.spelPrimitive.arg(int.class);
+		given(this.authentication.getPrincipal()).willReturn(user);
+		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange)
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
+		assertThat(argument.block()).isEqualTo(user.getId());
+	}
+
+	@Test
 	public void resolveArgumentWhenBeanThenObtainsPrincipal() throws Exception {
 		MyUser user = new MyUser(3L);
 		MethodParameter parameter = this.bean.arg(Long.class);
@@ -196,6 +208,9 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	void spel(@AuthenticationPrincipal(expression = "id") Long id) {
 	}
 
+	void spelPrimitive(@AuthenticationPrincipal(expression = "id") int id) {
+	}
+
 	void bean(@AuthenticationPrincipal(expression = "@beanName.methodName(#this)") Long id) {
 	}
 
@@ -228,6 +243,20 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		}
 
 		public Long getId() {
+			return this.id;
+		}
+
+	}
+
+	static class MyUserPrimitive {
+
+		private final int id;
+
+		MyUserPrimitive(int id) {
+			this.id = id;
+		}
+
+		public int getId() {
 			return this.id;
 		}
 
