@@ -98,18 +98,15 @@ import org.springframework.util.StringUtils;
  * {@link Saml2AuthenticationToken#getSaml2Response()} along with the information about
  * the asserting party, the identity provider (IDP), as well as the relying party, the
  * service provider (SP, this application).
- * </p>
  * <p>
  * The {@link Saml2AuthenticationToken} will be processed into a SAML Response object. The
  * SAML response object can be signed. If the Response is signed, a signature will not be
  * required on the assertion.
- * </p>
  * <p>
  * While a response object can contain a list of assertion, this provider will only
  * leverage the first valid assertion for the purpose of authentication. Assertions that
  * do not pass validation will be ignored. If no valid assertions are found a
  * {@link Saml2AuthenticationException} is thrown.
- * </p>
  * <p>
  * This provider supports two types of encrypted SAML elements
  * <ul>
@@ -120,11 +117,9 @@ import org.springframework.util.StringUtils;
  * </ul>
  * If the assertion is encrypted, then signature validation on the assertion is no longer
  * required.
- * </p>
  * <p>
  * This provider does not perform an X509 certificate validation on the configured
  * asserting party, IDP, verification certificates.
- * </p>
  *
  * @author Josh Cummings
  * @since 5.5
@@ -179,7 +174,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	 *
 	 * <pre>
 	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-	 *	provider.setResponseElementsDecrypter((responseToken) -> {
+	 *	provider.setResponseElementsDecrypter((responseToken) -&gt; {
 	 *	    DecrypterParameters parameters = new DecrypterParameters();
 	 *	    // ... set parameters as needed
 	 *	    Decrypter decrypter = new Decrypter(parameters);
@@ -200,7 +195,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	 * <pre>
 	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
 	 *	Converter&lt;EncryptedAssertion, Assertion&gt; myService = ...
-	 *	provider.setResponseDecrypter((responseToken) -> {
+	 *	provider.setResponseDecrypter((responseToken) -&gt; {
 	 *	   Response response = responseToken.getResponse();
 	 *	   response.getEncryptedAssertions().stream()
 	 *	   		.map(service::decrypt).forEach(response.getAssertions()::add);
@@ -226,7 +221,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	 *
 	 * <pre>
 	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-	 *  provider.setAssertionValidator(assertionToken -> {
+	 *  provider.setAssertionValidator(assertionToken -&gt; {
 	 *		Saml2ResponseValidatorResult result = createDefaultAssertionValidator()
 	 *			.convert(assertionToken)
 	 *		return result.concat(myCustomValidator.convert(assertionToken));
@@ -239,7 +234,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	 * <pre>
 	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
 	 *	provider.setAssertionValidator(
-	 *		createDefaultAssertionValidator(assertionToken -> {
+	 *		createDefaultAssertionValidator(assertionToken -&gt; {
 	 *			Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();
 	 *			params.put(CLOCK_SKEW, 2 * 60 * 1000);
 	 *			// other parameters
@@ -269,7 +264,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	 *
 	 * <pre>
 	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-	 *	provider.setResponseDecrypter((assertionToken) -> {
+	 *	provider.setResponseDecrypter((assertionToken) -&gt; {
 	 *	    DecrypterParameters parameters = new DecrypterParameters();
 	 *	    // ... set parameters as needed
 	 *	    Decrypter decrypter = new Decrypter(parameters);
@@ -289,7 +284,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	 * <pre>
 	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
 	 *	MyDecryptionService myService = ...
-	 *	provider.setResponseDecrypter((responseToken) -> {
+	 *	provider.setResponseDecrypter((responseToken) -&gt; {
 	 *	   	Assertion assertion = assertionToken.getAssertion();
 	 *	   	EncryptedID encrypted = assertion.getSubject().getEncryptedID();
 	 *		NameID name = myService.decrypt(encrypted);
@@ -315,7 +310,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
 	 * 	Converter&lt;ResponseToken, Saml2Authentication&gt; authenticationConverter =
 	 * 			createDefaultResponseAuthenticationConverter();
-	 *	provider.setResponseAuthenticationConverter(responseToken -> {
+	 *	provider.setResponseAuthenticationConverter(responseToken -&gt; {
 	 *		Saml2Authentication authentication = authenticationConverter.convert(responseToken);
 	 *		User user = myUserRepository.findByUsername(authentication.getName());
 	 *		return new MyAuthentication(authentication, user);

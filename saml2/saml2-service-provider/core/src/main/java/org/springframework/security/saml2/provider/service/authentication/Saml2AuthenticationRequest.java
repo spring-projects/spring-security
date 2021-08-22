@@ -100,7 +100,8 @@ public final class Saml2AuthenticationRequest {
 	}
 
 	/**
-	 * A builder for {@link Saml2AuthenticationRequest}. returns a builder object
+	 * A builder for {@link Saml2AuthenticationRequest}.
+	 * @return a {@link Builder} for constructing a {@link Saml2AuthenticationRequest}
 	 */
 	public static Builder builder() {
 		return new Builder();
@@ -109,6 +110,7 @@ public final class Saml2AuthenticationRequest {
 	/**
 	 * A builder for {@link Saml2AuthenticationRequest}.
 	 * @param context a context object to copy values from. returns a builder object
+	 * @return a {@link Builder} for constructing a {@link Saml2AuthenticationRequest}
 	 */
 	public static Builder withAuthenticationRequestContext(Saml2AuthenticationRequestContext context) {
 		return new Builder().assertionConsumerServiceUrl(context.getAssertionConsumerServiceUrl())
@@ -148,7 +150,7 @@ public final class Saml2AuthenticationRequest {
 		 * request. For example: <code>
 		 *     Saml2X509Credential credential = ...;
 		 *     return Saml2AuthenticationRequest.withLocalSpEntityId("id")
-		 *             .credentials((c) -> c.add(credential))
+		 *             .credentials((c) -&gt; c.add(credential))
 		 *             ...
 		 *             .build();
 		 * </code>

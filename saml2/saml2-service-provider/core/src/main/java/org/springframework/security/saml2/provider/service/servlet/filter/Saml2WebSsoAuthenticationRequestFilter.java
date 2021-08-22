@@ -113,6 +113,8 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 	 * parameters
 	 * @param authenticationRequestContextResolver a strategy for formulating a
 	 * {@link Saml2AuthenticationRequestContext}
+	 * @param authenticationRequestFactory strategy for formulating a
+	 * &lt;saml2:AuthnRequest&gt;
 	 * @since 5.4
 	 */
 	public Saml2WebSsoAuthenticationRequestFilter(

@@ -52,7 +52,7 @@ import org.springframework.security.saml2.Saml2Exception;
  *
  * <pre>
  * 	static {
- *  	OpenSamlInitializationService.requireInitialize((registry) -> {
+ *  	OpenSamlInitializationService.requireInitialize((registry) -&gt; {
  *  	 	registry.setParserPool(...);
  *  		registry.getBuilderFactory().registerBuilder(...);
  *  	});

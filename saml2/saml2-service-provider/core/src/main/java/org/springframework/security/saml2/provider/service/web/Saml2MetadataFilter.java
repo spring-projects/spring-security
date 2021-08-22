@@ -95,7 +95,7 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 	/**
 	 * Set the {@link RequestMatcher} that determines whether this filter should handle
 	 * the incoming {@link HttpServletRequest}
-	 * @param requestMatcher
+	 * @param requestMatcher the {@link RequestMatcher} to identify requests for metadata
 	 */
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
@@ -106,7 +106,7 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 	 * Sets the metadata filename template containing the {@code {registrationId}}
 	 * template variable.
 	 *
-	 * <br />
+	 * <p>
 	 * The default value is {@code saml-{registrationId}-metadata.xml}
 	 * @param metadataFilename metadata filename, must contain a {registrationId}
 	 * @since 5.5
