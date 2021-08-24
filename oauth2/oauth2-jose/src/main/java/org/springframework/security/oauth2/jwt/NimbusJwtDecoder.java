@@ -164,7 +164,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		catch (RemoteKeySourceException ex) {
 			this.logger.trace("Failed to retrieve JWK set", ex);
 			if (ex.getCause() instanceof ParseException) {
-				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed Jwk set"));
+				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed Jwk set"), ex);
 			}
 			throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 		}
@@ -175,7 +175,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		catch (Exception ex) {
 			this.logger.trace("Failed to process JWT", ex);
 			if (ex.getCause() instanceof ParseException) {
-				throw new BadJwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed payload"));
+				throw new BadJwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed payload"), ex);
 			}
 			throw new BadJwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 		}
