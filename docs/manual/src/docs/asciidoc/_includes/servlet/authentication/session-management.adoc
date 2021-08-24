@@ -89,7 +89,6 @@ public HttpSessionEventPublisher httpSessionEventPublisher() {
 }
 ----
 
-====
 .XML
 [source,xml,role="secondary"]
 ----
