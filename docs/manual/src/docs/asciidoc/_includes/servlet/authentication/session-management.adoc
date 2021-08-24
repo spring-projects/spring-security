@@ -20,7 +20,6 @@ protected void configure(HttpSecurity http) throws Exception{
 }
 ----
 
-====
 .XML
 [source,xml,role="secondary"]
 ----
