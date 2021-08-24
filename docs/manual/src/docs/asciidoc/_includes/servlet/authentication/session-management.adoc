@@ -88,7 +88,6 @@ public HttpSessionEventPublisher httpSessionEventPublisher() {
     return new HttpSessionEventPublisher();
 }
 ----
-====
 
 ====
 .XML
