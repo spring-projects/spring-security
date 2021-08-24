@@ -7,8 +7,19 @@ Typical usage includes session-fixation protection attack prevention, detection 
 You can configure Spring Security to detect the submission of an invalid session ID and redirect the user to an appropriate URL.
 This is achieved through the `session-management` element:
 
-In XML: 
-[source,xml]
+.Java:
+[source,java,role="primary"]
+----
+@Override
+protected void configure(HttpSecurity http) throws Exception{
+    http
+        .sessionManagement(session -> session
+            .invalidSessionUrl("/invalidSession.htm")
+        );
+}
+----
+.XML:
+[source,xml,role="secondary"]
 ----
 <http>
 ...
@@ -16,36 +27,28 @@ In XML:
 </http>
 ----
 
-In Java:
-[source,java]
-----
-@Override
-protected void configure(HttpSecurity http) throws Exception{
-    http.sessionManagement()
-    .invalidSessionUrl("/invalidSession.htm");
-}
-----
-
 Note that if you use this mechanism to detect session timeouts, it may falsely report an error if the user logs out and then logs back in without closing the browser.
 This is because the session cookie is not cleared when you invalidate the session and will be resubmitted even if the user has logged out.
 You may be able to explicitly delete the JSESSIONID cookie on logging out, for example by using the following syntax in the logout handler:
 
-In XML:
-[source,xml]
+.Java:
+[source,java,role="primary"]
+----
+@Override
+protected void configure(HttpSecurity http) throws Exception{
+    http
+        .logout(logout -> logout
+            .deleteCookies("JSESSIONID")
+        );
+}
+----
+
+.XML:
+[source,xml,role="secondary"]
 ----
 <http>
 <logout delete-cookies="JSESSIONID" />
 </http>
-----
-
-In Java:
-[source,java]
-----
-@Override
-protected void configure(HttpSecurity http) throws Exception{
-    http.logout()
-    .deleteCookies("JSESSIONID");
-}
 ----
 
 Unfortunately this can't be guaranteed to work with every servlet container, so you will need to test it in your environment
@@ -67,10 +70,20 @@ Header always set Set-Cookie "JSESSIONID=;Path=/tutorial;Expires=Thu, 01 Jan 197
 [[ns-concurrent-sessions]]
 === Concurrent Session Control
 If you wish to place constraints on a single user's ability to log in to your application, Spring Security supports this out of the box with the following simple additions.
-First you need to add the following listener to your configuration to keep Spring Security updated about session lifecycle events:
+First, you need to add the following listener to your configuration to keep Spring Security updated about session lifecycle events:
 
-In XML: 
-[source,xml]
+
+.Java:
+[source,java,role="primary"]
+----
+@Bean
+public HttpSessionEventPublisher httpSessionEventPublisher() {
+    return new HttpSessionEventPublisher();
+}
+----
+
+.XML:
+[source,xml,role="secondary"]
 ----
 <listener>
 <listener-class>
@@ -79,21 +92,22 @@ In XML:
 </listener>
 ----
 
-In Java: 
+Then add the following lines to your application context:
 
-[source,java]
+.Java:
+[source,java,role="primary"]
 ----
-@Bean
-public HttpSessionEventPublisher httpSessionEventPublisher() {
-    return new HttpSessionEventPublisher();
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http
+        .sessionManagement(session -> session
+            .maximumSessions(1)
+        );
 }
 ----
 
-Then add the following lines to your application context:
-
-In XML: 
-
-[source,xml]
+.XML
+[source,xml,role="secondary"]
 ----
 <http>
 ...
@@ -103,39 +117,30 @@ In XML:
 </http>
 ----
 
-In Java: 
-
-[source,java]
-----
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-    http.sessionManagement()
-	.maximumSessions(1)
-}
-----
-
 This will prevent a user from logging in multiple times - a second login will cause the first to be invalidated.
 Often you would prefer to prevent a second login, in which case you can use
 
-In XML:
-[source,xml]
+.Java:
+[source,java,role="primary"]
+----
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http
+        .sessionManagement(session -> session
+            .maximumSessions(1)
+            .maxSessionsPreventsLogin(true)
+        );
+}
+----
+
+.XML:
+[source,xml,role="secondary"]
 ----
 <http>
 <session-management>
 	<concurrency-control max-sessions="1" error-if-maximum-exceeded="true" />
 </session-management>
 </http>
-----
-
-In Java:
-[source,java]
-----
-    @Override
-    protected void configure(HttpSecurity http) throws Exception{
-        http.sessionManagement()
-        .maximumSessions(1)
-        .maxSessionsPreventsLogin(true);
-    }
 ----
 
 The second login will then be rejected.
