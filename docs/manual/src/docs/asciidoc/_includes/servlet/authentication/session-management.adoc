@@ -7,7 +7,7 @@ Typical usage includes session-fixation protection attack prevention, detection 
 You can configure Spring Security to detect the submission of an invalid session ID and redirect the user to an appropriate URL.
 This is achieved through the `session-management` element:
 
-.Java:
+.Java
 [source,java,role="primary"]
 ----
 @Override
@@ -18,7 +18,7 @@ protected void configure(HttpSecurity http) throws Exception{
         );
 }
 ----
-.XML:
+.XML
 [source,xml,role="secondary"]
 ----
 <http>
@@ -31,7 +31,7 @@ Note that if you use this mechanism to detect session timeouts, it may falsely r
 This is because the session cookie is not cleared when you invalidate the session and will be resubmitted even if the user has logged out.
 You may be able to explicitly delete the JSESSIONID cookie on logging out, for example by using the following syntax in the logout handler:
 
-.Java:
+.Java
 [source,java,role="primary"]
 ----
 @Override
@@ -43,7 +43,7 @@ protected void configure(HttpSecurity http) throws Exception{
 }
 ----
 
-.XML:
+.XML
 [source,xml,role="secondary"]
 ----
 <http>
@@ -73,7 +73,7 @@ If you wish to place constraints on a single user's ability to log in to your ap
 First, you need to add the following listener to your configuration to keep Spring Security updated about session lifecycle events:
 
 
-.Java:
+.Java
 [source,java,role="primary"]
 ----
 @Bean
@@ -82,7 +82,7 @@ public HttpSessionEventPublisher httpSessionEventPublisher() {
 }
 ----
 
-.XML:
+.XML
 [source,xml,role="secondary"]
 ----
 <listener>
@@ -94,7 +94,7 @@ public HttpSessionEventPublisher httpSessionEventPublisher() {
 
 Then add the following lines to your application context:
 
-.Java:
+.Java
 [source,java,role="primary"]
 ----
 @Override
@@ -120,7 +120,7 @@ protected void configure(HttpSecurity http) throws Exception {
 This will prevent a user from logging in multiple times - a second login will cause the first to be invalidated.
 Often you would prefer to prevent a second login, in which case you can use
 
-.Java:
+.Java
 [source,java,role="primary"]
 ----
 @Override
@@ -133,7 +133,7 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-.XML:
+.XML
 [source,xml,role="secondary"]
 ----
 <http>
