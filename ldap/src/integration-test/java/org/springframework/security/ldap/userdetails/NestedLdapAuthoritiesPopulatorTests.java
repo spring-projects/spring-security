@@ -20,9 +20,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.ContextSource;
@@ -30,7 +30,7 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.ApacheDsContainerConfig;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Filip Hanik
  * @author Eddú Meléndez
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
 public class NestedLdapAuthoritiesPopulatorTests {
 
@@ -59,7 +59,7 @@ public class NestedLdapAuthoritiesPopulatorTests {
 
 	private LdapAuthority circularJavaDevelopers;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.populator = new NestedLdapAuthoritiesPopulator(this.contextSource, "ou=jdeveloper");
 		this.populator.setGroupSearchFilter("(member={0})");

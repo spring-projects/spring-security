@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,18 @@
 package org.springframework.security.oauth2.client.endpoint;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import okhttp3.mockwebserver.RecordedRequest;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -60,7 +63,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	private MockWebServer server;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
@@ -68,7 +71,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().tokenUri(tokenUri);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		this.server.shutdown();
 	}
@@ -338,6 +341,72 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
 		return new OAuth2AuthorizationCodeGrantRequest(registration, authorizationExchange);
+	}
+
+	// gh-10130
+	@Test
+	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setHeadersConverter(null))
+				.withMessage("headersConverter cannot be null");
+	}
+
+	// gh-10130
+	@Test
+	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.addHeadersConverter(null))
+				.withMessage("headersConverter cannot be null");
+	}
+
+	// gh-10130
+	@Test
+	public void convertWhenHeadersConverterAddedThenCalled() throws Exception {
+		OAuth2AuthorizationCodeGrantRequest request = authorizationCodeGrantRequest();
+		Converter<OAuth2AuthorizationCodeGrantRequest, HttpHeaders> addedHeadersConverter = mock(Converter.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
+		given(addedHeadersConverter.convert(request)).willReturn(headers);
+		this.tokenResponseClient.addHeadersConverter(addedHeadersConverter);
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+				+ "   \"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n"
+				+ "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"openid profile\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.tokenResponseClient.getTokenResponse(request).block();
+		verify(addedHeadersConverter).convert(request);
+		RecordedRequest actualRequest = this.server.takeRequest();
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
+				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+		assertThat(actualRequest.getHeader("custom-header-name")).isEqualTo("custom-header-value");
+	}
+
+	// gh-10130
+	@Test
+	public void convertWhenHeadersConverterSetThenCalled() throws Exception {
+		OAuth2AuthorizationCodeGrantRequest request = authorizationCodeGrantRequest();
+		ClientRegistration clientRegistration = request.getClientRegistration();
+		Converter<OAuth2AuthorizationCodeGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
+		given(headersConverter.convert(request)).willReturn(headers);
+		this.tokenResponseClient.setHeadersConverter(headersConverter);
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+				+ "   \"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n"
+				+ "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"openid profile\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.tokenResponseClient.getTokenResponse(request).block();
+		verify(headersConverter).convert(request);
+		RecordedRequest actualRequest = this.server.takeRequest();
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
+				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 	}
 
 }

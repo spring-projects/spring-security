@@ -16,7 +16,7 @@
 
 package org.springframework.security.cas.web;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.cas.SamlServiceProperties;
 import org.springframework.security.cas.ServiceProperties;

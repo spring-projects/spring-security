@@ -49,8 +49,8 @@ import org.hamcrest.core.AllOf;
 import org.hamcrest.core.StringContains;
 import org.hamcrest.core.StringEndsWith;
 import org.hamcrest.core.StringStartsWith;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
@@ -75,18 +75,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -109,20 +112,20 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.TestJwts;
-import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
-import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.test.web.servlet.MockMvc;
@@ -168,6 +171,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  * @author Evgeniy Cheban
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class OAuth2ResourceServerConfigurerTests {
 
 	private static final String JWT_TOKEN = "token";
@@ -199,8 +203,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	@Autowired(required = false)
 	MockWebServer web;
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test
 	public void getWhenUsingDefaultsWithValidBearerTokenThenAcceptsRequest() throws Exception {
@@ -724,68 +727,14 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
-	public void getBearerTokenAuthenticationConverterWhenDuplicateConverterBeansAndAnotherOnTheDslThenTheDslOneIsUsed() {
-		BearerTokenAuthenticationConverter converterBean = new BearerTokenAuthenticationConverter();
-		BearerTokenAuthenticationConverter converter = new BearerTokenAuthenticationConverter();
-		GenericWebApplicationContext context = new GenericWebApplicationContext();
-		context.registerBean("converterOne", BearerTokenAuthenticationConverter.class, () -> converterBean);
-		context.registerBean("converterTwo", BearerTokenAuthenticationConverter.class, () -> converterBean);
-		this.spring.context(context).autowire();
-		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
-		oauth2.authenticationConverter(converter);
-		assertThat(oauth2.getAuthenticationConverter()).isEqualTo(converter);
-	}
-
-	@Test
-	public void getBearerTokenAuthenticationConverterWhenDuplicateConverterBeansThenWiringException() {
-		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> this.spring
-				.register(MultipleBearerTokenAuthenticationConverterBeansConfig.class, JwtDecoderConfig.class)
-				.autowire()).withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class);
-	}
-
-	@Test
-	public void getBearerTokenAuthenticationConverterWhenConverterBeanAndAnotherOnTheDslThenTheDslOneIsUsed() {
-		BearerTokenAuthenticationConverter converter = new BearerTokenAuthenticationConverter();
-		BearerTokenAuthenticationConverter converterBean = new BearerTokenAuthenticationConverter();
-		GenericWebApplicationContext context = new GenericWebApplicationContext();
-		context.registerBean(BearerTokenAuthenticationConverter.class, () -> converterBean);
-		this.spring.context(context).autowire();
-		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
-		oauth2.authenticationConverter(converter);
-		assertThat(oauth2.getAuthenticationConverter()).isEqualTo(converter);
-	}
-
-	@Test
-	public void getBearerTokenAuthenticationConverterWhenNoConverterSpecifiedThenTheDefaultIsUsed() {
-		ApplicationContext context = this.spring.context(new GenericWebApplicationContext()).getContext();
-		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
-		assertThat(oauth2.getAuthenticationConverter()).isInstanceOf(BearerTokenAuthenticationConverter.class);
-	}
-
-	@Test
-	public void getBearerTokenAuthenticationConverterWhenConverterBeanRegisteredThenBeanIsUsed() {
-		BearerTokenAuthenticationConverter converterBean = new BearerTokenAuthenticationConverter();
-		GenericWebApplicationContext context = new GenericWebApplicationContext();
-		context.registerBean(BearerTokenAuthenticationConverter.class, () -> converterBean);
-		this.spring.context(context).autowire();
-		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
-		assertThat(oauth2.getAuthenticationConverter()).isEqualTo(converterBean);
-
-	}
-
-	@Test
-	public void getBearerTokenAuthenticationConverterWhenOnlyResolverBeanRegisteredThenUseTheResolver() {
-		HttpServletRequest servletRequest = mock(HttpServletRequest.class);
-		BearerTokenResolver resolverBean = (request) -> "bearer customToken";
-		GenericWebApplicationContext context = new GenericWebApplicationContext();
-		context.registerBean(BearerTokenResolver.class, () -> resolverBean);
-		this.spring.context(context).autowire();
-		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
-		BearerTokenAuthenticationToken bearerTokenAuthenticationToken = (BearerTokenAuthenticationToken) oauth2
-				.getAuthenticationConverter().convert(servletRequest);
-		String token = bearerTokenAuthenticationToken.getToken();
-		assertThat(token).isEqualTo("bearer customToken");
-
+	public void requestWhenCustomAuthenticationDetailsSourceThenUsed() throws Exception {
+		this.spring.register(CustomAuthenticationDetailsSource.class, JwtDecoderConfig.class, BasicController.class)
+				.autowire();
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		given(decoder.decode(anyString())).willReturn(JWT);
+		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN))).andExpect(status().isOk())
+				.andExpect(content().string(JWT_SUBJECT));
+		verifyBean(AuthenticationDetailsSource.class).buildDetails(any());
 	}
 
 	@Test
@@ -1049,6 +998,24 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
+	public void getWhenDefaultAndCustomJwtAuthenticationManagerThenCustomUsed() throws Exception {
+		this.spring.register(DefaultAndJwtAuthenticationManagerConfig.class, BasicController.class).autowire();
+		DefaultAndJwtAuthenticationManagerConfig config = this.spring.getContext()
+				.getBean(DefaultAndJwtAuthenticationManagerConfig.class);
+		AuthenticationManager defaultAuthenticationManager = config.defaultAuthenticationManager();
+		AuthenticationManager jwtAuthenticationManager = config.jwtAuthenticationManager();
+		given(defaultAuthenticationManager.authenticate(any()))
+				.willThrow(new RuntimeException("should not interact with default auth manager"));
+		given(jwtAuthenticationManager.authenticate(any())).willReturn(JWT_AUTHENTICATION_TOKEN);
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
+				.andExpect(status().isOk())
+				.andExpect(content().string("mock-test-subject"));
+		// @formatter:on
+		verify(jwtAuthenticationManager).authenticate(any(Authentication.class));
+	}
+
+	@Test
 	public void getWhenIntrospectingThenOk() throws Exception {
 		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class, BasicController.class).autowire();
 		mockRestOperations(json("Active"));
@@ -1107,6 +1074,24 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
+	public void getWhenDefaultAndCustomIntrospectionAuthenticationManagerThenCustomUsed() throws Exception {
+		this.spring.register(DefaultAndOpaqueTokenAuthenticationManagerConfig.class, BasicController.class).autowire();
+		DefaultAndOpaqueTokenAuthenticationManagerConfig config = this.spring.getContext()
+				.getBean(DefaultAndOpaqueTokenAuthenticationManagerConfig.class);
+		AuthenticationManager defaultAuthenticationManager = config.defaultAuthenticationManager();
+		AuthenticationManager opaqueTokenAuthenticationManager = config.opaqueTokenAuthenticationManager();
+		given(defaultAuthenticationManager.authenticate(any()))
+				.willThrow(new RuntimeException("should not interact with default auth manager"));
+		given(opaqueTokenAuthenticationManager.authenticate(any())).willReturn(INTROSPECTION_AUTHENTICATION_TOKEN);
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
+				.andExpect(status().isOk())
+				.andExpect(content().string("mock-test-subject"));
+		// @formatter:on
+		verify(opaqueTokenAuthenticationManager).authenticate(any(Authentication.class));
+	}
+
+	@Test
 	public void getWhenCustomIntrospectionAuthenticationManagerInLambdaThenUsed() throws Exception {
 		this.spring.register(OpaqueTokenAuthenticationManagerInLambdaConfig.class, BasicController.class).autowire();
 		given(bean(AuthenticationProvider.class).authenticate(any(Authentication.class)))
@@ -1139,7 +1124,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		opaqueTokenConfigurer.introspector(client);
 		opaqueTokenConfigurer.introspectionUri(INTROSPECTION_URI);
 		opaqueTokenConfigurer.introspectionClientCredentials(CLIENT_ID, CLIENT_SECRET);
-		assertThat(opaqueTokenConfigurer.getIntrospector()).isInstanceOf(NimbusOpaqueTokenIntrospector.class);
+		assertThat(opaqueTokenConfigurer.getIntrospector()).isNotSameAs(client);
 	}
 
 	@Test
@@ -1940,29 +1925,35 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@EnableWebSecurity
-	static class MultipleBearerTokenAuthenticationConverterBeansConfig extends WebSecurityConfigurerAdapter {
+	static class CustomAuthenticationDetailsSource {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = mock(
+				AuthenticationDetailsSource.class);
+
+		@Bean
+		SecurityFilterChain web(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2ResourceServer()
-					.jwt();
-			// @formatter:on
+				.authorizeRequests((authorize) -> authorize
+					.anyRequest().authenticated()
+				)
+				.oauth2ResourceServer((oauth2) -> oauth2
+					.jwt(withDefaults())
+					.withObjectPostProcessor(new ObjectPostProcessor<BearerTokenAuthenticationFilter>() {
+						@Override
+						public BearerTokenAuthenticationFilter postProcess(BearerTokenAuthenticationFilter object) {
+							object.setAuthenticationDetailsSource(CustomAuthenticationDetailsSource.this.authenticationDetailsSource);
+							return object;
+						}
+					})
+				);
+			return http.build();
 		}
 
 		@Bean
-		BearerTokenAuthenticationConverter converterOne() {
-			BearerTokenAuthenticationConverter converter = new BearerTokenAuthenticationConverter();
-			return converter;
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource() {
+			return this.authenticationDetailsSource;
 		}
-
-		@Bean
-		BearerTokenAuthenticationConverter converterTwo() {
-			BearerTokenAuthenticationConverter converter = new BearerTokenAuthenticationConverter();
-			return converter;
-		}
-
 	}
 
 	@EnableWebSecurity
@@ -2059,6 +2050,39 @@ public class OAuth2ResourceServerConfigurerTests {
 		@Bean
 		AuthenticationProvider authenticationProvider() {
 			return mock(AuthenticationProvider.class);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DefaultAndJwtAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
+
+		AuthenticationManager defaultAuthenticationManager = mock(AuthenticationManager.class);
+
+		AuthenticationManager jwtAuthenticationManager = mock(AuthenticationManager.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authenticationManager(this.defaultAuthenticationManager)
+					.authorizeRequests((authz) -> authz
+							.anyRequest().authenticated()
+					)
+					.oauth2ResourceServer((oauth2) -> oauth2
+							.jwt((jwt) -> jwt
+									.authenticationManager(this.jwtAuthenticationManager)
+							)
+					);
+			// @formatter:on
+		}
+
+		AuthenticationManager defaultAuthenticationManager() {
+			return this.defaultAuthenticationManager;
+		}
+
+		AuthenticationManager jwtAuthenticationManager() {
+			return this.jwtAuthenticationManager;
 		}
 
 	}
@@ -2272,6 +2296,39 @@ public class OAuth2ResourceServerConfigurerTests {
 		@Bean
 		AuthenticationProvider authenticationProvider() {
 			return mock(AuthenticationProvider.class);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DefaultAndOpaqueTokenAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
+
+		AuthenticationManager defaultAuthenticationManager = mock(AuthenticationManager.class);
+
+		AuthenticationManager opaqueTokenAuthenticationManager = mock(AuthenticationManager.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authenticationManager(this.defaultAuthenticationManager)
+					.authorizeRequests((authz) -> authz
+							.anyRequest().authenticated()
+					)
+					.oauth2ResourceServer((oauth2) -> oauth2
+							.opaqueToken((opaque) -> opaque
+									.authenticationManager(this.opaqueTokenAuthenticationManager)
+							)
+					);
+			// @formatter:on
+		}
+
+		AuthenticationManager defaultAuthenticationManager() {
+			return this.defaultAuthenticationManager;
+		}
+
+		AuthenticationManager opaqueTokenAuthenticationManager() {
+			return this.opaqueTokenAuthenticationManager;
 		}
 
 	}

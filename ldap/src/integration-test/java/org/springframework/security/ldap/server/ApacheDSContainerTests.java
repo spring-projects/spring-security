@@ -24,9 +24,10 @@ import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
@@ -47,8 +48,8 @@ import static org.assertj.core.api.Assertions.fail;
  */
 public class ApacheDSContainerTests {
 
-	@Rule
-	public TemporaryFolder temporaryFolder = new TemporaryFolder();
+	@TempDir
+	public File temporaryFolder;
 
 	// SEC-2162
 	@Test
@@ -118,10 +119,11 @@ public class ApacheDSContainerTests {
 	}
 
 	@Test
+	@DisabledOnOs(OS.WINDOWS)
 	public void startWithLdapOverSslWithWrongPassword() throws Exception {
 		final ClassPathResource keyStoreResource = new ClassPathResource(
 				"/org/springframework/security/ldap/server/spring.keystore");
-		final File temporaryKeyStoreFile = new File(this.temporaryFolder.getRoot(), "spring.keystore");
+		final File temporaryKeyStoreFile = new File(this.temporaryFolder, "spring.keystore");
 		FileCopyUtils.copy(keyStoreResource.getInputStream(), new FileOutputStream(temporaryKeyStoreFile));
 
 		assertThat(temporaryKeyStoreFile).isFile();
@@ -151,11 +153,12 @@ public class ApacheDSContainerTests {
 	 * @throws Exception
 	 */
 	@Test
+	@DisabledOnOs(OS.WINDOWS)
 	public void startWithLdapOverSsl() throws Exception {
 
 		final ClassPathResource keyStoreResource = new ClassPathResource(
 				"/org/springframework/security/ldap/server/spring.keystore");
-		final File temporaryKeyStoreFile = new File(this.temporaryFolder.getRoot(), "spring.keystore");
+		final File temporaryKeyStoreFile = new File(this.temporaryFolder, "spring.keystore");
 		FileCopyUtils.copy(keyStoreResource.getInputStream(), new FileOutputStream(temporaryKeyStoreFile));
 
 		assertThat(temporaryKeyStoreFile).isFile();

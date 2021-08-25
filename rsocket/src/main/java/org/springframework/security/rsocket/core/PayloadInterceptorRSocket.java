@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,12 +91,15 @@ class PayloadInterceptorRSocket extends RSocketProxy {
 	public Flux<Payload> requestChannel(Publisher<Payload> payloads) {
 		return Flux.from(payloads).switchOnFirst((signal, innerFlux) -> {
 			Payload firstPayload = signal.get();
-			return intercept(PayloadExchangeType.REQUEST_CHANNEL, firstPayload).flatMapMany((context) -> innerFlux
-					.skip(1).flatMap((p) -> intercept(PayloadExchangeType.PAYLOAD, p).thenReturn(p))
-					.transform((securedPayloads) -> Flux.concat(Flux.just(firstPayload), securedPayloads))
-					.transform((securedPayloads) -> this.source.requestChannel(securedPayloads))
-					.subscriberContext(context));
+			return intercept(PayloadExchangeType.REQUEST_CHANNEL, firstPayload).flatMapMany(
+					(context) -> innerFlux.index().concatMap((tuple) -> justOrIntercept(tuple.getT1(), tuple.getT2()))
+							.transform((securedPayloads) -> this.source.requestChannel(securedPayloads))
+							.subscriberContext(context));
 		});
+	}
+
+	private Mono<Payload> justOrIntercept(Long index, Payload payload) {
+		return (index == 0) ? Mono.just(payload) : intercept(PayloadExchangeType.PAYLOAD, payload).thenReturn(payload);
 	}
 
 	@Override

@@ -28,11 +28,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -53,7 +53,8 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -62,6 +63,7 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
+import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
@@ -75,9 +77,11 @@ import org.springframework.security.saml2.provider.service.authentication.TestSa
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
+import org.springframework.security.saml2.provider.service.servlet.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
@@ -105,6 +109,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Tests for different Java configuration for {@link Saml2LoginConfigurer}
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class Saml2LoginConfigurerTests {
 
 	private static final Converter<Assertion, Collection<? extends GrantedAuthority>> AUTHORITIES_EXTRACTOR = (
@@ -129,8 +134,7 @@ public class Saml2LoginConfigurerTests {
 	@Autowired
 	SecurityContextRepository securityContextRepository;
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired(required = false)
 	MockMvc mvc;
@@ -141,7 +145,7 @@ public class Saml2LoginConfigurerTests {
 
 	private MockFilterChain filterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest("POST", "");
 		this.request.setServletPath("/login/saml2/sso/test-rp");
@@ -149,7 +153,7 @@ public class Saml2LoginConfigurerTests {
 		this.filterChain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		if (this.context != null) {
 			this.context.close();
@@ -160,6 +164,12 @@ public class Saml2LoginConfigurerTests {
 	public void saml2LoginWhenConfiguringAuthenticationManagerThenTheManagerIsUsed() throws Exception {
 		// setup application context
 		this.spring.register(Saml2LoginConfigWithCustomAuthenticationManager.class).autowire();
+		performSaml2Login("ROLE_AUTH_MANAGER");
+	}
+
+	@Test
+	public void saml2LoginWhenDefaultAndSamlAuthenticationManagerThenSamlManagerIsUsed() throws Exception {
+		this.spring.register(Saml2LoginConfigWithDefaultAndCustomAuthenticationManager.class).autowire();
 		performSaml2Login("ROLE_AUTH_MANAGER");
 	}
 
@@ -176,7 +186,8 @@ public class Saml2LoginConfigurerTests {
 		this.spring.register(CustomAuthenticationRequestContextResolver.class).autowire();
 		Saml2AuthenticationRequestContext context = TestSaml2AuthenticationRequestContexts
 				.authenticationRequestContext().build();
-		Saml2AuthenticationRequestContextResolver resolver = CustomAuthenticationRequestContextResolver.resolver;
+		Saml2AuthenticationRequestContextResolver resolver = this.spring.getContext()
+				.getBean(Saml2AuthenticationRequestContextResolver.class);
 		given(resolver.resolve(any(HttpServletRequest.class))).willReturn(context);
 		this.mvc.perform(get("/saml2/authenticate/registration-id")).andExpect(status().isFound());
 		verify(resolver).resolve(any(HttpServletRequest.class));
@@ -230,6 +241,29 @@ public class Saml2LoginConfigurerTests {
 		assertThat(exception.getCause()).isInstanceOf(IOException.class);
 	}
 
+	@Test
+	public void authenticationRequestWhenCustomAuthnRequestRepositoryThenUses() throws Exception {
+		this.spring.register(CustomAuthenticationRequestRepository.class).autowire();
+		MockHttpServletRequestBuilder request = get("/saml2/authenticate/registration-id");
+		this.mvc.perform(request).andExpect(status().isFound());
+		Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> repository = this.spring.getContext()
+				.getBean(Saml2AuthenticationRequestRepository.class);
+		verify(repository).saveAuthenticationRequest(any(AbstractSaml2AuthenticationRequest.class),
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
+	@Test
+	public void authenticateWhenCustomAuthnRequestRepositoryThenUses() throws Exception {
+		this.spring.register(CustomAuthenticationRequestRepository.class).autowire();
+		MockHttpServletRequestBuilder request = post("/login/saml2/sso/registration-id").param("SAMLResponse",
+				SIGNED_RESPONSE);
+		Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> repository = this.spring.getContext()
+				.getBean(Saml2AuthenticationRequestRepository.class);
+		this.mvc.perform(request);
+		verify(repository).loadAuthenticationRequest(any(HttpServletRequest.class));
+		verify(repository).removeAuthenticationRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
 	private void validateSaml2WebSsoAuthenticationFilterConfiguration() {
 		// get the OpenSamlAuthenticationProvider
 		Saml2WebSsoAuthenticationFilter filter = getSaml2SsoFilter(this.springSecurityFilterChain);
@@ -255,7 +289,7 @@ public class Saml2LoginConfigurerTests {
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
-		Assert.assertNotNull("Expected a valid authentication object.", authentication);
+		Assertions.assertNotNull(authentication, "Expected a valid authentication object.");
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first().isInstanceOf(SimpleGrantedAuthority.class)
 				.hasToString(expected);
@@ -286,6 +320,24 @@ public class Saml2LoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			http.saml2Login().authenticationManager(getAuthenticationManagerMock("ROLE_AUTH_MANAGER"));
 			super.configure(http);
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
+	static class Saml2LoginConfigWithDefaultAndCustomAuthenticationManager extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authenticationManager(getAuthenticationManagerMock("DEFAULT_AUTH_MANAGER"))
+				.saml2Login((saml) -> saml
+					.authenticationManager(getAuthenticationManagerMock("ROLE_AUTH_MANAGER"))
+				);
+			super.configure(http);
+			// @formatter:on
 		}
 
 	}
@@ -330,7 +382,7 @@ public class Saml2LoginConfigurerTests {
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomAuthenticationRequestContextResolver extends WebSecurityConfigurerAdapter {
 
-		private static final Saml2AuthenticationRequestContextResolver resolver = mock(
+		private final Saml2AuthenticationRequestContextResolver resolver = mock(
 				Saml2AuthenticationRequestContextResolver.class);
 
 		@Override
@@ -346,7 +398,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		Saml2AuthenticationRequestContextResolver resolver() {
-			return resolver;
+			return this.resolver;
 		}
 
 	}
@@ -391,6 +443,27 @@ public class Saml2LoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			http.authorizeRequests((authz) -> authz.anyRequest().authenticated())
 					.saml2Login((saml2) -> saml2.authenticationConverter(authenticationConverter));
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
+	static class CustomAuthenticationRequestRepository {
+
+		private final Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> repository = mock(
+				Saml2AuthenticationRequestRepository.class);
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			http.authorizeRequests((authz) -> authz.anyRequest().authenticated());
+			http.saml2Login(withDefaults());
+			return http.build();
+		}
+
+		@Bean
+		Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository() {
+			return this.repository;
 		}
 
 	}

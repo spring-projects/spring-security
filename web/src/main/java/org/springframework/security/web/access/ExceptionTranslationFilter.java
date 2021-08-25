@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2020 the original author or authors.
+ * Copyright 2004-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -208,7 +209,8 @@ public class ExceptionTranslationFilter extends GenericFilterBean implements Mes
 			AuthenticationException reason) throws ServletException, IOException {
 		// SEC-112: Clear the SecurityContextHolder's Authentication, as the
 		// existing Authentication is no longer considered valid
-		SecurityContextHolder.getContext().setAuthentication(null);
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		SecurityContextHolder.setContext(context);
 		this.requestCache.saveRequest(request, response);
 		this.authenticationEntryPoint.commence(request, response, reason);
 	}

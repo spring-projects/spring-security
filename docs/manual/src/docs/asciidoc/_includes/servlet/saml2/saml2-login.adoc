@@ -16,7 +16,7 @@ This process is similar to the one started in 2017 for <<oauth2,Spring Security'
 
 [NOTE]
 ====
-A working sample for {gh-samples-url}/boot/saml2login[SAML 2.0 Login] is available in the {gh-samples-url}[Spring Security repository].
+A working sample for {gh-samples-url}/servlet/spring-boot/java/saml2-login[SAML 2.0 Login] is available in the {gh-samples-url}[Spring Security Samples repository].
 ====
 
 Let's take a look at how SAML 2.0 Relying Party Authentication works within Spring Security.
@@ -55,7 +55,7 @@ This filter calls its configured `AuthenticationConverter` to create a `Saml2Aut
 This converter additionally resolves the <<servlet-saml2login-relyingpartyregistration, `RelyingPartyRegistration`>> and supplies it to `Saml2AuthenticationToken`.
 
 image:{icondir}/number_2.png[] Next, the filter passes the token to its configured <<servlet-authentication-providermanager,`AuthenticationManager`>>.
-By default, it will use the <<servlet-saml2login-architecture,`OpenSamlAuthenticationProvider`>>.
+By default, it will use the <<servlet-saml2login-architecture,`OpenSAML authentication provider`>>.
 
 image:{icondir}/number_3.png[] If authentication fails, then __Failure__
 
@@ -150,9 +150,15 @@ To achieve this, any interfaces or classes where Spring Security uses OpenSAML i
 This makes it possible for you to switch out OpenSAML for some other library or even an unsupported version of OpenSAML.
 
 As a natural outcome of the above two goals, Spring Security's SAML API is quite small relative to other modules.
-Instead, classes like `OpenSamlAuthenticationRequestFactory` and `OpenSamlAuthenticationProvider` expose `Converter` s that customize various steps in the authentication process.
+Instead, classes like `OpenSaml4AuthenticationRequestFactory` and `OpenSaml4AuthenticationProvider` expose `Converter` s that customize various steps in the authentication process.
 
-For example, once your application receives a `SAMLResponse` and delegates to `Saml2WebSsoAuthenticationFilter`, the filter will delegate to `OpenSamlAuthenticationProvider`.
+For example, once your application receives a `SAMLResponse` and delegates to `Saml2WebSsoAuthenticationFilter`, the filter will delegate to `OpenSaml4AuthenticationProvider`.
+
+[NOTE]
+For backward compatibility, Spring Security will use the latest OpenSAML 3 by default.
+Note, though that OpenSAML 3 has reached it's end-of-life and updating to OpenSAML 4.x is recommended.
+For that reason, Spring Security supports both OpenSAML 3.x and 4.x.
+If you manage your OpenSAML dependency to 4.x, then Spring Security will select its OpenSAML 4.x implementations.
 
 .Authenticating an OpenSAML `Response`
 image:{figures}/opensamlauthenticationprovider.png[]
@@ -161,7 +167,7 @@ This figure builds off of the <<servlet-saml2login-authentication-saml2webssoaut
 
 image:{icondir}/number_1.png[] The `Saml2WebSsoAuthenticationFilter` formulates the `Saml2AuthenticationToken` and invokes the <<servlet-authentication-providermanager,`AuthenticationManager`>>.
 
-image:{icondir}/number_2.png[] The <<servlet-authentication-providermanager,`AuthenticationManager`>> invokes the `OpenSamlAuthenticationProvider`.
+image:{icondir}/number_2.png[] The <<servlet-authentication-providermanager,`AuthenticationManager`>> invokes the OpenSAML authentication provider.
 
 image:{icondir}/number_3.png[] The authentication provider deserializes the response into an OpenSAML `Response` and checks its signature.
 If the signature is invalid, authentication fails.
@@ -196,45 +202,90 @@ The resulting `Authentication#getPrincipal` is a Spring Security `Saml2Authentic
 
 Any class that uses both Spring Security and OpenSAML should statically initialize `OpenSamlInitializationService` at the beginning of the class, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 static {
 	OpenSamlInitializationService.initialize();
 }
 ----
 
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+companion object {
+    init {
+        OpenSamlInitializationService.initialize()
+    }
+}
+----
+====
+
 This replaces OpenSAML's `InitializationService#initialize`.
 
 Occasionally, it can be valuable to customize how OpenSAML builds, marshalls, and unmarshalls SAML objects.
 In these circumstances, you may instead want to call `OpenSamlInitializationService#requireInitialize(Consumer)` that gives you access to OpenSAML's `XMLObjectProviderFactory`.
 
-For example, in the event that you always want to always force the asserting party to reauthenticate the user, you can register your own `AuthnRequestMarshaller`, like so:
+For example, when sending an unsigned AuthNRequest, you may want to force reauthentication.
+In that case, you can register your own `AuthnRequestMarshaller`, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 static {
-	OpenSamlInitializationService.requireInitialize(factory -> {
-		AuthnRequestMarshaller marshaller = new AuthnRequestMarshaller() {
-			@Override
+    OpenSamlInitializationService.requireInitialize(factory -> {
+        AuthnRequestMarshaller marshaller = new AuthnRequestMarshaller() {
+            @Override
             public Element marshall(XMLObject object, Element element) throws MarshallingException {
-				configureAuthnRequest((AuthnRequest) object);
-				return super.marshall(object, element);
+                configureAuthnRequest((AuthnRequest) object);
+                return super.marshall(object, element);
             }
 
             public Element marshall(XMLObject object, Document document) throws MarshallingException {
-				configureAuthnRequest((AuthnRequest) object);
-				return super.marshall(object, document);
+                configureAuthnRequest((AuthnRequest) object);
+                return super.marshall(object, document);
             }
 
             private void configureAuthnRequest(AuthnRequest authnRequest) {
-				authnRequest.setForceAuthN(true);
+                authnRequest.setForceAuthn(true);
             }
-		}
-		
-	    factory.getMarshallerFactory().registerMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME, marshaller);
-	});
+        }
+
+        factory.getMarshallerFactory().registerMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME, marshaller);
+    });
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+companion object {
+    init {
+        OpenSamlInitializationService.requireInitialize {
+            val marshaller = object : AuthnRequestMarshaller() {
+                override fun marshall(xmlObject: XMLObject, element: Element): Element {
+                    configureAuthnRequest(xmlObject as AuthnRequest)
+                    return super.marshall(xmlObject, element)
+                }
+
+                override fun marshall(xmlObject: XMLObject, document: Document): Element {
+                    configureAuthnRequest(xmlObject as AuthnRequest)
+                    return super.marshall(xmlObject, document)
+                }
+
+                private fun configureAuthnRequest(authnRequest: AuthnRequest) {
+                    authnRequest.isForceAuthn = true
+                }
+            }
+            it.marshallerFactory.registerMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME, marshaller)
+        }
+    }
+}
+----
+====
 
 The `requireInitialize` method may only be called once per application instance.
 
@@ -326,18 +377,35 @@ For example, you can look up the asserting party's configuration by hitting its 
 
 .Relying Party Registration Repository
 ====
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 @Value("${metadata.location}")
 String assertingPartyMetadataLocation;
 
 @Bean
 public RelyingPartyRegistrationRepository relyingPartyRegistrations() {
-	RelyingPartyRegistration registration = RelyingPartyRegistrations
+    RelyingPartyRegistration registration = RelyingPartyRegistrations
             .fromMetadataLocation(assertingPartyMetadataLocation)
             .registrationId("example")
             .build();
     return new InMemoryRelyingPartyRegistrationRepository(registration);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Value("\${metadata.location}")
+var assertingPartyMetadataLocation: String? = null
+
+@Bean
+open fun relyingPartyRegistrations(): RelyingPartyRegistrationRepository? {
+    val registration = RelyingPartyRegistrations
+        .fromMetadataLocation(assertingPartyMetadataLocation)
+        .registrationId("example")
+        .build()
+    return InMemoryRelyingPartyRegistrationRepository(registration)
 }
 ----
 ====
@@ -346,7 +414,8 @@ Or you can provide each detail manually, as you can see below:
 
 .Relying Party Registration Repository Manual Configuration
 ====
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 @Value("${verification.key}")
 File verificationKey;
@@ -365,6 +434,34 @@ public RelyingPartyRegistrationRepository relyingPartyRegistrations() throws Exc
             )
             .build();
     return new InMemoryRelyingPartyRegistrationRepository(registration);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Value("\${verification.key}")
+var verificationKey: File? = null
+
+@Bean
+open fun relyingPartyRegistrations(): RelyingPartyRegistrationRepository {
+    val certificate: X509Certificate? = X509Support.decodeCertificate(verificationKey!!)
+    val credential: Saml2X509Credential = Saml2X509Credential.verification(certificate)
+    val registration = RelyingPartyRegistration
+        .withRegistrationId("example")
+        .assertingPartyDetails { party: AssertingPartyDetails.Builder ->
+            party
+                .entityId("https://idp.example.com/issuer")
+                .singleSignOnServiceLocation("https://idp.example.com/SSO.saml2")
+                .wantAuthnRequestsSigned(false)
+                .verificationX509Credentials { c: MutableCollection<Saml2X509Credential?> ->
+                    c.add(
+                        credential
+                    )
+                }
+        }
+        .build()
+    return InMemoryRelyingPartyRegistrationRepository(registration)
 }
 ----
 ====
@@ -430,28 +527,75 @@ Also, you can provide asserting party metadata like its `Issuer` value, where it
 
 The following `RelyingPartyRegistration` is the minimum required for most setups:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations
         .fromMetadataLocation("https://ap.example.org/metadata")
         .registrationId("my-id")
         .build();
 ----
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val relyingPartyRegistration = RelyingPartyRegistrations
+    .fromMetadataLocation("https://ap.example.org/metadata")
+    .registrationId("my-id")
+    .build()
+----
+====
+
+Note that you can also create a `RelyingPartyRegistration` from an arbitrary `InputStream` source.
+One such example is when the metadata is stored in a database:
+
+[source,java]
+----
+String xml = fromDatabase();
+try (InputStream source = new ByteArrayInputStream(xml.getBytes())) {
+    RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations
+            .fromMetadata(source)
+            .registrationId("my-id")
+            .build();
+}
+----
 
 Though a more sophisticated setup is also possible, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("my-id")
         .entityId("{baseUrl}/{registrationId}")
         .decryptionX509Credentials(c -> c.add(relyingPartyDecryptingCredential()))
         .assertionConsumerServiceLocation("/my-login-endpoint/{registrationId}")
-        .assertingParty(party -> party
+        .assertingPartyDetails(party -> party
                 .entityId("https://ap.example.org")
                 .verificationX509Credentials(c -> c.add(assertingPartyVerifyingCredential()))
                 .singleSignOnServiceLocation("https://ap.example.org/SSO.saml2")
-        );
+        )
+        .build();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val relyingPartyRegistration =
+    RelyingPartyRegistration.withRegistrationId("my-id")
+        .entityId("{baseUrl}/{registrationId}")
+        .decryptionX509Credentials { c: MutableCollection<Saml2X509Credential?> ->
+            c.add(relyingPartyDecryptingCredential())
+        }
+        .assertionConsumerServiceLocation("/my-login-endpoint/{registrationId}")
+        .assertingPartyDetails { party -> party
+                .entityId("https://ap.example.org")
+                .verificationX509Credentials { c -> c.add(assertingPartyVerifyingCredential()) }
+                .singleSignOnServiceLocation("https://ap.example.org/SSO.saml2")
+        }
+        .build()
+----
+====
 
 [TIP]
 The top-level metadata methods are details about the relying party.
@@ -510,15 +654,29 @@ At a minimum, it's necessary to have a certificate from the asserting party so t
 To construct a `Saml2X509Credential` that you'll use to verify assertions from the asserting party, you can load the file and use
 the `CertificateFactory` like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 Resource resource = new ClassPathResource("ap.crt");
 try (InputStream is = resource.getInputStream()) {
-	X509Certificate certificate = (X509Certificate)
+    X509Certificate certificate = (X509Certificate)
             CertificateFactory.getInstance("X.509").generateCertificate(is);
-	return Saml2X509Credential.verification(certificate);
+    return Saml2X509Credential.verification(certificate);
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val resource = ClassPathResource("ap.crt")
+resource.inputStream.use {
+    return Saml2X509Credential.verification(
+        CertificateFactory.getInstance("X.509").generateCertificate(it) as X509Certificate?
+    )
+}
+----
+====
 
 Let's say that the asserting party is going to also encrypt the assertion.
 In that case, the relying party will need a private key to be able to decrypt the encrypted value.
@@ -526,15 +684,29 @@ In that case, the relying party will need a private key to be able to decrypt th
 In that case, you'll need an `RSAPrivateKey` as well as its corresponding `X509Certificate`.
 You can load the first using Spring Security's `RsaKeyConverters` utility class and the second as you did before:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 X509Certificate certificate = relyingPartyDecryptionCertificate();
 Resource resource = new ClassPathResource("rp.crt");
 try (InputStream is = resource.getInputStream()) {
-	RSAPrivateKey rsa = RsaKeyConverters.pkcs8().convert(is);
-	return Saml2X509Credential.decryption(rsa, certificate);
+    RSAPrivateKey rsa = RsaKeyConverters.pkcs8().convert(is);
+    return Saml2X509Credential.decryption(rsa, certificate);
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val certificate: X509Certificate = relyingPartyDecryptionCertificate()
+val resource = ClassPathResource("rp.crt")
+resource.inputStream.use {
+    val rsa: RSAPrivateKey = RsaKeyConverters.pkcs8().convert(it)
+    return Saml2X509Credential.decryption(rsa, certificate)
+}
+----
+====
 
 [TIP]
 When you specify the locations of these files as the appropriate Spring Boot properties, then Spring Boot will perform these conversions for you.
@@ -554,17 +726,30 @@ The default looks up the registration id from the URI's last path element and lo
 
 You can provide a simpler resolver that, for example, always returns the same relying party:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class SingleRelyingPartyRegistrationResolver
         implements Converter<HttpServletRequest, RelyingPartyRegistration> {
 
-	@Override
+    @Override
     public RelyingPartyRegistration convert(HttpServletRequest request) {
-		return this.relyingParty;
+        return this.relyingParty;
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class SingleRelyingPartyRegistrationResolver : Converter<HttpServletRequest?, RelyingPartyRegistration?> {
+    override fun convert(request: HttpServletRequest?): RelyingPartyRegistration? {
+        return this.relyingParty
+    }
+}
+----
+====
 
 Then, you can provide this resolver to the appropriate filters that <<servlet-saml2login-sp-initiated-factory, produce `<saml2:AuthnRequest>` s>>, <<servlet-saml2login-authenticate-responses, authenticate `<saml2:Response>` s>>, and <<servlet-saml2login-metadata, produce `<saml2:SPSSODescriptor>` metadata>>.
 
@@ -608,31 +793,63 @@ Second, in a database, it's not necessary to replicate `RelyingPartyRegistration
 
 Third, in Java, you can create a custom configuration method, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 private RelyingPartyRegistration.Builder
         addRelyingPartyDetails(RelyingPartyRegistration.Builder builder) {
 
-	Saml2X509Credential signingCredential = ...
-	builder.signingX509Credentials(c -> c.addAll(signingCredential));
-	// ... other relying party configurations
+    Saml2X509Credential signingCredential = ...
+    builder.signingX509Credentials(c -> c.addAll(signingCredential));
+    // ... other relying party configurations
 }
 
 @Bean
 public RelyingPartyRegistrationRepository relyingPartyRegistrations() {
     RelyingPartyRegistration okta = addRelyingPartyDetails(
-            RelyingPartyRegistration
+            RelyingPartyRegistrations
                 .fromMetadataLocation(oktaMetadataUrl)
                 .registrationId("okta")).build();
 
     RelyingPartyRegistration azure = addRelyingPartyDetails(
-            RelyingPartyRegistration
+            RelyingPartyRegistrations
                 .fromMetadataLocation(oktaMetadataUrl)
                 .registrationId("azure")).build();
 
     return new InMemoryRelyingPartyRegistrationRepository(okta, azure);
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+private fun addRelyingPartyDetails(builder: RelyingPartyRegistration.Builder): RelyingPartyRegistration.Builder {
+    val signingCredential: Saml2X509Credential = ...
+    builder.signingX509Credentials { c: MutableCollection<Saml2X509Credential?> ->
+        c.add(
+            signingCredential
+        )
+    }
+    // ... other relying party configurations
+}
+
+@Bean
+open fun relyingPartyRegistrations(): RelyingPartyRegistrationRepository? {
+    val okta = addRelyingPartyDetails(
+        RelyingPartyRegistrations
+            .fromMetadataLocation(oktaMetadataUrl)
+            .registrationId("okta")
+    ).build()
+    val azure = addRelyingPartyDetails(
+        RelyingPartyRegistrations
+            .fromMetadataLocation(oktaMetadataUrl)
+            .registrationId("azure")
+    ).build()
+    return InMemoryRelyingPartyRegistrationRepository(okta, azure)
+}
+----
+====
 
 [[servlet-saml2login-sp-initiated-factory]]
 === Producing `<saml2:AuthnRequest>` s
@@ -647,6 +864,37 @@ For example, if you were deployed to `https://rp.example.com` and you gave your 
 `https://rp.example.org/saml2/authenticate/ping`
 
 and the result would be a redirect that included a `SAMLRequest` parameter containing the signed, deflated, and encoded `<saml2:AuthnRequest>`.
+
+[[servlet-saml2login-store-authn-request]]
+==== Changing How the `<saml2:AuthnRequest>` Gets Stored
+
+`Saml2WebSsoAuthenticationRequestFilter` uses an `Saml2AuthenticationRequestRepository` to persist an `AbstractSaml2AuthenticationRequest` instance before <<servlet-saml2login-sp-initiated-factory,sending the `<saml2:AuthnRequest>`>> to the asserting party.
+
+Additionally, `Saml2WebSsoAuthenticationFilter` and `Saml2AuthenticationTokenConverter` use an `Saml2AuthenticationRequestRepository` to load any `AbstractSaml2AuthenticationRequest` as part of <<servlet-saml2login-authenticate-responses,authenticating the `<saml2:Response>`>>.
+
+By default, Spring Security uses an `HttpSessionSaml2AuthenticationRequestRepository`, which stores the `AbstractSaml2AuthenticationRequest` in the `HttpSession`.
+
+If you have a custom implementation of `Saml2AuthenticationRequestRepository`, you may configure it by exposing it as a `@Bean` as shown in the following example:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository() {
+	return new CustomSaml2AuthenticationRequestRepository();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun authenticationRequestRepository(): Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> {
+    return CustomSaml2AuthenticationRequestRepository()
+}
+----
+====
 
 [[servlet-saml2login-sp-initiated-factory-signing]]
 ==== Changing How the `<saml2:AuthnRequest>` Gets Sent
@@ -680,7 +928,21 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.wit
         .assertingPartyDetails(party -> party
             // ...
             .wantAuthnRequestsSigned(false)
-        );
+        )
+        .build();
+----
+
+.Kotlin
+[source,java,role="secondary"]
+----
+var relyingPartyRegistration: RelyingPartyRegistration =
+    RelyingPartyRegistration.withRegistrationId("okta")
+        // ...
+        .assertingPartyDetails { party: AssertingPartyDetails.Builder -> party
+                // ...
+                .wantAuthnRequestsSigned(false)
+        }
+        .build();
 ----
 ====
 
@@ -693,7 +955,9 @@ You can configure the algorithm based on the asserting party's <<servlet-saml2lo
 
 Or, you can provide it manually:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 String metadataLocation = "classpath:asserting-party-metadata.xml";
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations.fromMetadataLocation(metadataLocation)
@@ -701,8 +965,28 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations.fr
         .assertingPartyDetails((party) -> party
             // ...
             .signingAlgorithms((sign) -> sign.add(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512))
-        );
+        )
+        .build();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+var metadataLocation = "classpath:asserting-party-metadata.xml"
+var relyingPartyRegistration: RelyingPartyRegistration =
+    RelyingPartyRegistrations.fromMetadataLocation(metadataLocation)
+        // ...
+        .assertingPartyDetails { party: AssertingPartyDetails.Builder -> party
+                // ...
+                .signingAlgorithms { sign: MutableList<String?> ->
+                    sign.add(
+                        SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512
+                    )
+                }
+        }
+        .build();
+----
+====
 
 NOTE: The snippet above uses the OpenSAML `SignatureConstants` class to supply the algorithm name.
 But, that's just for convenience.
@@ -712,16 +996,32 @@ Since the datatype is `String`, you can supply the name of the algorithm directl
 Some asserting parties require that the `<saml2:AuthnRequest>` be POSTed.
 This can be configured automatically via `RelyingPartyRegistrations`, or you can supply it manually, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("okta")
         // ...
         .assertingPartyDetails(party -> party
             // ...
-            .singleSignOnServiceBinding(Saml2MessageType.POST)
-        );
+            .singleSignOnServiceBinding(Saml2MessageBinding.POST)
+        )
+        .build();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+var relyingPartyRegistration: RelyingPartyRegistration? =
+    RelyingPartyRegistration.withRegistrationId("okta")
+        // ...
+        .assertingPartyDetails { party: AssertingPartyDetails.Builder -> party
+            // ...
+            .singleSignOnServiceBinding(Saml2MessageBinding.POST)
+        }
+        .build()
+----
+====
 
 [[servlet-saml2login-sp-initiated-factory-custom-authnrequest]]
 ==== Customizing OpenSAML's `AuthnRequest` Instance
@@ -734,64 +1034,120 @@ This will give you access to post-process the `AuthnRequest` instance before it'
 
 But, if you do need something from the request, then you can use create a custom `Saml2AuthenticationRequestContext` implementation and then a `Converter<Saml2AuthenticationRequestContext, AuthnRequest>` to build an `AuthnRequest` yourself, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Component
 public class AuthnRequestConverter implements
         Converter<MySaml2AuthenticationRequestContext, AuthnRequest> {
 
-	private final AuthnRequestBuilder authnRequestBuilder;
-	private final IssuerBuilder issuerBuilder;
+    private final AuthnRequestBuilder authnRequestBuilder;
+    private final IssuerBuilder issuerBuilder;
 
-	// ... constructor
+    // ... constructor
 
-	public AuthnRequest convert(Saml2AuthenticationRequestContext context) {
-		MySaml2AuthenticationRequestContext myContext = (MySaml2AuthenticationRequestContext) context;
-		Issuer issuer = issuerBuilder.buildObject();
-		issuer.setValue(myContext.getIssuer());
+    public AuthnRequest convert(Saml2AuthenticationRequestContext context) {
+        MySaml2AuthenticationRequestContext myContext = (MySaml2AuthenticationRequestContext) context;
+        Issuer issuer = issuerBuilder.buildObject();
+        issuer.setValue(myContext.getIssuer());
 
-		AuthnRequest authnRequest = authnRequestBuilder.buildObject();
-		authnRequest.setIssuer(iss);
+        AuthnRequest authnRequest = authnRequestBuilder.buildObject();
+        authnRequest.setIssuer(issuer);
         authnRequest.setDestination(myContext.getDestination());
-		authnRequest.setAssertionConsumerServiceURL(myContext.getAssertionConsumerServiceUrl());
+        authnRequest.setAssertionConsumerServiceURL(myContext.getAssertionConsumerServiceUrl());
 
-		// ... additional settings
+        // ... additional settings
 
-		authRequest.setForceAuthn(myContext.getForceAuthn());
-		return authnRequest;
-	}
+        authRequest.setForceAuthn(myContext.getForceAuthn());
+        return authnRequest;
+    }
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Component
+class AuthnRequestConverter : Converter<MySaml2AuthenticationRequestContext, AuthnRequest> {
+    private val authnRequestBuilder: AuthnRequestBuilder? = null
+    private val issuerBuilder: IssuerBuilder? = null
+
+    // ... constructor
+    override fun convert(context: MySaml2AuthenticationRequestContext): AuthnRequest {
+        val myContext: MySaml2AuthenticationRequestContext = context
+        val issuer: Issuer = issuerBuilder.buildObject()
+        issuer.value = myContext.getIssuer()
+        val authnRequest: AuthnRequest = authnRequestBuilder.buildObject()
+        authnRequest.issuer = issuer
+        authnRequest.destination = myContext.getDestination()
+        authnRequest.assertionConsumerServiceURL = myContext.getAssertionConsumerServiceUrl()
+
+        // ... additional settings
+        authRequest.setForceAuthn(myContext.getForceAuthn())
+        return authnRequest
+    }
+}
+----
+====
+
 Then, you can construct your own `Saml2AuthenticationRequestContextResolver` and `Saml2AuthenticationRequestFactory` and publish them as `@Bean` s:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver() {
-	Saml2AuthenticationRequestContextResolver resolver =
+    Saml2AuthenticationRequestContextResolver resolver =
             new DefaultSaml2AuthenticationRequestContextResolver();
-	return request -> {
+    return request -> {
         Saml2AuthenticationRequestContext context = resolver.resolve(request);
         return new MySaml2AuthenticationRequestContext(context, request.getParameter("force") != null);
-	};
+    };
 }
 
 @Bean
 Saml2AuthenticationRequestFactory authenticationRequestFactory(
-		AuthnRequestConverter authnRequestConverter) {
+        AuthnRequestConverter authnRequestConverter) {
 
-	OpenSamlAuthenticationRequestFactory authenticationRequestFactory =
-            new OpenSamlAuthenticationRequestFactory();
-	authenticationRequestFactory.setAuthenticationRequestContextConverter(authnRequestConverter);
-	return authenticationRequestFactory;
+    OpenSaml4AuthenticationRequestFactory authenticationRequestFactory =
+            new OpenSaml4AuthenticationRequestFactory();
+    authenticationRequestFactory.setAuthenticationRequestContextConverter(authnRequestConverter);
+    return authenticationRequestFactory;
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun authenticationRequestContextResolver(): Saml2AuthenticationRequestContextResolver {
+    val resolver: Saml2AuthenticationRequestContextResolver = DefaultSaml2AuthenticationRequestContextResolver()
+    return Saml2AuthenticationRequestContextResolver { request: HttpServletRequest ->
+        val context = resolver.resolve(request)
+        MySaml2AuthenticationRequestContext(
+            context,
+            request.getParameter("force") != null
+        )
+    }
+}
+
+@Bean
+open fun authenticationRequestFactory(
+    authnRequestConverter: AuthnRequestConverter?
+): Saml2AuthenticationRequestFactory? {
+    val authenticationRequestFactory = OpenSaml4AuthenticationRequestFactory()
+    authenticationRequestFactory.setAuthenticationRequestContextConverter(authnRequestConverter)
+    return authenticationRequestFactory
+}
+----
+====
 
 [[servlet-saml2login-authenticate-responses]]
 === Authenticating `<saml2:Response>` s
 
-To verify SAML 2.0 Responses, Spring Security uses <<servlet-saml2login-architecture,`OpenSamlAuthenticationProvider`>> by default.
+To verify SAML 2.0 Responses, Spring Security uses <<servlet-saml2login-architecture,`OpenSaml4AuthenticationProvider`>> by default.
 
 You can configure this in a number of ways including:
 
@@ -806,23 +1162,25 @@ To configure these, you'll use the `saml2Login#authenticationManager` method in 
 ==== Setting a Clock Skew
 
 It's not uncommon for the asserting and relying parties to have system clocks that aren't perfectly synchronized.
-For that reason, you can configure `OpenSamlAuthenticationProvider` 's default assertion validator with some tolerance:
+For that reason, you can configure `OpenSaml4AuthenticationProvider` 's default assertion validator with some tolerance:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        OpenSamlAuthenticationProvider authenticationProvider = new OpenSamlAuthenticationProvider();
-        authenticationProvider.setAssertionValidator(OpenSamlAuthenticationProvider
+        OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
+        authenticationProvider.setAssertionValidator(OpenSaml4AuthenticationProvider
                 .createDefaultAssertionValidator(assertionToken -> {
-        			Map<String, Object> params = new HashMap<>();
-        			params.put(CLOCK_SKEW, Duration.ofMinutes(10).toMillis());
-        			// ... other validation parameters
-        			return new ValidationContext(params);
-        		})
+                    Map<String, Object> params = new HashMap<>();
+                    params.put(CLOCK_SKEW, Duration.ofMinutes(10).toMillis());
+                    // ... other validation parameters
+                    return new ValidationContext(params);
+                })
         );
 
         http
@@ -836,13 +1194,44 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+open class SecurityConfig : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        val authenticationProvider = OpenSaml4AuthenticationProvider()
+        authenticationProvider.setAssertionValidator(
+            OpenSaml4AuthenticationProvider
+                .createDefaultAssertionValidator(Converter<OpenSaml4AuthenticationProvider.AssertionToken, ValidationContext> {
+                    val params: MutableMap<String, Any> = HashMap()
+                    params[CLOCK_SKEW] =
+                        Duration.ofMinutes(10).toMillis()
+                    ValidationContext(params)
+                })
+        )
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
+            }
+            saml2Login {
+                authenticationManager = ProviderManager(authenticationProvider)
+            }
+        }
+    }
+}
+----
+====
+
 [[servlet-saml2login-opensamlauthenticationprovider-userdetailsservice]]
 ==== Coordinating with a `UserDetailsService`
 
 Or, perhaps you would like to include user details from a legacy `UserDetailsService`.
 In that case, the response authentication converter can come in handy, as can be seen below:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -851,12 +1240,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        OpenSamlAuthenticationProvider authenticationProvider = new OpenSamlAuthenticationProvider();
+        OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
         authenticationProvider.setResponseAuthenticationConverter(responseToken -> {
-        	Saml2Authentication authentication = OpenSamlAuthenticationProvider
+            Saml2Authentication authentication = OpenSaml4AuthenticationProvider
                     .createDefaultResponseAuthenticationConverter() <1>
                     .convert(responseToken);
-        	Assertion assertion = responseToken.getResponse().getAssertions().get(0);
+            Assertion assertion = responseToken.getResponse().getAssertions().get(0);
             String username = assertion.getSubject().getNameID().getValue();
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username); <2>
             return MySaml2Authentication(userDetails, authentication); <3>
@@ -872,52 +1261,131 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+open class SecurityConfig : WebSecurityConfigurerAdapter() {
+    @Autowired
+    var userDetailsService: UserDetailsService? = null
+
+    override fun configure(http: HttpSecurity) {
+        val authenticationProvider = OpenSaml4AuthenticationProvider()
+        authenticationProvider.setResponseAuthenticationConverter { responseToken: OpenSaml4AuthenticationProvider.ResponseToken ->
+            val authentication = OpenSaml4AuthenticationProvider
+                .createDefaultResponseAuthenticationConverter() <1>
+                .convert(responseToken)
+            val assertion: Assertion = responseToken.response.assertions[0]
+            val username: String = assertion.subject.nameID.value
+            val userDetails = userDetailsService!!.loadUserByUsername(username) <2>
+            MySaml2Authentication(userDetails, authentication) <3>
+        }
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
+            }
+            saml2Login {
+                authenticationManager = ProviderManager(authenticationProvider)
+            }
+        }
+    }
+}
+----
+====
 <1> First, call the default converter, which extracts attributes and authorities from the response
 <2> Second, call the <<servlet-authentication-userdetailsservice, `UserDetailsService`>> using the relevant information
 <3> Third, return a custom authentication that includes the user details
 
 [NOTE]
-It's not required to call `OpenSamlAuthenticationProvider` 's default authentication converter.
+It's not required to call `OpenSaml4AuthenticationProvider` 's default authentication converter.
 It returns a `Saml2AuthenticatedPrincipal` containing the attributes it extracted from `AttributeStatement` s as well as the single `ROLE_USER` authority.
 
 [[servlet-saml2login-opensamlauthenticationprovider-additionalvalidation]]
-==== Performing Additional Validation
+==== Performing Additional Response Validation
 
-`OpenSamlAuthenticationProvider` performs minimal validation on SAML 2.0 Assertions.
+`OpenSaml4AuthenticationProvider` validates the `Issuer` and `Destination` values right after decrypting the `Response`.
+You can customize the validation by extending the default validator concatenating with your own response validator, or you can replace it entirely with yours.
+
+For example, you can throw a custom exception with any additional information available in the `Response` object, like so:
+[source,java]
+----
+OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+provider.setResponseValidator((responseToken) -> {
+	Saml2ResponseValidatorResult result = OpenSamlAuthenticationProvider
+		.createDefaultResponseValidator()
+		.convert(responseToken)
+		.concat(myCustomValidator.convert(responseToken));
+	if (!result.getErrors().isEmpty()) {
+		String inResponseTo = responseToken.getInResponseTo();
+		throw new CustomSaml2AuthenticationException(result, inResponseTo);
+	}
+	return result;
+});
+----
+
+==== Performing Additional Assertion Validation
+`OpenSaml4AuthenticationProvider` performs minimal validation on SAML 2.0 Assertions.
 After verifying the signature, it will:
 
 1. Validate `<AudienceRestriction>` and `<DelegationRestriction>` conditions
 2. Validate `<SubjectConfirmation>` s, expect for any IP address information
 
-To perform additional validation, you can configure your own assertion validator that delegates to `OpenSamlAuthenticationProvider` 's default and then performs its own.
+To perform additional validation, you can configure your own assertion validator that delegates to `OpenSaml4AuthenticationProvider` 's default and then performs its own.
 
 [[servlet-saml2login-opensamlauthenticationprovider-onetimeuse]]
 For example, you can use OpenSAML's `OneTimeUseConditionValidator` to also validate a `<OneTimeUse>` condition, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
-OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
 OneTimeUseConditionValidator validator = ...;
 provider.setAssertionValidator(assertionToken -> {
-    Saml2ResponseValidatorResult result = OpenSamlAuthenticationProvider
+    Saml2ResponseValidatorResult result = OpenSaml4AuthenticationProvider
             .createDefaultAssertionValidator()
             .convert(assertionToken);
     Assertion assertion = assertionToken.getAssertion();
     OneTimeUse oneTimeUse = assertion.getConditions().getOneTimeUse();
     ValidationContext context = new ValidationContext();
     try {
-    	if (validator.validate(oneTimeUse, assertion, context) == ValidationResult.VALID) {
-    		return result;
-    	}
+        if (validator.validate(oneTimeUse, assertion, context) == ValidationResult.VALID) {
+            return result;
+        }
     } catch (Exception e) {
-    	return result.concat(new Saml2Error(INVALID_ASSERTION, e.getMessage()));
+        return result.concat(new Saml2Error(INVALID_ASSERTION, e.getMessage()));
     }
-    return result.contact(new Saml2Error(INVALID_ASSERTION, context.getValidationFailureMessage()));
+    return result.concat(new Saml2Error(INVALID_ASSERTION, context.getValidationFailureMessage()));
 });
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+var provider = OpenSaml4AuthenticationProvider()
+var validator: OneTimeUseConditionValidator = ...
+provider.setAssertionValidator { assertionToken ->
+    val result = OpenSaml4AuthenticationProvider
+        .createDefaultAssertionValidator()
+        .convert(assertionToken)
+    val assertion: Assertion = assertionToken.assertion
+    val oneTimeUse: OneTimeUse = assertion.conditions.oneTimeUse
+    val context = ValidationContext()
+    try {
+        if (validator.validate(oneTimeUse, assertion, context) == ValidationResult.VALID) {
+            return@setAssertionValidator result
+        }
+    } catch (e: Exception) {
+        return@setAssertionValidator result.concat(Saml2Error(INVALID_ASSERTION, e.message))
+    }
+    result.concat(Saml2Error(INVALID_ASSERTION, context.validationFailureMessage))
+}
+----
+====
+
 [NOTE]
-While recommended, it's not necessary to call `OpenSamlAuthenticationProvider` 's default assertion validator.
+While recommended, it's not necessary to call `OpenSaml4AuthenticationProvider` 's default assertion validator.
 A circumstance where you would skip it would be if you don't need it to check the `<AudienceRestriction>` or the `<SubjectConfirmation>` since you are doing those yourself.
 
 [[servlet-saml2login-opensamlauthenticationprovider-decryption]]
@@ -925,26 +1393,46 @@ A circumstance where you would skip it would be if you don't need it to check th
 
 Spring Security decrypts `<saml2:EncryptedAssertion>`, `<saml2:EncryptedAttribute>`, and `<saml2:EncryptedID>` elements automatically by using the decryption <<servlet-saml2login-rpr-credentials,`Saml2X509Credential` instances>> registered in the <<servlet-saml2login-relyingpartyregistration,`RelyingPartyRegistration`>>.
 
-`OpenSamlAuthenticationProvider` exposes <<servlet-saml2login-architecture,two decryption strategies>>.
+`OpenSaml4AuthenticationProvider` exposes <<servlet-saml2login-architecture,two decryption strategies>>.
 The response decrypter is for decrypting encrypted elements of the `<saml2:Response>`, like `<saml2:EncryptedAssertion>`.
 The assertion decrypter is for decrypting encrypted elements of the `<saml2:Assertion>`, like `<saml2:EncryptedAttribute>` and `<saml2:EncryptedID>`.
 
-You can replace `OpenSamlAuthenticationProvider`'s default decryption strategy with your own.
+You can replace `OpenSaml4AuthenticationProvider`'s default decryption strategy with your own.
 For example, if you have a separate service that decrypts the assertions in a `<saml2:Response>`, you can use it instead like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 MyDecryptionService decryptionService = ...;
-OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
 provider.setResponseElementsDecrypter((responseToken) -> decryptionService.decrypt(responseToken.getResponse()));
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val decryptionService: MyDecryptionService = ...
+val provider = OpenSaml4AuthenticationProvider()
+provider.setResponseElementsDecrypter { responseToken -> decryptionService.decrypt(responseToken.response) }
+----
+====
+
 If you are also decrypting individual elements in a `<saml2:Assertion>`, you can customize the assertion decrypter, too:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 provider.setAssertionElementsDecrypter((assertionToken) -> decryptionService.decrypt(assertionToken.getAssertion()));
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+provider.setAssertionElementsDecrypter { assertionToken -> decryptionService.decrypt(assertionToken.assertion) }
+----
+====
 
 NOTE: There are two separate decrypters since assertions can be signed separately from responses.
 Trying to decrypt a signed assertion's elements before signature verification may invalidate the signature.
@@ -957,7 +1445,9 @@ If your asserting party signs the response only, then it's safe to decrypt all e
 Of course, the `authenticationManager` DSL method can be also used to perform a completely custom SAML 2.0 authentication.
 This authentication manager should expect a `Saml2AuthenticationToken` object containing the SAML 2.0 Response XML data.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -977,6 +1467,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+open class SecurityConfig : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        val customAuthenticationManager: AuthenticationManager = MySaml2AuthenticationManager(...)
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
+            }
+            saml2Login {
+                authenticationManager = customAuthenticationManager
+            }
+        }
+    }
+}
+----
+====
+
 [[servlet-saml2login-authenticatedprincipal]]
 === Using `Saml2AuthenticatedPrincipal`
 
@@ -985,7 +1495,9 @@ Once the relying party validates an assertion, the result is a `Saml2Authenticat
 
 This means that you can access the principal in your controller like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Controller
 public class MainController {
@@ -998,6 +1510,21 @@ public class MainController {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Controller
+class MainController {
+    @GetMapping("/")
+    fun index(@AuthenticationPrincipal principal: Saml2AuthenticatedPrincipal, model: Model): String {
+        val email = principal.getFirstAttribute<String>("email")
+        model.setAttribute("email", email)
+        return "index"
+    }
+}
+----
+====
+
 [TIP]
 Because the SAML 2.0 specification allows for each attribute to have multiple values, you can either call `getAttribute` to get the list of attributes or `getFirstAttribute` to get the first in the list.
 `getFirstAttribute` is quite handy when you know that there is only one value.
@@ -1007,19 +1534,39 @@ Because the SAML 2.0 specification allows for each attribute to have multiple va
 
 You can publish a metadata endpoint by adding the `Saml2MetadataFilter` to the filter chain, as you'll see below:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver =
         new DefaultRelyingPartyRegistrationResolver(this.relyingPartyRegistrationRepository);
 Saml2MetadataFilter filter = new Saml2MetadataFilter(
-		relyingPartyRegistrationResolver,
+        relyingPartyRegistrationResolver,
         new OpenSamlMetadataResolver());
 
 http
     // ...
     .saml2Login(withDefaults())
-    .addFilterBefore(new Saml2MetadataFilter(r), Saml2WebSsoAuthenticationFilter.class);
+    .addFilterBefore(filter, Saml2WebSsoAuthenticationFilter.class);
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val relyingPartyRegistrationResolver: Converter<HttpServletRequest, RelyingPartyRegistration> =
+    DefaultRelyingPartyRegistrationResolver(this.relyingPartyRegistrationRepository)
+val filter = Saml2MetadataFilter(
+    relyingPartyRegistrationResolver,
+    OpenSamlMetadataResolver()
+)
+
+http {
+    //...
+    saml2Login { }
+    addFilterBefore<Saml2WebSsoAuthenticationFilter>(filter)
+}
+----
+====
 
 You can use this metadata endpoint to register your relying party with your asserting party.
 This is often as simple as finding the correct form field to supply the metadata endpoint.
@@ -1027,19 +1574,37 @@ This is often as simple as finding the correct form field to supply the metadata
 By default, the metadata endpoint is `+/saml2/service-provider-metadata/{registrationId}+`.
 You can change this by calling the `setRequestMatcher` method on the filter:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 filter.setRequestMatcher(new AntPathRequestMatcher("/saml2/metadata/{registrationId}", "GET"));
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+filter.setRequestMatcher(AntPathRequestMatcher("/saml2/metadata/{registrationId}", "GET"))
+----
+====
 
 ensuring that the `registrationId` hint is at the end of the path.
 
 Or, if you have registered a custom relying party registration resolver in the constructor, then you can specify a path without a `registrationId` hint, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 filter.setRequestMatcher(new AntPathRequestMatcher("/saml2/metadata", "GET"));
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+filter.setRequestMatcher(AntPathRequestMatcher("/saml2/metadata", "GET"))
+----
+====
 
 [[servlet-saml2login-logout]]
 === Performing Single Logout
@@ -1048,7 +1613,9 @@ Spring Security does not yet support single logout.
 
 Generally speaking, though, you can achieve this by creating and registering a custom `LogoutSuccessHandler` and `RequestMatcher`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 http
     // ...
@@ -1057,6 +1624,19 @@ http
         .logoutRequestMatcher(myRequestMatcher())
     )
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    logout {
+        // ...
+        logoutSuccessHandler = myCustomSuccessHandler()
+        logoutRequestMatcher = myRequestMatcher()
+    }
+}
+----
+====
 
 The success handler will send logout requests to the asserting party.
 

@@ -18,8 +18,8 @@ package org.springframework.security.web.authentication.preauth.websphere;
 
 import javax.servlet.FilterChain;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
  */
 public class WebSpherePreAuthenticatedProcessingFilterTests {
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}

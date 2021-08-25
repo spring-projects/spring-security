@@ -22,11 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
@@ -45,7 +45,7 @@ import static org.mockito.BDDMockito.given;
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CorsSpecTests {
 
 	@Mock
@@ -60,9 +60,12 @@ public class CorsSpecTests {
 
 	Set<String> headerNamesNotPresent = new HashSet<>();
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.http = new TestingServerHttpSecurity().applicationContext(this.context);
+	}
+
+	private void givenGetCorsConfigurationWillReturnWildcard() {
 		CorsConfiguration value = new CorsConfiguration();
 		value.setAllowedOrigins(Arrays.asList("*"));
 		given(this.source.getCorsConfiguration(any())).willReturn(value);
@@ -70,6 +73,7 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenEnabledThenAccessControlAllowOriginAndSecurityHeaders() {
+		givenGetCorsConfigurationWillReturnWildcard();
 		this.http.cors().configurationSource(this.source);
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");
@@ -78,6 +82,7 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenEnabledInLambdaThenAccessControlAllowOriginAndSecurityHeaders() {
+		givenGetCorsConfigurationWillReturnWildcard();
 		this.http.cors((cors) -> cors.configurationSource(this.source));
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");
@@ -86,6 +91,7 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenCorsConfigurationSourceBeanThenAccessControlAllowOriginAndSecurityHeaders() {
+		givenGetCorsConfigurationWillReturnWildcard();
 		given(this.context.getBeanNamesForType(any(ResolvableType.class))).willReturn(new String[] { "source" },
 				new String[0]);
 		given(this.context.getBean("source")).willReturn(this.source);

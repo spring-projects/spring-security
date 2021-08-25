@@ -196,7 +196,9 @@ This will be different in different companies, so you have to find it out yourse
 Before adding a Spring Security LDAP configuration to an application, it's a good idea to write a simple test using standard Java LDAP code (without Spring Security involved), and make sure you can get that to work first.
 For example, to authenticate a user, you could use the following code:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 
 @Test
@@ -213,6 +215,22 @@ public void ldapAuthenticationIsSuccessful() throws Exception {
 }
 
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Test
+fun ldapAuthenticationIsSuccessful() {
+    val env = Hashtable<String, String>()
+    env[Context.SECURITY_AUTHENTICATION] = "simple"
+    env[Context.SECURITY_PRINCIPAL] = "cn=joe,ou=users,dc=mycompany,dc=com"
+    env[Context.PROVIDER_URL] = "ldap://mycompany.com:389/dc=mycompany,dc=com"
+    env[Context.SECURITY_CREDENTIALS] = "joespassword"
+    env[Context.INITIAL_CONTEXT_FACTORY] = "com.sun.jndi.ldap.LdapCtxFactory"
+    val ctx = InitialLdapContext(env, null)
+}
+----
+====
 
 ==== Session Management
 
@@ -257,7 +275,7 @@ To get around this, you can disable session fixation protection, but in newer Se
 Note that switching between HTTP and HTTPS is not a good idea in general, as any application which uses HTTP at all is vulnerable to man-in-the-middle attacks.
 To be truly secure, the user should begin accessing your site in HTTPS and continue using it until they log out.
 Even clicking on an HTTPS link from a page accessed over HTTP is potentially risky.
-If you need more convincing, check out a tool like https://www.thoughtcrime.org/software/sslstrip/[sslstrip].
+If you need more convincing, check out a tool like https://github.com/moxie0/sslstrip/[sslstrip].
 
 
 ==== I'm not switching between HTTP and HTTPS but my session is still getting lost
@@ -378,7 +396,7 @@ For third-party jars the situation isn't always quite so obvious.
 A good starting point is to copy those from one of the pre-built sample applications WEB-INF/lib directories.
 For a basic application, you can start with the tutorial sample.
 If you want to use LDAP, with an embedded test server, then use the LDAP sample as a starting point.
-The reference manual also includes https://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#appendix-dependencies[an appendix] listing the first-level dependencies for each Spring Security module with some information on whether they are optional and what they are required for.
+The reference manual also includes {security-reference-url}#modules[an appendix] listing the first-level dependencies for each Spring Security module with some information on whether they are optional and what they are required for.
 
 If you are building your project with maven, then adding the appropriate Spring Security modules as dependencies to your pom.xml will automatically pull in the core jars that the framework requires.
 Any which are marked as "optional" in the Spring Security POM files will have to be added to your own pom.xml file if you need them.
@@ -498,7 +516,9 @@ To load the data from an alternative source, you must be using an explicitly dec
 You can't use the namespace.
 You would then implement `FilterInvocationSecurityMetadataSource` to load the data as you please for a particular `FilterInvocation` footnote:[The `FilterInvocation` object contains the `HttpServletRequest`, so you can obtain the URL or any other relevant information on which to base your decision on what the list of returned attributes will contain.]. A very basic outline would look something like this:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 
 	public class MyFilterSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
@@ -526,6 +546,31 @@ You would then implement `FilterInvocationSecurityMetadataSource` to load the da
 
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class MyFilterSecurityMetadataSource : FilterInvocationSecurityMetadataSource {
+    override fun getAttributes(securedObject: Any): List<ConfigAttribute> {
+        val fi = securedObject as FilterInvocation
+        val url = fi.requestUrl
+        val httpMethod = fi.request.method
+
+        // Lookup your database (or other source) using this information and populate the
+        // list of attributes
+        return ArrayList()
+    }
+
+    override fun getAllConfigAttributes(): Collection<ConfigAttribute>? {
+        return null
+    }
+
+    override fun supports(clazz: Class<*>): Boolean {
+        return FilterInvocation::class.java.isAssignableFrom(clazz)
+    }
+}
+----
+====
+
 For more information, look at the code for `DefaultFilterInvocationSecurityMetadataSource`.
 
 
@@ -537,7 +582,9 @@ The `DefaultLdapAuthoritiesPopulator` loads the user authorities from the LDAP d
 
 To use JDBC instead, you can implement the interface yourself, using whatever SQL is appropriate for your schema:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 
 	public class MyAuthoritiesPopulator implements LdapAuthoritiesPopulator {
@@ -545,21 +592,44 @@ To use JDBC instead, you can implement the interface yourself, using whatever SQ
 		JdbcTemplate template;
 
 		List<GrantedAuthority> getGrantedAuthorities(DirContextOperations userData, String username) {
-			List<GrantedAuthority> = template.query("select role from roles where username = ?",
-																									new String[] {username},
-																									new RowMapper<GrantedAuthority>() {
-				/**
+			return template.query("select role from roles where username = ?",
+					new String[] {username},
+					new RowMapper<GrantedAuthority>() {
+				 /**
 				 *  We're assuming here that you're using the standard convention of using the role
 				 *  prefix "ROLE_" to mark attributes which are supported by Spring Security's RoleVoter.
 				 */
+				@Override
 				public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
-					return new SimpleGrantedAuthority("ROLE_" + rs.getString(1);
+					return new SimpleGrantedAuthority("ROLE_" + rs.getString(1));
 				}
-			}
+			});
 		}
 	}
 
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class MyAuthoritiesPopulator : LdapAuthoritiesPopulator {
+    @Autowired
+    lateinit var template: JdbcTemplate
+
+    override fun getGrantedAuthorities(userData: DirContextOperations, username: String): MutableList<GrantedAuthority?> {
+        return template.query("select role from roles where username = ?",
+            arrayOf(username)
+        ) { rs, _ ->
+            /**
+             * We're assuming here that you're using the standard convention of using the role
+             * prefix "ROLE_" to mark attributes which are supported by Spring Security's RoleVoter.
+             */
+            SimpleGrantedAuthority("ROLE_" + rs.getString(1))
+        }
+    }
+}
+----
+====
 
 You would then add a bean of this type to your application context and inject it into the `LdapAuthenticationProvider`. This is covered in the section on configuring LDAP using explicit Spring beans in the LDAP chapter of the reference manual.
 Note that you can't use the namespace for configuration in this case.
@@ -577,10 +647,12 @@ More information can be found in the https://docs.spring.io/spring/docs/3.0.x/sp
 Normally, you would add the functionality you require to the `postProcessBeforeInitialization` method of `BeanPostProcessor`. Let's say that you want to customize the `AuthenticationDetailsSource` used by the `UsernamePasswordAuthenticationFilter`, (created by the `form-login` element). You want to extract a particular header called `CUSTOM_HEADER` from the request and make use of it while authenticating the user.
 The processor class would look like this:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 
-public class BeanPostProcessor implements BeanPostProcessor {
+public class CustomBeanPostProcessor implements BeanPostProcessor {
 
 		public Object postProcessAfterInitialization(Object bean, String name) {
 				if (bean instanceof UsernamePasswordAuthenticationFilter) {
@@ -601,6 +673,26 @@ public class BeanPostProcessor implements BeanPostProcessor {
 }
 
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class CustomBeanPostProcessor : BeanPostProcessor {
+    override fun postProcessAfterInitialization(bean: Any, name: String): Any {
+        if (bean is UsernamePasswordAuthenticationFilter) {
+            println("********* Post-processing $name")
+            bean.setAuthenticationDetailsSource(
+                AuthenticationDetailsSource<HttpServletRequest, Any?> { context -> context.getHeader("CUSTOM_HEADER") })
+        }
+        return bean
+    }
+
+    override fun postProcessBeforeInitialization(bean: Any, name: String?): Any {
+        return bean
+    }
+}
+----
+====
 
 You would then register this bean in your application context.
 Spring will automatically invoke it on the beans defined in the application context.

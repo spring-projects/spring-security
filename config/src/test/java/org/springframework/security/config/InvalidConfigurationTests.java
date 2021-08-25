@@ -16,8 +16,8 @@
 
 package org.springframework.security.config;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -39,7 +39,7 @@ public class InvalidConfigurationTests {
 
 	private InMemoryXmlApplicationContext appContext;
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		if (this.appContext != null) {
 			this.appContext.close();

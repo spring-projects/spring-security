@@ -16,7 +16,7 @@
 
 package org.springframework.security.concurrent;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.security.core.context.SecurityContext;
 
@@ -31,9 +31,9 @@ import org.springframework.security.core.context.SecurityContext;
 public class ExplicitDelegatingSecurityContextExecutorServiceTests
 		extends AbstractDelegatingSecurityContextExecutorServiceTests {
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		super.explicitSecurityContextPowermockSetup();
+		super.explicitSecurityContextSetup();
 	}
 
 	@Override

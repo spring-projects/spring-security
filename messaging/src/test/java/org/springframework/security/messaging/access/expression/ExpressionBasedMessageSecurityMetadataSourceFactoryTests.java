@@ -19,11 +19,11 @@ package org.springframework.security.messaging.access.expression;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.messaging.Message;
 import org.springframework.security.access.ConfigAttribute;
@@ -34,7 +34,7 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 
 	@Mock
@@ -59,7 +59,7 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 
 	MessageSecurityExpressionRoot rootObject;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.expression1 = "permitAll";
 		this.expression2 = "denyAll";

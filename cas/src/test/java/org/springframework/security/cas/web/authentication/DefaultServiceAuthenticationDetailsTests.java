@@ -18,9 +18,9 @@ package org.springframework.security.cas.web.authentication;
 
 import java.util.regex.Pattern;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
@@ -45,7 +45,7 @@ public class DefaultServiceAuthenticationDetailsTests {
 
 	private ConfigurableApplicationContext context;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.casServiceUrl = "https://localhost:8443/j_spring_security_cas";
 		this.request = new MockHttpServletRequest();
@@ -57,7 +57,7 @@ public class DefaultServiceAuthenticationDetailsTests {
 				.createArtifactPattern(ServiceProperties.DEFAULT_CAS_ARTIFACT_PARAMETER);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		if (this.context != null) {
 			this.context.close();

@@ -21,7 +21,7 @@ import java.util.Collection;
 
 import javax.servlet.FilterChain;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;

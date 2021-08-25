@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,19 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Collections;
+
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -53,7 +59,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 
 	private ClientRegistration.Builder clientRegistration;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
@@ -61,7 +67,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 				.tokenUri(this.server.url("/oauth2/token").uri().toASCIIString());
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		validateMockitoUsage();
 		this.server.shutdown();
@@ -86,6 +92,35 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		assertThat(response.getAccessToken()).isNotNull();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
 				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+		assertThat(body).isEqualTo("grant_type=client_credentials&scope=read%3Auser");
+	}
+
+	// gh-9610
+	@Test
+	public void getTokenResponseWhenSpecialCharactersThenSuccessWithEncodedClientCredentials() throws Exception {
+		// @formatter:off
+		enqueueJson("{\n"
+			+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
+			+ "  \"token_type\":\"bearer\",\n"
+			+ "  \"expires_in\":3600,\n"
+			+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\",\n"
+			+ "  \"scope\":\"create\"\n"
+			+ "}");
+		// @formatter:on
+		String clientCredentialWithAnsiKeyboardSpecialCharacters = "~!@#$%^&*()_+{}|:\"<>?`-=[]\\;',./ ";
+		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration.clientId(clientCredentialWithAnsiKeyboardSpecialCharacters)
+						.clientSecret(clientCredentialWithAnsiKeyboardSpecialCharacters).build());
+		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
+		RecordedRequest actualRequest = this.server.takeRequest();
+		String body = actualRequest.getBody().readUtf8();
+		assertThat(response.getAccessToken()).isNotNull();
+		String urlEncodedClientCredentialecret = URLEncoder.encode(clientCredentialWithAnsiKeyboardSpecialCharacters,
+				StandardCharsets.UTF_8.toString());
+		String clientCredentials = Base64.getEncoder()
+				.encodeToString((urlEncodedClientCredentialecret + ":" + urlEncodedClientCredentialecret)
+						.getBytes(StandardCharsets.UTF_8));
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic " + clientCredentials);
 		assertThat(body).isEqualTo("grant_type=client_credentials&scope=read%3Auser");
 	}
 
@@ -177,6 +212,72 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		MockResponse response = new MockResponse().setBody(body).setHeader(HttpHeaders.CONTENT_TYPE,
 				MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(response);
+	}
+
+	// gh-10130
+	@Test
+	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.client.setHeadersConverter(null))
+				.withMessage("headersConverter cannot be null");
+	}
+
+	// gh-10130
+	@Test
+	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.client.addHeadersConverter(null))
+				.withMessage("headersConverter cannot be null");
+	}
+
+	// gh-10130
+	@Test
+	public void convertWhenHeadersConverterAddedThenCalled() throws Exception {
+		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration.build());
+		Converter<OAuth2ClientCredentialsGrantRequest, HttpHeaders> addedHeadersConverter = mock(Converter.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
+		given(addedHeadersConverter.convert(request)).willReturn(headers);
+		this.client.addHeadersConverter(addedHeadersConverter);
+		// @formatter:off
+		enqueueJson("{\n"
+				+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
+				+ "  \"token_type\":\"bearer\",\n"
+				+ "  \"expires_in\":3600,\n"
+				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n"
+				+ "}");
+		// @formatter:on
+		this.client.getTokenResponse(request).block();
+		verify(addedHeadersConverter).convert(request);
+		RecordedRequest actualRequest = this.server.takeRequest();
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
+				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+		assertThat(actualRequest.getHeader("custom-header-name")).isEqualTo("custom-header-value");
+	}
+
+	// gh-10130
+	@Test
+	public void convertWhenHeadersConverterSetThenCalled() throws Exception {
+		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration.build());
+		ClientRegistration clientRegistration = request.getClientRegistration();
+		Converter<OAuth2ClientCredentialsGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
+		given(headersConverter.convert(request)).willReturn(headers);
+		this.client.setHeadersConverter(headersConverter);
+		// @formatter:off
+		enqueueJson("{\n"
+				+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
+				+ "  \"token_type\":\"bearer\",\n"
+				+ "  \"expires_in\":3600,\n"
+				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n"
+				+ "}");
+		// @formatter:on
+		this.client.getTokenResponse(request).block();
+		verify(headersConverter).convert(request);
+		RecordedRequest actualRequest = this.server.takeRequest();
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
+				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 	}
 
 }

@@ -19,8 +19,8 @@ package org.springframework.security.cas.web;
 import javax.servlet.FilterChain;
 
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -52,7 +52,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  */
 public class CasAuthenticationFilterTests {
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

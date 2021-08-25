@@ -16,9 +16,9 @@
 
 package org.springframework.security.config.method;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.BusinessService;
@@ -40,7 +40,7 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 
 	private BusinessService target;
 
-	@Before
+	@BeforeEach
 	public void loadContext() {
 		// @formatter:off
 		this.appContext = new InMemoryXmlApplicationContext(
@@ -51,7 +51,7 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 		this.target = (BusinessService) this.appContext.getBean("target");
 	}
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		if (this.appContext != null) {
 			this.appContext.close();

@@ -12,7 +12,7 @@ NOTE: OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as
 
 Spring Boot 2.x brings full auto-configuration capabilities for OAuth 2.0 Login.
 
-This section shows how to configure the {gh-samples-url}/boot/oauth2login[*OAuth 2.0 Login sample*] using _Google_ as the _Authentication Provider_ and covers the following topics:
+This section shows how to configure the {gh-samples-url}/servlet/spring-boot/java/oauth2/login[*OAuth 2.0 Login sample*] using _Google_ as the _Authentication Provider_ and covers the following topics:
 
 * <<oauth2login-sample-initial-setup,Initial setup>>
 * <<oauth2login-sample-redirect-uri,Setting the redirect URI>>
@@ -499,6 +499,51 @@ public class OAuth2LoginConfig {
 			.clientSecret("google-client-secret")
 			.build();
 	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class OAuth2LoginConfig {
+    @EnableWebSecurity
+    open class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                oauth2Login { }
+            }
+        }
+    }
+
+    @Bean
+    open fun clientRegistrationRepository(): ClientRegistrationRepository {
+        return InMemoryClientRegistrationRepository(googleClientRegistration())
+    }
+
+    @Bean
+    open fun authorizedClientService(
+        clientRegistrationRepository: ClientRegistrationRepository?
+    ): OAuth2AuthorizedClientService {
+        return InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository)
+    }
+
+    @Bean
+    open fun authorizedClientRepository(
+        authorizedClientService: OAuth2AuthorizedClientService?
+    ): OAuth2AuthorizedClientRepository {
+        return AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService)
+    }
+
+    private fun googleClientRegistration(): ClientRegistration {
+        return CommonOAuth2Provider.GOOGLE.getBuilder("google")
+            .clientId("google-client-id")
+            .clientSecret("google-client-secret")
+            .build()
+    }
 }
 ----
 

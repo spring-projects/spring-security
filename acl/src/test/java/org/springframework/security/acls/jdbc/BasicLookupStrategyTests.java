@@ -18,8 +18,8 @@ package org.springframework.security.acls.jdbc;
 
 import javax.sql.DataSource;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -33,12 +33,12 @@ public class BasicLookupStrategyTests extends AbstractBasicLookupStrategyTests {
 
 	private static final BasicLookupStrategyTestsDbHelper DATABASE_HELPER = new BasicLookupStrategyTestsDbHelper();
 
-	@BeforeClass
+	@BeforeAll
 	public static void createDatabase() throws Exception {
 		DATABASE_HELPER.createDatabase();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void dropDatabase() {
 		DATABASE_HELPER.getDataSource().destroy();
 	}

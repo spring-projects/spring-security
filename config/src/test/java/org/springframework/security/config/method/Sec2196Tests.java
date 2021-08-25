@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.method;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
@@ -60,7 +60,7 @@ public class Sec2196Tests {
 		this.context = new InMemoryXmlApplicationContext(context);
 	}
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		if (this.context != null) {
 			this.context.close();

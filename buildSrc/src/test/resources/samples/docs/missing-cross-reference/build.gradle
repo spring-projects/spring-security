@@ -1,0 +1,6 @@
+plugins {
+	id 'io.spring.convention.docs'
+	id 'java'
+}
+
+version = '1.0.0.BUILD-SNAPSHOT'

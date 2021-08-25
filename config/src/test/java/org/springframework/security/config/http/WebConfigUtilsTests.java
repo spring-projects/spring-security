@@ -16,18 +16,16 @@
 
 package org.springframework.security.config.http;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.xml.ParserContext;
 
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-@RunWith(PowerMockRunner.class)
-@PrepareOnlyThisForTest(ParserContext.class)
+@ExtendWith(MockitoExtension.class)
 public class WebConfigUtilsTests {
 
 	public static final String URL = "/url";

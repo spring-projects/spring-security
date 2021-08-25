@@ -35,9 +35,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -72,7 +72,7 @@ public class JaasApiIntegrationFilterTests {
 
 	private CallbackHandler callbackHandler;
 
-	@Before
+	@BeforeEach
 	public void onBeforeTests() throws Exception {
 		this.filter = new JaasApiIntegrationFilter();
 		this.request = new MockHttpServletRequest();
@@ -117,7 +117,7 @@ public class JaasApiIntegrationFilterTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@After
+	@AfterEach
 	public void onAfterTests() {
 		SecurityContextHolder.clearContext();
 	}

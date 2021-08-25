@@ -1,16 +1,23 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-	compile project(':spring-security-core')
-	compile project(':spring-security-oauth2-core')
-	compile springCoreDependency
-	compile 'com.nimbusds:nimbus-jose-jwt'
+	management platform(project(":spring-security-dependencies"))
+	api project(':spring-security-core')
+	api project(':spring-security-oauth2-core')
+	api 'org.springframework:spring-core'
+	api 'com.nimbusds:nimbus-jose-jwt'
 
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.springframework:spring-webflux'
 
-	testCompile powerMock2Dependencies
-	testCompile 'com.squareup.okhttp3:mockwebserver'
-	testCompile 'io.projectreactor.netty:reactor-netty'
-	testCompile 'com.fasterxml.jackson.core:jackson-databind'
+	testImplementation 'com.squareup.okhttp3:mockwebserver'
+	testImplementation 'io.projectreactor.netty:reactor-netty'
+	testImplementation 'com.fasterxml.jackson.core:jackson-databind'
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.junit.jupiter:junit-jupiter-params"
+	testImplementation "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation "org.mockito:mockito-junit-jupiter"
+	testImplementation "org.springframework:spring-test"
 }

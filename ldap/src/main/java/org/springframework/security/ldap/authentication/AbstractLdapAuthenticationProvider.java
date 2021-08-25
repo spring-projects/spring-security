@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,6 +129,14 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
 
+	/**
+	 * Sets the {@link GrantedAuthoritiesMapper} used for converting the authorities
+	 * loaded from storage to a new set of authorities which will be associated to the
+	 * {@link UsernamePasswordAuthenticationToken}. If not set, defaults to a
+	 * {@link NullAuthoritiesMapper}.
+	 * @param authoritiesMapper the {@link GrantedAuthoritiesMapper} used for mapping the
+	 * user's authorities
+	 */
 	public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		this.authoritiesMapper = authoritiesMapper;
 	}

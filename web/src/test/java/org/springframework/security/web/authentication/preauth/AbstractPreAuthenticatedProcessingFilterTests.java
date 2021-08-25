@@ -20,9 +20,9 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
 import org.springframework.mock.web.MockFilterChain;
@@ -59,7 +59,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 
 	private AbstractPreAuthenticatedProcessingFilter filter;
 
-	@Before
+	@BeforeEach
 	public void createFilter() {
 		this.filter = new AbstractPreAuthenticatedProcessingFilter() {
 			@Override
@@ -75,7 +75,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}

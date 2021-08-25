@@ -21,8 +21,8 @@ import java.util.Collection;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
@@ -41,7 +41,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 
 	UserAllowedClass userAllowed;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.mds = new Jsr250MethodSecurityMetadataSource();
 		this.a = new A();

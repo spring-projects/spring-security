@@ -22,7 +22,7 @@ import javax.servlet.http.Cookie;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;

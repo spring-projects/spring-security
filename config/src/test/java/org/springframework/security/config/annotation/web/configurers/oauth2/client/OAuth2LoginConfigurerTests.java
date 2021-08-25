@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpHeaders;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
@@ -36,6 +36,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -45,7 +46,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -85,9 +87,11 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
@@ -108,6 +112,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Joe Grandja
  * @since 5.0.1
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class OAuth2LoginConfigurerTests {
 
 	// @formatter:off
@@ -126,6 +131,11 @@ public class OAuth2LoginConfigurerTests {
 			.build();
 	// @formatter:on
 
+	// @formatter:off
+	private static final ClientRegistration CLIENT_CREDENTIALS_REGISTRATION = TestClientRegistrations.clientCredentials()
+			.build();
+	// @formatter:on
+
 	private ConfigurableApplicationContext context;
 
 	@Autowired
@@ -137,8 +147,7 @@ public class OAuth2LoginConfigurerTests {
 	@Autowired
 	SecurityContextRepository securityContextRepository;
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired(required = false)
 	MockMvc mvc;
@@ -149,7 +158,7 @@ public class OAuth2LoginConfigurerTests {
 
 	private MockFilterChain filterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest("GET", "");
 		this.request.setServletPath("/login/oauth2/code/google");
@@ -157,7 +166,7 @@ public class OAuth2LoginConfigurerTests {
 		this.filterChain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		if (this.context != null) {
 			this.context.close();
@@ -394,6 +403,42 @@ public class OAuth2LoginConfigurerTests {
 		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).doesNotMatch("http://localhost/oauth2/authorization/google");
+	}
+
+	@Test
+	public void oauth2LoginWithHttpBasicOneClientConfiguredAndRequestXHRNotAuthenticatedThenUnauthorized()
+			throws Exception {
+		loadConfig(OAuth2LoginWithHttpBasicConfig.class);
+		String requestUri = "/";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getStatus()).isEqualTo(401);
+	}
+
+	@Test
+	public void oauth2LoginWithXHREntryPointOneClientConfiguredAndRequestXHRNotAuthenticatedThenUnauthorized()
+			throws Exception {
+		loadConfig(OAuth2LoginWithXHREntryPointConfig.class);
+		String requestUri = "/";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getStatus()).isEqualTo(401);
+	}
+
+	// gh-9457
+	@Test
+	public void oauth2LoginWithOneAuthorizationCodeClientAndOtherClientsConfiguredThenRedirectForAuthorization()
+			throws Exception {
+		loadConfig(OAuth2LoginConfigAuthorizationCodeClientAndOtherClients.class);
+		String requestUri = "/";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/oauth2/authorization/google");
 	}
 
 	@Test
@@ -800,6 +845,23 @@ public class OAuth2LoginConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	static class OAuth2LoginConfigAuthorizationCodeClientAndOtherClients extends CommonWebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.oauth2Login()
+					.clientRegistrationRepository(
+							new InMemoryClientRegistrationRepository(
+									GOOGLE_CLIENT_REGISTRATION, CLIENT_CREDENTIALS_REGISTRATION));
+			// @formatter:on
+			super.configure(http);
+		}
+
+	}
+
+	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomLoginPage extends CommonWebSecurityConfigurerAdapter {
 
 		@Override
@@ -858,6 +920,45 @@ public class OAuth2LoginConfigurerTests {
 			Map<String, Object> providerMetadata = Collections.singletonMap("end_session_endpoint", "https://logout");
 			return new InMemoryClientRegistrationRepository(TestClientRegistrations.clientRegistration()
 					.providerConfigurationMetadata(providerMetadata).build());
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginWithHttpBasicConfig extends CommonWebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2Login()
+					.clientRegistrationRepository(
+							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
+					.and()
+				.httpBasic();
+			// @formatter:on
+			super.configure(http);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginWithXHREntryPointConfig extends CommonWebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2Login()
+					.clientRegistrationRepository(
+							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
+					.and()
+				.exceptionHandling()
+					.defaultAuthenticationEntryPointFor(
+							new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+							new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
+			// @formatter:on
+			super.configure(http);
 		}
 
 	}

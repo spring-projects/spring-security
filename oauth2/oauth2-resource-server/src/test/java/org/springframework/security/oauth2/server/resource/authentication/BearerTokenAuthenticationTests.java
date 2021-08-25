@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,15 @@ import java.util.List;
 import java.util.Map;
 
 import net.minidev.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -56,11 +56,11 @@ public class BearerTokenAuthenticationTests {
 
 	private final Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("USER");
 
-	@Before
+	@BeforeEach
 	public void setUp() {
-		this.attributesMap.put(OAuth2IntrospectionClaimNames.SUBJECT, this.name);
-		this.attributesMap.put(OAuth2IntrospectionClaimNames.CLIENT_ID, "client_id");
-		this.attributesMap.put(OAuth2IntrospectionClaimNames.USERNAME, "username");
+		this.attributesMap.put(OAuth2TokenIntrospectionClaimNames.SUB, this.name);
+		this.attributesMap.put(OAuth2TokenIntrospectionClaimNames.CLIENT_ID, "client_id");
+		this.attributesMap.put(OAuth2TokenIntrospectionClaimNames.USERNAME, "username");
 		this.principal = new DefaultOAuth2AuthenticatedPrincipal(this.attributesMap, null);
 	}
 
@@ -86,7 +86,7 @@ public class BearerTokenAuthenticationTests {
 		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(this.principal, this.token, null);
 		// @formatter:off
 		assertThat(authenticated.getName())
-				.isEqualTo(this.principal.getAttribute(OAuth2IntrospectionClaimNames.SUBJECT));
+				.isEqualTo(this.principal.getAttribute(OAuth2TokenIntrospectionClaimNames.SUB));
 		// @formatter:on
 	}
 

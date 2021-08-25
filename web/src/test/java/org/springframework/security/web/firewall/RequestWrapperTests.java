@@ -23,8 +23,8 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -42,7 +42,7 @@ public class RequestWrapperTests {
 
 	private static Map<String, String> testPaths = new LinkedHashMap<>();
 
-	@BeforeClass
+	@BeforeAll
 	// Some of these may be unrealistic values, but we can't be sure because of the
 	// inconsistency in the spec.
 	public static void createTestMap() {

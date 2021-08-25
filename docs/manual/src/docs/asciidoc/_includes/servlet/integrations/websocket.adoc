@@ -4,8 +4,6 @@
 Spring Security 4 added support for securing https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html[Spring's WebSocket support].
 This section describes how to use Spring Security's WebSocket support.
 
-NOTE: You can find a complete working sample of WebSocket security at https://github.com/spring-projects/spring-session/tree/master/spring-session-samples/spring-session-sample-boot-websocket.
-
 .Direct JSR-356 Support
 ****
 Spring Security does not provide direct JSR-356 support because doing so would provide little value.
@@ -20,7 +18,9 @@ Spring Security 4.0 has introduced authorization support for WebSockets through 
 To configure authorization using Java Configuration, simply extend the `AbstractSecurityWebSocketMessageBrokerConfigurer` and configure the `MessageSecurityMetadataSourceRegistry`.
 For example:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Configuration
 public class WebSocketSecurityConfig
@@ -32,6 +32,18 @@ public class WebSocketSecurityConfig
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfigurer() { // <1> <2>
+    override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
+        messages.simpDestMatchers("/user/**").authenticated() // <3>
+    }
+}
+----
+====
 
 This will ensure that:
 
@@ -72,7 +84,9 @@ Spring Security 4.0 has introduced authorization support for WebSockets through 
 To configure authorization using Java Configuration, simply extend the `AbstractSecurityWebSocketMessageBrokerConfigurer` and configure the `MessageSecurityMetadataSourceRegistry`.
 For example:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Configuration
 public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
@@ -90,6 +104,24 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfigurer() {
+    override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
+        messages
+            .nullDestMatcher().authenticated() // <1>
+            .simpSubscribeDestMatchers("/user/queue/errors").permitAll() // <2>
+            .simpDestMatchers("/app/**").hasRole("USER") // <3>
+            .simpSubscribeDestMatchers("/user/**", "/topic/friends/*").hasRole("USER") // <4>
+            .simpTypeMatchers(MESSAGE, SUBSCRIBE).denyAll() // <5>
+            .anyMessage().denyAll() // <6>
+    }
+}
+----
+====
 
 This will ensure that:
 
@@ -209,7 +241,7 @@ This means developers need to explicitly protect their applications from externa
 ==== Spring WebSocket Allowed Origin
 
 Fortunately, since Spring 4.1.5 Spring's WebSocket and SockJS support restricts access to the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html#websocket-server-allowed-origins[current domain].
-Spring Security adds an additional layer of protection to provide https://en.wikipedia.org/wiki/Defense_in_depth_%2528computing%2529[defence in depth].
+Spring Security adds an additional layer of protection to provide https://en.wikipedia.org/wiki/Defense_in_depth_(computing)[defence in depth].
 
 [[websocket-sameorigin-csrf]]
 ==== Adding CSRF to Stomp Headers
@@ -234,7 +266,9 @@ var token = "${_csrf.token}";
 If you are using static HTML, you can expose the `CsrfToken` on a REST endpoint.
 For example, the following would expose the `CsrfToken` on the URL /csrf
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @RestController
 public class CsrfController {
@@ -245,6 +279,19 @@ public class CsrfController {
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RestController
+class CsrfController {
+    @RequestMapping("/csrf")
+    fun csrf(token: CsrfToken): CsrfToken {
+        return token
+    }
+}
+----
+====
 
 The JavaScript can make a REST call to the endpoint and use the response to populate the headerName and the token.
 
@@ -268,7 +315,9 @@ stompClient.connect(headers, function(frame) {
 If you want to allow other domains to access your site, you can disable Spring Security's protection.
 For example, in Java Configuration you can use the following:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Configuration
 public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
@@ -281,6 +330,21 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfigurer() {
+
+    // ...
+
+    override fun sameOriginDisabled(): Boolean {
+        return true
+    }
+}
+----
+====
 
 
 [[websocket-sockjs]]
@@ -313,7 +377,9 @@ For example, the following will instruct Spring Security to use "X-Frame-Options
 
 Similarly, you can customize frame options to use the same origin within Java Configuration using the following:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
@@ -332,6 +398,25 @@ public class WebSecurityConfig extends
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http {
+            // ...
+            headers {
+                frameOptions {
+                    sameOrigin = true
+                }
+            }
+        }
+    }
+}
+----
+====
+
 [[websocket-sockjs-csrf]]
 ==== SockJS & Relaxing CSRF
 
@@ -349,7 +434,9 @@ We can easily achieve this by providing a CSRF RequestMatcher.
 Our Java Configuration makes this extremely easy.
 For example, if our stomp endpoint is "/chat" we can disable CSRF protection for only URLs that start with "/chat/" using the following configuration:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Configuration
 @EnableWebSecurity
@@ -374,6 +461,30 @@ public class WebSecurityConfig
             )
             ...
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebSecurity
+open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http {
+            csrf {
+                ignoringAntMatchers("/chat/**")
+            }
+            headers {
+                frameOptions {
+                    sameOrigin = true
+                }
+            }
+            authorizeRequests {
+                // ...
+            }
+            // ...
+
+----
+====
 
 If we are using XML based configuration, we can use the <<nsa-csrf-request-matcher-ref,csrf@request-matcher-ref>>.
 For example:

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.http.HttpSession;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -70,7 +70,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	private final TestingAuthenticationToken testToken = new TestingAuthenticationToken("someone", "passwd", "ROLE_A");
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
@@ -623,6 +623,22 @@ public class HttpSessionSecurityContextRepositoryTests {
 		SecurityContext context = repo.loadContext(holder);
 		SomeOtherTransientAuthentication authentication = new SomeOtherTransientAuthentication();
 		context.setAuthentication(authentication);
+		repo.saveContext(context, holder.getRequest(), holder.getResponse());
+		MockHttpSession session = (MockHttpSession) request.getSession(false);
+		assertThat(session).isNull();
+	}
+
+	// gh-8947
+	@Test
+	public void saveContextWhenSecurityContextAuthenticationUpdatedToNullThenSkipped() {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+		SomeOtherTransientAuthentication authentication = new SomeOtherTransientAuthentication();
+		repo.loadContext(holder);
+		SecurityContext context = mock(SecurityContext.class);
+		given(context.getAuthentication()).willReturn(authentication).willReturn(null);
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
 		MockHttpSession session = (MockHttpSession) request.getSession(false);
 		assertThat(session).isNull();

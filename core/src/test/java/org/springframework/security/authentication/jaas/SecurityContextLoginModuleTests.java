@@ -23,9 +23,9 @@ import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,14 +47,14 @@ public class SecurityContextLoginModuleTests {
 	private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("principal",
 			"credentials");
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.module = new SecurityContextLoginModule();
 		this.module.initialize(this.subject, null, null, null);
 		SecurityContextHolder.clearContext();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 		this.module = null;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,17 @@
 
 package org.springframework.security.oauth2.jose;
 
+import java.math.BigInteger;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.ECFieldFp;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
+import java.security.spec.EllipticCurve;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -107,6 +114,34 @@ public final class TestKeys {
 		catch (InvalidKeySpecException ex) {
 			throw new IllegalArgumentException(ex);
 		}
+	}
+
+	public static final KeyPair DEFAULT_RSA_KEY_PAIR = new KeyPair(DEFAULT_PUBLIC_KEY, DEFAULT_PRIVATE_KEY);
+
+	public static final KeyPair DEFAULT_EC_KEY_PAIR = generateEcKeyPair();
+
+	static KeyPair generateEcKeyPair() {
+		EllipticCurve ellipticCurve = new EllipticCurve(
+				new ECFieldFp(new BigInteger(
+						"115792089210356248762697446949407573530086143415290314195533631308867097853951")),
+				new BigInteger("115792089210356248762697446949407573530086143415290314195533631308867097853948"),
+				new BigInteger("41058363725152142129326129780047268409114441015993725554835256314039467401291"));
+		ECPoint ecPoint = new ECPoint(
+				new BigInteger("48439561293906451759052585252797914202762949526041747995844080717082404635286"),
+				new BigInteger("36134250956749795798585127919587881956611106672985015071877198253568414405109"));
+		ECParameterSpec ecParameterSpec = new ECParameterSpec(ellipticCurve, ecPoint,
+				new BigInteger("115792089210356248762697446949407573529996955224135760342422259061068512044369"), 1);
+
+		KeyPair keyPair;
+		try {
+			KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
+			keyPairGenerator.initialize(ecParameterSpec);
+			keyPair = keyPairGenerator.generateKeyPair();
+		}
+		catch (Exception ex) {
+			throw new IllegalStateException(ex);
+		}
+		return keyPair;
 	}
 
 	private TestKeys() {

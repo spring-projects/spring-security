@@ -18,15 +18,13 @@ package org.springframework.security.test.web.servlet.request;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.context.SecurityContext;
@@ -40,10 +38,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.testSecurityContext;
 
-@RunWith(PowerMockRunner.class)
-@PrepareOnlyThisForTest(WebTestUtils.class)
-@PowerMockIgnore({ "javax.security.auth.*", "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*",
-		"javax.xml.parsers.*" })
+@ExtendWith(MockitoExtension.class)
 public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 
 	@Mock
@@ -52,15 +47,19 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 	@Mock
 	private SecurityContextRepository repository;
 
+	@Mock
+	private MockedStatic<WebTestUtils> webTestUtils;
+
 	private MockHttpServletRequest request;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
-		mockWebTestUtils();
+		this.webTestUtils.when(() -> WebTestUtils.getSecurityContextRepository(this.request))
+				.thenReturn(this.repository);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		TestSecurityContextHolder.clearContext();
 	}
@@ -78,11 +77,6 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 		testSecurityContext().postProcessRequest(this.request);
 		verify(this.repository, never()).saveContext(any(SecurityContext.class), eq(this.request),
 				any(HttpServletResponse.class));
-	}
-
-	private void mockWebTestUtils() {
-		PowerMockito.spy(WebTestUtils.class);
-		PowerMockito.when(WebTestUtils.getSecurityContextRepository(this.request)).thenReturn(this.repository);
 	}
 
 }

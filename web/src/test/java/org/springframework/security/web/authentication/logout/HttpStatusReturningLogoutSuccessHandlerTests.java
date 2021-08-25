@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.authentication.logout;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;

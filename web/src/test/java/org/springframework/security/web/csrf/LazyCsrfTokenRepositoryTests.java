@@ -19,12 +19,12 @@ package org.springframework.security.web.csrf;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 /**
  * @author Rob Winch
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LazyCsrfTokenRepositoryTests {
 
 	@Mock
@@ -53,11 +53,9 @@ public class LazyCsrfTokenRepositoryTests {
 
 	DefaultCsrfToken token;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.token = new DefaultCsrfToken("header", "param", "token");
-		given(this.delegate.generateToken(this.request)).willReturn(this.token);
-		given(this.request.getAttribute(HttpServletResponse.class.getName())).willReturn(this.response);
 	}
 
 	@Test
@@ -73,6 +71,8 @@ public class LazyCsrfTokenRepositoryTests {
 
 	@Test
 	public void generateTokenGetTokenSavesToken() {
+		given(this.delegate.generateToken(this.request)).willReturn(this.token);
+		given(this.request.getAttribute(HttpServletResponse.class.getName())).willReturn(this.response);
 		CsrfToken newToken = this.repository.generateToken(this.request);
 		newToken.getToken();
 		verify(this.delegate).saveToken(this.token, this.request, this.response);

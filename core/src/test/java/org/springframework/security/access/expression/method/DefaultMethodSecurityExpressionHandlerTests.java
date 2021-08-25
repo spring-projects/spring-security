@@ -23,12 +23,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultMethodSecurityExpressionHandlerTests {
 
 	private DefaultMethodSecurityExpressionHandler handler;
@@ -58,14 +58,17 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 	@Mock
 	private AuthenticationTrustResolver trustResolver;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.handler = new DefaultMethodSecurityExpressionHandler();
+	}
+
+	private void setupMocks() {
 		given(this.methodInvocation.getThis()).willReturn(new Foo());
 		given(this.methodInvocation.getMethod()).willReturn(Foo.class.getMethods()[0]);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		SecurityContextHolder.clearContext();
 	}
@@ -77,6 +80,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 
 	@Test
 	public void createEvaluationContextCustomTrustResolver() {
+		setupMocks();
 		this.handler.setTrustResolver(this.trustResolver);
 		Expression expression = this.handler.getExpressionParser().parseExpression("anonymous");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
@@ -87,6 +91,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void filterByKeyWhenUsingMapThenFiltersMap() {
+		setupMocks();
 		final Map<String, String> map = new HashMap<>();
 		map.put("key1", "value1");
 		map.put("key2", "value2");
@@ -104,6 +109,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void filterByValueWhenUsingMapThenFiltersMap() {
+		setupMocks();
 		final Map<String, String> map = new HashMap<>();
 		map.put("key1", "value1");
 		map.put("key2", "value2");
@@ -121,6 +127,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void filterByKeyAndValueWhenUsingMapThenFiltersMap() {
+		setupMocks();
 		final Map<String, String> map = new HashMap<>();
 		map.put("key1", "value1");
 		map.put("key2", "value2");
@@ -139,6 +146,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void filterWhenUsingStreamThenFiltersStream() {
+		setupMocks();
 		final Stream<String> stream = Stream.of("1", "2", "3");
 		Expression expression = this.handler.getExpressionParser().parseExpression("filterObject ne '2'");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
@@ -150,6 +158,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 
 	@Test
 	public void filterStreamWhenClosedThenUpstreamGetsClosed() {
+		setupMocks();
 		final Stream<?> upstream = mock(Stream.class);
 		doReturn(Stream.<String>empty()).when(upstream).filter(any());
 		Expression expression = this.handler.getExpressionParser().parseExpression("true");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,6 +174,8 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 		if (grantedAuthorityDefaults != null) {
 			this.defaultMethodExpressionHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 		}
+
+		this.defaultMethodExpressionHandler = this.objectPostProcessor.postProcess(this.defaultMethodExpressionHandler);
 	}
 
 	private <T> T getSingleBeanOrNull(Class<T> type) {
@@ -338,6 +340,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	 * @return the {@link MethodSecurityMetadataSource}
 	 */
 	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public MethodSecurityMetadataSource methodSecurityMetadataSource() {
 		List<MethodSecurityMetadataSource> sources = new ArrayList<>();
 		ExpressionBasedAnnotationAttributeFactory attributeFactory = new ExpressionBasedAnnotationAttributeFactory(
@@ -397,7 +400,6 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	@Autowired(required = false)
 	public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
 		this.objectPostProcessor = objectPostProcessor;
-		this.defaultMethodExpressionHandler = objectPostProcessor.postProcess(this.defaultMethodExpressionHandler);
 	}
 
 	@Autowired(required = false)

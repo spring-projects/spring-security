@@ -19,15 +19,13 @@ package org.springframework.security.test.context.support;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
-import org.junit.After;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -38,8 +36,7 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestContext;
-import org.springframework.test.context.junit4.rules.SpringClassRule;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,15 +49,9 @@ import static org.mockito.Mockito.verify;
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith({ MockitoExtension.class, SpringExtension.class })
 @ContextConfiguration(classes = WithSecurityContextTestExecutionListenerTests.NoOpConfiguration.class)
 public class WithSecurityContextTestExecutionListenerTests {
-
-	@ClassRule
-	public static final SpringClassRule spring = new SpringClassRule();
-
-	@Rule
-	public final SpringMethodRule springMethod = new SpringMethodRule();
 
 	@Autowired
 	private ApplicationContext applicationContext;
@@ -70,7 +61,7 @@ public class WithSecurityContextTestExecutionListenerTests {
 
 	private WithSecurityContextTestExecutionListener listener = new WithSecurityContextTestExecutionListener();
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		TestSecurityContextHolder.clearContext();
 	}

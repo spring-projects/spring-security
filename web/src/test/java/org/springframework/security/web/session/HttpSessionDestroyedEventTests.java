@@ -18,8 +18,8 @@ package org.springframework.security.web.session;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.core.context.SecurityContext;
@@ -38,7 +38,7 @@ public class HttpSessionDestroyedEventTests {
 
 	private HttpSessionDestroyedEvent destroyedEvent;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.session = new MockHttpSession();
 		this.session.setAttribute("notcontext", "notcontext");

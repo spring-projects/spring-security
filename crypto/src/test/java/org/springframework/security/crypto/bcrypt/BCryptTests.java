@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -58,7 +58,7 @@ public class BCryptTests {
 
 	private static List<TestObject<byte[]>> testObjectsByteArray;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupTestObjects() {
 		testObjectsString = new ArrayList<>();
 		testObjectsString.add(new TestObject<>("", "$2a$06$DCq7YPn5Rq63x1Lad4cll.",

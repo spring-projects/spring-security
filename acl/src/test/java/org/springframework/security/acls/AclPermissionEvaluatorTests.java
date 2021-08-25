@@ -18,7 +18,7 @@ package org.springframework.security.acls;
 
 import java.util.Locale;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AclService;

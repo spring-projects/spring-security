@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
@@ -62,7 +62,7 @@ public class HeaderSpecTests {
 
 	private Set<String> headerNamesNotPresent = new HashSet<>();
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.expectedHeaders.add(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
 				"max-age=31536000 ; includeSubDomains");

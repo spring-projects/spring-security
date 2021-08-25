@@ -18,8 +18,8 @@ package org.springframework.security.oauth2.server.resource.web.server;
 
 import java.util.Base64;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -45,7 +45,7 @@ public class ServerBearerTokenAuthenticationConverterTests {
 
 	private ServerBearerTokenAuthenticationConverter converter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.converter = new ServerBearerTokenAuthenticationConverter();
 	}

@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -26,7 +26,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -50,10 +51,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  *
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class NamespaceHttpInterceptUrlTests {
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	MockMvc mvc;
@@ -109,27 +110,24 @@ public class NamespaceHttpInterceptUrlTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeRequests().antMatchers(
 					// the line below is similar to intercept-url@pattern:
 					//    <intercept-url pattern="/users**" access="hasRole('ROLE_ADMIN')"/>
-					//    <intercept-url pattern="/sessions/**" access="hasRole('ROLE_ADMIN')"/>
-					.antMatchers("/users**", "/sessions/**").hasRole("ADMIN")
+					//" access="hasRole('ROLE_ADMIN')"/>
+"/users**", "/sessions/**").hasRole("ADMIN").antMatchers(
 					// the line below is similar to intercept-url@method:
 					//    <intercept-url pattern="/admin/post" access="hasRole('ROLE_ADMIN')" method="POST"/>
-					//    <intercept-url pattern="/admin/another-post/**" access="hasRole('ROLE_ADMIN')" method="POST"/>
-					.antMatchers(HttpMethod.POST, "/admin/post", "/admin/another-post/**").hasRole("ADMIN")
+					//" access="hasRole('ROLE_ADMIN')" method="POST"/>
+HttpMethod.POST, "/admin/post", "/admin/another-post/**").hasRole("ADMIN")
 					.antMatchers("/signup").permitAll()
 					.anyRequest().hasRole("USER")
 					.and()
-				.requiresChannel()
+				.requiresChannel().antMatchers("/login", "/secured/**")
 					// NOTE: channel security is configured separately of authorization (i.e. intercept-url@access
 					// the line below is similar to intercept-url@requires-channel="https":
 					//    <intercept-url pattern="/login" requires-channel="https"/>
-					//    <intercept-url pattern="/secured/**" requires-channel="https"/>
-					.antMatchers("/login", "/secured/**").requiresSecure()
-					// the line below is similar to intercept-url@requires-channel="http":
-					//    <intercept-url pattern="/**" requires-channel="http"/>
-					.anyRequest().requiresInsecure();
+					//" requires-channel="https"/>
+				.requiresSecure().anyRequest().requiresInsecure();
 			// @formatter:on
 		}
 

@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +27,13 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.access.intercept.DelegatingAuthorizationManager;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,10 +58,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Evgeniy Cheban
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class AuthorizeHttpRequestsConfigurerTests {
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	MockMvc mvc;
@@ -73,9 +74,24 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
+	public void configureNoParameterWhenAuthorizedHttpRequestsAndNoRequestsThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NoRequestsNoParameterConfig.class).autowire())
+				.withMessageContaining(
+						"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
+	}
+
+	@Test
 	public void configureWhenAnyRequestIncompleteMappingThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> this.spring.register(IncompleteMappingConfig.class).autowire())
+				.withMessageContaining("An incomplete mapping was found for ");
+	}
+
+	@Test
+	public void configureNoParameterWhenAnyRequestIncompleteMappingThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(IncompleteMappingNoParameterConfig.class).autowire())
 				.withMessageContaining("An incomplete mapping was found for ");
 	}
 
@@ -95,6 +111,14 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
+	public void configureNoParameterMvcMatcherAccessAuthorizationManagerWhenNotNullThenVerifyUse() throws Exception {
+		CustomAuthorizationManagerNoParameterConfig.authorizationManager = mock(AuthorizationManager.class);
+		this.spring.register(CustomAuthorizationManagerNoParameterConfig.class, BasicController.class).autowire();
+		this.mvc.perform(get("/")).andExpect(status().isOk());
+		verify(CustomAuthorizationManagerNoParameterConfig.authorizationManager).check(any(), any());
+	}
+
+	@Test
 	public void configureMvcMatcherAccessAuthorizationManagerWhenNullThenException() {
 		CustomAuthorizationManagerConfig.authorizationManager = null;
 		assertThatExceptionOfType(BeanCreationException.class)
@@ -105,7 +129,8 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Test
 	public void configureWhenObjectPostProcessorRegisteredThenInvokedOnAuthorizationManagerAndAuthorizationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(DelegatingAuthorizationManager.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor)
+				.postProcess(any(RequestMatcherDelegatingAuthorizationManager.class));
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(AuthorizationFilter.class));
 	}
 
@@ -370,6 +395,21 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	static class NoRequestsNoParameterConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests();
+			// @formatter:on
+
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
 	static class IncompleteMappingConfig {
 
 		@Bean
@@ -379,6 +419,22 @@ public class AuthorizeHttpRequestsConfigurerTests {
 					.authorizeHttpRequests(AbstractRequestMatcherRegistry::anyRequest)
 					.build();
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class IncompleteMappingNoParameterConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests()
+					.anyRequest();
+			// @formatter:on
+
+			return http.build();
 		}
 
 	}
@@ -414,6 +470,24 @@ public class AuthorizeHttpRequestsConfigurerTests {
 					)
 					.build();
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class CustomAuthorizationManagerNoParameterConfig {
+
+		static AuthorizationManager<RequestAuthorizationContext> authorizationManager;
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests()
+					.anyRequest().access(authorizationManager);
+			// @formatter:on
+
+			return http.build();
 		}
 
 	}

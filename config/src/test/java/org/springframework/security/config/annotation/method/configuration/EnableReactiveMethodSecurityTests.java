@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,7 +32,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.reset;
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class EnableReactiveMethodSecurityTests {
 
@@ -61,7 +61,7 @@ public class EnableReactiveMethodSecurityTests {
 	Context withUser = ReactiveSecurityContextHolder
 			.withAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		reset(this.delegate);
 	}
@@ -77,7 +77,8 @@ public class EnableReactiveMethodSecurityTests {
 				.withMessage("The returnType class java.lang.String on public abstract java.lang.String "
 						+ "org.springframework.security.config.annotation.method.configuration.ReactiveMessageService"
 						+ ".notPublisherPreAuthorizeFindById(long) must return an instance of org.reactivestreams"
-						+ ".Publisher (i.e. Mono / Flux) in order to support Reactor Context");
+						+ ".Publisher (i.e. Mono / Flux) or the function must be a Kotlin coroutine "
+						+ "function in order to support Reactor Context");
 	}
 
 	@Test

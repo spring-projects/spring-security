@@ -15,7 +15,7 @@ This section provides details on how Spring Security provides support for OAuth 
 
 [NOTE]
 ====
-Working samples for both {gh-samples-url}/boot/oauth2resourceserver[JWTs] and {gh-samples-url}/boot/oauth2resourceserver-opaque[Opaque Tokens] are available in the {gh-samples-url}[Spring Security repository].
+Working samples for both {gh-samples-url}/servlet/spring-boot/java/oauth2/resource-server/jwe[JWTs] and {gh-samples-url}/servlet/spring-boot/java/oauth2/resource-server/opaque[Opaque Tokens] are available in the {gh-samples-url}[Spring Security Samples repository].
 ====
 
 Let's take a look at how Bearer Token Authentication works within Spring Security.
@@ -31,7 +31,7 @@ image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to
 image:{icondir}/number_2.png[] Spring Security's <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
 
 image:{icondir}/number_3.png[] Since the user is not authenticated, <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> initiates __Start Authentication__.
-The configured <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>> is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/authentication/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`] which sends a WWW-Authenticate header.
+The configured <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>> is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/web/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`] which sends a WWW-Authenticate header.
 The `RequestCache` is typically a `NullRequestCache` that does not save the request since the client is capable of replaying the requests it originally requested.
 
 When a client receives the `WWW-Authenticate: Bearer` header, it knows it should retry with a bearer token.
@@ -820,11 +820,21 @@ class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
 
 Or similarly with method security:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 public List<Message> getMessages(...) {}
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize("hasAuthority('SCOPE_messages')")
+fun getMessages(): List<Message> { }
+----
+====
 
 [[oauth2resourceserver-jwt-authorization-extraction]]
 ==== Extracting Authorities Manually
@@ -1068,7 +1078,7 @@ fun jwtDecoder(): JwtDecoder {
 ====
 
 [NOTE]
-By default, Resource Server configures a clock skew of 30 seconds.
+By default, Resource Server configures a clock skew of 60 seconds.
 
 [[oauth2resourceserver-jwt-validation-custom]]
 ==== Configuring a Custom Validator
@@ -2537,7 +2547,7 @@ The issuer should be one that the code can verify from a trusted source like a l
 
 You may have observed that this strategy, while simple, comes with the trade-off that the JWT is parsed once by the `AuthenticationManagerResolver` and then again by the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> later on in the request.
 
-This extra parsing can be alleviated by configuring the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> directly with a `JWTClaimSetAwareJWSKeySelector` from Nimbus:
+This extra parsing can be alleviated by configuring the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> directly with a `JWTClaimsSetAwareJWSKeySelector` from Nimbus:
 
 ====
 .Java
@@ -2545,7 +2555,7 @@ This extra parsing can be alleviated by configuring the <<oauth2resourceserver-j
 ----
 @Component
 public class TenantJWSKeySelector
-    implements JWTClaimSetAwareJWSKeySelector<SecurityContext> {
+    implements JWTClaimsSetAwareJWSKeySelector<SecurityContext> {
 
 	private final TenantRepository tenants; <1>
 	private final Map<String, JWSKeySelector<SecurityContext>> selectors = new ConcurrentHashMap<>(); <2>
@@ -2586,7 +2596,7 @@ public class TenantJWSKeySelector
 [source,kotlin,role="secondary"]
 ----
 @Component
-class TenantJWSKeySelector(tenants: TenantRepository) : JWTClaimSetAwareJWSKeySelector<SecurityContext> {
+class TenantJWSKeySelector(tenants: TenantRepository) : JWTClaimsSetAwareJWSKeySelector<SecurityContext> {
     private val tenants: TenantRepository <1>
     private val selectors: MutableMap<String, JWSKeySelector<SecurityContext>> = ConcurrentHashMap() <2>
 
@@ -3028,7 +3038,7 @@ Additionally, it is published as an `AuthenticationFailureBadCredentialsEvent`, 
 @Component
 public class FailureEvents {
 	@EventListener
-    public void onFailure(AuthenticationFailureEvent failure) {
+    public void onFailure(AuthenticationFailureBadCredentialsEvent badCredentials) {
 		if (badCredentials.getAuthentication() instanceof BearerTokenAuthenticationToken) {
 		    // ... handle
         }

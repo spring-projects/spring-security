@@ -16,8 +16,8 @@
 
 package org.springframework.security.taglibs.csrf;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
@@ -31,7 +31,7 @@ public class CsrfMetaTagsTagTests {
 
 	public CsrfMetaTagsTag tag;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.tag = new CsrfMetaTagsTag();
 	}

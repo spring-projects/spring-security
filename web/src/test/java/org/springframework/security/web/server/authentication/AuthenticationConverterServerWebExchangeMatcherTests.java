@@ -16,11 +16,11 @@
 
 package org.springframework.security.web.server.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -39,7 +39,7 @@ import static org.mockito.BDDMockito.given;
  * @author David Kovac
  * @since 5.4
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthenticationConverterServerWebExchangeMatcherTests {
 
 	private MockServerWebExchange exchange;
@@ -51,7 +51,7 @@ public class AuthenticationConverterServerWebExchangeMatcherTests {
 	@Mock
 	private ServerAuthenticationConverter converter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		MockServerHttpRequest request = MockServerHttpRequest.get("/path").build();
 		this.exchange = MockServerWebExchange.from(request);

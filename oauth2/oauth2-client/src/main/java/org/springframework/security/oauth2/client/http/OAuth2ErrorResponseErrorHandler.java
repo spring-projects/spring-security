@@ -52,7 +52,7 @@ public class OAuth2ErrorResponseErrorHandler implements ResponseErrorHandler {
 
 	@Override
 	public void handleError(ClientHttpResponse response) throws IOException {
-		if (!HttpStatus.BAD_REQUEST.equals(response.getStatusCode())) {
+		if (HttpStatus.BAD_REQUEST.value() != response.getRawStatusCode()) {
 			this.defaultErrorHandler.handleError(response);
 		}
 		// A Bearer Token Error may be in the WWW-Authenticate response header

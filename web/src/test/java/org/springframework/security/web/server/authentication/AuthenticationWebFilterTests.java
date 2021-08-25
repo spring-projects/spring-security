@@ -16,11 +16,11 @@
 
 package org.springframework.security.web.server.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.BadCredentialsException;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Rafiullah Hamedy
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthenticationWebFilterTests {
 
 	@Mock
@@ -72,7 +72,7 @@ public class AuthenticationWebFilterTests {
 
 	private AuthenticationWebFilter filter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.filter = new AuthenticationWebFilter(this.authenticationManager);
 		this.filter.setAuthenticationSuccessHandler(this.successHandler);

@@ -4,9 +4,9 @@
 Spring Security's WebFlux support relies on a `WebFilter` and works the same for Spring WebFlux and Spring WebFlux.Fn.
 You can find a few sample applications that demonstrate the code below:
 
-* Hello WebFlux {gh-samples-url}/boot/hellowebflux[hellowebflux]
-* Hello WebFlux.Fn {gh-samples-url}/boot/hellowebfluxfn[hellowebfluxfn]
-* Hello WebFlux Method {gh-samples-url}/boot/hellowebflux-method[hellowebflux-method]
+* Hello WebFlux {gh-samples-url}/reactive/webflux/java/hello-security[hellowebflux]
+* Hello WebFlux.Fn {gh-samples-url}/reactive/webflux-fn/hello-security[hellowebfluxfn]
+* Hello WebFlux Method {gh-samples-url}/reactive/webflux/java/method[hellowebflux-method]
 
 
 == Minimal WebFlux Security Configuration
@@ -134,7 +134,9 @@ You can configure multiple `SecurityWebFilterChain` instances to separate config
 
 For example, you can isolate configuration for URLs that start with `/api`, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Configuration
 @EnableWebFluxSecurity
@@ -158,7 +160,7 @@ static class MultiSecurityHttpConfig {
             .authorizeExchange((exchanges) -> exchanges
                 .anyExchange().authenticated()
             )
-            .httpBasic(withDefaults())                                                      <5>
+            .httpBasic(withDefaults());                                                     <5>
         return http.build();
     }
 
@@ -170,6 +172,46 @@ static class MultiSecurityHttpConfig {
 
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebFluxSecurity
+open class MultiSecurityHttpConfig {
+    @Order(Ordered.HIGHEST_PRECEDENCE)                                                      <1>
+    @Bean
+    open fun apiHttpSecurity(http: ServerHttpSecurity): SecurityWebFilterChain {
+        return http {
+            securityMatcher(PathPatternParserServerWebExchangeMatcher("/api/**"))           <2>
+            authorizeExchange {
+                authorize(anyExchange, authenticated)
+            }
+            oauth2ResourceServer {
+                jwt { }                                                                     <3>
+            }
+        }
+    }
+
+    @Bean
+    open fun webHttpSecurity(http: ServerHttpSecurity): SecurityWebFilterChain {            <4>
+        return http {
+            authorizeExchange {
+                authorize(anyExchange, authenticated)
+            }
+            httpBasic { }                                                                   <5>
+        }
+    }
+
+    @Bean
+    open fun userDetailsService(): ReactiveUserDetailsService {
+        return MapReactiveUserDetailsService(
+            PasswordEncodedUser.user(), PasswordEncodedUser.admin()
+        )
+    }
+}
+----
+====
 
 <1> Configure a `SecurityWebFilterChain` with an `@Order` to specify which `SecurityWebFilterChain` Spring Security should consider first
 <2> Use `PathPatternParserServerWebExchangeMatcher` to state that this `SecurityWebFilterChain` will only apply to URL paths that start with `/api/`

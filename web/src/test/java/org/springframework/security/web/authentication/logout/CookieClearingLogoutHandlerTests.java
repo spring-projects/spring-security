@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.springframework.security.web.authentication.logout;
 
 import javax.servlet.http.Cookie;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -58,8 +58,7 @@ public class CookieClearingLogoutHandlerTests {
 		handler.logout(request, response, mock(Authentication.class));
 		assertThat(response.getCookies()).hasSize(2);
 		for (Cookie c : response.getCookies()) {
-			// gh-2325
-			assertThat(c.getPath()).isEqualTo("/app/");
+			assertThat(c.getPath()).isEqualTo("/app");
 			assertThat(c.getMaxAge()).isZero();
 		}
 	}

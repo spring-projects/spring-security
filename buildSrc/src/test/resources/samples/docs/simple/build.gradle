@@ -1,0 +1,13 @@
+plugins {
+	id 'io.spring.convention.docs'
+	id 'java'
+}
+
+version = '1.0.0.BUILD-SNAPSHOT'
+
+asciidoctorj {
+	attributes \
+		'build-gradle': project.buildFile,
+		'sourcedir': project.sourceSets.main.java.srcDirs[0],
+		'endpoint-url': 'https://example.org'
+}

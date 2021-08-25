@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.util.matcher;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -37,7 +37,7 @@ public class IpAddressMatcherTests {
 
 	MockHttpServletRequest ipv6Request = new MockHttpServletRequest();
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.ipv6Request.setRemoteAddr("fe80::21f:5bff:fe33:bd68");
 		this.ipv4Request.setRemoteAddr("192.168.1.104");

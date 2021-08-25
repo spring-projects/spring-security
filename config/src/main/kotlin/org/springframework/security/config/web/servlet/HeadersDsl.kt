@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,6 +161,7 @@ class HeadersDsl {
      *
      * @param policyDirectives policyDirectives the security policy directive(s)
      */
+    @Deprecated("Use 'permissionsPolicy { }' instead.")
     fun featurePolicy(policyDirectives: String) {
         this.featurePolicyDirectives = policyDirectives
     }
@@ -174,7 +175,7 @@ class HeadersDsl {
      * header in the response using the supplied policy directive(s).
      * <p>
      *
-     * @param policyDirectives policyDirectives the security policy directive(s)
+     * @param permissionsPolicyConfig the customization to apply to the header
      */
     fun permissionsPolicy(permissionsPolicyConfig: PermissionsPolicyDsl.() -> Unit) {
         this.permissionsPolicy = PermissionsPolicyDsl().apply(permissionsPolicyConfig).get()
@@ -199,6 +200,7 @@ class HeadersDsl {
         disabled = true
     }
 
+    @Suppress("DEPRECATION")
     internal fun get(): (HeadersConfigurer<HttpSecurity>) -> Unit {
         return { headers ->
             defaultsDisabled?.also {

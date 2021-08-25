@@ -18,8 +18,8 @@ package org.springframework.security.authentication;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.GrantedAuthority;
@@ -42,7 +42,7 @@ public class AbstractAuthenticationTokenTests {
 
 	private List<GrantedAuthority> authorities = null;
 
-	@Before
+	@BeforeEach
 	public final void setUp() {
 		this.authorities = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 	}

@@ -18,8 +18,8 @@ package org.springframework.security.oauth2.server.resource.web;
 
 import java.util.Base64;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -40,7 +40,7 @@ public class DefaultBearerTokenResolverTests {
 
 	private DefaultBearerTokenResolver resolver;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.resolver = new DefaultBearerTokenResolver();
 	}

@@ -19,11 +19,11 @@ package org.springframework.security.messaging.web.csrf;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -37,7 +37,7 @@ import org.springframework.security.web.csrf.MissingCsrfTokenException;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CsrfChannelInterceptorTests {
 
 	@Mock
@@ -49,7 +49,7 @@ public class CsrfChannelInterceptorTests {
 
 	CsrfChannelInterceptor interceptor;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.token = new DefaultCsrfToken("header", "param", "token");
 		this.interceptor = new CsrfChannelInterceptor();

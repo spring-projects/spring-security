@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,14 @@ import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -111,15 +112,15 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 			// @formatter:off
 			assertThat(authority.getAttributes())
 					.isNotNull()
-					.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
-					.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE,
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.ACTIVE, true)
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.AUD,
 							Arrays.asList("https://protected.example.net/resource"))
-					.containsEntry(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
-					.containsEntry(OAuth2IntrospectionClaimNames.EXPIRES_AT, Instant.ofEpochSecond(1419356238))
-					.containsEntry(OAuth2IntrospectionClaimNames.ISSUER, new URL("https://server.example.com/"))
-					.containsEntry(OAuth2IntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"))
-					.containsEntry(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis")
-					.containsEntry(OAuth2IntrospectionClaimNames.USERNAME, "jdoe")
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.EXP, Instant.ofEpochSecond(1419356238))
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.ISS, new URL("https://server.example.com/"))
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"))
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.SUB, "Z5O3upPC88QrAjx00dis")
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.USERNAME, "jdoe")
 					.containsEntry("extension_field", "twenty-seven");
 			// @formatter:on
 		}
@@ -151,9 +152,9 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 	@Test
 	public void authenticateWhenActiveTokenThenParsesValuesInResponse() {
 		Map<String, Object> introspectedValues = new HashMap<>();
-		introspectedValues.put(OAuth2IntrospectionClaimNames.ACTIVE, true);
-		introspectedValues.put(OAuth2IntrospectionClaimNames.AUDIENCE, Arrays.asList("aud"));
-		introspectedValues.put(OAuth2IntrospectionClaimNames.NOT_BEFORE, 29348723984L);
+		introspectedValues.put(OAuth2TokenIntrospectionClaimNames.ACTIVE, true);
+		introspectedValues.put(OAuth2TokenIntrospectionClaimNames.AUD, Arrays.asList("aud"));
+		introspectedValues.put(OAuth2TokenIntrospectionClaimNames.NBF, 29348723984L);
 		WebClient webClient = mockResponse(new JSONObject(introspectedValues).toJSONString());
 		NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
 				INTROSPECTION_URL, webClient);
@@ -161,11 +162,11 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		// @formatter:off
 		assertThat(authority.getAttributes())
 				.isNotNull()
-				.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
-				.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE, Arrays.asList("aud"))
-				.containsEntry(OAuth2IntrospectionClaimNames.NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
-				.doesNotContainKey(OAuth2IntrospectionClaimNames.CLIENT_ID)
-				.doesNotContainKey(OAuth2IntrospectionClaimNames.SCOPE);
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.ACTIVE, true)
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.AUD, Arrays.asList("aud"))
+				.containsEntry(OAuth2TokenIntrospectionClaimNames.NBF, Instant.ofEpochSecond(29348723984L))
+				.doesNotContainKey(OAuth2TokenIntrospectionClaimNames.CLIENT_ID)
+				.doesNotContainKey(OAuth2TokenIntrospectionClaimNames.SCOPE);
 		// @formatter:on
 	}
 
@@ -244,7 +245,7 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		given(clientResponse.statusCode()).willReturn(HttpStatus.OK);
 		given(clientResponse.bodyToMono(String.class)).willReturn(Mono.just(response));
 		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);
-		given(headers.contentType()).willReturn(Optional.of(MediaType.APPLICATION_JSON_UTF8));
+		given(headers.contentType()).willReturn(Optional.of(MediaType.APPLICATION_JSON));
 		given(clientResponse.headers()).willReturn(headers);
 		given(spec.exchange()).willReturn(Mono.just(clientResponse));
 		return webClient;

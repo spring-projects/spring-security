@@ -18,8 +18,8 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -33,7 +33,7 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 
 	private ConcreteAbstractRequestMatcherMappingConfigurer registry;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.registry = new ConcreteAbstractRequestMatcherMappingConfigurer();
 	}

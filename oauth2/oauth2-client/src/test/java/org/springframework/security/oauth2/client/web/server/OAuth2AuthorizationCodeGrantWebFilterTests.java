@@ -22,11 +22,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -63,7 +63,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  * @author Parikshit Dutta
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OAuth2AuthorizationCodeGrantWebFilterTests {
 
 	private OAuth2AuthorizationCodeGrantWebFilter filter;
@@ -80,7 +80,7 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 	@Mock
 	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.filter = new OAuth2AuthorizationCodeGrantWebFilter(this.authenticationManager,
 				this.clientRegistrationRepository, this.authorizedClientRepository);

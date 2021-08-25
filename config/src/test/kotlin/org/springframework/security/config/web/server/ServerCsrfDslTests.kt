@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,24 @@
 
 package org.springframework.security.config.web.server
 
-import org.junit.Rule
-import org.junit.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.verify
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
-import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.test.SpringTestContext
+import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler
 import org.springframework.security.web.server.csrf.CsrfToken
 import org.springframework.security.web.server.csrf.DefaultCsrfToken
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository
+import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.bind.annotation.PostMapping
@@ -46,10 +47,10 @@ import reactor.core.publisher.Mono
  *
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension::class)
 class ServerCsrfDslTests {
-    @Rule
     @JvmField
-    val spring = SpringTestRule()
+    val spring = SpringTestContext(this)
 
     private val token: CsrfToken = DefaultCsrfToken("csrf", "CSRF", "a")
 
@@ -161,20 +162,20 @@ class ServerCsrfDslTests {
     @Test
     fun `csrf when custom access denied handler then handler used`() {
         this.spring.register(CustomAccessDeniedHandlerConfig::class.java).autowire()
+        mockkObject(CustomAccessDeniedHandlerConfig.ACCESS_DENIED_HANDLER)
 
         this.client.post()
                 .uri("/")
                 .exchange()
 
-        Mockito.verify(CustomAccessDeniedHandlerConfig.ACCESS_DENIED_HANDLER)
-                .handle(any(), any())
+        verify(exactly = 1) { CustomAccessDeniedHandlerConfig.ACCESS_DENIED_HANDLER.handle(any(), any()) }
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomAccessDeniedHandlerConfig {
         companion object {
-            var ACCESS_DENIED_HANDLER: ServerAccessDeniedHandler = mock(ServerAccessDeniedHandler::class.java)
+            val ACCESS_DENIED_HANDLER: ServerAccessDeniedHandler = ServerAccessDeniedHandler { _, _ -> Mono.empty() }
         }
 
         @Bean
@@ -189,23 +190,24 @@ class ServerCsrfDslTests {
 
     @Test
     fun `csrf when custom token repository then repository used`() {
-        `when`(CustomCsrfTokenRepositoryConfig.TOKEN_REPOSITORY.loadToken(any()))
-                .thenReturn(Mono.just(this.token))
         this.spring.register(CustomCsrfTokenRepositoryConfig::class.java).autowire()
+        mockkObject(CustomCsrfTokenRepositoryConfig.TOKEN_REPOSITORY)
+        every {
+            CustomCsrfTokenRepositoryConfig.TOKEN_REPOSITORY.loadToken(any())
+        } returns Mono.just(this.token)
 
         this.client.post()
                 .uri("/")
                 .exchange()
 
-        Mockito.verify(CustomCsrfTokenRepositoryConfig.TOKEN_REPOSITORY)
-                .loadToken(any())
+        verify(exactly = 1) { CustomCsrfTokenRepositoryConfig.TOKEN_REPOSITORY.loadToken(any()) }
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomCsrfTokenRepositoryConfig {
         companion object {
-            var TOKEN_REPOSITORY: ServerCsrfTokenRepository = mock(ServerCsrfTokenRepository::class.java)
+            val TOKEN_REPOSITORY: ServerCsrfTokenRepository = WebSessionServerCsrfTokenRepository()
         }
 
         @Bean
@@ -220,11 +222,14 @@ class ServerCsrfDslTests {
 
     @Test
     fun `csrf when multipart form data and not enabled then denied`() {
-        `when`(MultipartFormDataNotEnabledConfig.TOKEN_REPOSITORY.loadToken(any()))
-                .thenReturn(Mono.just(this.token))
-        `when`(MultipartFormDataNotEnabledConfig.TOKEN_REPOSITORY.generateToken(any()))
-                .thenReturn(Mono.just(this.token))
         this.spring.register(MultipartFormDataNotEnabledConfig::class.java).autowire()
+        mockkObject(MultipartFormDataNotEnabledConfig.TOKEN_REPOSITORY)
+        every {
+            MultipartFormDataNotEnabledConfig.TOKEN_REPOSITORY.loadToken(any())
+        } returns Mono.just(this.token)
+        every {
+            MultipartFormDataNotEnabledConfig.TOKEN_REPOSITORY.generateToken(any())
+        } returns Mono.just(this.token)
 
         this.client.post()
                 .uri("/")
@@ -238,7 +243,7 @@ class ServerCsrfDslTests {
     @EnableWebFlux
     open class MultipartFormDataNotEnabledConfig {
         companion object {
-            var TOKEN_REPOSITORY: ServerCsrfTokenRepository = mock(ServerCsrfTokenRepository::class.java)
+            val TOKEN_REPOSITORY: ServerCsrfTokenRepository = WebSessionServerCsrfTokenRepository()
         }
 
         @Bean
@@ -253,11 +258,14 @@ class ServerCsrfDslTests {
 
     @Test
     fun `csrf when multipart form data and enabled then granted`() {
-        `when`(MultipartFormDataEnabledConfig.TOKEN_REPOSITORY.loadToken(any()))
-                .thenReturn(Mono.just(this.token))
-        `when`(MultipartFormDataEnabledConfig.TOKEN_REPOSITORY.generateToken(any()))
-                .thenReturn(Mono.just(this.token))
         this.spring.register(MultipartFormDataEnabledConfig::class.java).autowire()
+        mockkObject(MultipartFormDataEnabledConfig.TOKEN_REPOSITORY)
+        every {
+            MultipartFormDataEnabledConfig.TOKEN_REPOSITORY.loadToken(any())
+        } returns Mono.just(this.token)
+        every {
+            MultipartFormDataEnabledConfig.TOKEN_REPOSITORY.generateToken(any())
+        } returns Mono.just(this.token)
 
         this.client.post()
                 .uri("/")
@@ -271,7 +279,7 @@ class ServerCsrfDslTests {
     @EnableWebFlux
     open class MultipartFormDataEnabledConfig {
         companion object {
-            var TOKEN_REPOSITORY: ServerCsrfTokenRepository = mock(ServerCsrfTokenRepository::class.java)
+            val TOKEN_REPOSITORY: ServerCsrfTokenRepository = WebSessionServerCsrfTokenRepository()
         }
 
         @Bean

@@ -16,32 +16,43 @@
 
 package org.springframework.security.config.web.servlet
 
-import org.junit.Rule
-import org.junit.Test
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.verify
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider
-import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.test.SpringTestContext
+import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
+import javax.servlet.http.HttpServletRequest
 
 /**
  * Tests for [OAuth2LoginDsl]
  *
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension::class)
 class OAuth2LoginDslTests {
-    @Rule
     @JvmField
-    val spring = SpringTestRule()
+    val spring = SpringTestContext(this)
 
     @Autowired
     lateinit var mockMvc: MockMvc
@@ -109,6 +120,58 @@ class OAuth2LoginDslTests {
         class LoginController {
             @GetMapping("/custom-login")
             fun loginPage() { }
+        }
+    }
+
+    @Test
+    fun `oauth2Login when custom authentication details source then used`() {
+        this.spring
+            .register(CustomAuthenticationDetailsSourceConfig::class.java, ClientConfig::class.java)
+            .autowire()
+        mockkObject(CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE)
+        every {
+            CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE.buildDetails(any())
+        } returns Any()
+        mockkObject(CustomAuthenticationDetailsSourceConfig.AUTHORIZATION_REQUEST_REPOSITORY)
+        every {
+            CustomAuthenticationDetailsSourceConfig.AUTHORIZATION_REQUEST_REPOSITORY.removeAuthorizationRequest(any(), any())
+        } returns OAuth2AuthorizationRequest.authorizationCode()
+            .authorizationUri("/")
+            .clientId("clientId")
+            .redirectUri("/")
+            .attributes { attributes -> attributes[OAuth2ParameterNames.REGISTRATION_ID] = "google" }
+            .build()
+
+        this.mockMvc.post("/login/oauth2/code/google") {
+            param(OAuth2ParameterNames.CODE, "code")
+            param(OAuth2ParameterNames.STATE, "state")
+            with(csrf())
+        }
+        .andExpect {
+            status { is3xxRedirection() }
+        }
+
+        verify(exactly = 1) { CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE.buildDetails(any()) }
+    }
+
+    @EnableWebSecurity
+    open class CustomAuthenticationDetailsSourceConfig : WebSecurityConfigurerAdapter() {
+
+        companion object {
+            val AUTHENTICATION_DETAILS_SOURCE: AuthenticationDetailsSource<HttpServletRequest, *> =
+                AuthenticationDetailsSource<HttpServletRequest, Any> { Any() }
+            val AUTHORIZATION_REQUEST_REPOSITORY = HttpSessionOAuth2AuthorizationRequestRepository()
+        }
+
+        override fun configure(http: HttpSecurity) {
+            http {
+                oauth2Login {
+                    authenticationDetailsSource = AUTHENTICATION_DETAILS_SOURCE
+                    authorizationEndpoint {
+                        authorizationRequestRepository = AUTHORIZATION_REQUEST_REPOSITORY
+                    }
+                }
+            }
         }
     }
 

@@ -18,8 +18,8 @@ package org.springframework.security.config.ldap;
 
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
@@ -47,7 +47,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
 	private InMemoryXmlApplicationContext appCtx;
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		if (this.appCtx != null) {
 			this.appCtx.close();

@@ -19,7 +19,7 @@ package org.springframework.security.util;
 import java.io.Serializable;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.security.access.annotation.BusinessServiceImpl;

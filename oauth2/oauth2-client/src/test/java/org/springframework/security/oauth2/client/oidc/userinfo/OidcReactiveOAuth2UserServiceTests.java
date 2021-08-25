@@ -24,11 +24,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
@@ -65,7 +65,7 @@ import static org.mockito.Mockito.verify;
  * @author Rob Winch
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OidcReactiveOAuth2UserServiceTests {
 
 	@Mock
@@ -81,7 +81,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 
 	private OidcReactiveOAuth2UserService userService = new OidcReactiveOAuth2UserService();
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.userService.setOauth2UserService(this.oauth2UserService);
 	}

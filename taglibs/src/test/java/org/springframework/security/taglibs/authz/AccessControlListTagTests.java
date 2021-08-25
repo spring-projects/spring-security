@@ -22,9 +22,9 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.tagext.Tag;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -58,7 +58,7 @@ public class AccessControlListTagTests {
 
 	Authentication bob = new TestingAuthenticationToken("bob", "bobspass", "A");
 
-	@Before
+	@BeforeEach
 	@SuppressWarnings("rawtypes")
 	public void setup() {
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
@@ -74,7 +74,7 @@ public class AccessControlListTagTests {
 		this.tag.setPageContext(this.pageContext);
 	}
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}

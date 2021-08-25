@@ -19,14 +19,15 @@ package org.springframework.security.config.annotation.web.configuration;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,10 +37,10 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Joe Grandja
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class Sec2515Tests {
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	// SEC-2515
 	@Test

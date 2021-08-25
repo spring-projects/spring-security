@@ -21,13 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import reactor.core.publisher.Mono;
 
@@ -63,7 +63,7 @@ import static org.mockito.Mockito.mock;
  * @author Rob Winch
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OAuth2LoginReactiveAuthenticationManagerTests {
 
 	@Mock
@@ -82,7 +82,7 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 
 	private OAuth2LoginReactiveAuthenticationManager manager;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.manager = new OAuth2LoginReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService);
 	}
@@ -116,7 +116,7 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void authenticationWhenOidcThenEmpty() {
 		this.registration.scope("openid");
 		assertThat(this.manager.authenticate(loginToken()).block()).isNull();

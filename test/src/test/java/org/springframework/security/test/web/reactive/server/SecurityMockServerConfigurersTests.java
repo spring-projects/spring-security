@@ -18,7 +18,7 @@ package org.springframework.security.test.web.reactive.server;
 
 import java.security.Principal;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

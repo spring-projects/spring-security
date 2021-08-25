@@ -16,8 +16,8 @@
 
 package org.springframework.security.access.expression;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -38,7 +38,7 @@ public class SecurityExpressionRootTests {
 
 	SecurityExpressionRoot root;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.root = new SecurityExpressionRoot(JOE) {
 		};

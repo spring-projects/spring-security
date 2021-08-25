@@ -24,12 +24,12 @@ import io.rsocket.Payload;
 import io.rsocket.RSocket;
 import io.rsocket.SocketAcceptor;
 import io.rsocket.metadata.WellKnownMimeType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.MediaType;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Rob Winch
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PayloadSocketAcceptorInterceptorTests {
 
 	@Mock
@@ -67,7 +67,7 @@ public class PayloadSocketAcceptorInterceptorTests {
 
 	private PayloadSocketAcceptorInterceptor acceptorInterceptor;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.interceptors = Arrays.asList(this.interceptor);
 		this.acceptorInterceptor = new PayloadSocketAcceptorInterceptor(this.interceptors);

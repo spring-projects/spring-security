@@ -19,8 +19,8 @@ package org.springframework.security.oauth2.client;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -79,7 +79,7 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 	private PublisherProbe<Void> removeAuthorizedClientProbe;
 
 	@SuppressWarnings("unchecked")
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.clientRegistrationRepository = mock(ReactiveClientRegistrationRepository.class);
 		this.authorizedClientService = mock(ReactiveOAuth2AuthorizedClientService.class);

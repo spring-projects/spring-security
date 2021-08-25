@@ -1,0 +1,2 @@
+apply plugin: 'io.spring.convention.tests-configuration'
+apply plugin: 'java' // second to test ordering

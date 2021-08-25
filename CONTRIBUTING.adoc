@@ -4,7 +4,7 @@ _Please refer back to this document as a checklist before issuing any pull reque
 
 = Code of Conduct
 
-Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CONDUCT.md[code of conduct].
+Please see our https://github.com/spring-projects/.github/blob/main/CODE_OF_CONDUCT.md[code of conduct].
 
 = Similar but different
 
@@ -43,9 +43,9 @@ If you're considering anything more than correcting a typo or fixing a minor bug
 
 If you have not previously done so, please fill out and submit the https://cla.pivotal.io/sign/spring[Contributor License Agreement].
 
-= Create your branch from master
+= Create your branch from main
 
-Create your topic branch to be submitted as a pull request from master. The Spring team will consider your pull request for backporting on a case-by-case basis; you don't need to worry about submitting anything for backporting.
+Create your topic branch to be submitted as a pull request from main. The Spring team will consider your pull request for backporting on a case-by-case basis; you don't need to worry about submitting anything for backporting.
 
 = Use short branch names
 

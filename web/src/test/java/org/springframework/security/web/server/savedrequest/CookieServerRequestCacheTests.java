@@ -19,7 +19,7 @@ package org.springframework.security.web.server.savedrequest;
 import java.net.URI;
 import java.util.Base64;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpCookie;
 import org.springframework.http.MediaType;

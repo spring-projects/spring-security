@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +27,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
@@ -46,11 +47,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Tests for {@link DefaultLoginPageConfigurer}
@@ -58,10 +62,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Rob Winch
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class DefaultLoginPageConfigurerTests {
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	MockMvc mvc;
@@ -375,6 +379,18 @@ public class DefaultLoginPageConfigurerTests {
 						.isZero();
 	}
 
+	@Test
+	public void formLoginWhenLogoutEnabledThenCreatesDefaultLogoutPage() throws Exception {
+		this.spring.register(DefaultLogoutPageConfig.class).autowire();
+		this.mvc.perform(get("/logout").with(user("user"))).andExpect(status().isOk());
+	}
+
+	@Test
+	public void formLoginWhenLogoutDisabledThenDefaultLogoutPageDoesNotExist() throws Exception {
+		this.spring.register(LogoutDisabledConfig.class).autowire();
+		this.mvc.perform(get("/logout").with(user("user"))).andExpect(status().isNotFound());
+	}
+
 	@EnableWebSecurity
 	static class DefaultLoginPageConfig extends WebSecurityConfigurerAdapter {
 
@@ -529,6 +545,41 @@ public class DefaultLoginPageConfigurerTests {
 		@Bean
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DefaultLogoutPageConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests((authorize) -> authorize
+					.anyRequest().authenticated()
+				)
+				.formLogin(withDefaults());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class LogoutDisabledConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeRequests((authorize) -> authorize
+							.anyRequest().authenticated()
+					)
+					.formLogin(withDefaults())
+					.logout((logout) -> logout
+							.disable()
+					);
+			// @formatter:on
 		}
 
 	}

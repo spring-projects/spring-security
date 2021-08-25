@@ -21,11 +21,11 @@ import java.util.Map;
 
 import io.rsocket.Payload;
 import io.rsocket.metadata.WellKnownMimeType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.MediaType;
 import org.springframework.messaging.rsocket.MetadataExtractor;
@@ -43,7 +43,7 @@ import static org.mockito.BDDMockito.given;
 /**
  * @author Rob Winch
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RoutePayloadExchangeMatcherTests {
 
 	static final MimeType COMPOSITE_METADATA = MimeTypeUtils
@@ -67,7 +67,7 @@ public class RoutePayloadExchangeMatcherTests {
 
 	private RoutePayloadExchangeMatcher matcher;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.pattern = "a.b";
 		this.matcher = new RoutePayloadExchangeMatcher(this.metadataExtractor, this.routeMatcher, this.pattern);

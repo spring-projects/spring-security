@@ -22,10 +22,10 @@ import java.util.Collections;
 
 import javax.servlet.ServletException;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -46,7 +46,7 @@ import static org.mockito.Mockito.mock;
 /**
  * Tests for {@link OidcClientInitiatedLogoutSuccessHandler}
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OidcClientInitiatedLogoutSuccessHandlerTests {
 
 	// @formatter:off
@@ -64,7 +64,7 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 
 	OidcClientInitiatedLogoutSuccessHandler handler;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
@@ -136,6 +136,19 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 		this.handler.onLogoutSuccess(this.request, this.response, token);
 		assertThat(this.response.getRedirectedUrl()).isEqualTo(
 				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org");
+	}
+
+	// gh-9511
+	@Test
+	public void logoutWhenUsingPostLogoutRedirectUriWithQueryParametersThenBuildsItForRedirect()
+			throws IOException, ServletException {
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
+		this.handler.setPostLogoutRedirectUri("https://rp.example.org/context?forwardUrl=secured%3Fparam%3Dtrue");
+		this.request.setUserPrincipal(token);
+		this.handler.onLogoutSuccess(this.request, this.response, token);
+		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://endpoint?id_token_hint=id-token&"
+				+ "post_logout_redirect_uri=https://rp.example.org/context?forwardUrl%3Dsecured%253Fparam%253Dtrue");
 	}
 
 	@Test

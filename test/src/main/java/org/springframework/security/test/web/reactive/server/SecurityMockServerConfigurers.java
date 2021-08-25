@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.nimbusds.oauth2.sdk.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import org.springframework.context.ApplicationContext;
@@ -57,6 +56,7 @@ import org.springframework.security.oauth2.client.web.server.WebSessionServerOAu
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -72,7 +72,6 @@ import org.springframework.security.oauth2.server.resource.authentication.Bearer
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -82,6 +81,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolver;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerAdapter;
@@ -648,14 +648,14 @@ public final class SecurityMockServerConfigurers {
 
 		private Map<String, Object> defaultAttributes() {
 			Map<String, Object> attributes = new HashMap<>();
-			attributes.put(OAuth2IntrospectionClaimNames.SUBJECT, "user");
-			attributes.put(OAuth2IntrospectionClaimNames.SCOPE, "read");
+			attributes.put(OAuth2TokenIntrospectionClaimNames.SUB, "user");
+			attributes.put(OAuth2TokenIntrospectionClaimNames.SCOPE, "read");
 			return attributes;
 		}
 
 		private Collection<GrantedAuthority> defaultAuthorities() {
 			Map<String, Object> attributes = this.attributes.get();
-			Object scope = attributes.get(OAuth2IntrospectionClaimNames.SCOPE);
+			Object scope = attributes.get(OAuth2TokenIntrospectionClaimNames.SCOPE);
 			if (scope == null) {
 				return Collections.emptyList();
 			}
@@ -663,7 +663,7 @@ public final class SecurityMockServerConfigurers {
 				return getAuthorities((Collection) scope);
 			}
 			String scopes = scope.toString();
-			if (StringUtils.isBlank(scopes)) {
+			if (!StringUtils.hasText(scopes)) {
 				return Collections.emptyList();
 			}
 			return getAuthorities(Arrays.asList(scopes.split(" ")));

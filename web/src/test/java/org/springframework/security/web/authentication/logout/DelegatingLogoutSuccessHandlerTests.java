@@ -20,11 +20,11 @@ import java.util.LinkedHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Shazin Sadakath
  * @author Rob Winch
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DelegatingLogoutSuccessHandlerTests {
 
 	@Mock
@@ -69,7 +69,7 @@ public class DelegatingLogoutSuccessHandlerTests {
 
 	DelegatingLogoutSuccessHandler delegatingHandler;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		LinkedHashMap<RequestMatcher, LogoutSuccessHandler> matcherToHandler = new LinkedHashMap<>();
 		matcherToHandler.put(this.matcher, this.handler);

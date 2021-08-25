@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.server
 
+import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
@@ -57,9 +58,12 @@ operator fun ServerHttpSecurity.invoke(httpConfiguration: ServerHttpSecurityDsl.
  * @author Eleftheria Stein
  * @since 5.4
  * @param init the configurations to apply to the provided [ServerHttpSecurity]
+ * @property authenticationManager the default [ReactiveAuthenticationManager] to use
  */
 @ServerSecurityMarker
 class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val init: ServerHttpSecurityDsl.() -> Unit) {
+
+    var authenticationManager: ReactiveAuthenticationManager? = null
 
     /**
      * Allows configuring the [ServerHttpSecurity] to only be invoked when matching the
@@ -249,6 +253,36 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
     fun httpBasic(httpBasicConfiguration: ServerHttpBasicDsl.() -> Unit) {
         val httpBasicCustomizer = ServerHttpBasicDsl().apply(httpBasicConfiguration).get()
         this.http.httpBasic(httpBasicCustomizer)
+    }
+
+    /**
+     * Enables password management.
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebFluxSecurity
+     * class SecurityConfig {
+     *
+     *  @Bean
+     *  fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+     *      return http {
+     *          passwordManagement {
+     *              changePasswordPage = "/custom-change-password-page"
+     *          }
+     *       }
+     *   }
+     * }
+     * ```
+     *
+     * @param passwordManagementConfiguration custom configuration to be applied to the
+     * password management
+     * @see [ServerPasswordManagementDsl]
+     * @since 5.6
+     */
+    fun passwordManagement(passwordManagementConfiguration: ServerPasswordManagementDsl.() -> Unit) {
+        val passwordManagementCustomizer = ServerPasswordManagementDsl().apply(passwordManagementConfiguration).get()
+        this.http.passwordManagement(passwordManagementCustomizer)
     }
 
     /**
@@ -600,6 +634,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      */
     internal fun build(): SecurityWebFilterChain {
         init()
+        authenticationManager?.also { this.http.authenticationManager(authenticationManager) }
         return this.http.build()
     }
 }

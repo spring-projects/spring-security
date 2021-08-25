@@ -21,11 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.PopulatedDatabase;
@@ -71,18 +71,18 @@ public class JdbcUserDetailsManagerTests {
 
 	private JdbcTemplate template;
 
-	@BeforeClass
+	@BeforeAll
 	public static void createDataSource() {
 		dataSource = new TestDataSource("jdbcusermgrtest");
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void clearDataSource() throws Exception {
 		dataSource.destroy();
 		dataSource = null;
 	}
 
-	@Before
+	@BeforeEach
 	public void initializeManagerAndCreateTables() {
 		this.manager = new JdbcUserDetailsManager();
 		this.cache = new MockUserCache();
@@ -106,7 +106,7 @@ public class JdbcUserDetailsManagerTests {
 		PopulatedDatabase.insertGroupData(this.template);
 	}
 
-	@After
+	@AfterEach
 	public void dropTablesAndClearContext() {
 		this.template.execute("drop table authorities");
 		this.template.execute("drop table users");

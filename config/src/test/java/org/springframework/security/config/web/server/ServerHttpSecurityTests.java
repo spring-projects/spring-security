@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,15 +23,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.http.HttpHeaders;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.publisher.TestPublisher;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
@@ -45,9 +46,11 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2Authorization
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilterTests;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authentication.ServerX509AuthenticationConverter;
 import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
@@ -85,7 +88,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
  * @author Eddú Meléndez
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ServerHttpSecurityTests {
 
 	@Mock
@@ -99,7 +102,7 @@ public class ServerHttpSecurityTests {
 
 	private ServerHttpSecurity http;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.http = ServerHttpSecurityConfigurationBuilder.http().authenticationManager(this.authenticationManager);
 	}
@@ -182,6 +185,25 @@ public class ServerHttpSecurityTests {
 				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
 				.expectBody().isEmpty();
 		// @formatter:on
+	}
+
+	@Test
+	public void basicWhenXHRRequestThenUnauthorized() {
+		ServerAuthenticationEntryPoint authenticationEntryPoint = spy(
+				new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED));
+		this.http.httpBasic().authenticationEntryPoint(authenticationEntryPoint);
+		this.http.authorizeExchange().anyExchange().authenticated();
+		WebTestClient client = buildClient();
+		// @formatter:off
+		client.get().uri("/")
+				.header("X-Requested-With", "XMLHttpRequest")
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectHeader().doesNotExist("WWW-Authenticate")
+				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
+				.expectBody().isEmpty();
+		// @formatter:on
+		verify(authenticationEntryPoint).commence(any(), any());
 	}
 
 	@Test

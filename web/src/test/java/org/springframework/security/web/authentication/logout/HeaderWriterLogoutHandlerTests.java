@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.authentication.logout;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -39,7 +39,7 @@ public class HeaderWriterLogoutHandlerTests {
 
 	private MockHttpServletRequest request;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.response = new MockHttpServletResponse();
 		this.request = new MockHttpServletRequest();

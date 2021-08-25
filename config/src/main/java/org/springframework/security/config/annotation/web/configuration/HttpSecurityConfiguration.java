@@ -94,8 +94,8 @@ class HttpSecurityConfiguration {
 			.requestCache(withDefaults())
 			.anonymous(withDefaults())
 			.servletApi(withDefaults())
-			.logout(withDefaults())
 			.apply(new DefaultLoginPageConfigurer<>());
+		http.logout(withDefaults());
 		// @formatter:on
 		return http;
 	}

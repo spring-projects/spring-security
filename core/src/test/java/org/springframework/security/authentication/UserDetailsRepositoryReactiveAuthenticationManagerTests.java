@@ -16,11 +16,11 @@
 
 package org.springframework.security.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Eddú Meléndez
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 	@Mock
@@ -75,13 +75,9 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	// @formatter:on
 	private UserDetailsRepositoryReactiveAuthenticationManager manager;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.manager = new UserDetailsRepositoryReactiveAuthenticationManager(this.userDetailsService);
-		given(this.scheduler.schedule(any())).willAnswer((a) -> {
-			Runnable r = a.getArgument(0);
-			return Schedulers.immediate().schedule(r);
-		});
 	}
 
 	@Test
@@ -91,6 +87,10 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authentiateWhenCustomSchedulerThenUsed() {
+		given(this.scheduler.schedule(any())).willAnswer((a) -> {
+			Runnable r = a.getArgument(0);
+			return Schedulers.immediate().schedule(r);
+		});
 		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(this.user));
 		given(this.encoder.matches(any(), any())).willReturn(true);
 		this.manager.setScheduler(this.scheduler);

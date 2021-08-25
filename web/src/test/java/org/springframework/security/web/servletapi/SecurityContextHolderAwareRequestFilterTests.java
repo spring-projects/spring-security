@@ -25,15 +25,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -48,7 +47,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -69,8 +67,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Rob Winch
  * @author Eddú Meléndez
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(ClassUtils.class)
+@ExtendWith(MockitoExtension.class)
 public class SecurityContextHolderAwareRequestFilterTests {
 
 	@Captor
@@ -98,7 +95,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 
 	private SecurityContextHolderAwareRequestFilter filter;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.logoutHandlers = Arrays.asList(this.logoutHandler);
 		this.filter = new SecurityContextHolderAwareRequestFilter();
@@ -108,7 +105,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		this.filter.afterPropertiesSet();
 	}
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
@@ -176,8 +173,6 @@ public class SecurityContextHolderAwareRequestFilterTests {
 	@Test
 	public void loginWithExistingUser() throws Exception {
 		TestingAuthenticationToken expectedAuth = new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		given(this.authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-				.willReturn(new TestingAuthenticationToken("newuser", "not be found", "ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(expectedAuth);
 		assertThatExceptionOfType(ServletException.class).isThrownBy(
 				() -> wrappedRequest().login(expectedAuth.getName(), String.valueOf(expectedAuth.getCredentials())));

@@ -22,12 +22,12 @@ import java.util.concurrent.ThreadFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.mock.web.MockFilterChain;
@@ -46,7 +46,7 @@ import static org.mockito.BDDMockito.given;
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WebAsyncManagerIntegrationFilterTests {
 
 	@Mock
@@ -69,7 +69,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 
 	private WebAsyncManagerIntegrationFilter filter;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.filterChain = new MockFilterChain();
 		this.threadFactory = new JoinableThreadFactory();
@@ -82,7 +82,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 		this.filter = new WebAsyncManagerIntegrationFilter();
 	}
 
-	@After
+	@AfterEach
 	public void clearSecurityContext() {
 		SecurityContextHolder.clearContext();
 	}

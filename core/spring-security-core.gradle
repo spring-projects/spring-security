@@ -2,21 +2,14 @@ import java.util.concurrent.Callable
 
 apply plugin: 'io.spring.convention.spring-module'
 
-def includeProject = project(':spring-security-crypto')
-
-configurations {
-	included
-	compile.extendsFrom included
-}
-
 dependencies {
-	compile 'org.springframework:spring-aop'
-	compile 'org.springframework:spring-beans'
-	compile 'org.springframework:spring-context'
-	compile 'org.springframework:spring-core'
-	compile 'org.springframework:spring-expression'
-
-	included includeProject
+	management platform(project(":spring-security-dependencies"))
+	api project(':spring-security-crypto')
+	api 'org.springframework:spring-aop'
+	api 'org.springframework:spring-beans'
+	api 'org.springframework:spring-context'
+	api 'org.springframework:spring-core'
+	api 'org.springframework:spring-expression'
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'io.projectreactor:reactor-core'
@@ -25,15 +18,23 @@ dependencies {
 	optional 'org.aspectj:aspectjrt'
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
+	optional 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
 
-	testCompile powerMock2Dependencies
-	testCompile 'commons-collections:commons-collections'
-	testCompile 'io.projectreactor:reactor-test'
-	testCompile 'org.skyscreamer:jsonassert'
-	testCompile 'org.slf4j:jcl-over-slf4j'
-	testCompile 'org.springframework:spring-test'
+	testImplementation 'commons-collections:commons-collections'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.junit.jupiter:junit-jupiter-params"
+	testImplementation "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation 'org.mockito:mockito-inline'
+	testImplementation "org.mockito:mockito-junit-jupiter"
+	testImplementation "org.springframework:spring-test"
+	testImplementation 'org.skyscreamer:jsonassert'
+	testImplementation 'org.slf4j:jcl-over-slf4j'
+	testImplementation 'org.springframework:spring-test'
 
-	testRuntime 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
 
 task springVersion(type: org.gradle.api.tasks.WriteProperties) {
@@ -47,10 +48,6 @@ tasks.processResources {
 	}
 }
 
-tasks.jar.from { includeProject.sourceSets.main.output }
-
-tasks.sourcesJar.from {includeProject.sourceSets.main.java}
-
 configure(project.tasks.withType(Test)) {
 	doFirst {
 		systemProperties['springSecurityVersion'] = version
@@ -59,6 +56,6 @@ configure(project.tasks.withType(Test)) {
 }
 
 Callable<String> springVersion() {
-	return  (Callable<String>) { project.configurations.compile.resolvedConfiguration.resolvedArtifacts
+	return  (Callable<String>) { project.configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts
     .find { it.name == 'spring-core' }.moduleVersion.id.version }
 }

@@ -16,9 +16,9 @@
 
 package org.springframework.security.intercept.method.aopalliance;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.security.ITargetObject;
@@ -70,12 +70,12 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 
 	private AbstractXmlApplicationContext appContext;
 
-	@Before
+	@BeforeEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		SecurityContextHolder.clearContext();
 		if (this.appContext != null) {

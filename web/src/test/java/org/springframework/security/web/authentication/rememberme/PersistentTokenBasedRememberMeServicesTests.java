@@ -21,8 +21,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -41,7 +41,7 @@ public class PersistentTokenBasedRememberMeServicesTests {
 
 	private MockTokenRepository repo;
 
-	@Before
+	@BeforeEach
 	public void setUpData() throws Exception {
 		this.services = new PersistentTokenBasedRememberMeServices("key",
 				new AbstractRememberMeServicesTests.MockUserDetailsService(AbstractRememberMeServicesTests.joe, false),

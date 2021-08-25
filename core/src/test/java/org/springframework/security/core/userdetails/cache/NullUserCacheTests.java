@@ -16,7 +16,7 @@
 
 package org.springframework.security.core.userdetails.cache;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;

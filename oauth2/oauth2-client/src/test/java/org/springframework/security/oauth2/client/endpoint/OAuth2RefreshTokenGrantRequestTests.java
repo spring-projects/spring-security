@@ -20,8 +20,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -46,7 +46,7 @@ public class OAuth2RefreshTokenGrantRequestTests {
 
 	private OAuth2RefreshToken refreshToken;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.accessToken = TestOAuth2AccessTokens.scopes("read", "write");

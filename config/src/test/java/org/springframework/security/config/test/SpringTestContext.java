@@ -56,6 +56,10 @@ public class SpringTestContext implements Closeable {
 
 	private List<Filter> filters = new ArrayList<>();
 
+	public SpringTestContext(Object test) {
+		setTest(test);
+	}
+
 	public void setTest(Object test) {
 		this.test = test;
 	}

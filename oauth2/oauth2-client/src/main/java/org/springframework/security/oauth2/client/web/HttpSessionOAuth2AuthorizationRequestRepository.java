@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @author Rob Winch
+ * @author Craig Andrews
  * @since 5.0
  * @see AuthorizationRequestRepository
  * @see OAuth2AuthorizationRequest
@@ -44,6 +45,8 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 			.getName() + ".AUTHORIZATION_REQUEST";
 
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
+
+	private boolean allowMultipleAuthorizationRequests;
 
 	@Override
 	public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
@@ -67,9 +70,14 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 		}
 		String state = authorizationRequest.getState();
 		Assert.hasText(state, "authorizationRequest.state cannot be empty");
-		Map<String, OAuth2AuthorizationRequest> authorizationRequests = this.getAuthorizationRequests(request);
-		authorizationRequests.put(state, authorizationRequest);
-		request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
+		if (this.allowMultipleAuthorizationRequests) {
+			Map<String, OAuth2AuthorizationRequest> authorizationRequests = this.getAuthorizationRequests(request);
+			authorizationRequests.put(state, authorizationRequest);
+			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
+		}
+		else {
+			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequest);
+		}
 	}
 
 	@Override
@@ -81,11 +89,15 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 		}
 		Map<String, OAuth2AuthorizationRequest> authorizationRequests = this.getAuthorizationRequests(request);
 		OAuth2AuthorizationRequest originalRequest = authorizationRequests.remove(stateParameter);
-		if (!authorizationRequests.isEmpty()) {
-			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
+		if (authorizationRequests.size() == 0) {
+			request.getSession().removeAttribute(this.sessionAttributeName);
+		}
+		else if (authorizationRequests.size() == 1) {
+			request.getSession().setAttribute(this.sessionAttributeName,
+					authorizationRequests.values().iterator().next());
 		}
 		else {
-			request.getSession().removeAttribute(this.sessionAttributeName);
+			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
 		}
 		return originalRequest;
 	}
@@ -115,12 +127,39 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	 */
 	private Map<String, OAuth2AuthorizationRequest> getAuthorizationRequests(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
-		Map<String, OAuth2AuthorizationRequest> authorizationRequests = (session != null)
-				? (Map<String, OAuth2AuthorizationRequest>) session.getAttribute(this.sessionAttributeName) : null;
-		if (authorizationRequests == null) {
+		Object sessionAttributeValue = (session != null) ? session.getAttribute(this.sessionAttributeName) : null;
+		if (sessionAttributeValue == null) {
 			return new HashMap<>();
 		}
-		return authorizationRequests;
+		else if (sessionAttributeValue instanceof OAuth2AuthorizationRequest) {
+			OAuth2AuthorizationRequest auth2AuthorizationRequest = (OAuth2AuthorizationRequest) sessionAttributeValue;
+			Map<String, OAuth2AuthorizationRequest> authorizationRequests = new HashMap<>(1);
+			authorizationRequests.put(auth2AuthorizationRequest.getState(), auth2AuthorizationRequest);
+			return authorizationRequests;
+		}
+		else if (sessionAttributeValue instanceof Map) {
+			@SuppressWarnings("unchecked")
+			Map<String, OAuth2AuthorizationRequest> authorizationRequests = (Map<String, OAuth2AuthorizationRequest>) sessionAttributeValue;
+			return authorizationRequests;
+		}
+		else {
+			throw new IllegalStateException(
+					"authorizationRequests is supposed to be a Map or OAuth2AuthorizationRequest but actually is a "
+							+ sessionAttributeValue.getClass());
+		}
+	}
+
+	/**
+	 * Configure if multiple {@link OAuth2AuthorizationRequest}s should be stored per
+	 * session. Default is false (not allow multiple {@link OAuth2AuthorizationRequest}
+	 * per session).
+	 * @param allowMultipleAuthorizationRequests true allows more than one
+	 * {@link OAuth2AuthorizationRequest} to be stored per session.
+	 * @since 5.5
+	 */
+	@Deprecated
+	public void setAllowMultipleAuthorizationRequests(boolean allowMultipleAuthorizationRequests) {
+		this.allowMultipleAuthorizationRequests = allowMultipleAuthorizationRequests;
 	}
 
 }

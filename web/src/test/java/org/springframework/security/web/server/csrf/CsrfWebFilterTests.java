@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package org.springframework.security.web.server.csrf;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.test.publisher.PublisherProbe;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Parikshit Dutta
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CsrfWebFilterTests {
 
 	@Mock
@@ -210,6 +210,36 @@ public class CsrfWebFilterTests {
 		client.post().uri("/").contentType(MediaType.MULTIPART_MIXED)
 				.bodyValue(this.token.getParameterName() + "=" + this.token.getToken()).exchange().expectStatus()
 				.isForbidden();
+	}
+
+	// gh-9561
+	@Test
+	public void doFilterWhenTokenIsNullThenNoNullPointer() {
+		this.csrfFilter.setCsrfTokenRepository(this.repository);
+		CsrfToken token = mock(CsrfToken.class);
+		given(token.getToken()).willReturn(null);
+		given(token.getHeaderName()).willReturn(this.token.getHeaderName());
+		given(token.getParameterName()).willReturn(this.token.getParameterName());
+		given(this.repository.loadToken(any())).willReturn(Mono.just(token));
+		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
+		client.post().uri("/").contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.bodyValue(this.token.getParameterName() + "=" + this.token.getToken()).exchange().expectStatus()
+				.isForbidden();
+	}
+
+	// gh-9113
+	@Test
+	public void filterWhenSubscribingCsrfTokenMultipleTimesThenGenerateOnlyOnce() {
+		PublisherProbe<CsrfToken> chainResult = PublisherProbe.empty();
+		this.csrfFilter.setCsrfTokenRepository(this.repository);
+		given(this.repository.loadToken(any())).willReturn(Mono.empty());
+		given(this.repository.generateToken(any())).willReturn(chainResult.mono());
+		given(this.chain.filter(any())).willReturn(Mono.empty());
+		this.csrfFilter.filter(this.get, this.chain).block();
+		Mono<CsrfToken> result = this.get.getAttribute(CsrfToken.class.getName());
+		result.block();
+		result.block();
+		assertThat(chainResult.subscribeCount()).isEqualTo(1);
 	}
 
 	@RestController

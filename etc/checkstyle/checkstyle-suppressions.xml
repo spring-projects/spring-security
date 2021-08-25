@@ -27,6 +27,7 @@
 	<suppress files="OidcParameterNames\.java" checks="InterfaceIsType"/>
 	<suppress files="BearerTokenErrorCodes\.java" checks="InterfaceIsType"/>
 	<suppress files="OAuth2IntrospectionClaimNames\.java" checks="InterfaceIsType"/>
+	<suppress files="OAuth2TokenIntrospectionClaimNames\.java" checks="InterfaceIsType"/>
 	<suppress files="Saml2ErrorCodes\.java" checks="InterfaceIsType"/>
 
 	<!-- Method Visibility that we can't reduce -->
@@ -49,4 +50,5 @@
 	<suppress files="WebSocketMessageBrokerConfigTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="WebSecurityConfigurationTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="WithSecurityContextTestExecutionListenerTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="AbstractOAuth2AuthorizationGrantRequestEntityConverter\.java" checks="SpringMethodVisibility"/>
 </suppressions>

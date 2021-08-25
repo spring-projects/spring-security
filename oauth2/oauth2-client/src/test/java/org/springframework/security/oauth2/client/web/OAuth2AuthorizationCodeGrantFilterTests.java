@@ -26,9 +26,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -95,7 +95,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 
 	private OAuth2AuthorizationCodeGrantFilter filter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.registration1 = TestClientRegistrations.clientRegistration().build();
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1);
@@ -114,7 +114,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		SecurityContextHolder.setContext(securityContext);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		SecurityContextHolder.clearContext();
 	}

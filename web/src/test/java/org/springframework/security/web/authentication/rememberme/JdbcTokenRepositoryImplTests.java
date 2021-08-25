@@ -23,15 +23,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 /**
  * @author Luke Taylor
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class JdbcTokenRepositoryImplTests {
 
 	@Mock
@@ -61,19 +61,19 @@ public class JdbcTokenRepositoryImplTests {
 
 	private JdbcTemplate template;
 
-	@BeforeClass
+	@BeforeAll
 	public static void createDataSource() {
 		dataSource = new SingleConnectionDataSource("jdbc:hsqldb:mem:tokenrepotest", "sa", "", true);
 		dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void clearDataSource() {
 		dataSource.destroy();
 		dataSource = null;
 	}
 
-	@Before
+	@BeforeEach
 	public void populateDatabase() {
 		this.repo = new JdbcTokenRepositoryImpl();
 		ReflectionTestUtils.setField(this.repo, "logger", this.logger);
@@ -84,7 +84,7 @@ public class JdbcTokenRepositoryImplTests {
 				+ "series varchar(100) not null, token varchar(500) not null, last_used timestamp not null)");
 	}
 
-	@After
+	@AfterEach
 	public void clearData() {
 		this.template.execute("drop table persistent_logins");
 	}

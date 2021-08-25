@@ -18,7 +18,7 @@ package org.springframework.security.task;
 
 import java.util.concurrent.Executor;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 
 import org.springframework.core.task.TaskExecutor;
@@ -39,9 +39,9 @@ public class CurrentDelegatingSecurityContextTaskExecutorTests extends AbstractD
 	@Mock
 	private TaskExecutor taskExecutorDelegate;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		currentSecurityContextPowermockSetup();
+		currentSecurityContextSetup();
 	}
 
 	@Override

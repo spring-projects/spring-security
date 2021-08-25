@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -46,7 +46,7 @@ public class OAuth2UserRequestTests {
 
 	private Map<String, Object> additionalParameters;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		// @formatter:off
 		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1")

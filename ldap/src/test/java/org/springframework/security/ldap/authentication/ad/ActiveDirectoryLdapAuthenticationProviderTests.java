@@ -30,8 +30,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -70,7 +70,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 	UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken("joe", "password");
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.provider = new ActiveDirectoryLdapAuthenticationProvider("mydomain.eu", "ldap://192.168.1.200/");
 	}

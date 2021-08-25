@@ -20,8 +20,8 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -51,7 +51,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  */
 public class SessionManagementFilterTests {
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
@@ -148,6 +148,32 @@ public class SessionManagementFilterTests {
 		filter.doFilter(request, response, fc);
 		verifyZeroInteractions(fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/timedOut");
+	}
+
+	@Test
+	public void responseIsRedirectedToRequestedUrlIfSetAndSessionIsInvalid() throws Exception {
+		SecurityContextRepository repo = mock(SecurityContextRepository.class);
+		// repo will return false to containsContext()
+		SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
+		SessionManagementFilter filter = new SessionManagementFilter(repo, strategy);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestedSessionId("xxx");
+		request.setRequestedSessionIdValid(false);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(request, response, new MockFilterChain());
+		assertThat(response.getRedirectedUrl()).isNull();
+		// Now set a redirect URL
+		request = new MockHttpServletRequest();
+		request.setRequestedSessionId("xxx");
+		request.setRequestedSessionIdValid(false);
+		request.setRequestURI("/requested");
+		RequestedUrlRedirectInvalidSessionStrategy iss = new RequestedUrlRedirectInvalidSessionStrategy();
+		iss.setCreateNewSession(true);
+		filter.setInvalidSessionStrategy(iss);
+		FilterChain fc = mock(FilterChain.class);
+		filter.doFilter(request, response, fc);
+		verifyZeroInteractions(fc);
+		assertThat(response.getRedirectedUrl()).isEqualTo("/requested");
 	}
 
 	@Test

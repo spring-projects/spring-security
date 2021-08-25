@@ -22,9 +22,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.expression.BeanResolver;
@@ -42,9 +42,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
-import static org.mockito.BDDMockito.when;
 
 /**
  * @author Dan Zheng
@@ -57,14 +57,14 @@ public class CurrentSecurityContextArgumentResolverTests {
 
 	private CurrentSecurityContextArgumentResolver resolver;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.beanResolver = mock(BeanResolver.class);
 		this.resolver = new CurrentSecurityContextArgumentResolver();
 		this.resolver.setBeanResolver(this.beanResolver);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		SecurityContextHolder.clearContext();
 	}
@@ -119,7 +119,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	@Test
 	public void resolveArgumentWithAuthenticationWithBean() throws Exception {
 		String principal = "john";
-		when(this.beanResolver.resolve(any(), eq("test"))).thenReturn(principal);
+		given(this.beanResolver.resolve(any(), eq("test"))).willReturn(principal);
 		assertThat(this.resolver.resolveArgument(showSecurityContextAuthenticationWithBean(), null, null, null))
 				.isEqualTo(principal);
 		verify(this.beanResolver).resolve(any(), eq("test"));

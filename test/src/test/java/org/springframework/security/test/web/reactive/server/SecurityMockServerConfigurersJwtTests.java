@@ -19,10 +19,7 @@ package org.springframework.security.test.web.reactive.server;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.http.HttpHeaders;
@@ -44,14 +41,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Josh Cummings
  * @since 5.2
  */
-@RunWith(MockitoJUnitRunner.class)
 public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerConfigurersTests {
 
-	@Mock
-	GrantedAuthority authority1;
+	GrantedAuthority authority1 = new SimpleGrantedAuthority("AUTHORITY1");
 
-	@Mock
-	GrantedAuthority authority2;
+	GrantedAuthority authority2 = new SimpleGrantedAuthority("AUTHORITY2");
 
 	WebTestClient client = WebTestClient.bindToController(this.securityContextController)
 			.webFilter(new SecurityContextServerWebExchangeWebFilter())

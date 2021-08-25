@@ -16,25 +16,25 @@
 
 package org.springframework.security.config.annotation.web.configuration.sec2377;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.security.config.annotation.web.configuration.sec2377.a.Sec2377AConfig;
 import org.springframework.security.config.annotation.web.configuration.sec2377.b.Sec2377BConfig;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 
 /**
  * @author Rob Winch
  * @author Josh Cummings
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class Sec2377Tests {
 
-	@Rule
-	public final SpringTestRule parent = new SpringTestRule();
+	public final SpringTestContext parent = new SpringTestContext(this);
 
-	@Rule
-	public final SpringTestRule child = new SpringTestRule();
+	public final SpringTestContext child = new SpringTestContext(this);
 
 	@Test
 	public void refreshContextWhenParentAndChildRegisteredThenNoException() {

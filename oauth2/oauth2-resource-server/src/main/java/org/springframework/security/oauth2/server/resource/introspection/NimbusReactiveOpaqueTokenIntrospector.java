@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -106,7 +107,7 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		// @formatter:off
 		return this.webClient.post()
 				.uri(this.introspectionUri)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_UTF8_VALUE)
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
 				.body(BodyInserters.fromFormData("token", token))
 				.exchange();
 		// @formatter:on
@@ -159,28 +160,28 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 			for (Audience audience : response.getAudience()) {
 				audiences.add(audience.getValue());
 			}
-			claims.put(OAuth2IntrospectionClaimNames.AUDIENCE, Collections.unmodifiableList(audiences));
+			claims.put(OAuth2TokenIntrospectionClaimNames.AUD, Collections.unmodifiableList(audiences));
 		}
 		if (response.getClientID() != null) {
-			claims.put(OAuth2IntrospectionClaimNames.CLIENT_ID, response.getClientID().getValue());
+			claims.put(OAuth2TokenIntrospectionClaimNames.CLIENT_ID, response.getClientID().getValue());
 		}
 		if (response.getExpirationTime() != null) {
 			Instant exp = response.getExpirationTime().toInstant();
-			claims.put(OAuth2IntrospectionClaimNames.EXPIRES_AT, exp);
+			claims.put(OAuth2TokenIntrospectionClaimNames.EXP, exp);
 		}
 		if (response.getIssueTime() != null) {
 			Instant iat = response.getIssueTime().toInstant();
-			claims.put(OAuth2IntrospectionClaimNames.ISSUED_AT, iat);
+			claims.put(OAuth2TokenIntrospectionClaimNames.IAT, iat);
 		}
 		if (response.getIssuer() != null) {
-			claims.put(OAuth2IntrospectionClaimNames.ISSUER, issuer(response.getIssuer().getValue()));
+			claims.put(OAuth2TokenIntrospectionClaimNames.ISS, issuer(response.getIssuer().getValue()));
 		}
 		if (response.getNotBeforeTime() != null) {
-			claims.put(OAuth2IntrospectionClaimNames.NOT_BEFORE, response.getNotBeforeTime().toInstant());
+			claims.put(OAuth2TokenIntrospectionClaimNames.NBF, response.getNotBeforeTime().toInstant());
 		}
 		if (response.getScope() != null) {
 			List<String> scopes = Collections.unmodifiableList(response.getScope().toStringList());
-			claims.put(OAuth2IntrospectionClaimNames.SCOPE, scopes);
+			claims.put(OAuth2TokenIntrospectionClaimNames.SCOPE, scopes);
 
 			for (String scope : scopes) {
 				authorities.add(new SimpleGrantedAuthority(this.authorityPrefix + scope));
@@ -195,7 +196,7 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		}
 		catch (Exception ex) {
 			throw new OAuth2IntrospectionException(
-					"Invalid " + OAuth2IntrospectionClaimNames.ISSUER + " value: " + uri);
+					"Invalid " + OAuth2TokenIntrospectionClaimNames.ISS + " value: " + uri);
 		}
 	}
 
