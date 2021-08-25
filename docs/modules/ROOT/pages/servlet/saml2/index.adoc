@@ -1267,7 +1267,7 @@ open class SecurityConfig : WebSecurityConfigurerAdapter() {
 ----
 ====
 <1> First, call the default converter, which extracts attributes and authorities from the response
-<2> Second, call the xref:servlet/authentication/unpwd/user-details-service.adoc#servlet-authentication-userdetailsservice[ `UserDetailsService`] using the relevant information
+<2> Second, call the xref:servlet/authentication/passwords/user-details-service.adoc#servlet-authentication-userdetailsservice[ `UserDetailsService`] using the relevant information
 <3> Third, return a custom authentication that includes the user details
 
 [NOTE]

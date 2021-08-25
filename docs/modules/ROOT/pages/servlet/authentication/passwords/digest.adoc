@@ -11,7 +11,7 @@ All of these storage formats are considered insecure.
 Instead, you should store credentials using a one way adaptive password hash (i.e. bCrypt, PBKDF2, SCrypt, etc) which is not supported by Digest Authentication.
 ====
 
-Digest Authentication attempts to solve many of the weaknesses of xref:servlet/authentication/unpwd/basic.adoc#servlet-authentication-basic[Basic authentication], specifically by ensuring credentials are never sent in clear text across the wire.
+Digest Authentication attempts to solve many of the weaknesses of xref:servlet/authentication/passwords/basic.adoc#servlet-authentication-basic[Basic authentication], specifically by ensuring credentials are never sent in clear text across the wire.
 Many https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Digest#Browser_compatibility[browsers support Digest Authentication].
 
 The standard governing HTTP Digest Authentication is defined by https://tools.ietf.org/html/rfc2617[RFC 2617], which updates an earlier version of the Digest Authentication standard prescribed by https://tools.ietf.org/html/rfc2069[RFC 2069].

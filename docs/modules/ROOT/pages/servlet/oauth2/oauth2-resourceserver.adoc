@@ -18,7 +18,7 @@ Working samples for both {gh-samples-url}/servlet/spring-boot/java/oauth2/resour
 ====
 
 Let's take a look at how Bearer Token Authentication works within Spring Security.
-First, we see that, like xref:servlet/authentication/unpwd/basic.adoc#servlet-authentication-basic[Basic Authentication], the https://tools.ietf.org/html/rfc7235#section-4.1[WWW-Authenticate] header is sent back to an unauthenticated client.
+First, we see that, like xref:servlet/authentication/passwords/basic.adoc#servlet-authentication-basic[Basic Authentication], the https://tools.ietf.org/html/rfc7235#section-4.1[WWW-Authenticate] header is sent back to an unauthenticated client.
 
 .Sending WWW-Authenticate Header
 image::{figures}/bearerauthenticationentrypoint.png[]

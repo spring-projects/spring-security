@@ -34,7 +34,7 @@ The figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterc
 image:{icondir}/number_1.png[] When the user submits their username and password, the `BasicAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken` which is a type of xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authentication[`Authentication`] by extracting the username and password from the `HttpServletRequest`.
 
 image:{icondir}/number_2.png[] Next, the `UsernamePasswordAuthenticationToken` is passed into the `AuthenticationManager` to be authenticated.
-The details of what `AuthenticationManager` looks like depend on how the xref:servlet/authentication/unpwd/index.adoc#servlet-authentication-unpwd-storage[user information is stored].
+The details of what `AuthenticationManager` looks like depend on how the xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd-storage[user information is stored].
 
 image:{icondir}/number_3.png[] If authentication fails, then __Failure__
 

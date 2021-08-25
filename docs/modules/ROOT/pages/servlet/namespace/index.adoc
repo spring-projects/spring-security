@@ -198,7 +198,7 @@ It's worth cross-checking this if you want to start understanding what the impor
 
 The configuration above defines two users, their passwords and their roles within the application (which will be used for access control).
 It is also possible to load user information from a standard properties file using the `properties` attribute on `user-service`.
-See the section on xref:servlet/authentication/unpwd/in-memory.adoc#servlet-authentication-inmemory[in-memory authentication] for more details on the file format.
+See the section on xref:servlet/authentication/passwords/in-memory.adoc#servlet-authentication-inmemory[in-memory authentication] for more details on the file format.
 Using the `<authentication-provider>` element means that the user information will be used by the authentication manager to process authentication requests.
 You can have multiple `<authentication-provider>` elements to define different authentication sources and each will be consulted in turn.
 

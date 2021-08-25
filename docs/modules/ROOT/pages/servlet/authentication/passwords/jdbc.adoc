@@ -1,9 +1,9 @@
 [[servlet-authentication-jdbc]]
 = JDBC Authentication
 
-Spring Security's `JdbcDaoImpl` implements xref:servlet/authentication/unpwd/user-details-service.adoc#servlet-authentication-userdetailsservice[UserDetailsService] to provide support for username/password based authentication that is retrieved using JDBC.
+Spring Security's `JdbcDaoImpl` implements xref:servlet/authentication/passwords/user-details-service.adoc#servlet-authentication-userdetailsservice[UserDetailsService] to provide support for username/password based authentication that is retrieved using JDBC.
 `JdbcUserDetailsManager` extends `JdbcDaoImpl` to provide management of `UserDetails` through the `UserDetailsManager` interface.
-`UserDetails` based authentication is used by Spring Security when it is configured to xref:servlet/authentication/unpwd/index.adoc#servlet-authentication-unpwd-input[accept a username/password] for authentication.
+`UserDetails` based authentication is used by Spring Security when it is configured to xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd-input[accept a username/password] for authentication.
 
 In the following sections we will discuss:
 
@@ -171,7 +171,7 @@ UserDetailsManager users(DataSource dataSource) {
 	JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
 	users.createUser(user);
 	users.createUser(admin);
-	return users; 
+	return users;
 }
 ----
 

@@ -179,14 +179,14 @@ Below is a comprehensive list of Spring Security Filter ordering:
 * CasAuthenticationFilter
 * OAuth2LoginAuthenticationFilter
 * Saml2WebSsoAuthenticationFilter
-* xref:servlet/authentication/unpwd/form.adoc#servlet-authentication-usernamepasswordauthenticationfilter[`UsernamePasswordAuthenticationFilter`]
+* xref:servlet/authentication/passwords/form.adoc#servlet-authentication-usernamepasswordauthenticationfilter[`UsernamePasswordAuthenticationFilter`]
 * OpenIDAuthenticationFilter
 * DefaultLoginPageGeneratingFilter
 * DefaultLogoutPageGeneratingFilter
 * ConcurrentSessionFilter
-* xref:servlet/authentication/unpwd/digest.adoc#servlet-authentication-digest[`DigestAuthenticationFilter`]
+* xref:servlet/authentication/passwords/digest.adoc#servlet-authentication-digest[`DigestAuthenticationFilter`]
 * BearerTokenAuthenticationFilter
-* xref:servlet/authentication/unpwd/basic.adoc#servlet-authentication-basic[`BasicAuthenticationFilter`]
+* xref:servlet/authentication/passwords/basic.adoc#servlet-authentication-basic[`BasicAuthenticationFilter`]
 * RequestCacheAwareFilter
 * SecurityContextHolderAwareRequestFilter
 * JaasApiIntegrationFilter

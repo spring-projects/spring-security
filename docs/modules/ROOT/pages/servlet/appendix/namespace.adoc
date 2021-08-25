@@ -2736,7 +2736,7 @@ A method name
 
 [[nsa-ldap]]
 == LDAP Namespace Options
-LDAP is covered in some details in xref:servlet/authentication/unpwd/ldap.adoc#servlet-authentication-ldap[its own chapter].
+LDAP is covered in some details in xref:servlet/authentication/passwords/ldap.adoc#servlet-authentication-ldap[its own chapter].
 We will expand on that here with some explanation of how the namespace options map to Spring beans.
 The LDAP implementation uses Spring LDAP extensively, so some familiarity with that project's API may be useful.
 
@@ -2746,7 +2746,7 @@ The LDAP implementation uses Spring LDAP extensively, so some familiarity with t
 `<ldap-server>` Element
 This element sets up a Spring LDAP `ContextSource` for use by the other LDAP beans, defining the location of the LDAP server and other information (such as a username and password, if it doesn't allow anonymous access) for connecting to it.
 It can also be used to create an embedded server for testing.
-Details of the syntax for both options are covered in the xref:servlet/authentication/unpwd/ldap.adoc#servlet-authentication-ldap[LDAP chapter].
+Details of the syntax for both options are covered in the xref:servlet/authentication/passwords/ldap.adoc#servlet-authentication-ldap[LDAP chapter].
 The actual `ContextSource` implementation is `DefaultSpringSecurityContextSource` which extends Spring LDAP's `LdapContextSource` class.
 The `manager-dn` and `manager-password` attributes map to the latter's `userDn` and `password` properties respectively.
 

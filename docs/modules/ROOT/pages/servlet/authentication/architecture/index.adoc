@@ -125,7 +125,7 @@ The current `Authentication` can be obtained from the <<servlet-authentication-s
 The `Authentication` contains:
 
 * `principal` - identifies the user.
-When authenticating with a username/password this is often an instance of xref:servlet/authentication/unpwd/user-details.adoc#servlet-authentication-userdetails[`UserDetails`].
+When authenticating with a username/password this is often an instance of xref:servlet/authentication/passwords/user-details.adoc#servlet-authentication-userdetails[`UserDetails`].
 * `credentials` - often a password.
 In many cases this will be cleared after the user is authenticated to ensure it is not leaked.
 * `authorities` - the <<servlet-authentication-granted-authority,``GrantedAuthority``s>> are high level permissions the user is granted.
@@ -141,7 +141,7 @@ A `GrantedAuthority` is, not surprisingly, an authority that is granted to the p
 Such authorities are usually "roles", such as `ROLE_ADMINISTRATOR` or `ROLE_HR_SUPERVISOR`.
 These roles are later on configured for web authorization, method authorization and domain object authorization.
 Other parts of Spring Security are capable of interpreting these authorities, and expect them to be present.
-When using username/password based authentication ``GrantedAuthority``s are usually loaded by the xref:servlet/authentication/unpwd/user-details-service.adoc#servlet-authentication-userdetailsservice[`UserDetailsService`].
+When using username/password based authentication ``GrantedAuthority``s are usually loaded by the xref:servlet/authentication/passwords/user-details-service.adoc#servlet-authentication-userdetailsservice[`UserDetailsService`].
 
 Usually the `GrantedAuthority` objects are application-wide permissions.
 They are not specific to a given domain object.
@@ -199,7 +199,7 @@ See the {security-api-url}org/springframework/security/authentication/ProviderMa
 
 Multiple {security-api-url}org/springframework/security/authentication/AuthenticationProvider.html[``AuthenticationProvider``s] can be injected into <<servlet-authentication-providermanager,`ProviderManager`>>.
 Each `AuthenticationProvider` performs a specific type of authentication.
-For example, xref:servlet/authentication/unpwd/dao-authentication-provider.adoc#servlet-authentication-daoauthenticationprovider[`DaoAuthenticationProvider`] supports username/password based authentication while `JwtAuthenticationProvider` supports authenticating a JWT token.
+For example, xref:servlet/authentication/passwords/dao-authentication-provider.adoc#servlet-authentication-daoauthenticationprovider[`DaoAuthenticationProvider`] supports username/password based authentication while `JwtAuthenticationProvider` supports authenticating a JWT token.
 
 [[servlet-authentication-authenticationentrypoint]]
 == Request Credentials with `AuthenticationEntryPoint`
@@ -211,7 +211,7 @@ In these cases, Spring Security does not need to provide an HTTP response that r
 
 In other cases, a client will make an unauthenticated request to a resource that they are not authorized to access.
 In this case, an implementation of `AuthenticationEntryPoint` is used to request credentials from the client.
-The `AuthenticationEntryPoint` implementation might perform a xref:servlet/authentication/unpwd/form.adoc#servlet-authentication-form[redirect to a log in page], respond with an xref:servlet/authentication/unpwd/basic.adoc#servlet-authentication-basic[WWW-Authenticate] header, etc.
+The `AuthenticationEntryPoint` implementation might perform a xref:servlet/authentication/passwords/form.adoc#servlet-authentication-form[redirect to a log in page], respond with an xref:servlet/authentication/passwords/basic.adoc#servlet-authentication-basic[WWW-Authenticate] header, etc.
 
 
 
@@ -230,7 +230,7 @@ image::{figures}/abstractauthenticationprocessingfilter.png[]
 
 image:{icondir}/number_1.png[] When the user submits their credentials, the `AbstractAuthenticationProcessingFilter` creates an <<servlet-authentication-authentication,`Authentication`>> from the `HttpServletRequest` to be authenticated.
 The type of `Authentication` created depends on the subclass of `AbstractAuthenticationProcessingFilter`.
-For example, xref:servlet/authentication/unpwd/form.adoc#servlet-authentication-usernamepasswordauthenticationfilter[`UsernamePasswordAuthenticationFilter`] creates a `UsernamePasswordAuthenticationToken` from a __username__ and __password__ that are submitted in the `HttpServletRequest`.
+For example, xref:servlet/authentication/passwords/form.adoc#servlet-authentication-usernamepasswordauthenticationfilter[`UsernamePasswordAuthenticationFilter`] creates a `UsernamePasswordAuthenticationToken` from a __username__ and __password__ that are submitted in the `HttpServletRequest`.
 
 image:{icondir}/number_2.png[] Next, the <<servlet-authentication-authentication,`Authentication`>> is passed into the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> to be authenticated.
 
