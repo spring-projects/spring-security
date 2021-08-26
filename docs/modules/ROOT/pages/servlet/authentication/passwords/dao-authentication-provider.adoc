@@ -2,21 +2,21 @@
 = DaoAuthenticationProvider
 :figures: servlet/authentication/unpwd
 
-{security-api-url}org/springframework/security/authentication/dao/DaoAuthenticationProvider.html[`DaoAuthenticationProvider`] is an xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that leverages a xref:servlet/authentication/passwords/user-details-service.adoc#servlet-authentication-userdetailsservice[`UserDetailsService`] and xref:servlet/authentication/passwords/password-encoder.adoc#servlet-authentication-password-storage[`PasswordEncoder`] to authenticate a username and password.
+{security-api-url}org/springframework/security/authentication/dao/DaoAuthenticationProvider.html[`DaoAuthenticationProvider`] is an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that leverages a xref:servlet/authentication/passwords/user-details-service.adoc#servlet-authentication-userdetailsservice[`UserDetailsService`] and xref:servlet/authentication/passwords/password-encoder.adoc#servlet-authentication-password-storage[`PasswordEncoder`] to authenticate a username and password.
 
 Let's take a look at how `DaoAuthenticationProvider` works within Spring Security.
-The figure explains details of how the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd-input[Reading the Username & Password] works.
+The figure explains details of how the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd-input[Reading the Username & Password] works.
 
 .`DaoAuthenticationProvider` Usage
 image::{figures}/daoauthenticationprovider.png[]
 
-image:{icondir}/number_1.png[] The authentication `Filter` from xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd-input[Reading the Username & Password] passes a `UsernamePasswordAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture/index.adoc#servlet-authentication-providermanager[`ProviderManager`].
+image:{icondir}/number_1.png[] The authentication `Filter` from xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd-input[Reading the Username & Password] passes a `UsernamePasswordAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].
 
-image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationprovider[AuthenticationProvider] of type `DaoAuthenticationProvider`.
+image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[AuthenticationProvider] of type `DaoAuthenticationProvider`.
 
 image:{icondir}/number_3.png[] `DaoAuthenticationProvider` looks up the `UserDetails` from the `UserDetailsService`.
 
 image:{icondir}/number_4.png[] `DaoAuthenticationProvider` then uses the xref:servlet/authentication/passwords/password-encoder.adoc#servlet-authentication-password-storage[`PasswordEncoder`] to validate the password on the `UserDetails` returned in the previous step.
 
-image:{icondir}/number_5.png[] When authentication is successful, the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authentication[`Authentication`] that is returned is of type `UsernamePasswordAuthenticationToken` and has a principal that is the `UserDetails` returned by the configured `UserDetailsService`.
-Ultimately, the returned `UsernamePasswordAuthenticationToken` will be set on the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`] by the authentication `Filter`.
+image:{icondir}/number_5.png[] When authentication is successful, the xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`] that is returned is of type `UsernamePasswordAuthenticationToken` and has a principal that is the `UserDetails` returned by the configured `UserDetailsService`.
+Ultimately, the returned `UsernamePasswordAuthenticationToken` will be set on the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`] by the authentication `Filter`.

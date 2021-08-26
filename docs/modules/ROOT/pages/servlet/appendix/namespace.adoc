@@ -27,7 +27,7 @@ xref:servlet/xml-namespace.adoc#filter-stack[the filter order table] in the name
 You can, of course, still do this if you need full control of the configuration.
 
 
-All filters which require a reference to the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] will be automatically injected with the internal instance created by the namespace configuration.
+All filters which require a reference to the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] will be automatically injected with the internal instance created by the namespace configuration.
 
 Each `<http>` namespace block always creates an `SecurityContextPersistenceFilter`, an `ExceptionTranslationFilter` and a `FilterSecurityInterceptor`.
 These are fixed and cannot be replaced with alternatives.
@@ -2124,7 +2124,7 @@ This attribute allows you to define an alias name for the internal instance for 
 [[nsa-authentication-manager-erase-credentials]]
 * **erase-credentials**
 If set to true, the AuthenticationManager will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated.
-Literally it maps to the `eraseCredentialsAfterAuthentication` property of the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-providermanager[`ProviderManager`].
+Literally it maps to the `eraseCredentialsAfterAuthentication` property of the xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].
 
 
 [[nsa-authentication-manager-id]]

@@ -30,7 +30,7 @@ image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to
 image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`] indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
 
 image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__.
-The configured xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/web/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`] which sends a WWW-Authenticate header.
+The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/web/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`] which sends a WWW-Authenticate header.
 The `RequestCache` is typically a `NullRequestCache` that does not save the request since the client is capable of replaying the requests it originally requested.
 
 When a client receives the `WWW-Authenticate: Bearer` header, it knows it should retry with a bearer token.
@@ -42,19 +42,19 @@ image::{figures}/bearertokenauthenticationfilter.png[]
 
 The figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
 
-image:{icondir}/number_1.png[] When the user submits their bearer token, the `BearerTokenAuthenticationFilter` creates a `BearerTokenAuthenticationToken` which is a type of xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authentication[`Authentication`] by extracting the token from the `HttpServletRequest`.
+image:{icondir}/number_1.png[] When the user submits their bearer token, the `BearerTokenAuthenticationFilter` creates a `BearerTokenAuthenticationToken` which is a type of xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`] by extracting the token from the `HttpServletRequest`.
 
 image:{icondir}/number_2.png[] Next, the `HttpServletRequest` is passed to the `AuthenticationManagerResolver`, which selects the `AuthenticationManager`. The `BearerTokenAuthenticationToken` is passed into the `AuthenticationManager` to be authenticated.
 The details of what `AuthenticationManager` looks like depends on whether you're configured for <<oauth2resourceserver-jwt-minimalconfiguration,JWT>> or <<oauth2resourceserver-opaque-minimalconfiguration,opaque token>>.
 
 image:{icondir}/number_3.png[] If authentication fails, then __Failure__
 
-* The xref:servlet/authentication/architecture/index.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder] is cleared out.
+* The xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder] is cleared out.
 * The `AuthenticationEntryPoint` is invoked to trigger the WWW-Authenticate header to be sent again.
 
 image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
 
-* The xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authentication[Authentication] is set on the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
+* The xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] is set on the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
 * The `BearerTokenAuthenticationFilter` invokes `FilterChain.doFilter(request,response)` to continue with the rest of the application logic.
 
 [[oauth2resourceserver-jwt-minimaldependencies]]
@@ -142,17 +142,17 @@ From here, consider jumping to:
 
 Next, let's see the architectural components that Spring Security uses to support https://tools.ietf.org/html/rfc7519[JWT] Authentication in servlet-based applications, like the one we just saw.
 
-{security-api-url}org/springframework/security/oauth2/server/resource/authentication/JwtAuthenticationProvider.html[`JwtAuthenticationProvider`] is an xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that leverages a <<oauth2resourceserver-jwt-decoder,`JwtDecoder`>> and <<oauth2resourceserver-jwt-authorization-extraction,`JwtAuthenticationConverter`>> to authenticate a JWT.
+{security-api-url}org/springframework/security/oauth2/server/resource/authentication/JwtAuthenticationProvider.html[`JwtAuthenticationProvider`] is an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that leverages a <<oauth2resourceserver-jwt-decoder,`JwtDecoder`>> and <<oauth2resourceserver-jwt-authorization-extraction,`JwtAuthenticationConverter`>> to authenticate a JWT.
 
 Let's take a look at how `JwtAuthenticationProvider` works within Spring Security.
-The figure explains details of how the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> works.
+The figure explains details of how the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> works.
 
 .`JwtAuthenticationProvider` Usage
 image::{figures}/jwtauthenticationprovider.png[]
 
-image:{icondir}/number_1.png[] The authentication `Filter` from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture/index.adoc#servlet-authentication-providermanager[`ProviderManager`].
+image:{icondir}/number_1.png[] The authentication `Filter` from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].
 
-image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationprovider[AuthenticationProvider] of type `JwtAuthenticationProvider`.
+image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[AuthenticationProvider] of type `JwtAuthenticationProvider`.
 
 [[oauth2resourceserver-jwt-architecture-jwtdecoder]]
 image:{icondir}/number_3.png[] `JwtAuthenticationProvider` decodes, verifies, and validates the `Jwt` using a <<oauth2resourceserver-jwt-decoder,`JwtDecoder`>>.
@@ -160,8 +160,8 @@ image:{icondir}/number_3.png[] `JwtAuthenticationProvider` decodes, verifies, an
 [[oauth2resourceserver-jwt-architecture-jwtauthenticationconverter]]
 image:{icondir}/number_4.png[] `JwtAuthenticationProvider` then uses the <<oauth2resourceserver-jwt-authorization-extraction,`JwtAuthenticationConverter`>> to convert the `Jwt` into a `Collection` of granted authorities.
 
-image:{icondir}/number_5.png[] When authentication is successful, the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authentication[`Authentication`] that is returned is of type `JwtAuthenticationToken` and has a principal that is the `Jwt` returned by the configured `JwtDecoder`.
-Ultimately, the returned `JwtAuthenticationToken` will be set on the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`] by the authentication `Filter`.
+image:{icondir}/number_5.png[] When authentication is successful, the xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`] that is returned is of type `JwtAuthenticationToken` and has a principal that is the `Jwt` returned by the configured `JwtDecoder`.
+Ultimately, the returned `JwtAuthenticationToken` will be set on the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`] by the authentication `Filter`.
 
 [[oauth2resourceserver-jwt-jwkseturi]]
 == Specifying the Authorization Server JWK Set Uri Directly
@@ -1513,22 +1513,22 @@ From here, you may want to jump to:
 
 Next, let's see the architectural components that Spring Security uses to support https://tools.ietf.org/html/rfc7662[opaque token] Authentication in servlet-based applications, like the one we just saw.
 
-{security-api-url}org/springframework/security/oauth2/server/resource/authentication/OpaqueTokenAuthenticationProvider.html[`OpaqueTokenAuthenticationProvider`] is an xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that leverages a <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> to authenticate an opaque token.
+{security-api-url}org/springframework/security/oauth2/server/resource/authentication/OpaqueTokenAuthenticationProvider.html[`OpaqueTokenAuthenticationProvider`] is an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that leverages a <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> to authenticate an opaque token.
 
 Let's take a look at how `OpaqueTokenAuthenticationProvider` works within Spring Security.
-The figure explains details of how the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> works.
+The figure explains details of how the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> works.
 
 .`OpaqueTokenAuthenticationProvider` Usage
 image::{figures}/opaquetokenauthenticationprovider.png[]
 
-image:{icondir}/number_1.png[] The authentication `Filter` from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture/index.adoc#servlet-authentication-providermanager[`ProviderManager`].
+image:{icondir}/number_1.png[] The authentication `Filter` from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].
 
-image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authenticationprovider[AuthenticationProvider] of type `OpaqueTokenAuthenticationProvider`.
+image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[AuthenticationProvider] of type `OpaqueTokenAuthenticationProvider`.
 
 [[oauth2resourceserver-opaque-architecture-introspector]]
 image:{icondir}/number_3.png[] `OpaqueTokenAuthenticationProvider` introspects the opaque token and adds granted authorities using an <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>>.
-When authentication is successful, the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-authentication[`Authentication`] that is returned is of type `BearerTokenAuthentication` and has a principal that is the `OAuth2AuthenticatedPrincipal` returned by the configured <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>>.
-Ultimately, the returned `BearerTokenAuthentication` will be set on the xref:servlet/authentication/architecture/index.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`] by the authentication `Filter`.
+When authentication is successful, the xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`] that is returned is of type `BearerTokenAuthentication` and has a principal that is the `OAuth2AuthenticatedPrincipal` returned by the configured <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>>.
+Ultimately, the returned `BearerTokenAuthentication` will be set on the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`] by the authentication `Filter`.
 
 [[oauth2resourceserver-opaque-attributes]]
 == Looking Up Attributes Post-Authentication

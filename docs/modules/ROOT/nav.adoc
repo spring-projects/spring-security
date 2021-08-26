@@ -16,7 +16,7 @@
 ** xref:servlet/getting-started.adoc[Getting Started]
 ** xref:servlet/architecture.adoc[The Big Picture]
 ** Authentication
-*** xref:servlet/authentication/architecture/index.adoc[Authentication Architecture]
+*** xref:servlet/authentication/architecture.adoc[Authentication Architecture]
 *** xref:servlet/authentication/passwords/index.adoc[Username/Password]
 **** Reading Username/Password
 ***** xref:servlet/authentication/passwords/form.adoc[Form]

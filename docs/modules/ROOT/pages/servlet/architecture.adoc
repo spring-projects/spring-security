@@ -211,7 +211,7 @@ image::{figures}/exceptiontranslationfilter.png[]
 
 * image:{icondir}/number_1.png[] First, the `ExceptionTranslationFilter` invokes `FilterChain.doFilter(request, response)` to invoke the rest of the application.
 * image:{icondir}/number_2.png[] If the user is not authenticated or it is an `AuthenticationException`, then __Start Authentication__.
-** The xref:servlet/authentication/architecture/index.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder] is cleared out
+** The xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder] is cleared out
 ** The `HttpServletRequest` is saved in the {security-api-url}org/springframework/security/web/savedrequest/RequestCache.html[`RequestCache`].
 When the user successfully authenticates, the `RequestCache` is used to replay the original request.
 // FIXME: add link to authentication success
