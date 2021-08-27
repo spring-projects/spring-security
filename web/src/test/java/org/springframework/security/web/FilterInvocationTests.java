@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.web.FilterInvocation.DummyRequest;
 import org.springframework.security.web.util.UrlUtils;
 
@@ -129,6 +130,16 @@ public class FilterInvocationTests {
 		request.setContextPath("");
 		request.setRequestURI("/something");
 		UrlUtils.buildRequestUrl(request);
+	}
+
+	@Test
+	public void constructorWhenServletContextProvidedThenSetServletContextInRequest() {
+		String contextPath = "";
+		String servletPath = "/path";
+		String method = "";
+		MockServletContext mockServletContext = new MockServletContext();
+		FilterInvocation filterInvocation = new FilterInvocation(contextPath, servletPath, method, mockServletContext);
+		assertThat(filterInvocation.getRequest().getServletContext()).isSameAs(mockServletContext);
 	}
 
 }
