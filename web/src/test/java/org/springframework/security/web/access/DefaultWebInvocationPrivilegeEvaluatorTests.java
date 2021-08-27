@@ -18,8 +18,10 @@ package org.springframework.security.web.access;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.intercept.RunAsManager;
@@ -27,6 +29,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
@@ -34,9 +37,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests
@@ -104,6 +109,19 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 		willThrow(new AccessDeniedException("")).given(this.adm).decide(any(Authentication.class), anyObject(),
 				anyList());
 		assertThat(wipe.isAllowed("/foo/index.jsp", token)).isFalse();
+	}
+
+	@Test
+	public void isAllowedWhenServletContextIsSetThenPassedFilterInvocationHasServletContext() {
+		Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
+		MockServletContext servletContext = new MockServletContext();
+		ArgumentCaptor<FilterInvocation> filterInvocationArgumentCaptor = ArgumentCaptor
+				.forClass(FilterInvocation.class);
+		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
+		wipe.setServletContext(servletContext);
+		wipe.isAllowed("/foo/index.jsp", token);
+		verify(this.adm).decide(eq(token), filterInvocationArgumentCaptor.capture(), any());
+		assertThat(filterInvocationArgumentCaptor.getValue().getRequest().getServletContext()).isNotNull();
 	}
 
 }
