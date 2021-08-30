@@ -23,7 +23,7 @@ tasks.register("generateAntora") {
 		def outputFile = new File("$buildDir/generateAntora/antora.yml")
 		outputFile.getParentFile().mkdirs()
 		outputFile.createNewFile()
-		outputFile.setText("""name: security
+		outputFile.setText("""name: ''
 title: Spring Security
 version: ~
 display_version: 6.0
