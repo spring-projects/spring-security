@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Joe Scalise
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Yanming Zhou
  */
 public class SecuredAnnotationSecurityMetadataSourceTests {
 
@@ -169,6 +170,28 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		assertThat(attributes).extracting("attribute").containsOnly("ROLE_PERSON");
 	}
 
+	@Test
+	public void annotatedAnnotationAtClassLevelWithOverrideMethodSecurityIsDetected() throws Exception {
+		MockMethodInvocation annotatedAtClassLevel = new MockMethodInvocation(
+				new AnnotatedAnnotationAtClassLevelWithOverrideMethodSecurity(), ReturnVoidClass.class, "doSomething",
+				List.class);
+		ConfigAttribute[] attrs = this.mds.getAttributes(annotatedAtClassLevel).toArray(new ConfigAttribute[0]);
+		assertThat(attrs).hasSize(1);
+		assertThat(attrs).extracting("attribute").containsOnly("CUSTOM");
+		annotatedAtClassLevel = new MockMethodInvocation(
+				new AnnotatedAnnotationAtClassLevelWithOverrideMethodSecurity(), ReturnVoidClass.class,
+				"doSomethingElse", List.class);
+		attrs = this.mds.getAttributes(annotatedAtClassLevel).toArray(new ConfigAttribute[0]);
+		assertThat(attrs).hasSize(1);
+		assertThat(attrs).extracting("attribute").containsOnly("ELSE");
+		annotatedAtClassLevel = new MockMethodInvocation(
+				new AnnotatedAnnotationAtClassLevelWithOverrideMethodSecurity(),
+				AnnotatedAnnotationAtClassLevelWithOverrideMethodSecurity.class, "doOtherThing", List.class);
+		attrs = this.mds.getAttributes(annotatedAtClassLevel).toArray(new ConfigAttribute[0]);
+		assertThat(attrs).hasSize(1);
+		assertThat(attrs).extracting("attribute").containsOnly("OTHER");
+	}
+
 	// Inner classes
 	class Department extends Entity {
 
@@ -283,6 +306,27 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		@Override
 		@AnnotatedAnnotation
 		public void doSomething(List<?> param) {
+		}
+
+	}
+
+	public static class ReturnVoidClass {
+
+		public void doSomething(List<?> param) {
+		}
+
+		@Secured("ELSE")
+		public void doSomethingElse(List<?> param) {
+		}
+
+	}
+
+	@AnnotatedAnnotation
+	@OverrideMethodSecurity
+	public static class AnnotatedAnnotationAtClassLevelWithOverrideMethodSecurity extends ReturnVoidClass {
+
+		@Secured("OTHER")
+		public void doOtherThing(List<?> param) {
 		}
 
 	}

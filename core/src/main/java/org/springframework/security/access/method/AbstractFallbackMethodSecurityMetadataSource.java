@@ -22,6 +22,7 @@ import java.util.Collections;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.annotation.OverrideMethodSecurity;
 
 /**
  * Abstract implementation of {@link MethodSecurityMetadataSource} that supports both
@@ -42,6 +43,7 @@ import org.springframework.security.access.ConfigAttribute;
  *
  * @author Ben Alex
  * @author Luke taylor
+ * @author Yanming Zhou
  * @since 2.0
  */
 public abstract class AbstractFallbackMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
@@ -56,6 +58,9 @@ public abstract class AbstractFallbackMethodSecurityMetadataSource extends Abstr
 		Collection<ConfigAttribute> attr = findAttributes(specificMethod, targetClass);
 		if (attr != null) {
 			return attr;
+		}
+		if (targetClass != null && targetClass.isAnnotationPresent(OverrideMethodSecurity.class)) {
+			return findAttributes(targetClass);
 		}
 		// Second try is the config attribute on the target class.
 		attr = findAttributes(specificMethod.getDeclaringClass());
