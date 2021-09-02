@@ -1,3 +1,4 @@
+apply plugin: 'io.spring.convention.docs'
 apply plugin: 'java'
 
 tasks.register("generateAntora") {
