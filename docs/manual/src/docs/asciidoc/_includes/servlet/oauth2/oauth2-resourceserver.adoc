@@ -2336,18 +2336,12 @@ If this decision must be made at request-time, then you can use an `Authenticati
 [source,java,role="primary"]
 ----
 @Bean
-AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerResolver() {
-    BearerTokenResolver bearerToken = new DefaultBearerTokenResolver();
-    JwtAuthenticationProvider jwt = jwt();
-    OpaqueTokenAuthenticationProvider opaqueToken = opaqueToken();
-
-    return request -> {
-        if (useJwt(request)) {
-            return jwt::authenticate;
-        } else {
-            return opaqueToken::authenticate;
-        }
-    }
+AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerResolver
+        (JwtDecoder jwtDecoder, OpaqueTokenIntrospector opaqueTokenIntrospector) {
+    AuthenticationManager jwt = new ProviderManager(new JwtAuthenticationProvider(jwtDecoder));
+    AuthenticationManager opaqueToken = new ProviderManager(
+            new OpaqueTokenAuthenticationProvider(opaqueTokenIntrospector));
+    return (request) -> useJwt(request) ? jwt : opaqueToken;
 }
 ----
 
@@ -2355,16 +2349,17 @@ AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerReso
 [source,kotlin,role="secondary"]
 ----
 @Bean
-fun tokenAuthenticationManagerResolver(): AuthenticationManagerResolver<HttpServletRequest> {
-    val bearerToken: BearerTokenResolver = DefaultBearerTokenResolver()
-    val jwt: JwtAuthenticationProvider = jwt()
-    val opaqueToken: OpaqueTokenAuthenticationProvider = opaqueToken()
+fun tokenAuthenticationManagerResolver
+        (jwtDecoder: JwtDecoder, opaqueTokenIntrospector: OpaqueTokenIntrospector):
+        AuthenticationManagerResolver<HttpServletRequest> {
+    val jwt = ProviderManager(JwtAuthenticationProvider(jwtDecoder))
+    val opaqueToken = ProviderManager(OpaqueTokenAuthenticationProvider(opaqueTokenIntrospector));
 
     return AuthenticationManagerResolver { request ->
         if (useJwt(request)) {
-            AuthenticationManager { jwt.authenticate(it) }
+            jwt
         } else {
-            AuthenticationManager { opaqueToken.authenticate(it) }
+            opaqueToken
         }
     }
 }
