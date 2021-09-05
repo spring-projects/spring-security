@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,6 +85,7 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Yanming Zhou
  * @see DefaultAuthenticationEventPublisher
  */
 public class ProviderManager implements AuthenticationManager, MessageSourceAware, InitializingBean {
@@ -268,7 +269,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	public void setAuthenticationEventPublisher(AuthenticationEventPublisher eventPublisher) {

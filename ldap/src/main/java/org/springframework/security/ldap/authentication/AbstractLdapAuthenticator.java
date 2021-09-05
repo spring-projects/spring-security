@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
  * Base class for the authenticator implementations.
  *
  * @author Luke Taylor
+ * @author Yanming Zhou
  */
 public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, InitializingBean, MessageSourceAware {
 
@@ -108,7 +109,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "Message source must not be null");
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	/**

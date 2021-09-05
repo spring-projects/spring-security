@@ -73,6 +73,7 @@ import org.springframework.util.Assert;
  * therefore {@link NullUserCache}.
  *
  * @author Ben Alex
+ * @author Yanming Zhou
  */
 public abstract class AbstractUserDetailsAuthenticationProvider
 		implements AuthenticationProvider, InitializingBean, MessageSourceAware {
@@ -277,7 +278,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	public void setUserCache(UserCache userCache) {

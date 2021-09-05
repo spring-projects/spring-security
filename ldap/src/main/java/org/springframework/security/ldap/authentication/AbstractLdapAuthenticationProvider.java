@@ -46,6 +46,7 @@ import org.springframework.util.StringUtils;
  * {@code ActiveDirectoryLdapAuthenticationProvider}.
  *
  * @author Luke Taylor
+ * @author Yanming Zhou
  * @since 3.1
  */
 public abstract class AbstractLdapAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
@@ -126,7 +127,7 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	/**

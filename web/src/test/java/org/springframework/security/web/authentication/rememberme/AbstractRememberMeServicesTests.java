@@ -422,7 +422,7 @@ public class AbstractRememberMeServicesTests {
 		services.setMessageSource(source);
 		String code = "code";
 		services.messages.getMessage(code);
-		verify(source).getMessage(eq(code), any(), any());
+		verify(source).getMessage(eq(code), any(), any(), any());
 	}
 
 	private Cookie[] createLoginCookie(String cookieToken) {

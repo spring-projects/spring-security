@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ import org.springframework.util.StringUtils;
  * @author Rob Winch
  * @author Eddú Meléndez
  * @author Onur Kagan Ozcan
+ * @author Yanming Zhou
  * @since 2.0
  */
 public abstract class AbstractRememberMeServices
@@ -490,7 +491,7 @@ public abstract class AbstractRememberMeServices
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 }

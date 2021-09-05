@@ -86,6 +86,7 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Yanming Zhou
  * @since 1.0.0
  */
 public class DigestAuthenticationFilter extends GenericFilterBean implements MessageSourceAware {
@@ -240,7 +241,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	public void setPasswordAlreadyEncoded(boolean passwordAlreadyEncoded) {

@@ -108,6 +108,7 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Yanming Zhou
  */
 public abstract class AbstractAuthenticationProcessingFilter extends GenericFilterBean
 		implements ApplicationEventPublisherAware, MessageSourceAware {
@@ -398,7 +399,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	protected boolean getAllowSessionCreation() {

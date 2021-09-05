@@ -79,6 +79,7 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * @author Ben Alex
  * @author colin sampaleanu
+ * @author Yanming Zhou
  */
 public class ExceptionTranslationFilter extends GenericFilterBean implements MessageSourceAware {
 
@@ -236,7 +237,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean implements Mes
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	/**

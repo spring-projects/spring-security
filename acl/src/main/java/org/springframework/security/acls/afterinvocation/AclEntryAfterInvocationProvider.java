@@ -112,7 +112,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 }

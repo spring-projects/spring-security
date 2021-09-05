@@ -107,6 +107,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @author colin sampaleanu
  * @author Luke Taylor
+ * @author Yanming Zhou
  */
 public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, MessageSourceAware {
 
@@ -370,7 +371,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 }

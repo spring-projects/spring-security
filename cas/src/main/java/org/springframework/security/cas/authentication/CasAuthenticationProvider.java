@@ -59,6 +59,7 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @author Scott Battaglia
+ * @author Yanming Zhou
  */
 public class CasAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
 
@@ -219,7 +220,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
 	@Override
 	public void setMessageSource(final MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	public void setStatelessTicketCache(final StatelessTicketCache statelessTicketCache) {

@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
  * must match this class' {@link #getKey()}.
  *
  * @author Ben Alex
+ * @author Yanming Zhou
  */
 public class AnonymousAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
 
@@ -63,7 +64,7 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider, 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	@Override

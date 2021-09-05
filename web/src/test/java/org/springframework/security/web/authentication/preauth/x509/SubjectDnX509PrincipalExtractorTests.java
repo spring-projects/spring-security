@@ -85,7 +85,7 @@ public class SubjectDnX509PrincipalExtractorTests {
 		this.extractor.setMessageSource(source);
 		String code = "code";
 		this.extractor.messages.getMessage(code);
-		verify(source).getMessage(eq(code), any(), any());
+		verify(source).getMessage(eq(code), any(), any(), any());
 	}
 
 }

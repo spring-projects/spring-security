@@ -106,6 +106,7 @@ import org.springframework.web.util.UrlPathHelper;
  * </pre>
  *
  * @author Mark St.Godard
+ * @author Yanming Zhou
  * @see SwitchUserGrantedAuthority
  */
 public class SwitchUserFilter extends GenericFilterBean implements ApplicationEventPublisherAware, MessageSourceAware {
@@ -371,7 +372,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	/**

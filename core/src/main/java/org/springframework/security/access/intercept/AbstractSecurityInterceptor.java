@@ -103,6 +103,7 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Ben Alex
  * @author Rob Winch
+ * @author Yanming Zhou
  */
 public abstract class AbstractSecurityInterceptor
 		implements InitializingBean, ApplicationEventPublisherAware, MessageSourceAware {
@@ -412,7 +413,7 @@ public abstract class AbstractSecurityInterceptor
 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	/**

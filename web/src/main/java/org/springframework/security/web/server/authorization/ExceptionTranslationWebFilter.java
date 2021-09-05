@@ -40,6 +40,7 @@ import org.springframework.web.server.WebFilterChain;
 /**
  * @author Rob Winch
  * @author César Revert
+ * @author Yanming Zhou
  * @since 5.0
  */
 public class ExceptionTranslationWebFilter implements WebFilter, MessageSourceAware {
@@ -103,7 +104,7 @@ public class ExceptionTranslationWebFilter implements WebFilter, MessageSourceAw
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	private <T> Mono<T> commenceAuthentication(ServerWebExchange exchange, AuthenticationException denied) {

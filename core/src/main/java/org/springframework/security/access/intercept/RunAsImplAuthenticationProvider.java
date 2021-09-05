@@ -71,7 +71,7 @@ public class RunAsImplAuthenticationProvider implements InitializingBean, Authen
 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 	@Override

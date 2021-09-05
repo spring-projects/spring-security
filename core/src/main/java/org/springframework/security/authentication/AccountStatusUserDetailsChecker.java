@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.springframework.util.Assert;
 
 /**
  * @author Luke Taylor
+ * @author Yanming Zhou
  */
 public class AccountStatusUserDetailsChecker implements UserDetailsChecker, MessageSourceAware {
 
@@ -66,7 +67,7 @@ public class AccountStatusUserDetailsChecker implements UserDetailsChecker, Mess
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = SpringSecurityMessageSource.getAccessor(messageSource);
 	}
 
 }

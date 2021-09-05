@@ -29,6 +29,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
@@ -61,6 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Rob Winch
  * @author Eleftheria Stein
+ * @author Yanming Zhou
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class DefaultLoginPageConfigurerTests {
@@ -144,7 +146,7 @@ public class DefaultLoginPageConfigurerTests {
 						+ "     <div class=\"container\">\n"
 						+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
 						+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
-						+ "<div class=\"alert alert-danger\" role=\"alert\">Bad credentials</div>        <p>\n"
+						+ "<div class=\"alert alert-danger\" role=\"alert\">" + SpringSecurityMessageSource.getAccessor().getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials") + "</div>        <p>\n"
 						+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
 						+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
 						+ "        </p>\n" + "        <p>\n"

@@ -300,7 +300,7 @@ public class ExceptionTranslationFilterTests {
 		filter.setMessageSource(source);
 		String code = "code";
 		filter.messages.getMessage(code);
-		verify(source).getMessage(eq(code), any(), any());
+		verify(source).getMessage(eq(code), any(), any(), any());
 	}
 
 	private AuthenticationEntryPoint mockEntryPoint = (request, response, authException) -> response

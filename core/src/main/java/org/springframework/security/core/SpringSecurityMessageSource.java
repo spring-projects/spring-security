@@ -16,6 +16,7 @@
 
 package org.springframework.security.core;
 
+import org.springframework.context.MessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
@@ -30,6 +31,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
  * </p>
  *
  * @author Ben Alex
+ * @author Yanming Zhou
  */
 public class SpringSecurityMessageSource extends ResourceBundleMessageSource {
 
@@ -39,6 +41,16 @@ public class SpringSecurityMessageSource extends ResourceBundleMessageSource {
 
 	public static MessageSourceAccessor getAccessor() {
 		return new MessageSourceAccessor(new SpringSecurityMessageSource());
+	}
+
+	public static MessageSourceAccessor getAccessor(MessageSource parent) {
+		if (parent == null || parent instanceof SpringSecurityMessageSource) {
+			return new MessageSourceAccessor(parent);
+		}
+		SpringSecurityMessageSource messageSource = new SpringSecurityMessageSource();
+		messageSource.setParentMessageSource(parent);
+		messageSource.setUseCodeAsDefaultMessage(true);
+		return new MessageSourceAccessor(messageSource);
 	}
 
 }

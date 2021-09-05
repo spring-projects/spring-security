@@ -228,7 +228,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		this.manager.setMessageSource(source);
 		String code = "code";
 		this.manager.messages.getMessage(code);
-		verify(source).getMessage(eq(code), any(), any());
+		verify(source).getMessage(eq(code), any(), any(), any());
 	}
 
 }

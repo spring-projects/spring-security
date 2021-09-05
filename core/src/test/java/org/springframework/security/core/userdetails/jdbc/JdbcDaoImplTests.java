@@ -169,7 +169,7 @@ public class JdbcDaoImplTests {
 		dao.setMessageSource(source);
 		String code = "code";
 		dao.getMessages().getMessage(code);
-		verify(source).getMessage(eq(code), any(), any());
+		verify(source).getMessage(eq(code), any(), any(), any());
 	}
 
 }
