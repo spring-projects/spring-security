@@ -258,7 +258,7 @@ Their use is enabled through the `global-method-security` namespace element:
 
 ===== Access Control using @PreAuthorize and @PostAuthorize
 The most obviously useful annotation is `@PreAuthorize` which decides whether a method can actually be invoked or not.
-For example (from the "Contacts" sample application)
+For example (from the {gh-samples-url}/servlet/xml/java/contacts[Contacts] sample application)
 
 ====
 .Java
@@ -492,7 +492,7 @@ This would look something like this:
 
 Where `myPermissionEvaluator` is the bean which implements `PermissionEvaluator`.
 Usually this will be the implementation from the ACL module which is called `AclPermissionEvaluator`.
-See the "Contacts" sample application configuration for more details.
+See the {gh-samples-url}/servlet/xml/java/contacts[Contacts] sample application configuration for more details.
 
 ===== Method Security Meta Annotations
 

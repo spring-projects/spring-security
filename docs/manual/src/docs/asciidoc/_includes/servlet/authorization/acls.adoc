@@ -125,7 +125,7 @@ This should therefore work with all major databases.
 At the time of writing, the system had been successfully tested using Hypersonic SQL, PostgreSQL, Microsoft SQL Server and Oracle.
 
 Two samples ship with Spring Security that demonstrate the ACL module.
-The first is the Contacts Sample, and the other is the Document Management System (DMS) Sample.
+The first is the {gh-samples-url}/servlet/xml/java/contacts[Contacts Sample], and the other is the {gh-samples-url}/servlet/xml/java/dms[Document Management System (DMS) Sample].
 We suggest taking a look over these for examples.
 
 
