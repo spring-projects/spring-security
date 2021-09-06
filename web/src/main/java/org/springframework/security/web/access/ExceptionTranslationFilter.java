@@ -35,7 +35,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.SpringSecurityMessageSourceAccessor;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -92,7 +92,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean implements Mes
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
 
-	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	protected MessageSourceAccessor messages = new SpringSecurityMessageSourceAccessor();
 
 	public ExceptionTranslationFilter(AuthenticationEntryPoint authenticationEntryPoint) {
 		this(authenticationEntryPoint, new HttpSessionRequestCache());
@@ -236,7 +236,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean implements Mes
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = new SpringSecurityMessageSourceAccessor(messageSource);
 	}
 
 	/**

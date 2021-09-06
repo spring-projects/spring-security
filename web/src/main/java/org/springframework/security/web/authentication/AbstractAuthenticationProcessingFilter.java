@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2021 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.SpringSecurityMessageSourceAccessor;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
@@ -118,7 +118,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	private AuthenticationManager authenticationManager;
 
-	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	protected MessageSourceAccessor messages = new SpringSecurityMessageSourceAccessor();
 
 	private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
@@ -398,7 +398,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = new SpringSecurityMessageSourceAccessor(messageSource);
 	}
 
 	protected boolean getAllowSessionCreation() {

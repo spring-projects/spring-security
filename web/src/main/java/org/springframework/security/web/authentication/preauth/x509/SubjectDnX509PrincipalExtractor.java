@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.SpringSecurityMessageSourceAccessor;
 import org.springframework.util.Assert;
 
 /**
@@ -48,7 +48,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor, 
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	protected MessageSourceAccessor messages = new SpringSecurityMessageSourceAccessor();
 
 	private Pattern subjectDnPattern;
 
@@ -95,7 +95,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor, 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = new SpringSecurityMessageSourceAccessor(messageSource);
 	}
 
 }

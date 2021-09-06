@@ -16,6 +16,9 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.Locale;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -69,6 +72,14 @@ public class DefaultLoginPageConfigurerTests {
 
 	@Autowired
 	MockMvc mvc;
+
+	/**
+	 * Ensure that the default Locale for testing in different environments is EN
+	 */
+	@BeforeEach
+	public void setDefaultLocal() {
+		Locale.setDefault(new Locale("en"));
+	}
 
 	@Test
 	public void getWhenFormLoginEnabledThenRedirectsToLoginPage() throws Exception {

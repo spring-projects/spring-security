@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2021 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.SpringSecurityMessageSourceAccessor;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -128,7 +128,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 			+ "where gm.username = ? " + "and g.id = ga.group_id " + "and g.id = gm.group_id";
 	// @formatter:on
 
-	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	protected MessageSourceAccessor messages = new SpringSecurityMessageSourceAccessor();
 
 	private String authoritiesByUsernameQuery;
 
@@ -370,7 +370,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = new SpringSecurityMessageSourceAccessor(messageSource);
 	}
 
 }

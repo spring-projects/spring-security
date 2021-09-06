@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2021 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.SpringSecurityMessageSourceAccessor;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UserCache;
@@ -79,7 +79,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	protected MessageSourceAccessor messages = new SpringSecurityMessageSourceAccessor();
 
 	private UserCache userCache = new NullUserCache();
 
@@ -277,7 +277,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = new SpringSecurityMessageSourceAccessor(messageSource);
 	}
 
 	public void setUserCache(UserCache userCache) {

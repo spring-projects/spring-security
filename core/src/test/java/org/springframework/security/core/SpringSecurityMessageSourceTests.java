@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2021 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class SpringSecurityMessageSourceTests {
 		Locale before = LocaleContextHolder.getLocale();
 		LocaleContextHolder.setLocale(Locale.FRENCH);
 		// Cause a message to be generated
-		MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+		MessageSourceAccessor messages = new SpringSecurityMessageSourceAccessor();
 		assertThat("Le jeton nonce est compromis FOOBAR").isEqualTo(messages.getMessage(
 				"DigestAuthenticationFilter.nonceCompromised", new Object[] { "FOOBAR" }, "ERROR - FAILED TO LOOKUP"));
 		// Revert to original Locale
@@ -57,7 +57,7 @@ public class SpringSecurityMessageSourceTests {
 		Locale.setDefault(Locale.GERMAN);
 		Locale beforeHolder = LocaleContextHolder.getLocale();
 		LocaleContextHolder.setLocale(Locale.US);
-		MessageSourceAccessor msgs = SpringSecurityMessageSource.getAccessor();
+		MessageSourceAccessor msgs = new SpringSecurityMessageSourceAccessor();
 		assertThat("Access is denied")
 				.isEqualTo(msgs.getMessage("AbstractAccessDecisionManager.accessDenied", "Ooops"));
 		// Revert to original Locale

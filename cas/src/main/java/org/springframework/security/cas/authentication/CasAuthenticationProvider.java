@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2021 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.SpringSecurityMessageSourceAccessor;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
@@ -68,7 +68,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
 	private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
 
-	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	protected MessageSourceAccessor messages = new SpringSecurityMessageSourceAccessor();
 
 	private StatelessTicketCache statelessTicketCache = new NullStatelessTicketCache();
 
@@ -219,7 +219,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
 	@Override
 	public void setMessageSource(final MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = new SpringSecurityMessageSourceAccessor(messageSource);
 	}
 
 	public void setStatelessTicketCache(final StatelessTicketCache statelessTicketCache) {

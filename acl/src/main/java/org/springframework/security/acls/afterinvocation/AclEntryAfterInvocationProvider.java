@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2021 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.acls.model.AclService;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.SpringSecurityMessageSourceAccessor;
 
 /**
  * Given a domain object instance returned from a secure object invocation, ensures the
@@ -64,7 +64,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 
 	protected static final Log logger = LogFactory.getLog(AclEntryAfterInvocationProvider.class);
 
-	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	protected MessageSourceAccessor messages = new SpringSecurityMessageSourceAccessor();
 
 	public AclEntryAfterInvocationProvider(AclService aclService, List<Permission> requirePermission) {
 		this(aclService, "AFTER_ACL_READ", requirePermission);
@@ -112,7 +112,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 
 	@Override
 	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
+		this.messages = new SpringSecurityMessageSourceAccessor(messageSource);
 	}
 
 }
