@@ -30,10 +30,6 @@ final class ThreadLocalSecurityContextHolderStrategy implements SecurityContextH
 
 	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<>();
 
-	SecurityContext peek() {
-		return contextHolder.get();
-	}
-
 	@Override
 	public void clearContext() {
 		contextHolder.remove();

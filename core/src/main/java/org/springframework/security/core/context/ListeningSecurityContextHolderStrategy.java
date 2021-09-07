@@ -16,73 +16,130 @@
 
 package org.springframework.security.core.context;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import java.util.Arrays;
+import java.util.Collection;
 
-final class ListeningSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
+import org.springframework.util.Assert;
 
-	private static final BiConsumer<SecurityContext, SecurityContext> NULL_PUBLISHER = (previous, current) -> {
-	};
+/**
+ * An API for notifying when the {@link SecurityContext} changes.
+ *
+ * Note that this does not notify when the underlying authentication changes. To get
+ * notified about authentication changes, ensure that you are using {@link #setContext}
+ * when changing the authentication like so:
+ *
+ * <pre>
+ *	SecurityContext context = SecurityContextHolder.createEmptyContext();
+ *	context.setAuthentication(authentication);
+ *	SecurityContextHolder.setContext(context);
+ * </pre>
+ *
+ * To add a listener to the existing {@link SecurityContextHolder}, you can do:
+ *
+ * <pre>
+ *  SecurityContextHolderStrategy original = SecurityContextHolder.getContextHolderStrategy();
+ *  SecurityContextChangedListener listener = new YourListener();
+ *  SecurityContextHolderStrategy strategy = new ListeningSecurityContextHolderStrategy(original, listener);
+ *  SecurityContextHolder.setContextHolderStrategy(strategy);
+ * </pre>
+ *
+ * NOTE: Any object that you supply to the {@link SecurityContextHolder} is now part of
+ * the static context and as such will not get garbage collected. To remove the reference,
+ * {@link SecurityContextHolder#setContextHolderStrategy reset the strategy} like so:
+ *
+ * <pre>
+ *   SecurityContextHolder.setContextHolderStrategy(original);
+ * </pre>
+ *
+ * This will then allow {@code YourListener} and its members to be garbage collected.
+ *
+ * @author Josh Cummings
+ * @since 5.6
+ */
+public final class ListeningSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
 
-	private final Supplier<SecurityContext> peek;
+	private final Collection<SecurityContextChangedListener> listeners;
 
 	private final SecurityContextHolderStrategy delegate;
 
-	private final SecurityContextEventPublisher base = new SecurityContextEventPublisher();
-
-	private BiConsumer<SecurityContext, SecurityContext> publisher = NULL_PUBLISHER;
-
-	ListeningSecurityContextHolderStrategy(Supplier<SecurityContext> peek, SecurityContextHolderStrategy delegate) {
-		this.peek = peek;
+	/**
+	 * Construct a {@link ListeningSecurityContextHolderStrategy}
+	 * @param listeners the listeners that should be notified when the
+	 * {@link SecurityContext} is {@link #setContext(SecurityContext) set} or
+	 * {@link #clearContext() cleared}
+	 * @param delegate the underlying {@link SecurityContextHolderStrategy}
+	 */
+	public ListeningSecurityContextHolderStrategy(SecurityContextHolderStrategy delegate,
+			Collection<SecurityContextChangedListener> listeners) {
+		Assert.notNull(delegate, "securityContextHolderStrategy cannot be null");
+		Assert.notNull(listeners, "securityContextChangedListeners cannot be null");
+		Assert.notEmpty(listeners, "securityContextChangedListeners cannot be empty");
+		Assert.noNullElements(listeners, "securityContextChangedListeners cannot contain null elements");
 		this.delegate = delegate;
+		this.listeners = listeners;
 	}
 
+	/**
+	 * Construct a {@link ListeningSecurityContextHolderStrategy}
+	 * @param listeners the listeners that should be notified when the
+	 * {@link SecurityContext} is {@link #setContext(SecurityContext) set} or
+	 * {@link #clearContext() cleared}
+	 * @param delegate the underlying {@link SecurityContextHolderStrategy}
+	 */
+	public ListeningSecurityContextHolderStrategy(SecurityContextHolderStrategy delegate,
+			SecurityContextChangedListener... listeners) {
+		Assert.notNull(delegate, "securityContextHolderStrategy cannot be null");
+		Assert.notNull(listeners, "securityContextChangedListeners cannot be null");
+		Assert.notEmpty(listeners, "securityContextChangedListeners cannot be empty");
+		Assert.noNullElements(listeners, "securityContextChangedListeners cannot contain null elements");
+		this.delegate = delegate;
+		this.listeners = Arrays.asList(listeners);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void clearContext() {
-		SecurityContext from = this.peek.get();
+		SecurityContext from = getContext();
 		this.delegate.clearContext();
-		this.publisher.accept(from, null);
+		publish(from, null);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public SecurityContext getContext() {
 		return this.delegate.getContext();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setContext(SecurityContext context) {
-		SecurityContext from = this.peek.get();
+		SecurityContext from = getContext();
 		this.delegate.setContext(context);
-		this.publisher.accept(from, context);
+		publish(from, context);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public SecurityContext createEmptyContext() {
 		return this.delegate.createEmptyContext();
 	}
 
-	void addListener(SecurityContextChangedListener listener) {
-		this.base.listeners.add(listener);
-		this.publisher = this.base;
-	}
-
-	private static class SecurityContextEventPublisher implements BiConsumer<SecurityContext, SecurityContext> {
-
-		private final List<SecurityContextChangedListener> listeners = new CopyOnWriteArrayList<>();
-
-		@Override
-		public void accept(SecurityContext previous, SecurityContext current) {
-			if (previous == current) {
-				return;
-			}
-			SecurityContextChangedEvent event = new SecurityContextChangedEvent(previous, current);
-			for (SecurityContextChangedListener listener : this.listeners) {
-				listener.securityContextChanged(event);
-			}
+	private void publish(SecurityContext previous, SecurityContext current) {
+		if (previous == current) {
+			return;
 		}
-
+		SecurityContextChangedEvent event = new SecurityContextChangedEvent(previous, current);
+		for (SecurityContextChangedListener listener : this.listeners) {
+			listener.securityContextChanged(event);
+		}
 	}
 
 }
