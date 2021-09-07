@@ -29,10 +29,6 @@ final class InheritableThreadLocalSecurityContextHolderStrategy implements Secur
 
 	private static final ThreadLocal<SecurityContext> contextHolder = new InheritableThreadLocal<>();
 
-	SecurityContext peek() {
-		return contextHolder.get();
-	}
-
 	@Override
 	public void clearContext() {
 		contextHolder.remove();

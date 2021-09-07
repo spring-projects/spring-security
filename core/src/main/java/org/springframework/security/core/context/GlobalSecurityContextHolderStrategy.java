@@ -31,10 +31,6 @@ final class GlobalSecurityContextHolderStrategy implements SecurityContextHolder
 
 	private static SecurityContext contextHolder;
 
-	SecurityContext peek() {
-		return contextHolder;
-	}
-
 	@Override
 	public void clearContext() {
 		contextHolder = null;
