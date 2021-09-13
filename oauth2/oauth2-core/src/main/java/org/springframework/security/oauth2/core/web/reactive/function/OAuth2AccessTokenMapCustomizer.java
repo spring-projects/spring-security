@@ -25,7 +25,7 @@ import java.util.Map;
  * before it gets decoded as {@link OAuth2AccessTokenResponse}
  *
  * @author Bishoy Basily
- * @since 2021-09-13
+ * @since 5.6
  */
 public interface OAuth2AccessTokenMapCustomizer {
 
