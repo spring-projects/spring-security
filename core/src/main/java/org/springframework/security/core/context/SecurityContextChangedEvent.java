@@ -26,19 +26,19 @@ import org.springframework.context.ApplicationEvent;
  */
 public class SecurityContextChangedEvent extends ApplicationEvent {
 
-	private final SecurityContext previous;
+	private final SecurityContext oldContext;
 
-	private final SecurityContext current;
+	private final SecurityContext newContext;
 
 	/**
 	 * Construct an event
-	 * @param previous the old security context
-	 * @param current the new security context
+	 * @param oldContext the old security context
+	 * @param newContext the new security context
 	 */
-	public SecurityContextChangedEvent(SecurityContext previous, SecurityContext current) {
+	public SecurityContextChangedEvent(SecurityContext oldContext, SecurityContext newContext) {
 		super(SecurityContextHolder.class);
-		this.previous = previous;
-		this.current = current;
+		this.oldContext = oldContext;
+		this.newContext = newContext;
 	}
 
 	/**
@@ -46,8 +46,8 @@ public class SecurityContextChangedEvent extends ApplicationEvent {
 	 * immediately previous to this event
 	 * @return the previous {@link SecurityContext}
 	 */
-	public SecurityContext getPreviousContext() {
-		return this.previous;
+	public SecurityContext getOldContext() {
+		return this.oldContext;
 	}
 
 	/**
@@ -55,8 +55,8 @@ public class SecurityContextChangedEvent extends ApplicationEvent {
 	 * event
 	 * @return the current {@link SecurityContext}
 	 */
-	public SecurityContext getCurrentContext() {
-		return this.current;
+	public SecurityContext getNewContext() {
+		return this.newContext;
 	}
 
 }
