@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Set;
 
+import org.springframework.security.oauth2.core.web.reactive.function.OAuth2AccessTokenMapCustomizer;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
@@ -62,7 +63,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @see WebClientReactiveRefreshTokenTokenResponseClient
  */
 public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extends AbstractOAuth2AuthorizationGrantRequest>
-		implements ReactiveOAuth2AccessTokenResponseClient<T> {
+		implements ReactiveOAuth2AccessTokenResponseClient<T>, OAuth2AccessTokenMapCustomizer {
 
 	private WebClient webClient = WebClient.builder().build();
 
@@ -204,7 +205,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * @return the token response from the response body.
 	 */
 	private Mono<OAuth2AccessTokenResponse> readTokenResponse(T grantRequest, ClientResponse response) {
-		return response.body(OAuth2BodyExtractors.oauth2AccessTokenResponse())
+		return response.body(OAuth2BodyExtractors.oauth2AccessTokenResponse(this))
 				.map((tokenResponse) -> populateTokenResponse(grantRequest, tokenResponse));
 	}
 

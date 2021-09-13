@@ -48,15 +48,17 @@ import org.springframework.web.reactive.function.BodyExtractors;
  * @author Rob Winch
  * @since 5.1
  */
-class OAuth2AccessTokenResponseBodyExtractor
-		implements BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> {
+class OAuth2AccessTokenResponseBodyExtractor implements BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>, OAuth2AccessTokenMapCustomizer {
 
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
 
-	OAuth2AccessTokenResponseBodyExtractor() {
+	private final OAuth2AccessTokenMapCustomizer oAuth2AccessTokenMapCustomizer;
+
+	OAuth2AccessTokenResponseBodyExtractor(OAuth2AccessTokenMapCustomizer oAuth2AccessTokenMapCustomizer) {
+		this.oAuth2AccessTokenMapCustomizer = oAuth2AccessTokenMapCustomizer;
 	}
 
 	@Override
@@ -69,6 +71,7 @@ class OAuth2AccessTokenResponseBodyExtractor
 						ex))
 				.switchIfEmpty(Mono.error(() -> new OAuth2AuthorizationException(
 						invalidTokenResponse("Empty OAuth 2.0 Access Token Response"))))
+				.map(oAuth2AccessTokenMapCustomizer::customizeOAuth2AccessTokenMap)
 				.map(OAuth2AccessTokenResponseBodyExtractor::parse)
 				.flatMap(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse)
 				.map(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse);

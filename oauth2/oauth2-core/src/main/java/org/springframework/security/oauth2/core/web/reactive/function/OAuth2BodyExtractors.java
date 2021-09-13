@@ -22,6 +22,8 @@ import org.springframework.http.ReactiveHttpInputMessage;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.web.reactive.function.BodyExtractor;
 
+import java.util.Map;
+
 /**
  * Static factory methods for OAuth2 {@link BodyExtractor} implementations.
  *
@@ -32,10 +34,11 @@ public abstract class OAuth2BodyExtractors {
 
 	/**
 	 * Extractor to decode an {@link OAuth2AccessTokenResponse}
+	 * Customizer to customize the response {@link Map}
 	 * @return a BodyExtractor for {@link OAuth2AccessTokenResponse}
 	 */
-	public static BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> oauth2AccessTokenResponse() {
-		return new OAuth2AccessTokenResponseBodyExtractor();
+	public static BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> oauth2AccessTokenResponse(OAuth2AccessTokenMapCustomizer mapCustomizer) {
+		return new OAuth2AccessTokenResponseBodyExtractor(mapCustomizer);
 	}
 
 	private OAuth2BodyExtractors() {
