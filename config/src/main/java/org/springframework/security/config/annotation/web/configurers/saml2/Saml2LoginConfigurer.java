@@ -163,7 +163,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * @param repo the repository of relying parties
 	 * @return the {@link Saml2LoginConfigurer} for further configuration
 	 */
-	public Saml2LoginConfigurer relyingPartyRegistrationRepository(RelyingPartyRegistrationRepository repo) {
+	public Saml2LoginConfigurer<B> relyingPartyRegistrationRepository(RelyingPartyRegistrationRepository repo) {
 		this.relyingPartyRegistrationRepository = repo;
 		return this;
 	}
