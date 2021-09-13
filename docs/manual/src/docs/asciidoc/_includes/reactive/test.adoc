@@ -184,7 +184,7 @@ then Spring Security's test support can come in handy.
 Testing the method above with `WebTestClient` would require simulating some kind of grant flow with an authorization server.
 Certainly this would be a daunting task, which is why Spring Security ships with support for removing this boilerplate.
 
-For example, we can tell Spring Security to include a default `OidcUser` using the `SecurityMockServerConfigurers#oidcLogin` method, like so:
+For example, we can tell Spring Security to include a default `OidcUser` using the `SecurityMockServerConfigurers#mockOidcLogin` method, like so:
 
 [source,java]
 ----
@@ -311,7 +311,7 @@ public Mono<String> foo(@AuthenticationPrincipal OAuth2User oauth2User) {
 }
 ----
 
-In that case, we can tell Spring Security to include a default `OAuth2User` using the `SecurityMockServerConfigurers#oauth2User` method, like so:
+In that case, we can tell Spring Security to include a default `OAuth2User` using the `SecurityMockServerConfigurers#mockOAuth2Login` method, like so:
 
 [source,java]
 ----
@@ -431,7 +431,7 @@ public Mono<String> foo(@RegisteredOAuth2AuthorizedClient("my-app") OAuth2Author
 ----
 
 Simulating this handshake with the authorization server could be cumbersome.
-Instead, you can use `SecurityMockServerConfigurers#oauth2Client` to add a `OAuth2AuthorizedClient` into an `WebSessionOAuth2ServerAuthorizedClientRepository`:
+Instead, you can use `SecurityMockServerConfigurers#mockOAuth2Client` to add a `OAuth2AuthorizedClient` into a mock `ServerOAuth2AuthorizedClientRepository`:
 
 [source,java]
 ----
@@ -555,7 +555,7 @@ We'll look at two of them now:
 ==== `mockJwt() WebTestClientConfigurer`
 
 The first way is via a `WebTestClientConfigurer`.
-The simplest of these would look something like this:
+The simplest of these would be to use the `SecurityMockServerConfigurers#mockJwt` method like the following:
 
 [source,java]
 ----
@@ -678,7 +678,7 @@ public Mono<String> foo(BearerTokenAuthentication authentication) {
 }
 ----
 
-In that case, we can tell Spring Security to include a default `BearerTokenAuthentication` using the `SecurityMockServerConfigurers#opaqueToken` method, like so:
+In that case, we can tell Spring Security to include a default `BearerTokenAuthentication` using the `SecurityMockServerConfigurers#mockOpaqueToken` method, like so:
 
 [source,java]
 ----
