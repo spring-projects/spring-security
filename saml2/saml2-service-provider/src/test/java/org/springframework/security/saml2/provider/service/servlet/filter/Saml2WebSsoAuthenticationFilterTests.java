@@ -28,6 +28,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationTokens;
@@ -65,7 +66,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 	public void setup() {
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository);
 		this.request.setPathInfo("/login/saml2/sso/idp-registration-id");
-		this.request.setParameter("SAMLResponse", "xml-data-goes-here");
+		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "xml-data-goes-here");
 	}
 
 	@Test
@@ -89,7 +90,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 	public void requiresAuthenticationWhenCustomProcessingUrlThenReturnsTrue() {
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
 		this.request.setPathInfo("/some/other/path/idp-registration-id");
-		this.request.setParameter("SAMLResponse", "xml-data-goes-here");
+		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "xml-data-goes-here");
 		Assertions.assertTrue(this.filter.requiresAuthentication(this.request, this.response));
 	}
 
@@ -98,7 +99,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		given(this.repository.findByRegistrationId("non-existent-id")).willReturn(null);
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
 		this.request.setPathInfo("/some/other/path/non-existent-id");
-		this.request.setParameter("SAMLResponse", "response");
+		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "response");
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 				.isThrownBy(() -> this.filter.attemptAuthentication(this.request, this.response))
 				.withMessage("No relying party registration found");
@@ -161,7 +162,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		this.filter = new Saml2WebSsoAuthenticationFilter(authenticationConverter, loginProcessingUrl);
 		this.filter.setAuthenticationManager(this.authenticationManager);
 		this.request.setPathInfo("/registration-id/login/saml2/sso");
-		this.request.setParameter("SAMLResponse", "response");
+		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "response");
 		this.filter.doFilter(this.request, this.response, new MockFilterChain());
 		verify(this.repository).findByRegistrationId("registration-id");
 	}

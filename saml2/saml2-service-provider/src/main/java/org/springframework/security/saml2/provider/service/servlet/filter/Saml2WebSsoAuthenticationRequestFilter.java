@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.opensaml.core.Version;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
@@ -200,10 +201,10 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 		this.authenticationRequestRepository.saveAuthenticationRequest(authenticationRequest, request, response);
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder
 				.fromUriString(authenticationRequest.getAuthenticationRequestUri());
-		addParameter("SAMLRequest", authenticationRequest.getSamlRequest(), uriBuilder);
-		addParameter("RelayState", authenticationRequest.getRelayState(), uriBuilder);
-		addParameter("SigAlg", authenticationRequest.getSigAlg(), uriBuilder);
-		addParameter("Signature", authenticationRequest.getSignature(), uriBuilder);
+		addParameter(Saml2ParameterNames.SAML_REQUEST, authenticationRequest.getSamlRequest(), uriBuilder);
+		addParameter(Saml2ParameterNames.RELAY_STATE, authenticationRequest.getRelayState(), uriBuilder);
+		addParameter(Saml2ParameterNames.SIG_ALG, authenticationRequest.getSigAlg(), uriBuilder);
+		addParameter(Saml2ParameterNames.SIGNATURE, authenticationRequest.getSignature(), uriBuilder);
 		String redirectUrl = uriBuilder.build(true).toUriString();
 		response.sendRedirect(redirectUrl);
 	}

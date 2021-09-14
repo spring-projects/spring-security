@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.Assert;
@@ -80,7 +81,7 @@ public final class DefaultSaml2AuthenticationRequestContextResolver
 		return Saml2AuthenticationRequestContext.builder().issuer(relyingParty.getEntityId())
 				.relyingPartyRegistration(relyingParty)
 				.assertionConsumerServiceUrl(relyingParty.getAssertionConsumerServiceLocation())
-				.relayState(request.getParameter("RelayState")).build();
+				.relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE)).build();
 	}
 
 }

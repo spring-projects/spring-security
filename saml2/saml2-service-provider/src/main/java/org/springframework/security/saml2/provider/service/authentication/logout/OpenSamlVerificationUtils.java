@@ -47,6 +47,7 @@ import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngin
 
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.web.util.UriUtils;
@@ -179,44 +180,40 @@ final class OpenSamlVerificationUtils {
 			private final byte[] content;
 
 			RedirectSignature(Saml2LogoutRequest request) {
-				this.algorithm = request.getParameter("SigAlg");
-				if (request.getParameter("Signature") != null) {
-					this.signature = Saml2Utils.samlDecode(request.getParameter("Signature"));
+				this.algorithm = request.getParameter(Saml2ParameterNames.SIG_ALG);
+				if (request.getParameter(Saml2ParameterNames.SIGNATURE) != null) {
+					this.signature = Saml2Utils.samlDecode(request.getParameter(Saml2ParameterNames.SIGNATURE));
 				}
 				else {
 					this.signature = null;
 				}
-				this.content = content(request.getSamlRequest(), "SAMLRequest", request.getRelayState(),
-						request.getParameter("SigAlg"));
+				this.content = content(request.getSamlRequest(), Saml2ParameterNames.SAML_REQUEST,
+						request.getRelayState(), request.getParameter(Saml2ParameterNames.SIG_ALG));
 			}
 
 			RedirectSignature(Saml2LogoutResponse response) {
-				this.algorithm = response.getParameter("SigAlg");
-				if (response.getParameter("Signature") != null) {
-					this.signature = Saml2Utils.samlDecode(response.getParameter("Signature"));
+				this.algorithm = response.getParameter(Saml2ParameterNames.SIG_ALG);
+				if (response.getParameter(Saml2ParameterNames.SIGNATURE) != null) {
+					this.signature = Saml2Utils.samlDecode(response.getParameter(Saml2ParameterNames.SIGNATURE));
 				}
 				else {
 					this.signature = null;
 				}
-				this.content = content(response.getSamlResponse(), "SAMLResponse", response.getRelayState(),
-						response.getParameter("SigAlg"));
+				this.content = content(response.getSamlResponse(), Saml2ParameterNames.SAML_RESPONSE,
+						response.getRelayState(), response.getParameter(Saml2ParameterNames.SIG_ALG));
 			}
 
 			static byte[] content(String samlObject, String objectParameterName, String relayState, String algorithm) {
 				if (relayState != null) {
-					return String
-							.format("%s=%s&RelayState=%s&SigAlg=%s", objectParameterName,
-									UriUtils.encode(samlObject, StandardCharsets.ISO_8859_1),
-									UriUtils.encode(relayState, StandardCharsets.ISO_8859_1),
-									UriUtils.encode(algorithm, StandardCharsets.ISO_8859_1))
-							.getBytes(StandardCharsets.UTF_8);
+					return String.format("%s=%s&%s=%s&%s=%s", objectParameterName,
+							UriUtils.encode(samlObject, StandardCharsets.ISO_8859_1), Saml2ParameterNames.RELAY_STATE,
+							UriUtils.encode(relayState, StandardCharsets.ISO_8859_1), Saml2ParameterNames.SIG_ALG,
+							UriUtils.encode(algorithm, StandardCharsets.ISO_8859_1)).getBytes(StandardCharsets.UTF_8);
 				}
 				else {
-					return String
-							.format("%s=%s&SigAlg=%s", objectParameterName,
-									UriUtils.encode(samlObject, StandardCharsets.ISO_8859_1),
-									UriUtils.encode(algorithm, StandardCharsets.ISO_8859_1))
-							.getBytes(StandardCharsets.UTF_8);
+					return String.format("%s=%s&%s=%s", objectParameterName,
+							UriUtils.encode(samlObject, StandardCharsets.ISO_8859_1), Saml2ParameterNames.SIG_ALG,
+							UriUtils.encode(algorithm, StandardCharsets.ISO_8859_1)).getBytes(StandardCharsets.UTF_8);
 				}
 			}
 

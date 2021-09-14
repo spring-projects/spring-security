@@ -27,6 +27,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
@@ -76,7 +77,7 @@ public class Saml2RelyingPartyInitiatedLogoutSuccessHandlerTests {
 		given(this.logoutRequestResolver.resolve(any(), any())).willReturn(logoutRequest);
 		this.logoutRequestSuccessHandler.onLogoutSuccess(request, response, authentication);
 		String content = response.getHeader("Location");
-		assertThat(content).contains("SAMLRequest");
+		assertThat(content).contains(Saml2ParameterNames.SAML_REQUEST);
 		assertThat(content).startsWith(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
 	}
 
@@ -94,7 +95,7 @@ public class Saml2RelyingPartyInitiatedLogoutSuccessHandlerTests {
 		given(this.logoutRequestResolver.resolve(any(), any())).willReturn(logoutRequest);
 		this.logoutRequestSuccessHandler.onLogoutSuccess(request, response, authentication);
 		String content = response.getContentAsString();
-		assertThat(content).contains("SAMLRequest");
+		assertThat(content).contains(Saml2ParameterNames.SAML_REQUEST);
 		assertThat(content).contains(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
 	}
 

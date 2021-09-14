@@ -26,6 +26,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml2.core.Saml2Error;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequestValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutValidatorResult;
@@ -71,7 +72,7 @@ public class Saml2LogoutRequestFilterTests {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2/slo");
 		request.setServletPath("/logout/saml2/slo");
-		request.setParameter("SAMLRequest", "request");
+		request.setParameter(Saml2ParameterNames.SAML_REQUEST, "request");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
 		given(this.logoutRequestValidator.validate(any())).willReturn(Saml2LogoutValidatorResult.success());
@@ -83,7 +84,7 @@ public class Saml2LogoutRequestFilterTests {
 		verify(this.logoutHandler).logout(any(), any(), any());
 		verify(this.logoutResponseResolver).resolve(any(), any());
 		String content = response.getHeader("Location");
-		assertThat(content).contains("SAMLResponse");
+		assertThat(content).contains(Saml2ParameterNames.SAML_RESPONSE);
 		assertThat(content)
 				.startsWith(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation());
 	}
@@ -96,7 +97,7 @@ public class Saml2LogoutRequestFilterTests {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2/slo");
 		request.setServletPath("/logout/saml2/slo");
-		request.setParameter("SAMLRequest", "request");
+		request.setParameter(Saml2ParameterNames.SAML_REQUEST, "request");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
 		given(this.logoutRequestValidator.validate(any())).willReturn(Saml2LogoutValidatorResult.success());
@@ -108,7 +109,7 @@ public class Saml2LogoutRequestFilterTests {
 		verify(this.logoutHandler).logout(any(), any(), any());
 		verify(this.logoutResponseResolver).resolve(any(), any());
 		String content = response.getContentAsString();
-		assertThat(content).contains("SAMLResponse");
+		assertThat(content).contains(Saml2ParameterNames.SAML_RESPONSE);
 		assertThat(content).contains(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation());
 	}
 
@@ -118,7 +119,7 @@ public class Saml2LogoutRequestFilterTests {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout");
 		request.setServletPath("/logout");
-		request.setParameter("SAMLResponse", "response");
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "response");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.logoutRequestProcessingFilter.doFilterInternal(request, response, new MockFilterChain());
 		verifyNoInteractions(this.logoutRequestValidator, this.logoutHandler);
@@ -142,7 +143,7 @@ public class Saml2LogoutRequestFilterTests {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2/slo");
 		request.setServletPath("/logout/saml2/slo");
-		request.setParameter("SAMLRequest", "request");
+		request.setParameter(Saml2ParameterNames.SAML_REQUEST, "request");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		given(this.relyingPartyRegistrationResolver.resolve(request, null)).willReturn(registration);
 		given(this.logoutRequestValidator.validate(any()))

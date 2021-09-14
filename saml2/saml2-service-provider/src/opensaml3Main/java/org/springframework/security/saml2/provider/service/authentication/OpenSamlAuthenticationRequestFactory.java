@@ -33,6 +33,7 @@ import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlSigningUtils.QueryParametersPartial;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
@@ -120,13 +121,14 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
 		result.samlRequest(deflatedAndEncoded).relayState(context.getRelayState());
 		if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned()) {
-			QueryParametersPartial partial = OpenSamlSigningUtils.sign(registration).param("SAMLRequest",
-					deflatedAndEncoded);
+			QueryParametersPartial partial = OpenSamlSigningUtils.sign(registration)
+					.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded);
 			if (StringUtils.hasText(context.getRelayState())) {
-				partial.param("RelayState", context.getRelayState());
+				partial.param(Saml2ParameterNames.RELAY_STATE, context.getRelayState());
 			}
 			Map<String, String> parameters = partial.parameters();
-			return result.sigAlg(parameters.get("SigAlg")).signature(parameters.get("Signature")).build();
+			return result.sigAlg(parameters.get(Saml2ParameterNames.SIG_ALG))
+					.signature(parameters.get(Saml2ParameterNames.SIGNATURE)).build();
 		}
 		return result.build();
 	}

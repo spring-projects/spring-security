@@ -27,6 +27,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml2.core.Saml2Error;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponseValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutValidatorResult;
@@ -74,7 +75,7 @@ public class Saml2LogoutResponseFilterTests {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2/slo");
 		request.setServletPath("/logout/saml2/slo");
-		request.setParameter("SAMLResponse", "response");
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "response");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
 		given(this.relyingPartyRegistrationResolver.resolve(request, "registration-id")).willReturn(registration);
@@ -93,7 +94,7 @@ public class Saml2LogoutResponseFilterTests {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/logout/saml2/slo");
 		request.setServletPath("/logout/saml2/slo");
-		request.setParameter("SAMLResponse", "response");
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "response");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
 				.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT).build();
@@ -113,7 +114,7 @@ public class Saml2LogoutResponseFilterTests {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout");
 		request.setServletPath("/logout");
-		request.setParameter("SAMLRequest", "request");
+		request.setParameter(Saml2ParameterNames.SAML_REQUEST, "request");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.logoutResponseProcessingFilter.doFilterInternal(request, response, new MockFilterChain());
 		verifyNoInteractions(this.logoutResponseValidator, this.logoutSuccessHandler);
@@ -136,7 +137,7 @@ public class Saml2LogoutResponseFilterTests {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2/slo");
 		request.setServletPath("/logout/saml2/slo");
-		request.setParameter("SAMLResponse", "response");
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "response");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
 		given(this.relyingPartyRegistrationResolver.resolve(request, "registration-id")).willReturn(registration);

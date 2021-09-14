@@ -32,6 +32,7 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequestValidator;
@@ -106,7 +107,7 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		if (request.getParameter("SAMLRequest") == null) {
+		if (request.getParameter(Saml2ParameterNames.SAML_REQUEST) == null) {
 			chain.doFilter(request, response);
 			return;
 		}
@@ -126,13 +127,16 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		String serialized = request.getParameter("SAMLRequest");
+		String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-				.samlRequest(serialized).relayState(request.getParameter("RelayState"))
+				.samlRequest(serialized).relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
 				.binding(registration.getSingleLogoutServiceBinding())
 				.location(registration.getSingleLogoutServiceLocation())
-				.parameters((params) -> params.put("SigAlg", request.getParameter("SigAlg")))
-				.parameters((params) -> params.put("Signature", request.getParameter("Signature"))).build();
+				.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
+						request.getParameter(Saml2ParameterNames.SIG_ALG)))
+				.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
+						request.getParameter(Saml2ParameterNames.SIGNATURE)))
+				.build();
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(logoutRequest,
 				registration, authentication);
 		Saml2LogoutValidatorResult result = this.logoutRequestValidator.validate(parameters);
@@ -184,10 +188,10 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			Saml2LogoutResponse logoutResponse) throws IOException {
 		String location = logoutResponse.getResponseLocation();
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location);
-		addParameter("SAMLResponse", logoutResponse::getParameter, uriBuilder);
-		addParameter("RelayState", logoutResponse::getParameter, uriBuilder);
-		addParameter("SigAlg", logoutResponse::getParameter, uriBuilder);
-		addParameter("Signature", logoutResponse::getParameter, uriBuilder);
+		addParameter(Saml2ParameterNames.SAML_RESPONSE, logoutResponse::getParameter, uriBuilder);
+		addParameter(Saml2ParameterNames.RELAY_STATE, logoutResponse::getParameter, uriBuilder);
+		addParameter(Saml2ParameterNames.SIG_ALG, logoutResponse::getParameter, uriBuilder);
+		addParameter(Saml2ParameterNames.SIGNATURE, logoutResponse::getParameter, uriBuilder);
 		this.redirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
 	}
 

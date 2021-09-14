@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.credentials.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -69,7 +70,7 @@ public class DefaultSaml2AuthenticationRequestContextResolverTests {
 
 	@Test
 	public void resolveWhenRequestAndRelyingPartyNotNullThenCreateSaml2AuthenticationRequestContext() {
-		this.request.addParameter("RelayState", "relay-state");
+		this.request.addParameter(Saml2ParameterNames.RELAY_STATE, "relay-state");
 		Saml2AuthenticationRequestContext context = this.authenticationRequestContextResolver.resolve(this.request);
 		assertThat(context).isNotNull();
 		assertThat(context.getAssertionConsumerServiceUrl()).isEqualTo(RELYING_PARTY_SSO_URL);

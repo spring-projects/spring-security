@@ -51,6 +51,7 @@ import org.opensaml.xmlsec.signature.support.SignatureSupport;
 import org.w3c.dom.Element;
 
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.Assert;
@@ -165,7 +166,7 @@ final class OpenSamlSigningUtils {
 			SignatureSigningParameters parameters = resolveSigningParameters(this.registration);
 			Credential credential = parameters.getSigningCredential();
 			String algorithmUri = parameters.getSignatureAlgorithm();
-			this.components.put("SigAlg", algorithmUri);
+			this.components.put(Saml2ParameterNames.SIG_ALG, algorithmUri);
 			UriComponentsBuilder builder = UriComponentsBuilder.newInstance();
 			for (Map.Entry<String, String> component : this.components.entrySet()) {
 				builder.queryParam(component.getKey(),
@@ -176,7 +177,7 @@ final class OpenSamlSigningUtils {
 				byte[] rawSignature = XMLSigningUtil.signWithURI(credential, algorithmUri,
 						queryString.getBytes(StandardCharsets.UTF_8));
 				String b64Signature = Saml2Utils.samlEncode(rawSignature);
-				this.components.put("Signature", b64Signature);
+				this.components.put(Saml2ParameterNames.SIGNATURE, b64Signature);
 			}
 			catch (SecurityException ex) {
 				throw new Saml2Exception(ex);

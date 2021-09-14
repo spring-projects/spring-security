@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
@@ -46,7 +47,7 @@ public class HttpSessionLogoutRequestRepositoryTests {
 	@Test
 	public void loadLogoutRequestWhenNotSavedThenReturnNull() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addParameter("RelayState", "state-1234");
+		request.addParameter(Saml2ParameterNames.RELAY_STATE, "state-1234");
 		Saml2LogoutRequest logoutRequest = this.logoutRequestRepository.loadLogoutRequest(request);
 		assertThat(logoutRequest).isNull();
 	}
@@ -57,7 +58,7 @@ public class HttpSessionLogoutRequestRepositoryTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		Saml2LogoutRequest logoutRequest = createLogoutRequest().build();
 		this.logoutRequestRepository.saveLogoutRequest(logoutRequest, request, response);
-		request.addParameter("RelayState", logoutRequest.getRelayState());
+		request.addParameter(Saml2ParameterNames.RELAY_STATE, logoutRequest.getRelayState());
 		Saml2LogoutRequest loadedLogoutRequest = this.logoutRequestRepository.loadLogoutRequest(request);
 		assertThat(loadedLogoutRequest).isEqualTo(logoutRequest);
 	}
@@ -70,9 +71,9 @@ public class HttpSessionLogoutRequestRepositoryTests {
 		this.logoutRequestRepository.saveLogoutRequest(one, request, response);
 		Saml2LogoutRequest two = createLogoutRequest().relayState("state-3344").build();
 		this.logoutRequestRepository.saveLogoutRequest(two, request, response);
-		request.setParameter("RelayState", one.getRelayState());
+		request.setParameter(Saml2ParameterNames.RELAY_STATE, one.getRelayState());
 		assertThat(this.logoutRequestRepository.loadLogoutRequest(request)).isNull();
-		request.setParameter("RelayState", two.getRelayState());
+		request.setParameter(Saml2ParameterNames.RELAY_STATE, two.getRelayState());
 		assertThat(this.logoutRequestRepository.loadLogoutRequest(request)).isEqualTo(two);
 	}
 
@@ -110,7 +111,7 @@ public class HttpSessionLogoutRequestRepositoryTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		Saml2LogoutRequest logoutRequest = createLogoutRequest().build();
 		this.logoutRequestRepository.saveLogoutRequest(logoutRequest, request, new MockHttpServletResponse());
-		request.addParameter("RelayState", logoutRequest.getRelayState());
+		request.addParameter(Saml2ParameterNames.RELAY_STATE, logoutRequest.getRelayState());
 		Saml2LogoutRequest loadedLogoutRequest = this.logoutRequestRepository.loadLogoutRequest(request);
 		assertThat(loadedLogoutRequest).isEqualTo(logoutRequest);
 	}
@@ -121,7 +122,7 @@ public class HttpSessionLogoutRequestRepositoryTests {
 		request.setSession(new MockDistributedHttpSession());
 		Saml2LogoutRequest logoutRequest = createLogoutRequest().build();
 		this.logoutRequestRepository.saveLogoutRequest(logoutRequest, request, new MockHttpServletResponse());
-		request.addParameter("RelayState", logoutRequest.getRelayState());
+		request.addParameter(Saml2ParameterNames.RELAY_STATE, logoutRequest.getRelayState());
 		Saml2LogoutRequest loadedLogoutRequest = this.logoutRequestRepository.loadLogoutRequest(request);
 		assertThat(loadedLogoutRequest).isEqualTo(logoutRequest);
 	}
@@ -134,7 +135,7 @@ public class HttpSessionLogoutRequestRepositoryTests {
 		this.logoutRequestRepository.saveLogoutRequest(logoutRequest1, request, new MockHttpServletResponse());
 		Saml2LogoutRequest logoutRequest2 = createLogoutRequest().build();
 		this.logoutRequestRepository.saveLogoutRequest(logoutRequest2, request, new MockHttpServletResponse());
-		request.addParameter("RelayState", logoutRequest2.getRelayState());
+		request.addParameter(Saml2ParameterNames.RELAY_STATE, logoutRequest2.getRelayState());
 		Saml2LogoutRequest loadedLogoutRequest = this.logoutRequestRepository.loadLogoutRequest(request);
 		assertThat(loadedLogoutRequest).isEqualTo(logoutRequest2);
 	}
@@ -145,7 +146,7 @@ public class HttpSessionLogoutRequestRepositoryTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		Saml2LogoutRequest logoutRequest = createLogoutRequest().build();
 		this.logoutRequestRepository.saveLogoutRequest(logoutRequest, request, response);
-		request.addParameter("RelayState", logoutRequest.getRelayState());
+		request.addParameter(Saml2ParameterNames.RELAY_STATE, logoutRequest.getRelayState());
 		this.logoutRequestRepository.saveLogoutRequest(null, request, response);
 		Saml2LogoutRequest loadedLogoutRequest = this.logoutRequestRepository.loadLogoutRequest(request);
 		assertThat(loadedLogoutRequest).isNull();
@@ -169,7 +170,7 @@ public class HttpSessionLogoutRequestRepositoryTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		Saml2LogoutRequest logoutRequest = createLogoutRequest().build();
 		this.logoutRequestRepository.saveLogoutRequest(logoutRequest, request, response);
-		request.addParameter("RelayState", logoutRequest.getRelayState());
+		request.addParameter(Saml2ParameterNames.RELAY_STATE, logoutRequest.getRelayState());
 		Saml2LogoutRequest removedLogoutRequest = this.logoutRequestRepository.removeLogoutRequest(request, response);
 		Saml2LogoutRequest loadedLogoutRequest = this.logoutRequestRepository.loadLogoutRequest(request);
 		assertThat(removedLogoutRequest).isNotNull();
@@ -183,7 +184,7 @@ public class HttpSessionLogoutRequestRepositoryTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		Saml2LogoutRequest logoutRequest = createLogoutRequest().build();
 		this.logoutRequestRepository.saveLogoutRequest(logoutRequest, request, response);
-		request.addParameter("RelayState", logoutRequest.getRelayState());
+		request.addParameter(Saml2ParameterNames.RELAY_STATE, logoutRequest.getRelayState());
 		Saml2LogoutRequest removedLogoutRequest = this.logoutRequestRepository.removeLogoutRequest(request, response);
 		String sessionAttributeName = HttpSessionLogoutRequestRepository.class.getName() + ".AUTHORIZATION_REQUEST";
 		assertThat(removedLogoutRequest).isNotNull();
@@ -193,7 +194,7 @@ public class HttpSessionLogoutRequestRepositoryTests {
 	@Test
 	public void removeLogoutRequestWhenNotSavedThenNotRemoved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addParameter("RelayState", "state-1234");
+		request.addParameter(Saml2ParameterNames.RELAY_STATE, "state-1234");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		Saml2LogoutRequest removedLogoutRequest = this.logoutRequestRepository.removeLogoutRequest(request, response);
 		assertThat(removedLogoutRequest).isNull();
@@ -202,7 +203,7 @@ public class HttpSessionLogoutRequestRepositoryTests {
 	private Saml2LogoutRequest.Builder createLogoutRequest() {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
 		return Saml2LogoutRequest.withRelyingPartyRegistration(registration).samlRequest("request").id("id")
-				.parameters((params) -> params.put("RelayState", "state-1234"));
+				.parameters((params) -> params.put(Saml2ParameterNames.RELAY_STATE, "state-1234"));
 	}
 
 	static class MockDistributedHttpSession extends MockHttpSession {

@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.security.crypto.codec.Utf8;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.util.Assert;
 
@@ -90,7 +91,7 @@ public final class HttpSessionLogoutRequestRepository implements Saml2LogoutRequ
 	}
 
 	private String getStateParameter(HttpServletRequest request) {
-		return request.getParameter("RelayState");
+		return request.getParameter(Saml2ParameterNames.RELAY_STATE);
 	}
 
 	private boolean stateParameterEquals(HttpServletRequest request, Saml2LogoutRequest logoutRequest) {

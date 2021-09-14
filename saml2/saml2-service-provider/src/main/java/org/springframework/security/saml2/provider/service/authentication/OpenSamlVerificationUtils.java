@@ -48,6 +48,7 @@ import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngin
 
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -176,34 +177,39 @@ final class OpenSamlVerificationUtils {
 			}
 
 			String getAlgorithm() {
-				return this.request.getParameter("SigAlg");
+				return this.request.getParameter(Saml2ParameterNames.SIG_ALG);
 			}
 
 			byte[] getContent() {
-				if (this.request.getParameter("RelayState") != null) {
-					return String.format("%s=%s&RelayState=%s&SigAlg=%s", this.objectParameterName,
-							UriUtils.encode(this.request.getParameter(this.objectParameterName),
-									StandardCharsets.ISO_8859_1),
-							UriUtils.encode(this.request.getParameter("RelayState"), StandardCharsets.ISO_8859_1),
-							UriUtils.encode(getAlgorithm(), StandardCharsets.ISO_8859_1))
+				if (this.request.getParameter(Saml2ParameterNames.RELAY_STATE) != null) {
+					return String
+							.format("%s=%s&%s=%s&%s=%s", this.objectParameterName,
+									UriUtils.encode(this.request.getParameter(this.objectParameterName),
+											StandardCharsets.ISO_8859_1),
+									Saml2ParameterNames.RELAY_STATE,
+									UriUtils.encode(this.request.getParameter(Saml2ParameterNames.RELAY_STATE),
+											StandardCharsets.ISO_8859_1),
+									Saml2ParameterNames.SIG_ALG,
+									UriUtils.encode(getAlgorithm(), StandardCharsets.ISO_8859_1))
 							.getBytes(StandardCharsets.UTF_8);
 				}
 				else {
 					return String
-							.format("%s=%s&SigAlg=%s", this.objectParameterName,
+							.format("%s=%s&%s=%s", this.objectParameterName,
 									UriUtils.encode(this.request.getParameter(this.objectParameterName),
 											StandardCharsets.ISO_8859_1),
+									Saml2ParameterNames.SIG_ALG,
 									UriUtils.encode(getAlgorithm(), StandardCharsets.ISO_8859_1))
 							.getBytes(StandardCharsets.UTF_8);
 				}
 			}
 
 			byte[] getSignature() {
-				return Saml2Utils.samlDecode(this.request.getParameter("Signature"));
+				return Saml2Utils.samlDecode(this.request.getParameter(Saml2ParameterNames.SIGNATURE));
 			}
 
 			boolean hasSignature() {
-				return this.request.getParameter("Signature") != null;
+				return this.request.getParameter(Saml2ParameterNames.SIGNATURE) != null;
 			}
 
 		}

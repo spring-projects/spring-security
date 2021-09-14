@@ -27,6 +27,7 @@ import org.opensaml.saml.saml2.core.LogoutRequest;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
@@ -156,7 +157,7 @@ public class OpenSamlLogoutRequestValidatorTests {
 	private Saml2LogoutRequest redirect(LogoutRequest logoutRequest, RelyingPartyRegistration registration,
 			QueryParametersPartial partial) {
 		String serialized = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(serialize(logoutRequest)));
-		Map<String, String> parameters = partial.param("SAMLRequest", serialized).parameters();
+		Map<String, String> parameters = partial.param(Saml2ParameterNames.SAML_REQUEST, serialized).parameters();
 		return Saml2LogoutRequest.withRelyingPartyRegistration(registration).samlRequest(serialized)
 				.parameters((params) -> params.putAll(parameters)).build();
 	}

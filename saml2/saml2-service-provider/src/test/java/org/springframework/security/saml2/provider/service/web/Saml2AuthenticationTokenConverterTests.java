@@ -30,6 +30,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
@@ -63,7 +64,8 @@ public class Saml2AuthenticationTokenConverterTests {
 		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
 				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setParameter("SAMLResponse", Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
+				Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
@@ -77,7 +79,7 @@ public class Saml2AuthenticationTokenConverterTests {
 		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
 				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setParameter("SAMLResponse", "invalid");
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "invalid");
 		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> converter.convert(request))
 				.withCauseInstanceOf(IllegalArgumentException.class)
 				.satisfies((ex) -> assertThat(ex.getSaml2Error().getErrorCode())
@@ -115,7 +117,7 @@ public class Saml2AuthenticationTokenConverterTests {
 		request.setMethod("GET");
 		byte[] deflated = Saml2Utils.samlDeflate("response");
 		String encoded = Saml2Utils.samlEncode(deflated);
-		request.setParameter("SAMLResponse", encoded);
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, encoded);
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
@@ -132,7 +134,7 @@ public class Saml2AuthenticationTokenConverterTests {
 		request.setMethod("GET");
 		byte[] invalidDeflated = "invalid".getBytes();
 		String encoded = Saml2Utils.samlEncode(invalidDeflated);
-		request.setParameter("SAMLResponse", encoded);
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, encoded);
 		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> converter.convert(request))
 				.withCauseInstanceOf(IOException.class)
 				.satisfies((ex) -> assertThat(ex.getSaml2Error().getErrorCode())
@@ -148,7 +150,7 @@ public class Saml2AuthenticationTokenConverterTests {
 		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
 				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setParameter("SAMLResponse", getSsoCircleEncodedXml());
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, getSsoCircleEncodedXml());
 		Saml2AuthenticationToken token = converter.convert(request);
 		validateSsoCircleXml(token.getSaml2Response());
 	}
@@ -166,7 +168,8 @@ public class Saml2AuthenticationTokenConverterTests {
 		given(authenticationRequestRepository.loadAuthenticationRequest(any(HttpServletRequest.class)))
 				.willReturn(authenticationRequest);
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setParameter("SAMLResponse", Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
+				Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())

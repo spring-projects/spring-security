@@ -31,6 +31,7 @@ import org.w3c.dom.Element;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
@@ -63,9 +64,9 @@ public class OpenSamlLogoutRequestResolverTests {
 		HttpServletRequest request = new MockHttpServletRequest();
 		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
 		Saml2LogoutRequest saml2LogoutRequest = this.logoutRequestResolver.resolve(request, authentication);
-		assertThat(saml2LogoutRequest.getParameter("SigAlg")).isNotNull();
-		assertThat(saml2LogoutRequest.getParameter("Signature")).isNotNull();
-		assertThat(saml2LogoutRequest.getParameter("RelayState")).isNotNull();
+		assertThat(saml2LogoutRequest.getParameter(Saml2ParameterNames.SIG_ALG)).isNotNull();
+		assertThat(saml2LogoutRequest.getParameter(Saml2ParameterNames.SIGNATURE)).isNotNull();
+		assertThat(saml2LogoutRequest.getParameter(Saml2ParameterNames.RELAY_STATE)).isNotNull();
 		Saml2MessageBinding binding = registration.getAssertingPartyDetails().getSingleLogoutServiceBinding();
 		LogoutRequest logoutRequest = getLogoutRequest(saml2LogoutRequest.getSamlRequest(), binding);
 		assertThat(logoutRequest.getNameID().getValue()).isEqualTo(authentication.getName());
@@ -79,9 +80,9 @@ public class OpenSamlLogoutRequestResolverTests {
 		HttpServletRequest request = new MockHttpServletRequest();
 		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
 		Saml2LogoutRequest saml2LogoutRequest = this.logoutRequestResolver.resolve(request, authentication);
-		assertThat(saml2LogoutRequest.getParameter("SigAlg")).isNull();
-		assertThat(saml2LogoutRequest.getParameter("Signature")).isNull();
-		assertThat(saml2LogoutRequest.getParameter("RelayState")).isNotNull();
+		assertThat(saml2LogoutRequest.getParameter(Saml2ParameterNames.SIG_ALG)).isNull();
+		assertThat(saml2LogoutRequest.getParameter(Saml2ParameterNames.SIGNATURE)).isNull();
+		assertThat(saml2LogoutRequest.getParameter(Saml2ParameterNames.RELAY_STATE)).isNotNull();
 		Saml2MessageBinding binding = registration.getAssertingPartyDetails().getSingleLogoutServiceBinding();
 		LogoutRequest logoutRequest = getLogoutRequest(saml2LogoutRequest.getSamlRequest(), binding);
 		assertThat(logoutRequest.getNameID().getValue()).isEqualTo(authentication.getName());

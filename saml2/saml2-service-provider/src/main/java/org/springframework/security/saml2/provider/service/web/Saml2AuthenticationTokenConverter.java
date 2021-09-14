@@ -31,6 +31,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
@@ -89,7 +90,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 		if (relyingPartyRegistration == null) {
 			return null;
 		}
-		String saml2Response = request.getParameter("SAMLResponse");
+		String saml2Response = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
 		if (saml2Response == null) {
 			return null;
 		}

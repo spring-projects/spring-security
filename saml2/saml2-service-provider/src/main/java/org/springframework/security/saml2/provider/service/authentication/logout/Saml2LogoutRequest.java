@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver;
@@ -84,7 +85,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	 * @return the signed and serialized &lt;saml2:LogoutRequest&gt; payload
 	 */
 	public String getSamlRequest() {
-		return this.parameters.get("SAMLRequest");
+		return this.parameters.get(Saml2ParameterNames.SAML_REQUEST);
 	}
 
 	/**
@@ -92,7 +93,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	 * @return the relay state
 	 */
 	public String getRelayState() {
-		return this.parameters.get("RelayState");
+		return this.parameters.get(Saml2ParameterNames.RELAY_STATE);
 	}
 
 	/**
@@ -170,7 +171,7 @@ public final class Saml2LogoutRequest implements Serializable {
 		 * @see Saml2LogoutRequestResolver
 		 */
 		public Builder samlRequest(String samlRequest) {
-			this.parameters.put("SAMLRequest", samlRequest);
+			this.parameters.put(Saml2ParameterNames.SAML_REQUEST, samlRequest);
 			return this;
 		}
 
@@ -207,7 +208,7 @@ public final class Saml2LogoutRequest implements Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder relayState(String relayState) {
-			this.parameters.put("RelayState", relayState);
+			this.parameters.put(Saml2ParameterNames.RELAY_STATE, relayState);
 			return this;
 		}
 

@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -96,7 +97,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	@Override
 	protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
 		return (super.requiresAuthentication(request, response)
-				&& StringUtils.hasText(request.getParameter("SAMLResponse")));
+				&& StringUtils.hasText(request.getParameter(Saml2ParameterNames.SAML_RESPONSE)));
 	}
 
 	@Override

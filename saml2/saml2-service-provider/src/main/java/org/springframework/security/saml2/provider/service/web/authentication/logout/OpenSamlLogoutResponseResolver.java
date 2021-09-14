@@ -48,6 +48,7 @@ import org.w3c.dom.Element;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -131,7 +132,7 @@ final class OpenSamlLogoutResponseResolver {
 		if (registration == null) {
 			return null;
 		}
-		String serialized = request.getParameter("SAMLRequest");
+		String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
 		byte[] b = Saml2Utils.samlDecode(serialized);
 		LogoutRequest logoutRequest = parse(inflateIfRequired(registration, b));
 		LogoutResponse logoutResponse = this.logoutResponseBuilder.buildObject();
@@ -154,8 +155,8 @@ final class OpenSamlLogoutResponseResolver {
 			String xml = serialize(OpenSamlSigningUtils.sign(logoutResponse, registration));
 			String samlResponse = Saml2Utils.samlEncode(xml.getBytes(StandardCharsets.UTF_8));
 			result.samlResponse(samlResponse);
-			if (request.getParameter("RelayState") != null) {
-				result.relayState(request.getParameter("RelayState"));
+			if (request.getParameter(Saml2ParameterNames.RELAY_STATE) != null) {
+				result.relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE));
 			}
 			return result.build();
 		}
@@ -163,10 +164,10 @@ final class OpenSamlLogoutResponseResolver {
 			String xml = serialize(logoutResponse);
 			String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
 			result.samlResponse(deflatedAndEncoded);
-			QueryParametersPartial partial = OpenSamlSigningUtils.sign(registration).param("SAMLResponse",
-					deflatedAndEncoded);
-			if (request.getParameter("RelayState") != null) {
-				partial.param("RelayState", request.getParameter("RelayState"));
+			QueryParametersPartial partial = OpenSamlSigningUtils.sign(registration)
+					.param(Saml2ParameterNames.SAML_RESPONSE, deflatedAndEncoded);
+			if (request.getParameter(Saml2ParameterNames.RELAY_STATE) != null) {
+				partial.param(Saml2ParameterNames.RELAY_STATE, request.getParameter(Saml2ParameterNames.RELAY_STATE));
 			}
 			return result.parameters((params) -> params.putAll(partial.parameters())).build();
 		}

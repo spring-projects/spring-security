@@ -29,6 +29,7 @@
 	<suppress files="OAuth2IntrospectionClaimNames\.java" checks="InterfaceIsType"/>
 	<suppress files="OAuth2TokenIntrospectionClaimNames\.java" checks="InterfaceIsType"/>
 	<suppress files="Saml2ErrorCodes\.java" checks="InterfaceIsType"/>
+	<suppress files="Saml2ParameterNames\.java" checks="InterfaceIsType"/>
 
 	<!-- Method Visibility that we can't reduce -->
 	<suppress files="AbstractAclVoterTests\.java" checks="SpringMethodVisibility"/>

@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -105,10 +106,10 @@ public final class Saml2RelyingPartyInitiatedLogoutSuccessHandler implements Log
 			throws IOException {
 		String location = logoutRequest.getLocation();
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location);
-		addParameter("SAMLRequest", logoutRequest::getParameter, uriBuilder);
-		addParameter("RelayState", logoutRequest::getParameter, uriBuilder);
-		addParameter("SigAlg", logoutRequest::getParameter, uriBuilder);
-		addParameter("Signature", logoutRequest::getParameter, uriBuilder);
+		addParameter(Saml2ParameterNames.SAML_REQUEST, logoutRequest::getParameter, uriBuilder);
+		addParameter(Saml2ParameterNames.RELAY_STATE, logoutRequest::getParameter, uriBuilder);
+		addParameter(Saml2ParameterNames.SIG_ALG, logoutRequest::getParameter, uriBuilder);
+		addParameter(Saml2ParameterNames.SIGNATURE, logoutRequest::getParameter, uriBuilder);
 		this.redirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
 	}
 

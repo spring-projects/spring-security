@@ -40,6 +40,7 @@ import org.w3c.dom.Element;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -135,7 +136,8 @@ final class OpenSamlLogoutRequestResolver {
 			String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
 			result.samlRequest(deflatedAndEncoded);
 			QueryParametersPartial partial = OpenSamlSigningUtils.sign(registration)
-					.param("SAMLRequest", deflatedAndEncoded).param("RelayState", relayState);
+					.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded)
+					.param(Saml2ParameterNames.RELAY_STATE, relayState);
 			return result.parameters((params) -> params.putAll(partial.parameters())).build();
 		}
 	}

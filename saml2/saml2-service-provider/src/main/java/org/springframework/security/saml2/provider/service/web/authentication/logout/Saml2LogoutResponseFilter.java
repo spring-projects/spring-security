@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
+import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponseValidator;
@@ -98,7 +99,7 @@ public final class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		if (request.getParameter("SAMLResponse") == null) {
+		if (request.getParameter(Saml2ParameterNames.SAML_RESPONSE) == null) {
 			chain.doFilter(request, response);
 			return;
 		}
@@ -125,13 +126,16 @@ public final class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		String serialized = request.getParameter("SAMLResponse");
+		String serialized = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
 		Saml2LogoutResponse logoutResponse = Saml2LogoutResponse.withRelyingPartyRegistration(registration)
-				.samlResponse(serialized).relayState(request.getParameter("RelayState"))
+				.samlResponse(serialized).relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
 				.binding(registration.getSingleLogoutServiceBinding())
 				.location(registration.getSingleLogoutServiceResponseLocation())
-				.parameters((params) -> params.put("SigAlg", request.getParameter("SigAlg")))
-				.parameters((params) -> params.put("Signature", request.getParameter("Signature"))).build();
+				.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
+						request.getParameter(Saml2ParameterNames.SIG_ALG)))
+				.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
+						request.getParameter(Saml2ParameterNames.SIGNATURE)))
+				.build();
 		Saml2LogoutResponseValidatorParameters parameters = new Saml2LogoutResponseValidatorParameters(logoutResponse,
 				logoutRequest, registration);
 		Saml2LogoutValidatorResult result = this.logoutResponseValidator.validate(parameters);
