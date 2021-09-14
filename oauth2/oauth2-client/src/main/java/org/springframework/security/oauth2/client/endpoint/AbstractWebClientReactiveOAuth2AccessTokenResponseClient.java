@@ -27,6 +27,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ReactiveHttpInputMessage;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -35,6 +36,7 @@ import org.springframework.security.oauth2.core.web.reactive.function.OAuth2Body
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -67,6 +69,9 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	private WebClient webClient = WebClient.builder().build();
 
 	private Converter<T, HttpHeaders> headersConverter = this::populateTokenRequestHeaders;
+
+	private BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = OAuth2BodyExtractors
+			.oauth2AccessTokenResponse();
 
 	AbstractWebClientReactiveOAuth2AccessTokenResponseClient() {
 	}
@@ -204,7 +209,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * @return the token response from the response body.
 	 */
 	private Mono<OAuth2AccessTokenResponse> readTokenResponse(T grantRequest, ClientResponse response) {
-		return response.body(OAuth2BodyExtractors.oauth2AccessTokenResponse())
+		return response.body(this.bodyExtractor)
 				.map((tokenResponse) -> populateTokenResponse(grantRequest, tokenResponse));
 	}
 
@@ -289,6 +294,19 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 			}
 			return headers;
 		};
+	}
+
+	/**
+	 * Sets the {@link BodyExtractor} that will be used to decode the
+	 * {@link OAuth2AccessTokenResponse}
+	 * @param bodyExtractor the {@link BodyExtractor} that will be used to decode the
+	 * {@link OAuth2AccessTokenResponse}
+	 * @since 5.6
+	 */
+	public final void setBodyExtractor(
+			BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor) {
+		Assert.notNull(bodyExtractor, "bodyExtractor cannot be null");
+		this.bodyExtractor = bodyExtractor;
 	}
 
 }
