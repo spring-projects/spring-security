@@ -22,6 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Set;
 
+import org.springframework.http.ReactiveHttpInputMessage;
+import org.springframework.web.reactive.function.BodyExtractor;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
@@ -67,6 +69,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	private WebClient webClient = WebClient.builder().build();
 
 	private Converter<T, HttpHeaders> headersConverter = this::populateTokenRequestHeaders;
+	private BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = OAuth2BodyExtractors.oauth2AccessTokenResponse();
 
 	AbstractWebClientReactiveOAuth2AccessTokenResponseClient() {
 	}
@@ -204,7 +207,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * @return the token response from the response body.
 	 */
 	private Mono<OAuth2AccessTokenResponse> readTokenResponse(T grantRequest, ClientResponse response) {
-		return response.body(OAuth2BodyExtractors.oauth2AccessTokenResponse())
+		return response.body(bodyExtractor)
 				.map((tokenResponse) -> populateTokenResponse(grantRequest, tokenResponse));
 	}
 
@@ -289,6 +292,16 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 			}
 			return headers;
 		};
+	}
+
+	/**
+	 * Sets the {@link BodyExtractor} that will be used to decode the {@link OAuth2AccessTokenResponse}
+	 *
+	 * @param bodyExtractor the {@link BodyExtractor} that will be used to decode the {@link OAuth2AccessTokenResponse}
+	 * @since 5.6
+	 */
+	public void setBodyExtractor(BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor) {
+		this.bodyExtractor = bodyExtractor;
 	}
 
 }
