@@ -16,21 +16,9 @@
 
 package org.springframework.security.oauth2.core.web.reactive.function;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-import com.nimbusds.oauth2.sdk.AccessTokenResponse;
-import com.nimbusds.oauth2.sdk.ErrorObject;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.TokenErrorResponse;
-import com.nimbusds.oauth2.sdk.TokenResponse;
+import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import net.minidev.json.JSONObject;
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ReactiveHttpInputMessage;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -40,6 +28,9 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyExtractors;
+import reactor.core.publisher.Mono;
+
+import java.util.*;
 
 /**
  * Provides a way to create an {@link OAuth2AccessTokenResponse} from a
@@ -48,17 +39,14 @@ import org.springframework.web.reactive.function.BodyExtractors;
  * @author Rob Winch
  * @since 5.1
  */
-class OAuth2AccessTokenResponseBodyExtractor implements BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>, OAuth2AccessTokenMapCustomizer {
+class OAuth2AccessTokenResponseBodyExtractor implements BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> {
 
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
 
-	private final OAuth2AccessTokenMapCustomizer oAuth2AccessTokenMapCustomizer;
-
-	OAuth2AccessTokenResponseBodyExtractor(OAuth2AccessTokenMapCustomizer oAuth2AccessTokenMapCustomizer) {
-		this.oAuth2AccessTokenMapCustomizer = oAuth2AccessTokenMapCustomizer;
+	OAuth2AccessTokenResponseBodyExtractor() {
 	}
 
 	@Override
@@ -71,7 +59,6 @@ class OAuth2AccessTokenResponseBodyExtractor implements BodyExtractor<Mono<OAuth
 						ex))
 				.switchIfEmpty(Mono.error(() -> new OAuth2AuthorizationException(
 						invalidTokenResponse("Empty OAuth 2.0 Access Token Response"))))
-				.map(oAuth2AccessTokenMapCustomizer::customizeOAuth2AccessTokenMap)
 				.map(OAuth2AccessTokenResponseBodyExtractor::parse)
 				.flatMap(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse)
 				.map(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse);
@@ -80,8 +67,7 @@ class OAuth2AccessTokenResponseBodyExtractor implements BodyExtractor<Mono<OAuth
 	private static TokenResponse parse(Map<String, Object> json) {
 		try {
 			return TokenResponse.parse(new JSONObject(json));
-		}
-		catch (ParseException ex) {
+		} catch (ParseException ex) {
 			OAuth2Error oauth2Error = invalidTokenResponse(
 					"An error occurred parsing the Access Token response: " + ex.getMessage());
 			throw new OAuth2AuthorizationException(oauth2Error, ex);

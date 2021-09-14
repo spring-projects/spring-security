@@ -22,7 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Set;
 
-import org.springframework.security.oauth2.core.web.reactive.function.OAuth2AccessTokenMapCustomizer;
+import org.springframework.http.ReactiveHttpInputMessage;
+import org.springframework.web.reactive.function.BodyExtractor;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
@@ -54,20 +55,21 @@ import org.springframework.web.reactive.function.client.WebClient;
  *
  * @param <T> type of grant request
  * @author Phil Clay
- * @since 5.3
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-3.2">RFC-6749 Token
  * Endpoint</a>
  * @see WebClientReactiveAuthorizationCodeTokenResponseClient
  * @see WebClientReactiveClientCredentialsTokenResponseClient
  * @see WebClientReactivePasswordTokenResponseClient
  * @see WebClientReactiveRefreshTokenTokenResponseClient
+ * @since 5.3
  */
 public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extends AbstractOAuth2AuthorizationGrantRequest>
-		implements ReactiveOAuth2AccessTokenResponseClient<T>, OAuth2AccessTokenMapCustomizer {
+		implements ReactiveOAuth2AccessTokenResponseClient<T> {
 
 	private WebClient webClient = WebClient.builder().build();
 
 	private Converter<T, HttpHeaders> headersConverter = this::populateTokenRequestHeaders;
+	private BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = OAuth2BodyExtractors.oauth2AccessTokenResponse();
 
 	AbstractWebClientReactiveOAuth2AccessTokenResponseClient() {
 	}
@@ -93,6 +95,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 
 	/**
 	 * Returns the {@link ClientRegistration} for the given {@code grantRequest}.
+	 *
 	 * @param grantRequest the grant request
 	 * @return the {@link ClientRegistration} for the given {@code grantRequest}.
 	 */
@@ -100,6 +103,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 
 	/**
 	 * Populates the headers for the token request.
+	 *
 	 * @param grantRequest the grant request
 	 * @return the headers populated for the token request
 	 */
@@ -120,8 +124,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	private static String encodeClientCredential(String clientCredential) {
 		try {
 			return URLEncoder.encode(clientCredential, StandardCharsets.UTF_8.toString());
-		}
-		catch (UnsupportedEncodingException ex) {
+		} catch (UnsupportedEncodingException ex) {
 			// Will not happen since UTF-8 is a standard charset
 			throw new IllegalArgumentException(ex);
 		}
@@ -136,6 +139,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * {@link #populateTokenRequestBody(AbstractOAuth2AuthorizationGrantRequest, BodyInserters.FormInserter)}
 	 * for subclasses to further populate the body before returning.
 	 * </p>
+	 *
 	 * @param grantRequest the grant request
 	 * @return the body for the token request.
 	 */
@@ -176,6 +180,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 
 	/**
 	 * Returns the scopes to include as a property in the token request.
+	 *
 	 * @param grantRequest the grant request
 	 * @return the scopes to include as a property in the token request.
 	 */
@@ -190,6 +195,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * 5.1 Successful Access Token Response</a>, if AccessTokenResponse.scope is empty,
 	 * then default to the scope originally requested by the client in the Token Request.
 	 * </p>
+	 *
 	 * @param grantRequest the grant request
 	 * @return the scopes to include in the response if the authorization server returned
 	 * no scopes.
@@ -200,19 +206,21 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 
 	/**
 	 * Reads the token response from the response body.
+	 *
 	 * @param grantRequest the request for which the response was received.
-	 * @param response the client response from which to read
+	 * @param response     the client response from which to read
 	 * @return the token response from the response body.
 	 */
 	private Mono<OAuth2AccessTokenResponse> readTokenResponse(T grantRequest, ClientResponse response) {
-		return response.body(OAuth2BodyExtractors.oauth2AccessTokenResponse(this))
+		return response.body(bodyExtractor)
 				.map((tokenResponse) -> populateTokenResponse(grantRequest, tokenResponse));
 	}
 
 	/**
 	 * Populates the given {@link OAuth2AccessTokenResponse} with additional details from
 	 * the grant request.
-	 * @param grantRequest the request for which the response was received.
+	 *
+	 * @param grantRequest  the request for which the response was received.
 	 * @param tokenResponse the original token response
 	 * @return a token response optionally populated with additional details from the
 	 * request.
@@ -233,8 +241,9 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	/**
 	 * Sets the {@link WebClient} used when requesting the OAuth 2.0 Access Token
 	 * Response.
+	 *
 	 * @param webClient the {@link WebClient} used when requesting the Access Token
-	 * Response
+	 *                  Response
 	 */
 	public void setWebClient(WebClient webClient) {
 		Assert.notNull(webClient, "webClient cannot be null");
@@ -245,6 +254,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * Returns the {@link Converter} used for converting the
 	 * {@link AbstractOAuth2AuthorizationGrantRequest} instance to a {@link HttpHeaders}
 	 * used in the OAuth 2.0 Access Token Request headers.
+	 *
 	 * @return the {@link Converter} used for converting the
 	 * {@link AbstractOAuth2AuthorizationGrantRequest} to {@link HttpHeaders}
 	 */
@@ -256,8 +266,9 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * Sets the {@link Converter} used for converting the
 	 * {@link AbstractOAuth2AuthorizationGrantRequest} instance to a {@link HttpHeaders}
 	 * used in the OAuth 2.0 Access Token Request headers.
+	 *
 	 * @param headersConverter the {@link Converter} used for converting the
-	 * {@link AbstractOAuth2AuthorizationGrantRequest} to {@link HttpHeaders}
+	 *                         {@link AbstractOAuth2AuthorizationGrantRequest} to {@link HttpHeaders}
 	 * @since 5.6
 	 */
 	public final void setHeadersConverter(Converter<T, HttpHeaders> headersConverter) {
@@ -270,9 +281,10 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * {@link Converter} used for converting the
 	 * {@link AbstractOAuth2AuthorizationGrantRequest} instance to a {@link HttpHeaders}
 	 * used in the OAuth 2.0 Access Token Request headers.
+	 *
 	 * @param headersConverter the {@link Converter} to add (compose) to the current
-	 * {@link Converter} used for converting the
-	 * {@link AbstractOAuth2AuthorizationGrantRequest} to a {@link HttpHeaders}
+	 *                         {@link Converter} used for converting the
+	 *                         {@link AbstractOAuth2AuthorizationGrantRequest} to a {@link HttpHeaders}
 	 * @since 5.6
 	 */
 	public final void addHeadersConverter(Converter<T, HttpHeaders> headersConverter) {
@@ -292,4 +304,13 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 		};
 	}
 
+	/**
+	 * Sets the {@link BodyExtractor} that will be used to decode the {@link OAuth2AccessTokenResponse}
+	 *
+	 * @param bodyExtractor the {@link BodyExtractor} that will be used to decode the {@link OAuth2AccessTokenResponse}
+	 * @since 5.6
+	 */
+	public void setBodyExtractor(BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor) {
+		this.bodyExtractor = bodyExtractor;
+	}
 }

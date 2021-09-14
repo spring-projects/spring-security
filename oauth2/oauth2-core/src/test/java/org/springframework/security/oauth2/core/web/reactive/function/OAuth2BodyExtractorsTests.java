@@ -16,17 +16,8 @@
 
 package org.springframework.security.oauth2.core.web.reactive.function;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.codec.ByteBufferDecoder;
 import org.springframework.core.codec.StringDecoder;
 import org.springframework.http.HttpStatus;
@@ -42,6 +33,10 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.web.reactive.function.BodyExtractor;
+import reactor.core.publisher.Mono;
+
+import java.time.Instant;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -55,8 +50,6 @@ public class OAuth2BodyExtractorsTests {
 	private BodyExtractor.Context context;
 
 	private Map<String, Object> hints;
-
-	private static class TokenCustomizer implements OAuth2AccessTokenMapCustomizer{ }
 
 	@BeforeEach
 	public void createContext() {
@@ -87,7 +80,7 @@ public class OAuth2BodyExtractorsTests {
 	@Test
 	public void oauth2AccessTokenResponseWhenInvalidJsonThenException() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
-				.oauth2AccessTokenResponse(new TokenCustomizer());
+				.oauth2AccessTokenResponse();
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 		response.setBody("{");
@@ -102,7 +95,7 @@ public class OAuth2BodyExtractorsTests {
 	@Test
 	public void oauth2AccessTokenResponseWhenEmptyThenException() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
-				.oauth2AccessTokenResponse(new TokenCustomizer());
+				.oauth2AccessTokenResponse();
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		Mono<OAuth2AccessTokenResponse> result = extractor.extract(response, this.context);
 		// @formatter:off
@@ -115,7 +108,7 @@ public class OAuth2BodyExtractorsTests {
 	@Test
 	public void oauth2AccessTokenResponseWhenValidThenCreated() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
-				.oauth2AccessTokenResponse(new TokenCustomizer());
+				.oauth2AccessTokenResponse();
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 		// @formatter:off
@@ -141,7 +134,7 @@ public class OAuth2BodyExtractorsTests {
 	// gh-6087
 	public void oauth2AccessTokenResponseWhenMultipleAttributeTypesThenCreated() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
-				.oauth2AccessTokenResponse(new TokenCustomizer());
+				.oauth2AccessTokenResponse();
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 		// @formatter:off
