@@ -130,7 +130,7 @@ You can find more examples of explicit configuration in unit tests, by searching
 [[jc-webflux-multiple-filter-chains]]
 === Multiple Chains Support
 
-You can configure multiple `SecurityWebFilterChain` instances to separate configuration by `RequestMatcher` s.
+You can configure multiple `SecurityWebFilterChain` instances to separate configuration by ``RequestMatcher``s.
 
 For example, you can isolate configuration for URLs that start with `/api`, like so:
 

@@ -101,7 +101,7 @@ We'll look at these in turn.
 This implementation supports the simpler approach described in <<remember-me-hash-token>>.
 `TokenBasedRememberMeServices` generates a `RememberMeAuthenticationToken`, which is processed by `RememberMeAuthenticationProvider`.
 A `key` is shared between this authentication provider and the `TokenBasedRememberMeServices`.
-In addition, `TokenBasedRememberMeServices` requires A UserDetailsService from which it can retrieve the username and password for signature comparison purposes, and generate the `RememberMeAuthenticationToken` to contain the correct `GrantedAuthority` s.
+In addition, `TokenBasedRememberMeServices` requires A UserDetailsService from which it can retrieve the username and password for signature comparison purposes, and generate the `RememberMeAuthenticationToken` to contain the correct ``GrantedAuthority``s.
 Some sort of logout command should be provided by the application that invalidates the cookie if the user requests this.
 `TokenBasedRememberMeServices` also implements Spring Security's `LogoutHandler` interface so can be used with `LogoutFilter` to have the cookie cleared automatically.
 

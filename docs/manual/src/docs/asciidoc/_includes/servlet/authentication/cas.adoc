@@ -23,7 +23,7 @@ Inside the WAR file you will customise the login and other single sign on pages 
 When deploying a CAS 3.4 server, you will also need to specify an `AuthenticationHandler` in the `deployerConfigContext.xml` included with CAS.
 The `AuthenticationHandler` has a simple method that returns a boolean as to whether a given set of Credentials is valid.
 Your `AuthenticationHandler` implementation will need to link into some type of backend authentication repository, such as an LDAP server or database.
-CAS itself includes numerous `AuthenticationHandler` s out of the box to assist with this.
+CAS itself includes numerous ``AuthenticationHandler``s out of the box to assist with this.
 When you download and deploy the server war file, it is set up to successfully authenticate users who enter a password matching their username, which is useful for testing.
 
 Apart from the CAS server itself, the other key players are of course the secure web applications deployed throughout your enterprise.
@@ -57,7 +57,7 @@ The processing filter will construct a `UsernamePasswordAuthenticationToken` rep
 The principal will be equal to `CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER`, whilst the credentials will be the service ticket opaque value.
 This authentication request will then be handed to the configured `AuthenticationManager`.
 * The `AuthenticationManager` implementation will be the `ProviderManager`, which is in turn configured with the `CasAuthenticationProvider`.
-The `CasAuthenticationProvider` only responds to `UsernamePasswordAuthenticationToken` s containing the CAS-specific principal (such as `CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER`) and `CasAuthenticationToken` s (discussed later).
+The `CasAuthenticationProvider` only responds to ``UsernamePasswordAuthenticationToken``s containing the CAS-specific principal (such as `CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER`) and ``CasAuthenticationToken``s (discussed later).
 * `CasAuthenticationProvider` will validate the service ticket using a `TicketValidator` implementation.
 This will typically be a `Cas20ServiceTicketValidator` which is one of the classes included in the CAS client library.
 In the event the application needs to validate proxy tickets, the `Cas20ProxyTicketValidator` is used.

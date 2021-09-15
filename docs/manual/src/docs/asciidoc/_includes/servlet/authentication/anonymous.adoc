@@ -26,8 +26,8 @@ Anonymous authentication support is provided automatically when using the HTTP c
 You don't need to configure the beans described here unless you are using traditional bean configuration.
 
 Three classes that together provide the anonymous authentication feature.
-`AnonymousAuthenticationToken` is an implementation of `Authentication`, and stores the `GrantedAuthority` s which apply to the anonymous principal.
-There is a corresponding `AnonymousAuthenticationProvider`, which is chained into the `ProviderManager` so that `AnonymousAuthenticationToken` s are accepted.
+`AnonymousAuthenticationToken` is an implementation of `Authentication`, and stores the ``GrantedAuthority``s which apply to the anonymous principal.
+There is a corresponding `AnonymousAuthenticationProvider`, which is chained into the `ProviderManager` so that ``AnonymousAuthenticationToken``s are accepted.
 Finally, there is an `AnonymousAuthenticationFilter`, which is chained after the normal authentication mechanisms and automatically adds an `AnonymousAuthenticationToken` to the `SecurityContextHolder` if there is no existing `Authentication` held there.
 The definition of the filter and authentication provider appears as follows:
 
@@ -91,7 +91,7 @@ For example:
 === AuthenticationTrustResolver
 Rounding out the anonymous authentication discussion is the `AuthenticationTrustResolver` interface, with its corresponding `AuthenticationTrustResolverImpl` implementation.
 This interface provides an `isAnonymous(Authentication)` method, which allows interested classes to take into account this special type of authentication status.
-The `ExceptionTranslationFilter` uses this interface in processing `AccessDeniedException` s.
+The `ExceptionTranslationFilter` uses this interface in processing ``AccessDeniedException``s.
 If an `AccessDeniedException` is thrown, and the authentication is of an anonymous type, instead of throwing a 403 (forbidden) response, the filter will instead commence the `AuthenticationEntryPoint` so the principal can authenticate properly.
 This is a necessary distinction, otherwise principals would always be deemed "authenticated" and never be given an opportunity to login via form, basic, digest or some other normal authentication mechanism.
 

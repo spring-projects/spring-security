@@ -192,7 +192,7 @@ This property can also be supplied directly on the <<oauth2resourceserver-jwt-jw
 [[oauth2resourceserver-jwt-sansboot]]
 === Overriding or Replacing Boot Auto Configuration
 
-There are two `@Bean` s that Spring Boot generates on Resource Server's behalf.
+There are two ``@Bean``s that Spring Boot generates on Resource Server's behalf.
 
 The first is a `WebSecurityConfigurerAdapter` that configures the app as a resource server. When including `spring-security-oauth2-jose`, this `WebSecurityConfigurerAdapter` looks like:
 
@@ -1609,7 +1609,7 @@ fun forFoosEyesOnly(): String {
 [[oauth2resourceserver-opaque-sansboot]]
 === Overriding or Replacing Boot Auto Configuration
 
-There are two `@Bean` s that Spring Boot generates on Resource Server's behalf.
+There are two ``@Bean``s that Spring Boot generates on Resource Server's behalf.
 
 The first is a `WebSecurityConfigurerAdapter` that configures the app as a resource server.
 When use Opaque Token, this `WebSecurityConfigurerAdapter` looks like:
