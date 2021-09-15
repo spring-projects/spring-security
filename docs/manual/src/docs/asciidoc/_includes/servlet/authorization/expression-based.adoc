@@ -1,7 +1,7 @@
 
 [[el-access]]
 == Expression-Based Access Control
-Spring Security 3.0 introduced the ability to use Spring EL expressions as an authorization mechanism in addition to the simple use of configuration attributes and access-decision voters which have seen before.
+Spring Security 3.0 introduced the ability to use Spring EL expressions as an authorization mechanism in addition to the simple use of configuration attributes and access-decision voters which have been seen before.
 Expression-based access control is built on the same architecture but allows complicated Boolean logic to be encapsulated in a single expression.
 
 
@@ -296,7 +296,7 @@ fun deletePermission(contact: Contact?, recipient: Sid?, permission: Permission?
 ----
 ====
 
-Here we're actually using a method argument as part of the expression to decide whether the current user has the "admin"permission for the given contact.
+Here we're actually using a method argument as part of the expression to decide whether the current user has the "admin" permission for the given contact.
 The built-in `hasPermission()` expression is linked into the Spring Security ACL module through the application context, as we'll <<el-permission-evaluator,see below>>.
 You can access any of the method arguments by name as expression variables.
 

@@ -37,7 +37,7 @@ The figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> 
 image:{icondir}/number_1.png[] When the user submits their username and password, the `UsernamePasswordAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken` which is a type of <<servlet-authentication-authentication,`Authentication`>> by extracting the username and password from the `HttpServletRequest`.
 
 image:{icondir}/number_2.png[] Next, the `UsernamePasswordAuthenticationToken` is passed into the `AuthenticationManager` to be authenticated.
-The details of what `AuthenticationManager` look like depend on how the <<servlet-authentication-unpwd-storage,user information is stored>>.
+The details of what `AuthenticationManager` looks like depend on how the <<servlet-authentication-unpwd-storage,user information is stored>>.
 
 image:{icondir}/number_3.png[] If authentication fails, then __Failure__
 
@@ -147,7 +147,7 @@ fun configure(http: HttpSecurity) {
 [[servlet-authentication-form-custom-html]]
 When the login page is specified in the Spring Security configuration, you are responsible for rendering the page.
 // FIXME: default login page rendered by Spring Security
-Below is a https://www.thymeleaf.org/[Thymeleaf] template that produces an HTML login form that complies with a login page of `/login`.:
+Below is a https://www.thymeleaf.org/[Thymeleaf] template that produces an HTML login form that complies with a login page of `/login`:
 
 .Log In Form
 ====
@@ -189,11 +189,11 @@ There are a few key points about the default HTML form:
 * If the HTTP parameter logout is found, it indicates the user has logged out successfully
 
 Many users will not need much more than to customize the log in page.
-However, if needed everything above can be customized with additional configuration.
+However, if needed, everything above can be customized with additional configuration.
 
 [[servlet-authentication-form-custom-controller]]
 If you are using Spring MVC, you will need a controller that maps `GET /login` to the login template we created.
-A minimal sample `LoginController` can be see below:
+A minimal sample `LoginController` can be seen below:
 
 .LoginController
 ====

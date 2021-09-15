@@ -9,7 +9,7 @@ The `RunAsManager` will indicate the replacement `Authentication` object, if any
 
 By temporarily replacing the `Authentication` object during the secure object callback phase, the secured invocation will be able to call other objects which require different authentication and authorization credentials.
 It will also be able to perform any internal security checks for specific `GrantedAuthority` objects.
-Because Spring Security provides a number of helper classes that automatically configure remoting protocols based on the contents of the `SecurityContextHolder`, these run-as replacements are particularly useful when calling remote web services
+Because Spring Security provides a number of helper classes that automatically configure remoting protocols based on the contents of the `SecurityContextHolder`, these run-as replacements are particularly useful when calling remote web services.
 
 [[runas-config]]
 === Configuration

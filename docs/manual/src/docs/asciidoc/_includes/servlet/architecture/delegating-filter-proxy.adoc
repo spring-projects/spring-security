@@ -41,6 +41,6 @@ fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterCh
 ----
 ====
 
-Another benefit of `DelegatingFilterProxy` is that it allows delaying looking `Filter` bean instances.
+Another benefit of `DelegatingFilterProxy` is that it allows delaying looking `Filter` bean instances up.
 This is important because the container needs to register the `Filter` instances before the container can startup.
 However, Spring typically uses a `ContextLoaderListener` to load the Spring Beans which will not be done until after the `Filter` instances need to be registered.
