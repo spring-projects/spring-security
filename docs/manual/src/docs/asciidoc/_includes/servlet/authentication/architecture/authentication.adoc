@@ -12,7 +12,7 @@ The `Authentication` contains:
 
 * `principal` - identifies the user.
 When authenticating with a username/password this is often an instance of <<servlet-authentication-userdetails,`UserDetails`>>.
-* `credentials` - Often a password.
+* `credentials` - often a password.
 In many cases this will be cleared after the user is authenticated to ensure it is not leaked.
 * `authorities` - the <<servlet-authentication-granted-authority,``GrantedAuthority``s>> are high level permissions the user is granted.
 A few examples are roles or scopes.
