@@ -34,7 +34,7 @@ Notably, this has a potential security issue in that a captured remember-me toke
 This is the same issue as with digest authentication.
 If a principal is aware a token has been captured, they can easily change their password and immediately invalidate all remember-me tokens on issue.
 If more significant security is needed you should use the approach described in the next section.
-Alternatively remember-me services should simply not be used at all.
+Alternatively, remember-me services should simply not be used at all.
 
 If you are familiar with the topics discussed in the chapter on <<ns-config,namespace configuration>>, you can enable remember-me authentication just by adding the `<remember-me>` element:
 

@@ -55,17 +55,17 @@ override fun configure(http: HttpSecurity) {
 This is automatically applied when using `WebSecurityConfigurerAdapter`.
 <2> The URL that triggers log out to occur (default is `/logout`).
 If CSRF protection is enabled (default), then the request must also be a POST.
-For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutUrl-java.lang.String-[JavaDoc].
+For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutUrl-java.lang.String-[Javadoc].
 <3> The URL to redirect to after logout has occurred.
 The default is `/login?logout`.
-For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutSuccessUrl-java.lang.String-[JavaDoc].
+For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutSuccessUrl-java.lang.String-[Javadoc].
 <4> Let's you specify a custom `LogoutSuccessHandler`.
 If this is specified, `logoutSuccessUrl()` is ignored.
-For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutSuccessHandler-org.springframework.security.web.authentication.logout.LogoutSuccessHandler-[JavaDoc].
+For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutSuccessHandler-org.springframework.security.web.authentication.logout.LogoutSuccessHandler-[Javadoc].
 <5> Specify whether to invalidate the `HttpSession` at the time of logout.
 This is *true* by default.
 Configures the `SecurityContextLogoutHandler` under the covers.
-For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#invalidateHttpSession-boolean-[JavaDoc].
+For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#invalidateHttpSession-boolean-[Javadoc].
 <6> Adds a `LogoutHandler`.
 `SecurityContextLogoutHandler` is added as the last `LogoutHandler` by default.
 <7> Allows specifying the names of cookies to be removed on logout success.

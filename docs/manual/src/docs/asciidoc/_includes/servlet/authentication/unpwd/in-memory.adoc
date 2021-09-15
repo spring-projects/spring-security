@@ -1,7 +1,7 @@
 [[servlet-authentication-inmemory]]
 = In-Memory Authentication
 
-Spring Security's `InMemoryUserDetailsManager` implements <<servlet-authentication-userdetailsservice,UserDetailsService>> to provide support for username/password based authentication that is retrieved in memory.
+Spring Security's `InMemoryUserDetailsManager` implements <<servlet-authentication-userdetailsservice,UserDetailsService>> to provide support for username/password based authentication that is stored in memory.
 `InMemoryUserDetailsManager` provides management of `UserDetails` by implementing the `UserDetailsManager` interface.
 `UserDetails` based authentication is used by Spring Security when it is configured to <<servlet-authentication-unpwd-input,accept a username/password>> for authentication.
 

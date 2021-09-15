@@ -14,7 +14,7 @@ You could also omit these pages from the filter chain entirely, thus bypassing t
 This is what we mean by anonymous authentication.
 Note that there is no real conceptual difference between a user who is "anonymously authenticated" and an unauthenticated user.
 Spring Security's anonymous authentication just gives you a more convenient way to configure your access-control attributes.
-Calls to servlet API calls such as `getCallerPrincipal`, for example, will still return null even though there is actually an anonymous authentication object in the `SecurityContextHolder`.
+Calls to servlet API such as `getCallerPrincipal`, for example, will still return null even though there is actually an anonymous authentication object in the `SecurityContextHolder`.
 
 There are other situations where anonymous authentication is useful, such as when an auditing interceptor queries the `SecurityContextHolder` to identify which principal was responsible for a given operation.
 Classes can be authored more robustly if they know the `SecurityContextHolder` always contains an `Authentication` object, and never `null`.

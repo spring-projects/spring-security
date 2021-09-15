@@ -1694,6 +1694,7 @@ Also, your application can participate in an AP-initiated logout when the assert
 === Configuring Logout Endpoints
 
 There are three behaviors that can be triggered by different endpoints:
+
 * RP-initiated logout, which allows an authenticated user to `POST` and trigger the logout process by sending the asserting party a `<saml2:LogoutRequest>`
 * AP-initiated logout, which allows an asserting party to send a `<saml2:LogoutRequest>` to the application
 * AP logout response, which allows an asserting party to send a `<saml2:LogoutResponse>` in response to the RP-initiated `<saml2:LogoutRequest>`

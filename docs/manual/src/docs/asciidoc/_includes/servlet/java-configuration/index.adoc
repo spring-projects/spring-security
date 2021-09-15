@@ -312,7 +312,7 @@ public class Config extends WebSecurityConfigurerAdapter {
 
 Spring Security's Java Configuration does not expose every property of every object that it configures.
 This simplifies the configuration for a majority of users.
-Afterall, if every property was exposed, users could use standard bean configuration.
+After all, if every property was exposed, users could use standard bean configuration.
 
 While there are good reasons to not directly expose every property, users may still need more advanced configuration options.
 To address this Spring Security introduces the concept of an `ObjectPostProcessor` which can be used to modify or replace many of the Object instances created by the Java Configuration.

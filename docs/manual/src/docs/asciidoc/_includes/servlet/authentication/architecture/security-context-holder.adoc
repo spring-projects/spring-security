@@ -86,4 +86,4 @@ Other applications might want to have threads spawned by the secure thread also 
 This is achieved by using `SecurityContextHolder.MODE_INHERITABLETHREADLOCAL`.
 You can change the mode from the default `SecurityContextHolder.MODE_THREADLOCAL` in two ways.
 The first is to set a system property, the second is to call a static method on `SecurityContextHolder`.
-Most applications won't need to change from the default, but if you do, take a look at the JavaDoc for `SecurityContextHolder` to learn more.
+Most applications won't need to change from the default, but if you do, take a look at the Javadoc for `SecurityContextHolder` to learn more.
