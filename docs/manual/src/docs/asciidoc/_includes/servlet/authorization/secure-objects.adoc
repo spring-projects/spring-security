@@ -4,12 +4,12 @@
 
 [[aop-alliance]]
 === AOP Alliance (MethodInvocation) Security Interceptor
-Prior to Spring Security 2.0, securing `MethodInvocation` s needed quite a lot of boiler plate configuration.
+Prior to Spring Security 2.0, securing ``MethodInvocation``s needed quite a lot of boiler plate configuration.
 Now the recommended approach for method security is to use <<ns-method-security,namespace configuration>>.
 This way the method security infrastructure beans are configured automatically for you so you don't really need to know about the implementation classes.
 We'll just provide a quick overview of the classes that are involved here.
 
-Method security is enforced using a `MethodSecurityInterceptor`, which secures `MethodInvocation` s.
+Method security is enforced using a `MethodSecurityInterceptor`, which secures ``MethodInvocation``s.
 Depending on the configuration approach, an interceptor may be specific to a single bean or shared between multiple beans.
 The interceptor uses a `MethodSecurityMetadataSource` instance to obtain the configuration attributes that apply to a particular method invocation.
 `MapBasedMethodSecurityMetadataSource` is used to store configuration attributes keyed by method names (which can be wildcarded) and will be used internally when the attributes are defined in the application context using the `<intercept-methods>` or `<protect-point>` elements.
@@ -66,7 +66,7 @@ Let's first consider how the `AspectJSecurityInterceptor` is configured in the S
 
 
 As you can see, aside from the class name, the `AspectJSecurityInterceptor` is exactly the same as the AOP Alliance security interceptor.
-Indeed the two interceptors can share the same `securityMetadataSource`, as the `SecurityMetadataSource` works with `java.lang.reflect.Method` s rather than an AOP library-specific class.
+Indeed the two interceptors can share the same `securityMetadataSource`, as the `SecurityMetadataSource` works with ``java.lang.reflect.Method``s rather than an AOP library-specific class.
 Of course, your access decisions have access to the relevant AOP library-specific invocation (ie `MethodInvocation` or `JoinPoint`) and as such can consider a range of addition criteria when making access decisions (such as method arguments).
 
 Next you'll need to define an AspectJ `aspect`.

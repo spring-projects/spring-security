@@ -16,7 +16,7 @@ The `AbstractJaasAuthenticationProvider` has a number of dependencies that can b
 
 [[jaas-callbackhandler]]
 ==== JAAS CallbackHandler
-Most JAAS `LoginModule` s require a callback of some sort.
+Most JAAS ``LoginModule``s require a callback of some sort.
 These callbacks are usually used to obtain the username and password from the user.
 
 In a Spring Security deployment, Spring Security is responsible for this user interaction (via the authentication mechanism).
@@ -26,10 +26,10 @@ Therefore, the JAAS package for Spring Security provides two default callback ha
 Each of these callback handlers implement `JaasAuthenticationCallbackHandler`.
 In most cases these callback handlers can simply be used without understanding the internal mechanics.
 
-For those needing full control over the callback behavior, internally `AbstractJaasAuthenticationProvider` wraps these `JaasAuthenticationCallbackHandler` s with an `InternalCallbackHandler`.
+For those needing full control over the callback behavior, internally `AbstractJaasAuthenticationProvider` wraps these ``JaasAuthenticationCallbackHandler``s with an `InternalCallbackHandler`.
 The `InternalCallbackHandler` is the class that actually implements JAAS normal `CallbackHandler` interface.
-Any time that the JAAS `LoginModule` is used, it is passed a list of application context configured `InternalCallbackHandler` s.
-If the `LoginModule` requests a callback against the `InternalCallbackHandler` s, the callback is in-turn passed to the `JaasAuthenticationCallbackHandler` s being wrapped.
+Any time that the JAAS `LoginModule` is used, it is passed a list of application context configured ``InternalCallbackHandler``s.
+If the `LoginModule` requests a callback against the ``InternalCallbackHandler``s, the callback is in-turn passed to the ``JaasAuthenticationCallbackHandler``s being wrapped.
 
 
 [[jaas-authoritygranter]]
@@ -37,15 +37,15 @@ If the `LoginModule` requests a callback against the `InternalCallbackHandler` s
 JAAS works with principals.
 Even "roles" are represented as principals in JAAS.
 Spring Security, on the other hand, works with `Authentication` objects.
-Each `Authentication` object contains a single principal, and multiple `GrantedAuthority` s.
+Each `Authentication` object contains a single principal, and multiple ``GrantedAuthority``s.
 To facilitate mapping between these different concepts, Spring Security's JAAS package includes an `AuthorityGranter` interface.
 
-An `AuthorityGranter` is responsible for inspecting a JAAS principal and returning a set of `String` s, representing the authorities assigned to the principal.
+An `AuthorityGranter` is responsible for inspecting a JAAS principal and returning a set of ``String``s, representing the authorities assigned to the principal.
 For each returned authority string, the `AbstractJaasAuthenticationProvider` creates a `JaasGrantedAuthority` (which implements Spring Security's `GrantedAuthority` interface) containing the authority string and the JAAS principal that the `AuthorityGranter` was passed.
 The `AbstractJaasAuthenticationProvider` obtains the JAAS principals by firstly successfully authenticating the user's credentials using the JAAS `LoginModule`, and then accessing the `LoginContext` it returns.
 A call to `LoginContext.getSubject().getPrincipals()` is made, with each resulting principal passed to each `AuthorityGranter` defined against the `AbstractJaasAuthenticationProvider.setAuthorityGranters(List)` property.
 
-Spring Security does not include any production `AuthorityGranter` s given that every JAAS principal has an implementation-specific meaning.
+Spring Security does not include any production ``AuthorityGranter``s given that every JAAS principal has an implementation-specific meaning.
 However, there is a `TestAuthorityGranter` in the unit tests that demonstrates a simple `AuthorityGranter` implementation.
 
 
@@ -59,7 +59,7 @@ This means that `DefaultJaasAuthenticationProvider` is not bound any particular 
 [[jaas-inmemoryconfiguration]]
 ==== InMemoryConfiguration
 In order to make it easy to inject a `Configuration` into `DefaultJaasAuthenticationProvider`, a default in-memory implementation named `InMemoryConfiguration` is provided.
-The implementation constructor accepts a `Map` where each key represents a login configuration name and the value represents an `Array` of `AppConfigurationEntry` s.
+The implementation constructor accepts a `Map` where each key represents a login configuration name and the value represents an `Array` of ``AppConfigurationEntry``s.
 `InMemoryConfiguration` also supports a default `Array` of `AppConfigurationEntry` objects that will be used if no mapping is found within the provided `Map`.
 For details, refer to the class level javadoc of `InMemoryConfiguration`.
 

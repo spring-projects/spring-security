@@ -107,7 +107,7 @@ where
 
 * `https://idp.example.com/issuer` is the value contained in the `Issuer` attribute of the SAML responses that the identity provider will issue
 * `classpath:idp.crt` is the location on the classpath for the identity provider's certificate for verifying SAML responses, and
-* `https://idp.example.com/issuer/sso` is the endpoint where the identity provider is expecting `AuthnRequest` s.
+* `https://idp.example.com/issuer/sso` is the endpoint where the identity provider is expecting ``AuthnRequest``s.
 * `adfs` is <<servlet-saml2login-relyingpartyregistrationid, an arbitrary identifier you choose>>
 
 And that's it!
@@ -152,7 +152,7 @@ To achieve this, any interfaces or classes where Spring Security uses OpenSAML i
 This makes it possible for you to switch out OpenSAML for some other library or even an unsupported version of OpenSAML.
 
 As a natural outcome of the above two goals, Spring Security's SAML API is quite small relative to other modules.
-Instead, classes like `OpenSaml4AuthenticationRequestFactory` and `OpenSaml4AuthenticationProvider` expose `Converter` s that customize various steps in the authentication process.
+Instead, classes like `OpenSaml4AuthenticationRequestFactory` and `OpenSaml4AuthenticationProvider` expose ``Converter``s that customize various steps in the authentication process.
 
 For example, once your application receives a `SAMLResponse` and delegates to `Saml2WebSsoAuthenticationFilter`, the filter will delegate to `OpenSaml4AuthenticationProvider`.
 
@@ -295,7 +295,7 @@ The `requireInitialize` method may only be called once per application instance.
 [[servlet-saml2login-sansboot]]
 === Overriding or Replacing Boot Auto Configuration
 
-There are two `@Bean` s that Spring Boot generates for a relying party.
+There are two ``@Bean``s that Spring Boot generates for a relying party.
 
 The first is a `WebSecurityConfigurerAdapter` that configures the app as a relying party.
 When including `spring-security-saml2-service-provider`, the `WebSecurityConfigurerAdapter` looks like:
@@ -763,7 +763,7 @@ class SingleRelyingPartyRegistrationResolver(delegate: RelyingPartyRegistrationR
 ----
 ====
 
-Then, you can provide this resolver to the appropriate filters that <<servlet-saml2login-sp-initiated-factory, produce `<saml2:AuthnRequest>` s>>, <<servlet-saml2login-authenticate-responses, authenticate `<saml2:Response>` s>>, and <<servlet-saml2login-metadata, produce `<saml2:SPSSODescriptor>` metadata>>.
+Then, you can provide this resolver to the appropriate filters that <<servlet-saml2login-sp-initiated-factory, produce ``<saml2:AuthnRequest>``s>>, <<servlet-saml2login-authenticate-responses, authenticate ``<saml2:Response>``s>>, and <<servlet-saml2login-metadata, produce `<saml2:SPSSODescriptor>` metadata>>.
 
 [NOTE]
 Remember that if you have any placeholders in your `RelyingPartyRegistration`, your resolver implementation should resolve them.
@@ -864,7 +864,7 @@ open fun relyingPartyRegistrations(): RelyingPartyRegistrationRepository? {
 ====
 
 [[servlet-saml2login-sp-initiated-factory]]
-=== Producing `<saml2:AuthnRequest>` s
+=== Producing ``<saml2:AuthnRequest>``s
 
 As stated earlier, Spring Security's SAML 2.0 support produces a `<saml2:AuthnRequest>` to commence authentication with the asserting party.
 
@@ -1103,7 +1103,7 @@ class AuthnRequestConverter : Converter<MySaml2AuthenticationRequestContext, Aut
 ----
 ====
 
-Then, you can construct your own `Saml2AuthenticationRequestContextResolver` and `Saml2AuthenticationRequestFactory` and publish them as `@Bean` s:
+Then, you can construct your own `Saml2AuthenticationRequestContextResolver` and `Saml2AuthenticationRequestFactory` and publish them as ``@Bean``s:
 
 ====
 .Java
@@ -1157,7 +1157,7 @@ open fun authenticationRequestFactory(
 ====
 
 [[servlet-saml2login-authenticate-responses]]
-=== Authenticating `<saml2:Response>` s
+=== Authenticating ``<saml2:Response>``s
 
 To verify SAML 2.0 Responses, Spring Security uses <<servlet-saml2login-architecture,`OpenSaml4AuthenticationProvider`>> by default.
 
@@ -1311,7 +1311,7 @@ open class SecurityConfig : WebSecurityConfigurerAdapter() {
 
 [NOTE]
 It's not required to call `OpenSaml4AuthenticationProvider` 's default authentication converter.
-It returns a `Saml2AuthenticatedPrincipal` containing the attributes it extracted from `AttributeStatement` s as well as the single `ROLE_USER` authority.
+It returns a `Saml2AuthenticatedPrincipal` containing the attributes it extracted from ``AttributeStatement``s as well as the single `ROLE_USER` authority.
 
 [[servlet-saml2login-opensamlauthenticationprovider-additionalvalidation]]
 ==== Performing Additional Response Validation
@@ -1341,7 +1341,7 @@ provider.setResponseValidator((responseToken) -> {
 After verifying the signature, it will:
 
 1. Validate `<AudienceRestriction>` and `<DelegationRestriction>` conditions
-2. Validate `<SubjectConfirmation>` s, expect for any IP address information
+2. Validate ``<SubjectConfirmation>``s, expect for any IP address information
 
 To perform additional validation, you can configure your own assertion validator that delegates to `OpenSaml4AuthenticationProvider` 's default and then performs its own.
 
