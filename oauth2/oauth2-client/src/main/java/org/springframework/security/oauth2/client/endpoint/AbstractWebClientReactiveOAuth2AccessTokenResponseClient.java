@@ -22,13 +22,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Set;
 
-import org.springframework.http.ReactiveHttpInputMessage;
-import org.springframework.web.reactive.function.BodyExtractor;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ReactiveHttpInputMessage;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -40,6 +39,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.BodyExtractor;
 
 /**
  * Abstract base class for all of the {@code WebClientReactive*TokenResponseClient}s that
@@ -207,7 +207,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * @return the token response from the response body.
 	 */
 	private Mono<OAuth2AccessTokenResponse> readTokenResponse(T grantRequest, ClientResponse response) {
-		return response.body(bodyExtractor)
+		return response.body(this.bodyExtractor)
 				.map((tokenResponse) -> populateTokenResponse(grantRequest, tokenResponse));
 	}
 
@@ -301,6 +301,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * @since 5.6
 	 */
 	public void setBodyExtractor(BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor) {
+		Assert.notNull(bodyExtractor, "bodyExtractor cannot be null");
 		this.bodyExtractor = bodyExtractor;
 	}
 

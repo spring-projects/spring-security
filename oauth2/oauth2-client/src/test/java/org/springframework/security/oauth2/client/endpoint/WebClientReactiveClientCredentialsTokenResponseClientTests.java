@@ -18,9 +18,13 @@ package org.springframework.security.oauth2.client.endpoint;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Collections;
+import java.time.Instant;
+import java.util.*;
 
+import com.nimbusds.oauth2.sdk.AccessTokenResponse;
+import com.nimbusds.oauth2.sdk.TokenResponse;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
+import net.minidev.json.JSONObject;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -28,16 +32,22 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ReactiveHttpInputMessage;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.web.reactive.function.BodyExtractor;
+import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -278,6 +288,86 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
 				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+	}
+
+	// gh-10260
+	@Test
+	public void getTokenResponseWhenSuccessCustomResponseThenReturnAccessTokenResponse() {
+
+		// @formatter:off
+		enqueueJson("{\n"
+				+ "   \"Token\": \"access-token-1234\",\n"
+				+ "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"openid profile\",\n"
+				+ "   \"refresh_token\": \"refresh-token-1234\",\n"
+				+ "   \"custom_parameter_1\": \"custom-value-1\",\n"
+				+ "   \"custom_parameter_2\": \"custom-value-2\"\n"
+				+ "}\n");
+		// @formatter:on
+
+		WebClientReactiveClientCredentialsTokenResponseClient customClient = new WebClientReactiveClientCredentialsTokenResponseClient();
+		customClient.setBodyExtractor((inputMessage, context) -> {
+
+			BodyExtractor<Mono<Map<String, Object>>, ReactiveHttpInputMessage> delegate = BodyExtractors
+					.toMono(new ParameterizedTypeReference<Map<String, Object>>() {});
+
+			return delegate.extract(inputMessage, context)
+					.flatMap(it -> {
+
+						return Mono.fromCallable(() -> {
+
+							it.put("access_token", it.get("Token"));
+							it.put("token_type", "bearer");
+
+							AccessTokenResponse accessTokenResponse =
+									(AccessTokenResponse) TokenResponse.parse(new JSONObject(it));
+
+							AccessToken accessToken = accessTokenResponse.getTokens().getAccessToken();
+							OAuth2AccessToken.TokenType accessTokenType = null;
+							if (OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(accessToken.getType().getValue())) {
+								accessTokenType = OAuth2AccessToken.TokenType.BEARER;
+							}
+							long expiresIn = accessToken.getLifetime();
+							Set<String> scopes = (accessToken.getScope() != null) ?
+									new LinkedHashSet<>(accessToken.getScope().toStringList()) : Collections.emptySet();
+
+							String refreshToken = null;
+							if (accessTokenResponse.getTokens().getRefreshToken() != null) {
+								refreshToken = accessTokenResponse.getTokens().getRefreshToken().getValue();
+							}
+							Map<String, Object> additionalParameters = new LinkedHashMap<>(accessTokenResponse.getCustomParameters());
+
+							// @formatter:off
+							return OAuth2AccessTokenResponse.withToken(accessToken.getValue())
+									.tokenType(accessTokenType)
+									.expiresIn(expiresIn)
+									.scopes(scopes)
+									.refreshToken(refreshToken)
+									.additionalParameters(additionalParameters)
+									.build();
+							// @formatter:on
+
+						});
+
+					});
+
+		});
+
+		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration.build());
+
+		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
+		OAuth2AccessTokenResponse accessTokenResponse = customClient.getTokenResponse(request).block();
+		Instant expiresAtAfter = Instant.now().plusSeconds(3600);
+		assertThat(accessTokenResponse.getAccessToken().getTokenValue()).isEqualTo("access-token-1234");
+		assertThat(accessTokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
+		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBetween(expiresAtBefore, expiresAtAfter);
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("openid", "profile");
+		assertThat(accessTokenResponse.getRefreshToken().getTokenValue()).isEqualTo("refresh-token-1234");
+		assertThat(accessTokenResponse.getAdditionalParameters().size()).isEqualTo(2);
+		assertThat(accessTokenResponse.getAdditionalParameters()).containsEntry("custom_parameter_1", "custom-value-1");
+		assertThat(accessTokenResponse.getAdditionalParameters()).containsEntry("custom_parameter_2", "custom-value-2");
+
 	}
 
 }
