@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.util.Collections;
+
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.jose.JwaAlgorithm;
@@ -68,6 +70,14 @@ public class JoseHeaderTests {
 		assertThat(joseHeader.getContentType()).isEqualTo(expectedJoseHeader.getContentType());
 		assertThat(joseHeader.<String>getHeader("custom-header-name")).isEqualTo("custom-header-value");
 		assertThat(joseHeader.getHeaders()).isEqualTo(expectedJoseHeader.getHeaders());
+	}
+
+	@Test
+	public void buildWhenMissingCriticalHeaderThenThrowIllegalStateException() {
+		// @formatter:off
+		assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() ->
+				TestJoseHeaders.joseHeader().critical(Collections.singleton("critical-header-name")).build())
+				.withMessage("Missing critical (crit) header 'critical-header-name'.");
 	}
 
 	@Test

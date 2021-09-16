@@ -359,7 +359,19 @@ public final class JoseHeader {
 		 */
 		public JoseHeader build() {
 			Assert.notEmpty(this.headers, "headers cannot be empty");
+			validateCriticalHeaders();
 			return new JoseHeader(this.headers);
+		}
+
+		@SuppressWarnings("unchecked")
+		private void validateCriticalHeaders() {
+			Set<String> criticalHeaderNames = (Set<String>) this.headers.get(JoseHeaderNames.CRIT);
+			if (criticalHeaderNames == null) {
+				return;
+			}
+			criticalHeaderNames
+					.forEach((criticalHeaderName) -> Assert.state(this.headers.containsKey(criticalHeaderName),
+							"Missing critical (crit) header '" + criticalHeaderName + "'."));
 		}
 
 		private static URL convertAsURL(String header, String value) {
