@@ -36,10 +36,10 @@ import org.springframework.security.oauth2.core.web.reactive.function.OAuth2Body
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.BodyExtractor;
 
 /**
  * Abstract base class for all of the {@code WebClientReactive*TokenResponseClient}s that
@@ -69,7 +69,9 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	private WebClient webClient = WebClient.builder().build();
 
 	private Converter<T, HttpHeaders> headersConverter = this::populateTokenRequestHeaders;
-	private BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = OAuth2BodyExtractors.oauth2AccessTokenResponse();
+
+	private BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = OAuth2BodyExtractors
+			.oauth2AccessTokenResponse();
 
 	AbstractWebClientReactiveOAuth2AccessTokenResponseClient() {
 	}
@@ -295,12 +297,14 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	}
 
 	/**
-	 * Sets the {@link BodyExtractor} that will be used to decode the {@link OAuth2AccessTokenResponse}
-	 *
-	 * @param bodyExtractor the {@link BodyExtractor} that will be used to decode the {@link OAuth2AccessTokenResponse}
+	 * Sets the {@link BodyExtractor} that will be used to decode the
+	 * {@link OAuth2AccessTokenResponse}
+	 * @param bodyExtractor the {@link BodyExtractor} that will be used to decode the
+	 * {@link OAuth2AccessTokenResponse}
 	 * @since 5.6
 	 */
-	public void setBodyExtractor(BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor) {
+	public void setBodyExtractor(
+			BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor) {
 		Assert.notNull(bodyExtractor, "bodyExtractor cannot be null");
 		this.bodyExtractor = bodyExtractor;
 	}
