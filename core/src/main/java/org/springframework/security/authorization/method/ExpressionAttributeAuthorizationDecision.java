@@ -24,16 +24,16 @@ import org.springframework.security.authorization.AuthorizationDecision;
  * @author Marcus Da Coregio
  * @since 5.6
  */
-class ExpressionAttributeAuthorizationDecision extends AuthorizationDecision {
+public class ExpressionAttributeAuthorizationDecision extends AuthorizationDecision {
 
 	private final ExpressionAttribute expressionAttribute;
 
-	ExpressionAttributeAuthorizationDecision(boolean granted, ExpressionAttribute expressionAttribute) {
+	public ExpressionAttributeAuthorizationDecision(boolean granted, ExpressionAttribute expressionAttribute) {
 		super(granted);
 		this.expressionAttribute = expressionAttribute;
 	}
 
-	ExpressionAttribute getExpressionAttribute() {
+	public ExpressionAttribute getExpressionAttribute() {
 		return this.expressionAttribute;
 	}
 

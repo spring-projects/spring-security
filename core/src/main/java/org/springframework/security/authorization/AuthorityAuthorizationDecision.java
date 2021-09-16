@@ -18,22 +18,24 @@ package org.springframework.security.authorization;
 
 import java.util.Collection;
 
+import org.springframework.security.core.GrantedAuthority;
+
 /**
  * Represents an {@link AuthorizationDecision} based on a collection of authorities
  *
  * @author Marcus Da Coregio
  * @since 5.6
  */
-class AuthorityAuthorizationDecision extends AuthorizationDecision {
+public class AuthorityAuthorizationDecision extends AuthorizationDecision {
 
-	private final Collection<String> authorities;
+	private final Collection<GrantedAuthority> authorities;
 
-	AuthorityAuthorizationDecision(boolean granted, Collection<String> authorities) {
+	public AuthorityAuthorizationDecision(boolean granted, Collection<GrantedAuthority> authorities) {
 		super(granted);
 		this.authorities = authorities;
 	}
 
-	Collection<String> getAuthorities() {
+	public Collection<GrantedAuthority> getAuthorities() {
 		return this.authorities;
 	}
 
