@@ -45,7 +45,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.jwt.NimbusJwsEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -151,7 +151,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 						return currentJwsEncoderHolder;
 					}
 					JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
-					return new JwsEncoderHolder(new NimbusJwsEncoder(jwkSource), jwk);
+					return new JwsEncoderHolder(new NimbusJwtEncoder(jwkSource), jwk);
 				});
 
 		JwtEncoder jwsEncoder = jwsEncoderHolder.getJwsEncoder();

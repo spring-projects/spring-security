@@ -53,28 +53,28 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 /**
- * Tests for {@link NimbusJwsEncoder}.
+ * Tests for {@link NimbusJwtEncoder}.
  *
  * @author Joe Grandja
  */
-public class NimbusJwsEncoderTests {
+public class NimbusJwtEncoderTests {
 
 	private List<JWK> jwkList;
 
 	private JWKSource<SecurityContext> jwkSource;
 
-	private NimbusJwsEncoder jwsEncoder;
+	private NimbusJwtEncoder jwsEncoder;
 
 	@BeforeEach
 	public void setUp() {
 		this.jwkList = new ArrayList<>();
 		this.jwkSource = (jwkSelector, securityContext) -> jwkSelector.select(new JWKSet(this.jwkList));
-		this.jwsEncoder = new NimbusJwsEncoder(this.jwkSource);
+		this.jwsEncoder = new NimbusJwtEncoder(this.jwkSource);
 	}
 
 	@Test
 	public void constructorWhenJwkSourceNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new NimbusJwsEncoder(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new NimbusJwtEncoder(null))
 				.withMessage("jwkSource cannot be null");
 	}
 
@@ -105,7 +105,7 @@ public class NimbusJwsEncoderTests {
 	@Test
 	public void encodeWhenJwkSelectFailedThenThrowJwtEncodingException() throws Exception {
 		this.jwkSource = mock(JWKSource.class);
-		this.jwsEncoder = new NimbusJwsEncoder(this.jwkSource);
+		this.jwsEncoder = new NimbusJwtEncoder(this.jwkSource);
 		given(this.jwkSource.get(any(), any())).willThrow(new KeySourceException("key source error"));
 
 		JoseHeader joseHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).build();
@@ -196,7 +196,7 @@ public class NimbusJwsEncoderTests {
 		// @formatter:on
 
 		this.jwkSource = mock(JWKSource.class);
-		this.jwsEncoder = new NimbusJwsEncoder(this.jwkSource);
+		this.jwsEncoder = new NimbusJwtEncoder(this.jwkSource);
 		given(this.jwkSource.get(any(), any())).willReturn(Collections.singletonList(rsaJwk));
 
 		JoseHeader joseHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).build();
@@ -258,7 +258,7 @@ public class NimbusJwsEncoderTests {
 				return jwkSource.get(jwkSelector, context);
 			}
 		});
-		NimbusJwsEncoder jwsEncoder = new NimbusJwsEncoder(jwkSourceDelegate);
+		NimbusJwtEncoder jwsEncoder = new NimbusJwtEncoder(jwkSourceDelegate);
 
 		JwkListResultCaptor jwkListResultCaptor = new JwkListResultCaptor();
 		willAnswer(jwkListResultCaptor).given(jwkSourceDelegate).get(any(), any());

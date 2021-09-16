@@ -73,14 +73,14 @@ public class NimbusJweEncoderTests {
 
 	private NimbusJweEncoder jweEncoder;
 
-	private NimbusJwsEncoder jwsEncoder;
+	private NimbusJwtEncoder jwsEncoder;
 
 	@BeforeEach
 	public void setUp() {
 		this.jwkList = new ArrayList<>();
 		this.jwkSource = (jwkSelector, securityContext) -> jwkSelector.select(new JWKSet(this.jwkList));
 		this.jweEncoder = new NimbusJweEncoder(this.jwkSource);
-		this.jwsEncoder = new NimbusJwsEncoder(this.jwkSource);
+		this.jwsEncoder = new NimbusJwtEncoder(this.jwkSource);
 	}
 
 	@Test

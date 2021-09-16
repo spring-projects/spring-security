@@ -73,7 +73,7 @@ import org.springframework.util.StringUtils;
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus
  * JOSE + JWT SDK</a>
  */
-public final class NimbusJwsEncoder implements JwtEncoder {
+public final class NimbusJwtEncoder implements JwtEncoder {
 
 	private static final String ENCODING_ERROR_MESSAGE_TEMPLATE = "An error occurred while attempting to encode the Jwt: %s";
 
@@ -84,10 +84,10 @@ public final class NimbusJwsEncoder implements JwtEncoder {
 	private final JWKSource<SecurityContext> jwkSource;
 
 	/**
-	 * Constructs a {@code NimbusJwsEncoder} using the provided parameters.
+	 * Constructs a {@code NimbusJwtEncoder} using the provided parameters.
 	 * @param jwkSource the {@code com.nimbusds.jose.jwk.source.JWKSource}
 	 */
-	public NimbusJwsEncoder(JWKSource<SecurityContext> jwkSource) {
+	public NimbusJwtEncoder(JWKSource<SecurityContext> jwkSource) {
 		Assert.notNull(jwkSource, "jwkSource cannot be null");
 		this.jwkSource = jwkSource;
 	}
@@ -135,7 +135,7 @@ public final class NimbusJwsEncoder implements JwtEncoder {
 		JWSHeader jwsHeader = convert(headers);
 		JWTClaimsSet jwtClaimsSet = convert(claims);
 
-		JWSSigner jwsSigner = this.jwsSigners.computeIfAbsent(jwk, NimbusJwsEncoder::createSigner);
+		JWSSigner jwsSigner = this.jwsSigners.computeIfAbsent(jwk, NimbusJwtEncoder::createSigner);
 
 		SignedJWT signedJwt = new SignedJWT(jwsHeader, jwtClaimsSet);
 		try {
