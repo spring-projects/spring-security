@@ -62,8 +62,6 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 		if (method.getDeclaringClass() == Object.class) {
 			return Collections.emptyList();
 		}
-		this.logger.trace(LogMessage.format("Looking for Pre/Post annotations for method '%s' on target class '%s'",
-				method.getName(), targetClass));
 		PreFilter preFilter = findAnnotation(method, targetClass, PreFilter.class);
 		PreAuthorize preAuthorize = findAnnotation(method, targetClass, PreAuthorize.class);
 		PostFilter postFilter = findAnnotation(method, targetClass, PostFilter.class);
@@ -71,7 +69,6 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 		PostAuthorize postAuthorize = findAnnotation(method, targetClass, PostAuthorize.class);
 		if (preFilter == null && preAuthorize == null && postFilter == null && postAuthorize == null) {
 			// There is no meta-data so return
-			this.logger.trace("No expression annotations found");
 			return Collections.emptyList();
 		}
 		String preFilterAttribute = (preFilter != null) ? preFilter.value() : null;
