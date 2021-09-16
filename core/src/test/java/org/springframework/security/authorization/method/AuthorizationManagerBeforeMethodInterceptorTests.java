@@ -49,13 +49,13 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 	}
 
 	@Test
-	public void beforeWhenMockAuthorizationManagerThenVerify() throws Throwable {
+	public void beforeWhenMockAuthorizationManagerThenCheck() throws Throwable {
 		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
 		AuthorizationManager<MethodInvocation> mockAuthorizationManager = mock(AuthorizationManager.class);
 		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(
 				Pointcut.TRUE, mockAuthorizationManager);
 		advice.invoke(mockMethodInvocation);
-		verify(mockAuthorizationManager).verify(AuthorizationManagerBeforeMethodInterceptor.AUTHENTICATION_SUPPLIER,
+		verify(mockAuthorizationManager).check(AuthorizationManagerBeforeMethodInterceptor.AUTHENTICATION_SUPPLIER,
 				mockMethodInvocation);
 	}
 

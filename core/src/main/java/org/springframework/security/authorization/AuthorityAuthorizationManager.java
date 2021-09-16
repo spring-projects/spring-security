@@ -16,13 +16,13 @@
 
 package org.springframework.security.authorization;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -37,10 +37,10 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 
 	private static final String ROLE_PREFIX = "ROLE_";
 
-	private final Set<String> authorities;
+	private final Set<GrantedAuthority> authorities;
 
 	private AuthorityAuthorizationManager(String... authorities) {
-		this.authorities = new HashSet<>(Arrays.asList(authorities));
+		this.authorities = new HashSet<>(AuthorityUtils.createAuthorityList(authorities));
 	}
 
 	/**
@@ -133,8 +133,7 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 
 	private boolean isAuthorized(Authentication authentication) {
 		for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
-			String authority = grantedAuthority.getAuthority();
-			if (this.authorities.contains(authority)) {
+			if (this.authorities.contains(grantedAuthority)) {
 				return true;
 			}
 		}

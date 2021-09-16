@@ -21,14 +21,18 @@ import java.util.function.Supplier;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.core.Ordered;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -53,6 +57,8 @@ public final class AuthorizationManagerAfterMethodInterceptor
 		}
 		return authentication;
 	};
+
+	private final Log logger = LogFactory.getLog(this.getClass());
 
 	private final Pointcut pointcut;
 
@@ -103,7 +109,7 @@ public final class AuthorizationManagerAfterMethodInterceptor
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		Object result = mi.proceed();
-		this.authorizationManager.verify(AUTHENTICATION_SUPPLIER, new MethodInvocationResult(mi, result));
+		attemptAuthorization(mi, result);
 		return result;
 	}
 
@@ -132,6 +138,18 @@ public final class AuthorizationManagerAfterMethodInterceptor
 	@Override
 	public boolean isPerInstance() {
 		return true;
+	}
+
+	private void attemptAuthorization(MethodInvocation mi, Object result) {
+		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
+		AuthorizationDecision decision = this.authorizationManager.check(AUTHENTICATION_SUPPLIER,
+				new MethodInvocationResult(mi, result));
+		if (decision != null && !decision.isGranted()) {
+			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
+					+ this.authorizationManager + " and decision " + decision));
+			throw new AccessDeniedException("Access Denied");
+		}
+		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
 	}
 
 }

@@ -25,15 +25,19 @@ import javax.annotation.security.RolesAllowed;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.core.Ordered;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,6 +62,8 @@ public final class AuthorizationManagerBeforeMethodInterceptor
 		}
 		return authentication;
 	};
+
+	private final Log logger = LogFactory.getLog(this.getClass());
 
 	private final Pointcut pointcut;
 
@@ -149,7 +155,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor
 	 */
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
-		this.authorizationManager.verify(AUTHENTICATION_SUPPLIER, mi);
+		attemptAuthorization(mi);
 		return mi.proceed();
 	}
 
@@ -178,6 +184,17 @@ public final class AuthorizationManagerBeforeMethodInterceptor
 	@Override
 	public boolean isPerInstance() {
 		return true;
+	}
+
+	private void attemptAuthorization(MethodInvocation mi) {
+		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
+		AuthorizationDecision decision = this.authorizationManager.check(AUTHENTICATION_SUPPLIER, mi);
+		if (decision != null && !decision.isGranted()) {
+			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
+					+ this.authorizationManager + " and decision " + decision));
+			throw new AccessDeniedException("Access Denied");
+		}
+		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
 	}
 
 }
