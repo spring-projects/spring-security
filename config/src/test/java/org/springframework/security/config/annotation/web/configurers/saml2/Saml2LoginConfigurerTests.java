@@ -49,6 +49,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -80,6 +81,7 @@ import org.springframework.security.saml2.provider.service.registration.TestRely
 import org.springframework.security.saml2.provider.service.servlet.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
+import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationConverter;
@@ -221,6 +223,26 @@ public class Saml2LoginConfigurerTests {
 		// @formatter:on
 		this.mvc.perform(request).andExpect(redirectedUrl("/"));
 		verify(CustomAuthenticationConverter.authenticationConverter).convert(any(HttpServletRequest.class));
+	}
+
+	@Test
+	public void authenticateWhenCustomAuthenticationConverterBeanThenUses() throws Exception {
+		this.spring.register(CustomAuthenticationConverterBean.class).autowire();
+		Saml2AuthenticationTokenConverter authenticationConverter = this.spring.getContext()
+				.getBean(Saml2AuthenticationTokenConverter.class);
+		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
+				.assertingPartyDetails((party) -> party.verificationX509Credentials(
+						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
+				.build();
+		String response = new String(Saml2Utils.samlDecode(SIGNED_RESPONSE));
+		given(authenticationConverter.convert(any(HttpServletRequest.class)))
+				.willReturn(new Saml2AuthenticationToken(relyingPartyRegistration, response));
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/login/saml2/sso/" + relyingPartyRegistration.getRegistrationId())
+				.param("SAMLResponse", SIGNED_RESPONSE);
+		// @formatter:on
+		this.mvc.perform(request).andExpect(redirectedUrl("/"));
+		verify(authenticationConverter).convert(any(HttpServletRequest.class));
 	}
 
 	@Test
@@ -443,6 +465,27 @@ public class Saml2LoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			http.authorizeRequests((authz) -> authz.anyRequest().authenticated())
 					.saml2Login((saml2) -> saml2.authenticationConverter(authenticationConverter));
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
+	static class CustomAuthenticationConverterBean {
+
+		private final Saml2AuthenticationTokenConverter authenticationConverter = mock(
+				Saml2AuthenticationTokenConverter.class);
+
+		@Bean
+		SecurityFilterChain app(HttpSecurity http) throws Exception {
+			http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
+					.saml2Login(Customizer.withDefaults());
+			return http.build();
+		}
+
+		@Bean
+		Saml2AuthenticationTokenConverter authenticationConverter() {
+			return this.authenticationConverter;
 		}
 
 	}

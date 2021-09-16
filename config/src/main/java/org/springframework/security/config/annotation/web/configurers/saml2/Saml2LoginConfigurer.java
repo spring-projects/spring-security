@@ -268,12 +268,17 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private AuthenticationConverter getAuthenticationConverter(B http) {
-		if (this.authenticationConverter == null) {
+		if (this.authenticationConverter != null) {
+			return this.authenticationConverter;
+		}
+		AuthenticationConverter authenticationConverterBean = getBeanOrNull(http,
+				Saml2AuthenticationTokenConverter.class);
+		if (authenticationConverterBean == null) {
 			return new Saml2AuthenticationTokenConverter(
 					(RelyingPartyRegistrationResolver) new DefaultRelyingPartyRegistrationResolver(
 							this.relyingPartyRegistrationRepository));
 		}
-		return this.authenticationConverter;
+		return authenticationConverterBean;
 	}
 
 	private String version() {
