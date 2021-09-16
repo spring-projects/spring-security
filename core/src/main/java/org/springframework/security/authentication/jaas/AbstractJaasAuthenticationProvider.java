@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 the original author or authors.
+ * Copyright 2010-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -287,7 +287,7 @@ public abstract class AbstractJaasAuthenticationProvider
 	 * subclasses for different functionality
 	 *
 	 * @param token The authentication token being processed
-	 * @param ase The excetion that caused the authentication failure
+	 * @param ase The exception that caused the authentication failure
 	 */
 	protected void publishFailureEvent(UsernamePasswordAuthenticationToken token,
 			AuthenticationException ase) {
