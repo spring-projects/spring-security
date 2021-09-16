@@ -36,7 +36,7 @@ public class JoseHeaderTests {
 	@Test
 	public void withAlgorithmWhenNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> JoseHeader.withAlgorithm(null))
-				.isInstanceOf(IllegalArgumentException.class).withMessage("jwaAlgorithm cannot be null");
+				.withMessage("jwaAlgorithm cannot be null");
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class JoseHeaderTests {
 	@Test
 	public void fromWhenNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> JoseHeader.from(null))
-				.isInstanceOf(IllegalArgumentException.class).withMessage("headers cannot be null");
+				.withMessage("headers cannot be null");
 	}
 
 	@Test
@@ -112,7 +112,7 @@ public class JoseHeaderTests {
 		JoseHeader joseHeader = TestJoseHeaders.joseHeader().build();
 
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> joseHeader.getHeader(null))
-				.isInstanceOf(IllegalArgumentException.class).withMessage("name cannot be empty");
+				.withMessage("name cannot be empty");
 	}
 
 }

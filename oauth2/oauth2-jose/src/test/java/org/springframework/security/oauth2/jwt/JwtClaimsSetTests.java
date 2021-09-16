@@ -31,7 +31,7 @@ public class JwtClaimsSetTests {
 	@Test
 	public void buildWhenClaimsEmptyThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> JwtClaimsSet.builder().build())
-				.isInstanceOf(IllegalArgumentException.class).withMessage("claims cannot be empty");
+				.withMessage("claims cannot be empty");
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class JwtClaimsSetTests {
 	@Test
 	public void fromWhenNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> JwtClaimsSet.from(null))
-				.isInstanceOf(IllegalArgumentException.class).withMessage("claims cannot be null");
+				.withMessage("claims cannot be null");
 	}
 
 	@Test
