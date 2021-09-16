@@ -129,7 +129,7 @@ public class DelegatingPasswordEncoderTests {
 	}
 
 	@Test
-	public void matchesWhenNoClosingPrefixStringThenIllegalArgumentExcetion() {
+	public void matchesWhenNoClosingPrefixStringThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{bcrypt" + this.rawPassword))
 				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
