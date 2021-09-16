@@ -30,6 +30,7 @@ package org.springframework.security.oauth2.jwt;
  * @author Joe Grandja
  * @since 5.6
  * @see Jwt
+ * @see JwtEncoderParameters
  * @see JoseHeader
  * @see JwtClaimsSet
  * @see JwtDecoder
@@ -49,11 +50,10 @@ public interface JwtEncoder {
 
 	/**
 	 * Encode the JWT to it's compact claims representation format.
-	 * @param headers the JOSE header
-	 * @param claims the JWT Claims Set
+	 * @param parameters the parameters containing the JOSE header and JWT Claims Set
 	 * @return a {@link Jwt}
 	 * @throws JwtEncodingException if an error occurs while attempting to encode the JWT
 	 */
-	Jwt encode(JoseHeader headers, JwtClaimsSet claims) throws JwtEncodingException;
+	Jwt encode(JwtEncoderParameters parameters) throws JwtEncodingException;
 
 }

@@ -95,7 +95,7 @@ public class NimbusJweEncoderTests {
 		// @formatter:on
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
-		Jwt encodedJwe = this.jweEncoder.encode(jweHeader, jwtClaimsSet);
+		Jwt encodedJwe = this.jweEncoder.encode(JwtEncoderParameters.with(jweHeader, jwtClaimsSet));
 
 		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(jweHeader.getAlgorithm());
 		assertThat(encodedJwe.getHeaders().get("enc")).isEqualTo(jweHeader.<String>getHeader("enc"));
@@ -133,7 +133,7 @@ public class NimbusJweEncoderTests {
 		JoseHeader jwsHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
-		Jwt encodedJws = this.jwsEncoder.encode(jwsHeader, jwtClaimsSet);
+		Jwt encodedJws = this.jwsEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet));
 
 		// @formatter:off
 		JoseHeader jweHeader = JoseHeader.withAlgorithm(JweAlgorithm.RSA_OAEP_256)
@@ -194,9 +194,11 @@ public class NimbusJweEncoderTests {
 		}
 
 		@Override
-		public Jwt encode(JoseHeader headers, JwtClaimsSet claims) throws JwtEncodingException {
-			Assert.notNull(headers, "headers cannot be null");
-			Assert.notNull(claims, "claims cannot be null");
+		public Jwt encode(JwtEncoderParameters parameters) throws JwtEncodingException {
+			Assert.notNull(parameters, "parameters cannot be null");
+
+			JoseHeader headers = parameters.getHeaders();
+			JwtClaimsSet claims = parameters.getClaims();
 
 			JWTClaimsSet jwtClaimsSet = JWT_CLAIMS_SET_CONVERTER.convert(claims);
 

@@ -44,6 +44,7 @@ import org.springframework.security.oauth2.jwt.JoseHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwsEncoder;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
@@ -154,7 +155,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 				});
 
 		JwtEncoder jwsEncoder = jwsEncoderHolder.getJwsEncoder();
-		Jwt jws = jwsEncoder.encode(joseHeader, jwtClaimsSet);
+		Jwt jws = jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet));
 
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.set(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE, CLIENT_ASSERTION_TYPE_VALUE);
