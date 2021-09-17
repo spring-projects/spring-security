@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.crypto.factory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,6 +36,15 @@ import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 public final class PasswordEncoderFactories {
 
 	private PasswordEncoderFactories() {
+	}
+
+	/**
+	 * No documentation, see
+	 * {@link PasswordEncoderFactories#createDelegatingPasswordEncoder(UnaryOperator encodersProcessor)}
+	 * @return the {@link PasswordEncoder} to use
+	 */
+	public static PasswordEncoder createDelegatingPasswordEncoder() {
+		return createDelegatingPasswordEncoder(UnaryOperator.identity());
 	}
 
 	/**
@@ -60,12 +70,15 @@ public final class PasswordEncoderFactories {
 	 * {@link org.springframework.security.crypto.password.StandardPasswordEncoder}</li>
 	 * <li>argon2 - {@link Argon2PasswordEncoder}</li>
 	 * </ul>
+	 * @param encodersProcessor Use this to process the default supplied encoders, which
+	 * can be added, removed, or replaced
 	 * @return the {@link PasswordEncoder} to use
 	 */
 	@SuppressWarnings("deprecation")
-	public static PasswordEncoder createDelegatingPasswordEncoder() {
+	public static PasswordEncoder createDelegatingPasswordEncoder(
+			UnaryOperator<Map<String, PasswordEncoder>> encodersProcessor) {
 		String encodingId = "bcrypt";
-		Map<String, PasswordEncoder> encoders = new HashMap<>();
+		Map<String, PasswordEncoder> encoders = new HashMap<>(16);
 		encoders.put(encodingId, new BCryptPasswordEncoder());
 		encoders.put("ldap", new org.springframework.security.crypto.password.LdapShaPasswordEncoder());
 		encoders.put("MD4", new org.springframework.security.crypto.password.Md4PasswordEncoder());
@@ -78,7 +91,7 @@ public final class PasswordEncoderFactories {
 				new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-256"));
 		encoders.put("sha256", new org.springframework.security.crypto.password.StandardPasswordEncoder());
 		encoders.put("argon2", new Argon2PasswordEncoder());
-		return new DelegatingPasswordEncoder(encodingId, encoders);
+		return new DelegatingPasswordEncoder(encodingId, encodersProcessor.apply(encoders));
 	}
 
 }

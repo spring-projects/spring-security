@@ -18,6 +18,7 @@ package org.springframework.security.crypto.factory;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,6 +30,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PasswordEncoderFactoriesTests {
 
 	private PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
+	private PasswordEncoder allowNullIdEncoder = PasswordEncoderFactories
+			.createDelegatingPasswordEncoder((encoders) -> {
+				PasswordEncoder bcryptPasswordEncoder = encoders.get("bcrypt");
+				encoders.put(null, bcryptPasswordEncoder);
+				return encoders;
+			});
 
 	private String rawPassword = "password";
 
@@ -103,6 +111,13 @@ public class PasswordEncoderFactoriesTests {
 	public void matchesWhenArgon2ThenWorks() {
 		String encodedPassword = "{argon2}$argon2d$v=19$m=1024,t=1,p=1$c29tZXNhbHQ$Li5eBf5XrCz0cuzQRe9oflYqmA/VAzmzichw4ZYrvEU";
 		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
+	}
+
+	@Test
+	public void matchesWhenNullThenWorks() {
+		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+		String encodedPassword = bCryptPasswordEncoder.encode(this.rawPassword);
+		assertThat(this.allowNullIdEncoder.matches(this.rawPassword, encodedPassword)).isTrue();
 	}
 
 }
