@@ -116,14 +116,19 @@ import java.util.Map;
  *
  * @author Rob Winch
  * @author Michael Simons
+ * @author heowc
  * @since 5.0
  * @see org.springframework.security.crypto.factory.PasswordEncoderFactories
  */
 public class DelegatingPasswordEncoder implements PasswordEncoder {
 
-	private static final String PREFIX = "{";
+	private static final String DEFAULT_PREFIX = "{";
 
-	private static final String SUFFIX = "}";
+	private static final String DEFAULT_SUFFIX = "}";
+
+	private final String prefix;
+
+	private final String suffix;
 
 	private final String idForEncode;
 
@@ -142,9 +147,31 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	 * {@link #matches(CharSequence, String)}
 	 */
 	public DelegatingPasswordEncoder(String idForEncode, Map<String, PasswordEncoder> idToPasswordEncoder) {
+		this(idForEncode, idToPasswordEncoder, DEFAULT_PREFIX, DEFAULT_SUFFIX);
+	}
+
+	/**
+	 * Creates a new instance
+	 * @param idForEncode the id used to lookup which {@link PasswordEncoder} should be
+	 * used for {@link #encode(CharSequence)}
+	 * @param idToPasswordEncoder a Map of id to {@link PasswordEncoder} used to determine
+	 * which {@link PasswordEncoder} should be used for
+	 * @param prefix the prefix that denotes the start of an {@code idForEncode}
+	 * @param suffix the suffix that denotes the end of an {@code idForEncode}
+	 * {@link #matches(CharSequence, String)}
+	 */
+	public DelegatingPasswordEncoder(String idForEncode, Map<String, PasswordEncoder> idToPasswordEncoder,
+			String prefix, String suffix) {
 		if (idForEncode == null) {
 			throw new IllegalArgumentException("idForEncode cannot be null");
 		}
+		if (prefix == null) {
+			throw new IllegalArgumentException("prefix cannot be null");
+		}
+		if (suffix == null || suffix.isEmpty()) {
+			throw new IllegalArgumentException("suffix cannot be empty");
+		}
+
 		if (!idToPasswordEncoder.containsKey(idForEncode)) {
 			throw new IllegalArgumentException(
 					"idForEncode " + idForEncode + "is not found in idToPasswordEncoder " + idToPasswordEncoder);
@@ -153,16 +180,18 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 			if (id == null) {
 				continue;
 			}
-			if (id.contains(PREFIX)) {
-				throw new IllegalArgumentException("id " + id + " cannot contain " + PREFIX);
+			if (!prefix.isEmpty() && id.contains(prefix)) {
+				throw new IllegalArgumentException("id " + id + " cannot contain " + prefix);
 			}
-			if (id.contains(SUFFIX)) {
-				throw new IllegalArgumentException("id " + id + " cannot contain " + SUFFIX);
+			if (id.contains(suffix)) {
+				throw new IllegalArgumentException("id " + id + " cannot contain " + suffix);
 			}
 		}
 		this.idForEncode = idForEncode;
 		this.passwordEncoderForEncode = idToPasswordEncoder.get(idForEncode);
 		this.idToPasswordEncoder = new HashMap<>(idToPasswordEncoder);
+		this.prefix = prefix;
+		this.suffix = suffix;
 	}
 
 	/**
@@ -188,7 +217,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 
 	@Override
 	public String encode(CharSequence rawPassword) {
-		return PREFIX + this.idForEncode + SUFFIX + this.passwordEncoderForEncode.encode(rawPassword);
+		return this.prefix + this.idForEncode + this.suffix + this.passwordEncoderForEncode.encode(rawPassword);
 	}
 
 	@Override
@@ -209,15 +238,15 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		if (prefixEncodedPassword == null) {
 			return null;
 		}
-		int start = prefixEncodedPassword.indexOf(PREFIX);
+		int start = prefixEncodedPassword.indexOf(this.prefix);
 		if (start != 0) {
 			return null;
 		}
-		int end = prefixEncodedPassword.indexOf(SUFFIX, start);
+		int end = prefixEncodedPassword.indexOf(this.suffix, start);
 		if (end < 0) {
 			return null;
 		}
-		return prefixEncodedPassword.substring(start + 1, end);
+		return prefixEncodedPassword.substring(start + this.prefix.length(), end);
 	}
 
 	@Override
@@ -233,8 +262,8 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	}
 
 	private String extractEncodedPassword(String prefixEncodedPassword) {
-		int start = prefixEncodedPassword.indexOf(SUFFIX);
-		return prefixEncodedPassword.substring(start + 1);
+		int start = prefixEncodedPassword.indexOf(this.suffix);
+		return prefixEncodedPassword.substring(start + this.suffix.length());
 	}
 
 	/**
