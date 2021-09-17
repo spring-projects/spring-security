@@ -74,7 +74,6 @@ public class JoseHeaderTests {
 
 	@Test
 	public void buildWhenMissingCriticalHeaderThenThrowIllegalStateException() {
-		// @formatter:off
 		assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() ->
 				TestJoseHeaders.joseHeader().critical(Collections.singleton("critical-header-name")).build())
 				.withMessage("Missing critical (crit) header 'critical-header-name'.");
