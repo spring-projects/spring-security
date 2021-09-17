@@ -359,7 +359,7 @@ public class NimbusReactiveJwtDecoderTests {
 				.build();
 		assertThatExceptionOfType(BadJwtException.class)
 				.isThrownBy(() -> decoder.decode(this.messageReadToken).block())
-				.havingRootCause().withMessage("Required JOSE header \"typ\" (type) parameter is missing");
+				.havingRootCause().withMessage("Required JOSE header typ (type) parameter is missing");
 		// @formatter:on
 	}
 
@@ -442,7 +442,7 @@ public class NimbusReactiveJwtDecoderTests {
 				.build();
 		assertThatExceptionOfType(BadJwtException.class)
 				.isThrownBy(() -> decoder.decode(this.rsa256).block())
-				.havingRootCause().withMessage("Required JOSE header \"typ\" (type) parameter is missing");
+				.havingRootCause().withMessage("Required JOSE header typ (type) parameter is missing");
 		// @formatter:on
 	}
 
@@ -486,7 +486,7 @@ public class NimbusReactiveJwtDecoderTests {
 		assertThatExceptionOfType(BadJwtException.class)
 				.isThrownBy(() -> decoder.decode(this.messageReadToken).block())
 				.havingRootCause()
-				.withMessage("Required JOSE header \"typ\" (type) parameter is missing");
+				.withMessage("Required JOSE header typ (type) parameter is missing");
 		// @formatter:on
 	}
 
@@ -559,7 +559,7 @@ public class NimbusReactiveJwtDecoderTests {
 				.build();
 		assertThatExceptionOfType(BadJwtException.class)
 				.isThrownBy(() -> decoder.decode(this.messageReadToken).block())
-				.havingRootCause().withMessage("Required JOSE header \"typ\" (type) parameter is missing");
+				.havingRootCause().withMessage("Required JOSE header typ (type) parameter is missing");
 		// @formatter:on
 	}
 

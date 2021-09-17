@@ -694,7 +694,7 @@ public class NimbusJwtDecoderTests {
 		assertThatExceptionOfType(BadJwtException.class)
 				.isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
 				.withMessageContaining("An error occurred while attempting to decode the Jwt: "
-						+ "Required JOSE header \"typ\" (type) parameter is missing");
+						+ "Required JOSE header typ (type) parameter is missing");
 		// @formatter:on
 	}
 
