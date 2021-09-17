@@ -19,42 +19,44 @@ package org.springframework.security.oauth2.jwt;
 import org.springframework.util.Assert;
 
 /**
- * A holder of parameters containing the JOSE header and JWT Claims Set.
+ * A holder of parameters containing the JWS headers and JWT Claims Set.
  *
  * @author Joe Grandja
  * @since 5.6
+ * @see JwsHeader
+ * @see JwtClaimsSet
  * @see JwtEncoder
  */
 public final class JwtEncoderParameters {
 
-	private final JoseHeader headers;
+	private final JwsHeader jwsHeader;
 
 	private final JwtClaimsSet claims;
 
-	private JwtEncoderParameters(JoseHeader headers, JwtClaimsSet claims) {
-		Assert.notNull(headers, "headers cannot be null");
+	private JwtEncoderParameters(JwsHeader jwsHeader, JwtClaimsSet claims) {
+		Assert.notNull(jwsHeader, "jwsHeader cannot be null");
 		Assert.notNull(claims, "claims cannot be null");
-		this.headers = headers;
+		this.jwsHeader = jwsHeader;
 		this.claims = claims;
 	}
 
 	/**
 	 * Returns a new {@link JwtEncoderParameters}, initialized with the provided
-	 * {@link JoseHeader} and {@link JwtClaimsSet}.
-	 * @param headers the {@link JoseHeader}
+	 * {@link JwsHeader} and {@link JwtClaimsSet}.
+	 * @param jwsHeader the {@link JwsHeader}
 	 * @param claims the {@link JwtClaimsSet}
 	 * @return the {@link JwtEncoderParameters}
 	 */
-	public static JwtEncoderParameters with(JoseHeader headers, JwtClaimsSet claims) {
-		return new JwtEncoderParameters(headers, claims);
+	public static JwtEncoderParameters with(JwsHeader jwsHeader, JwtClaimsSet claims) {
+		return new JwtEncoderParameters(jwsHeader, claims);
 	}
 
 	/**
-	 * Returns the {@link JoseHeader headers}.
-	 * @return the {@link JoseHeader}
+	 * Returns the {@link JwsHeader JWS headers}.
+	 * @return the {@link JwsHeader}
 	 */
-	public JoseHeader getHeaders() {
-		return this.headers;
+	public JwsHeader getJwsHeader() {
+		return this.jwsHeader;
 	}
 
 	/**

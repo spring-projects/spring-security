@@ -30,13 +30,13 @@ public final class TestJoseHeaders {
 	private TestJoseHeaders() {
 	}
 
-	public static JoseHeader.Builder joseHeader() {
-		return joseHeader(SignatureAlgorithm.RS256);
+	public static JwsHeader.Builder jwsHeader() {
+		return jwsHeader(SignatureAlgorithm.RS256);
 	}
 
-	public static JoseHeader.Builder joseHeader(SignatureAlgorithm signatureAlgorithm) {
+	public static JwsHeader.Builder jwsHeader(SignatureAlgorithm signatureAlgorithm) {
 		// @formatter:off
-		return JoseHeader.with(signatureAlgorithm)
+		return JwsHeader.with(signatureAlgorithm)
 				.jwkSetUrl("https://provider.com/oauth2/jwks")
 				.jwk(rsaJwk())
 				.keyId("keyId")

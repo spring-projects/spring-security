@@ -96,7 +96,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	public Jwt encode(JwtEncoderParameters parameters) throws JwtEncodingException {
 		Assert.notNull(parameters, "parameters cannot be null");
 
-		JoseHeader headers = parameters.getHeaders();
+		JwsHeader headers = parameters.getJwsHeader();
 		JwtClaimsSet claims = parameters.getClaims();
 
 		JWK jwk = selectJwk(headers);
@@ -107,7 +107,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		return new Jwt(jws, claims.getIssuedAt(), claims.getExpiresAt(), headers.getHeaders(), claims.getClaims());
 	}
 
-	private JWK selectJwk(JoseHeader headers) {
+	private JWK selectJwk(JwsHeader headers) {
 		List<JWK> jwks;
 		try {
 			JWKSelector jwkSelector = new JWKSelector(createJwkMatcher(headers));
@@ -131,7 +131,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		return jwks.get(0);
 	}
 
-	private String serialize(JoseHeader headers, JwtClaimsSet claims, JWK jwk) {
+	private String serialize(JwsHeader headers, JwtClaimsSet claims, JWK jwk) {
 		JWSHeader jwsHeader = convert(headers);
 		JWTClaimsSet jwtClaimsSet = convert(claims);
 
@@ -148,7 +148,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		return signedJwt.serialize();
 	}
 
-	private static JWKMatcher createJwkMatcher(JoseHeader headers) {
+	private static JWKMatcher createJwkMatcher(JwsHeader headers) {
 		JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(headers.getAlgorithm().getName());
 
 		if (JWSAlgorithm.Family.RSA.contains(jwsAlgorithm) || JWSAlgorithm.Family.EC.contains(jwsAlgorithm)) {
@@ -176,7 +176,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		return null;
 	}
 
-	private static JoseHeader addKeyIdentifierHeadersIfNecessary(JoseHeader headers, JWK jwk) {
+	private static JwsHeader addKeyIdentifierHeadersIfNecessary(JwsHeader headers, JWK jwk) {
 		// Check if headers have already been added
 		if (StringUtils.hasText(headers.getKeyId()) && StringUtils.hasText(headers.getX509SHA256Thumbprint())) {
 			return headers;
@@ -186,7 +186,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 			return headers;
 		}
 
-		JoseHeader.Builder headersBuilder = JoseHeader.from(headers);
+		JwsHeader.Builder headersBuilder = JwsHeader.from(headers);
 		if (!StringUtils.hasText(headers.getKeyId()) && StringUtils.hasText(jwk.getKeyID())) {
 			headersBuilder.keyId(jwk.getKeyID());
 		}
@@ -207,7 +207,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		}
 	}
 
-	private static JWSHeader convert(JoseHeader headers) {
+	private static JWSHeader convert(JwsHeader headers) {
 		JWSHeader.Builder builder = new JWSHeader.Builder(JWSAlgorithm.parse(headers.getAlgorithm().getName()));
 
 		if (headers.getJwkSetUrl() != null) {

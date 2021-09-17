@@ -31,8 +31,6 @@ package org.springframework.security.oauth2.jwt;
  * @since 5.6
  * @see Jwt
  * @see JwtEncoderParameters
- * @see JoseHeader
- * @see JwtClaimsSet
  * @see JwtDecoder
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token
  * (JWT)</a>

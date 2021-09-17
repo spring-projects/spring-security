@@ -63,13 +63,13 @@ public class NimbusJwtEncoderTests {
 
 	private JWKSource<SecurityContext> jwkSource;
 
-	private NimbusJwtEncoder jwsEncoder;
+	private NimbusJwtEncoder jwtEncoder;
 
 	@BeforeEach
 	public void setUp() {
 		this.jwkList = new ArrayList<>();
 		this.jwkSource = (jwkSelector, securityContext) -> jwkSelector.select(new JWKSet(this.jwkList));
-		this.jwsEncoder = new NimbusJwtEncoder(this.jwkSource);
+		this.jwtEncoder = new NimbusJwtEncoder(this.jwkSource);
 	}
 
 	@Test
@@ -80,7 +80,7 @@ public class NimbusJwtEncoderTests {
 
 	@Test
 	public void encodeWhenParametersNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.jwsEncoder.encode(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> this.jwtEncoder.encode(null))
 				.withMessage("parameters cannot be null");
 	}
 
@@ -89,30 +89,30 @@ public class NimbusJwtEncoderTests {
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.jwsEncoder.encode(JwtEncoderParameters.with(null, jwtClaimsSet)))
-				.withMessage("headers cannot be null");
+				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.with(null, jwtClaimsSet)))
+				.withMessage("jwsHeader cannot be null");
 	}
 
 	@Test
 	public void encodeWhenClaimsNullThenThrowIllegalArgumentException() {
-		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, null)))
+				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.with(jwsHeader, null)))
 				.withMessage("claims cannot be null");
 	}
 
 	@Test
 	public void encodeWhenJwkSelectFailedThenThrowJwtEncodingException() throws Exception {
 		this.jwkSource = mock(JWKSource.class);
-		this.jwsEncoder = new NimbusJwtEncoder(this.jwkSource);
+		this.jwtEncoder = new NimbusJwtEncoder(this.jwkSource);
 		given(this.jwkSource.get(any(), any())).willThrow(new KeySourceException("key source error"));
 
-		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatExceptionOfType(JwtEncodingException.class)
-				.isThrownBy(() -> this.jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet)))
+				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet)))
 				.withMessageContaining("Failed to select a JWK signing key -> key source error");
 	}
 
@@ -122,21 +122,21 @@ public class NimbusJwtEncoderTests {
 		this.jwkList.add(rsaJwk);
 		this.jwkList.add(rsaJwk);
 
-		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatExceptionOfType(JwtEncodingException.class)
-				.isThrownBy(() -> this.jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet)))
+				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet)))
 				.withMessageContaining("Found multiple JWK signing keys for algorithm 'RS256'");
 	}
 
 	@Test
 	public void encodeWhenJwkSelectEmptyThenThrowJwtEncodingException() {
-		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatExceptionOfType(JwtEncodingException.class)
-				.isThrownBy(() -> this.jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet)))
+				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet)))
 				.withMessageContaining("Failed to select a JWK signing key");
 	}
 
@@ -153,10 +153,10 @@ public class NimbusJwtEncoderTests {
 		this.jwkList.add(rsaJwk2);
 		// @formatter:on
 
-		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).keyId(rsaJwk2.getKeyID()).build();
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).keyId(rsaJwk2.getKeyID()).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
-		Jwt encodedJws = this.jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet));
+		Jwt encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet));
 
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.KID)).isEqualTo(rsaJwk2.getKeyID());
 	}
@@ -176,11 +176,11 @@ public class NimbusJwtEncoderTests {
 		this.jwkList.add(rsaJwk2);
 		// @formatter:on
 
-		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256)
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256)
 				.x509SHA256Thumbprint(rsaJwk1.getX509CertSHA256Thumbprint().toString()).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
-		Jwt encodedJws = this.jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet));
+		Jwt encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet));
 
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.X5T_S256))
 				.isEqualTo(rsaJwk1.getX509CertSHA256Thumbprint().toString());
@@ -196,14 +196,14 @@ public class NimbusJwtEncoderTests {
 		// @formatter:on
 
 		this.jwkSource = mock(JWKSource.class);
-		this.jwsEncoder = new NimbusJwtEncoder(this.jwkSource);
+		this.jwtEncoder = new NimbusJwtEncoder(this.jwkSource);
 		given(this.jwkSource.get(any(), any())).willReturn(Collections.singletonList(rsaJwk));
 
-		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatExceptionOfType(JwtEncodingException.class)
-				.isThrownBy(() -> this.jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet)))
+				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet)))
 				.withMessageContaining(
 						"Failed to create a JWS Signer -> The JWK use must be sig (signature) or unspecified");
 	}
@@ -218,12 +218,12 @@ public class NimbusJwtEncoderTests {
 		this.jwkList.add(rsaJwk);
 		// @formatter:on
 
-		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
-		Jwt encodedJws = this.jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet));
+		Jwt encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet));
 
-		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(joseHeader.getAlgorithm());
+		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(jwsHeader.getAlgorithm());
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.JKU)).isNull();
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.JWK)).isNull();
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.KID)).isEqualTo(rsaJwk.getKeyID());
@@ -258,15 +258,15 @@ public class NimbusJwtEncoderTests {
 				return jwkSource.get(jwkSelector, context);
 			}
 		});
-		NimbusJwtEncoder jwsEncoder = new NimbusJwtEncoder(jwkSourceDelegate);
+		NimbusJwtEncoder jwtEncoder = new NimbusJwtEncoder(jwkSourceDelegate);
 
 		JwkListResultCaptor jwkListResultCaptor = new JwkListResultCaptor();
 		willAnswer(jwkListResultCaptor).given(jwkSourceDelegate).get(any(), any());
 
-		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
-		Jwt encodedJws = jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet));
+		Jwt encodedJws = jwtEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet));
 
 		JWK jwk1 = jwkListResultCaptor.getResult().get(0);
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(((RSAKey) jwk1).toRSAPublicKey()).build();
@@ -274,7 +274,7 @@ public class NimbusJwtEncoderTests {
 
 		jwkSource.rotate(); // Simulate key rotation
 
-		encodedJws = jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet));
+		encodedJws = jwtEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet));
 
 		JWK jwk2 = jwkListResultCaptor.getResult().get(0);
 		jwtDecoder = NimbusJwtDecoder.withPublicKey(((RSAKey) jwk2).toRSAPublicKey()).build();

@@ -41,7 +41,7 @@ public class JoseHeaderTests {
 
 	@Test
 	public void buildWhenAllHeadersProvidedThenAllHeadersAreSet() {
-		JoseHeader expectedJoseHeader = TestJoseHeaders.joseHeader().build();
+		JoseHeader expectedJoseHeader = TestJoseHeaders.jwsHeader().build();
 
 		// @formatter:off
 		JoseHeader joseHeader = JoseHeader.with(expectedJoseHeader.getAlgorithm())
@@ -75,7 +75,7 @@ public class JoseHeaderTests {
 	@Test
 	public void buildWhenMissingCriticalHeaderThenThrowIllegalStateException() {
 		assertThatExceptionOfType(IllegalStateException.class).isThrownBy(
-				() -> TestJoseHeaders.joseHeader().critical(Collections.singleton("critical-header-name")).build())
+				() -> TestJoseHeaders.jwsHeader().critical(Collections.singleton("critical-header-name")).build())
 				.withMessage("Missing critical (crit) header 'critical-header-name'.");
 	}
 
@@ -87,7 +87,7 @@ public class JoseHeaderTests {
 
 	@Test
 	public void fromWhenHeadersProvidedThenCopied() {
-		JoseHeader expectedJoseHeader = TestJoseHeaders.joseHeader().build();
+		JoseHeader expectedJoseHeader = TestJoseHeaders.jwsHeader().build();
 		JoseHeader joseHeader = JoseHeader.from(expectedJoseHeader).build();
 		assertThat(joseHeader.getHeaders()).isEqualTo(expectedJoseHeader.getHeaders());
 	}
@@ -108,7 +108,7 @@ public class JoseHeaderTests {
 
 	@Test
 	public void getHeaderWhenNullThenThrowIllegalArgumentException() {
-		JoseHeader joseHeader = TestJoseHeaders.joseHeader().build();
+		JoseHeader joseHeader = TestJoseHeaders.jwsHeader().build();
 
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> joseHeader.getHeader(null))
 				.withMessage("name cannot be empty");
