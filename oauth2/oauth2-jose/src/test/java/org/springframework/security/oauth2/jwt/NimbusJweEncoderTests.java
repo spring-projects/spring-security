@@ -23,8 +23,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.nimbusds.jose.EncryptionMethod;
@@ -33,13 +33,14 @@ import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWEHeader;
 import com.nimbusds.jose.JWEObject;
-import com.nimbusds.jose.KeySourceException;
 import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.RSAEncrypter;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSelector;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyType;
+import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
@@ -50,7 +51,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.jose.JwaAlgorithm;
 import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
@@ -67,6 +67,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class NimbusJweEncoderTests {
 
+	// @formatter:off
+	private static final JweHeader DEFAULT_JWE_HEADER =
+			JweHeader.with(JweAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM.getName()).build();
+	// @formatter:on
+
 	private List<JWK> jwkList;
 
 	private JWKSource<SecurityContext> jwkSource;
@@ -79,29 +84,25 @@ public class NimbusJweEncoderTests {
 	public void setUp() {
 		this.jwkList = new ArrayList<>();
 		this.jwkSource = (jwkSelector, securityContext) -> jwkSelector.select(new JWKSet(this.jwkList));
-		this.jweEncoder = new NimbusJweEncoder(this.jwkSource);
 		this.jwsEncoder = new NimbusJwtEncoder(this.jwkSource);
+		this.jweEncoder = new NimbusJweEncoder(this.jwkSource, this.jwsEncoder);
 	}
 
-	// @Test
+	@Test
 	public void encodeWhenJwtClaimsSetThenEncodes() {
 		RSAKey rsaJwk = TestJwks.DEFAULT_RSA_JWK;
 		this.jwkList.add(rsaJwk);
 
-		// @formatter:off
-		JoseHeader jweHeader = JoseHeader.with(JweAlgorithm.RSA_OAEP_256)
-				.header("enc", EncryptionMethod.A256GCM.getName())
-				.build();
-		// @formatter:on
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
-		// FIXME
-		// Jwt encodedJwe = this.jweEncoder.encode(JwtEncoderParameters.with(jweHeader,
-		// jwtClaimsSet));
-		Jwt encodedJwe = null;
+		// **********************
+		// Assume future API:
+		// JwtEncoderParameters.with(JweHeader jweHeader, JwtClaimsSet claims)
+		// **********************
+		Jwt encodedJwe = this.jweEncoder.encode(JwtEncoderParameters.with(jwtClaimsSet));
 
-		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(jweHeader.getAlgorithm());
-		assertThat(encodedJwe.getHeaders().get("enc")).isEqualTo(jweHeader.<String>getHeader("enc"));
+		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(DEFAULT_JWE_HEADER.getAlgorithm());
+		assertThat(encodedJwe.getHeaders().get("enc")).isEqualTo(DEFAULT_JWE_HEADER.<String>getHeader("enc"));
 		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.JKU)).isNull();
 		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.JWK)).isNull();
 		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.KID)).isEqualTo(rsaJwk.getKeyID());
@@ -136,30 +137,35 @@ public class NimbusJweEncoderTests {
 		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
-		Jwt encodedJws = this.jwsEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet));
+		// **********************
+		// Assume future API:
+		// JwtEncoderParameters.with(JweHeader jweHeader, JwsHeader jwsHeader,
+		// JwtClaimsSet claims)
+		// **********************
+		Jwt encodedJweNestedJws = this.jweEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet));
 
-		// @formatter:off
-		JoseHeader jweHeader = JoseHeader.with(JweAlgorithm.RSA_OAEP_256)
-				.header("enc", EncryptionMethod.A256GCM.getName())
-				.contentType("JWT")		// Indicates Nested JWT (REQUIRED)
-				.build();
-		// @formatter:on
+		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.ALG))
+				.isEqualTo(DEFAULT_JWE_HEADER.getAlgorithm());
+		assertThat(encodedJweNestedJws.getHeaders().get("enc")).isEqualTo(DEFAULT_JWE_HEADER.<String>getHeader("enc"));
+		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.JKU)).isNull();
+		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.JWK)).isNull();
+		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.KID)).isEqualTo(rsaJwk.getKeyID());
+		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.X5U)).isNull();
+		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.X5C)).isNull();
+		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.X5T)).isNull();
+		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.X5T_S256)).isNull();
+		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.TYP)).isNull();
+		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.CTY)).isEqualTo("JWT");
+		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.CRIT)).isNull();
 
-		JoseToken encodedJweNestedJws = this.jweEncoder.encode(jweHeader,
-				new JosePayload<>(encodedJws.getTokenValue()));
-
-		assertThat(encodedJweNestedJws.getHeaders().<JweAlgorithm>getAlgorithm()).isEqualTo(jweHeader.getAlgorithm());
-		assertThat(encodedJweNestedJws.getHeaders().<String>getHeader("enc")).isEqualTo(jweHeader.getHeader("enc"));
-		assertThat(encodedJweNestedJws.getHeaders().getJwkSetUrl()).isNull();
-		assertThat(encodedJweNestedJws.getHeaders().getJwk()).isNull();
-		assertThat(encodedJweNestedJws.getHeaders().getKeyId()).isEqualTo(rsaJwk.getKeyID());
-		assertThat(encodedJweNestedJws.getHeaders().getX509Url()).isNull();
-		assertThat(encodedJweNestedJws.getHeaders().getX509CertificateChain()).isNull();
-		assertThat(encodedJweNestedJws.getHeaders().getX509SHA1Thumbprint()).isNull();
-		assertThat(encodedJweNestedJws.getHeaders().getX509SHA256Thumbprint()).isNull();
-		assertThat(encodedJweNestedJws.getHeaders().getType()).isNull();
-		assertThat(encodedJweNestedJws.getHeaders().getContentType()).isEqualTo("JWT");
-		assertThat(encodedJweNestedJws.getHeaders().getCritical()).isNull();
+		assertThat(encodedJweNestedJws.getIssuer()).isEqualTo(jwtClaimsSet.getIssuer());
+		assertThat(encodedJweNestedJws.getSubject()).isEqualTo(jwtClaimsSet.getSubject());
+		assertThat(encodedJweNestedJws.getAudience()).isEqualTo(jwtClaimsSet.getAudience());
+		assertThat(encodedJweNestedJws.getExpiresAt()).isEqualTo(jwtClaimsSet.getExpiresAt());
+		assertThat(encodedJweNestedJws.getNotBefore()).isEqualTo(jwtClaimsSet.getNotBefore());
+		assertThat(encodedJweNestedJws.getIssuedAt()).isEqualTo(jwtClaimsSet.getIssuedAt());
+		assertThat(encodedJweNestedJws.getId()).isEqualTo(jwtClaimsSet.getId());
+		assertThat(encodedJweNestedJws.<String>getClaim("custom-claim-name")).isEqualTo("custom-claim-value");
 
 		assertThat(encodedJweNestedJws.getTokenValue()).isNotNull();
 	}
@@ -181,64 +187,106 @@ public class NimbusJweEncoderTests {
 
 	}
 
-	private static final class NimbusJweEncoder implements JwtEncoder, JoseEncoder {
+	private static final class JweHeader extends JoseHeader {
+
+		private JweHeader(Map<String, Object> headers) {
+			super(headers);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public JweAlgorithm getAlgorithm() {
+			return super.getAlgorithm();
+		}
+
+		private static Builder with(JweAlgorithm jweAlgorithm, String enc) {
+			return new Builder(jweAlgorithm, enc);
+		}
+
+		private static Builder from(JweHeader headers) {
+			return new Builder(headers);
+		}
+
+		private static final class Builder extends AbstractBuilder<JweHeader, Builder> {
+
+			private Builder(JweAlgorithm jweAlgorithm, String enc) {
+				Assert.notNull(jweAlgorithm, "jweAlgorithm cannot be null");
+				Assert.hasText(enc, "enc cannot be empty");
+				algorithm(jweAlgorithm);
+				header("enc", enc);
+			}
+
+			private Builder(JweHeader headers) {
+				Assert.notNull(headers, "headers cannot be null");
+				Consumer<Map<String, Object>> headersConsumer = (h) -> h.putAll(headers.getHeaders());
+				headers(headersConsumer);
+			}
+
+			@Override
+			public JweHeader build() {
+				validate();
+				return new JweHeader(getHeaders());
+			}
+
+		}
+
+	}
+
+	private static final class NimbusJweEncoder implements JwtEncoder {
 
 		private static final String ENCODING_ERROR_MESSAGE_TEMPLATE = "An error occurred while attempting to encode the Jwt: %s";
 
-		private static final Converter<JoseHeader, JWEHeader> JWE_HEADER_CONVERTER = new JweHeaderConverter();
+		private static final Converter<JweHeader, JWEHeader> JWE_HEADER_CONVERTER = new JweHeaderConverter();
 
 		private static final Converter<JwtClaimsSet, JWTClaimsSet> JWT_CLAIMS_SET_CONVERTER = new JwtClaimsSetConverter();
 
 		private final JWKSource<SecurityContext> jwkSource;
 
-		private NimbusJweEncoder(JWKSource<SecurityContext> jwkSource) {
+		private final JwtEncoder jwsEncoder;
+
+		private NimbusJweEncoder(JWKSource<SecurityContext> jwkSource, JwtEncoder jwsEncoder) {
 			Assert.notNull(jwkSource, "jwkSource cannot be null");
+			Assert.notNull(jwsEncoder, "jwsEncoder cannot be null");
 			this.jwkSource = jwkSource;
+			this.jwsEncoder = jwsEncoder;
 		}
 
 		@Override
 		public Jwt encode(JwtEncoderParameters parameters) throws JwtEncodingException {
 			Assert.notNull(parameters, "parameters cannot be null");
 
-			JwsHeader headers = parameters.getJwsHeader();
+			// **********************
+			// Assume future API:
+			// JwtEncoderParameters.getJweHeader()
+			// **********************
+			JweHeader jweHeader = DEFAULT_JWE_HEADER; // Assume this is accessed via
+														// JwtEncoderParameters.getJweHeader()
+
+			JwsHeader jwsHeader = parameters.getJwsHeader();
 			JwtClaimsSet claims = parameters.getClaims();
 
+			JWK jwk = selectJwk(jweHeader);
+			jweHeader = addKeyIdentifierHeadersIfNecessary(jweHeader, jwk);
+
+			JWEHeader jweHeader2 = JWE_HEADER_CONVERTER.convert(jweHeader);
 			JWTClaimsSet jwtClaimsSet = JWT_CLAIMS_SET_CONVERTER.convert(claims);
 
-			JoseToken joseToken = encode(headers, new JosePayload<>(jwtClaimsSet.toString()));
+			String payload;
+			if (jwsHeader != null) {
+				Jwt jws = this.jwsEncoder.encode(JwtEncoderParameters.with(jwsHeader, claims));
+				payload = jws.getTokenValue();
 
-			return new Jwt(joseToken.getTokenValue(), claims.getIssuedAt(), claims.getExpiresAt(),
-					joseToken.getHeaders().getHeaders(), claims.getClaims());
-		}
-
-		@Override
-		public JoseToken encode(JoseHeader headers, JosePayload<?> payload) throws JwtEncodingException {
-			Assert.notNull(headers, "headers cannot be null");
-			Assert.notNull(payload, "payload cannot be null");
-
-			JWEHeader jweHeader;
-			try {
-				jweHeader = JWE_HEADER_CONVERTER.convert(headers);
+				// @formatter:off
+				jweHeader = JweHeader.from(jweHeader)
+						.contentType("JWT")		// Indicates Nested JWT (REQUIRED)
+						.build();
+				// @formatter:on
 			}
-			catch (Exception ex) {
-				throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
+			else {
+				payload = jwtClaimsSet.toString();
 			}
 
-			JWK jwk = selectJwk(jweHeader);
-			if (jwk == null) {
-				throw new JwtEncodingException(
-						String.format(ENCODING_ERROR_MESSAGE_TEMPLATE, "Failed to select a JWK encryption key"));
-			}
-
-			jweHeader = addKeyIdentifierHeadersIfNecessary(jweHeader, jwk);
-			headers = syncKeyIdentifierHeadersIfNecessary(headers, jweHeader);
-
-			// FIXME
-			// Resolve type of JosePayload.content
-			// For now, assuming String type
-			String payloadContent = (String) payload.getContent();
-
-			JWEObject jweObject = new JWEObject(jweHeader, new Payload(payloadContent));
+			JWEObject jweObject = new JWEObject(jweHeader2, new Payload(payload));
 			try {
 				// FIXME
 				// Resolve type of JWEEncrypter using the JWK key type
@@ -251,78 +299,75 @@ public class NimbusJweEncoderTests {
 			}
 			String jwe = jweObject.serialize();
 
-			return new JoseToken(jwe, null, null, headers, payload);
+			return new Jwt(jwe, claims.getIssuedAt(), claims.getExpiresAt(), jweHeader.getHeaders(),
+					claims.getClaims());
 		}
 
-		private JWK selectJwk(JWEHeader jweHeader) {
-			JWKSelector jwkSelector = new JWKSelector(JWKMatcher.forJWEHeader(jweHeader));
-
+		private JWK selectJwk(JweHeader headers) {
 			List<JWK> jwks;
 			try {
+				JWKSelector jwkSelector = new JWKSelector(createJwkMatcher(headers));
 				jwks = this.jwkSource.get(jwkSelector, null);
 			}
-			catch (KeySourceException ex) {
+			catch (Exception ex) {
 				throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
 						"Failed to select a JWK encryption key -> " + ex.getMessage()), ex);
 			}
 
 			if (jwks.size() > 1) {
 				throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
-						"Found multiple JWK encryption keys for algorithm '" + jweHeader.getAlgorithm().getName()
-								+ "'"));
+						"Found multiple JWK encryption keys for algorithm '" + headers.getAlgorithm().getName() + "'"));
 			}
 
-			return !jwks.isEmpty() ? jwks.get(0) : null;
+			if (jwks.isEmpty()) {
+				throw new JwtEncodingException(
+						String.format(ENCODING_ERROR_MESSAGE_TEMPLATE, "Failed to select a JWK encryption key"));
+			}
+
+			return jwks.get(0);
 		}
 
-		private static JWEHeader addKeyIdentifierHeadersIfNecessary(JWEHeader jweHeader, JWK jwk) {
+		private static JWKMatcher createJwkMatcher(JweHeader headers) {
+			JWEAlgorithm jweAlgorithm = JWEAlgorithm.parse(headers.getAlgorithm().getName());
+
+			// @formatter:off
+			return new JWKMatcher.Builder()
+					.keyType(KeyType.forAlgorithm(jweAlgorithm))
+					.keyID(headers.getKeyId())
+					.keyUses(KeyUse.ENCRYPTION, null)
+					.algorithms(jweAlgorithm, null)
+					.x509CertSHA256Thumbprint(Base64URL.from(headers.getX509SHA256Thumbprint()))
+					.build();
+			// @formatter:on
+		}
+
+		private static JweHeader addKeyIdentifierHeadersIfNecessary(JweHeader headers, JWK jwk) {
 			// Check if headers have already been added
-			if (StringUtils.hasText(jweHeader.getKeyID()) && jweHeader.getX509CertSHA256Thumbprint() != null) {
-				return jweHeader;
+			if (StringUtils.hasText(headers.getKeyId()) && StringUtils.hasText(headers.getX509SHA256Thumbprint())) {
+				return headers;
 			}
 			// Check if headers can be added from JWK
 			if (!StringUtils.hasText(jwk.getKeyID()) && jwk.getX509CertSHA256Thumbprint() == null) {
-				return jweHeader;
+				return headers;
 			}
 
-			JWEHeader.Builder headerBuilder = new JWEHeader.Builder(jweHeader);
-			if (!StringUtils.hasText(jweHeader.getKeyID()) && StringUtils.hasText(jwk.getKeyID())) {
-				headerBuilder.keyID(jwk.getKeyID());
+			JweHeader.Builder headersBuilder = JweHeader.from(headers);
+			if (!StringUtils.hasText(headers.getKeyId()) && StringUtils.hasText(jwk.getKeyID())) {
+				headersBuilder.keyId(jwk.getKeyID());
 			}
-			if (jweHeader.getX509CertSHA256Thumbprint() == null && jwk.getX509CertSHA256Thumbprint() != null) {
-				headerBuilder.x509CertSHA256Thumbprint(jwk.getX509CertSHA256Thumbprint());
-			}
-
-			return headerBuilder.build();
-		}
-
-		private static JoseHeader syncKeyIdentifierHeadersIfNecessary(JoseHeader joseHeader, JWEHeader jweHeader) {
-			String jweHeaderX509SHA256Thumbprint = null;
-			if (jweHeader.getX509CertSHA256Thumbprint() != null) {
-				jweHeaderX509SHA256Thumbprint = jweHeader.getX509CertSHA256Thumbprint().toString();
-			}
-			if (Objects.equals(joseHeader.getKeyId(), jweHeader.getKeyID())
-					&& Objects.equals(joseHeader.getX509SHA256Thumbprint(), jweHeaderX509SHA256Thumbprint)) {
-				return joseHeader;
+			if (!StringUtils.hasText(headers.getX509SHA256Thumbprint()) && jwk.getX509CertSHA256Thumbprint() != null) {
+				headersBuilder.x509SHA256Thumbprint(jwk.getX509CertSHA256Thumbprint().toString());
 			}
 
-			JoseHeader.Builder headerBuilder = JoseHeader.from(joseHeader);
-			if (!Objects.equals(joseHeader.getKeyId(), jweHeader.getKeyID())) {
-				headerBuilder.keyId(jweHeader.getKeyID());
-			}
-			if (!Objects.equals(joseHeader.getX509SHA256Thumbprint(), jweHeaderX509SHA256Thumbprint)) {
-				headerBuilder.x509SHA256Thumbprint(jweHeaderX509SHA256Thumbprint);
-			}
-
-			return headerBuilder.build();
+			return headersBuilder.build();
 		}
 
 	}
 
-	private static class JweHeaderConverter implements Converter<JoseHeader, JWEHeader> {
+	private static class JweHeaderConverter implements Converter<JweHeader, JWEHeader> {
 
 		@Override
-		public JWEHeader convert(JoseHeader headers) {
+		public JWEHeader convert(JweHeader headers) {
 			JWEAlgorithm jweAlgorithm = JWEAlgorithm.parse(headers.getAlgorithm().getName());
 			EncryptionMethod encryptionMethod = EncryptionMethod.parse(headers.getHeader("enc"));
 			JWEHeader.Builder builder = new JWEHeader.Builder(jweAlgorithm, encryptionMethod);
@@ -463,86 +508,5 @@ public class NimbusJweEncoderTests {
 		}
 
 	}
-
-	static class JoseToken extends AbstractOAuth2Token {
-
-		private final JoseHeader headers;
-
-		private final JosePayload<?> payload;
-
-		JoseToken(String tokenValue, Instant issuedAt, Instant expiresAt, JoseHeader headers, JosePayload<?> payload) {
-			super(tokenValue, issuedAt, expiresAt);
-			this.headers = headers;
-			this.payload = payload;
-		}
-
-		JoseHeader getHeaders() {
-			return this.headers;
-		}
-
-		JosePayload<?> getPayload() {
-			return this.payload;
-		}
-
-	}
-
-	static class JosePayload<T> {
-
-		private final T content;
-
-		JosePayload(T content) {
-			this.content = content;
-		}
-
-		T getContent() {
-			return this.content;
-		}
-
-	}
-
-	// @formatter:off
-	/*
-	 * IMPORTANT DESIGN DECISION
-	 * -------------------------
-	 *
-	 * This API is needed in order to support "Nested JWT".
-	 *
-	 * See section 2. Terminology
-	 * https://tools.ietf.org/html/rfc7519#section-2
-	 *
-	 * Nested JWT
-	 * 		A JWT in which nested signing and/or encryption are employed.
-	 * 		In Nested JWTs, a JWT is used as the payload or plaintext value of an
-     * 		enclosing JWS or JWE structure, respectively.
-	 *
-	 * See section 3. JSON Web Token (JWT) Overview
-	 * https://tools.ietf.org/html/rfc7519#section-3
-	 *
-	 * JWTs represent a set of claims as a JSON object that is encoded in a
-	 * JWS and/or JWE structure.  This JSON object is the JWT Claims Set.
-	 *
-	 * The contents of the JOSE Header describe the cryptographic operations
-	 * applied to the JWT Claims Set.  If the JOSE Header is for a JWS, the
-	 * JWT is represented as a JWS and the claims are digitally signed or
-	 * MACed, with the JWT Claims Set being the JWS Payload.  If the JOSE
-	 * Header is for a JWE, the JWT is represented as a JWE and the claims
-	 * are encrypted, with the JWT Claims Set being the plaintext encrypted
-	 * by the JWE.  A JWT may be enclosed in another JWE or JWS structure to
-	 * create a Nested JWT, enabling nested signing and encryption to be
-	 * performed.
-	 *
-	 * -----------------------
-	 *
-	 * In summary, the `JwtEncoder` API is designed for signing (JWS) and encrypting (JWE) a JWT Claims Set.
-	 * Whereas, the `JoseEncoder` API is a higher level of abstraction that can be used for Nested JWT (signing and encryption).
-	 * NOTE: The `JosePayload` type provides the flexibility to support any data type,
-	 * e.g. JWT/JWS, JwtClaimsSet, String, Map, byte[], etc.
-	 */
-	interface JoseEncoder {
-
-		JoseToken encode(JoseHeader headers, JosePayload<?> payload) throws JwtEncodingException;
-
-	}
-	// @formatter:on
 
 }
