@@ -36,6 +36,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 /**
  * @author Rob Winch
  * @author Michael Simons
+ * @author heowc
  * @since 5.0
  */
 @ExtendWith(MockitoExtension.class)
@@ -64,12 +65,16 @@ public class DelegatingPasswordEncoderTests {
 
 	private DelegatingPasswordEncoder passwordEncoder;
 
+	private DelegatingPasswordEncoder onlySuffixPasswordEncoder;
+
 	@BeforeEach
 	public void setup() {
 		this.delegates = new HashMap<>();
 		this.delegates.put(this.bcryptId, this.bcrypt);
 		this.delegates.put("noop", this.noop);
 		this.passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
+
+		this.onlySuffixPasswordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "", "$");
 	}
 
 	@Test
@@ -81,6 +86,49 @@ public class DelegatingPasswordEncoderTests {
 	public void constructorWhenIdForEncodeDoesNotExistThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId + "INVALID", this.delegates));
+	}
+
+	@Test
+	public void constructorWhenPrefixIsNull() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, null, "$"));
+	}
+
+	@Test
+	public void constructorWhenSuffixIsNull() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "$", null));
+	}
+
+	@Test
+	public void constructorWhenPrefixIsEmpty() {
+		assertThat(new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "", "$")).isNotNull();
+	}
+
+	@Test
+	public void constructorWhenSuffixIsEmpty() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "$", ""));
+	}
+
+	@Test
+	public void constructorWhenPrefixAndSuffixAreEmpty() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "", ""));
+	}
+
+	@Test
+	public void constructorWhenIdContainsPrefixThenIllegalArgumentException() {
+		this.delegates.put('$' + this.bcryptId, this.bcrypt);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "$", "$"));
+	}
+
+	@Test
+	public void constructorWhenIdContainsSuffixThenIllegalArgumentException() {
+		this.delegates.put(this.bcryptId + '$', this.bcrypt);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "", "$"));
 	}
 
 	@Test
@@ -105,9 +153,23 @@ public class DelegatingPasswordEncoderTests {
 	}
 
 	@Test
+	public void encodeWhenValidBySpecifyDelegatingPasswordEncoderThenUsesIdForEncode() {
+		given(this.bcrypt.encode(this.rawPassword)).willReturn(this.encodedPassword);
+		assertThat(this.onlySuffixPasswordEncoder.encode(this.rawPassword)).isEqualTo("bcrypt$" + this.encodedPassword);
+	}
+
+	@Test
 	public void matchesWhenBCryptThenDelegatesToBCrypt() {
 		given(this.bcrypt.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
 		assertThat(this.passwordEncoder.matches(this.rawPassword, this.bcryptEncodedPassword)).isTrue();
+		verify(this.bcrypt).matches(this.rawPassword, this.encodedPassword);
+		verifyZeroInteractions(this.noop);
+	}
+
+	@Test
+	public void matchesWhenBCryptBySpecifyDelegatingPasswordEncoderThenDelegatesToBCrypt() {
+		given(this.bcrypt.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
+		assertThat(this.onlySuffixPasswordEncoder.matches(this.rawPassword, "bcrypt$" + this.encodedPassword)).isTrue();
 		verify(this.bcrypt).matches(this.rawPassword, this.encodedPassword);
 		verifyZeroInteractions(this.noop);
 	}
