@@ -34,8 +34,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class JoseHeaderTests {
 
 	@Test
-	public void withAlgorithmWhenNullThenThrowIllegalArgumentException() {
-		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> JoseHeader.withAlgorithm(null))
+	public void withWhenNullThenThrowIllegalArgumentException() {
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> JoseHeader.with(null))
 				.withMessage("jwaAlgorithm cannot be null");
 	}
 
@@ -44,7 +44,7 @@ public class JoseHeaderTests {
 		JoseHeader expectedJoseHeader = TestJoseHeaders.joseHeader().build();
 
 		// @formatter:off
-		JoseHeader joseHeader = JoseHeader.withAlgorithm(expectedJoseHeader.getAlgorithm())
+		JoseHeader joseHeader = JoseHeader.with(expectedJoseHeader.getAlgorithm())
 				.jwkSetUrl(expectedJoseHeader.getJwkSetUrl().toExternalForm())
 				.jwk(expectedJoseHeader.getJwk())
 				.keyId(expectedJoseHeader.getKeyId())
@@ -74,8 +74,8 @@ public class JoseHeaderTests {
 
 	@Test
 	public void buildWhenMissingCriticalHeaderThenThrowIllegalStateException() {
-		assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() ->
-				TestJoseHeaders.joseHeader().critical(Collections.singleton("critical-header-name")).build())
+		assertThatExceptionOfType(IllegalStateException.class).isThrownBy(
+				() -> TestJoseHeaders.joseHeader().critical(Collections.singleton("critical-header-name")).build())
 				.withMessage("Missing critical (crit) header 'critical-header-name'.");
 	}
 
@@ -95,14 +95,14 @@ public class JoseHeaderTests {
 	@Test
 	public void headerWhenNameNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).header(null, "value"))
+				.isThrownBy(() -> JoseHeader.with(SignatureAlgorithm.RS256).header(null, "value"))
 				.withMessage("name cannot be empty");
 	}
 
 	@Test
 	public void headerWhenValueNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).header("name", null))
+				.isThrownBy(() -> JoseHeader.with(SignatureAlgorithm.RS256).header("name", null))
 				.withMessage("value cannot be null");
 	}
 

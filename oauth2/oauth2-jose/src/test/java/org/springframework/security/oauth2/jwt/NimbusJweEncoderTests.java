@@ -89,7 +89,7 @@ public class NimbusJweEncoderTests {
 		this.jwkList.add(rsaJwk);
 
 		// @formatter:off
-		JoseHeader jweHeader = JoseHeader.withAlgorithm(JweAlgorithm.RSA_OAEP_256)
+		JoseHeader jweHeader = JoseHeader.with(JweAlgorithm.RSA_OAEP_256)
 				.header("enc", EncryptionMethod.A256GCM.getName())
 				.build();
 		// @formatter:on
@@ -130,13 +130,13 @@ public class NimbusJweEncoderTests {
 		RSAKey rsaJwk = TestJwks.DEFAULT_RSA_JWK;
 		this.jwkList.add(rsaJwk);
 
-		JoseHeader jwsHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).build();
+		JoseHeader jwsHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		Jwt encodedJws = this.jwsEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet));
 
 		// @formatter:off
-		JoseHeader jweHeader = JoseHeader.withAlgorithm(JweAlgorithm.RSA_OAEP_256)
+		JoseHeader jweHeader = JoseHeader.with(JweAlgorithm.RSA_OAEP_256)
 				.header("enc", EncryptionMethod.A256GCM.getName())
 				.contentType("JWT")		// Indicates Nested JWT (REQUIRED)
 				.build();

@@ -36,7 +36,7 @@ public final class TestJoseHeaders {
 
 	public static JoseHeader.Builder joseHeader(SignatureAlgorithm signatureAlgorithm) {
 		// @formatter:off
-		return JoseHeader.withAlgorithm(signatureAlgorithm)
+		return JoseHeader.with(signatureAlgorithm)
 				.jwkSetUrl("https://provider.com/oauth2/jwks")
 				.jwk(rsaJwk())
 				.keyId("keyId")

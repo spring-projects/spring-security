@@ -127,7 +127,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 			throw new OAuth2AuthorizationException(oauth2Error);
 		}
 
-		JoseHeader.Builder headersBuilder = JoseHeader.withAlgorithm(jwsAlgorithm);
+		JoseHeader.Builder headersBuilder = JoseHeader.with(jwsAlgorithm);
 
 		Instant issuedAt = Instant.now();
 		Instant expiresAt = issuedAt.plus(Duration.ofSeconds(60));

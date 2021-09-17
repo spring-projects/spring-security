@@ -95,7 +95,7 @@ public class NimbusJwtEncoderTests {
 
 	@Test
 	public void encodeWhenClaimsNullThenThrowIllegalArgumentException() {
-		JoseHeader joseHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).build();
+		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
 
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, null)))
@@ -108,7 +108,7 @@ public class NimbusJwtEncoderTests {
 		this.jwsEncoder = new NimbusJwtEncoder(this.jwkSource);
 		given(this.jwkSource.get(any(), any())).willThrow(new KeySourceException("key source error"));
 
-		JoseHeader joseHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).build();
+		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatExceptionOfType(JwtEncodingException.class)
@@ -122,7 +122,7 @@ public class NimbusJwtEncoderTests {
 		this.jwkList.add(rsaJwk);
 		this.jwkList.add(rsaJwk);
 
-		JoseHeader joseHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).build();
+		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatExceptionOfType(JwtEncodingException.class)
@@ -132,7 +132,7 @@ public class NimbusJwtEncoderTests {
 
 	@Test
 	public void encodeWhenJwkSelectEmptyThenThrowJwtEncodingException() {
-		JoseHeader joseHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).build();
+		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatExceptionOfType(JwtEncodingException.class)
@@ -153,7 +153,7 @@ public class NimbusJwtEncoderTests {
 		this.jwkList.add(rsaJwk2);
 		// @formatter:on
 
-		JoseHeader joseHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).keyId(rsaJwk2.getKeyID()).build();
+		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).keyId(rsaJwk2.getKeyID()).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		Jwt encodedJws = this.jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet));
@@ -176,7 +176,7 @@ public class NimbusJwtEncoderTests {
 		this.jwkList.add(rsaJwk2);
 		// @formatter:on
 
-		JoseHeader joseHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256)
+		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256)
 				.x509SHA256Thumbprint(rsaJwk1.getX509CertSHA256Thumbprint().toString()).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
@@ -199,7 +199,7 @@ public class NimbusJwtEncoderTests {
 		this.jwsEncoder = new NimbusJwtEncoder(this.jwkSource);
 		given(this.jwkSource.get(any(), any())).willReturn(Collections.singletonList(rsaJwk));
 
-		JoseHeader joseHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).build();
+		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatExceptionOfType(JwtEncodingException.class)
@@ -218,7 +218,7 @@ public class NimbusJwtEncoderTests {
 		this.jwkList.add(rsaJwk);
 		// @formatter:on
 
-		JoseHeader joseHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).build();
+		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		Jwt encodedJws = this.jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet));
@@ -263,7 +263,7 @@ public class NimbusJwtEncoderTests {
 		JwkListResultCaptor jwkListResultCaptor = new JwkListResultCaptor();
 		willAnswer(jwkListResultCaptor).given(jwkSourceDelegate).get(any(), any());
 
-		JoseHeader joseHeader = JoseHeader.withAlgorithm(SignatureAlgorithm.RS256).build();
+		JoseHeader joseHeader = JoseHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		Jwt encodedJws = jwsEncoder.encode(JwtEncoderParameters.with(joseHeader, jwtClaimsSet));
