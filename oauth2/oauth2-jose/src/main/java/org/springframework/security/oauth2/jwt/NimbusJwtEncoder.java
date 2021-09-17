@@ -46,6 +46,7 @@ import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -77,6 +78,8 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 
 	private static final String ENCODING_ERROR_MESSAGE_TEMPLATE = "An error occurred while attempting to encode the Jwt: %s";
 
+	private static final JwsHeader DEFAULT_JWS_HEADER = JwsHeader.with(SignatureAlgorithm.RS256).build();
+
 	private static final JWSSignerFactory JWS_SIGNER_FACTORY = new DefaultJWSSignerFactory();
 
 	private final Map<JWK, JWSSigner> jwsSigners = new ConcurrentHashMap<>();
@@ -97,6 +100,9 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		Assert.notNull(parameters, "parameters cannot be null");
 
 		JwsHeader headers = parameters.getJwsHeader();
+		if (headers == null) {
+			headers = DEFAULT_JWS_HEADER;
+		}
 		JwtClaimsSet claims = parameters.getClaims();
 
 		JWK jwk = selectJwk(headers);

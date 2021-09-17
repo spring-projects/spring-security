@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -34,10 +35,19 @@ public final class JwtEncoderParameters {
 	private final JwtClaimsSet claims;
 
 	private JwtEncoderParameters(JwsHeader jwsHeader, JwtClaimsSet claims) {
-		Assert.notNull(jwsHeader, "jwsHeader cannot be null");
 		Assert.notNull(claims, "claims cannot be null");
 		this.jwsHeader = jwsHeader;
 		this.claims = claims;
+	}
+
+	/**
+	 * Returns a new {@link JwtEncoderParameters}, initialized with the provided
+	 * {@link JwtClaimsSet}.
+	 * @param claims the {@link JwtClaimsSet}
+	 * @return the {@link JwtEncoderParameters}
+	 */
+	public static JwtEncoderParameters with(JwtClaimsSet claims) {
+		return with(null, claims);
 	}
 
 	/**
@@ -47,14 +57,15 @@ public final class JwtEncoderParameters {
 	 * @param claims the {@link JwtClaimsSet}
 	 * @return the {@link JwtEncoderParameters}
 	 */
-	public static JwtEncoderParameters with(JwsHeader jwsHeader, JwtClaimsSet claims) {
+	public static JwtEncoderParameters with(@Nullable JwsHeader jwsHeader, JwtClaimsSet claims) {
 		return new JwtEncoderParameters(jwsHeader, claims);
 	}
 
 	/**
 	 * Returns the {@link JwsHeader JWS headers}.
-	 * @return the {@link JwsHeader}
+	 * @return the {@link JwsHeader}, or {@code null} if not available
 	 */
+	@Nullable
 	public JwsHeader getJwsHeader() {
 		return this.jwsHeader;
 	}

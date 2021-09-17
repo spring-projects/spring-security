@@ -85,15 +85,6 @@ public class NimbusJwtEncoderTests {
 	}
 
 	@Test
-	public void encodeWhenHeadersNullThenThrowIllegalArgumentException() {
-		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
-
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.with(null, jwtClaimsSet)))
-				.withMessage("jwsHeader cannot be null");
-	}
-
-	@Test
 	public void encodeWhenClaimsNullThenThrowIllegalArgumentException() {
 		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 
@@ -138,6 +129,22 @@ public class NimbusJwtEncoderTests {
 		assertThatExceptionOfType(JwtEncodingException.class)
 				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet)))
 				.withMessageContaining("Failed to select a JWK signing key");
+	}
+
+	@Test
+	public void encodeWhenHeadersNotProvidedThenDefaulted() {
+		// @formatter:off
+		RSAKey rsaJwk = TestJwks.jwk(TestKeys.DEFAULT_PUBLIC_KEY, TestKeys.DEFAULT_PRIVATE_KEY)
+				.keyID("rsa-jwk-1")
+				.build();
+		this.jwkList.add(rsaJwk);
+		// @formatter:on
+
+		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
+
+		Jwt encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.with(jwtClaimsSet));
+
+		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(SignatureAlgorithm.RS256);
 	}
 
 	@Test
