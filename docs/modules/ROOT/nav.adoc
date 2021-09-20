@@ -81,6 +81,7 @@
 *** xref:servlet/appendix/namespace.adoc[XML Namespace]
 *** xref:servlet/appendix/faq.adoc[FAQ]
 * xref:reactive/index.adoc[Reactive Applications]
+** xref:reactive/getting-started.adoc[Getting Started]
 ** xref:reactive/webflux.adoc[WebFlux Security]
 ** xref:reactive/exploits/index.adoc[Protection Against Exploits]
 *** xref:reactive/exploits/csrf.adoc[CSRF]
