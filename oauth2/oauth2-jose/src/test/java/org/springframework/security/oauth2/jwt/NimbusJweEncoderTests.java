@@ -98,7 +98,7 @@ public class NimbusJweEncoderTests {
 		// 		JwtEncoderParameters.with(JweHeader jweHeader, JwtClaimsSet claims)
 		// **********************
 		// @formatter:on
-		Jwt encodedJwe = this.jweEncoder.encode(JwtEncoderParameters.with(jwtClaimsSet));
+		Jwt encodedJwe = this.jweEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet));
 
 		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(DEFAULT_JWE_HEADER.getAlgorithm());
 		assertThat(encodedJwe.getHeaders().get("enc")).isEqualTo(DEFAULT_JWE_HEADER.<String>getHeader("enc"));
@@ -142,7 +142,7 @@ public class NimbusJweEncoderTests {
 		// 		JwtEncoderParameters.with(JwsHeader jwsHeader, JweHeader jweHeader, JwtClaimsSet claims)
 		// **********************
 		// @formatter:on
-		Jwt encodedJweNestedJws = this.jweEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet));
+		Jwt encodedJweNestedJws = this.jweEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet));
 
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.ALG))
 				.isEqualTo(DEFAULT_JWE_HEADER.getAlgorithm());
@@ -275,7 +275,7 @@ public class NimbusJweEncoderTests {
 			String payload;
 			if (jwsHeader != null) {
 				// Sign then encrypt
-				Jwt jws = this.jwsEncoder.encode(JwtEncoderParameters.with(jwsHeader, claims));
+				Jwt jws = this.jwsEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims));
 				payload = jws.getTokenValue();
 
 				// @formatter:off

@@ -155,7 +155,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 				});
 
 		JwtEncoder jwsEncoder = jwsEncoderHolder.getJwsEncoder();
-		Jwt jws = jwsEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet));
+		Jwt jws = jwsEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet));
 
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.set(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE, CLIENT_ASSERTION_TYPE_VALUE);
