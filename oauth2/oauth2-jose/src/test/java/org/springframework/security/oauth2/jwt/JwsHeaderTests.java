@@ -46,14 +46,14 @@ public class JwsHeaderTests {
 
 	@Test
 	public void fromWhenHeadersProvidedThenCopied() {
-		JwsHeader expectedJwsHeader = TestJoseHeaders.jwsHeader().build();
+		JwsHeader expectedJwsHeader = TestJwsHeaders.jwsHeader().build();
 		JwsHeader jwsHeader = JwsHeader.from(expectedJwsHeader).build();
 		assertThat(jwsHeader.getHeaders()).isEqualTo(expectedJwsHeader.getHeaders());
 	}
 
 	@Test
 	public void buildWhenAllHeadersProvidedThenAllHeadersAreSet() {
-		JwsHeader expectedJwsHeader = TestJoseHeaders.jwsHeader().build();
+		JwsHeader expectedJwsHeader = TestJwsHeaders.jwsHeader().build();
 
 		// @formatter:off
 		JwsHeader jwsHeader = JwsHeader.with(expectedJwsHeader.getAlgorithm())
@@ -87,7 +87,7 @@ public class JwsHeaderTests {
 	@Test
 	public void buildWhenMissingCriticalHeaderThenThrowIllegalStateException() {
 		assertThatExceptionOfType(IllegalStateException.class).isThrownBy(
-				() -> TestJoseHeaders.jwsHeader().critical(Collections.singleton("critical-header-name")).build())
+				() -> TestJwsHeaders.jwsHeader().critical(Collections.singleton("critical-header-name")).build())
 				.withMessage("Missing critical (crit) header 'critical-header-name'.");
 	}
 
@@ -107,7 +107,7 @@ public class JwsHeaderTests {
 
 	@Test
 	public void getHeaderWhenNullThenThrowIllegalArgumentException() {
-		JwsHeader jwsHeader = TestJoseHeaders.jwsHeader().build();
+		JwsHeader jwsHeader = TestJwsHeaders.jwsHeader().build();
 
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> jwsHeader.getHeader(null))
 				.withMessage("name cannot be empty");

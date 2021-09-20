@@ -25,9 +25,9 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 /**
  * @author Joe Grandja
  */
-public final class TestJoseHeaders {
+public final class TestJwsHeaders {
 
-	private TestJoseHeaders() {
+	private TestJwsHeaders() {
 	}
 
 	public static JwsHeader.Builder jwsHeader() {
