@@ -24,7 +24,6 @@ package org.springframework.security.oauth2.jwt;
  * @author Anoop Garlapati
  * @author Joe Grandja
  * @since 5.6
- * @see JoseHeader
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519#section-5">JWT JOSE
  * Header</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515#section-4">JWS JOSE

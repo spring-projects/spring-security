@@ -44,7 +44,7 @@ import org.springframework.util.Assert;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7516#section-4">JWE JOSE
  * Header</a>
  */
-public class JoseHeader {
+class JoseHeader {
 
 	private final Map<String, Object> headers;
 
@@ -180,55 +180,9 @@ public class JoseHeader {
 	}
 
 	/**
-	 * Returns a new {@link Builder}, initialized with the provided {@link JwaAlgorithm}.
-	 * @param jwaAlgorithm the {@link JwaAlgorithm}
-	 * @return the {@link Builder}
+	 * A builder for subclasses of {@link JoseHeader}.
 	 */
-	public static Builder with(JwaAlgorithm jwaAlgorithm) {
-		return new Builder(jwaAlgorithm);
-	}
-
-	/**
-	 * Returns a new {@link Builder}, initialized with the provided {@code headers}.
-	 * @param headers the headers
-	 * @return the {@link Builder}
-	 */
-	public static Builder from(JoseHeader headers) {
-		return new Builder(headers);
-	}
-
-	/**
-	 * A builder for {@link JoseHeader}.
-	 */
-	public static final class Builder extends AbstractBuilder<JoseHeader, Builder> {
-
-		private Builder(JwaAlgorithm jwaAlgorithm) {
-			Assert.notNull(jwaAlgorithm, "jwaAlgorithm cannot be null");
-			algorithm(jwaAlgorithm);
-		}
-
-		private Builder(JoseHeader headers) {
-			Assert.notNull(headers, "headers cannot be null");
-			Consumer<Map<String, Object>> headersConsumer = (h) -> h.putAll(headers.getHeaders());
-			headers(headersConsumer);
-		}
-
-		/**
-		 * Builds a new {@link JoseHeader}.
-		 * @return a {@link JoseHeader}
-		 */
-		@Override
-		public JoseHeader build() {
-			validate();
-			return new JoseHeader(getHeaders());
-		}
-
-	}
-
-	/**
-	 * A builder for {@link JoseHeader} and subclasses.
-	 */
-	protected abstract static class AbstractBuilder<T extends JoseHeader, B extends AbstractBuilder<T, B>> {
+	abstract static class AbstractBuilder<T extends JoseHeader, B extends AbstractBuilder<T, B>> {
 
 		private final Map<String, Object> headers = new HashMap<>();
 

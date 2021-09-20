@@ -29,7 +29,6 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @since 5.6
- * @see JoseHeader
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515#section-4">JWS JOSE
  * Header</a>
  */

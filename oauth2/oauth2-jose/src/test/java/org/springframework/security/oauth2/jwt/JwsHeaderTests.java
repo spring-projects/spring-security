@@ -16,7 +16,11 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.util.Collections;
+
 import org.junit.jupiter.api.Test;
+
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -78,6 +82,35 @@ public class JwsHeaderTests {
 		assertThat(jwsHeader.getContentType()).isEqualTo(expectedJwsHeader.getContentType());
 		assertThat(jwsHeader.<String>getHeader("custom-header-name")).isEqualTo("custom-header-value");
 		assertThat(jwsHeader.getHeaders()).isEqualTo(expectedJwsHeader.getHeaders());
+	}
+
+	@Test
+	public void buildWhenMissingCriticalHeaderThenThrowIllegalStateException() {
+		assertThatExceptionOfType(IllegalStateException.class).isThrownBy(
+				() -> TestJoseHeaders.jwsHeader().critical(Collections.singleton("critical-header-name")).build())
+				.withMessage("Missing critical (crit) header 'critical-header-name'.");
+	}
+
+	@Test
+	public void headerWhenNameNullThenThrowIllegalArgumentException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> JwsHeader.with(SignatureAlgorithm.RS256).header(null, "value"))
+				.withMessage("name cannot be empty");
+	}
+
+	@Test
+	public void headerWhenValueNullThenThrowIllegalArgumentException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> JwsHeader.with(SignatureAlgorithm.RS256).header("name", null))
+				.withMessage("value cannot be null");
+	}
+
+	@Test
+	public void getHeaderWhenNullThenThrowIllegalArgumentException() {
+		JwsHeader jwsHeader = TestJoseHeaders.jwsHeader().build();
+
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> jwsHeader.getHeader(null))
+				.withMessage("name cannot be empty");
 	}
 
 }

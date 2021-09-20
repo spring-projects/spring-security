@@ -51,4 +51,5 @@
 	<suppress files="WebSecurityConfigurationTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="WithSecurityContextTestExecutionListenerTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="AbstractOAuth2AuthorizationGrantRequestEntityConverter\.java" checks="SpringMethodVisibility"/>
+	<suppress files="JoseHeader\.java" checks="SpringMethodVisibility"/>
 </suppressions>
