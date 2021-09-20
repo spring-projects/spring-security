@@ -1,5 +1,5 @@
 [[servlet-architecture]]
-= Servlet Security: The Big Picture
+= Architecture
 :figures: servlet/architecture
 
 This section discusses Spring Security's high level architecture within Servlet based applications.
