@@ -57,7 +57,7 @@
 *** xref:servlet/exploits/csrf.adoc[]
 *** xref:servlet/exploits/headers.adoc[]
 *** xref:servlet/exploits/http.adoc[]
-*** xref:servlet/exploits/firewall.adoc[
+*** xref:servlet/exploits/firewall.adoc[]
 ** xref:servlet/integrations/index.adoc[Integrations]
 *** xref:servlet/integrations/servlet-api.adoc[Servlet APIs]
 *** xref:servlet/integrations/data.adoc[Spring Data]
