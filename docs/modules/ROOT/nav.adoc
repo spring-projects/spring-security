@@ -10,7 +10,7 @@
 *** xref:features/exploits/csrf.adoc[CSRF]
 *** xref:features/exploits/headers.adoc[HTTP Headers]
 *** xref:features/exploits/http.adoc[HTTP Requests]
-* xref:modules.adoc[Project Modules & Dependencies]
+* xref:modules.adoc[Project Modules]
 * xref:samples.adoc[Samples]
 * xref:servlet/index.adoc[Servlet Applications]
 ** xref:servlet/getting-started.adoc[Getting Started]
