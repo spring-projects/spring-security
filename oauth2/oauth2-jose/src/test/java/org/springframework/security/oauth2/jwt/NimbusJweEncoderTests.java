@@ -61,7 +61,7 @@ import org.springframework.util.StringUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link NimbusJweEncoder} (future support for JWE).
+ * Tests for proofing out future support of JWE.
  *
  * @author Joe Grandja
  */
@@ -78,14 +78,11 @@ public class NimbusJweEncoderTests {
 
 	private NimbusJweEncoder jweEncoder;
 
-	private NimbusJwtEncoder jwsEncoder;
-
 	@BeforeEach
 	public void setUp() {
 		this.jwkList = new ArrayList<>();
 		this.jwkSource = (jwkSelector, securityContext) -> jwkSelector.select(new JWKSet(this.jwkList));
-		this.jwsEncoder = new NimbusJwtEncoder(this.jwkSource);
-		this.jweEncoder = new NimbusJweEncoder(this.jwkSource, this.jwsEncoder);
+		this.jweEncoder = new NimbusJweEncoder(this.jwkSource);
 	}
 
 	@Test
@@ -95,10 +92,12 @@ public class NimbusJweEncoderTests {
 
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
+		// @formatter:off
 		// **********************
 		// Assume future API:
-		// JwtEncoderParameters.with(JweHeader jweHeader, JwtClaimsSet claims)
+		// 		JwtEncoderParameters.with(JweHeader jweHeader, JwtClaimsSet claims)
 		// **********************
+		// @formatter:on
 		Jwt encodedJwe = this.jweEncoder.encode(JwtEncoderParameters.with(jwtClaimsSet));
 
 		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(DEFAULT_JWE_HEADER.getAlgorithm());
@@ -137,11 +136,12 @@ public class NimbusJweEncoderTests {
 		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
+		// @formatter:off
 		// **********************
 		// Assume future API:
-		// JwtEncoderParameters.with(JweHeader jweHeader, JwsHeader jwsHeader,
-		// JwtClaimsSet claims)
+		// 		JwtEncoderParameters.with(JwsHeader jwsHeader, JweHeader jweHeader, JwtClaimsSet claims)
 		// **********************
+		// @formatter:on
 		Jwt encodedJweNestedJws = this.jweEncoder.encode(JwtEncoderParameters.with(jwsHeader, jwtClaimsSet));
 
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.ALG))
@@ -244,21 +244,22 @@ public class NimbusJweEncoderTests {
 
 		private final JwtEncoder jwsEncoder;
 
-		private NimbusJweEncoder(JWKSource<SecurityContext> jwkSource, JwtEncoder jwsEncoder) {
+		private NimbusJweEncoder(JWKSource<SecurityContext> jwkSource) {
 			Assert.notNull(jwkSource, "jwkSource cannot be null");
-			Assert.notNull(jwsEncoder, "jwsEncoder cannot be null");
 			this.jwkSource = jwkSource;
-			this.jwsEncoder = jwsEncoder;
+			this.jwsEncoder = new NimbusJwtEncoder(jwkSource);
 		}
 
 		@Override
 		public Jwt encode(JwtEncoderParameters parameters) throws JwtEncodingException {
 			Assert.notNull(parameters, "parameters cannot be null");
 
+			// @formatter:off
 			// **********************
 			// Assume future API:
-			// JwtEncoderParameters.getJweHeader()
+			// 		JwtEncoderParameters.getJweHeader()
 			// **********************
+			// @formatter:on
 			JweHeader jweHeader = DEFAULT_JWE_HEADER; // Assume this is accessed via
 														// JwtEncoderParameters.getJweHeader()
 
@@ -273,6 +274,7 @@ public class NimbusJweEncoderTests {
 
 			String payload;
 			if (jwsHeader != null) {
+				// Sign then encrypt
 				Jwt jws = this.jwsEncoder.encode(JwtEncoderParameters.with(jwsHeader, claims));
 				payload = jws.getTokenValue();
 
@@ -283,6 +285,7 @@ public class NimbusJweEncoderTests {
 				// @formatter:on
 			}
 			else {
+				// Encrypt only
 				payload = jwtClaimsSet.toString();
 			}
 
@@ -299,6 +302,10 @@ public class NimbusJweEncoderTests {
 			}
 			String jwe = jweObject.serialize();
 
+			// NOTE:
+			// For the Nested JWS use case, we lose access to the JWS Header in the
+			// returned JWT.
+			// If this is needed, we can simply add the new method Jwt.getNestedHeaders().
 			return new Jwt(jwe, claims.getIssuedAt(), claims.getExpiresAt(), jweHeader.getHeaders(),
 					claims.getClaims());
 		}
