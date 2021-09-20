@@ -1,0 +1,14 @@
+[[authorization]]
+= Authorization
+
+Spring Security provides comprehensive support for https://en.wikipedia.org/wiki/Authorization[authorization].
+Authorization is determining who is allowed to access a particular resource.
+Spring Security provides https://en.wikipedia.org/wiki/Defense_in_depth_(computing)[defense in depth] by allowing for request based authorization and method based authorization.
+
+[[authorization-request]]
+== Request Based Authorization
+
+Spring Security provides authorization based upon the request for both xref:servlet/authorization/index.adoc[Servlet] and WebFlux environments.
+
+[[authorization-method]]
+== Method Based Authorization
