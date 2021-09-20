@@ -35,7 +35,6 @@ public final class JwtEncoderParameters {
 	private final JwtClaimsSet claims;
 
 	private JwtEncoderParameters(JwsHeader jwsHeader, JwtClaimsSet claims) {
-		Assert.notNull(claims, "claims cannot be null");
 		this.jwsHeader = jwsHeader;
 		this.claims = claims;
 	}
@@ -47,7 +46,8 @@ public final class JwtEncoderParameters {
 	 * @return the {@link JwtEncoderParameters}
 	 */
 	public static JwtEncoderParameters with(JwtClaimsSet claims) {
-		return with(null, claims);
+		Assert.notNull(claims, "claims cannot be null");
+		return new JwtEncoderParameters(null, claims);
 	}
 
 	/**
@@ -57,13 +57,15 @@ public final class JwtEncoderParameters {
 	 * @param claims the {@link JwtClaimsSet}
 	 * @return the {@link JwtEncoderParameters}
 	 */
-	public static JwtEncoderParameters with(@Nullable JwsHeader jwsHeader, JwtClaimsSet claims) {
+	public static JwtEncoderParameters with(JwsHeader jwsHeader, JwtClaimsSet claims) {
+		Assert.notNull(jwsHeader, "jwsHeader cannot be null");
+		Assert.notNull(claims, "claims cannot be null");
 		return new JwtEncoderParameters(jwsHeader, claims);
 	}
 
 	/**
 	 * Returns the {@link JwsHeader JWS headers}.
-	 * @return the {@link JwsHeader}, or {@code null} if not available
+	 * @return the {@link JwsHeader}, or {@code null} if not specified
 	 */
 	@Nullable
 	public JwsHeader getJwsHeader() {
