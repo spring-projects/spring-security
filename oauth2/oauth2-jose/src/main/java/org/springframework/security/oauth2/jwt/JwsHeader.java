@@ -84,8 +84,7 @@ public final class JwsHeader extends JoseHeader {
 		 */
 		@Override
 		public JwsHeader build() {
-			validate();
-			return new JwsHeader(getHeaders());
+			return new JwsHeader(getMergedHeaders());
 		}
 
 	}

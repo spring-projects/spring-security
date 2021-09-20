@@ -16,8 +16,6 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.util.Collections;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
@@ -66,6 +64,11 @@ public class JwsHeaderTests {
 				.x509SHA256Thumbprint(expectedJwsHeader.getX509SHA256Thumbprint())
 				.type(expectedJwsHeader.getType())
 				.contentType(expectedJwsHeader.getContentType())
+				.criticalHeader("critical-header1-name", "critical-header1-value")
+				.criticalHeaders((criticalHeaders) -> {
+					criticalHeaders.put("critical-header2-name", "critical-header2-value");
+					criticalHeaders.put("critical-header3-name", "critical-header3-value");
+				})
 				.headers((headers) -> headers.put("custom-header-name", "custom-header-value"))
 				.build();
 		// @formatter:on
@@ -80,15 +83,12 @@ public class JwsHeaderTests {
 		assertThat(jwsHeader.getX509SHA256Thumbprint()).isEqualTo(expectedJwsHeader.getX509SHA256Thumbprint());
 		assertThat(jwsHeader.getType()).isEqualTo(expectedJwsHeader.getType());
 		assertThat(jwsHeader.getContentType()).isEqualTo(expectedJwsHeader.getContentType());
+		assertThat(jwsHeader.getCritical()).containsExactlyInAnyOrder("critical-header1-name", "critical-header2-name",
+				"critical-header3-name");
+		assertThat(jwsHeader.<String>getHeader("critical-header1-name")).isEqualTo("critical-header1-value");
+		assertThat(jwsHeader.<String>getHeader("critical-header2-name")).isEqualTo("critical-header2-value");
+		assertThat(jwsHeader.<String>getHeader("critical-header3-name")).isEqualTo("critical-header3-value");
 		assertThat(jwsHeader.<String>getHeader("custom-header-name")).isEqualTo("custom-header-value");
-		assertThat(jwsHeader.getHeaders()).isEqualTo(expectedJwsHeader.getHeaders());
-	}
-
-	@Test
-	public void buildWhenMissingCriticalHeaderThenThrowIllegalStateException() {
-		assertThatExceptionOfType(IllegalStateException.class).isThrownBy(
-				() -> TestJwsHeaders.jwsHeader().critical(Collections.singleton("critical-header-name")).build())
-				.withMessage("Missing critical (crit) header 'critical-header-name'.");
 	}
 
 	@Test

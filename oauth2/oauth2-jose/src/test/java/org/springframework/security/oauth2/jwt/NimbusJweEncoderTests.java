@@ -224,8 +224,7 @@ public class NimbusJweEncoderTests {
 
 			@Override
 			public JweHeader build() {
-				validate();
-				return new JweHeader(getHeaders());
+				return new JweHeader(getMergedHeaders());
 			}
 
 		}

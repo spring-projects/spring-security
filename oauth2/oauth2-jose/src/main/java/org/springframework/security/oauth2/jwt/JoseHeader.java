@@ -186,11 +186,28 @@ class JoseHeader {
 
 		private final Map<String, Object> headers = new HashMap<>();
 
+		private final Map<String, Object> criticalHeaders = new HashMap<>();
+
 		protected AbstractBuilder() {
 		}
 
 		protected Map<String, Object> getHeaders() {
 			return this.headers;
+		}
+
+		protected Map<String, Object> getCriticalHeaders() {
+			return this.criticalHeaders;
+		}
+
+		protected Map<String, Object> getMergedHeaders() {
+			if (getCriticalHeaders().isEmpty()) {
+				return getHeaders();
+			}
+			Map<String, Object> mergedHeaders = new HashMap<>(getHeaders());
+			Set<String> crit = getCriticalHeaders().keySet();
+			mergedHeaders.put(JoseHeaderNames.CRIT, crit);
+			mergedHeaders.putAll(getCriticalHeaders());
+			return mergedHeaders;
 		}
 
 		@SuppressWarnings("unchecked")
@@ -306,13 +323,28 @@ class JoseHeader {
 		}
 
 		/**
-		 * Sets the critical headers that indicates which extensions to the JWS/JWE/JWA
+		 * Sets the critical header that indicates which extensions to the JWS/JWE/JWA
 		 * specifications are being used that MUST be understood and processed.
-		 * @param headerNames the critical header names
+		 * @param name the critical header name
+		 * @param value the critical header value
 		 * @return the {@link AbstractBuilder}
 		 */
-		public B critical(Set<String> headerNames) {
-			return header(JoseHeaderNames.CRIT, headerNames);
+		public B criticalHeader(String name, Object value) {
+			Assert.hasText(name, "name cannot be empty");
+			Assert.notNull(value, "value cannot be null");
+			this.criticalHeaders.put(name, value);
+			return getThis();
+		}
+
+		/**
+		 * A {@code Consumer} to be provided access to the critical headers allowing the
+		 * ability to add, replace, or remove.
+		 * @param headersConsumer a {@code Consumer} of the critical headers
+		 * @return the {@link AbstractBuilder}
+		 */
+		public B criticalHeaders(Consumer<Map<String, Object>> headersConsumer) {
+			headersConsumer.accept(this.criticalHeaders);
+			return getThis();
 		}
 
 		/**
@@ -344,17 +376,6 @@ class JoseHeader {
 		 * @return a {@link JoseHeader}
 		 */
 		public abstract T build();
-
-		@SuppressWarnings("unchecked")
-		protected void validate() {
-			Set<String> criticalHeaderNames = (Set<String>) this.headers.get(JoseHeaderNames.CRIT);
-			if (criticalHeaderNames == null) {
-				return;
-			}
-			criticalHeaderNames
-					.forEach((criticalHeaderName) -> Assert.state(this.headers.containsKey(criticalHeaderName),
-							"Missing critical (crit) header '" + criticalHeaderName + "'."));
-		}
 
 		private static URL convertAsURL(String header, String value) {
 			URL convertedValue = ClaimConversionService.getSharedInstance().convert(value, URL.class);
