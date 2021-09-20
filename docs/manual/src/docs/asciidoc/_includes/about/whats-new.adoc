@@ -32,6 +32,10 @@ Below are the highlights of the release.
 ** Improved https://github.com/spring-projects/spring-security/pull/9779[access token response] parsing
 ** Added https://github.com/spring-projects/spring-security/pull/10155[custom grant types support] for authorization requests
 
+* Testing
+
+** Added support to https://github.com/spring-projects/spring-security/pull/9737[propagate the TestSecurityContextHolder to SecurityContextHolder]
+
 [[whats-new-webflux]]
 === WebFlux
 
