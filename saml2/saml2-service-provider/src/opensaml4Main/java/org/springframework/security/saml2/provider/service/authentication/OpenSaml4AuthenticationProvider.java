@@ -147,7 +147,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 
 	private Converter<ResponseToken, Saml2ResponseValidatorResult> responseValidator = createDefaultResponseValidator();
 
-	private final Converter<AssertionToken, Saml2ResponseValidatorResult> assertionSignatureValidator = createDefaultAssertionSignatureValidator();
+	private Converter<AssertionToken, Saml2ResponseValidatorResult> assertionSignatureValidator = createDefaultAssertionSignatureValidator();
 
 	private Consumer<AssertionToken> assertionElementsDecrypter = createDefaultAssertionElementsDecrypter();
 
@@ -233,6 +233,29 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	public void setResponseValidator(Converter<ResponseToken, Saml2ResponseValidatorResult> responseValidator) {
 		Assert.notNull(responseValidator, "responseValidator cannot be null");
 		this.responseValidator = responseValidator;
+	}
+
+	/**
+	 * Set the {@link Converter} to use for validating the SAML 2.0 Assertions Signature.
+	 *
+	 * You can still invoke the default validator by delegating to
+	 * {@link #createDefaultAssertionSignatureValidator()}, like so:
+	 *
+	 * <pre>
+	 * OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+	 * provider.setAssertionSignatureValidator(assertionToken -&gt; {
+	 * 		Saml2ResponseValidatorResult result = createDefaultAssertionSignatureValidator()
+	 * 			.convert(assertionToken)
+	 * 		return result.concat(myCustomValidator.convert(assertionToken));
+	 * });
+	 * </pre>
+	 * @param assertionSignatureValidator the {@link Converter} to use
+	 * @since 5.6
+	 */
+	public void setAssertionSignatureValidator(
+			Converter<AssertionToken, Saml2ResponseValidatorResult> assertionSignatureValidator) {
+		Assert.notNull(assertionSignatureValidator, "assertionSignatureValidator cannot be null");
+		this.assertionSignatureValidator = assertionSignatureValidator;
 	}
 
 	/**
@@ -384,6 +407,32 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			}
 			return result;
 		};
+	}
+
+	/**
+	 * Construct a default strategy for validating each SAML 2.0 Assertion Signature
+	 * @return the default assertion signature validator strategy
+	 * @since 5.6
+	 */
+	public static Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionSignatureValidator() {
+		return createDefaultAssertionSignatureValidator((assertionToken) -> new ValidationContext(
+				Collections.singletonMap(SAML2AssertionValidationParameters.SIGNATURE_REQUIRED, false)));
+	}
+
+	/**
+	 * Construct a default strategy for validating each SAML 2.0 Assertion Signature
+	 * @param contextConverter the conversion strategy to use to generate a
+	 * {@link ValidationContext} for each assertion being validated
+	 * @return the default assertion signature validator strategy
+	 * @since 5.6
+	 */
+	public static Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionSignatureValidator(
+			Converter<AssertionToken, ValidationContext> contextConverter) {
+		return createAssertionValidator(Saml2ErrorCodes.INVALID_SIGNATURE, (assertionToken) -> {
+			RelyingPartyRegistration registration = assertionToken.getToken().getRelyingPartyRegistration();
+			SignatureTrustEngine engine = OpenSamlVerificationUtils.trustEngine(registration);
+			return SAML20AssertionValidators.createSignatureValidator(engine);
+		}, contextConverter);
 	}
 
 	/**
@@ -558,15 +607,6 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			return StatusCode.SUCCESS;
 		}
 		return response.getStatus().getStatusCode().getValue();
-	}
-
-	private Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionSignatureValidator() {
-		return createAssertionValidator(Saml2ErrorCodes.INVALID_SIGNATURE, (assertionToken) -> {
-			RelyingPartyRegistration registration = assertionToken.getToken().getRelyingPartyRegistration();
-			SignatureTrustEngine engine = OpenSamlVerificationUtils.trustEngine(registration);
-			return SAML20AssertionValidators.createSignatureValidator(engine);
-		}, (assertionToken) -> new ValidationContext(
-				Collections.singletonMap(SAML2AssertionValidationParameters.SIGNATURE_REQUIRED, false)));
 	}
 
 	private Consumer<AssertionToken> createDefaultAssertionElementsDecrypter() {
