@@ -162,7 +162,7 @@ It is important to note that any of the expressions in standard method security 
 However, at this time we only support return type of `Boolean` or `boolean` of the expression.
 This means that the expression must not block.
 
-When integrating with xref:reactive/webflux.adoc#jc-webflux[WebFlux Security], the Reactor Context is automatically established by Spring Security according to the authenticated user.
+When integrating with xref:reactive/configuration/webflux.adoc#jc-webflux[WebFlux Security], the Reactor Context is automatically established by Spring Security according to the authenticated user.
 
 ====
 .Java
