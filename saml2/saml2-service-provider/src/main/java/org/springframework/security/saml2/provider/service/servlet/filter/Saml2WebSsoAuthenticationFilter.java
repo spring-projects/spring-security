@@ -73,23 +73,21 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 				(RelyingPartyRegistrationResolver) new DefaultRelyingPartyRegistrationResolver(
 						relyingPartyRegistrationRepository)),
 				filterProcessesUrl);
+		Assert.isTrue(filterProcessesUrl.contains("{registrationId}"),
+				"filterProcessesUrl must contain a {registrationId} match variable");
 	}
 
 	/**
 	 * Creates a {@link Saml2WebSsoAuthenticationFilter} given the provided parameters
 	 * @param authenticationConverter the strategy for converting an
 	 * {@link HttpServletRequest} into an {@link Authentication}
-	 * @param filterProcessingUrl the processing URL, must contain a {registrationId}
-	 * variable
+	 * @param filterProcessesUrl the processing URL
 	 * @since 5.4
 	 */
-	public Saml2WebSsoAuthenticationFilter(AuthenticationConverter authenticationConverter,
-			String filterProcessingUrl) {
-		super(filterProcessingUrl);
+	public Saml2WebSsoAuthenticationFilter(AuthenticationConverter authenticationConverter, String filterProcessesUrl) {
+		super(filterProcessesUrl);
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
-		Assert.hasText(filterProcessingUrl, "filterProcessesUrl must contain a URL pattern");
-		Assert.isTrue(filterProcessingUrl.contains("{registrationId}"),
-				"filterProcessesUrl must contain a {registrationId} match variable");
+		Assert.hasText(filterProcessesUrl, "filterProcessesUrl must contain a URL pattern");
 		this.authenticationConverter = authenticationConverter;
 		setAllowSessionCreation(true);
 		setSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
