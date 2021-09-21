@@ -82,6 +82,12 @@ public class Saml2WebSsoAuthenticationFilterTests {
 	}
 
 	@Test
+	public void constructingFilterWithMissingRegistrationIdVariableAndCustomAuthenticationConverterThenSucceeds() {
+		AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
+		this.filter = new Saml2WebSsoAuthenticationFilter(authenticationConverter, "/url/missing/variable");
+	}
+
+	@Test
 	public void requiresAuthenticationWhenHappyPathThenReturnsTrue() {
 		Assertions.assertTrue(this.filter.requiresAuthentication(this.request, this.response));
 	}
