@@ -139,7 +139,7 @@ A typical configuration using this filter would look like this:
 </security:authentication-manager>
 ----
 
-We've assumed here that the xref:servlet/xml-namespace.adoc#ns-config[security namespace] is being used for configuration.
+We've assumed here that the xref:servlet/configuration/xml-namespace.adoc#ns-config[security namespace] is being used for configuration.
 It's also assumed that you have added a `UserDetailsService` (called "userDetailsService") to your configuration to load the user's roles.
 
 

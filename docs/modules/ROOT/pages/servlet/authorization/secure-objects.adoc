@@ -5,7 +5,7 @@
 [[aop-alliance]]
 == AOP Alliance (MethodInvocation) Security Interceptor
 Prior to Spring Security 2.0, securing ``MethodInvocation``s needed quite a lot of boiler plate configuration.
-Now the recommended approach for method security is to use xref:servlet/xml-namespace.adoc#ns-method-security[namespace configuration].
+Now the recommended approach for method security is to use xref:servlet/configuration/xml-namespace.adoc#ns-method-security[namespace configuration].
 This way the method security infrastructure beans are configured automatically for you so you don't really need to know about the implementation classes.
 We'll just provide a quick overview of the classes that are involved here.
 

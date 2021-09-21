@@ -36,7 +36,7 @@ If a principal is aware a token has been captured, they can easily change their 
 If more significant security is needed you should use the approach described in the next section.
 Alternatively, remember-me services should simply not be used at all.
 
-If you are familiar with the topics discussed in the chapter on xref:servlet/xml-namespace.adoc#ns-config[namespace configuration], you can enable remember-me authentication just by adding the `<remember-me>` element:
+If you are familiar with the topics discussed in the chapter on xref:servlet/configuration/xml-namespace.adoc#ns-config[namespace configuration], you can enable remember-me authentication just by adding the `<remember-me>` element:
 
 [source,xml]
 ----

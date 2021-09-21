@@ -71,9 +71,9 @@
 *** xref:servlet/integrations/cors.adoc[Spring's CORS Support]
 *** xref:servlet/integrations/jsp-taglibs.adoc[JSP Taglib]
 ** Configuration
-*** xref:servlet/java-configuration.adoc[Java Configuration]
-*** xref:servlet/kotlin-configuration.adoc[Kotlin Configuration]
-*** xref:servlet/xml-namespace.adoc[Namespace Configuration]
+*** xref:servlet/configuration/java.adoc[Java Configuration]
+*** xref:servlet/configuration/kotlin.adoc[Kotlin Configuration]
+*** xref:servlet/configuration/xml-namespace.adoc[Namespace Configuration]
 ** xref:servlet/test/index.adoc[Testing]
 *** xref:servlet/test/method.adoc[Method Security]
 *** xref:servlet/test/mockmvc.adoc[MockMvc Support]

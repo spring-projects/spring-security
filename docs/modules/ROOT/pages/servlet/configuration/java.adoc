@@ -5,7 +5,7 @@
 General support for https://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java Configuration] was added to Spring Framework in Spring 3.1.
 Since Spring Security 3.2 there has been Spring Security Java Configuration support which enables users to easily configure Spring Security without the use of any XML.
 
-If you are familiar with the xref:servlet/namespace/index.adoc#ns-config[Security Namespace Configuration] then you should find quite a few similarities between it and the Security Java Configuration support.
+If you are familiar with the xref:servlet/configuration/xml-namespace.adoc#ns-config[Security Namespace Configuration] then you should find quite a few similarities between it and the Security Java Configuration support.
 
 NOTE: Spring Security provides https://github.com/spring-projects/spring-security-samples/tree/main/servlet/java-configuration[lots of sample applications] which demonstrate the use of Spring Security Java Configuration.
 
@@ -312,7 +312,7 @@ public class Config extends WebSecurityConfigurerAdapter {
 
 Spring Security's Java Configuration does not expose every property of every object that it configures.
 This simplifies the configuration for a majority of users.
-After all, if every property was exposed, users could use standard bean configuration.
+Afterall, if every property was exposed, users could use standard bean configuration.
 
 While there are good reasons to not directly expose every property, users may still need more advanced configuration options.
 To address this Spring Security introduces the concept of an `ObjectPostProcessor` which can be used to modify or replace many of the Object instances created by the Java Configuration.
