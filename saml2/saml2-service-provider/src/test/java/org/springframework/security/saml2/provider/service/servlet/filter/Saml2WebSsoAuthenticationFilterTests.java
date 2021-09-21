@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
@@ -58,6 +59,12 @@ public class Saml2WebSsoAuthenticationFilterTests {
 	@Test
 	public void constructingFilterWithValidRegistrationIdVariableThenSucceeds() {
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/url/variable/is/present/{registrationId}");
+	}
+
+	@Test
+	public void constructingFilterWithMissingRegistrationIdVariableAndCustomAuthenticationConverterThenSucceeds() {
+		AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
+		this.filter = new Saml2WebSsoAuthenticationFilter(authenticationConverter, "/url/missing/variable");
 	}
 
 	@Test
