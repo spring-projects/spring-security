@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.jwt;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -186,28 +187,11 @@ class JoseHeader {
 
 		private final Map<String, Object> headers = new HashMap<>();
 
-		private final Map<String, Object> criticalHeaders = new HashMap<>();
-
 		protected AbstractBuilder() {
 		}
 
 		protected Map<String, Object> getHeaders() {
 			return this.headers;
-		}
-
-		protected Map<String, Object> getCriticalHeaders() {
-			return this.criticalHeaders;
-		}
-
-		protected Map<String, Object> getMergedHeaders() {
-			if (getCriticalHeaders().isEmpty()) {
-				return getHeaders();
-			}
-			Map<String, Object> mergedHeaders = new HashMap<>(getHeaders());
-			Set<String> crit = getCriticalHeaders().keySet();
-			mergedHeaders.put(JoseHeaderNames.CRIT, crit);
-			mergedHeaders.putAll(getCriticalHeaders());
-			return mergedHeaders;
 		}
 
 		@SuppressWarnings("unchecked")
@@ -329,21 +313,11 @@ class JoseHeader {
 		 * @param value the critical header value
 		 * @return the {@link AbstractBuilder}
 		 */
+		@SuppressWarnings("unchecked")
 		public B criticalHeader(String name, Object value) {
-			Assert.hasText(name, "name cannot be empty");
-			Assert.notNull(value, "value cannot be null");
-			this.criticalHeaders.put(name, value);
-			return getThis();
-		}
-
-		/**
-		 * A {@code Consumer} to be provided access to the critical headers allowing the
-		 * ability to add, replace, or remove.
-		 * @param headersConsumer a {@code Consumer} of the critical headers
-		 * @return the {@link AbstractBuilder}
-		 */
-		public B criticalHeaders(Consumer<Map<String, Object>> headersConsumer) {
-			headersConsumer.accept(this.criticalHeaders);
+			header(name, value);
+			getHeaders().computeIfAbsent(JoseHeaderNames.CRIT, (k) -> new HashSet<String>());
+			((Set<String>) getHeaders().get(JoseHeaderNames.CRIT)).add(name);
 			return getThis();
 		}
 

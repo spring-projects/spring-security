@@ -16,7 +16,6 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
@@ -72,18 +71,9 @@ public final class JwsHeader extends JoseHeader {
 			algorithm(jwsAlgorithm);
 		}
 
-		private Builder(JwsHeader jwsHeader) {
-			Assert.notNull(jwsHeader, "jwsHeader cannot be null");
-			Map<String, Object> headers = new HashMap<>(jwsHeader.getHeaders());
-			Map<String, Object> criticalHeaders = new HashMap<>();
-			if (jwsHeader.getCritical() != null) {
-				jwsHeader.getCritical().forEach(
-						(criticalHeader) -> criticalHeaders.put(criticalHeader, jwsHeader.getHeader(criticalHeader)));
-				headers.keySet().removeAll(criticalHeaders.keySet());
-				headers.remove(JoseHeaderNames.CRIT);
-			}
-			getHeaders().putAll(headers);
-			getCriticalHeaders().putAll(criticalHeaders);
+		private Builder(JwsHeader headers) {
+			Assert.notNull(headers, "headers cannot be null");
+			getHeaders().putAll(headers.getHeaders());
 		}
 
 		/**
@@ -92,7 +82,7 @@ public final class JwsHeader extends JoseHeader {
 		 */
 		@Override
 		public JwsHeader build() {
-			return new JwsHeader(getMergedHeaders());
+			return new JwsHeader(getHeaders());
 		}
 
 	}

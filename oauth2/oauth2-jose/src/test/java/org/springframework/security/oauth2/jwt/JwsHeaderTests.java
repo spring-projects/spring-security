@@ -22,7 +22,6 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.entry;
 
 /**
  * Tests for {@link JwsHeader}.
@@ -40,7 +39,7 @@ public class JwsHeaderTests {
 	@Test
 	public void fromWhenNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> JwsHeader.from(null))
-				.withMessage("jwsHeader cannot be null");
+				.withMessage("headers cannot be null");
 	}
 
 	@Test
@@ -48,23 +47,6 @@ public class JwsHeaderTests {
 		JwsHeader expectedJwsHeader = TestJwsHeaders.jwsHeader().build();
 		JwsHeader jwsHeader = JwsHeader.from(expectedJwsHeader).build();
 		assertThat(jwsHeader.getHeaders()).isEqualTo(expectedJwsHeader.getHeaders());
-	}
-
-	@Test
-	public void fromWhenHeadersProvidedThenCriticalHeadersCopied() {
-		JwsHeader expectedJwsHeader = TestJwsHeaders.jwsHeader()
-				.criticalHeader("critical-header1-name", "critical-header1-value")
-				.criticalHeaders((criticalHeaders) -> {
-					criticalHeaders.put("critical-header2-name", "critical-header2-value");
-					criticalHeaders.put("critical-header3-name", "critical-header3-value");
-				}).build();
-
-		JwsHeader.Builder jwsHeaderBuilder = JwsHeader.from(expectedJwsHeader);
-		assertThat(jwsHeaderBuilder.getHeaders()).doesNotContainKey(JoseHeaderNames.CRIT);
-		assertThat(jwsHeaderBuilder.getCriticalHeaders()).containsOnly(
-				entry("critical-header1-name", "critical-header1-value"),
-				entry("critical-header2-name", "critical-header2-value"),
-				entry("critical-header3-name", "critical-header3-value"));
 	}
 
 	@Test
@@ -83,10 +65,7 @@ public class JwsHeaderTests {
 				.type(expectedJwsHeader.getType())
 				.contentType(expectedJwsHeader.getContentType())
 				.criticalHeader("critical-header1-name", "critical-header1-value")
-				.criticalHeaders((criticalHeaders) -> {
-					criticalHeaders.put("critical-header2-name", "critical-header2-value");
-					criticalHeaders.put("critical-header3-name", "critical-header3-value");
-				})
+				.criticalHeader("critical-header2-name", "critical-header2-value")
 				.headers((headers) -> headers.put("custom-header-name", "custom-header-value"))
 				.build();
 		// @formatter:on
@@ -101,11 +80,9 @@ public class JwsHeaderTests {
 		assertThat(jwsHeader.getX509SHA256Thumbprint()).isEqualTo(expectedJwsHeader.getX509SHA256Thumbprint());
 		assertThat(jwsHeader.getType()).isEqualTo(expectedJwsHeader.getType());
 		assertThat(jwsHeader.getContentType()).isEqualTo(expectedJwsHeader.getContentType());
-		assertThat(jwsHeader.getCritical()).containsExactlyInAnyOrder("critical-header1-name", "critical-header2-name",
-				"critical-header3-name");
+		assertThat(jwsHeader.getCritical()).containsExactlyInAnyOrder("critical-header1-name", "critical-header2-name");
 		assertThat(jwsHeader.<String>getHeader("critical-header1-name")).isEqualTo("critical-header1-value");
 		assertThat(jwsHeader.<String>getHeader("critical-header2-name")).isEqualTo("critical-header2-value");
-		assertThat(jwsHeader.<String>getHeader("critical-header3-name")).isEqualTo("critical-header3-value");
 		assertThat(jwsHeader.<String>getHeader("custom-header-name")).isEqualTo("custom-header-value");
 	}
 
