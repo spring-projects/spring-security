@@ -492,7 +492,7 @@ The `SecurityContext` that is used to process the `Callable` is the `SecurityCon
 
 There is no automatic integration with a `DeferredResult` that is returned by controllers.
 This is because `DeferredResult` is processed by the users and thus there is no way of automatically integrating with it.
-However, you can still use xref:servlet/integrations/concurrency.adoc#concurrency[Concurrency Support] to provide transparent integration with Spring Security.
+However, you can still use xref:features/integrations/concurrency.adoc#concurrency[Concurrency Support] to provide transparent integration with Spring Security.
 
 [[mvc-csrf]]
 == Spring MVC and CSRF Integration
