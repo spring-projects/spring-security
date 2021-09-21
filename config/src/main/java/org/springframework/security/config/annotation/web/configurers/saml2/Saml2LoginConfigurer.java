@@ -172,10 +172,19 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		return this;
 	}
 
+	/**
+	 * Specifies the URL to validate the credentials. If specified a custom URL, consider
+	 * specifying a custom {@link AuthenticationConverter} via
+	 * {@link #authenticationConverter(AuthenticationConverter)}, since the default
+	 * {@link AuthenticationConverter} implementation relies on the
+	 * <code>{registrationId}</code> path variable to be present in the URL
+	 * @param loginProcessingUrl the URL to validate the credentials
+	 * @return the {@link Saml2LoginConfigurer} for additional customization
+	 * @see Saml2WebSsoAuthenticationFilter#DEFAULT_FILTER_PROCESSES_URI
+	 */
 	@Override
 	public Saml2LoginConfigurer<B> loginProcessingUrl(String loginProcessingUrl) {
 		Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be empty");
-		Assert.state(loginProcessingUrl.contains("{registrationId}"), "{registrationId} path variable is required");
 		this.loginProcessingUrl = loginProcessingUrl;
 		return this;
 	}
@@ -254,6 +263,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private AuthenticationConverter getAuthenticationConverter(B http) {
 		if (this.authenticationConverter == null) {
+			Assert.state(this.loginProcessingUrl.contains("{registrationId}"),
+					"loginProcessingUrl must contain {registrationId} path variable");
 			return new Saml2AuthenticationTokenConverter(
 					new DefaultRelyingPartyRegistrationResolver(this.relyingPartyRegistrationRepository));
 		}
