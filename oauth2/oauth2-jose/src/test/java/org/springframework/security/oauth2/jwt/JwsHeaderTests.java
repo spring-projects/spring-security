@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.entry;
 
 /**
  * Tests for {@link JwsHeader}.
@@ -39,7 +40,7 @@ public class JwsHeaderTests {
 	@Test
 	public void fromWhenNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> JwsHeader.from(null))
-				.withMessage("headers cannot be null");
+				.withMessage("jwsHeader cannot be null");
 	}
 
 	@Test
@@ -47,6 +48,23 @@ public class JwsHeaderTests {
 		JwsHeader expectedJwsHeader = TestJwsHeaders.jwsHeader().build();
 		JwsHeader jwsHeader = JwsHeader.from(expectedJwsHeader).build();
 		assertThat(jwsHeader.getHeaders()).isEqualTo(expectedJwsHeader.getHeaders());
+	}
+
+	@Test
+	public void fromWhenHeadersProvidedThenCriticalHeadersCopied() {
+		JwsHeader expectedJwsHeader = TestJwsHeaders.jwsHeader()
+				.criticalHeader("critical-header1-name", "critical-header1-value")
+				.criticalHeaders((criticalHeaders) -> {
+					criticalHeaders.put("critical-header2-name", "critical-header2-value");
+					criticalHeaders.put("critical-header3-name", "critical-header3-value");
+				}).build();
+
+		JwsHeader.Builder jwsHeaderBuilder = JwsHeader.from(expectedJwsHeader);
+		assertThat(jwsHeaderBuilder.getHeaders()).doesNotContainKey(JoseHeaderNames.CRIT);
+		assertThat(jwsHeaderBuilder.getCriticalHeaders()).containsOnly(
+				entry("critical-header1-name", "critical-header1-value"),
+				entry("critical-header2-name", "critical-header2-value"),
+				entry("critical-header3-name", "critical-header3-value"));
 	}
 
 	@Test
