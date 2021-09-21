@@ -25,12 +25,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationTokens;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -40,11 +42,13 @@ import org.springframework.security.saml2.provider.service.web.DefaultRelyingPar
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -117,6 +121,36 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		this.filter.setAuthenticationRequestRepository(authenticationRequestRepository);
 		this.filter.attemptAuthentication(this.request, this.response);
 		verify(authenticationRequestRepository).removeAuthenticationRequest(this.request, this.response);
+	}
+
+	@Test
+	public void attemptAuthenticationAddsDetails() {
+		AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
+		final Saml2AuthenticationToken token = TestSaml2AuthenticationTokens.token();
+		given(authenticationConverter.convert(this.request)).willReturn(token);
+		final AuthenticationDetailsSource authenticationDetailsSource = mock(AuthenticationDetailsSource.class);
+		final WebAuthenticationDetails details = mock(WebAuthenticationDetails.class);
+		given(authenticationDetailsSource.buildDetails(this.request)).willReturn(details);
+		this.filter = new Saml2WebSsoAuthenticationFilter(authenticationConverter, "/some/other/path/{registrationId}");
+		this.filter.setAuthenticationManager((authentication) -> null);
+		this.filter.setAuthenticationDetailsSource(authenticationDetailsSource);
+		this.request.setPathInfo("/some/other/path/idp-registration-id");
+		this.filter.attemptAuthentication(this.request, this.response);
+		Assertions.assertEquals(details, token.getDetails());
+	}
+
+	@Test
+	public void attemptAuthenticationWhenAuthenticationNotAbstractAuthenticationTokenDoesNotAddDetails() {
+		AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
+		final Authentication authenticationWithoutDetails = mock(Authentication.class);
+		given(authenticationConverter.convert(this.request)).willReturn(authenticationWithoutDetails);
+		final AuthenticationDetailsSource authenticationDetailsSource = mock(AuthenticationDetailsSource.class);
+		this.filter = new Saml2WebSsoAuthenticationFilter(authenticationConverter, "/some/other/path/{registrationId}");
+		this.filter.setAuthenticationManager((authentication) -> null);
+		this.filter.setAuthenticationDetailsSource(authenticationDetailsSource);
+		this.request.setPathInfo("/some/other/path/idp-registration-id");
+		assertThatNoException().isThrownBy(() -> this.filter.attemptAuthentication(this.request, this.response));
+		verifyNoInteractions(authenticationDetailsSource);
 	}
 
 	@Test

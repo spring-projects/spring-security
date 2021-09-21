@@ -19,6 +19,7 @@ package org.springframework.security.saml2.provider.service.servlet.filter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.saml2.core.Saml2Error;
@@ -109,6 +110,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 					"No relying party registration found");
 			throw new Saml2AuthenticationException(saml2Error);
 		}
+		setDetails(request, authentication);
 		this.authenticationRequestRepository.removeAuthenticationRequest(request, response);
 		return getAuthenticationManager().authenticate(authentication);
 	}
@@ -135,6 +137,13 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 		if (this.authenticationConverter instanceof Saml2AuthenticationTokenConverter) {
 			Saml2AuthenticationTokenConverter authenticationTokenConverter = (Saml2AuthenticationTokenConverter) this.authenticationConverter;
 			authenticationTokenConverter.setAuthenticationRequestRepository(authenticationRequestRepository);
+		}
+	}
+
+	private void setDetails(HttpServletRequest request, Authentication authentication) {
+		if (AbstractAuthenticationToken.class.isAssignableFrom(authentication.getClass())) {
+			Object details = this.authenticationDetailsSource.buildDetails(request);
+			((AbstractAuthenticationToken) authentication).setDetails(details);
 		}
 	}
 
