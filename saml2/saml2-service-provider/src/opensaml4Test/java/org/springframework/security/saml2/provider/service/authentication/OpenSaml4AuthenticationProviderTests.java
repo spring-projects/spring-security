@@ -353,6 +353,21 @@ public class OpenSaml4AuthenticationProviderTests {
 	}
 
 	@Test
+	public void authenticateWhenAuthenticationHasDetailsThenSucceeds() {
+		Response response = response();
+		Assertion assertion = assertion();
+		assertion.getSubject().getSubjectConfirmations()
+				.forEach((sc) -> sc.getSubjectConfirmationData().setAddress("10.10.10.10"));
+		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
+				RELYING_PARTY_ENTITY_ID);
+		response.getAssertions().add(assertion);
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		token.setDetails("some-details");
+		Authentication authentication = this.provider.authenticate(token);
+		assertThat(authentication.getDetails()).isEqualTo("some-details");
+	}
+
+	@Test
 	public void writeObjectWhenTypeIsSaml2AuthenticationThenNoException() throws IOException {
 		Response response = response();
 		Assertion assertion = TestOpenSamlObjects.signed(assertion(),
