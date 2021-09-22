@@ -29,6 +29,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.crypto.SecretKey;
 
@@ -45,6 +46,7 @@ import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
@@ -314,7 +316,7 @@ public class NimbusReactiveJwtDecoderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> NimbusReactiveJwtDecoder
 						.withJwkSetUri(this.jwkSetUri)
-						.jwtProcessorCustomizer(null)
+						.jwtProcessorCustomizer((Consumer<ConfigurableJWTProcessor<JWKSecurityContext>>) null)
 						.build()
 				)
 				.withMessage("jwtProcessorCustomizer cannot be null");
