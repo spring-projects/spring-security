@@ -28,8 +28,6 @@ try {
 
 					currentBuild.result = 'FAILED: check'
 					throw e
-				} finally {
-					junit '**/build/test-results/*/*.xml'
 				}
 			}
 		}
