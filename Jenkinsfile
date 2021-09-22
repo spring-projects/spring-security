@@ -46,8 +46,6 @@ try {
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: check'
 					throw e
-				} finally {
-					junit '**/build/test-results/*/*.xml'
 				}
 			}
 		}
