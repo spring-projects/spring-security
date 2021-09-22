@@ -350,12 +350,25 @@ public class PrePostMethodSecurityConfigurationTests {
 				.isThrownBy(() -> this.businessService.repeatedAnnotations());
 	}
 
+	// gh-10305
+	@WithMockUser
+	@Test
+	public void beanInSpelWhenEvaluatedThenLooksUpBean() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		this.methodSecurityService.preAuthorizeBean(true);
+	}
+
 	@EnableMethodSecurity
 	static class MethodSecurityServiceConfig {
 
 		@Bean
 		MethodSecurityService methodSecurityService() {
 			return new MethodSecurityServiceImpl();
+		}
+
+		@Bean
+		Authz authz() {
+			return new Authz();
 		}
 
 	}
