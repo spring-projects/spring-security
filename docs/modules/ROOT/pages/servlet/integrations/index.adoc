@@ -1,0 +1,10 @@
+= Integrations
+
+Spring Security integrates with numerous frameworks and APIs.
+In this section, we discuss Spring Security integration with:
+
+* xref:servlet/integrations/servlet-api.adoc[Servlet APIs]
+* xref:servlet/integrations/mvc.adoc[Spring MVC]
+* xref:servlet/integrations/websocket.adoc[WebSocket]
+* xref:servlet/integrations/cors.adoc[Spring's CORS Support]
+* xref:servlet/integrations/jsp-taglibs.adoc[JSP Taglib]

@@ -1,0 +1,15 @@
+= Spring Security
+
+Spring Security is a framework that provides xref:features/authentication/index.adoc[authentication], xref:features/authorization/index.adoc[authorization], and xref:features/exploits/index.adoc[protection against common attacks].
+With first class support for securing both xref:servlet/index.adoc[imperative] and xref:reactive/index.adoc[reactive] applications, it is the de-facto standard for securing Spring-based applications.
+
+For a complete list of features, see the xref:features/index.adoc[Features] section of the reference.
+
+== Getting Started
+
+If you are ready to start securing an application see the Getting Started sections for xref:servlet/getting-started.adoc[servlet] and xref:reactive/getting-started.adoc[reactive]. These sections will walk you through creating your first Spring Security applications.
+
+If you want to understand how Spring Security works, you can refer to the xref:servlet/architecture.adoc[Architecture] section.
+// FIXME add link to reactive architecture
+
+If you have any questions, there is a wonderful xref:community.adoc[community] that would love to help you!

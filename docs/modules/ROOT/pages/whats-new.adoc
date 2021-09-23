@@ -1,0 +1,43 @@
+[[new]]
+= What's New in Spring Security 5.6
+
+Spring Security 5.6 provides a number of new features.
+Below are the highlights of the release.
+
+[[whats-new-servlet]]
+=== Servlet
+* Core
+
+** Introduced https://github.com/spring-projects/spring-security/issues/10226[`SecurityContextChangedListener`]
+
+* Configuration
+
+** Introduced https://github.com/spring-projects/spring-security/pull/9630[`AuthorizationManager`] for method security
+
+* SAML 2.0 Service Provider
+
+** Added https://github.com/spring-projects/spring-security/pull/9483[SAML 2.0 Single Logout Support]
+** Added https://github.com/spring-projects/spring-security/pull/10060[Saml2AuthenticationRequestRepository]
+** Added https://github.com/spring-projects/spring-security/issues/9486[`RelyingPartyRegistrationResolver`]
+** Improved ``Saml2LoginConfigurer``'s handling of https://github.com/spring-projects/spring-security/issues/10268[`Saml2AuthenticationTokenConverter`]
+
+
+* OAuth 2.0 Login
+
+** Added https://github.com/spring-projects/spring-security/pull/10041[`Converter` for `Authentication` result]
+
+* OAuth 2.0 Client
+
+** Improved https://github.com/spring-projects/spring-security/pull/9791[client credentials] encoding
+** Improved https://github.com/spring-projects/spring-security/pull/9779[access token response] parsing
+** Added https://github.com/spring-projects/spring-security/pull/10155[custom grant types support] for authorization requests
+
+* Testing
+
+** Added support to https://github.com/spring-projects/spring-security/pull/9737[propagate the TestSecurityContextHolder to SecurityContextHolder]
+
+[[whats-new-webflux]]
+=== WebFlux
+
+** Improved https://github.com/spring-projects/spring-security/pull/9791[client credentials] encoding
+** Added https://github.com/spring-projects/spring-security/pull/10131[custom headers support] for access token requests

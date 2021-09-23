@@ -1,9 +1,0 @@
-= Book Title
-Rob Winch
-
-[abstract]
-This is the actual content.
-
-== First Section
-
-And off we go.

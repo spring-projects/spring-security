@@ -1,0 +1,4 @@
+= Reactive Applications
+
+Reactive applications work very differently than xref:servlet/index.adoc#servlet-applications[Servlet Applications].
+This section discusses how Spring Security works with reactive applications which are typically written using Spring's WebFlux.
