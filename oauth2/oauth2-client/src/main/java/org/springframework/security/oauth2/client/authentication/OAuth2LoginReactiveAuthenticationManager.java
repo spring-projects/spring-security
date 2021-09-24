@@ -99,7 +99,7 @@ public class OAuth2LoginReactiveAuthenticationManager implements ReactiveAuthent
 			}
 			return this.authorizationCodeManager.authenticate(token)
 					.onErrorMap(OAuth2AuthorizationException.class,
-							(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
+							(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString(), e))
 					.cast(OAuth2AuthorizationCodeAuthenticationToken.class).flatMap(this::onSuccess);
 		});
 	}
