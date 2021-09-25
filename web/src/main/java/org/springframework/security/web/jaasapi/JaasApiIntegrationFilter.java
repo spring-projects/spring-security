@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 the original author or authors.
+ * Copyright 2010-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 
 		Subject subject = obtainSubject(request);
 		if (subject == null && this.createEmptySubject) {
-			this.logger.debug("Subject returned was null and createEmtpySubject is true; "
+			this.logger.debug("Subject returned was null and createEmptySubject is true; "
 					+ "creating new empty subject to run as.");
 			subject = new Subject();
 		}
