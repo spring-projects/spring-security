@@ -197,7 +197,7 @@ jobs:
           DOCS_HOST: ${{ secrets.DOCS_HOST }}
   notify_result:
     name: Check for failures
-    needs: [build_jdk_11, snapshot_tests, check_samples, check_tangles, tdeploy_artifacts, deploy_docs, deploy_schema]
+    needs: [build_jdk_11, snapshot_tests, check_samples, check_tangles, deploy_artifacts, deploy_docs, deploy_schema]
     if: failure()
     runs-on: ubuntu-latest
     steps:
