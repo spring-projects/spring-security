@@ -101,7 +101,7 @@ jobs:
           ./gradlew checkSamples --stacktrace
   check_tangles:
     name: Check for Package Tangles
-    needs: [ prerequisites ]
+    needs: [ prerequisites, build_jdk_11 ]
     runs-on: ubuntu-latest
     if: needs.prerequisites.outputs.runjobs
     steps:
@@ -119,7 +119,7 @@ jobs:
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          ./gradlew check s101 --stacktrace
+          ./gradlew s101 --stacktrace
   deploy_artifacts:
     name: Deploy Artifacts
     needs: [build_jdk_11, snapshot_tests, check_samples, check_tangles]
