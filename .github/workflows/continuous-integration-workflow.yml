@@ -114,7 +114,7 @@ jobs:
         run: |
           mkdir -p ~/.gradle
           echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
-      - name: Check samples project
+      - name: Check for package tangles
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
