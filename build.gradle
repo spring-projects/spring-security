@@ -14,6 +14,7 @@ buildscript {
 
 apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
+apply plugin: 's101'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'io.spring.convention.include-check-remote'
 apply plugin: 'org.jetbrains.kotlin.jvm'
@@ -154,4 +155,8 @@ tasks.register('checkSamples') {
 		ref = samplesBranch
 	}
 	dependsOn checkRemote
+}
+
+s101 {
+	configurationDirectory = project.file("etc/s101")
 }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<headless version="1.0">
+	<operations>
+		<operation type="publish">
+			<argument name="overwrite" value="true"/>
+			<argument name="diagrams" value="true"/>
+		</operation>
+		<operation type="check-key-measures">
+			<argument name="baseline" value="baseline"/>
+			<argument name="useProjectFileSpec" value="true"/>
+			<argument name="useProjectFileDiagrams" value="true"/>
+			<argument name="fail-on-architecture-violations" value="false"/>
+			<argument name="fail-on-fat-package" value="false"/>
+			<argument name="fail-on-fat-class" value="false"/>
+			<argument name="fail-on-fat-method" value="false"/>
+			<argument name="fail-on-feedback-dependencies" value="true"/>
+			<argument name="fail-on-spec-violation-dependencies" value="false"/>
+			<argument name="fail-on-total-problem-dependencies" value="false"/>
+			<argument name="fail-on-spec-item-violations" value="false"/>
+			<argument name="fail-on-biggest-class-tangle" value="true"/>
+			<argument name="fail-on-tangled-package" value="true"/>
+			<argument name="fail-on-architecture-violations" value="false"/>
+			<argument name="fail-on-total-problem-dependencies" value="true"/>
+			<argument name="identifier-on-violation" value="S101 key measure violation"/>
+		</operation>
+	</operations>
+	<arguments>
+		<argument name="local-project" value="const(THIS_FILE)/project.java.hsp"/>
+		<argument name="repository" value="const(THIS_FILE)/repository"/>
+		<argument name="project" value="snapshots"/>
+	</arguments>
+</headless>
