@@ -74,42 +74,6 @@ try {
 			}
 		}
 	},
-	jdk9: {
-		stage('JDK 9') {
-			node {
-				checkout scm
-				sh "git clean -dfx"
-				try {
-					withCredentials([ARTIFACTORY_CREDENTIALS]) {
-						withEnv(["JAVA_HOME=${ tool 'jdk9' }"]) {
-							sh "./gradlew $JENKINS_USER clean test -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace"
-						}
-					}
-				} catch(Exception e) {
-					currentBuild.result = 'FAILED: jdk9'
-					throw e
-				}
-			}
-		}
-	},
-	jdk10: {
-		stage('JDK 10') {
-			node {
-				checkout scm
-				sh "git clean -dfx"
-				try {
-					withCredentials([ARTIFACTORY_CREDENTIALS]) {
-						withEnv(["JAVA_HOME=${ tool 'jdk10' }"]) {
-							sh "./gradlew $JENKINS_USER clean test -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace"
-						}
-					}
-				} catch(Exception e) {
-					currentBuild.result = 'FAILED: jdk10'
-					throw e
-				}
-			}
-		}
-	},
 	jdk11: {
 		stage('JDK 11') {
 			node {
