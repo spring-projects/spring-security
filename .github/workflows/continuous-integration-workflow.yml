@@ -45,7 +45,7 @@ jobs:
       - name: Setup gradle user name
         run: |
           mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
+          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
@@ -71,7 +71,7 @@ jobs:
       - name: Setup gradle user name
         run: |
           mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
+          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
       - name: Snapshot Tests
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -92,7 +92,7 @@ jobs:
       - name: Setup gradle user name
         run: |
           mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
+          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
       - name: Check samples project
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -133,7 +133,7 @@ jobs:
       - name: Setup gradle user name
         run: |
           mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
+          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
       - name: Deploy artifacts
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -160,7 +160,7 @@ jobs:
       - name: Setup gradle user name
         run: |
           mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
+          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
       - name: Deploy Docs
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -184,7 +184,7 @@ jobs:
       - name: Setup gradle user name
         run: |
           mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
+          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
       - name: Deploy Schema
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
