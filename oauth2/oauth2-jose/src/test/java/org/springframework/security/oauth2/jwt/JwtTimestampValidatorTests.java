@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 
@@ -109,6 +110,7 @@ public class JwtTimestampValidatorTests {
 				result.getErrors().stream().map(OAuth2Error::getDescription).collect(Collectors.toList());
 
 		assertThat(result.hasErrors()).isTrue();
+		assertThat(result.getErrors().iterator().next().getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 		assertThat(messages).contains("Jwt used before " + justOverOneDayFromNow);
 
 	}
