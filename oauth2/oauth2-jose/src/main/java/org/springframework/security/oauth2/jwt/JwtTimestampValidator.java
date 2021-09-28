@@ -90,7 +90,7 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 
 	private OAuth2Error createOAuth2Error(String reason) {
 		this.logger.debug(reason);
-		return new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, reason,
+		return new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN, reason,
 				"https://tools.ietf.org/html/rfc6750#section-3.1");
 	}
 
