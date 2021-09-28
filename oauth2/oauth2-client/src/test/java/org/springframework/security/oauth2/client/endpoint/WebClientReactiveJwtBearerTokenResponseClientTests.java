@@ -40,6 +40,8 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.TestJwts;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -226,6 +228,53 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
 				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 		assertThat(actualRequest.getHeader("custom-header-name")).isEqualTo("custom-header-value");
+	}
+
+	@Test
+	public void setParametersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.client.setParametersConverter(null))
+				.withMessage("parametersConverter cannot be null");
+	}
+
+	@Test
+	public void addParametersConverterWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.client.addParametersConverter(null))
+				.withMessage("parametersConverter cannot be null");
+	}
+
+	@Test
+	public void convertWhenParametersConverterAddedThenCalled() throws Exception {
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
+		Converter<JwtBearerGrantRequest, MultiValueMap<String, String>> addedParametersConverter = mock(
+				Converter.class);
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.add("custom-parameter-name", "custom-parameter-value");
+		given(addedParametersConverter.convert(request)).willReturn(parameters);
+		this.client.addParametersConverter(addedParametersConverter);
+		enqueueJson(DEFAULT_ACCESS_TOKEN_RESPONSE);
+		this.client.getTokenResponse(request).block();
+		verify(addedParametersConverter).convert(request);
+		RecordedRequest actualRequest = this.server.takeRequest();
+		assertThat(actualRequest.getBody().readUtf8()).contains(
+				"grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer",
+				"custom-parameter-name=custom-parameter-value");
+	}
+
+	@Test
+	public void convertWhenParametersConverterSetThenCalled() throws Exception {
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
+		Converter<JwtBearerGrantRequest, MultiValueMap<String, String>> parametersConverter = mock(Converter.class);
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.add("custom-parameter-name", "custom-parameter-value");
+		given(parametersConverter.convert(request)).willReturn(parameters);
+		this.client.setParametersConverter(parametersConverter);
+		enqueueJson(DEFAULT_ACCESS_TOKEN_RESPONSE);
+		this.client.getTokenResponse(request).block();
+		verify(parametersConverter).convert(request);
+		RecordedRequest actualRequest = this.server.takeRequest();
+		assertThat(actualRequest.getBody().readUtf8()).contains("custom-parameter-name=custom-parameter-value");
 	}
 
 	@Test
