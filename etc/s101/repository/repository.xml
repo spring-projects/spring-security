@@ -9,6 +9,6 @@
   </xs-configuration>
   <!--Note: All date strings are stored in short US format e.g. 2/1/06 for 1st Feb 2006-->
   <project name="snapshots" dir="snapshots" baselineSnapshot="default" version="19139">
-    <snapshot label="baseline" location="baseline" timestamp="3/16/21, 4:42 PM" version="19139" detail="true" good="true" size="20" />
+    <snapshot label="baseline" location="baseline" timestamp="9/29/21, 2:04 PM" version="19147" detail="true" good="true" size="1530" />
   </project>
 </structure101-repository>
