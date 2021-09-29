@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
@@ -34,6 +35,7 @@ import org.springframework.util.Assert;
  * {@link SecurityConfigurerAdapter}
  * @author Rob Winch
  * @author Wallace Wadge
+ * @author Steve Riesenberg
  */
 public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>> implements SecurityConfigurer<O, B> {
 
@@ -90,6 +92,18 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 	}
 
 	/**
+	 * Adds an {@link ObjectPostProcessor} to be used for this
+	 * {@link SecurityConfigurerAdapter}.
+	 * @param oppClass The target class of the {@code object} to be post processed
+	 * @param objectPostProcessor the {@link Consumer} providing access to the
+	 * {@code object} to be post processed
+	 */
+	public <T> void addObjectPostProcessor(Class<T> oppClass, Consumer<T> objectPostProcessor) {
+		this.objectPostProcessor
+				.addObjectPostProcessor(new ConsumerObjectPostProcessor<>(oppClass, objectPostProcessor));
+	}
+
+	/**
 	 * Sets the {@link SecurityBuilder} to be used. This is automatically set when using
 	 * {@link AbstractConfiguredSecurityBuilder#apply(SecurityConfigurerAdapter)}
 	 * @param builder the {@link SecurityBuilder} to set
@@ -130,6 +144,38 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 			boolean result = this.postProcessors.add(objectPostProcessor);
 			this.postProcessors.sort(AnnotationAwareOrderComparator.INSTANCE);
 			return result;
+		}
+
+	}
+
+	/**
+	 * An {@link ObjectPostProcessor} that delegates to a {@link Consumer}.
+	 *
+	 * @author Steve Riesenberg
+	 */
+	private static final class ConsumerObjectPostProcessor<T> implements ObjectPostProcessor<T> {
+
+		private final Class<T> oppClass;
+
+		private final Consumer<T> objectPostProcessor;
+
+		/**
+		 * Construct a {@link ConsumerObjectPostProcessor} with the given arguments.
+		 * @param oppClass The target class of the object to be post processed
+		 * @param objectPostProcessor the {@link Consumer} providing access to the
+		 * {@code object} to be post processed
+		 */
+		ConsumerObjectPostProcessor(Class<T> oppClass, Consumer<T> objectPostProcessor) {
+			this.oppClass = oppClass;
+			this.objectPostProcessor = objectPostProcessor;
+		}
+
+		@Override
+		public <O extends T> O postProcess(O object) {
+			if (this.oppClass.isAssignableFrom(object.getClass())) {
+				this.objectPostProcessor.accept(object);
+			}
+			return object;
 		}
 
 	}

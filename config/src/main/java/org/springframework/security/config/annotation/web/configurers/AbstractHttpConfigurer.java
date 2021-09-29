@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.function.Consumer;
+
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
@@ -28,6 +30,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
  * {@link HttpSecurity}.
  *
  * @author Rob Winch
+ * @author Steve Riesenberg
  */
 public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T, B>, B extends HttpSecurityBuilder<B>>
 		extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, B> {
@@ -43,9 +46,30 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 		return getBuilder();
 	}
 
+	/**
+	 * Adds an {@link ObjectPostProcessor} to post process objects created by this
+	 * configurer.
+	 * @param objectPostProcessor the {@link ObjectPostProcessor} providing access to the
+	 * {@code object} to be post processed
+	 * @return the {@link HttpSecurityBuilder} for additional customizations
+	 */
 	@SuppressWarnings("unchecked")
 	public T withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
 		addObjectPostProcessor(objectPostProcessor);
+		return (T) this;
+	}
+
+	/**
+	 * Adds an {@link ObjectPostProcessor} to post process objects created by this
+	 * configurer.
+	 * @param oppClass The target class of the {@code object} to be post processed
+	 * @param objectPostProcessor the {@link Consumer} providing access to the
+	 * {@code object} to be post processed
+	 * @return the {@link HttpSecurityBuilder} for additional customizations
+	 */
+	@SuppressWarnings("unchecked")
+	public <P> T withObjectPostProcessor(Class<P> oppClass, Consumer<P> objectPostProcessor) {
+		addObjectPostProcessor(oppClass, objectPostProcessor);
 		return (T) this;
 	}
 
