@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 	}
 
 	@Test
-	public void bouncyCastleAesCbcWithPredictableIvEquvalent() throws Exception {
+	public void bouncyCastleAesCbcWithPredictableIvEquivalent() throws Exception {
 		CryptoAssumptions.assumeCBCJCE();
 		BytesEncryptor bcEncryptor = new BouncyCastleAesCbcBytesEncryptor(this.password, this.salt,
 				new PredictableRandomBytesKeyGenerator(16));
@@ -69,7 +69,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 	}
 
 	@Test
-	public void bouncyCastleAesGcmWithPredictableIvEquvalent() throws Exception {
+	public void bouncyCastleAesGcmWithPredictableIvEquivalent() throws Exception {
 		CryptoAssumptions.assumeGCMJCE();
 		BytesEncryptor bcEncryptor = new BouncyCastleAesGcmBytesEncryptor(this.password, this.salt,
 				new PredictableRandomBytesKeyGenerator(16));

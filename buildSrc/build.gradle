@@ -56,6 +56,10 @@ gradlePlugin {
 			id = "org.springframework.github.changelog"
 			implementationClass = "org.springframework.gradle.github.changelog.GitHubChangelogPlugin"
 		}
+		s101 {
+			id = "s101"
+			implementationClass = "s101.S101Plugin"
+		}
 	}
 }
 
@@ -76,13 +80,11 @@ dependencies {
 	implementation 'gradle.plugin.org.gretty:gretty:3.0.1'
 	implementation 'com.apollographql.apollo:apollo-runtime:2.4.5'
 	implementation 'com.github.ben-manes:gradle-versions-plugin:0.38.0'
-	implementation 'io.spring.gradle:docbook-reference-plugin:0.3.1'
+	implementation 'com.github.spullara.mustache.java:compiler:0.9.4'
 	implementation 'io.spring.gradle:propdeps-plugin:0.0.10.RELEASE'
 	implementation 'io.spring.javaformat:spring-javaformat-gradle-plugin:0.0.15'
 	implementation 'io.spring.nohttp:nohttp-gradle:0.0.10'
-	implementation 'org.aim42:htmlSanityCheck:1.1.6'
-	implementation 'org.asciidoctor:asciidoctor-gradle-jvm:3.1.0'
-	implementation 'org.asciidoctor:asciidoctor-gradle-jvm-pdf:3.1.0'
+	implementation 'net.sourceforge.htmlunit:htmlunit:2.37.0'
 	implementation 'org.hidetake:gradle-ssh-plugin:2.10.1'
 	implementation 'org.jfrog.buildinfo:build-info-extractor-gradle:4.9.10'
 	implementation 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1'

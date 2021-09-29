@@ -142,7 +142,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 			return this.accessTokenResponseClient.getTokenResponse(authzRequest).flatMap(
 					(accessTokenResponse) -> authenticationResult(authorizationCodeAuthentication, accessTokenResponse))
 					.onErrorMap(OAuth2AuthorizationException.class,
-							(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
+							(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString(), e))
 					.onErrorMap(JwtException.class, (e) -> {
 						OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, e.getMessage(),
 								null);

@@ -224,7 +224,7 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 	 * Publishes the {@link JaasAuthenticationFailedEvent}. Can be overridden by
 	 * subclasses for different functionality
 	 * @param token The authentication token being processed
-	 * @param ase The excetion that caused the authentication failure
+	 * @param ase The exception that caused the authentication failure
 	 */
 	@Override
 	protected void publishFailureEvent(UsernamePasswordAuthenticationToken token, AuthenticationException ase) {

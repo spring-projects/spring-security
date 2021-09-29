@@ -1,0 +1,154 @@
+[[servlet-events]]
+= Authentication Events
+
+For each authentication that succeeds or fails, a `AuthenticationSuccessEvent` or `AbstractAuthenticationFailureEvent` is fired, respectively.
+
+To listen for these events, you must first publish an `AuthenticationEventPublisher`.
+Spring Security's `DefaultAuthenticationEventPublisher` will probably do fine:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public AuthenticationEventPublisher authenticationEventPublisher
+        (ApplicationEventPublisher applicationEventPublisher) {
+    return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationEventPublisher
+        (applicationEventPublisher: ApplicationEventPublisher?): AuthenticationEventPublisher {
+    return DefaultAuthenticationEventPublisher(applicationEventPublisher)
+}
+----
+====
+
+Then, you can use Spring's `@EventListener` support:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Component
+public class AuthenticationEvents {
+	@EventListener
+    public void onSuccess(AuthenticationSuccessEvent success) {
+		// ...
+    }
+
+    @EventListener
+    public void onFailure(AbstractAuthenticationFailureEvent failures) {
+		// ...
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Component
+class AuthenticationEvents {
+    @EventListener
+    fun onSuccess(success: AuthenticationSuccessEvent?) {
+        // ...
+    }
+
+    @EventListener
+    fun onFailure(failures: AbstractAuthenticationFailureEvent?) {
+        // ...
+    }
+}
+----
+====
+
+While similar to `AuthenticationSuccessHandler` and `AuthenticationFailureHandler`, these are nice in that they can be used independently from the servlet API.
+
+== Adding Exception Mappings
+
+`DefaultAuthenticationEventPublisher` by default will publish an `AbstractAuthenticationFailureEvent` for the following events:
+
+|============
+| Exception | Event
+| `BadCredentialsException` | `AuthenticationFailureBadCredentialsEvent`
+| `UsernameNotFoundException` | `AuthenticationFailureBadCredentialsEvent`
+| `AccountExpiredException` | `AuthenticationFailureExpiredEvent`
+| `ProviderNotFoundException` | `AuthenticationFailureProviderNotFoundEvent`
+| `DisabledException` | `AuthenticationFailureDisabledEvent`
+| `LockedException` | `AuthenticationFailureLockedEvent`
+| `AuthenticationServiceException` | `AuthenticationFailureServiceExceptionEvent`
+| `CredentialsExpiredException` | `AuthenticationFailureCredentialsExpiredEvent`
+| `InvalidBearerTokenException` | `AuthenticationFailureBadCredentialsEvent`
+|============
+
+The publisher does an exact `Exception` match, which means that sub-classes of these exceptions won't also produce events.
+
+To that end, you may want to supply additional mappings to the publisher via the `setAdditionalExceptionMappings` method:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public AuthenticationEventPublisher authenticationEventPublisher
+        (ApplicationEventPublisher applicationEventPublisher) {
+    Map<Class<? extends AuthenticationException>,
+        Class<? extends AbstractAuthenticationFailureEvent>> mapping =
+            Collections.singletonMap(FooException.class, FooEvent.class);
+    AuthenticationEventPublisher authenticationEventPublisher =
+        new DefaultAuthenticationEventPublisher(applicationEventPublisher);
+    authenticationEventPublisher.setAdditionalExceptionMappings(mapping);
+    return authenticationEventPublisher;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationEventPublisher
+        (applicationEventPublisher: ApplicationEventPublisher?): AuthenticationEventPublisher {
+    val mapping: Map<Class<out AuthenticationException>, Class<out AbstractAuthenticationFailureEvent>> =
+            mapOf(Pair(FooException::class.java, FooEvent::class.java))
+    val authenticationEventPublisher = DefaultAuthenticationEventPublisher(applicationEventPublisher)
+    authenticationEventPublisher.setAdditionalExceptionMappings(mapping)
+    return authenticationEventPublisher
+}
+----
+====
+
+== Default Event
+
+And, you can supply a catch-all event to fire in the case of any `AuthenticationException`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public AuthenticationEventPublisher authenticationEventPublisher
+        (ApplicationEventPublisher applicationEventPublisher) {
+    AuthenticationEventPublisher authenticationEventPublisher =
+        new DefaultAuthenticationEventPublisher(applicationEventPublisher);
+    authenticationEventPublisher.setDefaultAuthenticationFailureEvent
+        (GenericAuthenticationFailureEvent.class);
+    return authenticationEventPublisher;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationEventPublisher
+        (applicationEventPublisher: ApplicationEventPublisher?): AuthenticationEventPublisher {
+    val authenticationEventPublisher = DefaultAuthenticationEventPublisher(applicationEventPublisher)
+    authenticationEventPublisher.setDefaultAuthenticationFailureEvent(GenericAuthenticationFailureEvent::class.java)
+    return authenticationEventPublisher
+}
+----
+====

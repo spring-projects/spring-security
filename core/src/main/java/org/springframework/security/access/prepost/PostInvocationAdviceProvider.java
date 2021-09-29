@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.security.core.Authentication;
  * annotations.
  *
  * @author Luke Taylor
+ * @author Alexander Furer
  * @since 3.0
  */
 public class PostInvocationAdviceProvider implements AfterInvocationProvider {
@@ -73,7 +74,7 @@ public class PostInvocationAdviceProvider implements AfterInvocationProvider {
 
 	@Override
 	public boolean supports(Class<?> clazz) {
-		return clazz.isAssignableFrom(MethodInvocation.class);
+		return MethodInvocation.class.isAssignableFrom(clazz);
 	}
 
 }

@@ -446,7 +446,12 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			String serializedResponse = token.getSaml2Response();
 			Response response = parse(serializedResponse);
 			process(token, response);
-			return this.responseAuthenticationConverter.convert(new ResponseToken(response, token));
+			AbstractAuthenticationToken authenticationResponse = this.responseAuthenticationConverter
+					.convert(new ResponseToken(response, token));
+			if (authenticationResponse != null) {
+				authenticationResponse.setDetails(authentication.getDetails());
+			}
+			return authenticationResponse;
 		}
 		catch (Saml2AuthenticationException ex) {
 			throw ex;

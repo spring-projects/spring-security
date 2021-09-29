@@ -1,0 +1,17 @@
+site:
+  title: Spring Security
+  start_page: security::index.adoc
+asciidoc:
+  attributes:
+    page-pagination: true
+content:
+  sources:
+    - url: ./
+      branches: [HEAD]
+      start_path: docs
+    - url: ../../rwinch/spring-security-docs-generated
+      branches: [HEAD]
+ui:
+  bundle:
+    url: https://github.com/rwinch/antora-ui-spring/releases/download/latest/ui-bundle.zip
+    snapshot: true

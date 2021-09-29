@@ -17,8 +17,11 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import org.springframework.aop.Advisor;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
@@ -42,7 +45,7 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
  */
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-final class PrePostMethodSecurityConfiguration {
+final class PrePostMethodSecurityConfiguration implements ApplicationContextAware {
 
 	private final PreFilterAuthorizationMethodInterceptor preFilterAuthorizationMethodInterceptor = new PreFilterAuthorizationMethodInterceptor();
 
@@ -52,29 +55,43 @@ final class PrePostMethodSecurityConfiguration {
 
 	private final PostFilterAuthorizationMethodInterceptor postFilterAuthorizationMethodInterceptor = new PostFilterAuthorizationMethodInterceptor();
 
+	private final DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+
 	private boolean customMethodSecurityExpressionHandler = false;
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor preFilterAuthorizationMethodInterceptor() {
+		if (!this.customMethodSecurityExpressionHandler) {
+			this.preAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
+		}
 		return this.preFilterAuthorizationMethodInterceptor;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor preAuthorizeAuthorizationMethodInterceptor() {
+		if (!this.customMethodSecurityExpressionHandler) {
+			this.preAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
+		}
 		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize(this.preAuthorizeAuthorizationManager);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor postAuthorizeAuthorizationMethodInterceptor() {
+		if (!this.customMethodSecurityExpressionHandler) {
+			this.postAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
+		}
 		return AuthorizationManagerAfterMethodInterceptor.postAuthorize(this.postAuthorizeAuthorizationManager);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor postFilterAuthorizationMethodInterceptor() {
+		if (!this.customMethodSecurityExpressionHandler) {
+			this.postFilterAuthorizationMethodInterceptor.setExpressionHandler(this.expressionHandler);
+		}
 		return this.postFilterAuthorizationMethodInterceptor;
 	}
 
@@ -89,15 +106,12 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Autowired(required = false)
 	void setGrantedAuthorityDefaults(GrantedAuthorityDefaults grantedAuthorityDefaults) {
-		if (this.customMethodSecurityExpressionHandler) {
-			return;
-		}
-		DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-		expressionHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
-		this.preFilterAuthorizationMethodInterceptor.setExpressionHandler(expressionHandler);
-		this.preAuthorizeAuthorizationManager.setExpressionHandler(expressionHandler);
-		this.postAuthorizeAuthorizationManager.setExpressionHandler(expressionHandler);
-		this.postFilterAuthorizationMethodInterceptor.setExpressionHandler(expressionHandler);
+		this.expressionHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext context) throws BeansException {
+		this.expressionHandler.setApplicationContext(context);
 	}
 
 }

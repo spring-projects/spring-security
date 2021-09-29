@@ -173,7 +173,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		}
 		catch (OAuth2AuthorizationException ex) {
 			OAuth2Error oauth2Error = ex.getError();
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 		}
 	}
 

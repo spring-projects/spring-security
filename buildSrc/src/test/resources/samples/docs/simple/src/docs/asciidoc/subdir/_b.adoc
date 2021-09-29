@@ -1,7 +1,0 @@
-content from _src/docs/asciidoc/subdir/_b.adoc_.
-
-.include::_c.adoc[]
-[example]
---
-include::_c.adoc[]
---

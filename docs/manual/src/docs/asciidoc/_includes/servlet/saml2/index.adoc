@@ -1,4 +1,0 @@
-[[servlet-saml2]]
-= SAML2
-
-include::saml2-login.adoc[]

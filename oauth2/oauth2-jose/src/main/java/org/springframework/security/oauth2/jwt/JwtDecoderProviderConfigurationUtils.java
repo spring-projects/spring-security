@@ -31,7 +31,10 @@ import com.nimbusds.jose.jwk.JWKSelector;
 import com.nimbusds.jose.jwk.KeyType;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
@@ -82,7 +85,17 @@ final class JwtDecoderProviderConfigurationUtils {
 				+ "\" provided in the configuration did not " + "match the requested issuer \"" + issuer + "\"");
 	}
 
-	static Set<SignatureAlgorithm> getSignatureAlgorithms(JWKSource<SecurityContext> jwkSource) {
+	static <C extends SecurityContext> void addJWSAlgorithms(ConfigurableJWTProcessor<C> jwtProcessor) {
+		JWSKeySelector<C> selector = jwtProcessor.getJWSKeySelector();
+		if (selector instanceof JWSVerificationKeySelector) {
+			JWKSource<C> jwkSource = ((JWSVerificationKeySelector<C>) selector).getJWKSource();
+			Set<JWSAlgorithm> algorithms = getJWSAlgorithms(jwkSource);
+			selector = new JWSVerificationKeySelector<>(algorithms, jwkSource);
+			jwtProcessor.setJWSKeySelector(selector);
+		}
+	}
+
+	static <C extends SecurityContext> Set<JWSAlgorithm> getJWSAlgorithms(JWKSource<C> jwkSource) {
 		JWKMatcher jwkMatcher = new JWKMatcher.Builder().publicOnly(true).keyUses(KeyUse.SIGNATURE, null)
 				.keyTypes(KeyType.RSA, KeyType.EC).build();
 		Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
@@ -106,6 +119,12 @@ final class JwtDecoderProviderConfigurationUtils {
 		catch (KeySourceException ex) {
 			throw new IllegalStateException(ex);
 		}
+		Assert.notEmpty(jwsAlgorithms, "Failed to find any algorithms from the JWK set");
+		return jwsAlgorithms;
+	}
+
+	static Set<SignatureAlgorithm> getSignatureAlgorithms(JWKSource<SecurityContext> jwkSource) {
+		Set<JWSAlgorithm> jwsAlgorithms = getJWSAlgorithms(jwkSource);
 		Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 		for (JWSAlgorithm jwsAlgorithm : jwsAlgorithms) {
 			SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.from(jwsAlgorithm.getName());
@@ -113,7 +132,6 @@ final class JwtDecoderProviderConfigurationUtils {
 				signatureAlgorithms.add(signatureAlgorithm);
 			}
 		}
-		Assert.notEmpty(signatureAlgorithms, "Failed to find any algorithms from the JWK set");
 		return signatureAlgorithms;
 	}
 

@@ -1,0 +1,126 @@
+[[servlet-authorization-filtersecurityinterceptor]]
+= Authorize HttpServletRequest with FilterSecurityInterceptor
+:figures: servlet/authorization
+
+This section builds on xref:servlet/architecture.adoc#servlet-architecture[Servlet Architecture and Implementation] by digging deeper into how xref:servlet/authorization/index.adoc#servlet-authorization[authorization] works within Servlet based applications.
+
+The {security-api-url}org/springframework/security/web/access/intercept/FilterSecurityInterceptor.html[`FilterSecurityInterceptor`] provides xref:servlet/authorization/index.adoc#servlet-authorization[authorization] for ``HttpServletRequest``s.
+It is inserted into the xref:servlet/architecture.adoc#servlet-filterchainproxy[FilterChainProxy] as one of the xref:servlet/architecture.adoc#servlet-security-filters[Security Filters].
+
+.Authorize HttpServletRequest
+image::{figures}/filtersecurityinterceptor.png[]
+
+* image:{icondir}/number_1.png[] First, the `FilterSecurityInterceptor` obtains an  xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] from the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
+* image:{icondir}/number_2.png[] Second, `FilterSecurityInterceptor` creates a {security-api-url}org/springframework/security/web/FilterInvocation.html[`FilterInvocation`] from the `HttpServletRequest`, `HttpServletResponse`, and `FilterChain` that are passed into the `FilterSecurityInterceptor`.
+// FIXME: link to FilterInvocation
+* image:{icondir}/number_3.png[] Next, it passes the `FilterInvocation` to `SecurityMetadataSource` to get the ``ConfigAttribute``s.
+* image:{icondir}/number_4.png[] Finally, it passes the `Authentication`, `FilterInvocation`, and ``ConfigAttribute``s to the `AccessDecisionManager`.
+** image:{icondir}/number_5.png[] If authorization is denied, an `AccessDeniedException` is thrown.
+In this case the xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] handles the `AccessDeniedException`.
+** image:{icondir}/number_6.png[] If access is granted, `FilterSecurityInterceptor` continues with the xref:servlet/architecture.adoc#servlet-filters-review[FilterChain] which allows the application to process normally.
+
+// configuration (xml/java)
+
+By default, Spring Security's authorization will require all requests to be authenticated.
+The explicit configuration looks like:
+
+.Every Request Must be Authenticated
+====
+.Java
+[source,java,role="primary"]
+----
+protected void configure(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.authorizeRequests(authorize -> authorize
+			.anyRequest().authenticated()
+		);
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+	<!-- ... -->
+	<intercept-url pattern="/**" access="authenticated"/>
+</http>
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+fun configure(http: HttpSecurity) {
+    http {
+        // ...
+        authorizeRequests {
+            authorize(anyRequest, authenticated)
+        }
+    }
+}
+----
+====
+
+We can configure Spring Security to have different rules by adding more rules in order of precedence.
+
+.Authorize Requests
+====
+.Java
+[source,java,role="primary"]
+----
+protected void configure(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.authorizeRequests(authorize -> authorize                                  // <1>
+			.mvcMatchers("/resources/**", "/signup", "/about").permitAll()         // <2>
+			.mvcMatchers("/admin/**").hasRole("ADMIN")                             // <3>
+			.mvcMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")   // <4>
+			.anyRequest().denyAll()                                                // <5>
+		);
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http> <!--1-->
+	<!-- ... -->
+	<!--2-->
+	<intercept-url pattern="/resources/**" access="permitAll"/>
+	<intercept-url pattern="/signup" access="permitAll"/>
+	<intercept-url pattern="/about" access="permitAll"/>
+
+	<intercept-url pattern="/admin/**" access="hasRole('ADMIN')"/> <!--3-->
+	<intercept-url pattern="/db/**" access="hasRole('ADMIN') and hasRole('DBA')"/> <!--4-->
+	<intercept-url pattern="/**" access="denyAll"/> <!--5-->
+</http>
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+fun configure(http: HttpSecurity) {
+   http {
+        authorizeRequests { // <1>
+            authorize("/resources/**", permitAll) // <2>
+            authorize("/signup", permitAll)
+            authorize("/about", permitAll)
+
+            authorize("/admin/**", hasRole("ADMIN")) // <3>
+            authorize("/db/**", "hasRole('ADMIN') and hasRole('DBA')") // <4>
+            authorize(anyRequest, denyAll) // <5>
+        }
+    }
+}
+----
+====
+<1> There are multiple authorization rules specified.
+Each rule is considered in the order they were declared.
+<2> We specified multiple URL patterns that any user can access.
+Specifically, any user can access a request if the URL starts with "/resources/", equals "/signup", or equals "/about".
+<3> Any URL that starts with "/admin/" will be restricted to users who have the role "ROLE_ADMIN".
+You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
+<4> Any URL that starts with "/db/" requires the user to have both "ROLE_ADMIN" and "ROLE_DBA".
+You will notice that since we are using the `hasRole` expression we do not need to specify the "ROLE_" prefix.
+<5> Any URL that has not already been matched on is denied access.
+This is a good strategy if you do not want to accidentally forget to update your authorization rules.

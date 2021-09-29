@@ -1,0 +1,8 @@
+= Protection Against Exploits
+
+Spring Security provides protection against numerous exploits.
+This section discusses WebFlux specific support for:
+
+* xref:reactive/exploits/csrf.adoc[CSRF]
+* xref:reactive/exploits/headers.adoc[Headers]
+* xref:reactive/exploits/http.adoc[HTTP Requests]

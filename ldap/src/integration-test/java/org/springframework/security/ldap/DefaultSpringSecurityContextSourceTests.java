@@ -120,7 +120,7 @@ public class DefaultSpringSecurityContextSourceTests {
 	}
 
 	@Test
-	public void instantiationSuceedsWithProperServerList() {
+	public void instantiationSucceedsWithProperServerList() {
 		List<String> serverUrls = new ArrayList<>();
 		serverUrls.add("ldap://foo:789");
 		serverUrls.add("ldap://bar:389");
@@ -134,7 +134,7 @@ public class DefaultSpringSecurityContextSourceTests {
 
 	// SEC-2308
 	@Test
-	public void instantiationSuceedsWithEmtpyBaseDn() {
+	public void instantiationSucceedsWithEmptyBaseDn() {
 		String baseDn = "";
 		List<String> serverUrls = new ArrayList<>();
 		serverUrls.add("ldap://foo:789");

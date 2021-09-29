@@ -25,21 +25,26 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ReactiveHttpInputMessage;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
+import org.springframework.web.reactive.function.BodyExtractor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -284,6 +289,31 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
 				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+	}
+
+	// gh-10260
+	@Test
+	public void getTokenResponseWhenSuccessCustomResponseThenReturnAccessTokenResponse() {
+
+		String accessTokenSuccessResponse = "{}";
+
+		WebClientReactivePasswordTokenResponseClient customClient = new WebClientReactivePasswordTokenResponseClient();
+
+		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = mock(BodyExtractor.class);
+		OAuth2AccessTokenResponse response = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		given(extractor.extract(any(), any())).willReturn(Mono.just(response));
+
+		customClient.setBodyExtractor(extractor);
+
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
+		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration,
+				this.username, this.password);
+
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+
+		OAuth2AccessTokenResponse accessTokenResponse = customClient.getTokenResponse(passwordGrantRequest).block();
+		assertThat(accessTokenResponse.getAccessToken()).isNotNull();
+
 	}
 
 }

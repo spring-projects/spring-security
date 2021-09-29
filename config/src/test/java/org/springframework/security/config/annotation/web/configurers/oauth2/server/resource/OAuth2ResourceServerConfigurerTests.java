@@ -1250,7 +1250,6 @@ public class OAuth2ResourceServerConfigurerTests {
 		String jwtThree = jwtFromIssuer(issuerThree);
 		mockWebServer(String.format(metadata, issuerOne, issuerOne));
 		mockWebServer(jwkSet);
-		mockWebServer(jwkSet);
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").with(bearerToken(jwtOne)))
 				.andExpect(status().isOk())
@@ -1258,14 +1257,12 @@ public class OAuth2ResourceServerConfigurerTests {
 		// @formatter:on
 		mockWebServer(String.format(metadata, issuerTwo, issuerTwo));
 		mockWebServer(jwkSet);
-		mockWebServer(jwkSet);
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").with(bearerToken(jwtTwo)))
 				.andExpect(status().isOk())
 				.andExpect(content().string("test-subject"));
 		// @formatter:on
 		mockWebServer(String.format(metadata, issuerThree, issuerThree));
-		mockWebServer(jwkSet);
 		mockWebServer(jwkSet);
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").with(bearerToken(jwtThree)))

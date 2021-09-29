@@ -60,7 +60,7 @@ public class XsdDocumentedTests {
 			"nsa-frame-options-from-parameter");
 	// @formatter:on
 
-	String referenceLocation = "../docs/manual/src/docs/asciidoc/_includes/servlet/appendix/namespace.adoc";
+	String referenceLocation = "../docs/modules/ROOT/pages/servlet/appendix/namespace.adoc";
 
 	String schema31xDocumentLocation = "org/springframework/security/config/spring-security-3.1.xsd";
 

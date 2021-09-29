@@ -1,0 +1,27 @@
+name: reference
+
+on:
+  push:
+    branches-ignore:
+      - 'gh-pages'
+
+env:
+  GH_ACTIONS_REPO_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v2
+      - name: Generate antora.yml
+        run: ./gradlew :spring-security-docs:generateAntora
+      - name: Push generated antora files to the spring-generated-docs
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: "spring-security/main" # The branch the action should deploy to.
+          folder: "docs/build/generateAntora" # The folder the action should deploy.
+          repository-name: "spring-io/spring-generated-docs"
+          token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+      - name: Dispatch Build Request
+        run: ${GITHUB_WORKSPACE}/.github/actions/dispatch.sh 'spring-io/spring-reference' "$GH_ACTIONS_REPO_TOKEN"
