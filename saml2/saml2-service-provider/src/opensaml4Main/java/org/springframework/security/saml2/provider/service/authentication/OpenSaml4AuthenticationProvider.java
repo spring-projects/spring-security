@@ -672,11 +672,14 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 
 	private static ValidationContext createValidationContext(AssertionToken assertionToken,
 			Consumer<Map<String, Object>> paramsConsumer) {
-		String audience = assertionToken.token.getRelyingPartyRegistration().getEntityId();
-		String recipient = assertionToken.token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
+		RelyingPartyRegistration relyingPartyRegistration = assertionToken.token.getRelyingPartyRegistration();
+		String audience = relyingPartyRegistration.getEntityId();
+		String recipient = relyingPartyRegistration.getAssertionConsumerServiceLocation();
+		String assertingPartyEntityId = relyingPartyRegistration.getAssertingPartyDetails().getEntityId();
 		Map<String, Object> params = new HashMap<>();
 		params.put(SAML2AssertionValidationParameters.COND_VALID_AUDIENCES, Collections.singleton(audience));
 		params.put(SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS, Collections.singleton(recipient));
+		params.put(SAML2AssertionValidationParameters.VALID_ISSUERS, Collections.singleton(assertingPartyEntityId));
 		paramsConsumer.accept(params);
 		return new ValidationContext(params);
 	}
@@ -752,6 +755,11 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 				@Nonnull
 				@Override
 				protected ValidationResult validateStatements(Assertion assertion, ValidationContext context) {
+					return ValidationResult.VALID;
+				}
+
+				@Override
+				protected ValidationResult validateIssuer(Assertion assertion, ValidationContext context) {
 					return ValidationResult.VALID;
 				}
 			};
