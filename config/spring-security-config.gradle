@@ -9,7 +9,7 @@ repositories {
 }
 
 dependencies {
-	management platform(project(":spring-security-dependencies"))
+	api platform(project(":spring-security-dependencies"))
 	// NB: Don't add other compile time dependencies to the config module as this breaks tooling
 	api project(':spring-security-core')
 	api 'org.springframework:spring-aop'
@@ -49,7 +49,7 @@ dependencies {
 	testImplementation project(path : ':spring-security-oauth2-client', configuration : 'tests')
 	testImplementation project(path : ':spring-security-oauth2-resource-server', configuration : 'tests')
 	testImplementation project(path : ':spring-security-saml2-service-provider', configuration : 'tests')
-	testImplementation project(path: ':spring-security-saml2-service-provider', configuration: 'opensaml4MainCompile')
+	testImplementation project(path : ':spring-security-saml2-service-provider', configuration : 'opensaml4MainImplementation')
 	testImplementation project(path : ':spring-security-web', configuration : 'tests')
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

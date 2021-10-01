@@ -15,7 +15,6 @@
  */
 package io.spring.gradle.convention
 
-import io.spring.gradle.propdeps.PropDepsPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -24,6 +23,7 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.testing.Test
 import org.gradle.plugins.ide.eclipse.EclipsePlugin
 import org.gradle.plugins.ide.idea.IdeaPlugin
+import org.springframework.gradle.propdeps.PropDepsPlugin
 
 /**
  *
@@ -54,7 +54,7 @@ public class IntegrationTestPlugin implements Plugin<Project> {
 		}
 		project.configurations {
 			integrationTestCompile {
-				extendsFrom testCompile, testImplementation
+				extendsFrom testImplementation
 			}
 			integrationTestRuntime {
 				extendsFrom integrationTestCompile, testRuntime, testRuntimeOnly

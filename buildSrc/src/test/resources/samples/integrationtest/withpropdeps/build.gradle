@@ -3,7 +3,6 @@ plugins {
 }
 
 apply plugin: 'java'
-apply plugin: 'propdeps'
 
 repositories {
 	mavenCentral()

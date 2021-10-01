@@ -1,7 +1,7 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-	management platform('org.springframework.boot:spring-boot-dependencies:2.5.2')
+	api platform('org.springframework.boot:spring-boot-dependencies:2.5.2')
 	optional 'ch.qos.logback:logback-classic'
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-engine"

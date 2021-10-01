@@ -30,6 +30,9 @@ sourceSets {
 configurations {
 	opensaml3TestImplementation.extendsFrom testImplementation
 	opensaml4TestImplementation.extendsFrom testImplementation
+	opensaml4MainImplementation {
+		canBeConsumed = true
+	}
 }
 
 compileOpensaml4MainJava {
@@ -38,14 +41,14 @@ compileOpensaml4MainJava {
 }
 
 dependencies {
-	management platform(project(":spring-security-dependencies"))
+	api platform(project(":spring-security-dependencies"))
 	api project(':spring-security-web')
 	api "org.opensaml:opensaml-core"
 	api "org.opensaml:opensaml-saml-api"
 	api "org.opensaml:opensaml-saml-impl"
-	opensaml4MainCompile "org.opensaml:opensaml-core:4.1.0"
-	opensaml4MainCompile "org.opensaml:opensaml-saml-api:4.1.0"
-	opensaml4MainCompile "org.opensaml:opensaml-saml-impl:4.1.0"
+	opensaml4MainImplementation "org.opensaml:opensaml-core:4.1.0"
+	opensaml4MainImplementation "org.opensaml:opensaml-saml-api:4.1.0"
+	opensaml4MainImplementation "org.opensaml:opensaml-saml-impl:4.1.0"
 
 	provided 'javax.servlet:javax.servlet-api'
 
@@ -61,6 +64,7 @@ dependencies {
 }
 
 project.tasks.matching { t -> t.name == "jar"}.configureEach {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	from {
 		compileOpensaml3MainJava
 	}

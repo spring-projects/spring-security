@@ -37,10 +37,7 @@ class SpringModulePlugin extends AbstractSpringJavaPlugin {
 		def deployArtifacts = project.task("deployArtifacts")
 		deployArtifacts.group = 'Deploy tasks'
 		deployArtifacts.description = "Deploys the artifacts to either Artifactory or Maven Central"
-		if (Utils.isRelease(project)) {
-			deployArtifacts.dependsOn project.tasks.uploadArchives
-		}
-		else {
+		if (!Utils.isRelease(project)) {
 			deployArtifacts.dependsOn project.tasks.artifactoryPublish
 		}
 	}

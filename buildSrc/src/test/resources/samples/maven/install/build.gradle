@@ -2,7 +2,6 @@ plugins {
 	id 'io.spring.convention.root'
 }
 
-apply plugin: 'propdeps-maven'
 apply plugin: 'io.spring.convention.maven'
 
 repositories {
