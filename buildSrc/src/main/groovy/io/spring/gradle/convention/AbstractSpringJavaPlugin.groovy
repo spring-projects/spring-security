@@ -16,20 +16,17 @@
 
 package io.spring.gradle.convention;
 
-import io.spring.gradle.propdeps.PropDepsMavenPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.GroovyPlugin;
-import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.plugins.MavenPlugin;
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.PluginManager;
-import org.gradle.internal.impldep.org.apache.maven.Maven;
 import org.gradle.plugins.ide.eclipse.EclipseWtpPlugin;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
-import io.spring.gradle.propdeps.PropDepsEclipsePlugin;
-import io.spring.gradle.propdeps.PropDepsIdeaPlugin;
-import io.spring.gradle.propdeps.PropDepsPlugin
-import org.springframework.gradle.CopyPropertiesPlugin;
+import org.springframework.gradle.CopyPropertiesPlugin
+import org.springframework.gradle.propdeps.PropDepsEclipsePlugin
+import org.springframework.gradle.propdeps.PropDepsIdeaPlugin
+import org.springframework.gradle.propdeps.PropDepsPlugin;
 
 /**
  * @author Rob Winch
@@ -40,7 +37,6 @@ public abstract class AbstractSpringJavaPlugin implements Plugin<Project> {
 	public final void apply(Project project) {
 		PluginManager pluginManager = project.getPluginManager();
 		pluginManager.apply(JavaPlugin.class);
-		pluginManager.apply(ManagementConfigurationPlugin.class);
 		if (project.file("src/main/groovy").exists()
 				|| project.file("src/test/groovy").exists()
 				|| project.file("src/integration-test/groovy").exists()) {
@@ -52,9 +48,6 @@ public abstract class AbstractSpringJavaPlugin implements Plugin<Project> {
 		pluginManager.apply(PropDepsPlugin);
 		pluginManager.apply(PropDepsEclipsePlugin);
 		pluginManager.apply(PropDepsIdeaPlugin);
-		project.getPlugins().withType(MavenPlugin) {
-			pluginManager.apply(PropDepsMavenPlugin);
-		}
 		pluginManager.apply("io.spring.convention.tests-configuration");
 		pluginManager.apply("io.spring.convention.integration-test");
 		pluginManager.apply("io.spring.convention.javadoc-options");

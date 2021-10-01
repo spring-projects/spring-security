@@ -55,19 +55,6 @@ public class SpringMavenPluginITest {
 		assertThat(signature).exists();
 	}
 
-	@Test
-    public void upload() throws Exception {
-        BuildResult result = this.testKit.withProjectResource("samples/maven/upload")
-				.withArguments("uploadArchives")
-				.forwardOutput()
-				.build();
-		assertThat(result.getOutput()).contains("SUCCESS");
-		File pom = new File(testKit.getRootDir(), "build/poms/pom-default.xml");
-		assertThat(pom).exists();
-		String pomText = new String(Files.readAllBytes(pom.toPath()));
-		assertThat(pomText.replaceAll("\\s", "")).contains("<dependency>\n			<groupId>aopalliance</groupId>\n			<artifactId>aopalliance</artifactId>\n			<version>1.0</version>\n			<scope>compile</scope>\n			<optional>true</optional>\n			</dependency>".replaceAll("\\s", ""));
-	}
-
     public String getSigningKey() throws Exception {
 		return IOUtils.toString(getClass().getResource("/test-private.pgp"));
 	}
