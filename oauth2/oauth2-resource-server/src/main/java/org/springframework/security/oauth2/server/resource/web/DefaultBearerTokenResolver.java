@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
@@ -47,18 +48,19 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	private String bearerTokenHeaderName = HttpHeaders.AUTHORIZATION;
 
 	@Override
-	public String resolve(HttpServletRequest request) {
-		String authorizationHeaderToken = resolveFromAuthorizationHeader(request);
-		String parameterToken = resolveFromRequestParameters(request);
+	public String resolve(final HttpServletRequest request) {
+		final String authorizationHeaderToken = resolveFromAuthorizationHeader(request);
+		final String parameterToken = isParameterTokenSupportedForRequest(request)
+				? resolveFromRequestParameters(request) : null;
 		if (authorizationHeaderToken != null) {
 			if (parameterToken != null) {
-				BearerTokenError error = BearerTokenErrors
+				final BearerTokenError error = BearerTokenErrors
 						.invalidRequest("Found multiple bearer tokens in the request");
 				throw new OAuth2AuthenticationException(error);
 			}
 			return authorizationHeaderToken;
 		}
-		if (parameterToken != null && isParameterTokenSupportedForRequest(request)) {
+		if (parameterToken != null && isParameterTokenEnabledForRequest(request)) {
 			return parameterToken;
 		}
 		return null;
@@ -124,8 +126,15 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		throw new OAuth2AuthenticationException(error);
 	}
 
-	private boolean isParameterTokenSupportedForRequest(HttpServletRequest request) {
-		return ((this.allowFormEncodedBodyParameter && "POST".equals(request.getMethod()))
+	private boolean isParameterTokenSupportedForRequest(final HttpServletRequest request) {
+		return (("POST".equals(request.getMethod())
+				&& MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(request.getContentType()))
+				|| "GET".equals(request.getMethod()));
+	}
+
+	private boolean isParameterTokenEnabledForRequest(final HttpServletRequest request) {
+		return ((this.allowFormEncodedBodyParameter && "POST".equals(request.getMethod())
+				&& MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(request.getContentType()))
 				|| (this.allowUriQueryParameter && "GET".equals(request.getMethod())));
 	}
 

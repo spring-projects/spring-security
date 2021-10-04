@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,12 +126,36 @@ public class DefaultBearerTokenResolverTests {
 				.withMessageContaining("Found multiple bearer tokens in the request");
 	}
 
+	// gh-10326
 	@Test
-	public void resolveWhenRequestContainsTwoAccessTokenParametersThenAuthenticationExceptionIsThrown() {
+	public void resolveWhenRequestContainsTwoAccessTokenQueryParametersThenAuthenticationExceptionIsThrown() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("GET");
 		request.addParameter("access_token", "token1", "token2");
 		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
 				.withMessageContaining("Found multiple bearer tokens in the request");
+	}
+
+	// gh-10326
+	@Test
+	public void resolveWhenRequestContainsTwoAccessTokenFormParametersThenAuthenticationExceptionIsThrown() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("POST");
+		request.setContentType("application/x-www-form-urlencoded");
+		request.addParameter("access_token", "token1", "token2");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
+				.withMessageContaining("Found multiple bearer tokens in the request");
+	}
+
+	// gh-10326
+	@Test
+	public void resolveWhenParameterIsPresentInMultipartRequestAndFormParameterSupportedThenTokenIsNotResolved() {
+		this.resolver.setAllowFormEncodedBodyParameter(true);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("POST");
+		request.setContentType("multipart/form-data");
+		request.addParameter("access_token", TEST_TOKEN);
+		assertThat(this.resolver.resolve(request)).isNull();
 	}
 
 	@Test
