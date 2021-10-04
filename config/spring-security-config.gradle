@@ -74,6 +74,7 @@ dependencies {
 	testImplementation "org.apache.directory.server:apacheds-protocol-ldap"
 	testImplementation "org.apache.directory.server:apacheds-server-jndi"
 	testImplementation 'org.apache.directory.shared:shared-ldap'
+	testImplementation "com.unboundid:unboundid-ldapsdk"
 	testImplementation 'org.eclipse.persistence:javax.persistence'
 	testImplementation 'org.hibernate:hibernate-entitymanager'
 	testImplementation 'org.hsqldb:hsqldb'
