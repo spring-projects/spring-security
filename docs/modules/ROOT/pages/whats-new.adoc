@@ -48,3 +48,4 @@ Below are the highlights of the release.
 ** Added https://github.com/spring-projects/spring-security/pull/10269[custom response parsing] for Access Token Requests
 ** Added https://github.com/spring-projects/spring-security/pull/10327[jwt-bearer Grant Type support] for Access Token Requests
 ** Added https://github.com/spring-projects/spring-security/pull/10336[JWT Client Authentication support] for Access Token Requests
+** Improved https://github.com/spring-projects/spring-security/pull/10373[Reactive OAuth 2.0 Client Documentation]
