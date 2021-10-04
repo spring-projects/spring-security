@@ -38,6 +38,16 @@ sn: Wombat
 uid: scott
 userPassword: wombat
 
+dn: uid=bcrypt,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: BCrypt user
+sn: BCrypt
+uid: bcrypt
+userPassword: $2a$10$FBAKClV1zBIOOC9XMXf3AO8RoGXYVYsfvUdoLxGkd/BnXEn4tqT3u
+
 dn: cn=user,ou=groups,dc=springframework,dc=org
 objectclass: top
 objectclass: groupOfNames
