@@ -90,7 +90,7 @@
 *** xref:reactive/authorization/method.adoc[EnableReactiveMethodSecurity]
 ** xref:reactive/oauth2/index.adoc[OAuth2]
 *** xref:reactive/oauth2/login.adoc[OAuth 2.0 Login]
-*** xref:reactive/oauth2/access-token.adoc[OAuth2 Client]
+*** xref:reactive/oauth2/oauth2-client.adoc[OAuth2 Client]
 *** xref:reactive/oauth2/resource-server.adoc[OAuth 2.0 Resource Server]
 *** xref:reactive/registered-oauth2-authorized-client.adoc[@RegisteredOAuth2AuthorizedClient]
 ** xref:reactive/exploits/index.adoc[Protection Against Exploits]
