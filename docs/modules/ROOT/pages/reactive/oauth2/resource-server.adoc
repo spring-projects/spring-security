@@ -504,9 +504,10 @@ fun conversionServiceCustomizer(): BeanFactoryPostProcessor {
 
 Specify your key's location:
 
-```yaml
+[source,yaml]
+----
 key.location: hfds://my-key.pub
-```
+----
 
 And then autowire the value:
 
@@ -946,10 +947,11 @@ This startup process is quite a bit simpler than for JWTs since no endpoints nee
 
 Once the application is started up, Resource Server will attempt to process any request containing an `Authorization: Bearer` header:
 
-```http
+[source,http]
+----
 GET / HTTP/1.1
 Authorization: Bearer some-token-value # Resource Server will process this
-```
+----
 
 So long as this scheme is indicated, Resource Server will attempt to process the request according to the Bearer Token specification.
 

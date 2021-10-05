@@ -366,7 +366,7 @@ mvc.get("/") {
 
 ==== Running as a User in Spring MVC Test with Annotations
 
-As an alternative to using a `RequestPostProcessor` to create your user, you can use annotations described in <<Testing Method Security>>.
+As an alternative to using a `RequestPostProcessor` to create your user, you can use annotations described in xref:servlet/test/method.adoc[Testing Method Security].
 For example, the following will run the test with the user with username "user", password "password", and role "ROLE_USER":
 
 ====
@@ -1903,7 +1903,7 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
 ==== Exporting the SecurityContext
 
 Often times we want to query a repository to see if some `MockMvc` request actually persisted in the database.
-In some cases our repository query uses the <<data,Spring Data Integration>> to filter the results based on current user's username or any other property.
+In some cases our repository query uses the xref:features/integrations/data.adoc[Spring Data Integration] to filter the results based on current user's username or any other property.
 Let's see an example:
 
 A repository interface:
