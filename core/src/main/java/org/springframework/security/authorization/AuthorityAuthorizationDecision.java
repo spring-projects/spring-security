@@ -16,25 +16,30 @@
 
 package org.springframework.security.authorization;
 
+import java.util.Collection;
+
 /**
- * @author Rob Winch
- * @since 5.0
+ * Represents an {@link AuthorizationDecision} based on a collection of authorities
+ *
+ * @author Marcus Da Coregio
+ * @since 5.6
  */
-public class AuthorizationDecision {
+class AuthorityAuthorizationDecision extends AuthorizationDecision {
 
-	private final boolean granted;
+	private final Collection<String> authorities;
 
-	public AuthorizationDecision(boolean granted) {
-		this.granted = granted;
+	AuthorityAuthorizationDecision(boolean granted, Collection<String> authorities) {
+		super(granted);
+		this.authorities = authorities;
 	}
 
-	public boolean isGranted() {
-		return this.granted;
+	Collection<String> getAuthorities() {
+		return this.authorities;
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " [granted=" + this.granted + "]";
+		return getClass().getSimpleName() + " [" + "granted=" + isGranted() + ", authorities=" + this.authorities + ']';
 	}
 
 }

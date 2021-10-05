@@ -48,8 +48,8 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 				.flatMapIterable(Authentication::getAuthorities)
 				.map(GrantedAuthority::getAuthority)
 				.any(this.authorities::contains)
-				.map(AuthorizationDecision::new)
-				.defaultIfEmpty(new AuthorizationDecision(false));
+				.map((granted) -> ((AuthorizationDecision) new AuthorityAuthorizationDecision(granted, this.authorities)))
+				.defaultIfEmpty(new AuthorityAuthorizationDecision(false, this.authorities));
 		// @formatter:on
 	}
 
