@@ -49,4 +49,10 @@ class ExpressionAttribute {
 		return this.expression;
 	}
 
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " [Expression="
+				+ ((this.expression != null) ? this.expression.getExpressionString() : null) + "]";
+	}
+
 }

@@ -124,7 +124,7 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
 		boolean granted = isGranted(authentication.get());
-		return new AuthorizationDecision(granted);
+		return new AuthorityAuthorizationDecision(granted, this.authorities);
 	}
 
 	private boolean isGranted(Authentication authentication) {

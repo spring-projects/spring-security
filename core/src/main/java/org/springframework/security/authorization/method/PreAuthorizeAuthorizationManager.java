@@ -74,7 +74,7 @@ public final class PreAuthorizeAuthorizationManager implements AuthorizationMana
 		}
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(), mi);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
-		return new AuthorizationDecision(granted);
+		return new ExpressionAttributeAuthorizationDecision(granted, attribute);
 	}
 
 	private final class PreAuthorizeExpressionAttributeRegistry
