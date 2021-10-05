@@ -68,6 +68,7 @@ The way in which we use `AbstractSecurityWebApplicationInitializer` differs depe
 * <<abstractsecuritywebapplicationinitializer-without-existing-spring>> - Use these instructions if you are not using Spring already
 * <<abstractsecuritywebapplicationinitializer-with-spring-mvc>> - Use these instructions if you are already using Spring
 
+[[abstractsecuritywebapplicationinitializer-without-existing-spring]]
 === AbstractSecurityWebApplicationInitializer without Existing Spring
 
 If you are not using Spring or Spring MVC, you will need to pass in the `WebSecurityConfig` into the superclass to ensure the configuration is picked up.
@@ -91,6 +92,7 @@ The `SecurityWebApplicationInitializer` will do the following things:
 * Automatically register the springSecurityFilterChain Filter for every URL in your application
 * Add a ContextLoaderListener that loads the <<jc-hello-wsca,WebSecurityConfig>>.
 
+[[abstractsecuritywebapplicationinitializer-with-spring-mvc]]
 === AbstractSecurityWebApplicationInitializer with Spring MVC
 
 If we were using Spring elsewhere in our application we probably already had a `WebApplicationInitializer` that is loading our Spring Configuration.

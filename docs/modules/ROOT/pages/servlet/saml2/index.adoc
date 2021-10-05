@@ -16,7 +16,7 @@ https://www.oasis-open.org/committees/download.php/35389/sstc-saml-profiles-erra
 [[servlet-saml2login-spring-security-history]]
 Since 2009, support for relying parties has existed as an https://github.com/spring-projects/spring-security-saml/tree/1e013b07a7772defd6a26fcfae187c9bf661ee8f#spring-saml[extension project].
 In 2019, the process began to port that into https://github.com/spring-projects/spring-security[Spring Security] proper.
-This process is similar to the one started in 2017 for <<oauth2,Spring Security's OAuth 2.0 support>>.
+This process is similar to the one started in 2017 for xref:servlet/oauth2/index.adoc[Spring Security's OAuth 2.0 support].
 
 [NOTE]
 ====
