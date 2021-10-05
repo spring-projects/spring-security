@@ -37,6 +37,7 @@ public abstract class AbstractSpringJavaPlugin implements Plugin<Project> {
 	public final void apply(Project project) {
 		PluginManager pluginManager = project.getPluginManager();
 		pluginManager.apply(JavaPlugin.class);
+		pluginManager.apply(ManagementConfigurationPlugin.class)
 		if (project.file("src/main/groovy").exists()
 				|| project.file("src/test/groovy").exists()
 				|| project.file("src/integration-test/groovy").exists()) {

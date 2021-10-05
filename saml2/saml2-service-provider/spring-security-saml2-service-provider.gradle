@@ -41,7 +41,7 @@ compileOpensaml4MainJava {
 }
 
 dependencies {
-	api platform(project(":spring-security-dependencies"))
+	management platform(project(":spring-security-dependencies"))
 	api project(':spring-security-web')
 	api "org.opensaml:opensaml-core"
 	api "org.opensaml:opensaml-saml-api"

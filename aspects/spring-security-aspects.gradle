@@ -2,7 +2,7 @@ apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'io.freefair.aspectj'
 
 dependencies {
-	api platform(project(":spring-security-dependencies"))
+	management platform(project(":spring-security-dependencies"))
 	api "org.aspectj:aspectjrt"
 	api project(':spring-security-core')
 	api 'org.springframework:spring-beans'
