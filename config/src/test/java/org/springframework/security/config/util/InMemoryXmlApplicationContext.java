@@ -16,17 +16,41 @@
 
 package org.springframework.security.config.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.core.io.Resource;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.util.InMemoryResource;
 
 /**
  * @author Luke Taylor
  * @author Eddú Meléndez
+ * @author Emil Sierżęga
  */
 public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext {
+
+	private static String getCurrentXSDVersionFromSpringSchemas() {
+		Properties properties = new Properties();
+		try (InputStream is = SpringSecurityCoreVersion.class.getClassLoader()
+				.getResourceAsStream("META-INF/spring.schemas")) {
+			properties.load(is);
+		}
+		catch (IOException ex) {
+			throw new RuntimeException("Could not read 'META-INF/spring.schemas'", ex);
+		}
+
+		String inPackageLocation = properties
+				.getProperty("https://www.springframework.org/schema/security/spring-security.xsd");
+		String[] parts = inPackageLocation.split("-");
+		String currentXSD = parts[parts.length - 1];
+		String currentVersion = currentXSD.replace(".xsd", "");
+		return currentVersion;
+	}
 
 	static final String BEANS_OPENING = "<b:beans xmlns='http://www.springframework.org/schema/security'\n"
 			+ "    xmlns:context='http://www.springframework.org/schema/context'\n"
@@ -42,7 +66,7 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
 			+ "http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context-2.5.xsd\n"
 			+ "http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security-";
 	static final String BEANS_CLOSE = "</b:beans>\n";
-	static final String SPRING_SECURITY_VERSION = "5.4";
+	static final String SPRING_SECURITY_VERSION = getCurrentXSDVersionFromSpringSchemas();
 
 	Resource inMemoryXml;
 
