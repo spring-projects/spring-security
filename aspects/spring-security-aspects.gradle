@@ -1,6 +1,15 @@
 apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'io.freefair.aspectj'
 
+compileAspectj {
+	sourceCompatibility "1.8"
+	targetCompatibility "1.8"
+}
+compileTestAspectj {
+	sourceCompatibility "1.8"
+	targetCompatibility "1.8"
+}
+
 dependencies {
 	management platform(project(":spring-security-dependencies"))
 	api "org.aspectj:aspectjrt"
