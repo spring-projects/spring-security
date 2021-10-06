@@ -2,7 +2,7 @@ buildscript {
 	dependencies {
 		classpath "io.spring.javaformat:spring-javaformat-gradle-plugin:$springJavaformatVersion"
 		classpath 'io.spring.nohttp:nohttp-gradle:0.0.10'
-		classpath "io.freefair.gradle:aspectj-plugin:5.3.3.3"
+		classpath "io.freefair.gradle:aspectj-plugin:6.2.0"
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 		classpath "com.netflix.nebula:nebula-project-plugin:8.2.0"
 	}
