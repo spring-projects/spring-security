@@ -1,5 +1,5 @@
 # EditorConfig for Spring Security
-# see https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.md#mind-the-whitespace
+# see https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.adoc#mind-the-whitespace
 
 root = true
 
