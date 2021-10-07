@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class JavaVersionTests {
 
-	private static final int JDK8_CLASS_VERSION = 52;
+	private static final int JDK17_CLASS_VERSION = 61;
 
 	@Test
 	public void authenticationCorrectJdkCompatibility() throws Exception {
@@ -44,7 +44,7 @@ public class JavaVersionTests {
 			data.readInt();
 			data.readShort(); // minor
 			int major = data.readShort();
-			assertThat(major).isEqualTo(JDK8_CLASS_VERSION);
+			assertThat(major).isEqualTo(JDK17_CLASS_VERSION);
 		}
 	}
 
