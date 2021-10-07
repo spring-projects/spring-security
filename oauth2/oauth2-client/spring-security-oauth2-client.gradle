@@ -21,7 +21,6 @@ dependencies {
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation 'io.projectreactor.netty:reactor-netty'
 	testImplementation 'io.projectreactor:reactor-test'
-	testImplementation 'io.projectreactor.tools:blockhound'
 	testImplementation 'org.skyscreamer:jsonassert'
 	testImplementation 'io.r2dbc:r2dbc-h2:0.8.4.RELEASE'
 	testImplementation 'io.r2dbc:r2dbc-spi-test:0.8.6.RELEASE'

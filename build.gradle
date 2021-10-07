@@ -100,7 +100,7 @@ updateDependenciesSettings {
 
 subprojects {
 	plugins.withType(JavaPlugin) {
-		project.sourceCompatibility='1.8'
+		project.sourceCompatibility=JavaVersion.VERSION_17
 	}
 	tasks.withType(JavaCompile) {
 		options.encoding = "UTF-8"
