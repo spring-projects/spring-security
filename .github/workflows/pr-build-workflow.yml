@@ -16,7 +16,7 @@ jobs:
         if: env.RUN_JOBS == 'true'
         uses: actions/setup-java@v1
         with:
-          java-version: '11'
+          java-version: '17'
       - name: Cache Gradle packages
         if: env.RUN_JOBS == 'true'
         uses: actions/cache@v2
