@@ -16,7 +16,7 @@ env:
   STRUCTURE101_LICENSEID: ${{ secrets.STRUCTURE101_LICENSEID }}
   ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
   ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-  RUN_JOBS: ${{ github.repository == 'spring-projects/spring-security' }}
+  RUN_JOBS: true
 
 jobs:
   prerequisites:
