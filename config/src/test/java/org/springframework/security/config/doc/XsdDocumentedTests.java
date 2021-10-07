@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public class XsdDocumentedTests {
 
 	String schema31xDocumentLocation = "org/springframework/security/config/spring-security-3.1.xsd";
 
-	String schemaDocumentLocation = "org/springframework/security/config/spring-security-5.6.xsd";
+	String schemaDocumentLocation = "org/springframework/security/config/spring-security-6.0.xsd";
 
 	XmlSupport xml = new XmlSupport();
 
@@ -149,8 +149,8 @@ public class XsdDocumentedTests {
 				.getParentFile()
 				.list((dir, name) -> name.endsWith(".xsd"));
 		// @formatter:on
-		assertThat(schemas.length).isEqualTo(18)
-				.withFailMessage("the count is equal to 18, if not then schemaDocument needs updating");
+		assertThat(schemas.length).isEqualTo(19)
+				.withFailMessage("the count is equal to 19, if not then schemaDocument needs updating");
 	}
 
 	/**
