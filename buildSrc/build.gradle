@@ -5,8 +5,7 @@ plugins {
 	id 'com.apollographql.apollo' version '2.4.5'
 }
 
-
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
 	jcenter()

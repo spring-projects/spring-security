@@ -21,11 +21,13 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
+import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
 
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import sun.security.x509.X500Name;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -240,12 +242,8 @@ public class NamespaceHttpX509Tests {
 		}
 
 		private String extractCommonName(X509Certificate certificate) {
-			try {
-				return ((X500Name) certificate.getSubjectDN()).getCommonName();
-			}
-			catch (Exception ex) {
-				throw new IllegalArgumentException(ex);
-			}
+			X500Principal principal = certificate.getSubjectX500Principal();
+			return new X500Name(principal.getName()).getRDNs(BCStyle.CN)[0].getFirst().getValue().toString();
 		}
 
 	}

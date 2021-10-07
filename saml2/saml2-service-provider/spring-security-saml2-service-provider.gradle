@@ -36,8 +36,8 @@ configurations {
 }
 
 compileOpensaml4MainJava {
-	sourceCompatibility = '11'
-	targetCompatibility = '11'
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
 }
 
 dependencies {

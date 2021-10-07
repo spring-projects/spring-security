@@ -34,7 +34,7 @@ class JacocoPlugin implements Plugin<Project> {
 			project.tasks.check.dependsOn project.tasks.jacocoTestReport
 
 			project.jacoco {
-				toolVersion = '0.8.2'
+				toolVersion = '0.8.7'
 			}
 		}
 	}
