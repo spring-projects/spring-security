@@ -29,11 +29,9 @@ import javax.servlet.http.HttpServletResponse;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import reactor.blockhound.BlockHound;
 import reactor.util.context.Context;
 
 import org.springframework.http.HttpHeaders;
@@ -88,23 +86,6 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 	private MockHttpServletRequest request;
 
 	private MockHttpServletResponse response;
-
-	@BeforeAll
-	public static void setUpBlockingChecks() {
-		// IMPORTANT:
-		// Before enabling BlockHound, we need to white-list
-		// `java.lang.Class.getPackage()`.
-		// When the JVM loads `java.lang.Package.getSystemPackage()`, it attempts to
-		// `java.lang.Package.loadManifest()` which is blocking I/O and triggers
-		// BlockHound to error.
-		// NOTE: This is an issue with JDK 8. It's been tested on JDK 10 and works fine
-		// w/o this white-list.
-		// @formatter:off
-		BlockHound.builder()
-				.allowBlockingCallsInside(Class.class.getName(), "getPackage")
-				.install();
-		// @formatter:on
-	}
 
 	@BeforeEach
 	public void setUp() throws Exception {
