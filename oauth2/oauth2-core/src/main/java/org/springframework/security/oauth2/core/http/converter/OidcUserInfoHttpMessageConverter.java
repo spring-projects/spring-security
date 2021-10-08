@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -30,6 +31,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.util.Assert;
 
 /**
  * A {@link HttpMessageConverter} for an {@link OidcUserInfo} created from an UserInfo
@@ -51,6 +53,10 @@ public class OidcUserInfoHttpMessageConverter extends AbstractHttpMessageConvert
 	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
 			.getJsonMessageConverter();
 
+	private Converter<Map<String, Object>, OidcUserInfo> userInfoResponseConverter = this::createUserInfo;
+
+	private Converter<OidcUserInfo, Map<String, Object>> userInfoResponseParametersConverter = this::populateUserInfoResponseParameters;
+
 	public OidcUserInfoHttpMessageConverter() {
 		super(DEFAULT_CHARSET, MediaType.APPLICATION_JSON);
 	}
@@ -61,12 +67,13 @@ public class OidcUserInfoHttpMessageConverter extends AbstractHttpMessageConvert
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected OidcUserInfo readInternal(Class<? extends OidcUserInfo> clazz, HttpInputMessage inputMessage)
 			throws HttpMessageNotReadableException {
 		try {
 			Map<String, Object> claims = (Map<String, Object>) this.jsonMessageConverter
 					.read(PARAMETERIZED_RESPONSE_TYPE.getType(), null, inputMessage);
-			return new OidcUserInfo(claims);
+			return this.userInfoResponseConverter.convert(claims);
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotReadableException(
@@ -78,13 +85,48 @@ public class OidcUserInfoHttpMessageConverter extends AbstractHttpMessageConvert
 	protected void writeInternal(OidcUserInfo oidcUserInfo, HttpOutputMessage outputMessage)
 			throws HttpMessageNotWritableException {
 		try {
-			this.jsonMessageConverter.write(oidcUserInfo.getClaims(), PARAMETERIZED_RESPONSE_TYPE.getType(),
-					MediaType.APPLICATION_JSON, outputMessage);
+			Map<String, Object> claims = this.userInfoResponseParametersConverter.convert(oidcUserInfo);
+			this.jsonMessageConverter.write(claims, PARAMETERIZED_RESPONSE_TYPE.getType(), MediaType.APPLICATION_JSON,
+					outputMessage);
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotWritableException(
 					"An error occurred writing the Userinfo Response: " + ex.getMessage(), ex);
 		}
+	}
+
+	/**
+	 * Sets the {@link Converter} used for converting the User Info Response parameters to
+	 * an {@link OidcUserInfo}.
+	 * @param userInfoResponseConverter the {@link Converter} used for converting to an
+	 * {@link OidcUserInfo}
+	 * @since 5.6
+	 */
+	public final void setUserInfoResponseConverter(
+			Converter<Map<String, Object>, OidcUserInfo> userInfoResponseConverter) {
+		Assert.notNull(userInfoResponseConverter, "userInfoResponseConverter cannot be null");
+		this.userInfoResponseConverter = userInfoResponseConverter;
+	}
+
+	/**
+	 * Sets the {@link Converter} used for converting the {@link OidcUserInfo} to a
+	 * {@code Map} representation of the User Info Response parameters.
+	 * @param userInfoResponseParametersConverter the {@link Converter} used for
+	 * converting to a {@code Map} representation of the User Info Response parameters
+	 * @since 5.6
+	 */
+	public final void setUserInfoResponseParametersConverter(
+			Converter<OidcUserInfo, Map<String, Object>> userInfoResponseParametersConverter) {
+		Assert.notNull(userInfoResponseParametersConverter, "userInfoResponseParametersConverter cannot be null");
+		this.userInfoResponseParametersConverter = userInfoResponseParametersConverter;
+	}
+
+	private OidcUserInfo createUserInfo(Map<String, Object> claims) {
+		return new OidcUserInfo(claims);
+	}
+
+	private Map<String, Object> populateUserInfoResponseParameters(OidcUserInfo oidcUserInfo) {
+		return oidcUserInfo.getClaims();
 	}
 
 }

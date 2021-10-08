@@ -16,14 +16,23 @@
 
 package org.springframework.security.oauth2.core.http.converter;
 
-import org.junit.Before;
-import org.junit.Test;
+import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.http.client.MockClientHttpRequest;
 import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link OidcUserInfoHttpMessageConverter}.
@@ -34,9 +43,25 @@ public class OidcUserInfoHttpMessageConverterTest {
 
 	private OidcUserInfoHttpMessageConverter messageConverter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.messageConverter = new OidcUserInfoHttpMessageConverter();
+	}
+
+	@Test
+	public void setUserInfoResponseConverterWhenNullThenIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.messageConverter.setUserInfoResponseConverter(null))
+				.withMessage("userInfoResponseConverter cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void setUserInfoResponseParametersConverterWhenNullThenIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.messageConverter.setUserInfoResponseParametersConverter(null))
+				.withMessage("userInfoResponseParametersConverter cannot be null");
 	}
 
 	@Test
@@ -45,7 +70,7 @@ public class OidcUserInfoHttpMessageConverterTest {
 	}
 
 	@Test
-	public void readInternalWhenSuccessfulUserinfoResponseThenReadOidcUserInfo() {
+	public void readInternalWhenSuccessfulUserInfoResponseThenReadOidcUserInfo() {
 		// @formatter:off
 		String tokenResponse = "{\n"
 				+ "   \"sub\": \"248289761001\",\n"
@@ -69,7 +94,7 @@ public class OidcUserInfoHttpMessageConverterTest {
 	}
 
 	@Test
-	public void readInternalWhenSuccessfulUserinfoResponseWithNullValueThenReadOAuth2UserAuthority() {
+	public void readInternalWhenSuccessfulUserInfoResponseWithNullValueThenSuccess() {
 		// @formatter:off
 		String tokenResponse = "{\n"
 				+ "   \"sub\": \"248289761001\",\n"
@@ -90,6 +115,62 @@ public class OidcUserInfoHttpMessageConverterTest {
 		assertThat(oidcUserInfo.getClaims()).containsEntry("preferred_username", "j.doe");
 		assertThat(oidcUserInfo.getClaims()).containsEntry("email", "janedoe@example.com");
 		assertThat(oidcUserInfo.getClaims()).containsEntry("picture", "https://example.com/janedoe/me.jpg");
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void readInternalWhenUserInfoResponseConverterSetThenCalled() {
+		// @formatter:off
+		String tokenResponse = "{\n"
+				+ "   \"sub\": \"248289761001\"\n"
+				+ "}";
+		// @formatter:on
+		Converter<Map<String, Object>, OidcUserInfo> converter = mock(Converter.class);
+		this.messageConverter.setUserInfoResponseConverter(converter);
+		MockClientHttpResponse response = new MockClientHttpResponse(tokenResponse.getBytes(), HttpStatus.OK);
+		this.messageConverter.readInternal(OidcUserInfo.class, response);
+		verify(converter).convert(any());
+	}
+
+	@Test
+	public void writeInternalWhenOidcUserInfoThenWriteUserInfoResponse() {
+		// @formatter:off
+		OidcUserInfo userInfo = OidcUserInfo.builder()
+				.subject("248289761001")
+				.name("Jane Doe")
+				.givenName("Jane")
+				.familyName("Doe")
+				.preferredUsername("j.doe")
+				.email("janedoe@example.com")
+				.picture("https://example.com/janedoe/me.jpg")
+				.build();
+		// @formatter:on
+		MockClientHttpRequest request = new MockClientHttpRequest();
+		this.messageConverter.writeInternal(userInfo, request);
+		String body = request.getBodyAsString();
+		assertThat(body).contains("\"sub\":\"248289761001\"");
+		assertThat(body).contains("\"name\":\"Jane Doe\"");
+		assertThat(body).contains("\"given_name\":\"Jane\"");
+		assertThat(body).contains("\"family_name\":\"Doe\"");
+		assertThat(body).contains("\"preferred_username\":\"j.doe\"");
+		assertThat(body).contains("\"email\":\"janedoe@example.com\"");
+		assertThat(body).contains("\"picture\":\"https://example.com/janedoe/me.jpg\"");
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void writeInternalWhenUserInfoResponseParametersConverterSetThenCalled() {
+		// @formatter:off
+		OidcUserInfo userInfo = OidcUserInfo.builder()
+				.subject("248289761001")
+				.build();
+		// @formatter:on
+		Converter<OidcUserInfo, Map<String, Object>> converter = mock(Converter.class);
+		given(converter.convert(any())).willReturn(userInfo.getClaims());
+		this.messageConverter.setUserInfoResponseParametersConverter(converter);
+		MockClientHttpRequest request = new MockClientHttpRequest();
+		this.messageConverter.writeInternal(userInfo, request);
+		verify(converter).convert(any());
 	}
 
 }

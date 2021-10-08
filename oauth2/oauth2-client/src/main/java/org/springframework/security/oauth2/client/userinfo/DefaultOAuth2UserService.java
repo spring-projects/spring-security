@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client.userinfo;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -81,7 +82,6 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 	public DefaultOAuth2UserService() {
 		RestTemplate restTemplate = new RestTemplate(
 				Arrays.asList(new FormHttpMessageConverter(), new OidcUserInfoHttpMessageConverter()));
-		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 		this.restOperations = restTemplate;
 	}
