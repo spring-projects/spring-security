@@ -106,6 +106,33 @@ public class ClaimAccessorTests {
 	}
 
 	@Test
+	public void getClaimAsBooleanWhenBooleanTypeThenReturnBoolean() {
+		Boolean expectedClaimValue = Boolean.TRUE;
+		String claimName = "boolean";
+		this.claims.put(claimName, expectedClaimValue);
+		assertThat(this.claimAccessor.getClaimAsBoolean(claimName)).isEqualTo(expectedClaimValue);
+	}
+
+	@Test
+	public void getClaimAsBooleanWhenStringTypeThenReturnBoolean() {
+		Boolean expectedClaimValue = Boolean.TRUE;
+		String claimName = "boolean";
+		this.claims.put(claimName, expectedClaimValue.toString());
+		assertThat(this.claimAccessor.getClaimAsBoolean(claimName)).isEqualTo(expectedClaimValue);
+	}
+
+	// gh-10148
+	@Test
+	public void getClaimAsBooleanWhenNonBooleanTypeThenThrowIllegalArgumentException() {
+		String claimName = "boolean";
+		Map<Object, Object> claimValue = new HashMap<>();
+		this.claims.put(claimName, claimValue);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.claimAccessor.getClaimAsBoolean(claimName))
+				.withMessage("Unable to convert claim '" + claimName + "' of type '" + claimValue.getClass()
+						+ "' to Boolean.");
+	}
+
+	@Test
 	public void getClaimAsMapWhenNotExistingThenReturnNull() {
 		assertThat(this.claimAccessor.getClaimAsMap("map")).isNull();
 	}
