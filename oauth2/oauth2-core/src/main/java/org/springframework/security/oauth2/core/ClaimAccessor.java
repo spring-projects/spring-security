@@ -91,13 +91,23 @@ public interface ClaimAccessor {
 	}
 
 	/**
-	 * Returns the claim value as a {@code Boolean} or {@code null} if it does not exist.
+	 * Returns the claim value as a {@code Boolean} or {@code null} if the claim does not
+	 * exist.
 	 * @param claim the name of the claim
-	 * @return the claim value or {@code null} if it does not exist
+	 * @return the claim value or {@code null} if the claim does not exist
+	 * @throws IllegalArgumentException if the claim value cannot be converted to a
+	 * {@code Boolean}
+	 * @throws NullPointerException if the claim value is {@code null}
 	 */
 	default Boolean getClaimAsBoolean(String claim) {
-		return !hasClaim(claim) ? null
-				: ClaimConversionService.getSharedInstance().convert(getClaims().get(claim), Boolean.class);
+		if (!hasClaim(claim)) {
+			return null;
+		}
+		Object claimValue = getClaims().get(claim);
+		Boolean convertedValue = ClaimConversionService.getSharedInstance().convert(claimValue, Boolean.class);
+		Assert.notNull(convertedValue,
+				() -> "Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to Boolean.");
+		return convertedValue;
 	}
 
 	/**
