@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -204,10 +204,12 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 		/**
 		 * Sets the maximum acceptable clock skew, which is used when checking the access
-		 * token expiry. An access token is considered expired if it's before
-		 * {@code Instant.now(this.clock) - clockSkew}.
+		 * token expiry. An access token is considered expired if
+		 * {@code OAuth2Token#getExpiresAt() - clockSkew} is before the current time
+		 * {@code clock#instant()}.
 		 * @param clockSkew the maximum acceptable clock skew
 		 * @return the {@link PasswordGrantBuilder}
+		 * @see PasswordOAuth2AuthorizedClientProvider#setClockSkew(Duration)
 		 */
 		public PasswordGrantBuilder clockSkew(Duration clockSkew) {
 			this.clockSkew = clockSkew;
@@ -275,10 +277,12 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 		/**
 		 * Sets the maximum acceptable clock skew, which is used when checking the access
-		 * token expiry. An access token is considered expired if it's before
-		 * {@code Instant.now(this.clock) - clockSkew}.
+		 * token expiry. An access token is considered expired if
+		 * {@code OAuth2Token#getExpiresAt() - clockSkew} is before the current time
+		 * {@code clock#instant()}.
 		 * @param clockSkew the maximum acceptable clock skew
 		 * @return the {@link ClientCredentialsGrantBuilder}
+		 * @see ClientCredentialsOAuth2AuthorizedClientProvider#setClockSkew(Duration)
 		 */
 		public ClientCredentialsGrantBuilder clockSkew(Duration clockSkew) {
 			this.clockSkew = clockSkew;
@@ -365,10 +369,12 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 		/**
 		 * Sets the maximum acceptable clock skew, which is used when checking the access
-		 * token expiry. An access token is considered expired if it's before
-		 * {@code Instant.now(this.clock) - clockSkew}.
+		 * token expiry. An access token is considered expired if
+		 * {@code OAuth2Token#getExpiresAt() - clockSkew} is before the current time
+		 * {@code clock#instant()}.
 		 * @param clockSkew the maximum acceptable clock skew
 		 * @return the {@link RefreshTokenGrantBuilder}
+		 * @see RefreshTokenOAuth2AuthorizedClientProvider#setClockSkew(Duration)
 		 */
 		public RefreshTokenGrantBuilder clockSkew(Duration clockSkew) {
 			this.clockSkew = clockSkew;
