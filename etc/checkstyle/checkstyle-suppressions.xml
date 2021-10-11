@@ -10,6 +10,8 @@
 	<suppress files=".*" checks="JavadocVariable" />
 	<suppress files=".*" checks="NonEmptyAtclauseDescription" />
 	<suppress files=".*" checks="SpringJavadoc" />
+	<suppress files=".*" checks="AtclauseOrder" />
+	<suppress files=".*" checks="InnerTypeLast" />
 
 	<!-- Ignore third-party code -->
 	<suppress files="BCrypt\.java|BCryptTests\.java" checks=".*"/>
